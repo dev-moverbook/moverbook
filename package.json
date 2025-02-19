@@ -6,12 +6,15 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "build:prod": "npm run build && npx convex deploy --yes"
   },
   "dependencies": {
+    "@clerk/nextjs": "^6.12.0",
     "@radix-ui/react-slot": "^1.1.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "convex": "^1.19.2",
     "lucide-react": "^0.475.0",
     "next": "15.1.7",
     "react": "^19.0.0",
