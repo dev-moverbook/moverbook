@@ -1,8 +1,7 @@
 "use client";
 import { useEffect } from "react";
-import { useAuth, useClerk } from "@clerk/nextjs";
+import { useClerk } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-import { ClerkRoles } from "@/types/enums";
 
 const RedirectAfterSigninPage = () => {
   const { user, organization, loaded } = useClerk();
