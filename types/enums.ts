@@ -29,3 +29,11 @@ export enum ResponseStatus {
   SUCCESS = "success",
   ERROR = "error",
 }
+
+export enum ClerkRoles {
+  ADMIN = "org:admin",
+  APP_MODERATOR = "org:app_moderator",
+  MANAGER = "org:manager",
+  MOVER = "org:mover",
+  SALES_REP = "org:sales_rep",
+}

@@ -1,8 +1,6 @@
 import { httpRouter } from "convex/server";
-import { httpAction } from "../_generated/server";
-import { Webhook } from "svix";
-import { WebhookEvent } from "@clerk/clerk-sdk-node";
-import { internal } from "../_generated/api";
+import { httpAction } from "./_generated/server";
+import { internal } from "./_generated/api";
 import { UserRole } from "@/types/enums";
 
 const http = httpRouter();

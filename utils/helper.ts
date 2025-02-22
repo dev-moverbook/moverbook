@@ -13,7 +13,6 @@ export const generateSlug = (name: string): string => {
 
 export const getBaseUrl = (): string => {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL;
-
   if (appUrl) {
     return appUrl;
   }
