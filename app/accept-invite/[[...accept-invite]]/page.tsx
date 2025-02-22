@@ -1,7 +1,7 @@
 "use client";
-import { SignIn, SignUp } from "@clerk/nextjs";
+import { SignUp } from "@clerk/nextjs";
 
-export default function SignUpPage() {
+const AcceptInvitePage = () => {
   return (
     <div
       style={{ display: "flex", justifyContent: "center", marginTop: "100px" }}
@@ -9,4 +9,6 @@ export default function SignUpPage() {
       <SignUp />
     </div>
   );
-}
+};
+
+export default AcceptInvitePage;
