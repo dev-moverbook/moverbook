@@ -36,5 +36,5 @@ export interface UserSchema {
   imageUrl: string | null;
   name: string;
   role: UserRole;
-  status: UserStatus;
+  isActive: boolean;
 }

@@ -1,34 +1,38 @@
 "use client";
-import { useState } from "react";
-import { Button } from "@/app/components/ui/button";
-import { Input } from "@/app/components/ui/input";
+import { SignOutButton, SignedIn, SignedOut } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
-const InviteUserForm = () => {
-  const [email, setEmail] = useState("");
-
-  const handleInvite = () => {
-    if (!email) {
-      alert("Please enter an email.");
-      return;
-    }
-    console.log("Inviting:", email);
-    // Call API or backend action to send invite
-  };
+export default function AuthButtons() {
+  const router = useRouter();
 
   return (
-    <div className="p-4 border rounded-lg shadow-md max-w-sm mx-auto">
-      <h2 className="text-lg font-semibold mb-3">Invite User</h2>
-      <Input
-        type="email"
-        placeholder="Enter email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <Button className="mt-3 w-full" onClick={handleInvite}>
-        Send Invite
-      </Button>
+    <div>
+      {/* Show Sign Out button if the user is signed in */}
+      <SignedIn>
+        <SignOutButton>
+          <button className="bg-red-500 text-white px-4 py-2 rounded">
+            Sign Out
+          </button>
+        </SignOutButton>
+      </SignedIn>
+
+      {/* Show Sign In and Sign Up buttons if the user is signed out */}
+      <SignedOut>
+        <div className="flex gap-4">
+          <button
+            onClick={() => router.push("/sign-in")}
+            className="bg-blue-500 text-white px-4 py-2 rounded"
+          >
+            Sign In
+          </button>
+          <button
+            onClick={() => router.push("/sign-up")}
+            className="bg-green-500 text-white px-4 py-2 rounded"
+          >
+            Sign Up
+          </button>
+        </div>
+      </SignedOut>
     </div>
   );
-};
-
-export default InviteUserForm;
+}

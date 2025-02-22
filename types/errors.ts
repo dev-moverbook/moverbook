@@ -17,6 +17,7 @@ export enum ErrorMessages {
   CUSTOMER_DB_CREATE_ERROR = "Database error creating user",
   CUSTOMER_DB_UPDATE_ERROR = "Database error updating user",
   USER_DB_QUERY = "Database error querying user by email",
+  USER_DB_CREATE = "Database error creating user",
   USER_EXISTS = "User already exists",
   GENERIC = "An unexpected error occurred. Please try again later.",
   INVALID_EMAIL = "Please enter a valid email address.",

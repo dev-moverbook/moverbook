@@ -34,6 +34,6 @@ export default defineSchema({
     imageUrl: v.union(v.string(), v.null()),
     name: v.string(),
     role: UserRoleConvex,
-    status: UserStatusConvex,
+    isActive: v.boolean(),
   }).index("by_email", ["email"]),
 });
