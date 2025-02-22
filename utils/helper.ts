@@ -24,5 +24,5 @@ export const getBaseUrl = (): string => {
   }
 
   // Default to localhost for server-side development
-  return "http://localhost:3001";
+  return "https://www.moverbook.com";
 };
