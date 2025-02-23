@@ -1,5 +1,5 @@
 import { Id } from "@/convex/_generated/dataModel";
-import { SubscriptionStatus, UserRole, UserStatus } from "./enums";
+import { ClerkRoles, SubscriptionStatus, UserRole, UserStatus } from "./enums";
 
 export interface Company {
   _id: Id<"companies">;
@@ -8,10 +8,11 @@ export interface Company {
   clerkOrganizationId: string;
   companyEmail: string | null;
   companyPhone: string | null;
-  customerId?: Id<"customers"> | null;
+  customerId: Id<"customers">;
   imageUrl: string | null;
   isActive: boolean;
   name: string;
+  slug: string;
 }
 
 export interface CustomerSchema {
@@ -35,6 +36,6 @@ export interface UserSchema {
   hourlyRate?: number;
   imageUrl: string | null;
   name: string;
-  role: UserRole;
+  role: ClerkRoles;
   isActive: boolean;
 }

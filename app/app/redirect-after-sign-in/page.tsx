@@ -6,9 +6,10 @@ import { useRouter } from "next/navigation";
 const RedirectAfterSigninPage = () => {
   const { user, organization, loaded } = useClerk();
   const router = useRouter();
-
+  console.log("loaded", loaded);
+  console.log("org", organization);
   useEffect(() => {
-    if (!loaded) {
+    if (loaded) {
       if (!organization) {
         router.replace("/app/onboarding");
       } else {

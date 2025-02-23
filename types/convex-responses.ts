@@ -21,3 +21,17 @@ export interface CreateCustomerWithSubscriptionData {
   customerId: Id<"customers">;
   status: "Created" | "Reactivated";
 }
+
+export type CreateOrganizationResponse =
+  | CreateOrganizationSuccess
+  | ErrorResponse;
+
+export interface CreateOrganizationSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: CreateOrganizationData;
+}
+
+export interface CreateOrganizationData {
+  slug: string;
+  clerkOrganizationId: string;
+}

@@ -12,11 +12,12 @@ export default defineSchema({
     clerkOrganizationId: v.string(),
     companyEmail: v.union(v.string(), v.null()),
     companyPhone: v.union(v.string(), v.null()),
-    customerId: v.optional(v.id("customers")),
+    customerId: v.id("customers"),
     imageUrl: v.union(v.string(), v.null()),
     isActive: v.boolean(),
     name: v.string(),
-  }),
+    slug: v.string(),
+  }).index("by_slug", ["slug"]),
   customers: defineTable({
     email: v.string(),
     isActive: v.boolean(),
@@ -35,5 +36,7 @@ export default defineSchema({
     name: v.string(),
     role: UserRoleConvex,
     isActive: v.boolean(),
-  }).index("by_email", ["email"]),
+  })
+    .index("by_email", ["email"])
+    .index("by_clerkUserId", ["clerkUserId"]),
 });

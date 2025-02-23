@@ -1,7 +1,7 @@
 import { httpRouter } from "convex/server";
 import { httpAction } from "./_generated/server";
 import { internal } from "./_generated/api";
-import { UserRole } from "@/types/enums";
+import { ClerkRoles } from "@/types/enums";
 
 const http = httpRouter();
 
@@ -22,11 +22,18 @@ http.route({
       });
       switch (result.type) {
         case "user.created":
+          const customer = await ctx.runQuery(
+            internal.customers.viewCustomerByEmail,
+            {
+              email: result.data.email_addresses[0].email_address,
+            }
+          );
           await ctx.runMutation(internal.users.createUser, {
             clerkUserId: result.data.id,
             email: result.data.email_addresses[0].email_address,
             name: `${result.data.first_name} ${result.data.last_name}`,
-            role: UserRole.ADMIN,
+            role: ClerkRoles.ADMIN,
+            customerId: customer?._id,
           });
       }
 

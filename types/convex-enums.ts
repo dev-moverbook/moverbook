@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { SubscriptionStatus, UserRole, UserStatus } from "./enums";
+import { ClerkRoles, SubscriptionStatus, UserRole, UserStatus } from "./enums";
 
 export const SubscriptionStatusConvex = v.union(
   v.literal(SubscriptionStatus.ACTIVE),
@@ -8,11 +8,11 @@ export const SubscriptionStatusConvex = v.union(
 );
 
 export const UserRoleConvex = v.union(
-  v.literal(UserRole.ADMIN),
-  v.literal(UserRole.APP_MODERATOR),
-  v.literal(UserRole.MANAGER),
-  v.literal(UserRole.SALES_REP),
-  v.literal(UserRole.MOVER)
+  v.literal(ClerkRoles.ADMIN),
+  v.literal(ClerkRoles.APP_MODERATOR),
+  v.literal(ClerkRoles.MANAGER),
+  v.literal(ClerkRoles.MOVER),
+  v.literal(ClerkRoles.SALES_REP)
 );
 
 export const UserStatusConvex = v.union(
