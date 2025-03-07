@@ -31,7 +31,6 @@ interface UserFormState {
 
 const UserPage: React.FC = () => {
   const { userId } = useParams();
-  const router = useRouter();
   const id = userId as Id<"users">;
 
   const userResponse = useQuery(api.users.getUserById, { userId: id });

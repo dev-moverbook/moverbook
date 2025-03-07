@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/select";
 import { isValidHourlyRate } from "@/app/frontendUtils/helper";
 import { Label } from "@/components/ui/label";
-import { useSlugContext } from "@/app/contexts/SlugContext";
 
 interface InviteUserModalProps {
   isOpen: boolean;

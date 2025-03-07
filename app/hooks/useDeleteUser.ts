@@ -21,7 +21,7 @@ export const useDeleteUser = () => {
         console.error(result.error);
         setError(FrontEndErrorMessages.GENERIC);
       }
-    } catch (errr) {
+    } catch (error) {
       console.error(error);
       setError(FrontEndErrorMessages.GENERIC);
     } finally {

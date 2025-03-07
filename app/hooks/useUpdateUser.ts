@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { useAction, useMutation } from "convex/react";
+import { useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { ResponseStatus } from "@/types/enums";
 import { FrontEndErrorMessages } from "@/types/errors";
-import { ClerkRoles } from "@/types/enums"; // adjust import path as needed
+import { ClerkRoles } from "@/types/enums";
 
 interface UpdateUserData {
   name?: string;

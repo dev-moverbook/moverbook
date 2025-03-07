@@ -13,8 +13,7 @@ import { useRevokeInvite } from "@/app/hooks/useRevokeInvite";
 const InvitedUsers = () => {
   const { state } = useSlugContext();
   const slug = state.slug;
-  const { revokeInviteUser, revokeLoading, revokeError, setRevokeError } =
-    useRevokeInvite();
+  const { revokeInviteUser, revokeLoading, revokeError } = useRevokeInvite();
   const [selectedInvitationId, setSelectedInvitationId] =
     useState<Id<"invitations"> | null>(null);
 
