@@ -9,9 +9,7 @@ import { useInviteUser } from "@/app/hooks/useInviteUser";
 import { ClerkRoles } from "@/types/enums";
 import { useSlugContext } from "@/app/contexts/SlugContext";
 
-interface TeamContentProps {}
-
-const TeamContent: React.FC<TeamContentProps> = () => {
+const TeamContent: React.FC = () => {
   const { state: slugState } = useSlugContext();
   const slug = slugState.slug as string;
 
