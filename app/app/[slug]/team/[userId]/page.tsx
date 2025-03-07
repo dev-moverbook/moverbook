@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { ResponseStatus } from "@/types/enums";
@@ -26,7 +26,7 @@ interface UserFormState {
   name: string;
   email: string;
   hourlyRate: string;
-  role: ClerkRoles | ""; // Ensure role is typed properly
+  role: string;
 }
 
 const UserPage: React.FC = () => {
@@ -56,7 +56,7 @@ const UserPage: React.FC = () => {
     name: "",
     email: "",
     hourlyRate: "",
-    role: "", // Ensure it can handle an empty initial state
+    role: "",
   });
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
 
