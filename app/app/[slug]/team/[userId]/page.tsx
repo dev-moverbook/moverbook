@@ -22,12 +22,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-interface UserFormState {
+type UserFormState = {
   name: string;
   email: string;
   hourlyRate: string;
   role: string;
-}
+};
 
 const UserPage: React.FC = () => {
   const { userId } = useParams();
