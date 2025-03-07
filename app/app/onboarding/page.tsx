@@ -40,7 +40,7 @@ const OnboardingPage = () => {
           "Error from createOrganization response:",
           response.error
         );
-        setCreateCompanyError(ErrorMessages.GENERIC);
+        setCreateCompanyError(ErrorMessages.GENERIC_ERROR);
       } else {
         await setActive?.({ organization: response.data.clerkOrganizationId });
         const slug = response.data.slug;
@@ -48,7 +48,7 @@ const OnboardingPage = () => {
       }
     } catch (error) {
       console.error("error creating company", error);
-      setCreateCompanyError(ErrorMessages.GENERIC);
+      setCreateCompanyError(ErrorMessages.GENERIC_ERROR);
     } finally {
       setIsCreateCompanyLoading(false);
     }
