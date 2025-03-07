@@ -34,7 +34,7 @@ const SignUpPage = () => {
       }
     } catch (error) {
       console.error("error signing up subscriber", error);
-      setError(ErrorMessages.GENERIC);
+      setError(ErrorMessages.GENERIC_ERROR);
     } finally {
       setIsLoading(false);
     }
