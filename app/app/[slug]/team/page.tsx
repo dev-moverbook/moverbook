@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from "react";
 import InviteUserModal from "@/app/components/responsive/InviteUserModal";
 import { Button } from "@/app/components/ui/button";
