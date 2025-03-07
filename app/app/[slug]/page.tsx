@@ -1,7 +1,11 @@
+"use client";
 import React from "react";
+import { useSlugContext } from "@/app/contexts/SlugContext";
 
-const CompanyPage = () => {
-  return <div>Company Home Page</div>;
+const TeamPage = () => {
+  const { state } = useSlugContext();
+  console.log("Slug from context:", state.slug);
+  return <div>Team Page for company: {state.slug}</div>;
 };
 
-export default CompanyPage;
+export default TeamPage;

@@ -4,8 +4,9 @@ import { internal } from "./_generated/api";
 import { CreateCustomerWithSubscriptionResponse } from "@/types/convex-responses";
 import { ResponseStatus } from "@/types/enums";
 import { ErrorMessages } from "@/types/errors";
-import { sendClerkInvitation } from "@/utils/clerk";
+
 import { CustomerSchema } from "@/types/convex-schemas";
+import { sendClerkInvitation } from "./backendUtils/clerk";
 
 export const createCustomerWithSubscription = action({
   args: {
@@ -31,9 +32,12 @@ export const createCustomerWithSubscription = action({
         };
       }
 
-      const existingUser = await ctx.runQuery(internal.users.viewUserByEmail, {
-        email,
-      });
+      const existingUser = await ctx.runQuery(
+        internal.users.getUserByEmailInternal,
+        {
+          email,
+        }
+      );
 
       if (existingUser) {
         return {
@@ -82,7 +86,7 @@ export const createCustomerWithSubscription = action({
       return {
         status: ResponseStatus.ERROR,
         data: null,
-        error: ErrorMessages.GENERIC,
+        error: ErrorMessages.GENERIC_ERROR,
       };
     }
   },

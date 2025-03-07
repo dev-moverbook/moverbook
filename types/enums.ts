@@ -12,6 +12,12 @@ export enum UserRole {
   MOVER = "Mover",
 }
 
+export enum CreatableUserRole {
+  MANAGER = UserRole.MANAGER,
+  SALES_REP = UserRole.SALES_REP,
+  MOVER = UserRole.MOVER,
+}
+
 export enum OperationalUsers {
   MANAGER = "Manager",
   SALES_REP = "Sales Rep",
@@ -36,4 +42,19 @@ export enum ClerkRoles {
   MANAGER = "org:manager",
   MOVER = "org:mover",
   SALES_REP = "org:sales_rep",
+}
+
+export enum InvitationStatus {
+  PENDING = "Pending",
+  ACCEPTED = "Accepted",
+  REVOKED = "Revoked",
+}
+
+export enum StripeAccountStatus {
+  NOT_ONBOARDED = "Not Onboarded Yet", // User hasn't completed Stripe onboarding
+  PENDING = "Pending", // Account created but not yet verified
+  VERIFIED = "Verified", // Fully approved, can process payments
+  RESTRICTED = "Restricted", // Needs more verification (e.g., missing ID)
+  REJECTED = "Rejected", // Permanently rejected by Stripe
+  DISABLED = "Disabled", // Manually disabled (optional for admin actions)
 }

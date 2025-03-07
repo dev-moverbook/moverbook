@@ -1,7 +1,8 @@
 import { httpRouter } from "convex/server";
 import { httpAction } from "./_generated/server";
 import { internal } from "./_generated/api";
-import { ClerkRoles } from "@/types/enums";
+import { ClerkRoles, InvitationStatus, UserRole } from "@/types/enums";
+import { validateCompany } from "./backendUtils/validate";
 
 const http = httpRouter();
 
@@ -22,19 +23,71 @@ http.route({
       });
       switch (result.type) {
         case "user.created":
+          // const invitation = await ctx.runQuery(
+          //   internal.invitations.getAcceptedInvitationByEmail,
+          //   {
+          //     email: result.data.email_addresses[0].email_address,
+          //   }
+          // );
+
+          // if (invitation) {
+          //   const company = await ctx.runQuery(
+          //     internal.companies.getCompanyClerkOrgIdInternal,
+          //     { clerkOrgId: invitation.clerkOrganizationId }
+          //   );
+          //   const validatedCompany = validateCompany(company);
+          //   await ctx.runMutation(internal.users.createUser, {
+          //     clerkUserId: result.data.id,
+          //     email: result.data.email_addresses[0].email_address,
+          //     name: `${result.data.first_name} ${result.data.last_name}`,
+          //     role: invitation.role,
+          //     hourlyRate: invitation.hourlyRate,
+          //     imageUrl: result.data.image_url,
+          //     companyId: validatedCompany._id,
+          //   });
+          //   break;
+          // }
+
           const customer = await ctx.runQuery(
             internal.customers.viewCustomerByEmail,
             {
               email: result.data.email_addresses[0].email_address,
             }
           );
-          await ctx.runMutation(internal.users.createUser, {
-            clerkUserId: result.data.id,
-            email: result.data.email_addresses[0].email_address,
-            name: `${result.data.first_name} ${result.data.last_name}`,
-            role: ClerkRoles.ADMIN,
-            customerId: customer?._id,
+          if (!customer) {
+            await ctx.runMutation(internal.users.createUser, {
+              clerkUserId: result.data.id,
+              email: result.data.email_addresses[0].email_address,
+              name: `${result.data.first_name} ${result.data.last_name}`,
+              imageUrl: result.data.image_url,
+            });
+          } else {
+            await ctx.runMutation(internal.users.createUser, {
+              clerkUserId: result.data.id,
+              email: result.data.email_addresses[0].email_address,
+              name: `${result.data.first_name} ${result.data.last_name}`,
+              role: ClerkRoles.ADMIN,
+              customerId: customer._id,
+              imageUrl: result.data.image_url,
+            });
+          }
+          break;
+        case "organizationInvitation.accepted":
+          const invitation = await ctx.runMutation(
+            internal.invitations.updateInvitationByClerkId,
+            {
+              clerkInvitationId: result.data.id,
+              status: InvitationStatus.ACCEPTED,
+            }
+          );
+          await ctx.runMutation(internal.users.updateUserByEmailInternal, {
+            email: result.data.email_address,
+            role: result.data.role as ClerkRoles,
+            clerkOrganizationId: result.data.organization_id,
+            hourlyRate: invitation.hourlyRate || null,
           });
+
+          break;
       }
 
       return new Response("Webhook processed", { status: 200 });

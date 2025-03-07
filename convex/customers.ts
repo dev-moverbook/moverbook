@@ -1,7 +1,7 @@
 import { v } from "convex/values";
 import { internalMutation, internalQuery } from "./_generated/server";
 import { CustomerSchema } from "@/types/convex-schemas";
-import { ErrorMessage, ErrorMessages } from "@/types/errors";
+import { ErrorMessages } from "@/types/errors";
 import { Id } from "./_generated/dataModel";
 
 export const viewCustomerByEmail = internalQuery({
@@ -17,8 +17,8 @@ export const viewCustomerByEmail = internalQuery({
 
       return customer;
     } catch (error) {
-      console.error(ErrorMessage.Customer.Fetch);
-      throw new Error(ErrorMessage.Customer.Fetch);
+      console.error(ErrorMessages.CUSTOMER_DB_QUERY_BY_EMAIL_ERROR);
+      throw new Error(ErrorMessages.CUSTOMER_DB_QUERY_BY_EMAIL_ERROR);
     }
   },
 });
