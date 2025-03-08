@@ -11,15 +11,15 @@ import { Id } from "@/convex/_generated/dataModel";
 import { useRevokeInvite } from "@/app/hooks/useRevokeInvite";
 
 const InvitedUsers = () => {
-  const { state } = useSlugContext();
-  const slug = state.slug;
+  const { companyId } = useSlugContext();
+
   const { revokeInviteUser, revokeLoading, revokeError } = useRevokeInvite();
   const [selectedInvitationId, setSelectedInvitationId] =
     useState<Id<"invitations"> | null>(null);
 
   const invitationsResponse = useQuery(
-    api.invitations.getActiveInvitationsBySlug,
-    slug ? { slug } : "skip"
+    api.invitations.getActiveInvitationsByCompanyId,
+    companyId ? { companyId } : "skip"
   );
 
   const [revokeModalOpen, setRevokeModalOpen] = useState<boolean>(false);

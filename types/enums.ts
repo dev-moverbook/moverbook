@@ -58,3 +58,16 @@ export enum StripeAccountStatus {
   REJECTED = "Rejected", // Permanently rejected by Stripe
   DISABLED = "Disabled", // Manually disabled (optional for admin actions)
 }
+
+export enum CommunicationType {
+  EMAIL = "Email",
+  SMS = "Sms",
+}
+
+export enum PresSetScripts {
+  QUOTE_SENT = "Quote Sent",
+  INVOICE_SENT = "Invoice Sent",
+  PRE_MOVE_DOC_SENT = "Pre Move Doc Sent",
+  INTERNAL_REVIEW_SENT = "Internal Review Sent",
+  EXTERNAL_REVIEW_SENT = "External Review Sent",
+}

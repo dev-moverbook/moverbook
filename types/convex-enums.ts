@@ -1,7 +1,9 @@
 import { v } from "convex/values";
 import {
   ClerkRoles,
+  CommunicationType,
   InvitationStatus,
+  PresSetScripts,
   StripeAccountStatus,
   SubscriptionStatus,
   UserRole,
@@ -48,4 +50,17 @@ export const StripeAccountStatusConvex = v.union(
   v.literal(StripeAccountStatus.RESTRICTED),
   v.literal(StripeAccountStatus.REJECTED),
   v.literal(StripeAccountStatus.DISABLED)
+);
+
+export const CommunicationTypeConvex = v.union(
+  v.literal(CommunicationType.EMAIL),
+  v.literal(CommunicationType.SMS)
+);
+
+export const PresSetScriptsConvex = v.union(
+  v.literal(PresSetScripts.QUOTE_SENT),
+  v.literal(PresSetScripts.INVOICE_SENT),
+  v.literal(PresSetScripts.PRE_MOVE_DOC_SENT),
+  v.literal(PresSetScripts.INTERNAL_REVIEW_SENT),
+  v.literal(PresSetScripts.EXTERNAL_REVIEW_SENT)
 );

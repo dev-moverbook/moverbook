@@ -6,13 +6,12 @@ import React from "react";
 import UserCard from "./UserCard";
 
 const InactiveUsers = () => {
-  const { state } = useSlugContext();
-  const slug = state.slug;
+  const { companyId } = useSlugContext();
 
   // Run the query using the slug from the context.
   const usersResponse = useQuery(
-    api.users.getAllUsersBySlug,
-    slug ? { slug, isActive: false } : "skip"
+    api.users.getAllUsersByCompanyId,
+    companyId ? { companyId, isActive: false } : "skip"
   );
 
   if (!usersResponse) {
@@ -22,7 +21,6 @@ const InactiveUsers = () => {
   if (usersResponse.status === ResponseStatus.ERROR) {
     return <div>Error: {usersResponse.error}</div>;
   }
-  console.log("inactive users", usersResponse.data.users);
   return (
     <div>
       <h1 className="text-2xl font-bold mb-4">Inactive Users</h1>

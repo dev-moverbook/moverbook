@@ -1,12 +1,35 @@
 // convex/companies.ts
 
 import { ErrorMessages } from "@/types/errors";
-import { Id } from "./_generated/dataModel";
-import { internalMutation, internalQuery, query } from "./_generated/server";
+import {
+  action,
+  internalMutation,
+  internalQuery,
+  mutation,
+  query,
+} from "./_generated/server";
 import { v } from "convex/values";
-import { generateSlug } from "@/utils/helper";
-import { requireAuthenticatedUser } from "./backendUtils/auth";
+import { generateSlug, generateUniqueSlug } from "@/utils/helper";
 import { CompanySchema } from "@/types/convex-schemas";
+import {
+  isUserInOrg,
+  validateCompany,
+  validateCompanyContact,
+  validateCompliance,
+  validateWebIntegrations,
+} from "./backendUtils/validate";
+import { ClerkRoles, ResponseStatus } from "@/types/enums";
+import {
+  GetCompanyDetailsResponse,
+  GetCompanyIdBySlugResponse,
+  UpdateCompanyLogoResponse,
+  UpdateCompanyResponse,
+} from "@/types/convex-responses";
+import { createCompanyRecords, shouldExposeError } from "./backendUtils/helper";
+import { requireAuthenticatedUser } from "./backendUtils/auth";
+import { internal } from "./_generated/api";
+import { updateClerkOrgName } from "./backendUtils/clerk";
+import { Id } from "./_generated/dataModel";
 
 export const createCompany = internalMutation({
   args: {
@@ -37,36 +60,24 @@ export const createCompany = internalMutation({
         throw new Error(ErrorMessages.USER_NOT_CUSTOMER);
       }
 
-      const baseSlug = generateSlug(name);
-      let slug = baseSlug;
-      let suffix = 1;
-
-      while (true) {
-        const existing = await ctx.db
-          .query("companies")
-          .withIndex("by_slug", (q) => q.eq("slug", slug))
-          .first();
-
-        if (!existing) break; // Slug is unique
-
-        slug = `${baseSlug}-${suffix++}`; // Append suffix if not unique
-      }
+      const slug = await generateUniqueSlug(ctx, name);
 
       const companyId = await ctx.db.insert("companies", {
-        calendarEmail: null,
         clerkOrganizationId,
-        companyEmail: null,
-        companyPhone: null,
         customerId: user.customerId,
         imageUrl: null,
         isActive: true,
         name,
         slug,
+        timeZone: "UTC",
       });
 
-      await ctx.db.patch(user._id, {
-        companyId,
-      });
+      Promise.all([
+        ctx.db.patch(user._id, {
+          companyId,
+        }),
+        createCompanyRecords(ctx, companyId),
+      ]);
       return slug;
     } catch (error) {
       console.error(ErrorMessages.COMPANY_DB_CREATE_ERROR, error);
@@ -134,6 +145,213 @@ export const getCompanyBySlugInternal = internalQuery({
     } catch (error) {
       console.error(ErrorMessages.COMPANY_DB_QUERY_BY_SLUG, error);
       throw new Error(ErrorMessages.COMPANY_DB_QUERY_BY_SLUG);
+    }
+  },
+});
+
+export const getCompanyIdBySlug = query({
+  args: { slug: v.string() },
+  handler: async (ctx, args): Promise<GetCompanyIdBySlugResponse> => {
+    const { slug } = args;
+    try {
+      const company = await ctx.db
+        .query("companies")
+        .filter((q) => q.eq(q.field("slug"), slug))
+        .first();
+
+      const validatedCompany = validateCompany(company);
+
+      return {
+        status: ResponseStatus.SUCCESS,
+        data: { companyId: validatedCompany._id },
+      };
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
+      console.error(errorMessage, error);
+      return {
+        status: ResponseStatus.ERROR,
+        data: null,
+        error: errorMessage,
+      };
+    }
+  },
+});
+
+export const getCompanyDetails = query({
+  args: { companyId: v.id("companies") },
+  handler: async (ctx, args): Promise<GetCompanyDetailsResponse> => {
+    const { companyId } = args;
+
+    try {
+      const identity = await requireAuthenticatedUser(ctx, [
+        ClerkRoles.ADMIN,
+        ClerkRoles.APP_MODERATOR,
+        ClerkRoles.MANAGER,
+      ]);
+
+      const company = validateCompany(await ctx.db.get(companyId));
+
+      isUserInOrg(identity, company.clerkOrganizationId);
+
+      const compliance = validateCompliance(
+        await ctx.db
+          .query("compliance")
+          .filter((q) => q.eq(q.field("companyId"), company._id))
+          .first()
+      );
+
+      const webIntegrations = validateWebIntegrations(
+        await ctx.db
+          .query("webIntegrations")
+          .filter((q) => q.eq(q.field("companyId"), company._id))
+          .first()
+      );
+
+      const companyContact = validateCompanyContact(
+        await ctx.db
+          .query("companyContact")
+          .filter((q) => q.eq(q.field("companyId"), company._id))
+          .first()
+      );
+
+      return {
+        status: ResponseStatus.SUCCESS,
+        data: {
+          company,
+          compliance,
+          webIntegrations,
+          companyContact,
+        },
+      };
+    } catch (error) {
+      console.error(error);
+      return {
+        status: ResponseStatus.ERROR,
+        data: null,
+        error: ErrorMessages.GENERIC_ERROR,
+      };
+    }
+  },
+});
+
+export const updateCompany = action({
+  args: {
+    companyId: v.id("companies"),
+    updates: v.object({
+      name: v.optional(v.string()),
+      timeZone: v.optional(v.string()),
+    }),
+  },
+  handler: async (ctx, args): Promise<UpdateCompanyResponse> => {
+    const { companyId, updates } = args;
+
+    try {
+      const identity = await requireAuthenticatedUser(ctx, [
+        ClerkRoles.ADMIN,
+        ClerkRoles.APP_MODERATOR,
+        ClerkRoles.MANAGER,
+      ]);
+
+      const company = validateCompany(
+        await ctx.runQuery(internal.companies.getCompanyByIdInternal, {
+          companyId,
+        })
+      );
+
+      isUserInOrg(identity, company.clerkOrganizationId);
+
+      if (updates.name) {
+        await updateClerkOrgName(company.clerkOrganizationId, updates.name);
+      }
+
+      await ctx.runMutation(internal.companies.updateCompanyInternal, {
+        companyId,
+        updates,
+      });
+
+      return {
+        status: ResponseStatus.SUCCESS,
+        data: { companyId },
+      };
+    } catch (error) {
+      console.error("Error updating company:", error);
+      return {
+        status: ResponseStatus.ERROR,
+        data: null,
+        error: ErrorMessages.GENERIC_ERROR,
+      };
+    }
+  },
+});
+
+export const updateCompanyInternal = internalMutation({
+  args: {
+    companyId: v.id("companies"),
+    updates: v.object({
+      name: v.optional(v.string()),
+      timeZone: v.optional(v.string()),
+    }),
+  },
+  handler: async (ctx, args): Promise<Id<"companies">> => {
+    const { companyId, updates } = args;
+
+    try {
+      const updatedFields: { name?: string; timeZone?: string; slug?: string } =
+        {
+          ...updates,
+        };
+      if (updates.name) {
+        const slug = await generateUniqueSlug(ctx, updates.name);
+        updatedFields.slug = slug;
+      }
+      await ctx.db.patch(companyId, updatedFields);
+
+      return companyId;
+    } catch (error) {
+      console.error("Error updating company:", error);
+      throw new Error(ErrorMessages.COMPANY_DB_UPDATE);
+    }
+  },
+});
+
+export const updateCompanyLogo = mutation({
+  args: {
+    companyId: v.id("companies"),
+    imageUrl: v.string(),
+  },
+  handler: async (ctx, args): Promise<UpdateCompanyLogoResponse> => {
+    const { companyId, imageUrl } = args;
+
+    try {
+      const identity = await requireAuthenticatedUser(ctx, [
+        ClerkRoles.ADMIN,
+        ClerkRoles.APP_MODERATOR,
+        ClerkRoles.MANAGER,
+      ]);
+
+      const company = validateCompany(await ctx.db.get(companyId));
+
+      isUserInOrg(identity, company.clerkOrganizationId);
+
+      await ctx.db.patch(companyId, { imageUrl });
+
+      return {
+        status: ResponseStatus.SUCCESS,
+        data: { companyId },
+      };
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
+      console.error("Internal Error:", errorMessage, error);
+
+      return {
+        status: ResponseStatus.ERROR,
+        data: null,
+        error: shouldExposeError(errorMessage)
+          ? errorMessage
+          : ErrorMessages.GENERIC_ERROR,
+      };
     }
   },
 });

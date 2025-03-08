@@ -3,6 +3,7 @@ import { useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { ClerkRoles, ResponseStatus } from "@/types/enums";
 import { FrontEndErrorMessages } from "@/types/errors";
+import { Id } from "@/convex/_generated/dataModel";
 
 export const useInviteUser = () => {
   const [inviteLoading, setInviteLoading] = useState(false);
@@ -13,7 +14,7 @@ export const useInviteUser = () => {
   );
 
   const inviteUser = async (
-    slug: string,
+    companyId: Id<"companies">,
     email: string,
     role: ClerkRoles,
     hourlyRate: string | null
@@ -27,7 +28,7 @@ export const useInviteUser = () => {
 
     try {
       const response = await clerkInviteUserToOrganization({
-        slug,
+        companyId,
         email,
         role: role as
           | ClerkRoles.MANAGER
@@ -50,5 +51,5 @@ export const useInviteUser = () => {
     }
   };
 
-  return { inviteUser, inviteLoading, inviteError };
+  return { inviteUser, inviteLoading, inviteError, setInviteError };
 };

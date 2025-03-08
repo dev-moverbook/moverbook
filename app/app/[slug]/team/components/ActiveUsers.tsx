@@ -8,16 +8,15 @@ import { useSlugContext } from "@/app/contexts/SlugContext";
 import UserCard from "./UserCard";
 
 const ActiveUsers = () => {
-  const { state } = useSlugContext();
-  const slug = state.slug;
+  const { companyId } = useSlugContext();
 
   // Run the query only if slug is defined.
   const usersResponse = useQuery(
-    api.users.getAllUsersBySlug,
-    slug ? { slug, isActive: true } : "skip"
+    api.users.getAllUsersByCompanyId,
+    companyId ? { companyId, isActive: true } : "skip"
   );
 
-  if (!slug) {
+  if (!companyId) {
     return <div>Loading slug...</div>;
   }
 

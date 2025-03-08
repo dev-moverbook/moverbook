@@ -17,7 +17,7 @@ import {
   validateInvitation,
 } from "./backendUtils/validate";
 import {
-  GetActiveInvitationsBySlugResponse,
+  GetActiveInvitationsByCompanyIdResponse,
   RevokeInviteUserResponse,
 } from "@/types/convex-responses";
 import { internal } from "./_generated/api";
@@ -101,10 +101,13 @@ export const updateInvitationByClerkId = internalMutation({
   },
 });
 
-export const getActiveInvitationsBySlug = query({
-  args: { slug: v.string() },
-  handler: async (ctx, args): Promise<GetActiveInvitationsBySlugResponse> => {
-    const { slug } = args;
+export const getActiveInvitationsByCompanyId = query({
+  args: { companyId: v.id("companies") },
+  handler: async (
+    ctx,
+    args
+  ): Promise<GetActiveInvitationsByCompanyIdResponse> => {
+    const { companyId } = args;
 
     try {
       const identity = await requireAuthenticatedUser(ctx, [
@@ -112,10 +115,7 @@ export const getActiveInvitationsBySlug = query({
         ClerkRoles.APP_MODERATOR,
         ClerkRoles.MANAGER,
       ]);
-      const company = await ctx.db
-        .query("companies")
-        .filter((q) => q.eq(q.field("slug"), slug))
-        .first();
+      const company = await ctx.db.get(companyId);
 
       const validatedCompany = validateCompany(company);
 

@@ -8,24 +8,29 @@ import InactiveUsers from "./components/InactiveUsers";
 import { useInviteUser } from "@/app/hooks/useInviteUser";
 import { ClerkRoles } from "@/types/enums";
 import { useSlugContext } from "@/app/contexts/SlugContext";
+import { FrontEndErrorMessages } from "@/types/errors";
 
 const TeamContent: React.FC = () => {
-  const { state: slugState } = useSlugContext();
-  const slug = slugState.slug as string;
+  const { companyId } = useSlugContext();
 
   const [isInviteModalOpen, setIsInviteModalOpen] = useState<boolean>(false);
   const [currentTab, setCurrentTab] = useState<
     "active" | "invited" | "inactive"
   >("active");
 
-  const { inviteUser, inviteLoading, inviteError } = useInviteUser();
+  const { inviteUser, inviteLoading, inviteError, setInviteError } =
+    useInviteUser();
 
   const handleInviteUser = async (
     email: string,
     role: ClerkRoles,
     hourlyRate: string | null
   ): Promise<boolean> => {
-    return await inviteUser(slug, email, role, hourlyRate);
+    if (!companyId) {
+      setInviteError(FrontEndErrorMessages.GENERIC);
+      return false;
+    }
+    return await inviteUser(companyId, email, role, hourlyRate);
   };
 
   //invite state

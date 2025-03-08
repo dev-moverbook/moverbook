@@ -23,7 +23,7 @@ import {
 } from "./backendUtils/validate";
 import { internal } from "./_generated/api";
 import {
-  GetAllUsersBySlugResponse,
+  GetAllUsersByCompanyIdResponse,
   GetUserByIdResponse,
 } from "@/types/convex-responses";
 import {
@@ -50,20 +50,17 @@ export const getUserByEmailInternal = internalQuery({
   },
 });
 
-export const getAllUsersBySlug = query({
+export const getAllUsersByCompanyId = query({
   args: {
-    slug: v.string(),
+    companyId: v.id("companies"),
     isActive: v.boolean(),
   },
-  handler: async (ctx, args): Promise<GetAllUsersBySlugResponse> => {
-    const { slug, isActive } = args;
+  handler: async (ctx, args): Promise<GetAllUsersByCompanyIdResponse> => {
+    const { companyId, isActive } = args;
     try {
       const identity = await requireAuthenticatedUser(ctx);
 
-      const company = await ctx.db
-        .query("companies")
-        .filter((q) => q.eq(q.field("slug"), slug))
-        .first();
+      const company = await ctx.db.get(companyId);
 
       const validatedCompany = validateCompany(company);
 

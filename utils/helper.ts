@@ -1,3 +1,5 @@
+import { MutationCtx } from "@/convex/_generated/server";
+
 export const isValidEmail = (email: string) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
@@ -24,4 +26,26 @@ export const getBaseUrl = (): string => {
 
   // Default to localhost for server-side development
   return "https://www.moverbook.com";
+};
+
+export const generateUniqueSlug = async (
+  ctx: MutationCtx,
+  name: string
+): Promise<string> => {
+  const baseSlug = generateSlug(name);
+  let slug = baseSlug;
+  let suffix = 1;
+
+  while (true) {
+    const existing = await ctx.db
+      .query("companies")
+      .withIndex("by_slug", (q) => q.eq("slug", slug))
+      .first();
+
+    if (!existing) break;
+
+    slug = `${baseSlug}-${suffix++}`;
+  }
+
+  return slug;
 };

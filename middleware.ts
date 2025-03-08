@@ -3,8 +3,14 @@ import { ConvexHttpClient } from "convex/browser";
 import { NextResponse } from "next/server";
 import { api } from "./convex/_generated/api";
 import { ErrorMessages } from "./types/errors";
+import { ClerkRequest } from "@clerk/backend/internal";
+import { ClerkRoles } from "./types/enums";
 
 const isProtectedRoute = createRouteMatcher(["/app(.*)"]);
+const isProtectedManagerRoute = createRouteMatcher([
+  "/app/:slug/company-settings",
+]);
+const isProtectedAdminRoute = createRouteMatcher(["/app/:slug/stripe"]);
 
 export default clerkMiddleware(async (auth, req) => {
   const url = req.nextUrl;
@@ -43,6 +49,23 @@ export default clerkMiddleware(async (auth, req) => {
   }
   if (isProtectedRoute(req)) {
     await auth.protect();
+  }
+  if (isProtectedManagerRoute(req)) {
+    await auth.protect((has) => {
+      return (
+        has({ role: ClerkRoles.ADMIN }) ||
+        has(
+          { role: ClerkRoles.MANAGER } ||
+            has({ role: ClerkRoles.APP_MODERATOR })
+        )
+      );
+    });
+  }
+
+  if (isProtectedAdminRoute(req)) {
+    await auth.protect((has) => {
+      return has({ role: ClerkRoles.ADMIN });
+    });
   }
 });
 

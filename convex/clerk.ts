@@ -65,7 +65,7 @@ export const createOrganization = action({
 
 export const clerkInviteUserToOrganization = action({
   args: {
-    slug: v.string(),
+    companyId: v.id("companies"),
     email: v.string(),
     role: CreatableUserRoleConvex,
     hourlyRate: v.union(v.number(), v.null()),
@@ -74,7 +74,7 @@ export const clerkInviteUserToOrganization = action({
     ctx,
     args
   ): Promise<ClerkInviteUserToOrganizationResponse> => {
-    const { slug, email, role, hourlyRate } = args;
+    const { companyId, email, role, hourlyRate } = args;
 
     try {
       const identity = await requireAuthenticatedUser(ctx, [
@@ -95,8 +95,8 @@ export const clerkInviteUserToOrganization = action({
       }
 
       const company = await ctx.runQuery(
-        internal.companies.getCompanyBySlugInternal,
-        { slug }
+        internal.companies.getCompanyByIdInternal,
+        { companyId }
       );
       const validatedCompany = validateCompany(company);
       isUserInOrg(identity, validatedCompany.clerkOrganizationId);

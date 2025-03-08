@@ -1,45 +1,37 @@
 "use client";
 
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { ErrorMessages } from "@/types/errors";
-import {
-  createContext,
-  useContext,
-  useReducer,
-  ReactNode,
-  Dispatch,
-} from "react";
+import { Id } from "@/convex/_generated/dataModel";
 
-const SET_SLUG = "SET_SLUG";
-
-interface SlugState {
+interface SlugContextType {
   slug: string | null;
+  setSlug: (slug: string) => void;
+  companyId: Id<"companies"> | null;
 }
 
-type SlugAction = { type: typeof SET_SLUG; payload: string };
+const SlugContext = createContext<SlugContextType | undefined>(undefined);
 
-const slugReducer = (state: SlugState, action: SlugAction): SlugState => {
-  switch (action.type) {
-    case SET_SLUG:
-      return { ...state, slug: action.payload };
+export const SlugProvider = ({ children }: { children: React.ReactNode }) => {
+  const [slug, setSlug] = useState<string | null>(null);
+  const [companyId, setCompanyId] = useState<Id<"companies"> | null>(null);
 
-    default:
-      return state;
-  }
-};
+  // Fetch companyId when slug changes
+  const companyIdQuery = useQuery(
+    api.companies.getCompanyIdBySlug,
+    slug ? { slug } : "skip"
+  );
 
-const initialState: SlugState = {
-  slug: null,
-};
-
-const SlugContext = createContext<
-  { state: SlugState; dispatch: Dispatch<SlugAction> } | undefined
->(undefined);
-
-export const SlugProvider = ({ children }: { children: ReactNode }) => {
-  const [state, dispatch] = useReducer(slugReducer, initialState);
+  useEffect(() => {
+    if (companyIdQuery && companyIdQuery.status === "success") {
+      setCompanyId(companyIdQuery.data.companyId);
+    }
+  }, [companyIdQuery]);
 
   return (
-    <SlugContext.Provider value={{ state, dispatch }}>
+    <SlugContext.Provider value={{ slug, setSlug, companyId }}>
       {children}
     </SlugContext.Provider>
   );
@@ -52,5 +44,3 @@ export const useSlugContext = () => {
   }
   return context;
 };
-
-export { SET_SLUG };

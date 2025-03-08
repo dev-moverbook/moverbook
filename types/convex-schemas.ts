@@ -1,7 +1,9 @@
 import { Id } from "@/convex/_generated/dataModel";
 import {
   ClerkRoles,
+  CommunicationType,
   InvitationStatus,
+  PresSetScripts,
   SubscriptionStatus,
   UserRole,
   UserStatus,
@@ -10,15 +12,13 @@ import {
 export interface CompanySchema {
   _id: Id<"companies">;
   _creationTime: number;
-  calendarEmail: string | null;
   clerkOrganizationId: string;
-  companyEmail: string | null;
-  companyPhone: string | null;
   customerId: Id<"customers">;
   imageUrl: string | null;
   isActive: boolean;
   name: string;
   slug: string;
+  timeZone: string;
 }
 
 export interface CustomerSchema {
@@ -55,4 +55,56 @@ export interface InvitationSchema {
   role: ClerkRoles;
   email: string;
   hourlyRate?: number | null;
+}
+
+export interface ReferralSchema {
+  _id: Id<"referrals">;
+  _creationTime: number;
+  name: string;
+  companyId: Id<"companies">;
+  isActive: boolean;
+}
+
+export interface VariableSchema {
+  _id: Id<"variables">;
+  _creationTime: number;
+  companyId: Id<"companies">;
+  name: string;
+  defaultValue: string;
+}
+
+export interface ScriptSchema {
+  _id: Id<"scripts">;
+  _creationTime: number;
+  companyId: Id<"companies">;
+  title: string;
+  type: CommunicationType;
+  message: string;
+  preSetTypes?: PresSetScripts;
+  isActive: boolean;
+  emailTitle?: string;
+}
+
+export interface ComplianceSchema {
+  _id: Id<"compliance">;
+  companyId: Id<"companies">;
+  statePucPermitNumber: string;
+  dmvNumber: string;
+  usDotNumber: string;
+}
+
+export interface WebIntegrationsSchema {
+  _id: Id<"webIntegrations">;
+  companyId: Id<"companies">;
+  webform: string;
+  webformEmbeddedCode: string;
+}
+
+export interface CompanyContactSchema {
+  _id: Id<"companyContact">;
+  companyId: Id<"companies">;
+  email: string;
+  phoneNumber: string;
+  address: string;
+  website: string;
 }

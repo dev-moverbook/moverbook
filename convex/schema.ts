@@ -1,5 +1,7 @@
 import {
+  CommunicationTypeConvex,
   InvitationStatusConvex,
+  PresSetScriptsConvex,
   StripeAccountStatusConvex,
   SubscriptionStatusConvex,
   UserRoleConvex,
@@ -9,15 +11,13 @@ import { v } from "convex/values";
 
 export default defineSchema({
   companies: defineTable({
-    calendarEmail: v.union(v.string(), v.null()),
     clerkOrganizationId: v.string(),
-    companyEmail: v.union(v.string(), v.null()),
-    companyPhone: v.union(v.string(), v.null()),
     customerId: v.id("customers"),
     imageUrl: v.union(v.string(), v.null()),
     isActive: v.boolean(),
     name: v.string(),
     slug: v.string(),
+    timeZone: v.string(),
   }).index("by_slug", ["slug"]),
   customers: defineTable({
     email: v.string(),
@@ -61,4 +61,41 @@ export default defineSchema({
     lastStripeUpdate: v.optional(v.number()),
     stripeAccountId: v.string(),
   }).index("by_customerId", ["customerId"]),
+  referrals: defineTable({
+    companyId: v.id("companies"),
+    name: v.string(),
+    isActive: v.boolean(),
+  }),
+  variables: defineTable({
+    companyId: v.id("companies"),
+    name: v.string(),
+    defaultValue: v.string(),
+  }),
+  scripts: defineTable({
+    companyId: v.id("companies"),
+    title: v.string(),
+    type: CommunicationTypeConvex,
+    message: v.string(),
+    preSetTypes: v.optional(PresSetScriptsConvex),
+    isActive: v.boolean(),
+    emailTitle: v.optional(v.string()),
+  }),
+  compliance: defineTable({
+    companyId: v.id("companies"),
+    statePucPermitNumber: v.string(),
+    dmvNumber: v.string(),
+    usDotNumber: v.string(),
+  }),
+  webIntegrations: defineTable({
+    companyId: v.id("companies"),
+    webform: v.string(),
+    webformEmbeddedCode: v.string(),
+  }),
+  companyContact: defineTable({
+    companyId: v.id("companies"),
+    email: v.string(),
+    phoneNumber: v.string(),
+    address: v.string(),
+    website: v.string(),
+  }),
 });
