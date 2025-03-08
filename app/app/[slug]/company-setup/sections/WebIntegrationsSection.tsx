@@ -3,9 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
 import { WebIntegrationsSchema } from "@/types/convex-schemas";
-import { FrontEndErrorMessages } from "@/types/errors";
 import { Label } from "@/components/ui/label";
 import { WebIntegrationsFormData } from "@/types/form-types";
 import { Id } from "@/convex/_generated/dataModel";

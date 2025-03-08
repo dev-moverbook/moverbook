@@ -1,6 +1,5 @@
 import VariableCard from "../components/VariableCard";
 import { Button } from "@/app/components/ui/button";
-import { Id } from "@/convex/_generated/dataModel";
 import { VariableSchema } from "@/types/convex-schemas";
 
 interface VariablesSectionProps {
