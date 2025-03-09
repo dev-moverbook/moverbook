@@ -54,10 +54,8 @@ export default clerkMiddleware(async (auth, req) => {
     await auth.protect((has) => {
       return (
         has({ role: ClerkRoles.ADMIN }) ||
-        has(
-          { role: ClerkRoles.MANAGER } ||
-            has({ role: ClerkRoles.APP_MODERATOR })
-        )
+        has({ role: ClerkRoles.MANAGER }) ||
+        has({ role: ClerkRoles.APP_MODERATOR })
       );
     });
   }
