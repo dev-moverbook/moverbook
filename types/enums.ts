@@ -71,3 +71,23 @@ export enum PresSetScripts {
   INTERNAL_REVIEW_SENT = "Internal Review Sent",
   EXTERNAL_REVIEW_SENT = "External Review Sent",
 }
+
+export enum TravelChargingTypes {
+  LABOR_HOURS = "Labor Hours",
+  MILEAGE = "Mileage",
+  FLAT = "Flat",
+}
+
+export enum CategorySize {
+  SMALL = "SMALL",
+  MEDIUM = "MEDIUM",
+  LARGE = "LARGE",
+  XL = "XL",
+}
+
+export const CategorySizeLabels: Record<CategorySize, string> = {
+  [CategorySize.SMALL]: "Small - Nightstand",
+  [CategorySize.MEDIUM]: "Medium - Recliner",
+  [CategorySize.LARGE]: "Large - Couch",
+  [CategorySize.XL]: "XL - Sectional",
+};

@@ -3,7 +3,6 @@ import { ConvexHttpClient } from "convex/browser";
 import { NextResponse } from "next/server";
 import { api } from "./convex/_generated/api";
 import { ErrorMessages } from "./types/errors";
-import { ClerkRequest } from "@clerk/backend/internal";
 import { ClerkRoles } from "./types/enums";
 
 const isProtectedRoute = createRouteMatcher(["/app(.*)"]);

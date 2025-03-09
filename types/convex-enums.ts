@@ -1,12 +1,13 @@
 import { v } from "convex/values";
 import {
+  CategorySize,
   ClerkRoles,
   CommunicationType,
   InvitationStatus,
   PresSetScripts,
   StripeAccountStatus,
   SubscriptionStatus,
-  UserRole,
+  TravelChargingTypes,
   UserStatus,
 } from "./enums";
 
@@ -64,3 +65,17 @@ export const PresSetScriptsConvex = v.union(
   v.literal(PresSetScripts.INTERNAL_REVIEW_SENT),
   v.literal(PresSetScripts.EXTERNAL_REVIEW_SENT)
 );
+
+export const TravelChargingTypesConvex = v.union(
+  v.literal(TravelChargingTypes.LABOR_HOURS),
+  v.literal(TravelChargingTypes.MILEAGE),
+  v.literal(TravelChargingTypes.FLAT)
+);
+
+export const CategorySizeConvex = v.union(
+  v.literal(CategorySize.SMALL),
+  v.literal(CategorySize.MEDIUM),
+  v.literal(CategorySize.LARGE),
+  v.literal(CategorySize.XL)
+);
+export { CategorySize };

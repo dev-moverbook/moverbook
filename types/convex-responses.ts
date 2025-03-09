@@ -2,12 +2,22 @@ import { Id } from "@/convex/_generated/dataModel";
 import { ResponseStatus } from "./enums";
 import { ErrorMessages } from "./errors";
 import {
+  ArrivalWindowSchema,
+  CategorySchema,
   CompanyContactSchema,
   CompanySchema,
   ComplianceSchema,
+  CreditCardFeeSchema,
+  FeeSchema,
+  InsurancePolicySchema,
   InvitationSchema,
+  ItemSchema,
+  LaborSchema,
+  PolicySchema,
   ReferralSchema,
+  RoomSchema,
   ScriptSchema,
+  TravelFeeSchema,
   UserSchema,
   VariableSchema,
   WebIntegrationsSchema,
@@ -339,4 +349,243 @@ export interface UpdateCompanyLogoSuccess {
 
 export interface UpdateCompanyLogoData {
   companyId: Id<"companies">;
+}
+
+export type GetCompanyArrivalAndPoliciesResponse =
+  | GetCompanyArrivalAndPoliciesSuccess
+  | ErrorResponse;
+
+export interface GetCompanyArrivalAndPoliciesSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetCompanyArrivalAndPoliciesData;
+}
+
+export interface GetCompanyArrivalAndPoliciesData {
+  arrivalWindow: ArrivalWindowSchema;
+  policy: PolicySchema;
+}
+
+export type UpdateArrivalWindowResponse =
+  | UpdateArrivalWindowSuccess
+  | ErrorResponse;
+
+export interface UpdateArrivalWindowSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: UpdateArrivalWindowData;
+}
+
+export interface UpdateArrivalWindowData {
+  arrivalWindowId: Id<"arrivalWindow">;
+}
+
+export type UpdatePolicyResponse = UpdatePolicySuccess | ErrorResponse;
+
+export interface UpdatePolicySuccess {
+  status: ResponseStatus.SUCCESS;
+  data: UpdatePolicyData;
+}
+
+export interface UpdatePolicyData {
+  policyId: Id<"policies">;
+}
+
+export type CreateLaborResponse = CreateLaborSuccess | ErrorResponse;
+
+export interface CreateLaborSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: CreateLaborData;
+}
+
+export interface CreateLaborData {
+  laborId: Id<"labor">;
+}
+
+export type UpdateLaborResponse = UpdateLaborSuccess | ErrorResponse;
+
+export interface UpdateLaborSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: UpdateLaborData;
+}
+
+export interface UpdateLaborData {
+  laborId: Id<"labor">;
+}
+
+export type CreateInsurancePolicyResponse =
+  | CreateInsurancePolicySuccess
+  | ErrorResponse;
+
+export interface CreateInsurancePolicySuccess {
+  status: ResponseStatus.SUCCESS;
+  data: CreateInsurancePolicyData;
+}
+
+export interface CreateInsurancePolicyData {
+  insurancePolicyId: Id<"insurancePolicies">;
+}
+
+export type UpdateInsurancePolicyResponse =
+  | UpdateInsurancePolicySuccess
+  | ErrorResponse;
+
+export interface UpdateInsurancePolicySuccess {
+  status: ResponseStatus.SUCCESS;
+  data: UpdateInsurancePolicyData;
+}
+
+export interface UpdateInsurancePolicyData {
+  insurancePolicyId: Id<"insurancePolicies">;
+}
+
+export type UpdateCreditCardFeeResponse =
+  | UpdateCreditCardFeeSuccess
+  | ErrorResponse;
+
+export interface UpdateCreditCardFeeSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: UpdateCreditCardFeeData;
+}
+
+export interface UpdateCreditCardFeeData {
+  creditCardFeeId: Id<"creditCardFees">;
+}
+
+export type CreateFeeResponse = CreateFeeSuccess | ErrorResponse;
+
+export interface CreateFeeSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: CreateFeeData;
+}
+
+export interface CreateFeeData {
+  feeId: Id<"fees">;
+}
+
+export type UpdateFeeResponse = UpdateFeeSuccess | ErrorResponse;
+
+export interface UpdateFeeSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: UpdateFeeData;
+}
+
+export interface UpdateFeeData {
+  feeId: Id<"fees">;
+}
+
+export type UpdateTravelFeeResponse = UpdateTravelFeeSuccess | ErrorResponse;
+
+export interface UpdateTravelFeeSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: UpdateTravelFeeData;
+}
+
+export interface UpdateTravelFeeData {
+  travelFeeId: Id<"travelFee">;
+}
+
+export type GetActiveRoomsResponse = GetActiveRoomsSuccess | ErrorResponse;
+
+export interface GetActiveRoomsSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetActiveRoomsData;
+}
+
+export interface GetActiveRoomsData {
+  rooms: RoomSchema[];
+}
+
+export type CreateRoomResponse = CreateRoomSuccess | ErrorResponse;
+
+export interface CreateRoomSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: CreateRoomData;
+}
+
+export interface CreateRoomData {
+  roomId: Id<"rooms">;
+}
+
+export type UpdateRoomResponse = UpdateRoomSuccess | ErrorResponse;
+
+export interface UpdateRoomSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: UpdateRoomData;
+}
+
+export interface UpdateRoomData {
+  roomId: Id<"rooms">;
+}
+
+export type ResetRoomsAndCategoriesAndItemsResponse =
+  | ResetRoomsAndCategoriesAndItemsSuccess
+  | ErrorResponse;
+
+export interface ResetRoomsAndCategoriesAndItemsSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: ResetRoomsAndCategoriesAndItemsData;
+}
+
+export interface ResetRoomsAndCategoriesAndItemsData {
+  companyId: Id<"companies">;
+}
+
+export type GetCategoriesResponse = GetCategoriesSuccess | ErrorResponse;
+
+export interface GetCategoriesSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetCategoriesData;
+}
+
+export interface GetCategoriesData {
+  categories: CategorySchema[];
+}
+
+export type UpdateCategoryResponse = UpdateCategorySuccess | ErrorResponse;
+
+export interface UpdateCategorySuccess {
+  status: ResponseStatus.SUCCESS;
+  data: UpdateCategoryData;
+}
+
+export interface UpdateCategoryData {
+  categoryId: Id<"categories">;
+}
+
+export type GetItemsByCategoryResponse =
+  | GetItemsByCategorySuccess
+  | ErrorResponse;
+
+export interface GetItemsByCategorySuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetItemsByCategoryData;
+}
+
+export interface GetItemsByCategoryData {
+  items: ItemSchema[];
+}
+
+export type UpdateItemResponse = UpdateItemSuccess | ErrorResponse;
+
+export interface UpdateItemSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: UpdateItemData;
+}
+
+export interface UpdateItemData {
+  itemId: Id<"items">;
+}
+
+export type GetCompanyRatesResponse = GetCompanyRatesSuccess | ErrorResponse;
+
+export interface GetCompanyRatesSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetCompanyRatesData;
+}
+
+export interface GetCompanyRatesData {
+  labor: LaborSchema[];
+  insurancePolicies: InsurancePolicySchema[];
+  travelFee: TravelFeeSchema;
+  creditCardFee: CreditCardFeeSchema;
+  fees: FeeSchema[];
 }

@@ -1,10 +1,20 @@
 import {
+  ArrivalWindowSchema,
+  CategorySchema,
   CompanyContactSchema,
   CompanySchema,
   ComplianceSchema,
+  CreditCardFeeSchema,
+  FeeSchema,
+  InsurancePolicySchema,
   InvitationSchema,
+  ItemSchema,
+  LaborSchema,
+  PolicySchema,
   ReferralSchema,
+  RoomSchema,
   ScriptSchema,
+  TravelFeeSchema,
   UserSchema,
   VariableSchema,
   WebIntegrationsSchema,
@@ -12,6 +22,8 @@ import {
 import { CommunicationType, InvitationStatus, UserRole } from "@/types/enums";
 import { ErrorMessages } from "@/types/errors";
 import { UserIdentity } from "convex/server";
+import { MutationCtx } from "../_generated/server";
+import { Id } from "../_generated/dataModel";
 
 export function validateUser(
   user: UserSchema | null,
@@ -162,4 +174,145 @@ export function validateCompanyContact(
     throw new Error(ErrorMessages.COMPANY_CONTACT_NOT_FOUND);
   }
   return companyContact;
+}
+
+export function validateArrivalWindow(
+  arrivalWindow: ArrivalWindowSchema | null
+): ArrivalWindowSchema {
+  if (!arrivalWindow) {
+    throw new Error(ErrorMessages.ARRIVAL_WINDOW_NOT_FOUND);
+  }
+  return arrivalWindow;
+}
+
+export function validatePolicy(policy: PolicySchema | null): PolicySchema {
+  if (!policy) {
+    throw new Error(ErrorMessages.POLICY_NOT_FOUND);
+  }
+  return policy;
+}
+
+export const validateLaborDateOverlap = async (
+  ctx: MutationCtx,
+  companyId: Id<"companies">,
+  startDate?: number,
+  endDate?: number
+): Promise<void> => {
+  if (!startDate && !endDate) {
+    return;
+  }
+
+  if (!startDate !== !endDate) {
+    throw new Error(ErrorMessages.LABOR_START_DATES_INCOMPLETE);
+  }
+
+  const existingLabors = await ctx.db
+    .query("labor")
+    .filter((q) => q.eq(q.field("companyId"), companyId))
+    .collect();
+
+  const hasOverlap = existingLabors.some(
+    (labor) =>
+      labor.startDate !== undefined &&
+      labor.endDate !== undefined &&
+      startDate! < labor.endDate &&
+      endDate! > labor.startDate
+  );
+
+  if (hasOverlap) {
+    throw new Error(ErrorMessages.LABOR_OVERLAPS);
+  }
+};
+
+export function validateLabor(labor: LaborSchema | null): LaborSchema {
+  if (!labor) {
+    throw new Error(ErrorMessages.LABOR_NOT_FOUND);
+  }
+  return labor;
+}
+
+export function validateInsurancePolicy(
+  insurancePolicy: InsurancePolicySchema | null
+): InsurancePolicySchema {
+  if (!insurancePolicy) {
+    throw new Error(ErrorMessages.INSURANCE_POLICY_NOT_FOUND);
+  }
+  return insurancePolicy;
+}
+
+export function validateCreditCardFee(
+  creditCardFee: CreditCardFeeSchema | null
+): CreditCardFeeSchema {
+  if (!creditCardFee) {
+    throw new Error(ErrorMessages.CREDIT_CARD_FEE_NOT_FOUND);
+  }
+  return creditCardFee;
+}
+
+export function validateFee(fee: FeeSchema | null): FeeSchema {
+  if (!fee) {
+    throw new Error(ErrorMessages.FEE_NOT_FOUND);
+  }
+  return fee;
+}
+
+export function validateTravelFee(
+  travelFee: TravelFeeSchema | null
+): TravelFeeSchema {
+  if (!travelFee) {
+    throw new Error(ErrorMessages.TRAVEL_FEE_NOT_FOUND);
+  }
+  return travelFee;
+}
+
+export async function validateUniqueRoomName(
+  ctx: MutationCtx,
+  companyId: Id<"companies">,
+  name: string
+): Promise<void> {
+  const existingRoom = await ctx.db
+    .query("rooms")
+    .filter((q) => q.eq(q.field("companyId"), companyId))
+    .filter((q) => q.eq(q.field("name"), name))
+    .first();
+
+  if (existingRoom) {
+    throw new Error(ErrorMessages.ROOM_NAME_ALREADY_EXISTS);
+  }
+}
+
+export function validateRoom(room: RoomSchema | null): RoomSchema {
+  if (!room) {
+    throw new Error(ErrorMessages.ROOM_NOT_FOUND);
+  }
+
+  if (!room.isActive) {
+    throw new Error(ErrorMessages.ROOM_INACTIVE);
+  }
+
+  return room;
+}
+
+export function validateCategory(
+  category: CategorySchema | null
+): CategorySchema {
+  if (!category) {
+    throw new Error(ErrorMessages.CATEGORY_NOT_FOUND);
+  }
+
+  if (!category.isActive) {
+    throw new Error(ErrorMessages.CATEGORY_INACTIVE);
+  }
+
+  return category;
+}
+
+export function validateItem(item: ItemSchema | null): ItemSchema {
+  if (!item) {
+    throw new Error(ErrorMessages.ITEM_NOT_FOUND);
+  }
+  if (!item.isActive) {
+    throw new Error(ErrorMessages.ITEM_INACTIVE);
+  }
+  return item;
 }

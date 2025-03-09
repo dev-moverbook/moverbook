@@ -1,10 +1,12 @@
 import { Id } from "@/convex/_generated/dataModel";
 import {
+  CategorySize,
   ClerkRoles,
   CommunicationType,
   InvitationStatus,
   PresSetScripts,
   SubscriptionStatus,
+  TravelChargingTypes,
   UserRole,
   UserStatus,
 } from "./enums";
@@ -107,4 +109,109 @@ export interface CompanyContactSchema {
   phoneNumber: string;
   address: string;
   website: string;
+}
+
+export interface ArrivalWindowSchema {
+  _id: Id<"arrivalWindow">;
+  _creationTime: number;
+  afternoonArrival: number;
+  afternoonEnd: number;
+  companyId: Id<"companies">;
+  morningArrival: number;
+  morningEnd: number;
+}
+
+export interface PolicySchema {
+  _id: Id<"policies">;
+  _creationTime: number;
+  billOfLandingDisclaimerAndTerms: string;
+  cancellationCutoffHour: number;
+  cancellationFee: number;
+  companyId: Id<"companies">;
+  deposit: number;
+  weekdayHourMinimum: number;
+  weekendHourMinimum: number;
+}
+
+export interface LaborSchema {
+  _id: Id<"labor">;
+  _creationTime: number;
+  companyId: Id<"companies">;
+  endDate?: number;
+  extra: number;
+  fourMovers: number;
+  isActive: boolean;
+  isDefault: boolean;
+  name: string;
+  startDate?: number;
+  threeMovers: number;
+  twoMovers: number;
+}
+
+export interface InsurancePolicySchema {
+  _id: Id<"insurancePolicies">;
+  _creationTime: number;
+  companyId: Id<"companies">;
+  coverageAmount: number;
+  coverageType: number;
+  isActive: boolean;
+  isDefault: boolean;
+  name: string;
+  premium: number;
+}
+
+export interface CreditCardFeeSchema {
+  _id: Id<"creditCardFees">;
+  _creationTime: number;
+  companyId: Id<"companies">;
+  rate: number;
+}
+
+export interface FeeSchema {
+  _id: Id<"fees">;
+  _creationTime: number;
+  companyId: Id<"companies">;
+  isActive: boolean;
+  name: string;
+  price: number;
+}
+
+export interface TravelFeeSchema {
+  _id: Id<"travelFee">;
+  _creationTime: number;
+  chargingMethod: TravelChargingTypes;
+  companyId: Id<"companies">;
+  isDefault: boolean;
+  rate?: number;
+}
+
+export interface RoomSchema {
+  _id: Id<"rooms">;
+  _creationTime: number;
+  companyId: Id<"companies">;
+  isActive: boolean;
+  isStarter: boolean;
+  name: string;
+}
+
+export interface CategorySchema {
+  _id: Id<"categories">;
+  _creationTime: number;
+  companyId: Id<"companies">;
+  name: string;
+  parentCategory?: Id<"categories">;
+  roomId: Id<"rooms">;
+  isActive: boolean;
+  isStarter: boolean;
+}
+
+export interface ItemSchema {
+  _id: Id<"items">;
+  _creationTime: number;
+  categoryId: Id<"categories">;
+  companyId: Id<"companies">;
+  isActive: boolean;
+  isStarter: boolean;
+  name: string;
+  size: CategorySize | string;
 }

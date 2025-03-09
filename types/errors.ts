@@ -1,4 +1,5 @@
 export enum ErrorMessages {
+  ARRIVAL_WINDOW_NOT_FOUND = "Arrival window not found",
   CLERK_INVITATION_SENT_ERROR = "Clerk error sending invitation to new user",
   CLERK_ORG_CREATE_ERROR = "Error creating Clerk organization",
   CLERK_ORG_INVITATION_ERROR = "Clerk error inviting user to organization",
@@ -22,6 +23,7 @@ export enum ErrorMessages {
   CUSTOMER_DB_UPDATE_ERROR = "Database error updating user",
   ENV_CLERK_SECRET_KEY_NOT_SET = "ENV_CLERK_SECRET_KEY_NOT_SET is not set. Please configure it in your environment variables.",
   ENV_NEXT_PUBLIC_CONVEX_UR_NOT_SET = "NEXT_PUBLIC_CONVEX_URL is not set. Please configure it in your environment variables.",
+  POLICY_NOT_FOUND = "Policy not found",
   FOBIDDEN_COMPANY = "User does not belong to company",
   MIDDLEWARE_REDIRECT_HOME = "Middleware error redirect user for home route",
   USER_DB_QUERY_BY_EMAIL = "Database error querying user by email",
@@ -59,9 +61,24 @@ export enum ErrorMessages {
   COMPLIANCE_NOT_FOUND = "Compliance not found",
   WEB_INTEGRATIONS_NOT_FOUND = "Web integrations not found",
   COMPANY_CONTACT_NOT_FOUND = "Company contact not found",
+  LABOR_START_DATES_INCOMPLETE = "Both startDate and endDate must be provided or neither.",
+  LABOR_OVERLAPS = "Labor schedule overlaps with an existing entry.",
+  LABOR_NOT_FOUND = "Labor not found",
+  INSURANCE_POLICY_NOT_FOUND = "Insurance policy not found",
+  CREDIT_CARD_FEE_NOT_FOUND = "Credit card fee not found",
+  FEE_NOT_FOUND = "Fee not found",
+  TRAVEL_FEE_NOT_FOUND = "Travel fee not found",
+  ROOM_NAME_ALREADY_EXISTS = "Room name already exists",
+  ROOM_NOT_FOUND = "Room not found",
+  ROOM_INACTIVE = "Room inactive",
+  CATEGORY_NOT_FOUND = "Category not found",
+  CATEGORY_INACTIVE = "Category inactive",
+  ITEM_INACTIVE = "Item inactive",
+  ITEM_NOT_FOUND = "Item not found",
 }
 
 export enum FrontEndErrorMessages {
+  COMPANY_ID_NOT_FOUND = "Company Id not found",
   COMPANY_NOT_FOUND = "Company not found from params",
   EMAIL_INVALID = "Invalid email format.",
   EMAIL_REQUIRED = "Email is required.",
@@ -76,4 +93,5 @@ export enum FrontEndErrorMessages {
   VARIABLE_DEFAULT_REQUIRED = "Default value required.",
   VARIABLE_NAME_REQUIRED = "Variable name required.",
   NO_ORGANIZATION_SELECTED = "No organization selected.",
+  LABOR_NAME_REQUIRED = "Labor name required",
 }
