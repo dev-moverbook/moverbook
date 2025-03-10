@@ -161,7 +161,6 @@ export default defineSchema({
   }),
   categories: defineTable({
     companyId: v.id("companies"),
-    roomId: v.id("rooms"),
     name: v.string(),
     parentCategory: v.optional(v.id("categories")),
     isActive: v.boolean(),
@@ -173,6 +172,7 @@ export default defineSchema({
     name: v.string(),
     size: v.union(CategorySizeConvex, v.string()),
     isActive: v.boolean(),
+    isPopular: v.boolean(),
     isStarter: v.boolean(),
   }),
 });

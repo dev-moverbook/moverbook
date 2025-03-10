@@ -94,4 +94,8 @@ export enum FrontEndErrorMessages {
   VARIABLE_NAME_REQUIRED = "Variable name required.",
   NO_ORGANIZATION_SELECTED = "No organization selected.",
   LABOR_NAME_REQUIRED = "Labor name required",
+  ROOM_NAME_EMPTY = "Room name cannot be empty.",
+  NO_CATEGORY_SELECTED = "No category selected",
+  CATEGORY_NAME_EMPTY = "Category name cannot be empty.",
+  ITEM_NAME_REQUIRED = "Item name is required",
 }

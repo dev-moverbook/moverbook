@@ -200,7 +200,6 @@ export interface CategorySchema {
   companyId: Id<"companies">;
   name: string;
   parentCategory?: Id<"categories">;
-  roomId: Id<"rooms">;
   isActive: boolean;
   isStarter: boolean;
 }
@@ -214,4 +213,5 @@ export interface ItemSchema {
   isStarter: boolean;
   name: string;
   size: CategorySize | string;
+  isPopular: boolean;
 }

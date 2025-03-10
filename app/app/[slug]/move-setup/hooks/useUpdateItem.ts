@@ -6,12 +6,7 @@ import { api } from "@/convex/_generated/api";
 import { ResponseStatus } from "@/types/enums";
 import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
-import { CategorySize } from "@/types/convex-enums";
-
-interface UpdateItemData {
-  name?: string;
-  size?: CategorySize | string;
-}
+import { ItemFormData } from "@/types/form-types";
 
 export const useUpdateItem = () => {
   const [updateItemLoading, setUpdateItemLoading] = useState<boolean>(false);
@@ -21,7 +16,7 @@ export const useUpdateItem = () => {
 
   const updateItem = async (
     itemId: Id<"items">,
-    updates: UpdateItemData
+    updates: ItemFormData
   ): Promise<boolean> => {
     setUpdateItemLoading(true);
     setUpdateItemError(null);

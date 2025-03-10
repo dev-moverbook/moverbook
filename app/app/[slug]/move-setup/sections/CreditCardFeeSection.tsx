@@ -41,13 +41,13 @@ const CreditCardFeeSection: React.FC<CreditCardFeeSectionProps> = ({
     });
 
     if (success) {
-      setIsEditing(false); // Exit edit mode on success
+      setIsEditing(false);
     }
   };
 
   const handleCancel = () => {
-    setIsEditing(false); // Exit edit mode without saving changes
-    setFormData(creditCardFee.rate); // Reset form data to original value
+    setIsEditing(false);
+    setFormData(creditCardFee.rate);
   };
 
   return (

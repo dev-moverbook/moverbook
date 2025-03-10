@@ -82,7 +82,12 @@ export const getSubcategories = query({
 
       const categories = await ctx.db
         .query("categories")
-        .filter((q) => q.eq(q.field("parentCategory"), parentCategory))
+        .filter((q) =>
+          q.and(
+            q.eq(q.field("parentCategory"), parentCategory),
+            q.eq(q.field("isActive"), true)
+          )
+        )
         .collect();
 
       return {
@@ -131,6 +136,57 @@ export const updateCategory = mutation({
       isUserInOrg(identity, company.clerkOrganizationId);
 
       await ctx.db.patch(categoryId, updates);
+
+      return {
+        status: ResponseStatus.SUCCESS,
+        data: { categoryId },
+      };
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
+      console.error("Internal Error:", errorMessage, error);
+
+      return {
+        status: ResponseStatus.ERROR,
+        data: null,
+        error: shouldExposeError(errorMessage)
+          ? errorMessage
+          : ErrorMessages.GENERIC_ERROR,
+      };
+    }
+  },
+});
+
+export const createCategory = mutation({
+  args: {
+    companyId: v.id("companies"),
+    name: v.string(),
+    parentCategory: v.optional(v.id("categories")),
+  },
+  handler: async (ctx, args): Promise<UpdateCategoryResponse> => {
+    const { companyId, name, parentCategory } = args;
+
+    try {
+      const identity = await requireAuthenticatedUser(ctx, [
+        ClerkRoles.ADMIN,
+        ClerkRoles.APP_MODERATOR,
+        ClerkRoles.MANAGER,
+      ]);
+
+      const company = validateCompany(await ctx.db.get(companyId));
+      isUserInOrg(identity, company.clerkOrganizationId);
+
+      if (parentCategory) {
+        validateCategory(await ctx.db.get(parentCategory));
+      }
+
+      const categoryId = await ctx.db.insert("categories", {
+        companyId,
+        name,
+        parentCategory,
+        isActive: true,
+        isStarter: false,
+      });
 
       return {
         status: ResponseStatus.SUCCESS,

@@ -1,4 +1,5 @@
-import { TravelChargingTypes } from "./enums";
+import { Id } from "@/convex/_generated/dataModel";
+import { CategorySize, TravelChargingTypes } from "./enums";
 
 export interface ComplianceFormData {
   statePucPermitNumber: string;
@@ -73,4 +74,18 @@ export interface TravelFeeFormData {
   isDefault: boolean;
   chargingMethod: TravelChargingTypes;
   rate?: number;
+}
+export interface RoomFormData {
+  name: string;
+}
+
+export interface CategoryFormData {
+  name: string;
+  parentCategory?: Id<"categories">;
+}
+
+export interface ItemFormData {
+  name: string;
+  size: string | CategorySize;
+  isPopular: boolean;
 }

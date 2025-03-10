@@ -2,11 +2,11 @@
 
 import React, { useState } from "react";
 import { Id } from "@/convex/_generated/dataModel";
-import { FeeSchema } from "@/types/convex-schemas"; // Define FeeSchema in your types
+import { FeeSchema } from "@/types/convex-schemas";
 import ConfirmModal from "@/app/components/shared/ConfirmModal";
-import { useCreateFee } from "../hooks/useCreateFee"; // Create this hook
-import { useUpdateFee } from "../hooks/useUpdateFee"; // Create this hook
-import { useDeleteFee } from "../hooks/useDeleteFee"; // Create this hook
+import { useCreateFee } from "../hooks/useCreateFee";
+import { useUpdateFee } from "../hooks/useUpdateFee";
+import { useDeleteFee } from "../hooks/useDeleteFee";
 import FeeModal from "../modals/FeeModal";
 import FeeCard from "../cards/FeeCard";
 

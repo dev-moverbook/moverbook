@@ -4,6 +4,7 @@ import { ClerkRoles, ResponseStatus } from "@/types/enums";
 import { ErrorMessages } from "@/types/errors";
 import {
   isUserInOrg,
+  validateCategory,
   validateCompany,
   validateItem,
 } from "./backendUtils/validate";
@@ -35,6 +36,7 @@ export const getItemsByCategory = query({
         .query("items")
         .filter((q) => q.eq(q.field("companyId"), companyId))
         .filter((q) => q.eq(q.field("categoryId"), categoryId))
+        .filter((q) => q.eq(q.field("isActive"), true))
         .collect();
 
       return {
@@ -66,6 +68,7 @@ export const updateItem = mutation({
       name: v.optional(v.string()),
       isActive: v.optional(v.boolean()),
       size: v.optional(v.union(v.string(), CategorySizeConvex)),
+      isPopular: v.optional(v.boolean()),
     }),
   },
   handler: async (ctx, args): Promise<UpdateItemResponse> => {
@@ -93,6 +96,59 @@ export const updateItem = mutation({
       const errorMessage =
         error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
       console.error("Internal Error:", errorMessage, error);
+
+      return {
+        status: ResponseStatus.ERROR,
+        data: null,
+        error: shouldExposeError(errorMessage)
+          ? errorMessage
+          : ErrorMessages.GENERIC_ERROR,
+      };
+    }
+  },
+});
+
+export const createItem = mutation({
+  args: {
+    companyId: v.id("companies"),
+    categoryId: v.id("categories"),
+    name: v.string(),
+    size: v.union(v.string(), CategorySizeConvex),
+    isPopular: v.boolean(),
+  },
+  handler: async (ctx, args): Promise<UpdateItemResponse> => {
+    const { companyId, categoryId, name, size, isPopular } = args;
+
+    try {
+      const identity = await requireAuthenticatedUser(ctx, [
+        ClerkRoles.ADMIN,
+        ClerkRoles.APP_MODERATOR,
+        ClerkRoles.MANAGER,
+      ]);
+
+      const company = validateCompany(await ctx.db.get(companyId));
+      isUserInOrg(identity, company.clerkOrganizationId);
+
+      validateCategory(await ctx.db.get(categoryId));
+
+      const itemId = await ctx.db.insert("items", {
+        companyId,
+        categoryId,
+        name,
+        size,
+        isActive: true,
+        isStarter: false,
+        isPopular,
+      });
+
+      return {
+        status: ResponseStatus.SUCCESS,
+        data: { itemId },
+      };
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
+      console.error(ErrorMessages.INTERNAL_ERROR, errorMessage, error);
 
       return {
         status: ResponseStatus.ERROR,
