@@ -25,3 +25,5 @@ export const DEFAULT_CREDIT_CARD_FEE_RATE = 3;
 
 export const DEFAULT_TRAVEL_CHARGING_METHOD = TravelChargingTypes.FLAT;
 export const DEFAULT_TRAVEL_RATE = 159;
+
+export const STRIPE_API_VERSION = "2025-02-24.acacia";

@@ -5,10 +5,9 @@ import {
   CommunicationType,
   InvitationStatus,
   PresSetScripts,
+  StripeAccountStatus,
   SubscriptionStatus,
   TravelChargingTypes,
-  UserRole,
-  UserStatus,
 } from "./enums";
 
 export interface CompanySchema {
@@ -214,4 +213,15 @@ export interface ItemSchema {
   name: string;
   size: CategorySize | string;
   isPopular: boolean;
+}
+
+export interface ConnectedAccountSchema {
+  _id: Id<"connectedAccounts">;
+  customerId: Id<"customers">;
+  status: StripeAccountStatus;
+  chargesEnabled?: boolean;
+  payoutsEnabled?: boolean;
+  lastStripeUpdate?: number;
+  stripeAccountId: string;
+  _creationTime: number;
 }

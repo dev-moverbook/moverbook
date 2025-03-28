@@ -75,6 +75,9 @@ export enum ErrorMessages {
   CATEGORY_INACTIVE = "Category inactive",
   ITEM_INACTIVE = "Item inactive",
   ITEM_NOT_FOUND = "Item not found",
+  ENV_NOT_SET_STRIPE_KEY = "Stripe env not set",
+  STRIPE_CONNECTED_DEACTIVATE_ERROR = "Stripe error deactivating account",
+  STRIPE_CONNECTED_DB_CREATE = "Db error creating stripe connected account",
 }
 
 export enum FrontEndErrorMessages {

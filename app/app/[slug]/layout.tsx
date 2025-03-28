@@ -2,6 +2,8 @@
 import React, { useEffect } from "react";
 import { useParams } from "next/navigation";
 import { SlugProvider, useSlugContext } from "@/app/contexts/SlugContext";
+import Navbar from "@/app/components/shared/Navbar";
+import Sidebar from "@/app/components/shared/Sidebar";
 
 const CompanyLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -18,7 +20,15 @@ const CompanyLayout: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [cleanSlug, setSlug, contextSlug]);
 
-  return <div>{children}</div>;
+  return (
+    <div className="flex min-h-screen">
+      <Sidebar />
+      <div className="flex-1">
+        <Navbar />
+        <main className="p-6">{children}</main>
+      </div>
+    </div>
+  );
 };
 
 const CompanyPage = ({ children }: { children: React.ReactNode }) => {

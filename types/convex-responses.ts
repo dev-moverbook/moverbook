@@ -1,5 +1,5 @@
 import { Id } from "@/convex/_generated/dataModel";
-import { ResponseStatus } from "./enums";
+import { ResponseStatus, StripeAccountStatus } from "./enums";
 import { ErrorMessages } from "./errors";
 import {
   ArrivalWindowSchema,
@@ -177,6 +177,8 @@ export interface GetCompanyIdBySlugSuccess {
 
 export interface GetCompanyIdBySlugData {
   companyId: Id<"companies">;
+  connectedAccountId: string | null;
+  connectedAccountStatus: StripeAccountStatus | null;
 }
 
 export type GetActiveVariablesByCompanyIdResponse =
@@ -583,6 +585,23 @@ export interface GetCompanyRatesSuccess {
 }
 
 export interface GetCompanyRatesData {
+  labor: LaborSchema[];
+  insurancePolicies: InsurancePolicySchema[];
+  travelFee: TravelFeeSchema;
+  creditCardFee: CreditCardFeeSchema;
+  fees: FeeSchema[];
+}
+
+export type GetConnectedAccountByCompanyIdResponse =
+  | GetConnectedAccountByCompanyIdSuccess
+  | ErrorResponse;
+
+export interface GetConnectedAccountByCompanyIdSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetConnectedAccountByCompanyIdData;
+}
+
+export interface GetConnectedAccountByCompanyIdData {
   labor: LaborSchema[];
   insurancePolicies: InsurancePolicySchema[];
   travelFee: TravelFeeSchema;

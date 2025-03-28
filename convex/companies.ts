@@ -10,7 +10,7 @@ import {
 } from "./_generated/server";
 import { v } from "convex/values";
 import { generateSlug, generateUniqueSlug } from "@/utils/helper";
-import { CompanySchema } from "@/types/convex-schemas";
+import { CompanySchema, ConnectedAccountSchema } from "@/types/convex-schemas";
 import {
   isUserInOrg,
   validateCompany,
@@ -161,9 +161,18 @@ export const getCompanyIdBySlug = query({
 
       const validatedCompany = validateCompany(company);
 
+      const connectedAccount: ConnectedAccountSchema | null = await ctx.db
+        .query("connectedAccounts")
+        .filter((q) => q.eq(q.field("customerId"), validatedCompany.customerId))
+        .first();
+
       return {
         status: ResponseStatus.SUCCESS,
-        data: { companyId: validatedCompany._id },
+        data: {
+          companyId: validatedCompany._id,
+          connectedAccountId: connectedAccount?.stripeAccountId || null,
+          connectedAccountStatus: connectedAccount?.status || null,
+        },
       };
     } catch (error) {
       const errorMessage =
