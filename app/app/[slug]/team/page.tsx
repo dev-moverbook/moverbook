@@ -9,14 +9,17 @@ import { useInviteUser } from "@/app/hooks/useInviteUser";
 import { ClerkRoles } from "@/types/enums";
 import { useSlugContext } from "@/app/contexts/SlugContext";
 import { FrontEndErrorMessages } from "@/types/errors";
+import TabContentContainer from "@/app/components/shared/TabContentContainer";
+import TabSelector from "@/app/components/shared/TabSelector";
+import SectionTitle from "@/app/components/shared/SectionTitle";
+import SectionHeaderWithAction from "@/app/components/shared/ SectionHeaderWithAction";
 
 const TeamContent: React.FC = () => {
   const { companyId } = useSlugContext();
 
   const [isInviteModalOpen, setIsInviteModalOpen] = useState<boolean>(false);
-  const [currentTab, setCurrentTab] = useState<
-    "active" | "invited" | "inactive"
-  >("active");
+
+  const [activeTab, setActiveTab] = useState<string>("ACTIVE");
 
   const { inviteUser, inviteLoading, inviteError, setInviteError } =
     useInviteUser();
@@ -33,41 +36,29 @@ const TeamContent: React.FC = () => {
     return await inviteUser(companyId, email, role, hourlyRate);
   };
 
-  //invite state
   return (
-    <div>
-      <h1>Team Content</h1>
+    <main>
+      <SectionHeaderWithAction
+        title="Team"
+        action={
+          <Button className="" onClick={() => setIsInviteModalOpen(true)}>
+            Invite User
+          </Button>
+        }
+      />
 
-      {/* Tabs */}
-      <div className="flex space-x-4 mb-4">
-        <button
-          className={`px-4 py-2 border rounded ${currentTab === "active" ? "bg-blue-500 text-white" : "bg-white text-black"}`}
-          onClick={() => setCurrentTab("active")}
-        >
-          Active
-        </button>
-        <button
-          className={`px-4 py-2 border rounded ${currentTab === "invited" ? "bg-blue-500 text-white" : "bg-white text-black"}`}
-          onClick={() => setCurrentTab("invited")}
-        >
-          Invited
-        </button>
-        <button
-          className={`px-4 py-2 border rounded ${currentTab === "inactive" ? "bg-blue-500 text-white" : "bg-white text-black"}`}
-          onClick={() => setCurrentTab("inactive")}
-        >
-          Inactive
-        </button>
-      </div>
+      <TabSelector
+        tabs={["ACTIVE", "INVITED", "DELETED"]}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      />
 
-      {/* Tab Content */}
-      <div className="mb-8">
-        {currentTab === "active" && <ActiveUsers />}
-        {currentTab === "invited" && <InvitedUsers />}
-        {currentTab === "inactive" && <InactiveUsers />}
-      </div>
+      <TabContentContainer>
+        {activeTab === "ACTIVE" && <ActiveUsers />}
+        {activeTab === "INVITED" && <InvitedUsers />}
+        {activeTab === "DELETED" && <InactiveUsers />}
+      </TabContentContainer>
 
-      <Button onClick={() => setIsInviteModalOpen(true)}>Invite User</Button>
       <InviteUserModal
         isOpen={isInviteModalOpen}
         onClose={() => setIsInviteModalOpen(false)}
@@ -75,7 +66,7 @@ const TeamContent: React.FC = () => {
         inviteLoading={inviteLoading}
         inviteError={inviteError}
       />
-    </div>
+    </main>
   );
 };
 

@@ -9,6 +9,10 @@ import { useUpdateFee } from "../hooks/useUpdateFee";
 import { useDeleteFee } from "../hooks/useDeleteFee";
 import FeeModal from "../modals/FeeModal";
 import FeeCard from "../cards/FeeCard";
+import CenteredContainer from "@/app/components/shared/CenteredContainer";
+import SectionContainer from "@/app/components/shared/SectionContainer";
+import SectionHeader from "@/app/components/shared/SectionHeader";
+import { Button } from "@/app/components/ui/button";
 
 interface FeesSectionProps {
   fees: FeeSchema[];
@@ -71,51 +75,51 @@ const FeesSection: React.FC<FeesSectionProps> = ({ fees, companyId }) => {
   };
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-lg font-semibold">Fees</h2>
+    <SectionContainer>
+      <CenteredContainer>
+        <SectionHeader
+          title="Fees"
+          actions={
+            <Button onClick={handleOpenCreateModal}>+ Create Fee</Button>
+          }
+        />
 
-      {fees.map((fee) => (
-        <div key={fee._id} className="flex items-center justify-between">
-          <FeeCard
-            fee={fee}
-            onEdit={handleOpenEditModal}
-            onDelete={handleOpenDeleteModal}
-          />
-        </div>
-      ))}
+        {fees.map((fee) => (
+          <div key={fee._id} className="flex items-center justify-between">
+            <FeeCard
+              fee={fee}
+              onEdit={handleOpenEditModal}
+              onDelete={handleOpenDeleteModal}
+            />
+          </div>
+        ))}
 
-      <button
-        onClick={handleOpenCreateModal}
-        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-      >
-        Add New Fee
-      </button>
+        {/* Create/Edit Modal */}
+        <FeeModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          onCreate={createFee}
+          onEdit={updateFee}
+          loading={isEditMode ? updateLoading : createLoading}
+          error={isEditMode ? updateError : createError}
+          companyId={companyId}
+          initialData={selectedFee}
+        />
 
-      {/* Create/Edit Modal */}
-      <FeeModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onCreate={createFee}
-        onEdit={updateFee}
-        loading={isEditMode ? updateLoading : createLoading}
-        error={isEditMode ? updateError : createError}
-        companyId={companyId}
-        initialData={selectedFee}
-      />
-
-      {/* Delete Confirmation Modal */}
-      <ConfirmModal
-        isOpen={isDeleteModalOpen}
-        onClose={handleCloseDeleteModal}
-        onConfirm={handleConfirmDelete}
-        deleteLoading={deleteLoading}
-        deleteError={deleteError}
-        title="Confirm Delete"
-        description="Are you sure you want to delete this fee? This action cannot be undone."
-        confirmButtonText="Delete"
-        cancelButtonText="Cancel"
-      />
-    </div>
+        {/* Delete Confirmation Modal */}
+        <ConfirmModal
+          isOpen={isDeleteModalOpen}
+          onClose={handleCloseDeleteModal}
+          onConfirm={handleConfirmDelete}
+          deleteLoading={deleteLoading}
+          deleteError={deleteError}
+          title="Confirm Delete"
+          description="Are you sure you want to delete this fee? This action cannot be undone."
+          confirmButtonText="Delete"
+          cancelButtonText="Cancel"
+        />
+      </CenteredContainer>
+    </SectionContainer>
   );
 };
 

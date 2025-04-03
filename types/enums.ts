@@ -91,3 +91,11 @@ export const CategorySizeLabels: Record<CategorySize, string> = {
   [CategorySize.LARGE]: "Large - Couch",
   [CategorySize.XL]: "XL - Sectional",
 };
+
+export const ClerkRoleLabels: Record<ClerkRoles, string> = {
+  [ClerkRoles.ADMIN]: "Admin",
+  [ClerkRoles.APP_MODERATOR]: "App Moderator",
+  [ClerkRoles.MANAGER]: "Manager",
+  [ClerkRoles.MOVER]: "Mover",
+  [ClerkRoles.SALES_REP]: "Sales Rep",
+};

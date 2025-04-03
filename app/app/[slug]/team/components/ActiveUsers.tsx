@@ -6,6 +6,8 @@ import { api } from "@/convex/_generated/api";
 import { ResponseStatus } from "@/types/enums";
 import { useSlugContext } from "@/app/contexts/SlugContext";
 import UserCard from "./UserCard";
+import SectionContainer from "@/app/components/shared/SectionContainer";
+import CenteredContainer from "@/app/components/shared/CenteredContainer";
 
 const ActiveUsers = () => {
   const { companyId } = useSlugContext();
@@ -29,14 +31,16 @@ const ActiveUsers = () => {
   }
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-4">Active Users</h1>
-      <div className="grid grid-cols-1 gap-4">
-        {usersResponse.data.users.map((user) => (
-          <UserCard key={user._id} user={user} />
-        ))}
-      </div>
-    </div>
+    <SectionContainer>
+      <CenteredContainer>
+        <h1 className="text-2xl font-bold mb-4">Active Users</h1>
+        <div className="grid grid-cols-1 gap-4">
+          {usersResponse.data.users.map((user) => (
+            <UserCard key={user._id} user={user} />
+          ))}
+        </div>
+      </CenteredContainer>
+    </SectionContainer>
   );
 };
 

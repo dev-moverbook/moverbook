@@ -1,13 +1,19 @@
 "use client";
 
-import React, { useState } from "react";
-import { PolicySchema } from "@/types/convex-schemas";
-import { useUpdatePolicy } from "../hooks/useUpdatePolicy";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/app/components/ui/button";
+import SectionContainer from "@/app/components/shared/SectionContainer";
+import CenteredContainer from "@/app/components/shared/CenteredContainer";
+import SectionHeader from "@/app/components/shared/SectionHeader";
+import FormActions from "@/app/components/shared/FormActions";
+import FieldGroup from "@/app/components/shared/FieldGroup";
+import FieldRow from "@/app/components/shared/FieldRow";
+import { PolicySchema } from "@/types/convex-schemas";
 import { PolicyFormData } from "@/types/form-types";
+import { useUpdatePolicy } from "../hooks/useUpdatePolicy";
+import FieldTextAreaRow from "@/app/components/shared/FieldTextAreaRow";
 
 interface PolicySectionProps {
   policy: PolicySchema;
@@ -26,6 +32,22 @@ const PolicySection: React.FC<PolicySectionProps> = ({ policy }) => {
     cancellationCutoffHour: policy.cancellationCutoffHour,
     billOfLandingDisclaimerAndTerms: policy.billOfLandingDisclaimerAndTerms,
   });
+
+  const handleEditClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    setFormData({
+      weekdayHourMinimum: policy.weekdayHourMinimum,
+      weekendHourMinimum: policy.weekendHourMinimum,
+      deposit: policy.deposit,
+      cancellationFee: policy.cancellationFee,
+      cancellationCutoffHour: policy.cancellationCutoffHour,
+      billOfLandingDisclaimerAndTerms: policy.billOfLandingDisclaimerAndTerms,
+    });
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -46,114 +68,74 @@ const PolicySection: React.FC<PolicySectionProps> = ({ policy }) => {
   };
 
   return (
-    <div className="p-4 border rounded-md shadow-sm space-y-4">
-      <h2 className="text-lg font-semibold">Policy Information</h2>
+    <SectionContainer>
+      <CenteredContainer>
+        <SectionHeader
+          title="Policy Information"
+          isEditing={isEditing}
+          onEditClick={handleEditClick}
+        />
 
-      {updatePolicyError && <p className="text-red-500">{updatePolicyError}</p>}
+        <FieldGroup>
+          <FieldRow
+            label="Weekday Hour Minimum"
+            name="weekdayHourMinimum"
+            value={formData.weekdayHourMinimum.toString()}
+            isEditing={isEditing}
+            onChange={handleChange}
+          />
 
-      {!isEditing ? (
-        <div className="space-y-2">
-          <p>
-            <span className="font-medium">Weekday Hour Minimum:</span>{" "}
-            {policy.weekdayHourMinimum} hours
-          </p>
-          <p>
-            <span className="font-medium">Weekend Hour Minimum:</span>{" "}
-            {policy.weekendHourMinimum} hours
-          </p>
-          <p>
-            <span className="font-medium">Deposit:</span> ${policy.deposit}
-          </p>
-          <p>
-            <span className="font-medium">Cancellation Fee:</span> $
-            {policy.cancellationFee}
-          </p>
-          <p>
-            <span className="font-medium">Cancellation Cutoff Hour:</span>{" "}
-            {policy.cancellationCutoffHour} hours
-          </p>
-          <p>
-            <span className="font-medium">
-              Bill of Lading Disclaimer and Terms:
-            </span>{" "}
-            {policy.billOfLandingDisclaimerAndTerms}
-          </p>
-          <Button variant="default" onClick={() => setIsEditing(true)}>
-            Edit
-          </Button>
-        </div>
-      ) : (
-        <div className="space-y-2">
-          <div>
-            <Label>Weekday Hour Minimum</Label>
-            <Input
-              type="number"
-              name="weekdayHourMinimum"
-              value={formData.weekdayHourMinimum}
-              onChange={handleChange}
+          <FieldRow
+            label="Weekend Hour Minimum"
+            name="weekendHourMinimum"
+            value={formData.weekendHourMinimum.toString()}
+            isEditing={isEditing}
+            onChange={handleChange}
+          />
+
+          <FieldRow
+            label="Deposit"
+            name="deposit"
+            value={formData.deposit.toString()}
+            isEditing={isEditing}
+            onChange={handleChange}
+          />
+
+          <FieldRow
+            label="Cancellation Fee"
+            name="cancellationFee"
+            value={formData.cancellationFee.toString()}
+            isEditing={isEditing}
+            onChange={handleChange}
+          />
+
+          <FieldRow
+            label="Cancellation Cutoff Hour"
+            name="cancellationCutoffHour"
+            value={formData.cancellationCutoffHour.toString()}
+            isEditing={isEditing}
+            onChange={handleChange}
+          />
+
+          <FieldTextAreaRow
+            label="Bill of Lading Disclaimer and Terms"
+            name="billOfLandingDisclaimerAndTerms"
+            value={formData.billOfLandingDisclaimerAndTerms}
+            isEditing={isEditing}
+            onChange={handleChange}
+          />
+
+          {isEditing && (
+            <FormActions
+              onSave={handleSave}
+              onCancel={handleCancel}
+              isSaving={updatePolicyLoading}
+              error={updatePolicyError}
             />
-          </div>
-
-          <div>
-            <Label>Weekend Hour Minimum</Label>
-            <Input
-              type="number"
-              name="weekendHourMinimum"
-              value={formData.weekendHourMinimum}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div>
-            <Label>Deposit</Label>
-            <Input
-              type="number"
-              name="deposit"
-              value={formData.deposit}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div>
-            <Label>Cancellation Fee</Label>
-            <Input
-              type="number"
-              name="cancellationFee"
-              value={formData.cancellationFee}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div>
-            <Label>Cancellation Cutoff Hour</Label>
-            <Input
-              type="number"
-              name="cancellationCutoffHour"
-              value={formData.cancellationCutoffHour}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div>
-            <Label>Bill of Lading Disclaimer and Terms</Label>
-            <Textarea
-              name="billOfLandingDisclaimerAndTerms"
-              value={formData.billOfLandingDisclaimerAndTerms}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="flex space-x-2">
-            <Button onClick={handleSave} disabled={updatePolicyLoading}>
-              {updatePolicyLoading ? "Saving..." : "Save"}
-            </Button>
-            <Button variant="outline" onClick={() => setIsEditing(false)}>
-              Cancel
-            </Button>
-          </div>
-        </div>
-      )}
-    </div>
+          )}
+        </FieldGroup>
+      </CenteredContainer>
+    </SectionContainer>
   );
 };
 

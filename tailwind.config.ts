@@ -11,6 +11,8 @@ export default {
     extend: {
       colors: {
         grayCustom: "#535353",
+        grayCustom2: "#8D8C8C",
+        greenCustom: "#108A01",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {

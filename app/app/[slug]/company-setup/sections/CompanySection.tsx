@@ -1,13 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/app/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { CompanySchema } from "@/types/convex-schemas";
 import { UpdateCompanyData } from "@/types/form-types";
 import { Id } from "@/convex/_generated/dataModel";
 import Image from "next/image";
+import SectionContainer from "@/app/components/shared/SectionContainer";
+import CenteredContainer from "@/app/components/shared/CenteredContainer";
+import SectionHeader from "@/app/components/shared/SectionHeader";
+import FormActions from "@/app/components/shared/FormActions";
+import FieldGroup from "@/app/components/shared/FieldGroup";
+import FieldRow from "@/app/components/shared/FieldRow";
 
 interface CompanySectionProps {
   company: CompanySchema;
@@ -76,69 +80,73 @@ const CompanySection: React.FC<CompanySectionProps> = ({
   };
 
   return (
-    <div className="p-4 border rounded-md shadow-sm space-y-4">
-      <h2 className="text-lg font-semibold">Company Information</h2>
+    <SectionContainer>
+      <CenteredContainer>
+        <SectionHeader
+          title="Info"
+          isEditing={isEditing}
+          onEditClick={handleEditClick}
+        />
 
-      {updateError && <p className="text-red-500">{updateError}</p>}
-      {uploadError && <p className="text-red-500">{uploadError}</p>}
+        <div className="flex md:flex-row flex-col items-start md:space-x-8 space-y-4 md:space-y-0">
+          {/* Company Image */}
+          <div className="relative">
+            <Image
+              src={company.imageUrl || "/default-company-logo.png"}
+              alt="Company Logo"
+              className="w-24 h-24 rounded-md object-cover"
+              width={120}
+              height={120}
+            />
 
-      <div className="flex items-center space-x-4">
-        {/* Company Image */}
-        <div className="relative">
-          <Image
-            src={company.imageUrl || "/default-company-logo.png"}
-            alt="Company Logo"
-            className="w-20 h-20 rounded-full border"
-            width={20}
-            height={20}
-          />
-          <Input
-            type="file"
-            accept="image/*"
-            className="absolute inset-0 opacity-0 cursor-pointer"
-            onChange={handleImageUpload}
-            disabled={uploadLoading}
-          />
-        </div>
-
-        {!isEditing ? (
-          <div className="space-y-2">
-            <p>
-              <span className="font-medium">Company Name:</span> {company.name}
-            </p>
-            <p>
-              <span className="font-medium">Time Zone:</span> {company.timeZone}
-            </p>
-            <Button onClick={handleEditClick}>Edit</Button>
+            {isEditing && (
+              <>
+                <div className="absolute inset-0 bg-black/40 rounded-md flex items-center justify-center">
+                  <span className="text-white text-sm">Change</span>
+                </div>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                  onChange={handleImageUpload}
+                  disabled={uploadLoading}
+                />
+                {uploadError && (
+                  <p className="text-sm text-red-500 mt-1">{uploadError}</p>
+                )}
+              </>
+            )}
           </div>
-        ) : (
-          <div className="space-y-2">
-            <Label>Company Name</Label>
-            <Input
-              type="text"
+
+          <FieldGroup>
+            <FieldRow
+              label="Company Name"
               name="name"
               value={formData.name}
+              isEditing={isEditing}
               onChange={handleChange}
             />
-            <Label>Time Zone</Label>
-            <Input
-              type="text"
+
+            <FieldRow
+              label="Time Zone"
               name="timeZone"
               value={formData.timeZone}
+              isEditing={isEditing}
               onChange={handleChange}
             />
-            <div className="flex space-x-2">
-              <Button onClick={handleSave} disabled={updateLoading}>
-                {updateLoading ? "Saving..." : "Save"}
-              </Button>
-              <Button variant="outline" onClick={handleCancel}>
-                Cancel
-              </Button>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
+
+            {isEditing && (
+              <FormActions
+                onSave={handleSave}
+                onCancel={handleCancel}
+                isSaving={updateLoading}
+                error={updateError}
+              />
+            )}
+          </FieldGroup>
+        </div>
+      </CenteredContainer>
+    </SectionContainer>
   );
 };
 

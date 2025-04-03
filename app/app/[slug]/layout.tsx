@@ -23,9 +23,10 @@ const CompanyLayout: React.FC<{ children: React.ReactNode }> = ({
   return (
     <div className="flex min-h-screen">
       <Sidebar />
-      <div className="flex-1">
+      <div className="flex-1 lg:ml-64">
+        {" "}
         <Navbar />
-        <main className="p-6">{children}</main>
+        <main className="pt-14 bg-black">{children}</main>{" "}
       </div>
     </div>
   );

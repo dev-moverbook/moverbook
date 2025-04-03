@@ -1,12 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/app/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { WebIntegrationsSchema } from "@/types/convex-schemas";
-import { Label } from "@/components/ui/label";
 import { WebIntegrationsFormData } from "@/types/form-types";
 import { Id } from "@/convex/_generated/dataModel";
+import SectionContainer from "@/app/components/shared/SectionContainer";
+import CenteredContainer from "@/app/components/shared/CenteredContainer";
+import SectionHeader from "@/app/components/shared/SectionHeader";
+import FormActions from "@/app/components/shared/FormActions";
+import FieldGroup from "@/app/components/shared/FieldGroup";
+import FieldRow from "@/app/components/shared/FieldRow";
 
 interface WebIntegrationsSectionProps {
   webIntegrations: WebIntegrationsSchema;
@@ -61,57 +64,42 @@ const WebIntegrationsSection: React.FC<WebIntegrationsSectionProps> = ({
   };
 
   return (
-    <div className="p-4 border rounded-md shadow-sm space-y-4">
-      <h2 className="text-lg font-semibold">Web Integrations</h2>
+    <SectionContainer>
+      <CenteredContainer>
+        <SectionHeader
+          title="Web Integrations"
+          isEditing={isEditing}
+          onEditClick={handleEditClick}
+        />
 
-      {updateError && <p className="text-red-500">{updateError}</p>}
+        <FieldGroup>
+          <FieldRow
+            label="Web Form URL"
+            name="webform"
+            value={formData.webform}
+            isEditing={isEditing}
+            onChange={handleChange}
+          />
 
-      {!isEditing ? (
-        <div className="space-y-2">
-          <p>
-            <span className="font-medium">Web Form URL:</span>{" "}
-            {webIntegrations.webform || "N/A"}
-          </p>
-          <p>
-            <span className="font-medium">Embedded Code:</span>{" "}
-            {webIntegrations.webformEmbeddedCode || "N/A"}
-          </p>
+          <FieldRow
+            label="Embedded Code"
+            name="webformEmbeddedCode"
+            value={formData.webformEmbeddedCode}
+            isEditing={isEditing}
+            onChange={handleChange}
+          />
 
-          <Button onClick={handleEditClick}>Edit</Button>
-        </div>
-      ) : (
-        <div className="space-y-2">
-          <div>
-            <Label className="block text-sm font-medium">Web Form URL</Label>
-            <Input
-              type="text"
-              name="webform"
-              value={formData.webform}
-              onChange={handleChange}
+          {isEditing && (
+            <FormActions
+              onSave={handleSave}
+              onCancel={handleCancel}
+              isSaving={updateLoading}
+              error={updateError}
             />
-          </div>
-
-          <div>
-            <Label className="block text-sm font-medium">Embedded Code</Label>
-            <Input
-              type="text"
-              name="webformEmbeddedCode"
-              value={formData.webformEmbeddedCode}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="flex space-x-2">
-            <Button onClick={handleSave} disabled={updateLoading}>
-              {updateLoading ? "Saving..." : "Save"}
-            </Button>
-            <Button variant="outline" onClick={handleCancel}>
-              Cancel
-            </Button>
-          </div>
-        </div>
-      )}
-    </div>
+          )}
+        </FieldGroup>
+      </CenteredContainer>
+    </SectionContainer>
   );
 };
 

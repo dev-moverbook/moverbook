@@ -15,6 +15,7 @@ import ComplianceSection from "../sections/ComplianceSection";
 import WebIntegrationsSection from "../sections/WebIntegrationsSection";
 import CompanyContactSection from "../sections/CompanyContactSection";
 import { useUpdateOrganizationLogo } from "../hooks/useUpdateOrganizationLogo";
+import VerticalSectionGroup from "@/app/components/shared/VerticalSectionGroup";
 
 const GeneralTab = () => {
   const { companyId } = useSlugContext();
@@ -81,7 +82,8 @@ const GeneralTab = () => {
     companyDetailsResponse.data;
 
   return (
-    <div className="p-4 space-y-6">
+    <VerticalSectionGroup>
+      {" "}
       <CompanySection
         company={company}
         updateCompany={updateCompany}
@@ -113,7 +115,7 @@ const GeneralTab = () => {
         updateError={updateWebIntegrationsError}
         setUpdateError={setUpdateWebIntegrationsError}
       />
-    </div>
+    </VerticalSectionGroup>
   );
 };
 

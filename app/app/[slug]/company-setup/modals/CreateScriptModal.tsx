@@ -2,7 +2,12 @@
 
 import React, { useEffect, useState } from "react";
 import { useMediaQuery } from "react-responsive";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -208,7 +213,7 @@ const CreateScriptModal: React.FC<CreateScriptModalProps> = ({
       )}
 
       <div>
-        <Label className="block text-sm font-medium">Message</Label>
+        <Label className="">Message</Label>
         <Textarea
           value={message}
           onChange={(e) => {
@@ -265,6 +270,7 @@ const CreateScriptModal: React.FC<CreateScriptModalProps> = ({
         <DialogTitle>
           {editingScript ? "Edit Script" : "Create Script"}
         </DialogTitle>
+        <DialogDescription>Enter in a script</DialogDescription>
         {formContent}
       </DialogContent>
     </Dialog>

@@ -1,14 +1,18 @@
 "use client";
 
 import React, { useState } from "react";
-import { InsurancePolicySchema } from "@/types/convex-schemas";
-import LiabilityModal from "../modals/LiabilityModal";
-import ConfirmModal from "@/app/components/shared/ConfirmModal";
 import { Id } from "@/convex/_generated/dataModel";
+import { InsurancePolicySchema } from "@/types/convex-schemas";
+import SectionContainer from "@/app/components/shared/SectionContainer";
+import CenteredContainer from "@/app/components/shared/CenteredContainer";
+import SectionHeader from "@/app/components/shared/SectionHeader";
+import ConfirmModal from "@/app/components/shared/ConfirmModal";
+import { Button } from "@/app/components/ui/button";
+import LiabilityModal from "../modals/LiabilityModal";
+import LiabilityCard from "../cards/LiablilityCard";
 import { useCreateInsurancePolicy } from "../hooks/useCreateInsurancePolicy";
 import { useUpdateInsurancePolicy } from "../hooks/useUpdateInsurancePolicy";
 import { useDeleteInsurancePolicy } from "../hooks/useDeleteInsurancePolicy";
-import LiabilityCard from "../cards/LiablilityCard";
 
 interface LiabilitySectionProps {
   policies: InsurancePolicySchema[];
@@ -33,14 +37,12 @@ const LiabilitySection: React.FC<LiabilitySectionProps> = ({
     createInsurancePolicyError,
     setCreateInsurancePolicyError,
   } = useCreateInsurancePolicy();
-
   const {
     updateInsurancePolicy,
     updateInsurancePolicyLoading,
     updateInsurancePolicyError,
     setUpdateInsurancePolicyError,
   } = useUpdateInsurancePolicy();
-
   const {
     deleteInsurancePolicy,
     deleteInsurancePolicyLoading,
@@ -88,57 +90,57 @@ const LiabilitySection: React.FC<LiabilitySectionProps> = ({
   };
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-lg font-semibold">Liability Policies</h2>
+    <SectionContainer>
+      <CenteredContainer>
+        <SectionHeader
+          title="Liability Policies"
+          actions={
+            <Button onClick={handleOpenCreateModal}>+ Add Policy</Button>
+          }
+        />
 
-      {policies.map((policy) => (
-        <div key={policy._id} className="flex items-center justify-between">
-          <LiabilityCard
-            policy={policy}
-            onEdit={handleOpenEditModal}
-            onDelete={handleOpenDeleteModal}
-          />
-        </div>
-      ))}
+        {policies.map((policy) => (
+          <div key={policy._id} className="flex items-center justify-between">
+            <LiabilityCard
+              policy={policy}
+              onEdit={handleOpenEditModal}
+              onDelete={handleOpenDeleteModal}
+            />
+          </div>
+        ))}
 
-      <button
-        onClick={handleOpenCreateModal}
-        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-      >
-        Add New Policy
-      </button>
+        {/* Create/Edit Modal */}
+        <LiabilityModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          onCreate={createInsurancePolicy}
+          onEdit={updateInsurancePolicy}
+          loading={
+            isEditMode
+              ? updateInsurancePolicyLoading
+              : createInsurancePolicyLoading
+          }
+          error={
+            isEditMode ? updateInsurancePolicyError : createInsurancePolicyError
+          }
+          companyId={companyId}
+          initialData={selectedPolicy}
+        />
 
-      {/* Create/Edit Modal */}
-      <LiabilityModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onCreate={createInsurancePolicy}
-        onEdit={updateInsurancePolicy}
-        loading={
-          isEditMode
-            ? updateInsurancePolicyLoading
-            : createInsurancePolicyLoading
-        }
-        error={
-          isEditMode ? updateInsurancePolicyError : createInsurancePolicyError
-        }
-        companyId={companyId}
-        initialData={selectedPolicy}
-      />
-
-      {/* Delete Confirmation Modal */}
-      <ConfirmModal
-        isOpen={isDeleteModalOpen}
-        onClose={handleCloseDeleteModal}
-        onConfirm={handleConfirmDelete}
-        deleteLoading={deleteInsurancePolicyLoading}
-        deleteError={deleteInsurancePolicyError}
-        title="Confirm Delete"
-        description="Are you sure you want to delete this policy? This action cannot be undone."
-        confirmButtonText="Delete"
-        cancelButtonText="Cancel"
-      />
-    </div>
+        {/* Delete Confirmation Modal */}
+        <ConfirmModal
+          isOpen={isDeleteModalOpen}
+          onClose={handleCloseDeleteModal}
+          onConfirm={handleConfirmDelete}
+          deleteLoading={deleteInsurancePolicyLoading}
+          deleteError={deleteInsurancePolicyError}
+          title="Confirm Delete"
+          description="Are you sure you want to delete this policy? This action cannot be undone."
+          confirmButtonText="Delete"
+          cancelButtonText="Cancel"
+        />
+      </CenteredContainer>
+    </SectionContainer>
   );
 };
 

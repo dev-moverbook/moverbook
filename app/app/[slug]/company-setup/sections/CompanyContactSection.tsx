@@ -1,12 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/app/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { CompanyContactSchema } from "@/types/convex-schemas";
 import { CompanyContactFormData } from "@/types/form-types";
 import { Id } from "@/convex/_generated/dataModel";
+import SectionContainer from "@/app/components/shared/SectionContainer";
+import CenteredContainer from "@/app/components/shared/CenteredContainer";
+import SectionHeader from "@/app/components/shared/SectionHeader";
+import FormActions from "@/app/components/shared/FormActions";
+import FieldRow from "@/app/components/shared/FieldRow";
+import FieldGroup from "@/app/components/shared/FieldGroup";
 
 interface CompanyContactSectionProps {
   companyContact: CompanyContactSchema;
@@ -18,6 +21,8 @@ interface CompanyContactSectionProps {
   updateError: string | null;
   setUpdateError: (error: string | null) => void;
 }
+
+type FieldKey = keyof CompanyContactFormData;
 
 const CompanyContactSection: React.FC<CompanyContactSectionProps> = ({
   companyContact,
@@ -34,6 +39,13 @@ const CompanyContactSection: React.FC<CompanyContactSectionProps> = ({
     website: companyContact.website || "",
   });
 
+  const [fieldErrors, setFieldErrors] = useState<Record<FieldKey, string>>({
+    email: "",
+    phoneNumber: "",
+    address: "",
+    website: "",
+  });
+
   const handleEditClick = () => {
     setIsEditing(true);
   };
@@ -47,16 +59,40 @@ const CompanyContactSection: React.FC<CompanyContactSectionProps> = ({
       website: companyContact.website || "",
     });
     setUpdateError(null);
+    setFieldErrors({
+      email: "",
+      phoneNumber: "",
+      address: "",
+      website: "",
+    });
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFieldErrors((prev) => ({ ...prev, [name as FieldKey]: "" }));
   };
 
   const handleSave = async () => {
+    const errors: Record<FieldKey, string> = {
+      email: "",
+      phoneNumber: "",
+      address: "",
+      website: "",
+    };
+
+    if (!formData.email) errors.email = "Email is required.";
+    if (!formData.phoneNumber) errors.phoneNumber = "Phone number is required.";
+    if (!formData.address) errors.address = "Address is required.";
+    if (!formData.website) errors.website = "Website is required.";
+
+    const hasErrors = Object.values(errors).some((msg) => msg !== "");
+
+    if (hasErrors) {
+      setFieldErrors(errors);
+      return;
+    }
+
     const success = await updateCompanyContact(companyContact._id, formData);
     if (success) {
       setIsEditing(false);
@@ -64,85 +100,63 @@ const CompanyContactSection: React.FC<CompanyContactSectionProps> = ({
   };
 
   return (
-    <div className="p-4 border rounded-md shadow-sm space-y-4">
-      <h2 className="text-lg font-semibold">Company Contact Information</h2>
+    <SectionContainer>
+      <CenteredContainer>
+        <SectionHeader
+          title="Company Contact"
+          isEditing={isEditing}
+          onEditClick={handleEditClick}
+        />
 
-      {updateError && <p className="text-red-500">{updateError}</p>}
+        <FieldGroup>
+          <FieldRow
+            label="Email"
+            name="email"
+            value={formData.email}
+            isEditing={isEditing}
+            onChange={handleChange}
+            type="email"
+            error={fieldErrors.email}
+          />
 
-      {!isEditing ? (
-        <div className="space-y-2">
-          <p>
-            <span className="font-medium">Email:</span>{" "}
-            {companyContact.email || "N/A"}
-          </p>
-          <p>
-            <span className="font-medium">Phone Number:</span>{" "}
-            {companyContact.phoneNumber || "N/A"}
-          </p>
-          <p>
-            <span className="font-medium">Address:</span>{" "}
-            {companyContact.address || "N/A"}
-          </p>
-          <p>
-            <span className="font-medium">Website:</span>{" "}
-            {companyContact.website || "N/A"}
-          </p>
+          <FieldRow
+            label="Phone Number"
+            name="phoneNumber"
+            value={formData.phoneNumber}
+            isEditing={isEditing}
+            onChange={handleChange}
+            error={fieldErrors.phoneNumber}
+          />
 
-          <Button onClick={handleEditClick}>Edit</Button>
-        </div>
-      ) : (
-        <div className="space-y-2">
-          <div>
-            <Label className="block text-sm font-medium">Email</Label>
-            <Input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
+          <FieldRow
+            label="Address"
+            name="address"
+            value={formData.address}
+            isEditing={isEditing}
+            onChange={handleChange}
+            error={fieldErrors.address}
+          />
+
+          <FieldRow
+            label="Website"
+            name="website"
+            value={formData.website}
+            isEditing={isEditing}
+            onChange={handleChange}
+            error={fieldErrors.website}
+          />
+
+          {isEditing && (
+            <FormActions
+              onSave={handleSave}
+              onCancel={handleCancel}
+              isSaving={updateLoading}
+              error={updateError}
             />
-          </div>
-
-          <div>
-            <Label className="block text-sm font-medium">Phone Number</Label>
-            <Input
-              type="text"
-              name="phoneNumber"
-              value={formData.phoneNumber}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div>
-            <Label className="block text-sm font-medium">Address</Label>
-            <Input
-              type="text"
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div>
-            <Label className="block text-sm font-medium">Website</Label>
-            <Input
-              type="text"
-              name="website"
-              value={formData.website}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="flex space-x-2">
-            <Button onClick={handleSave} disabled={updateLoading}>
-              {updateLoading ? "Saving..." : "Save"}
-            </Button>
-            <Button variant="outline" onClick={handleCancel}>
-              Cancel
-            </Button>
-          </div>
-        </div>
-      )}
-    </div>
+          )}
+        </FieldGroup>
+      </CenteredContainer>
+    </SectionContainer>
   );
 };
 

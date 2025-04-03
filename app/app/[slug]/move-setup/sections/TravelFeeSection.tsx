@@ -1,14 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
-import { Button } from "@/app/components/ui/button";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { TravelChargingTypes } from "@/types/enums";
-import { useUpdateTravelFee } from "../hooks/useUpdateTravelFee";
-import { TravelFeeSchema } from "@/types/convex-schemas";
-import { TravelFeeFormData } from "@/types/form-types";
+import SectionContainer from "@/app/components/shared/SectionContainer";
+import CenteredContainer from "@/app/components/shared/CenteredContainer";
+import SectionHeader from "@/app/components/shared/SectionHeader";
+import FormActions from "@/app/components/shared/FormActions";
+import FieldGroup from "@/app/components/shared/FieldGroup";
+import FieldRow from "@/app/components/shared/FieldRow";
 import {
   Select,
   SelectContent,
@@ -16,13 +17,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { TravelChargingTypes } from "@/types/enums";
+import { TravelFeeSchema } from "@/types/convex-schemas";
+import { TravelFeeFormData } from "@/types/form-types";
+import { useUpdateTravelFee } from "../hooks/useUpdateTravelFee";
+import ChargingMethodField from "@/app/components/shared/ChargingMethodField";
 
 interface TravelFeeSectionProps {
   travelFee: TravelFeeSchema;
 }
 
 const TravelFeeSection: React.FC<TravelFeeSectionProps> = ({ travelFee }) => {
-  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<TravelFeeFormData>(travelFee);
 
   const {
@@ -32,9 +38,17 @@ const TravelFeeSection: React.FC<TravelFeeSectionProps> = ({ travelFee }) => {
     setUpdateTravelFeeError,
   } = useUpdateTravelFee();
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
+  const handleEditClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    setFormData(travelFee);
+    setUpdateTravelFeeError(null);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -57,8 +71,6 @@ const TravelFeeSection: React.FC<TravelFeeSectionProps> = ({ travelFee }) => {
   };
 
   const handleSave = async () => {
-    setUpdateTravelFeeError(null);
-
     const success = await updateTravelFee(travelFee._id, {
       isDefault: formData.isDefault,
       chargingMethod: formData.chargingMethod,
@@ -71,96 +83,53 @@ const TravelFeeSection: React.FC<TravelFeeSectionProps> = ({ travelFee }) => {
   };
 
   return (
-    <div className="p-4 border rounded shadow-sm space-y-4">
-      <h2 className="text-lg font-semibold">Travel Fee</h2>
+    <SectionContainer>
+      <CenteredContainer>
+        <SectionHeader
+          title="Travel Fee"
+          isEditing={isEditing}
+          onEditClick={handleEditClick}
+        />
 
-      {!isEditing ? (
-        <>
-          <p>
-            <span className="font-medium">Charging Method:</span>{" "}
-            {formData.chargingMethod}
-          </p>
-          <p>
-            <span className="font-medium">Rate:</span>{" "}
-            {formData.rate ? `$${formData.rate}` : "Not Applicable"}
-          </p>
-          <p>
-            <span className="font-medium">Default:</span>{" "}
-            {formData.isDefault ? "Yes" : "No"}
-          </p>
+        <FieldGroup>
+          <ChargingMethodField
+            value={formData.chargingMethod}
+            isEditing={isEditing}
+            onChange={handleChargingMethodChange}
+          />
 
-          <Button onClick={() => setIsEditing(true)} className="mt-2">
-            Edit
-          </Button>
-        </>
-      ) : (
-        <>
-          <div className="space-y-4">
-            {/* Charging Method */}
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="chargingMethod" className="text-right">
-                Charging Method
-              </Label>
-              <Select
-                value={formData.chargingMethod}
-                onValueChange={handleChargingMethodChange}
-              >
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Select charging method" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.values(TravelChargingTypes).map((method) => (
-                    <SelectItem key={method} value={method}>
-                      {method}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          {/* Rate */}
+          <FieldRow
+            label="Rate"
+            name="rate"
+            value={formData.rate?.toString() || ""}
+            isEditing={isEditing}
+            onChange={handleInputChange}
+            type="number"
+          />
 
-            {/* Rate */}
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="rate" className="text-right">
-                Rate
-              </Label>
-              <Input
-                id="rate"
-                name="rate"
-                type="number"
-                value={formData.rate || ""}
-                onChange={handleInputChange}
-                className="col-span-3"
-              />
-            </div>
-
-            {/* Default Checkbox */}
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="isDefault"
-                checked={formData.isDefault}
-                onCheckedChange={handleCheckboxChange}
-              />
-              <Label htmlFor="isDefault">Is Default</Label>
-            </div>
+          {/* Default Checkbox */}
+          <div className="flex items-center space-x-2 mt-2">
+            <Checkbox
+              id="isDefault"
+              checked={formData.isDefault}
+              onCheckedChange={handleCheckboxChange}
+              disabled={!isEditing}
+            />
+            <Label htmlFor="isDefault">Is Default</Label>
           </div>
 
-          {/* Save and Cancel Buttons */}
-          <div className="flex space-x-2 mt-4">
-            <Button onClick={handleSave} disabled={updateTravelFeeLoading}>
-              {updateTravelFeeLoading ? "Saving..." : "Save"}
-            </Button>
-            <Button variant="outline" onClick={() => setIsEditing(false)}>
-              Cancel
-            </Button>
-          </div>
-
-          {/* Error Message */}
-          {updateTravelFeeError && (
-            <p className="text-red-500 text-sm mt-2">{updateTravelFeeError}</p>
+          {isEditing && (
+            <FormActions
+              onSave={handleSave}
+              onCancel={handleCancel}
+              isSaving={updateTravelFeeLoading}
+              error={updateTravelFeeError}
+            />
           )}
-        </>
-      )}
-    </div>
+        </FieldGroup>
+      </CenteredContainer>
+    </SectionContainer>
   );
 };
 

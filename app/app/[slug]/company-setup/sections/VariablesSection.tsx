@@ -1,6 +1,9 @@
+import CenteredContainer from "@/app/components/shared/CenteredContainer";
+import SectionContainer from "@/app/components/shared/SectionContainer";
 import VariableCard from "../components/VariableCard";
 import { Button } from "@/app/components/ui/button";
 import { VariableSchema } from "@/types/convex-schemas";
+import SectionHeader from "@/app/components/shared/SectionHeader";
 
 interface VariablesSectionProps {
   variables: VariableSchema[]; // Replace `any` with actual type
@@ -12,24 +15,28 @@ const VariablesSection: React.FC<VariablesSectionProps> = ({
   setIsVariableModalOpen,
 }) => {
   return (
-    <div className="p-4 space-y-4">
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold">Active Variables</h2>
-        <Button onClick={() => setIsVariableModalOpen(true)}>
-          + Create Variable
-        </Button>
-      </div>
+    <SectionContainer>
+      <CenteredContainer>
+        <SectionHeader
+          title="Variables"
+          actions={
+            <Button onClick={() => setIsVariableModalOpen(true)}>
+              + Create Variable
+            </Button>
+          }
+        />
 
-      {variables.length === 0 ? (
-        <p className="text-gray-500">No active variables found.</p>
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {variables.map((variable) => (
-            <VariableCard key={variable._id} variable={variable} />
-          ))}
-        </div>
-      )}
-    </div>
+        {variables.length === 0 ? (
+          <p className="text-gray-500">No active variables found.</p>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {variables.map((variable) => (
+              <VariableCard key={variable._id} variable={variable} />
+            ))}
+          </div>
+        )}
+      </CenteredContainer>
+    </SectionContainer>
   );
 };
 
