@@ -4,13 +4,14 @@ import React, { useState, useEffect } from "react";
 import { useMediaQuery } from "react-responsive";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/app/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Id } from "@/convex/_generated/dataModel";
 import { InsurancePolicySchema } from "@/types/convex-schemas";
 import { InsurancePolicyFormData } from "@/types/form-types";
+import FieldGroup from "@/app/components/shared/FieldGroup";
+import FieldRow from "@/app/components/shared/FieldRow";
+import CheckboxField from "@/app/components/shared/CheckboxField";
+import FormActions from "@/app/components/shared/FormActions";
+import { validatePrice } from "@/app/frontendUtils/validation";
 
 interface LiabilityModalProps {
   isOpen: boolean;
@@ -39,7 +40,7 @@ const LiabilityModal: React.FC<LiabilityModalProps> = ({
   companyId,
   initialData,
 }) => {
-  const isMobile = useMediaQuery({ maxWidth: 768 }); // Detect mobile devices
+  const isMobile = useMediaQuery({ maxWidth: 768 });
   const [formData, setFormData] = useState<InsurancePolicyFormData>({
     name: "",
     coverageAmount: 0,
@@ -48,7 +49,10 @@ const LiabilityModal: React.FC<LiabilityModalProps> = ({
     isDefault: false,
   });
 
-  // Populate form data when editing
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof InsurancePolicyFormData, string>>
+  >({});
+
   useEffect(() => {
     if (initialData) {
       setFormData({
@@ -58,21 +62,70 @@ const LiabilityModal: React.FC<LiabilityModalProps> = ({
         premium: initialData.premium,
         isDefault: initialData.isDefault,
       });
+    } else {
+      resetState();
     }
   }, [initialData]);
 
-  // Reset form data when modal is closed
-  useEffect(() => {
-    if (!isOpen) {
-      setFormData({
-        name: "",
-        coverageAmount: 0,
-        coverageType: 0,
-        premium: 0,
-        isDefault: false,
-      });
+  const resetState = () => {
+    setFormData({
+      name: "",
+      coverageAmount: 0,
+      coverageType: 0,
+      premium: 0,
+      isDefault: false,
+    });
+    setErrors({});
+  };
+
+  const handleClose = () => {
+    resetState();
+    onClose();
+  };
+
+  const validateInsuranceForm = (data: InsurancePolicyFormData) => {
+    const newErrors: Partial<Record<keyof InsurancePolicyFormData, string>> =
+      {};
+
+    if (!data.name.trim()) {
+      newErrors.name = "Policy name is required.";
     }
-  }, [isOpen]);
+
+    const priceFields: (keyof InsurancePolicyFormData)[] = [
+      "coverageAmount",
+      "coverageType",
+      "premium",
+    ];
+
+    for (const key of priceFields) {
+      const value = data[key];
+      if (typeof value === "number") {
+        const error = validatePrice(value);
+        if (error) newErrors[key] = error;
+      }
+    }
+
+    return newErrors;
+  };
+
+  const handleSubmit = async () => {
+    const validationErrors = validateInsuranceForm(formData);
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    setErrors({});
+
+    const success = initialData
+      ? await onEdit(initialData._id, formData)
+      : await onCreate(companyId, formData);
+
+    if (success) {
+      handleClose();
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
@@ -80,106 +133,83 @@ const LiabilityModal: React.FC<LiabilityModalProps> = ({
       ...prev,
       [name]: type === "number" ? parseFloat(value) : value,
     }));
-  };
-
-  const handleCheckboxChange = (checked: boolean) => {
-    setFormData((prev) => ({
-      ...prev,
-      isDefault: checked,
-    }));
-  };
-
-  const handleSubmit = async () => {
-    if (!formData.name.trim()) return;
-
-    if (initialData) {
-      await onEdit(initialData._id, formData);
-    } else {
-      await onCreate(companyId, formData);
-    }
-
-    onClose();
+    setErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
   const formContent = (
-    <div className="space-y-4">
-      <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="name" className="text-right">
-          Name
-        </Label>
-        <Input
-          id="name"
-          name="name"
-          value={formData.name}
-          onChange={handleInputChange}
-          className="col-span-3"
-        />
-      </div>
-      <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="coverageAmount" className="text-right">
-          Coverage Amount
-        </Label>
-        <Input
-          id="coverageAmount"
-          name="coverageAmount"
-          type="number"
-          value={formData.coverageAmount}
-          onChange={handleInputChange}
-          className="col-span-3"
-        />
-      </div>
-      <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="coverageType" className="text-right">
-          Coverage Type
-        </Label>
-        <Input
-          id="coverageType"
-          name="coverageType"
-          type="number"
-          value={formData.coverageType}
-          onChange={handleInputChange}
-          className="col-span-3"
-        />
-      </div>
-      <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="premium" className="text-right">
-          Premium
-        </Label>
-        <Input
-          id="premium"
-          name="premium"
-          type="number"
-          value={formData.premium}
-          onChange={handleInputChange}
-          className="col-span-3"
-        />
-      </div>
-      <div className="flex items-center space-x-2">
-        <Checkbox
-          id="isDefault"
-          checked={formData.isDefault}
-          onCheckedChange={handleCheckboxChange}
-        />
-        <Label htmlFor="isDefault">Is Default</Label>
-      </div>
-      <Button disabled={loading} onClick={handleSubmit} className="w-full mt-4">
-        {loading ? "Saving..." : initialData ? "Save Changes" : "Add Policy"}
-      </Button>
-      {error && <p className="text-red-500 text-sm">{error}</p>}
-    </div>
+    <FieldGroup>
+      <FieldRow
+        label="Policy Name"
+        name="name"
+        value={formData.name}
+        onChange={handleInputChange}
+        placeholder="Enter policy name"
+        error={errors.name}
+      />
+
+      <FieldRow
+        label="Coverage Amount"
+        name="coverageAmount"
+        type="number"
+        value={formData.coverageAmount.toString()}
+        onChange={handleInputChange}
+        placeholder="Enter coverage amount"
+        error={errors.coverageAmount}
+      />
+
+      <FieldRow
+        label="Coverage Type"
+        name="coverageType"
+        type="number"
+        value={formData.coverageType.toString()}
+        onChange={handleInputChange}
+        placeholder="Enter coverage type"
+        error={errors.coverageType}
+      />
+
+      <FieldRow
+        label="Premium"
+        name="premium"
+        type="number"
+        value={formData.premium.toString()}
+        onChange={handleInputChange}
+        placeholder="Enter premium"
+        error={errors.premium}
+      />
+
+      <CheckboxField
+        id="isDefault"
+        label="Is Default"
+        checked={formData.isDefault}
+        onChange={(checked) =>
+          setFormData((prev) => ({ ...prev, isDefault: checked }))
+        }
+      />
+
+      <FormActions
+        onSave={handleSubmit}
+        onCancel={handleClose}
+        isSaving={loading}
+        error={error}
+        saveLabel={initialData ? "Save Changes" : "Add Policy"}
+        cancelLabel="Cancel"
+      />
+    </FieldGroup>
   );
 
+  const title = initialData ? "Edit Policy" : "Add Policy";
+
   return isMobile ? (
-    <Drawer open={isOpen} onOpenChange={onClose}>
+    <Drawer open={isOpen} onOpenChange={handleClose}>
       <DrawerContent>
-        <DrawerTitle>{initialData ? "Edit Policy" : "Add Policy"}</DrawerTitle>
+        <DrawerTitle>{title}</DrawerTitle>
         {formContent}
       </DrawerContent>
     </Drawer>
   ) : (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogTitle>{initialData ? "Edit Policy" : "Add Policy"}</DialogTitle>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogContent>
+        <DialogTitle>{title}</DialogTitle>
         {formContent}
       </DialogContent>
     </Dialog>

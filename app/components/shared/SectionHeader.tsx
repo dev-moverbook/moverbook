@@ -16,7 +16,7 @@ const SectionHeader: React.FC<SectionHeaderProps> = ({
   actions,
 }) => {
   return (
-    <div className="flex items-center justify-between pb-6">
+    <div className="flex items-center justify-between py-6">
       <h2 className="text-2xl font-bold">{title}</h2>
       {actions
         ? actions

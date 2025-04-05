@@ -13,6 +13,7 @@ import LaborModal from "../modals/LaborModal";
 import { useCreateLabor } from "../hooks/useCreateLabor";
 import { useUpdateLabor } from "../hooks/useUpdateLabor";
 import { useDeleteLabor } from "../hooks/useDeleteLabor";
+import CardContainer from "@/app/components/shared/CardContainer";
 
 interface LaborSectionProps {
   labor: LaborSchema[];
@@ -91,20 +92,16 @@ const LaborSection: React.FC<LaborSectionProps> = ({ labor, companyId }) => {
           title="Labor Rates"
           actions={<Button onClick={handleOpenCreateModal}>+ Add Labor</Button>}
         />
-
-        {labor.map((laborItem) => (
-          <div
-            key={laborItem._id}
-            className="flex items-center justify-between"
-          >
+        <CardContainer>
+          {labor.map((laborItem) => (
             <LaborCard
+              key={laborItem._id}
               laborItem={laborItem}
               onEdit={handleOpenEditModal}
               onDelete={handleOpenDeleteModal}
             />
-          </div>
-        ))}
-
+          ))}
+        </CardContainer>
         <LaborModal
           isOpen={isModalOpen}
           onClose={handleCloseModal}

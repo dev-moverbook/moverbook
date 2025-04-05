@@ -4,14 +4,15 @@ import React, { useState, useEffect } from "react";
 import { useMediaQuery } from "react-responsive";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { FrontEndErrorMessages } from "@/types/errors";
-import { Button } from "@/app/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { CreateLaborFormData } from "@/types/form-types";
 import { Id } from "@/convex/_generated/dataModel";
 import { LaborSchema } from "@/types/convex-schemas";
+import FieldGroup from "@/app/components/shared/FieldGroup";
+import FormActions from "@/app/components/shared/FormActions";
+import { validatePrice } from "@/app/frontendUtils/validation";
+import FieldRow from "@/app/components/shared/FieldRow";
+import CheckboxField from "@/app/components/shared/CheckboxField";
 
 interface LaborModalProps {
   isOpen: boolean;
@@ -49,7 +50,13 @@ const LaborModal: React.FC<LaborModalProps> = ({
     extra: 0,
     isDefault: false,
   });
-  const [nameError, setNameError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<{
+    name?: string;
+    twoMovers?: string;
+    threeMovers?: string;
+    fourMovers?: string;
+    extra?: string;
+  }>({});
 
   useEffect(() => {
     if (initialData) {
@@ -75,7 +82,7 @@ const LaborModal: React.FC<LaborModalProps> = ({
       extra: 0,
       isDefault: false,
     });
-    setNameError(null);
+    setErrors({});
   };
 
   const handleClose = () => {
@@ -83,21 +90,49 @@ const LaborModal: React.FC<LaborModalProps> = ({
     onClose();
   };
 
+  const validateLaborForm = (formData: CreateLaborFormData) => {
+    const errors: {
+      name?: string;
+      twoMovers?: string;
+      threeMovers?: string;
+      fourMovers?: string;
+      extra?: string;
+    } = {};
+
+    if (!formData.name.trim()) {
+      errors.name = FrontEndErrorMessages.LABOR_NAME_REQUIRED;
+    }
+
+    const rateFields = [
+      "twoMovers",
+      "threeMovers",
+      "fourMovers",
+      "extra",
+    ] as const;
+
+    for (const key of rateFields) {
+      const error = validatePrice(formData[key]);
+      if (error) {
+        errors[key] = error;
+      }
+    }
+
+    return errors;
+  };
+
   const handleSubmit = async () => {
-    if (!labor.name?.trim()) {
-      setNameError(FrontEndErrorMessages.LABOR_NAME_REQUIRED);
+    const validationErrors = validateLaborForm(labor);
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
       return;
     }
 
-    let success = false;
+    setErrors({});
 
-    if (initialData) {
-      // Edit mode
-      success = await onEdit(initialData._id, labor);
-    } else {
-      // Create mode
-      success = await onCreate(companyId, labor);
-    }
+    const success = initialData
+      ? await onEdit(initialData._id, labor)
+      : await onCreate(companyId, labor);
 
     if (success) {
       handleClose();
@@ -115,85 +150,78 @@ const LaborModal: React.FC<LaborModalProps> = ({
             ? Number(value)
             : value,
     }));
-    if (name === "name") setNameError(null);
+    setErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
   const formContent = (
-    <div className="space-y-4">
-      <div>
-        <Label className="block text-sm font-medium">Labor Name</Label>
-        <Input
-          type="text"
-          name="name"
-          value={labor.name}
-          onChange={handleInputChange}
-          placeholder="Enter labor name"
-        />
-        {nameError && <p className="text-red-500 text-sm">{nameError}</p>}
-      </div>
+    <FieldGroup>
+      <FieldRow
+        label="Labor Name"
+        name="name"
+        value={labor.name}
+        onChange={handleInputChange}
+        placeholder="Enter labor name"
+        error={errors.name}
+      />
 
-      <div>
-        <Label className="block text-sm font-medium">Two Movers Rate</Label>
-        <Input
-          type="number"
-          name="twoMovers"
-          value={labor.twoMovers}
-          onChange={handleInputChange}
-          placeholder="Enter rate for two movers"
-        />
-      </div>
+      <FieldRow
+        label="Two Movers Rate"
+        name="twoMovers"
+        type="number"
+        value={labor.twoMovers.toString()}
+        onChange={handleInputChange}
+        placeholder="Enter rate for two movers"
+        error={errors.twoMovers}
+      />
 
-      <div>
-        <Label className="block text-sm font-medium">Three Movers Rate</Label>
-        <Input
-          type="number"
-          name="threeMovers"
-          value={labor.threeMovers}
-          onChange={handleInputChange}
-          placeholder="Enter rate for three movers"
-        />
-      </div>
+      <FieldRow
+        label="Three Movers Rate"
+        name="threeMovers"
+        type="number"
+        value={labor.threeMovers.toString()}
+        onChange={handleInputChange}
+        placeholder="Enter rate for three movers"
+        error={errors.threeMovers}
+      />
 
-      <div>
-        <Label className="block text-sm font-medium">Four Movers Rate</Label>
-        <Input
-          type="number"
-          name="fourMovers"
-          value={labor.fourMovers}
-          onChange={handleInputChange}
-          placeholder="Enter rate for four movers"
-        />
-      </div>
+      <FieldRow
+        label="Four Movers Rate"
+        name="fourMovers"
+        type="number"
+        value={labor.fourMovers.toString()}
+        onChange={handleInputChange}
+        placeholder="Enter rate for four movers"
+        error={errors.fourMovers}
+      />
 
-      <div>
-        <Label className="block text-sm font-medium">Extra Rate</Label>
-        <Input
-          type="number"
-          name="extra"
-          value={labor.extra}
-          onChange={handleInputChange}
-          placeholder="Enter extra rate"
-        />
-      </div>
+      <FieldRow
+        label="Extra Rate"
+        name="extra"
+        type="number"
+        value={labor.extra.toString()}
+        onChange={handleInputChange}
+        placeholder="Enter extra rate"
+        error={errors.extra}
+      />
 
-      <div className="flex items-center space-x-2">
-        <Checkbox
-          id="isDefault"
-          name="isDefault"
-          checked={labor.isDefault}
-          onCheckedChange={(checked) =>
-            setLabor((prev) => ({ ...prev, isDefault: checked as boolean }))
-          }
-        />
-        <Label htmlFor="isDefault">Is Default</Label>
-      </div>
+      <CheckboxField
+        id="isDefault"
+        label="Is Default"
+        checked={labor.isDefault}
+        onChange={(checked) =>
+          setLabor((prev) => ({ ...prev, isDefault: checked }))
+        }
+      />
 
-      <Button onClick={handleSubmit} disabled={loading} className="w-full">
-        {loading ? "Saving..." : initialData ? "Update Labor" : "Create Labor"}
-      </Button>
-
-      {error && <p className="text-red-500 text-sm">{error}</p>}
-    </div>
+      <FormActions
+        onSave={handleSubmit}
+        onCancel={handleClose}
+        isSaving={loading}
+        error={error}
+        saveLabel={initialData ? "Update Labor" : "Create Labor"}
+        cancelLabel="Cancel"
+      />
+    </FieldGroup>
   );
 
   const title = initialData ? "Edit Labor" : "Create Labor";

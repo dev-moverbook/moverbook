@@ -67,6 +67,11 @@ export interface InsurancePolicyFormData {
 
 export interface FeeFormData {
   name: string;
+  price: number | null;
+}
+
+export interface CreateFeeData {
+  name: string;
   price: number;
 }
 

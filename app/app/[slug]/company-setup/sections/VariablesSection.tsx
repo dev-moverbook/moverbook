@@ -4,9 +4,10 @@ import VariableCard from "../components/VariableCard";
 import { Button } from "@/app/components/ui/button";
 import { VariableSchema } from "@/types/convex-schemas";
 import SectionHeader from "@/app/components/shared/SectionHeader";
+import CardContainer from "@/app/components/shared/CardContainer";
 
 interface VariablesSectionProps {
-  variables: VariableSchema[]; // Replace `any` with actual type
+  variables: VariableSchema[];
   setIsVariableModalOpen: (isOpen: boolean) => void;
 }
 
@@ -29,11 +30,11 @@ const VariablesSection: React.FC<VariablesSectionProps> = ({
         {variables.length === 0 ? (
           <p className="text-gray-500">No active variables found.</p>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <CardContainer>
             {variables.map((variable) => (
               <VariableCard key={variable._id} variable={variable} />
             ))}
-          </div>
+          </CardContainer>
         )}
       </CenteredContainer>
     </SectionContainer>

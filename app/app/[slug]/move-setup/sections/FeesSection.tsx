@@ -13,6 +13,8 @@ import CenteredContainer from "@/app/components/shared/CenteredContainer";
 import SectionContainer from "@/app/components/shared/SectionContainer";
 import SectionHeader from "@/app/components/shared/SectionHeader";
 import { Button } from "@/app/components/ui/button";
+import CardListContainer from "@/app/components/shared/CardListContainer";
+import CardContainer from "@/app/components/shared/CardContainer";
 
 interface FeesSectionProps {
   fees: FeeSchema[];
@@ -83,17 +85,16 @@ const FeesSection: React.FC<FeesSectionProps> = ({ fees, companyId }) => {
             <Button onClick={handleOpenCreateModal}>+ Create Fee</Button>
           }
         />
-
-        {fees.map((fee) => (
-          <div key={fee._id} className="flex items-center justify-between">
+        <CardContainer>
+          {fees.map((fee) => (
             <FeeCard
+              key={fee._id}
               fee={fee}
               onEdit={handleOpenEditModal}
               onDelete={handleOpenDeleteModal}
             />
-          </div>
-        ))}
-
+          ))}
+        </CardContainer>
         {/* Create/Edit Modal */}
         <FeeModal
           isOpen={isModalOpen}

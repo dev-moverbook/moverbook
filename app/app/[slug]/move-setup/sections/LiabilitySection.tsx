@@ -13,6 +13,7 @@ import LiabilityCard from "../cards/LiablilityCard";
 import { useCreateInsurancePolicy } from "../hooks/useCreateInsurancePolicy";
 import { useUpdateInsurancePolicy } from "../hooks/useUpdateInsurancePolicy";
 import { useDeleteInsurancePolicy } from "../hooks/useDeleteInsurancePolicy";
+import CardContainer from "@/app/components/shared/CardContainer";
 
 interface LiabilitySectionProps {
   policies: InsurancePolicySchema[];
@@ -93,23 +94,22 @@ const LiabilitySection: React.FC<LiabilitySectionProps> = ({
     <SectionContainer>
       <CenteredContainer>
         <SectionHeader
-          title="Liability Policies"
+          title="Liability Coverage"
           actions={
-            <Button onClick={handleOpenCreateModal}>+ Add Policy</Button>
+            <Button onClick={handleOpenCreateModal}>+ Add Coverage</Button>
           }
         />
-
-        {policies.map((policy) => (
-          <div key={policy._id} className="flex items-center justify-between">
+        <CardContainer>
+          {policies.map((policy) => (
             <LiabilityCard
               policy={policy}
               onEdit={handleOpenEditModal}
               onDelete={handleOpenDeleteModal}
+              key={policy._id}
             />
-          </div>
-        ))}
+          ))}
+        </CardContainer>
 
-        {/* Create/Edit Modal */}
         <LiabilityModal
           isOpen={isModalOpen}
           onClose={handleCloseModal}
@@ -127,7 +127,6 @@ const LiabilitySection: React.FC<LiabilitySectionProps> = ({
           initialData={selectedPolicy}
         />
 
-        {/* Delete Confirmation Modal */}
         <ConfirmModal
           isOpen={isDeleteModalOpen}
           onClose={handleCloseDeleteModal}

@@ -2,12 +2,17 @@
 
 import React, { useState } from "react";
 import { useMediaQuery } from "react-responsive";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { FrontEndErrorMessages } from "@/types/errors";
-import { Button } from "@/app/components/ui/button";
+import LabeledInput from "@/app/components/shared/LabeledInput";
+import FieldGroup from "@/app/components/shared/FieldGroup";
+import FormActions from "@/app/components/shared/FormActions";
 
 interface CreateVariableModalProps {
   isOpen: boolean;
@@ -25,6 +30,7 @@ const CreateVariableModal: React.FC<CreateVariableModalProps> = ({
   createError,
 }) => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
+
   const [name, setName] = useState<string>("");
   const [defaultValue, setDefaultValue] = useState<string>("");
   const [nameError, setNameError] = useState<string | null>(null);
@@ -66,50 +72,37 @@ const CreateVariableModal: React.FC<CreateVariableModalProps> = ({
   };
 
   const formContent = (
-    <div className="space-y-4">
-      {/* Name Input */}
-      <div>
-        <Label className="block text-sm font-medium">Variable Name</Label>
-        <Input
-          type="text"
-          value={name}
-          onChange={(e) => {
-            setName(e.target.value);
-            setNameError(null);
-          }}
-          placeholder="Enter variable name"
-        />
-        {nameError && <p className="text-red-500 text-sm">{nameError}</p>}
-      </div>
+    <FieldGroup>
+      <LabeledInput
+        label="Variable Name"
+        value={name}
+        onChange={(e) => {
+          setName(e.target.value);
+          setNameError(null);
+        }}
+        placeholder="Enter variable name"
+        error={nameError}
+      />
 
-      {/* Default Value Input */}
-      <div>
-        <Label className="block text-sm font-medium">Default Value</Label>
-        <Input
-          type="text"
-          value={defaultValue}
-          onChange={(e) => {
-            setDefaultValue(e.target.value);
-            setDefaultValueError(null);
-          }}
-          placeholder="Enter default value"
-        />
-        {defaultValueError && (
-          <p className="text-red-500 text-sm">{defaultValueError}</p>
-        )}
-      </div>
+      <LabeledInput
+        label="Default Value"
+        value={defaultValue}
+        onChange={(e) => {
+          setDefaultValue(e.target.value);
+          setDefaultValueError(null);
+        }}
+        placeholder="Enter default value"
+        error={defaultValueError}
+      />
 
-      {/* Submit Button */}
-      <Button
-        onClick={handleCreate}
-        disabled={createLoading}
-        className="w-full"
-      >
-        {createLoading ? "Creating..." : "Create Variable"}
-      </Button>
-
-      {createError && <p className="text-red-500 text-sm">{createError}</p>}
-    </div>
+      <FormActions
+        onSave={handleCreate}
+        onCancel={handleClose}
+        isSaving={createLoading}
+        saveLabel="Create Variable"
+        error={createError}
+      />
+    </FieldGroup>
   );
 
   return isMobile ? (
@@ -123,6 +116,9 @@ const CreateVariableModal: React.FC<CreateVariableModalProps> = ({
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent>
         <DialogTitle>Create Variable</DialogTitle>
+        <DialogDescription>
+          Define a variable and its default value
+        </DialogDescription>
         {formContent}
       </DialogContent>
     </Dialog>

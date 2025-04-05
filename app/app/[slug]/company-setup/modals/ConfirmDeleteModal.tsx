@@ -3,7 +3,7 @@
 import { useMediaQuery } from "react-responsive";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
-import { Button } from "@/app/components/ui/button";
+import FormActions from "@/app/components/shared/FormActions";
 
 interface ConfirmDeleteModalProps {
   isOpen: boolean;
@@ -26,20 +26,15 @@ const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
     <div className="space-y-4">
       <p>Are you sure you want to delete this referral?</p>
 
-      {deleteError && <p className="text-red-500 text-sm">{deleteError}</p>}
-
-      <div className="flex justify-end space-x-2 mt-4">
-        <Button variant="outline" onClick={onClose} disabled={deleteLoading}>
-          Cancel
-        </Button>
-        <Button
-          variant="destructive"
-          onClick={onConfirm}
-          disabled={deleteLoading}
-        >
-          {deleteLoading ? "Deleting..." : "Delete"}
-        </Button>
-      </div>
+      <FormActions
+        onSave={onConfirm}
+        onCancel={onClose}
+        isSaving={deleteLoading}
+        saveLabel="Delete"
+        cancelLabel="Cancel"
+        error={deleteError}
+        saveVariant="destructive"
+      />
     </div>
   );
 

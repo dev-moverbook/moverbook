@@ -7,7 +7,7 @@ const TabContentContainer: React.FC<TabContentContainerProps> = ({
   children,
   className,
 }) => {
-  return <div className={`mt-4 ${className ?? ""}`}>{children}</div>;
+  return <div className={` ${className ?? ""}`}>{children}</div>;
 };
 
 export default TabContentContainer;

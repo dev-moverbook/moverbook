@@ -10,14 +10,14 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-greenCustom text-black shadow shadow-greenCustom/10 hover:bg-greenCustom/90 font-bold",
+          "bg-greenCustom text-white rounded-[20px] shadow shadow-greenCustom/10 hover:bg-greenCustom/90 font-medium",
         destructive:
-          "bg-transparent border border-destructive text-destructive-foreground shadow shadow-destructive/10 hover:bg-destructive/10",
+          " bg-destructive border border-destructive rounded-[20px] text-white shadow shadow-destructive/10 hover:bg-destructive/80",
         outline:
           "border border-greenCustom bg-transparent text-greenCustom shadow-sm hover:bg-gray-800",
         secondary:
           "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
+        ghost: "text-greenCustom font-bold hover:underline font-medium",
         link: "text-primary underline-offset-4 hover:underline",
         plain: "",
         sidebar: "hover:bg-gray-800 rounded-md p-1 transition",

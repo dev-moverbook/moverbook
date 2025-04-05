@@ -4,10 +4,10 @@ import React, { useState } from "react";
 import { useMediaQuery } from "react-responsive";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { FrontEndErrorMessages } from "@/types/errors";
-import { Button } from "@/app/components/ui/button";
+import FormActions from "@/app/components/shared/FormActions";
+import FieldGroup from "@/app/components/shared/FieldGroup";
+import LabeledInput from "@/app/components/shared/LabeledInput";
 
 interface CreateReferralModalProps {
   isOpen: boolean;
@@ -51,33 +51,26 @@ const CreateReferralModal: React.FC<CreateReferralModalProps> = ({
   };
 
   const formContent = (
-    <div className="space-y-4">
-      {/* Name Input */}
-      <div>
-        <Label className="block text-sm font-medium">Referral Name</Label>
-        <Input
-          type="text"
-          value={name}
-          onChange={(e) => {
-            setName(e.target.value);
-            setNameError(null);
-          }}
-          placeholder="Enter referral name"
-        />
-        {nameError && <p className="text-red-500 text-sm">{nameError}</p>}
-      </div>
+    <FieldGroup>
+      <LabeledInput
+        label="Referral Name"
+        value={name}
+        onChange={(e) => {
+          setName(e.target.value);
+          setNameError(null);
+        }}
+        placeholder="Enter referral name"
+        error={nameError}
+      />
 
-      {/* Submit Button */}
-      <Button
-        onClick={handleCreate}
-        disabled={createLoading}
-        className="w-full"
-      >
-        {createLoading ? "Creating..." : "Create Referral"}
-      </Button>
-
-      {createError && <p className="text-red-500 text-sm">{createError}</p>}
-    </div>
+      <FormActions
+        onSave={handleCreate}
+        onCancel={handleClose}
+        isSaving={createLoading}
+        saveLabel={createLoading ? "Creating..." : "Create Referral"}
+        error={createError}
+      />
+    </FieldGroup>
   );
 
   return isMobile ? (

@@ -4,13 +4,13 @@ import React, { useState, useEffect } from "react";
 import { useMediaQuery } from "react-responsive";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/app/components/ui/button";
 import { Id } from "@/convex/_generated/dataModel";
 import { RoomSchema } from "@/types/convex-schemas";
 import { RoomFormData } from "@/types/form-types";
 import { FrontEndErrorMessages } from "@/types/errors";
+import FieldGroup from "@/app/components/shared/FieldGroup";
+import FieldRow from "@/app/components/shared/FieldRow";
+import FormActions from "@/app/components/shared/FormActions";
 
 interface RoomModalProps {
   isOpen: boolean;
@@ -38,7 +38,7 @@ const RoomModal: React.FC<RoomModalProps> = ({
 }) => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
   const [formData, setFormData] = useState<RoomFormData>({ name: "" });
-  const [validationError, setValidationError] = useState<string | null>(null);
+  const [fieldError, setFieldError] = useState<{ name?: string }>({});
 
   useEffect(() => {
     if (initialData) {
@@ -46,17 +46,18 @@ const RoomModal: React.FC<RoomModalProps> = ({
     } else {
       setFormData({ name: "" });
     }
-    setValidationError(null);
+    setFieldError({});
   }, [initialData, isOpen]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ name: e.target.value });
-    setValidationError(null);
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    setFieldError((prev) => ({ ...prev, [name]: undefined }));
   };
 
   const handleSubmit = async () => {
     if (!formData.name.trim()) {
-      setValidationError(FrontEndErrorMessages.ROOM_NAME_EMPTY);
+      setFieldError({ name: FrontEndErrorMessages.ROOM_NAME_EMPTY });
       return;
     }
 
@@ -70,38 +71,39 @@ const RoomModal: React.FC<RoomModalProps> = ({
   };
 
   const formContent = (
-    <div className="space-y-4">
-      <div>
-        <Label className="block text-sm font-medium">Room Name</Label>
-        <Input
-          type="text"
-          name="name"
-          value={formData.name}
-          onChange={handleInputChange}
-          placeholder="Enter room name"
-        />
-        {validationError && (
-          <p className="text-red-500 text-sm mt-1">{validationError}</p>
-        )}
-      </div>
-      <Button onClick={handleSubmit} disabled={loading} className="w-full">
-        {loading ? "Saving..." : initialData ? "Save Changes" : "Add Room"}
-      </Button>
-      {error && <p className="text-red-500 text-sm">{error}</p>}
-    </div>
+    <FieldGroup>
+      <FieldRow
+        label="Room Name"
+        name="name"
+        value={formData.name}
+        onChange={handleInputChange}
+        placeholder="Enter room name"
+        error={fieldError.name}
+      />
+      <FormActions
+        onSave={handleSubmit}
+        onCancel={onClose}
+        isSaving={loading}
+        error={error}
+        saveLabel={initialData ? "Save Changes" : "Add Room"}
+        cancelLabel="Cancel"
+      />
+    </FieldGroup>
   );
+
+  const title = initialData ? "Edit Room" : "Add Room";
 
   return isMobile ? (
     <Drawer open={isOpen} onOpenChange={onClose}>
       <DrawerContent>
-        <DrawerTitle>{initialData ? "Edit Room" : "Add Room"}</DrawerTitle>
+        <DrawerTitle>{title}</DrawerTitle>
         {formContent}
       </DrawerContent>
     </Drawer>
   ) : (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
-        <DialogTitle>{initialData ? "Edit Room" : "Add Room"}</DialogTitle>
+        <DialogTitle>{title}</DialogTitle>
         {formContent}
       </DialogContent>
     </Dialog>

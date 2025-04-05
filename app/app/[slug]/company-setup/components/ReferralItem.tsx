@@ -1,13 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { useUpdateReferral } from "../hooks/useUpdateReferral";
 import { useDeleteReferral } from "../hooks/useDeleteReferral";
 import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
 import ConfirmDeleteModal from "../modals/ConfirmDeleteModal";
+
+import { Pencil, Trash2, Save, X } from "lucide-react";
+import IconButton from "@/app/components/shared/IconButton";
+import IconRow from "@/app/components/shared/IconRow";
+import ListItemRow from "@/app/components/shared/ListItemRow";
 
 interface ReferralItemProps {
   referralId: Id<"referrals">;
@@ -50,7 +54,8 @@ const ReferralItem: React.FC<ReferralItemProps> = ({ referralId, name }) => {
 
   return (
     <>
-      <li className="flex justify-between items-center p-3 border rounded-md">
+      <ListItemRow>
+        {" "}
         {isEditing ? (
           <Input
             type="text"
@@ -60,27 +65,40 @@ const ReferralItem: React.FC<ReferralItemProps> = ({ referralId, name }) => {
         ) : (
           <span className="font-medium">{name}</span>
         )}
-
-        <div className="flex space-x-2">
+        <IconRow>
           {isEditing ? (
-            <Button onClick={handleSave} disabled={updateLoading}>
-              {updateLoading ? "Saving..." : "Save"}
-            </Button>
+            <>
+              <IconButton
+                onClick={handleSave}
+                icon={<Save className="w-4 h-4" />}
+                disabled={updateLoading}
+                title="Save"
+              />
+              <IconButton
+                onClick={() => setIsEditing(false)}
+                icon={<X className="w-4 h-4" />}
+                title="Cancel"
+              />
+            </>
           ) : (
-            <Button onClick={handleEditClick}>Edit</Button>
+            <>
+              <IconButton
+                onClick={handleEditClick}
+                icon={<Pencil className="w-4 h-4" />}
+                title="Edit"
+              />
+              <IconButton
+                onClick={handleDeleteClick}
+                icon={<Trash2 className="w-4 h-4" />}
+                variant="outline"
+                disabled={deleteLoading}
+                title="Delete"
+              />
+            </>
           )}
-
-          <Button
-            variant="destructive"
-            onClick={handleDeleteClick}
-            disabled={deleteLoading}
-          >
-            Delete
-          </Button>
-        </div>
-
+        </IconRow>
         {updateError && <p className="text-red-500 mt-2">{updateError}</p>}
-      </li>
+      </ListItemRow>
 
       <ConfirmDeleteModal
         isOpen={isDeleteModalOpen}

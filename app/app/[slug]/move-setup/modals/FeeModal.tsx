@@ -9,16 +9,20 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/app/components/ui/button";
 import { Id } from "@/convex/_generated/dataModel";
 import { FeeSchema } from "@/types/convex-schemas";
-import { FeeFormData } from "@/types/form-types";
+import { CreateFeeData, FeeFormData } from "@/types/form-types";
+import FormActions from "@/app/components/shared/FormActions";
+import FieldGroup from "@/app/components/shared/FieldGroup";
+import FieldRow from "@/app/components/shared/FieldRow";
+import { validatePrice } from "@/app/frontendUtils/validation";
 
 interface FeeModalProps {
   isOpen: boolean;
   onClose: () => void;
   onCreate: (
     companyId: Id<"companies">,
-    feeData: FeeFormData
+    feeData: CreateFeeData
   ) => Promise<boolean>;
-  onEdit: (feeId: Id<"fees">, feeData: FeeFormData) => Promise<boolean>;
+  onEdit: (feeId: Id<"fees">, feeData: CreateFeeData) => Promise<boolean>;
   loading: boolean;
   error: string | null;
   companyId: Id<"companies">;
@@ -40,6 +44,7 @@ const FeeModal: React.FC<FeeModalProps> = ({
     name: "",
     price: 0,
   });
+  const [errors, setErrors] = useState<{ name?: string; price?: string }>({});
 
   useEffect(() => {
     if (initialData) {
@@ -50,7 +55,7 @@ const FeeModal: React.FC<FeeModalProps> = ({
     } else {
       setFormData({
         name: "",
-        price: 0,
+        price: null,
       });
     }
   }, [initialData, isOpen]);
@@ -63,45 +68,74 @@ const FeeModal: React.FC<FeeModalProps> = ({
     }));
   };
 
+  const validateFeeForm = (formData: FeeFormData) => {
+    const newErrors: { name?: string; price?: string } = {};
+
+    if (!formData.name.trim()) {
+      newErrors.name = "Fee name is required.";
+    }
+
+    const priceError = validatePrice(formData.price);
+    if (priceError) {
+      newErrors.price = priceError;
+    }
+
+    return newErrors;
+  };
+
   const handleSubmit = async () => {
-    if (!formData.name.trim()) return;
+    const validationErrors = validateFeeForm(formData);
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    setErrors({});
+    const safeFeeData: CreateFeeData = {
+      ...formData,
+      price: formData.price as number,
+    };
 
     if (initialData) {
-      await onEdit(initialData._id, formData);
+      await onEdit(initialData._id, safeFeeData);
     } else {
-      await onCreate(companyId, formData);
+      await onCreate(companyId, safeFeeData);
     }
 
     onClose();
   };
 
   const formContent = (
-    <div className="space-y-4">
-      <div>
-        <Label className="block text-sm font-medium">Fee Name</Label>
-        <Input
-          type="text"
-          name="name"
-          value={formData.name}
-          onChange={handleInputChange}
-          placeholder="Enter fee name"
-        />
-      </div>
-      <div>
-        <Label className="block text-sm font-medium">Price</Label>
-        <Input
-          type="number"
-          name="price"
-          value={formData.price || ""}
-          onChange={handleInputChange}
-          placeholder="Enter price"
-        />
-      </div>
-      <Button onClick={handleSubmit} disabled={loading} className="w-full">
-        {loading ? "Saving..." : initialData ? "Save Changes" : "Add Fee"}
-      </Button>
-      {error && <p className="text-red-500 text-sm">{error}</p>}
-    </div>
+    <FieldGroup>
+      <FieldRow
+        label="Fee Name"
+        name="name"
+        value={formData.name}
+        onChange={handleInputChange}
+        placeholder="Enter Fee Name"
+        error={errors.name}
+      />
+
+      <FieldRow
+        label="Price"
+        name="price"
+        type="number"
+        value={formData.price !== null ? formData.price.toString() : ""}
+        onChange={handleInputChange}
+        placeholder="Enter Price"
+        error={errors.price}
+      />
+
+      <FormActions
+        onSave={handleSubmit}
+        onCancel={onClose}
+        isSaving={loading}
+        error={error}
+        saveLabel={initialData ? "Save Changes" : "Add Fee"}
+        cancelLabel="Cancel"
+      />
+    </FieldGroup>
   );
 
   return isMobile ? (

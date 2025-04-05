@@ -7,6 +7,8 @@ interface FormActionsProps {
   saveLabel?: string;
   cancelLabel?: string;
   error?: string | null;
+  saveVariant?: "default" | "destructive" | "outline" | "ghost";
+  cancelVariant?: "default" | "destructive" | "outline" | "ghost";
 }
 
 const FormActions: React.FC<FormActionsProps> = ({
@@ -16,16 +18,23 @@ const FormActions: React.FC<FormActionsProps> = ({
   saveLabel = "Save",
   cancelLabel = "Cancel",
   error,
+  saveVariant = "default",
+  cancelVariant = "ghost",
 }) => {
   return (
     <div className="flex flex-col space-y-2 pb-8">
       <p className="text-sm min-h-[1.25rem] text-red-500">{error || ""}</p>
-      <div className="flex space-x-2">
-        <Button onClick={onSave} disabled={isSaving}>
-          {isSaving ? "Saving..." : saveLabel}
-        </Button>
-        <Button variant="outline" onClick={onCancel}>
+      <div className="grid grid-cols-2 gap-2">
+        <Button onClick={onCancel} variant={cancelVariant} className="w-full">
           {cancelLabel}
+        </Button>
+        <Button
+          onClick={onSave}
+          disabled={isSaving}
+          variant={saveVariant}
+          className="w-full"
+        >
+          {isSaving ? "Saving..." : saveLabel}
         </Button>
       </div>
     </div>

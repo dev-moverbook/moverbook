@@ -1,9 +1,13 @@
 "use client";
 
-import React from "react";
+import { Pencil, Trash2 } from "lucide-react";
 import { InsurancePolicySchema } from "@/types/convex-schemas";
-import { Button } from "@/app/components/ui/button";
 import { Id } from "@/convex/_generated/dataModel";
+import CustomCard from "@/app/components/shared/CustomCard";
+import IconButton from "@/app/components/shared/IconButton";
+import CardHeaderWithActions from "@/app/components/shared/CardHeaderWithActions";
+import CardDetailsWrapper from "@/app/components/shared/CardDetailsWrapper";
+import CardDetailRow from "@/app/components/shared/CardDetailRow";
 
 interface LiabilityCardProps {
   policy: InsurancePolicySchema;
@@ -17,36 +21,34 @@ const LiabilityCard: React.FC<LiabilityCardProps> = ({
   onDelete,
 }) => {
   return (
-    <div className="p-4 border rounded shadow-sm space-y-2">
-      <p>
-        <span className="font-medium">Name:</span> {policy.name}
-      </p>
-      <p>
-        <span className="font-medium">Coverage Amount:</span> $
-        {policy.coverageAmount}
-      </p>
-      <p>
-        <span className="font-medium">Premium:</span> ${policy.premium}
-      </p>
-      <p>
-        <span className="font-medium">Coverage Type:</span>{" "}
-        {policy.coverageType}
-      </p>
-
-      {/* Edit and Delete Buttons */}
-      <div className="flex space-x-2">
-        <Button onClick={() => onEdit(policy)} className="mt-2">
-          Edit
-        </Button>
-        <Button
-          variant="destructive"
-          onClick={() => onDelete(policy._id)}
-          className="mt-2 bg-red-500 hover:bg-red-600"
-        >
-          Delete
-        </Button>
-      </div>
-    </div>
+    <CustomCard>
+      <CardHeaderWithActions
+        title={policy.name}
+        actions={
+          <>
+            <IconButton
+              onClick={() => onEdit(policy)}
+              icon={<Pencil className="w-4 h-4" />}
+              title="Edit"
+            />
+            <IconButton
+              onClick={() => onDelete(policy._id)}
+              icon={<Trash2 className="w-4 h-4" />}
+              variant="outline"
+              title="Delete"
+            />
+          </>
+        }
+      />
+      <CardDetailsWrapper>
+        <CardDetailRow
+          label="Coverage Amount"
+          value={`$${policy.coverageAmount}`}
+        />
+        <CardDetailRow label="Premium" value={`$${policy.premium}`} />
+        <CardDetailRow label="Coverage Type" value={policy.coverageType} />
+      </CardDetailsWrapper>
+    </CustomCard>
   );
 };
 

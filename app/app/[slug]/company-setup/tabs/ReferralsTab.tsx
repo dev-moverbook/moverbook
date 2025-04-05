@@ -14,6 +14,7 @@ import { FrontEndErrorMessages } from "@/types/errors";
 import SectionContainer from "@/app/components/shared/SectionContainer";
 import CenteredContainer from "@/app/components/shared/CenteredContainer";
 import SectionHeader from "@/app/components/shared/SectionHeader";
+import CardListContainer from "@/app/components/shared/CardListContainer";
 
 const ReferralsTab = () => {
   const { companyId } = useSlugContext();
@@ -69,7 +70,7 @@ const ReferralsTab = () => {
         {referrals.length === 0 ? (
           <p className="text-gray-500">No active referrals found.</p>
         ) : (
-          <ul className="space-y-2">
+          <CardListContainer>
             {referrals.map((referral) => (
               <ReferralItem
                 key={referral._id}
@@ -77,7 +78,7 @@ const ReferralsTab = () => {
                 name={referral.name}
               />
             ))}
-          </ul>
+          </CardListContainer>
         )}
         <CreateReferralModal
           isOpen={isModalOpen}

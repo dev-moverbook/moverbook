@@ -40,8 +40,8 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
 
       {deleteError && <p className="text-red-500 text-sm">{deleteError}</p>}
 
-      <div className="flex justify-end space-x-2 mt-4">
-        <Button variant="outline" onClick={onClose} disabled={deleteLoading}>
+      <div className="grid grid-cols-2 gap-2">
+        <Button variant="ghost" onClick={onClose} disabled={deleteLoading}>
           {cancelButtonText}
         </Button>
         <Button

@@ -1,9 +1,14 @@
 "use client";
 
 import React from "react";
+import { Pencil, Trash2 } from "lucide-react";
 import { LaborSchema } from "@/types/convex-schemas";
-import { Button } from "@/app/components/ui/button";
 import { Id } from "@/convex/_generated/dataModel";
+import IconButton from "@/app/components/shared/IconButton";
+import CardHeaderWithActions from "@/app/components/shared/CardHeaderWithActions";
+import CustomCard from "@/app/components/shared/CustomCard";
+import CardDetailsWrapper from "@/app/components/shared/CardDetailsWrapper";
+import CardDetailRow from "@/app/components/shared/CardDetailRow";
 
 interface LaborCardProps {
   laborItem: LaborSchema;
@@ -17,36 +22,32 @@ const LaborCard: React.FC<LaborCardProps> = ({
   onDelete,
 }) => {
   return (
-    <div className="p-4 border rounded shadow-sm space-y-2">
-      <p>
-        <span className="font-medium">Name:</span> {laborItem.name}
-      </p>
-      <p>
-        <span className="font-medium">2 Movers:</span> ${laborItem.twoMovers}
-      </p>
-      <p>
-        <span className="font-medium">3 Movers:</span> ${laborItem.threeMovers}
-      </p>
-      <p>
-        <span className="font-medium">4 Movers:</span> ${laborItem.fourMovers}
-      </p>
-      <p>
-        <span className="font-medium">Extra Mover:</span> ${laborItem.extra}
-      </p>
-
-      {/* Call the onEdit function when Edit button is clicked */}
-      <Button onClick={() => onEdit(laborItem)} className="mt-2">
-        {" "}
-        Edit
-      </Button>
-      <Button
-        variant="destructive"
-        onClick={() => onDelete(laborItem._id)}
-        className="mt-2 bg-red-500 hover:bg-red-600"
-      >
-        Delete
-      </Button>
-    </div>
+    <CustomCard>
+      <CardHeaderWithActions
+        title={laborItem.name}
+        actions={
+          <>
+            <IconButton
+              onClick={() => onEdit(laborItem)}
+              icon={<Pencil className="w-4 h-4" />}
+              title="Edit"
+            />
+            <IconButton
+              onClick={() => onDelete(laborItem._id)}
+              icon={<Trash2 className="w-4 h-4" />}
+              variant="outline"
+              title="Delete"
+            />
+          </>
+        }
+      />
+      <CardDetailsWrapper>
+        <CardDetailRow label="2 Movers" value={`$${laborItem.twoMovers}`} />
+        <CardDetailRow label="3 Movers" value={`$${laborItem.threeMovers}`} />
+        <CardDetailRow label="4 Movers" value={`$${laborItem.fourMovers}`} />
+        <CardDetailRow label="Extra Mover" value={`$${laborItem.extra}`} />
+      </CardDetailsWrapper>
+    </CustomCard>
   );
 };
 

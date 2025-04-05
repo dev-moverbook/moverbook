@@ -1,8 +1,10 @@
 "use client";
 
-import { Button } from "@/app/components/ui/button";
+import { Pencil, Trash2 } from "lucide-react";
 import { CommunicationType } from "@/types/enums";
 import { ScriptSchema } from "@/types/convex-schemas";
+import IconButton from "@/app/components/shared/IconButton";
+import IconRow from "@/app/components/shared/IconRow";
 
 interface ScriptCardProps {
   script: ScriptSchema;
@@ -15,24 +17,34 @@ const ScriptCard: React.FC<ScriptCardProps> = ({
   onDelete,
   onEdit,
 }) => {
-  return (
-    <div className="p-4 border rounded-md shadow-sm space-y-2">
-      <div>
-        <h3 className="text-lg font-semibold">{script.title}</h3>
-        {script.type === CommunicationType.EMAIL && (
-          <p className="text-sm text-gray-600">Subject: {script.emailTitle}</p>
-        )}
-        <p className="text-gray-700">{script.message}</p>
-      </div>
+  const onEditClick = () => onEdit(script);
 
-      <div className="flex space-x-2">
-        <Button onClick={() => onEdit(script)}>Edit</Button>
-        {!script.preSetTypes && (
-          <Button variant="destructive" onClick={onDelete}>
-            Delete
-          </Button>
-        )}
+  return (
+    <div className="w-full   ">
+      <div className="flex justify-between ">
+        <h3 className="text-lg font-semibold">{script.title}</h3>
+
+        <IconRow>
+          <IconButton
+            icon={<Pencil size={16} />}
+            aria-label="Edit"
+            onClick={onEditClick}
+          />
+          {!script.preSetTypes && (
+            <IconButton
+              icon={<Trash2 size={16} />}
+              aria-label="Delete"
+              onClick={onDelete}
+            />
+          )}
+        </IconRow>
       </div>
+      {script.type === CommunicationType.EMAIL && (
+        <p className="text-sm mt-1 font-medium text-grayCustom">
+          Subject: {script.emailTitle}
+        </p>
+      )}
+      <p className="text-grayCustom">{script.message}</p>
     </div>
   );
 };

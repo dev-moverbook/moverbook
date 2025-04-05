@@ -7,6 +7,7 @@ import { Id } from "@/convex/_generated/dataModel";
 import SectionContainer from "@/app/components/shared/SectionContainer";
 import CenteredContainer from "@/app/components/shared/CenteredContainer";
 import SectionHeader from "@/app/components/shared/SectionHeader";
+import CardContainer from "@/app/components/shared/CardContainer";
 
 interface ScriptsSectionProps {
   scripts: ScriptSchema[]; // Replace `any` with the actual Script type
@@ -36,7 +37,7 @@ const ScriptsSection: React.FC<ScriptsSectionProps> = ({
         {scripts.length === 0 ? (
           <p className="text-gray-500">No active scripts found.</p>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <CardContainer>
             {scripts.map((script) => (
               <ScriptCard
                 key={script._id}
@@ -45,7 +46,7 @@ const ScriptsSection: React.FC<ScriptsSectionProps> = ({
                 onEdit={onEdit}
               />
             ))}
-          </div>
+          </CardContainer>
         )}
       </CenteredContainer>
     </SectionContainer>

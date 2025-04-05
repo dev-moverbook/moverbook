@@ -9,21 +9,16 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/app/components/ui/button";
 import { FrontEndErrorMessages } from "@/types/errors";
 import { CommunicationType } from "@/types/enums";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { ScriptSchema, VariableSchema } from "@/types/convex-schemas";
 import { Id } from "@/convex/_generated/dataModel";
+import FormActions from "@/app/components/shared/FormActions";
+import ToggleTabs from "@/app/components/shared/ToggleTabs";
+import LabeledInput from "@/app/components/shared/LabeledInput";
+import VariableInsertButtons from "@/app/components/shared/VariableInsertButtons";
+import LabeledTextarea from "@/app/components/shared/LabeledTextarea";
+import FieldGroup from "@/app/components/shared/FieldGroup";
 
 interface CreateScriptModalProps {
   isOpen: boolean;
@@ -144,115 +139,77 @@ const CreateScriptModal: React.FC<CreateScriptModalProps> = ({
   };
 
   const formContent = (
-    <div className="space-y-4">
-      <div>
-        <Label className="block text-sm font-medium">Script Title</Label>
-        <Input
-          type="text"
-          value={title}
-          onChange={(e) => {
-            setTitle(e.target.value);
-            setTitleError(null);
-          }}
-          placeholder="Enter script title"
-        />
-        {titleError && <p className="text-red-500 text-sm">{titleError}</p>}
-      </div>
+    <FieldGroup>
+      <LabeledInput
+        label="Script Title"
+        value={title}
+        onChange={(e) => {
+          setTitle(e.target.value);
+          setTitleError(null);
+        }}
+        placeholder="Enter script title"
+        error={titleError}
+      />
 
-      <div>
-        <Label className="block text-sm font-medium">Type</Label>
-        <Select
-          value={type}
-          onValueChange={(value) => {
-            setType(value as CommunicationType);
-            if (value !== CommunicationType.EMAIL) {
-              setEmailTitle("");
-            }
-          }}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select Type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={CommunicationType.EMAIL}>Email</SelectItem>
-            <SelectItem value={CommunicationType.SMS}>SMS</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      <ToggleTabs
+        label="Type"
+        value={type}
+        onChange={(val) => {
+          setType(val);
+          if (val !== CommunicationType.EMAIL) setEmailTitle("");
+        }}
+        options={[
+          { label: "Email", value: CommunicationType.EMAIL },
+          { label: "SMS", value: CommunicationType.SMS },
+        ]}
+      />
 
       {type === CommunicationType.EMAIL && (
         <div>
-          <Label className="block text-sm font-medium">Email Subject</Label>
-          <Input
-            type="text"
+          <LabeledInput
+            label="Email Subject"
             value={emailTitle}
             onChange={(e) => {
               setEmailTitle(e.target.value);
               setEmailTitleError(null);
             }}
             placeholder="Enter email subject"
+            error={emailTitleError}
           />
-          {emailTitleError && (
-            <p className="text-red-500 text-sm">{emailTitleError}</p>
-          )}
 
-          {/* Variable Buttons for Email Title */}
-          <div className="flex flex-wrap gap-2 mt-2">
-            {variables.map((variable) => (
-              <Button
-                key={variable._id}
-                variant="outline"
-                size="sm"
-                onClick={() => insertVariable(variable.name, "emailTitle")}
-              >
-                {variable.name}
-              </Button>
-            ))}
-          </div>
+          <VariableInsertButtons
+            variables={variables}
+            onInsert={(name) => insertVariable(name, "emailTitle")}
+          />
         </div>
       )}
 
       <div>
-        <Label className="">Message</Label>
-        <Textarea
+        <LabeledTextarea
+          label="Message"
           value={message}
           onChange={(e) => {
             setMessage(e.target.value);
             setMessageError(null);
           }}
           placeholder="Enter script message"
+          error={messageError}
         />
-        {messageError && <p className="text-red-500 text-sm">{messageError}</p>}
 
-        {/* Variable Buttons for Message */}
-        <div className="flex flex-wrap gap-2 mt-2">
-          {variables.map((variable) => (
-            <Button
-              key={variable._id}
-              variant="outline"
-              size="sm"
-              onClick={() => insertVariable(variable.name, "message")}
-            >
-              {variable.name}
-            </Button>
-          ))}
-        </div>
+        <VariableInsertButtons
+          variables={variables}
+          onInsert={(name) => insertVariable(name, "message")}
+        />
       </div>
 
-      <Button
-        onClick={handleSubmit}
-        disabled={createLoading}
-        className="w-full"
-      >
-        {createLoading
-          ? "Saving..."
-          : editingScript
-            ? "Save Changes"
-            : "Create Script"}
-      </Button>
-
-      {createError && <p className="text-red-500 text-sm">{createError}</p>}
-    </div>
+      <FormActions
+        onSave={handleSubmit}
+        onCancel={handleClose}
+        isSaving={createLoading}
+        saveLabel={editingScript ? "Save Changes" : "Create Script"}
+        error={createError}
+      />
+    </FieldGroup>
   );
 
   return isMobile ? (

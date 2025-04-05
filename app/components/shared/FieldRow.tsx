@@ -1,16 +1,18 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import FieldDisplay from "./FieldDisplay";
 
 interface FieldRowProps {
   label: string;
   name: string;
   value?: string | null;
   type?: string;
-  isEditing: boolean;
+  isEditing?: boolean;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   error?: string;
   fallback?: string;
+  placeholder?: string;
 }
 
 const FieldRow: React.FC<FieldRowProps> = ({
@@ -18,15 +20,16 @@ const FieldRow: React.FC<FieldRowProps> = ({
   name,
   value = "",
   type = "text",
-  isEditing,
+  isEditing = true,
   onChange,
   error,
   fallback = "N/A",
+  placeholder,
 }) => {
   if (isEditing) {
     return (
       <div>
-        <Label htmlFor={name} className="block text-sm font-medium mb-1">
+        <Label htmlFor={name} className="">
           {label}
         </Label>
         <Input
@@ -35,6 +38,7 @@ const FieldRow: React.FC<FieldRowProps> = ({
           value={value ?? ""}
           onChange={onChange}
           type={type}
+          placeholder={placeholder}
           className={cn(error && "border-red-500")}
         />
 
@@ -42,12 +46,8 @@ const FieldRow: React.FC<FieldRowProps> = ({
       </div>
     );
   }
-
   return (
-    <div>
-      <Label className="block text-sm font-medium mb-1">{label}</Label>
-      <p className="text-sm text-grayCustom2">{value?.trim() || fallback}</p>
-    </div>
+    <FieldDisplay label={label} value={value?.trim()} fallback={fallback} />
   );
 };
 

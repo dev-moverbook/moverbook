@@ -6,11 +6,7 @@ import { api } from "@/convex/_generated/api";
 import { ResponseStatus } from "@/types/enums";
 import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
-
-interface CreateFeeData {
-  name: string;
-  price: number;
-}
+import { CreateFeeData } from "@/types/form-types";
 
 export const useCreateFee = () => {
   const [createLoading, setCreateLoading] = useState<boolean>(false);
