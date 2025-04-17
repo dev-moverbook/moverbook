@@ -7,6 +7,7 @@ import {
   CompanyContactSchema,
   CompanySchema,
   ComplianceSchema,
+  ConnectedAccountSchema,
   CreditCardFeeSchema,
   FeeSchema,
   InsurancePolicySchema,
@@ -607,4 +608,70 @@ export interface GetConnectedAccountByCompanyIdData {
   travelFee: TravelFeeSchema;
   creditCardFee: CreditCardFeeSchema;
   fees: FeeSchema[];
+}
+
+export type GetStripeConnectionResponse =
+  | GetStripeConnectionSuccess
+  | ErrorResponse;
+
+export interface GetStripeConnectionSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetStripeConnectionData;
+}
+
+export interface GetStripeConnectionData {
+  stripeConnected: ConnectedAccountSchema | null;
+}
+
+export type CreateStripeOnboardingLinkResponse =
+  | CreateStripeOnboardingLinkSuccess
+  | ErrorResponse;
+
+export interface CreateStripeOnboardingLinkSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: CreateStripeOnboardingLinkData;
+}
+
+export interface CreateStripeOnboardingLinkData {
+  url: string;
+}
+
+export interface GetStripeDashboardLinkData {
+  url: string;
+}
+
+export type GetStripeDashboardLinkResponse =
+  | GetStripeDashboardLinkSuccess
+  | ErrorResponse;
+
+export interface GetStripeDashboardLinkSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetStripeDashboardLinkData;
+}
+
+export interface WebhookHandlerResponse {
+  success: boolean;
+  error?: string;
+}
+
+export type CreateSenderResponse = CreateSenderSuccess | ErrorResponse;
+
+export interface CreateSenderSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: CreateSenderData;
+}
+
+export interface CreateSenderData {
+  sendgridSenderId: string;
+}
+
+export type CheckSenderResponse = CheckSenderSuccess | ErrorResponse;
+
+export interface CheckSenderSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: CheckSenderData;
+}
+
+export interface CheckSenderData {
+  isVerified: boolean;
 }

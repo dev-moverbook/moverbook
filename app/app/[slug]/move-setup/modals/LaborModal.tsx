@@ -13,6 +13,7 @@ import FormActions from "@/app/components/shared/FormActions";
 import { validatePrice } from "@/app/frontendUtils/validation";
 import FieldRow from "@/app/components/shared/FieldRow";
 import CheckboxField from "@/app/components/shared/CheckboxField";
+import MonthDayPicker from "@/app/components/shared/MonthDayPicker";
 
 interface LaborModalProps {
   isOpen: boolean;
@@ -49,13 +50,21 @@ const LaborModal: React.FC<LaborModalProps> = ({
     fourMovers: 0,
     extra: 0,
     isDefault: false,
+    startDate: null,
+    endDate: null,
   });
+  const [startMonth, setStartMonth] = useState("none");
+  const [startDay, setStartDay] = useState("none");
+  const [endMonth, setEndMonth] = useState("none");
+  const [endDay, setEndDay] = useState("none");
   const [errors, setErrors] = useState<{
     name?: string;
     twoMovers?: string;
     threeMovers?: string;
     fourMovers?: string;
     extra?: string;
+    startDate?: string;
+    endDate?: string;
   }>({});
 
   useEffect(() => {
@@ -67,6 +76,8 @@ const LaborModal: React.FC<LaborModalProps> = ({
         fourMovers: initialData.fourMovers,
         extra: initialData.extra,
         isDefault: initialData.isDefault,
+        startDate: initialData.startDate,
+        endDate: initialData.endDate,
       });
     } else {
       resetState();
@@ -81,6 +92,8 @@ const LaborModal: React.FC<LaborModalProps> = ({
       fourMovers: 0,
       extra: 0,
       isDefault: false,
+      startDate: null,
+      endDate: null,
     });
     setErrors({});
   };
@@ -97,6 +110,8 @@ const LaborModal: React.FC<LaborModalProps> = ({
       threeMovers?: string;
       fourMovers?: string;
       extra?: string;
+      startDate?: string;
+      endDate?: string;
     } = {};
 
     if (!formData.name.trim()) {
@@ -117,11 +132,34 @@ const LaborModal: React.FC<LaborModalProps> = ({
       }
     }
 
+    if (formData.startDate && formData.endDate) {
+      if (formData.startDate > formData.endDate) {
+        errors.startDate = FrontEndErrorMessages.START_DATE_AFTER_END_DATE;
+      }
+    }
+
     return errors;
   };
 
   const handleSubmit = async () => {
-    const validationErrors = validateLaborForm(labor);
+    // Convert selected strings to MMDD numbers (or null)
+    const computedStartDate =
+      startMonth !== "none" && startDay !== "none"
+        ? parseInt(startMonth) * 100 + parseInt(startDay)
+        : null;
+
+    const computedEndDate =
+      endMonth !== "none" && endDay !== "none"
+        ? parseInt(endMonth) * 100 + parseInt(endDay)
+        : null;
+
+    const updatedLabor: CreateLaborFormData = {
+      ...labor,
+      startDate: computedStartDate,
+      endDate: computedEndDate,
+    };
+
+    const validationErrors = validateLaborForm(updatedLabor);
 
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
@@ -131,8 +169,8 @@ const LaborModal: React.FC<LaborModalProps> = ({
     setErrors({});
 
     const success = initialData
-      ? await onEdit(initialData._id, labor)
-      : await onCreate(companyId, labor);
+      ? await onEdit(initialData._id, updatedLabor)
+      : await onCreate(companyId, updatedLabor);
 
     if (success) {
       handleClose();
@@ -153,6 +191,8 @@ const LaborModal: React.FC<LaborModalProps> = ({
     setErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
+  console.log("labor", labor);
+
   const formContent = (
     <FieldGroup>
       <FieldRow
@@ -163,45 +203,69 @@ const LaborModal: React.FC<LaborModalProps> = ({
         placeholder="Enter labor name"
         error={errors.name}
       />
+      <div className="grid grid-cols-2 gap-4">
+        <FieldRow
+          label="Two Movers Rate"
+          name="twoMovers"
+          type="number"
+          value={labor.twoMovers.toString()}
+          onChange={handleInputChange}
+          placeholder="Enter rate for two movers"
+          error={errors.twoMovers}
+          min={0}
+        />
 
-      <FieldRow
-        label="Two Movers Rate"
-        name="twoMovers"
-        type="number"
-        value={labor.twoMovers.toString()}
-        onChange={handleInputChange}
-        placeholder="Enter rate for two movers"
-        error={errors.twoMovers}
+        <FieldRow
+          label="Three Movers Rate"
+          name="threeMovers"
+          type="number"
+          value={labor.threeMovers.toString()}
+          onChange={handleInputChange}
+          placeholder="Enter rate for three movers"
+          error={errors.threeMovers}
+          min={0}
+        />
+
+        <FieldRow
+          label="Four Movers Rate"
+          name="fourMovers"
+          type="number"
+          value={labor.fourMovers.toString()}
+          onChange={handleInputChange}
+          placeholder="Enter rate for four movers"
+          error={errors.fourMovers}
+          min={0}
+        />
+
+        <FieldRow
+          label="Extra Rate"
+          name="extra"
+          type="number"
+          value={labor.extra.toString()}
+          onChange={handleInputChange}
+          placeholder="Enter extra rate"
+          error={errors.extra}
+          min={0}
+        />
+      </div>
+
+      <MonthDayPicker
+        label="Start Date"
+        month={startMonth}
+        day={startDay}
+        onChange={(m, d) => {
+          setStartMonth(m);
+          setStartDay(d);
+        }}
       />
-
-      <FieldRow
-        label="Three Movers Rate"
-        name="threeMovers"
-        type="number"
-        value={labor.threeMovers.toString()}
-        onChange={handleInputChange}
-        placeholder="Enter rate for three movers"
-        error={errors.threeMovers}
-      />
-
-      <FieldRow
-        label="Four Movers Rate"
-        name="fourMovers"
-        type="number"
-        value={labor.fourMovers.toString()}
-        onChange={handleInputChange}
-        placeholder="Enter rate for four movers"
-        error={errors.fourMovers}
-      />
-
-      <FieldRow
-        label="Extra Rate"
-        name="extra"
-        type="number"
-        value={labor.extra.toString()}
-        onChange={handleInputChange}
-        placeholder="Enter extra rate"
-        error={errors.extra}
+      <MonthDayPicker
+        label="End Date"
+        month={endMonth}
+        day={endDay}
+        onChange={(m, d) => {
+          setEndMonth(m);
+          setEndDay(d);
+        }}
       />
 
       <CheckboxField

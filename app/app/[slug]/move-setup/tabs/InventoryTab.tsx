@@ -9,6 +9,7 @@ import RenderSkeleton from "@/app/components/shared/RenderSkeleton";
 import ErrorComponent from "@/app/components/shared/ErrorComponent";
 import RoomSection from "../sections/RoomSection";
 import CategorySection from "../sections/CategorySection";
+import VerticalSectionGroup from "@/app/components/shared/VerticalSectionGroup";
 
 const InventoryTab = () => {
   const { companyId } = useSlugContext();
@@ -38,13 +39,14 @@ const InventoryTab = () => {
   const { rooms } = queryResult.data;
 
   return (
-    <div className="p-4 space-y-6">
+    <VerticalSectionGroup>
+      {" "}
       <RoomSection rooms={rooms} companyId={companyId} />
       <CategorySection
         categories={categoryResult.data.categories}
         companyId={companyId}
       />
-    </div>
+    </VerticalSectionGroup>
   );
 };
 

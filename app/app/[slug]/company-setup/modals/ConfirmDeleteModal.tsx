@@ -34,6 +34,7 @@ const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
         cancelLabel="Cancel"
         error={deleteError}
         saveVariant="destructive"
+        cancelVariant="whiteGhost"
       />
     </div>
   );

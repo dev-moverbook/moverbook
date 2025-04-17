@@ -28,7 +28,8 @@ import { Id } from "../_generated/dataModel";
 export function validateUser(
   user: UserSchema | null,
   checkActive: boolean = true,
-  checkCompany?: boolean
+  checkCompany?: boolean,
+  checkCustomer?: boolean
 ): UserSchema {
   if (!user) {
     throw new Error(ErrorMessages.USER_NOT_FOUND);
@@ -40,6 +41,10 @@ export function validateUser(
 
   if (checkCompany && !user.companyId) {
     throw new Error(ErrorMessages.USER_NO_COMPANY);
+  }
+
+  if (checkCustomer && !user.customerId) {
+    throw new Error(ErrorMessages.USER_NOT_CUSTOMER);
   }
 
   return user;
@@ -195,8 +200,8 @@ export function validatePolicy(policy: PolicySchema | null): PolicySchema {
 export const validateLaborDateOverlap = async (
   ctx: MutationCtx,
   companyId: Id<"companies">,
-  startDate?: number,
-  endDate?: number
+  startDate: number | null,
+  endDate: number | null
 ): Promise<void> => {
   if (!startDate && !endDate) {
     return;
@@ -213,10 +218,10 @@ export const validateLaborDateOverlap = async (
 
   const hasOverlap = existingLabors.some(
     (labor) =>
-      labor.startDate !== undefined &&
-      labor.endDate !== undefined &&
-      startDate! < labor.endDate &&
-      endDate! > labor.startDate
+      labor.startDate !== null &&
+      labor.endDate !== null &&
+      startDate! < labor.endDate! &&
+      endDate! > labor.startDate!
   );
 
   if (hasOverlap) {

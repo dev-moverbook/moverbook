@@ -10,6 +10,14 @@ import { useDeleteCategory } from "../hooks/useDeleteCategory";
 import CategoryModal from "../modals/CategoryModal";
 import { FrontEndErrorMessages } from "@/types/errors";
 import CategoryTree from "./CategoryTree";
+import CenteredContainer from "@/app/components/shared/CenteredContainer";
+import SectionContainer from "@/app/components/shared/SectionContainer";
+import SectionHeader from "@/app/components/shared/SectionHeader";
+import { Button } from "@/app/components/ui/button";
+import ToggleTabs from "@/app/components/shared/ToggleTabs";
+import SingleCardContainer from "@/app/components/shared/SingleCardContainer";
+
+type CategoryManageMode = "edit" | "delete";
 
 interface CategorySectionProps {
   categories: CategorySchema[];
@@ -22,6 +30,8 @@ const CategorySection: React.FC<CategorySectionProps> = ({
 }) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
+  const [manageMode, setManageMode] = useState<CategoryManageMode>("edit");
+
   const [selectedCategory, setSelectedCategory] =
     useState<CategorySchema | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
@@ -55,11 +65,10 @@ const CategorySection: React.FC<CategorySectionProps> = ({
   } = useDeleteCategory();
 
   const handleCategoryClick = (categoryId: Id<"categories">) => {
-    setExpandedCategories(
-      (prev) =>
-        prev.includes(categoryId)
-          ? prev.filter((id) => id !== categoryId) // Collapse if already expanded
-          : [...prev, categoryId] // Expand otherwise
+    setExpandedCategories((prev) =>
+      prev.includes(categoryId)
+        ? prev.filter((id) => id !== categoryId)
+        : [...prev, categoryId]
     );
   };
 
@@ -108,60 +117,89 @@ const CategorySection: React.FC<CategorySectionProps> = ({
   };
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-lg font-semibold">Categories</h2>
-
-      {/* Top-level categories */}
-      {categories.map((category) => (
-        <CategoryTree
-          key={category._id}
-          category={category}
-          expandedCategories={expandedCategories}
-          onCategoryClick={handleCategoryClick}
-          onEdit={handleOpenEditModal}
-          onDelete={handleOpenDeleteModal}
-          onAddCategory={handleOpenCreateModal}
+    <SectionContainer>
+      <CenteredContainer>
+        <SectionHeader
+          title="Categories"
+          actions={
+            <div className="flex items-center gap-4">
+              {!isEditMode ? (
+                <>
+                  <Button variant="outline" onClick={() => setIsEditMode(true)}>
+                    Edit Categories
+                  </Button>
+                  <Button onClick={() => handleOpenCreateModal(null)}>
+                    + Add Category
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <ToggleTabs<CategoryManageMode>
+                    value={manageMode}
+                    onChange={(mode) => setManageMode(mode)}
+                    options={[
+                      { label: "Edit", value: "edit" },
+                      { label: "Delete", value: "delete" },
+                    ]}
+                  />
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setIsEditMode(false);
+                      setManageMode("edit");
+                    }}
+                  >
+                    Done
+                  </Button>
+                </>
+              )}
+            </div>
+          }
         />
-      ))}
+        <SingleCardContainer>
+          {categories.map((category) => (
+            <CategoryTree
+              key={category._id}
+              category={category}
+              expandedCategories={expandedCategories}
+              onCategoryClick={handleCategoryClick}
+              onEdit={handleOpenEditModal}
+              onDelete={handleOpenDeleteModal}
+              onAddCategory={handleOpenCreateModal}
+              mode={manageMode}
+              showEditIcon={isEditMode}
+            />
+          ))}
+        </SingleCardContainer>
+        <CategoryModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          onCreate={(companyId, categoryData) =>
+            createCategory(companyId, {
+              ...categoryData,
+              parentCategory: parentForNewCategory ?? undefined,
+            })
+          }
+          onEdit={updateCategory}
+          loading={isEditMode ? updateCategoryLoading : createCategoryLoading}
+          error={isEditMode ? updateCategoryError : createCategoryError}
+          companyId={companyId}
+          initialData={selectedCategory}
+        />
 
-      {/* Top-level add category button */}
-      <button
-        onClick={() => handleOpenCreateModal(null)}
-        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-      >
-        Add New Category
-      </button>
-
-      {/* Create/Edit Modal */}
-      <CategoryModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onCreate={(companyId, categoryData) =>
-          createCategory(companyId, {
-            ...categoryData,
-            parentCategory: parentForNewCategory ?? undefined,
-          })
-        }
-        onEdit={updateCategory}
-        loading={isEditMode ? updateCategoryLoading : createCategoryLoading}
-        error={isEditMode ? updateCategoryError : createCategoryError}
-        companyId={companyId}
-        initialData={selectedCategory}
-      />
-
-      {/* Delete Confirmation Modal */}
-      <ConfirmModal
-        isOpen={isDeleteModalOpen}
-        onClose={handleCloseDeleteModal}
-        onConfirm={handleConfirmDelete}
-        deleteLoading={deleteCategoryLoading}
-        deleteError={deleteCategoryError}
-        title="Confirm Delete"
-        description="Are you sure you want to delete this category? This action cannot be undone."
-        confirmButtonText="Delete"
-        cancelButtonText="Cancel"
-      />
-    </div>
+        <ConfirmModal
+          isOpen={isDeleteModalOpen}
+          onClose={handleCloseDeleteModal}
+          onConfirm={handleConfirmDelete}
+          deleteLoading={deleteCategoryLoading}
+          deleteError={deleteCategoryError}
+          title="Confirm Delete"
+          description="Are you sure you want to delete this category? This action cannot be undone."
+          confirmButtonText="Delete"
+          cancelButtonText="Cancel"
+        />
+      </CenteredContainer>
+    </SectionContainer>
   );
 };
 

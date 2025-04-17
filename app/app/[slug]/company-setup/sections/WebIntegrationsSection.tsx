@@ -64,7 +64,7 @@ const WebIntegrationsSection: React.FC<WebIntegrationsSectionProps> = ({
   };
 
   return (
-    <SectionContainer>
+    <SectionContainer isLast={true}>
       <CenteredContainer>
         <SectionHeader
           title="Web Integrations"

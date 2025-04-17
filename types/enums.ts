@@ -99,3 +99,38 @@ export const ClerkRoleLabels: Record<ClerkRoles, string> = {
   [ClerkRoles.MOVER]: "Mover",
   [ClerkRoles.SALES_REP]: "Sales Rep",
 };
+
+export enum StripeConnectionStatusEnum {
+  NotConnected = "not_connected",
+  OnboardingIncomplete = "onboarding_incomplete",
+  Restricted = "restricted",
+  Connected = "connected",
+}
+
+export const stripeConnectionStatusDisplay = {
+  [StripeConnectionStatusEnum.NotConnected]: {
+    label: "Not Connected",
+    color: "red",
+    description:
+      "You need to connect your Stripe account to start getting paid.",
+    icon: "🔴",
+  },
+  [StripeConnectionStatusEnum.OnboardingIncomplete]: {
+    label: "Setup Incomplete",
+    color: "orange",
+    description: "Please finish setting up your Stripe account.",
+    icon: "🟠",
+  },
+  [StripeConnectionStatusEnum.Restricted]: {
+    label: "Action Required",
+    color: "yellow",
+    description: "Your Stripe account has restrictions. Please review it.",
+    icon: "🟡",
+  },
+  [StripeConnectionStatusEnum.Connected]: {
+    label: "Connected",
+    color: "green",
+    description: "You're connected to Stripe and ready to receive payouts.",
+    icon: "🟢",
+  },
+};

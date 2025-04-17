@@ -10,7 +10,7 @@ const CustomCard: React.FC<CustomCardProps> = ({ children, className }) => {
   return (
     <div
       className={cn(
-        "p-4 border rounded shadow shadow-white w-full border-grayCustom",
+        "p-4 border rounded shadow-xl shadow-white/10 w-full border-grayCustom",
         className
       )}
     >

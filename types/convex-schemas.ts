@@ -88,6 +88,7 @@ export interface ScriptSchema {
 
 export interface ComplianceSchema {
   _id: Id<"compliance">;
+  _creationTime: number;
   companyId: Id<"companies">;
   statePucPermitNumber: string;
   dmvNumber: string;
@@ -96,6 +97,7 @@ export interface ComplianceSchema {
 
 export interface WebIntegrationsSchema {
   _id: Id<"webIntegrations">;
+  _creationTime: number;
   companyId: Id<"companies">;
   webform: string;
   webformEmbeddedCode: string;
@@ -103,21 +105,25 @@ export interface WebIntegrationsSchema {
 
 export interface CompanyContactSchema {
   _id: Id<"companyContact">;
+  _creationTime: number;
   companyId: Id<"companies">;
   email: string;
   phoneNumber: string;
   address: string;
   website: string;
+  sendgridSenderId?: string;
+  sendgridVerified?: boolean;
+  sendgridName?: string;
 }
 
 export interface ArrivalWindowSchema {
   _id: Id<"arrivalWindow">;
   _creationTime: number;
-  afternoonArrival: number;
-  afternoonEnd: number;
+  afternoonArrival: string;
+  afternoonEnd: string;
   companyId: Id<"companies">;
-  morningArrival: number;
-  morningEnd: number;
+  morningArrival: string;
+  morningEnd: string;
 }
 
 export interface PolicySchema {
@@ -136,13 +142,13 @@ export interface LaborSchema {
   _id: Id<"labor">;
   _creationTime: number;
   companyId: Id<"companies">;
-  endDate?: number;
+  endDate: number | null;
   extra: number;
   fourMovers: number;
   isActive: boolean;
   isDefault: boolean;
   name: string;
-  startDate?: number;
+  startDate: number | null;
   threeMovers: number;
   twoMovers: number;
 }

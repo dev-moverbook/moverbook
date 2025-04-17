@@ -24,7 +24,7 @@ const UserPage: React.FC = () => {
   const user = userResponse.data.user as UserSchema;
 
   return (
-    <main className="">
+    <main className="min-h-100vh">
       <UserIdContent user={user} />
     </main>
   );

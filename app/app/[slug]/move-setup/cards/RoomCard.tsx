@@ -1,38 +1,66 @@
 "use client";
 
 import React from "react";
-import { RoomSchema } from "@/types/convex-schemas";
-import { Button } from "@/app/components/ui/button";
+import { X, Pencil } from "lucide-react";
+import IconButton from "@/app/components/shared/IconButton";
 import { Id } from "@/convex/_generated/dataModel";
 
-interface RoomCardProps {
-  room: RoomSchema;
-  onEdit: (room: RoomSchema) => void;
-  onDelete: (roomId: Id<"rooms">) => void;
+interface SelectCardProps {
+  id: Id<any>;
+  label: string;
+  mode?: "edit" | "delete";
+  showEditIcon?: boolean;
+  onEdit: () => void;
+  onDelete: (id: Id<any>) => void;
 }
 
-const RoomCard: React.FC<RoomCardProps> = ({ room, onEdit, onDelete }) => {
-  return (
-    <div className="p-4 border rounded shadow-sm space-y-2 bg-white">
-      <p>
-        <span className="font-medium">Room Name:</span> {room.name}
-      </p>
+const SelectCard: React.FC<SelectCardProps> = ({
+  id,
+  label,
+  mode,
+  showEditIcon = false,
+  onEdit,
+  onDelete,
+}) => {
+  const handleCardClick = () => {
+    if (mode === "edit") {
+      onEdit();
+    } else if (mode === "delete") {
+      onDelete(id);
+    }
+  };
 
-      {/* Edit and Delete Buttons */}
-      <div className="flex space-x-2">
-        <Button onClick={() => onEdit(room)} className="mt-2">
-          Edit
-        </Button>
-        <Button
-          variant="destructive"
-          onClick={() => onDelete(room._id)}
-          className="mt-2 bg-red-500 hover:bg-red-600"
-        >
-          Delete
-        </Button>
-      </div>
+  return (
+    <div
+      onClick={handleCardClick}
+      className="relative border border-grayCustom shadow-white rounded shadow-sm hover:shadow-md transition w-[100px] h-[60px] cursor-pointer flex items-center justify-center text-center"
+    >
+      {showEditIcon && (
+        <div className="absolute -top-3 -right-3 z-10">
+          <IconButton
+            icon={
+              mode === "delete" ? (
+                <X size={14} className="text-white" />
+              ) : (
+                <Pencil size={14} className="text-white" />
+              )
+            }
+            onClick={(e) => {
+              e.stopPropagation();
+              mode === "delete" ? onDelete(id) : onEdit();
+            }}
+            className={
+              mode === "delete"
+                ? "bg-red-500 border-none"
+                : "bg-greenCustom text-white"
+            }
+          />
+        </div>
+      )}
+
+      <p className="text-sm font-medium">{label}</p>
     </div>
   );
 };
 
-export default RoomCard;
+export default SelectCard;

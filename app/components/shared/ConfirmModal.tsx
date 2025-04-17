@@ -35,13 +35,13 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   const isMobile = useMediaQuery({ maxWidth: 768 });
 
   const content = (
-    <div className="space-y-4">
+    <div className="space-y-4 ">
       <p>{description}</p>
 
       {deleteError && <p className="text-red-500 text-sm">{deleteError}</p>}
 
       <div className="grid grid-cols-2 gap-2">
-        <Button variant="ghost" onClick={onClose} disabled={deleteLoading}>
+        <Button variant="whiteGhost" onClick={onClose} disabled={deleteLoading}>
           {cancelButtonText}
         </Button>
         <Button

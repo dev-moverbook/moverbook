@@ -1,7 +1,6 @@
 import { ErrorMessages } from "@/types/errors";
 import { Id } from "../_generated/dataModel";
 import { MutationCtx } from "../_generated/server";
-import { DateTime } from "luxon";
 import {
   DEFAULT_WEEKDAY_HOUR_MINIMUM,
   DEFAULT_WEEKEND_HOUR_MINIMUM,
@@ -23,6 +22,7 @@ import {
   DEFAULT_CREDIT_CARD_FEE_RATE,
   DEFAULT_TRAVEL_CHARGING_METHOD,
   DEFAULT_TRAVEL_RATE,
+  DEFAULT_ROOMS,
 } from "@/types/const";
 
 export const createCompanyRecords = async (
@@ -53,22 +53,10 @@ export const createCompanyRecords = async (
 
     await ctx.db.insert("arrivalWindow", {
       companyId,
-      morningArrival: DateTime.fromObject(
-        { hour: 8, minute: 0 },
-        { zone: "UTC" }
-      ).toMillis(),
-      morningEnd: DateTime.fromObject(
-        { hour: 11, minute: 0 },
-        { zone: "UTC" }
-      ).toMillis(),
-      afternoonArrival: DateTime.fromObject(
-        { hour: 12, minute: 0 },
-        { zone: "UTC" }
-      ).toMillis(),
-      afternoonEnd: DateTime.fromObject(
-        { hour: 15, minute: 0 },
-        { zone: "UTC" }
-      ).toMillis(),
+      morningArrival: "08:00",
+      morningEnd: "11:00",
+      afternoonArrival: "13:00",
+      afternoonEnd: "16:00",
     });
 
     await ctx.db.insert("policies", {
@@ -91,6 +79,8 @@ export const createCompanyRecords = async (
       fourMovers: DEFAULT_FOUR_MOVERS_RATE,
       extra: DEFAULT_EXTRA_RATE,
       isActive: DEFAULT_IS_ACTIVE,
+      startDate: null,
+      endDate: null,
     });
 
     await ctx.db.insert("insurancePolicies", {
@@ -124,6 +114,16 @@ export const createCompanyRecords = async (
       { name: "move_date", defaultValue: "move date" },
     ];
 
+    // Insert default starter rooms
+    for (const name of DEFAULT_ROOMS) {
+      await ctx.db.insert("rooms", {
+        companyId,
+        name,
+        isActive: true,
+        isStarter: true,
+      });
+    }
+
     for (const variable of defaultVariables) {
       await ctx.db.insert("variables", { companyId, ...variable });
     }
@@ -142,3 +142,60 @@ export const shouldExposeError = (errorMessage: string): boolean => {
 
   return allowedErrors.includes(errorMessage);
 };
+
+type ParsedAddress = {
+  line1: string;
+  city: string;
+  state: string;
+  zip: string;
+  country: string;
+};
+
+export function parseFullAddressToSendgridFormat(
+  fullAddress: string
+): ParsedAddress {
+  const parts = fullAddress.split(",").map((p) => p.trim());
+
+  const [line1 = "", city = "", stateZip = "", country = ""] = parts;
+  const [state = "", zip = ""] = stateZip.split(" ").map((p) => p.trim());
+
+  return {
+    line1,
+    city,
+    state,
+    zip,
+    country,
+  };
+}
+
+export async function unsetOtherDefaultPolicies(
+  ctx: MutationCtx,
+  companyId: Id<"companies">
+) {
+  const existingPolicies = await ctx.db
+    .query("insurancePolicies")
+    .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
+    .collect();
+
+  const updates = existingPolicies
+    .filter((policy) => policy.isDefault)
+    .map((policy) => ctx.db.patch(policy._id, { isDefault: false }));
+
+  await Promise.all(updates);
+}
+
+export async function unsetOtherDefaultLabor(
+  ctx: MutationCtx,
+  companyId: Id<"companies">
+): Promise<void> {
+  const existing = await ctx.db
+    .query("labor")
+    .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
+    .collect();
+
+  const updates = existing
+    .filter((item) => item.isDefault)
+    .map((item) => ctx.db.patch(item._id, { isDefault: false }));
+
+  await Promise.all(updates);
+}

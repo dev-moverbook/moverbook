@@ -23,7 +23,9 @@ const CheckboxField: React.FC<CheckboxFieldProps> = ({
         checked={checked}
         onCheckedChange={(checked) => onChange(checked as boolean)}
       />
-      <Label htmlFor={id}>{label}</Label>
+      <Label className="pb-0" htmlFor={id}>
+        {label}
+      </Label>
     </div>
   );
 };

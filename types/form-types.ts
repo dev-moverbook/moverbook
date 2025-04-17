@@ -31,10 +31,10 @@ export interface TravelFeeData {
 }
 
 export interface ArrivalWindowFormData {
-  morningArrival: number;
-  morningEnd: number;
-  afternoonArrival: number;
-  afternoonEnd: number;
+  morningArrival: string;
+  morningEnd: string;
+  afternoonArrival: string;
+  afternoonEnd: string;
 }
 
 export interface PolicyFormData {
@@ -49,8 +49,8 @@ export interface PolicyFormData {
 export interface CreateLaborFormData {
   name: string;
   isDefault: boolean;
-  startDate?: number;
-  endDate?: number;
+  startDate: number | null;
+  endDate: number | null;
   twoMovers: number;
   threeMovers: number;
   fourMovers: number;

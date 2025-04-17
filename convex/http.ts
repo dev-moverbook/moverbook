@@ -1,8 +1,16 @@
 import { httpRouter } from "convex/server";
 import { httpAction } from "./_generated/server";
 import { internal } from "./_generated/api";
-import { ClerkRoles, InvitationStatus, UserRole } from "@/types/enums";
+import {
+  ClerkRoles,
+  InvitationStatus,
+  UserRole,
+  StripeAccountStatus,
+} from "@/types/enums";
 import { validateCompany } from "./backendUtils/validate";
+import { stripe } from "./backendUtils/stripe";
+import Stripe from "stripe";
+import { WebhookHandlerResponse } from "@/types/convex-responses";
 
 const http = httpRouter();
 
@@ -94,6 +102,28 @@ http.route({
     } catch (error) {
       console.error("Error handling Clerk webhook:", error);
       return new Response("Webhook verification failed", { status: 400 });
+    }
+  }),
+});
+
+http.route({
+  path: "/stripeConnectedAccount",
+  method: "POST",
+  handler: httpAction(async (ctx, request): Promise<Response> => {
+    const signature: string = request.headers.get("stripe-signature") as string;
+    const result = (await ctx.runAction(internal.connectedAccount.fulfill, {
+      signature,
+      payload: await request.text(),
+    })) as WebhookHandlerResponse;
+
+    if (result.success) {
+      return new Response(null, {
+        status: 200,
+      });
+    } else {
+      return new Response(result.error || "Webhook Error", {
+        status: 400,
+      });
     }
   }),
 });

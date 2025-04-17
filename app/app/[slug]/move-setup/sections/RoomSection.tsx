@@ -13,15 +13,23 @@ import RoomModal from "../modals/RoomModal";
 import { useCreateRoom } from "../hooks/useCreateRoom";
 import { useUpdateRoom } from "../hooks/useUpdateRoom";
 import { useDeleteRoom } from "../hooks/useDeleteRoom";
+import SingleCardContainer from "@/app/components/shared/SingleCardContainer";
+import ToggleTabs from "@/app/components/shared/ToggleTabs";
+import SelectCard from "../cards/RoomCard";
 
 interface RoomSectionProps {
   rooms: RoomSchema[];
   companyId: Id<"companies">;
 }
 
+type RoomManageMode = "edit" | "delete";
+
 const RoomSection: React.FC<RoomSectionProps> = ({ rooms, companyId }) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
+  const [manageMode, setManageMode] = useState<RoomManageMode>("edit");
+
   const [selectedRoom, setSelectedRoom] = useState<RoomSchema | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
   const [roomToDelete, setRoomToDelete] = useState<Id<"rooms"> | null>(null);
@@ -77,19 +85,55 @@ const RoomSection: React.FC<RoomSectionProps> = ({ rooms, companyId }) => {
       <CenteredContainer>
         <SectionHeader
           title="Rooms"
-          actions={<Button onClick={handleOpenCreateModal}>+ Add Room</Button>}
+          actions={
+            <div className="flex items-center gap-4">
+              {/* Left side: Edit & Add */}
+              {!isEditMode ? (
+                <>
+                  <Button variant="outline" onClick={() => setIsEditMode(true)}>
+                    Edit Rooms
+                  </Button>
+                  <Button onClick={handleOpenCreateModal}>+ Add Room</Button>
+                </>
+              ) : (
+                <>
+                  {/* Edit/Delete Toggle shown only in edit mode */}
+                  <ToggleTabs<RoomManageMode>
+                    value={manageMode}
+                    onChange={(mode) => setManageMode(mode)}
+                    options={[
+                      { label: "Edit", value: "edit" },
+                      { label: "Delete", value: "delete" },
+                    ]}
+                  />
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setIsEditMode(false);
+                      setManageMode("edit");
+                    }}
+                  >
+                    Done
+                  </Button>
+                </>
+              )}
+            </div>
+          }
         />
 
-        {rooms.map((room) => (
-          <div key={room._id} className="flex items-center justify-between">
-            <RoomCard
-              room={room}
-              onEdit={handleOpenEditModal}
+        <SingleCardContainer>
+          {rooms.map((room) => (
+            <SelectCard
+              key={room._id}
+              id={room._id}
+              label={room.name}
+              onEdit={() => handleOpenEditModal(room)}
               onDelete={handleOpenDeleteModal}
+              showEditIcon={isEditMode}
+              mode={manageMode}
             />
-          </div>
-        ))}
-
+          ))}
+        </SingleCardContainer>
         <RoomModal
           isOpen={isModalOpen}
           onClose={handleCloseModal}

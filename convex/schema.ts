@@ -62,7 +62,9 @@ export default defineSchema({
     payoutsEnabled: v.optional(v.boolean()),
     lastStripeUpdate: v.optional(v.number()),
     stripeAccountId: v.string(),
-  }).index("by_customerId", ["customerId"]),
+  })
+    .index("by_customerId", ["customerId"])
+    .index("by_stripeAccountId", ["stripeAccountId"]),
   referrals: defineTable({
     companyId: v.id("companies"),
     name: v.string(),
@@ -99,13 +101,16 @@ export default defineSchema({
     phoneNumber: v.string(),
     address: v.string(),
     website: v.string(),
+    sendgridSenderId: v.optional(v.string()),
+    sendgridVerified: v.optional(v.boolean()),
+    sendgridName: v.optional(v.string()),
   }),
   arrivalWindow: defineTable({
     companyId: v.id("companies"),
-    morningArrival: v.number(),
-    morningEnd: v.number(),
-    afternoonArrival: v.number(),
-    afternoonEnd: v.number(),
+    morningArrival: v.string(),
+    morningEnd: v.string(),
+    afternoonArrival: v.string(),
+    afternoonEnd: v.string(),
   }).index("by_company", ["companyId"]),
   policies: defineTable({
     companyId: v.id("companies"),
@@ -120,14 +125,14 @@ export default defineSchema({
     companyId: v.id("companies"),
     name: v.string(),
     isDefault: v.boolean(),
-    startDate: v.optional(v.number()),
-    endDate: v.optional(v.number()),
+    startDate: v.union(v.number(), v.null()),
+    endDate: v.union(v.number(), v.null()),
     twoMovers: v.number(),
     threeMovers: v.number(),
     fourMovers: v.number(),
     extra: v.number(),
     isActive: v.boolean(),
-  }),
+  }).index("by_companyId", ["companyId"]),
   insurancePolicies: defineTable({
     companyId: v.id("companies"),
     coverageType: v.number(),
@@ -136,7 +141,7 @@ export default defineSchema({
     isDefault: v.boolean(),
     name: v.string(),
     premium: v.number(),
-  }),
+  }).index("by_companyId", ["companyId"]),
   creditCardFees: defineTable({
     companyId: v.id("companies"),
     rate: v.number(),

@@ -12,6 +12,8 @@ import FieldRow from "@/app/components/shared/FieldRow";
 import { ArrivalWindowSchema } from "@/types/convex-schemas";
 import { ArrivalWindowFormData } from "@/types/form-types";
 import { useUpdateArrivalWindow } from "../hooks/useUpdateArrivalWindow";
+import TimeFieldRow from "@/app/components/shared/TimeFieldRow";
+import TimeRangeFieldRow from "@/app/components/shared/TimeFieldRow";
 
 interface ArrivalWindowSectionProps {
   arrivalWindow: ArrivalWindowSchema;
@@ -53,7 +55,7 @@ const ArrivalWindowSection: React.FC<ArrivalWindowSectionProps> = ({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({
       ...prev,
-      [e.target.name]: parseInt(e.target.value) || 0,
+      [e.target.name]: e.target.value,
     }));
   };
 
@@ -74,34 +76,22 @@ const ArrivalWindowSection: React.FC<ArrivalWindowSectionProps> = ({
         />
 
         <FieldGroup>
-          <FieldRow
-            label="Morning Arrival (AM)"
-            name="morningArrival"
-            value={formData.morningArrival.toString()}
+          <TimeRangeFieldRow
+            label="Morning Window"
+            startName="morningArrival"
+            endName="morningEnd"
+            startValue={formData.morningArrival}
+            endValue={formData.morningEnd}
             isEditing={isEditing}
             onChange={handleChange}
           />
 
-          <FieldRow
-            label="Morning End (AM)"
-            name="morningEnd"
-            value={formData.morningEnd.toString()}
-            isEditing={isEditing}
-            onChange={handleChange}
-          />
-
-          <FieldRow
-            label="Afternoon Arrival (PM)"
-            name="afternoonArrival"
-            value={formData.afternoonArrival.toString()}
-            isEditing={isEditing}
-            onChange={handleChange}
-          />
-
-          <FieldRow
-            label="Afternoon End (PM)"
-            name="afternoonEnd"
-            value={formData.afternoonEnd.toString()}
+          <TimeRangeFieldRow
+            label="Afternoon Window"
+            startName="afternoonArrival"
+            endName="afternoonEnd"
+            startValue={formData.afternoonArrival}
+            endValue={formData.afternoonEnd}
             isEditing={isEditing}
             onChange={handleChange}
           />

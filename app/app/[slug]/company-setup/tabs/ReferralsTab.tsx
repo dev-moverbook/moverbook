@@ -15,6 +15,8 @@ import SectionContainer from "@/app/components/shared/SectionContainer";
 import CenteredContainer from "@/app/components/shared/CenteredContainer";
 import SectionHeader from "@/app/components/shared/SectionHeader";
 import CardListContainer from "@/app/components/shared/CardListContainer";
+import { Id } from "@/convex/_generated/dataModel";
+import { useUpdateReferral } from "../hooks/useUpdateReferral";
 
 const ReferralsTab = () => {
   const { companyId } = useSlugContext();
@@ -26,6 +28,30 @@ const ReferralsTab = () => {
     api.referrals.getActiveReferralsByCompanyId,
     companyId ? { companyId } : "skip"
   );
+
+  const [editingReferral, setEditingReferral] = useState<{
+    id: Id<"referrals">;
+    name: string;
+  } | null>(null);
+
+  const { updateReferral, updateLoading, updateError, setUpdateError } =
+    useUpdateReferral();
+
+  const handleUpdateReferral = async (
+    referralId: Id<"referrals">,
+    newName: string
+  ): Promise<boolean> => {
+    if (!newName.trim()) {
+      setUpdateError(FrontEndErrorMessages.REFERARAL_NAME_REQUIRED);
+      return false;
+    }
+
+    const success = await updateReferral(referralId, { name: newName });
+    if (success) {
+      setEditingReferral(null);
+    }
+    return success;
+  };
 
   if (!companyId) return <p className="text-gray-500">No company selected.</p>;
 
@@ -59,7 +85,7 @@ const ReferralsTab = () => {
   };
 
   return (
-    <SectionContainer>
+    <SectionContainer isLast={true}>
       <CenteredContainer>
         <SectionHeader
           title="Referrals"
@@ -76,6 +102,7 @@ const ReferralsTab = () => {
                 key={referral._id}
                 referralId={referral._id}
                 name={referral.name}
+                onEdit={(id, name) => setEditingReferral({ id, name })}
               />
             ))}
           </CardListContainer>
@@ -83,10 +110,23 @@ const ReferralsTab = () => {
         <CreateReferralModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          onCreate={handleCreateReferral}
-          createLoading={createLoading}
-          createError={createError}
+          onSubmit={handleCreateReferral}
+          loading={createLoading}
+          error={createError}
         />
+        {editingReferral && (
+          <CreateReferralModal
+            isOpen={!!editingReferral}
+            onClose={() => setEditingReferral(null)}
+            onSubmit={(newName) =>
+              handleUpdateReferral(editingReferral.id, newName)
+            }
+            initialName={editingReferral.name}
+            loading={updateLoading}
+            error={updateError}
+            mode="edit"
+          />
+        )}
       </CenteredContainer>
     </SectionContainer>
   );

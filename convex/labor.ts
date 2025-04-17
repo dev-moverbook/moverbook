@@ -11,7 +11,10 @@ import {
   validateTravelFee,
 } from "./backendUtils/validate";
 import { isUserInOrg } from "./backendUtils/validate";
-import { shouldExposeError } from "./backendUtils/helper";
+import {
+  shouldExposeError,
+  unsetOtherDefaultLabor,
+} from "./backendUtils/helper";
 import {
   CreateLaborResponse,
   GetCompanyRatesResponse,
@@ -28,8 +31,8 @@ export const createLabor = mutation({
     companyId: v.id("companies"),
     name: v.string(),
     isDefault: v.boolean(),
-    startDate: v.optional(v.number()),
-    endDate: v.optional(v.number()),
+    startDate: v.union(v.number(), v.null()),
+    endDate: v.union(v.number(), v.null()),
     twoMovers: v.number(),
     threeMovers: v.number(),
     fourMovers: v.number(),
@@ -59,6 +62,10 @@ export const createLabor = mutation({
       isUserInOrg(identity, company.clerkOrganizationId);
 
       validateLaborDateOverlap(ctx, companyId, startDate, endDate);
+
+      if (isDefault) {
+        await unsetOtherDefaultLabor(ctx, companyId);
+      }
 
       const laborId = await ctx.db.insert("labor", {
         companyId,
@@ -99,8 +106,8 @@ export const updateLabor = mutation({
     updates: v.object({
       name: v.optional(v.string()),
       isDefault: v.optional(v.boolean()),
-      startDate: v.optional(v.number()),
-      endDate: v.optional(v.number()),
+      startDate: v.optional(v.union(v.number(), v.null())),
+      endDate: v.optional(v.union(v.number(), v.null())),
       twoMovers: v.optional(v.number()),
       threeMovers: v.optional(v.number()),
       fourMovers: v.optional(v.number()),
@@ -110,7 +117,7 @@ export const updateLabor = mutation({
   },
   handler: async (ctx, args): Promise<UpdateLaborResponse> => {
     const { laborId, updates } = args;
-
+    console.log("updates", updates);
     try {
       const identity = await requireAuthenticatedUser(ctx, [
         ClerkRoles.ADMIN,
@@ -129,6 +136,10 @@ export const updateLabor = mutation({
         updates.startDate ?? labor.startDate,
         updates.endDate ?? labor.endDate
       );
+
+      if (updates.isDefault) {
+        await unsetOtherDefaultLabor(ctx, company._id);
+      }
 
       await ctx.db.patch(laborId, updates);
 

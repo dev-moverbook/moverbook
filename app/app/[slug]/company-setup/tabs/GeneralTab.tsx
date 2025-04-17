@@ -60,7 +60,7 @@ const GeneralTab = () => {
 
   if (!companyId) return <p className="text-gray-500">No company selected.</p>;
 
-  if (!companyDetailsResponse) {
+  if (!companyDetailsResponse || !companyId) {
     return (
       <div className="space-y-4">
         <Skeleton className="h-6 w-48" />

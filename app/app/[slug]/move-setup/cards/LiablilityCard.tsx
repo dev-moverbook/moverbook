@@ -8,6 +8,7 @@ import IconButton from "@/app/components/shared/IconButton";
 import CardHeaderWithActions from "@/app/components/shared/CardHeaderWithActions";
 import CardDetailsWrapper from "@/app/components/shared/CardDetailsWrapper";
 import CardDetailRow from "@/app/components/shared/CardDetailRow";
+import TitleWithBadge from "@/app/components/shared/TitleWithBadge";
 
 interface LiabilityCardProps {
   policy: InsurancePolicySchema;
@@ -23,7 +24,9 @@ const LiabilityCard: React.FC<LiabilityCardProps> = ({
   return (
     <CustomCard>
       <CardHeaderWithActions
-        title={policy.name}
+        title={
+          <TitleWithBadge title={policy.name} showBadge={policy.isDefault} />
+        }
         actions={
           <>
             <IconButton

@@ -42,7 +42,7 @@ const TeamContent: React.FC = () => {
         title="Team"
         action={
           <Button className="" onClick={() => setIsInviteModalOpen(true)}>
-            Invite User
+            + Invite User
           </Button>
         }
       />

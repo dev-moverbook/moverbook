@@ -11,6 +11,7 @@ import ErrorComponent from "@/app/components/shared/ErrorComponent";
 import CategoryCard from "../cards/CategoryCard";
 import { Button } from "@/app/components/ui/button";
 import ItemSection from "./ItemSection";
+import SelectCard from "../cards/RoomCard";
 
 interface CategoryTreeProps {
   category: CategorySchema;
@@ -19,6 +20,8 @@ interface CategoryTreeProps {
   onEdit: (category: CategorySchema) => void;
   onDelete: (categoryId: Id<"categories">) => void;
   onAddCategory: (parentCategory: Id<"categories">) => void;
+  mode?: "edit" | "delete";
+  showEditIcon?: boolean;
 }
 
 const CategoryTree: React.FC<CategoryTreeProps> = ({
@@ -28,6 +31,8 @@ const CategoryTree: React.FC<CategoryTreeProps> = ({
   onEdit,
   onDelete,
   onAddCategory,
+  mode,
+  showEditIcon,
 }) => {
   const isExpanded = expandedCategories.includes(category._id);
 
@@ -43,11 +48,15 @@ const CategoryTree: React.FC<CategoryTreeProps> = ({
   return (
     <div>
       {/* Parent Category */}
-      <div
-        className="flex items-center justify-between cursor-pointer hover:bg-gray-100 p-2 rounded"
-        onClick={() => onCategoryClick(category._id)}
-      >
-        <CategoryCard category={category} onEdit={onEdit} onDelete={onDelete} />
+      <div className="" onClick={() => onCategoryClick(category._id)}>
+        <SelectCard
+          id={category._id}
+          label={category.name}
+          onEdit={() => onEdit(category)}
+          onDelete={onDelete}
+          mode={mode}
+          showEditIcon={showEditIcon}
+        />
       </div>
 
       {/* Subcategories Section - Only Render Skeleton on Click */}

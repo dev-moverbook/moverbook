@@ -37,10 +37,10 @@ const SidebarContent = ({ onNavigate }: SidebarContentProps) => {
   if (!user) return null;
 
   return (
-    <nav className="flex flex-col p-4 gap-2 bg-gray-600 text-white h-screen">
-      <div className="flex gap-x-2 border-b pb-2">
+    <nav className="flex flex-col gap-2 bg-gray-800 text-white h-screen">
+      <div className="flex items-center  gap-x-2 px-4 h-14 py-3 ">
         <UserButton />
-        <div>
+        <div className="flex flex-col items-start justify-center leading-tight">
           <p className="font-bold">{user.fullName}</p>
           <p className="text-xs">{roleLabel}</p>
         </div>
@@ -49,21 +49,21 @@ const SidebarContent = ({ onNavigate }: SidebarContentProps) => {
       {/* Static buttons */}
       <Button
         variant="sidebar"
-        className="justify-start gap-2"
+        className=""
         onClick={() => handleNavigate(`/app/${slug}`)}
       >
         <Newspaper size={24} />
         News Feed
       </Button>
-      <Button variant="sidebar" className="justify-start gap-2">
+      <Button variant="sidebar" className="">
         <Calendar size={24} />
         Calendar
       </Button>
-      <Button variant="sidebar" className="justify-start gap-2">
+      <Button variant="sidebar" className="">
         <MessageSquare size={24} />
         Messages
       </Button>
-      <Button variant="sidebar" className="justify-start gap-2">
+      <Button variant="sidebar" className="">
         <BarChart2 size={24} />
         Analytics
       </Button>
@@ -71,7 +71,7 @@ const SidebarContent = ({ onNavigate }: SidebarContentProps) => {
       {/* Routed buttons */}
       <Button
         variant="sidebar"
-        className="justify-start gap-2"
+        className=""
         onClick={() => handleNavigate(`/app/${slug}/team`)}
       >
         <Users size={24} />
@@ -80,7 +80,7 @@ const SidebarContent = ({ onNavigate }: SidebarContentProps) => {
 
       <Button
         variant="sidebar"
-        className="justify-start gap-2"
+        className=""
         onClick={() => handleNavigate(`/app/${slug}/company-setup`)}
       >
         <Briefcase size={24} />
@@ -89,7 +89,7 @@ const SidebarContent = ({ onNavigate }: SidebarContentProps) => {
 
       <Button
         variant="sidebar"
-        className="justify-start gap-2"
+        className=""
         onClick={() => handleNavigate(`/app/${slug}/move-setup`)}
       >
         <Truck size={24} />
@@ -98,7 +98,7 @@ const SidebarContent = ({ onNavigate }: SidebarContentProps) => {
 
       <Button
         variant="sidebar"
-        className="justify-start gap-2"
+        className=""
         onClick={() => handleNavigate(`/app/${slug}/stripe`)}
       >
         <CreditCard size={24} />

@@ -2,7 +2,9 @@
 
 import React from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { UserSchema } from "@/types/convex-schemas"; // Adjust import as needed
+import { ChevronRight } from "lucide-react";
+import { UserSchema } from "@/types/convex-schemas";
+import { ClerkRoleLabels } from "@/types/enums";
 
 interface UserCardProps {
   user: UserSchema;
@@ -15,13 +17,38 @@ const UserCard: React.FC<UserCardProps> = ({ user }) => {
   const handleClick = () => {
     router.push(`${pathname}/${user._id}`);
   };
+  if (user.role) console.log(ClerkRoleLabels[user.role]);
 
   return (
     <div
-      className="border rounded p-4 cursor-pointer hover:bg-gray-100"
+      className="border-b border-grayCustom hover:bg-gray-800 p-4 cursor-pointer flex items-center justify-between"
       onClick={handleClick}
     >
-      <p className="text-lg font-semibold">{user.name}</p>
+      {/* Left: Avatar + Name */}
+      <div className="flex items-center gap-4">
+        {user.imageUrl ? (
+          <img
+            src={user.imageUrl}
+            alt={user.name}
+            className="w-12 h-12 rounded-full object-cover"
+          />
+        ) : (
+          <div className="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center text-gray-600">
+            {user.name[0]}
+          </div>
+        )}
+        <div>
+          <p className="text-lg font-semibold">{user.name}</p>
+          {user.role && (
+            <p className="text-sm text-grayCustom2 capitalize">
+              {" "}
+              {ClerkRoleLabels[user.role]}
+            </p>
+          )}
+        </div>
+      </div>
+
+      <ChevronRight className="text-grayCustom2" size={20} />
     </div>
   );
 };

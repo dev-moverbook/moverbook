@@ -6,7 +6,7 @@ import { Id } from "@/convex/_generated/dataModel";
 import IconRow from "@/app/components/shared/IconRow";
 import IconButton from "@/app/components/shared/IconButton";
 import { Pencil, Trash2 } from "lucide-react";
-import FieldDisplay from "@/app/components/shared/FieldDisplay";
+import ListItemRow from "@/app/components/shared/ListItemRow";
 
 interface FeeCardProps {
   fee: FeeSchema;
@@ -15,11 +15,13 @@ interface FeeCardProps {
 }
 
 const FeeCard: React.FC<FeeCardProps> = ({ fee, onEdit, onDelete }) => {
+  const formattedPrice = `$${fee.price.toFixed(2)}`;
+
   return (
-    <div className="w-full flex justify-between items-start">
-      <div className="space-y-4">
-        <FieldDisplay label="Name" value={fee.name} />
-        <FieldDisplay label="Price" value={fee.price.toString()} />
+    <ListItemRow>
+      <div className="flex items-center gap-2 text-white font-medium">
+        <span>{fee.name}</span>
+        <span className="text-grayCustom2 text-sm">{formattedPrice}</span>
       </div>
       <IconRow>
         <IconButton
@@ -34,7 +36,7 @@ const FeeCard: React.FC<FeeCardProps> = ({ fee, onEdit, onDelete }) => {
           title="Delete"
         />
       </IconRow>
-    </div>
+    </ListItemRow>
   );
 };
 

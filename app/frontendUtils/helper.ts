@@ -14,3 +14,10 @@ export const isValidHourlyRate = (rate: string): boolean => {
     !isNaN(numericRate) && numericRate >= 0 && /^\d+(\.\d{1,2})?$/.test(rate)
   );
 };
+
+export const formatMonthDay = (value: number | null | undefined) => {
+  if (!value) return "";
+  const month = Math.floor(value / 100);
+  const day = value % 100;
+  return `${month}-${day}`;
+};

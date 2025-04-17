@@ -148,16 +148,6 @@ const LiabilityModal: React.FC<LiabilityModalProps> = ({
       />
 
       <FieldRow
-        label="Coverage Amount"
-        name="coverageAmount"
-        type="number"
-        value={formData.coverageAmount.toString()}
-        onChange={handleInputChange}
-        placeholder="Enter coverage amount"
-        error={errors.coverageAmount}
-      />
-
-      <FieldRow
         label="Coverage Type"
         name="coverageType"
         type="number"
@@ -175,6 +165,16 @@ const LiabilityModal: React.FC<LiabilityModalProps> = ({
         onChange={handleInputChange}
         placeholder="Enter premium"
         error={errors.premium}
+      />
+
+      <FieldRow
+        label="Coverage Amount"
+        name="coverageAmount"
+        type="number"
+        value={formData.coverageAmount.toString()}
+        onChange={handleInputChange}
+        placeholder="Enter coverage amount"
+        error={errors.coverageAmount}
       />
 
       <CheckboxField

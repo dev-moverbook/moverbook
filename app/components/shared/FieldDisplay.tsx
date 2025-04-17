@@ -15,7 +15,7 @@ const FieldDisplay: React.FC<FieldDisplayProps> = ({
   return (
     <div className="space-y-1">
       <Label>{label}</Label>
-      <p className="text-sm text-grayCustom2">{value?.trim() || fallback}</p>
+      <p className="md:text-sm text-grayCustom2">{value?.trim() || fallback}</p>
     </div>
   );
 };

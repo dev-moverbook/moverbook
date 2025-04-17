@@ -14,6 +14,7 @@ import { PolicySchema } from "@/types/convex-schemas";
 import { PolicyFormData } from "@/types/form-types";
 import { useUpdatePolicy } from "../hooks/useUpdatePolicy";
 import FieldTextAreaRow from "@/app/components/shared/FieldTextAreaRow";
+import { validatePrice } from "@/app/frontendUtils/validation";
 
 interface PolicySectionProps {
   policy: PolicySchema;
@@ -22,6 +23,7 @@ interface PolicySectionProps {
 const PolicySection: React.FC<PolicySectionProps> = ({ policy }) => {
   const { updatePolicy, updatePolicyLoading, updatePolicyError } =
     useUpdatePolicy();
+  const [errors, setErrors] = useState<{ [key: string]: string | null }>({});
 
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [formData, setFormData] = useState<PolicyFormData>({
@@ -53,14 +55,46 @@ const PolicySection: React.FC<PolicySectionProps> = ({ policy }) => {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
+
+    const isNumericField = [
+      "weekdayHourMinimum",
+      "weekendHourMinimum",
+      "deposit",
+      "cancellationFee",
+      "cancellationCutoffHour",
+    ].includes(name);
+
+    const parsedValue = isNumericField ? Number(value) : value;
+
+    if (isNumericField) {
+      const validationError = validatePrice(parsedValue as number);
+      setErrors((prev) => ({ ...prev, [name]: validationError }));
+    }
+
     setFormData((prev) => ({
       ...prev,
-      [name]:
-        name === "billOfLandingDisclaimerAndTerms" ? value : Number(value),
+      [name]: parsedValue,
     }));
   };
 
   const handleSave = async () => {
+    const weekdayError = validatePrice(formData.weekdayHourMinimum);
+    const weekendError = validatePrice(formData.weekendHourMinimum);
+    const depositError = validatePrice(formData.deposit);
+    const cancellationFeeError = validatePrice(formData.cancellationFee);
+
+    const newErrors = {
+      weekdayHourMinimum: weekdayError,
+      weekendHourMinimum: weekendError,
+      deposit: depositError,
+      cancellationFee: cancellationFeeError,
+    };
+
+    setErrors(newErrors);
+
+    const hasErrors = Object.values(newErrors).some((error) => error !== null);
+    if (hasErrors) return;
+
     const success = await updatePolicy(policy._id, formData);
     if (success) {
       setIsEditing(false);
@@ -68,7 +102,7 @@ const PolicySection: React.FC<PolicySectionProps> = ({ policy }) => {
   };
 
   return (
-    <SectionContainer>
+    <SectionContainer isLast={true}>
       <CenteredContainer>
         <SectionHeader
           title="Policy Information"
@@ -83,6 +117,8 @@ const PolicySection: React.FC<PolicySectionProps> = ({ policy }) => {
             value={formData.weekdayHourMinimum.toString()}
             isEditing={isEditing}
             onChange={handleChange}
+            error={errors.weekdayHourMinimum}
+            type="number"
           />
 
           <FieldRow
@@ -91,6 +127,8 @@ const PolicySection: React.FC<PolicySectionProps> = ({ policy }) => {
             value={formData.weekendHourMinimum.toString()}
             isEditing={isEditing}
             onChange={handleChange}
+            error={errors.weekendHourMinimum}
+            type="number"
           />
 
           <FieldRow
@@ -99,6 +137,8 @@ const PolicySection: React.FC<PolicySectionProps> = ({ policy }) => {
             value={formData.deposit.toString()}
             isEditing={isEditing}
             onChange={handleChange}
+            error={errors.deposit}
+            type="number"
           />
 
           <FieldRow
@@ -107,6 +147,8 @@ const PolicySection: React.FC<PolicySectionProps> = ({ policy }) => {
             value={formData.cancellationFee.toString()}
             isEditing={isEditing}
             onChange={handleChange}
+            error={errors.cancellationFee}
+            type="number"
           />
 
           <FieldRow
@@ -118,7 +160,7 @@ const PolicySection: React.FC<PolicySectionProps> = ({ policy }) => {
           />
 
           <FieldTextAreaRow
-            label="Bill of Lading Disclaimer and Terms"
+            label="Bill of Landing Disclaimer and Terms"
             name="billOfLandingDisclaimerAndTerms"
             value={formData.billOfLandingDisclaimerAndTerms}
             isEditing={isEditing}

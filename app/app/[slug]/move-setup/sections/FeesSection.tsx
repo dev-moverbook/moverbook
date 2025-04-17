@@ -13,7 +13,6 @@ import CenteredContainer from "@/app/components/shared/CenteredContainer";
 import SectionContainer from "@/app/components/shared/SectionContainer";
 import SectionHeader from "@/app/components/shared/SectionHeader";
 import { Button } from "@/app/components/ui/button";
-import CardListContainer from "@/app/components/shared/CardListContainer";
 import CardContainer from "@/app/components/shared/CardContainer";
 
 interface FeesSectionProps {
@@ -77,7 +76,7 @@ const FeesSection: React.FC<FeesSectionProps> = ({ fees, companyId }) => {
   };
 
   return (
-    <SectionContainer>
+    <SectionContainer isLast={true}>
       <CenteredContainer>
         <SectionHeader
           title="Fees"

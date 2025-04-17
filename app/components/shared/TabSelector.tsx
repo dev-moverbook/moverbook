@@ -18,7 +18,6 @@ const TabSelector: React.FC<TabSelectorProps> = ({
   const [tabWidth, setTabWidth] = useState(0);
 
   useEffect(() => {
-    // Calculate width once based on number of tabs
     if (tabs.length > 0) {
       setTabWidth(100 / tabs.length);
     }
@@ -27,33 +26,38 @@ const TabSelector: React.FC<TabSelectorProps> = ({
   const activeIndex = tabs.findIndex((tab) => tab === activeTab);
 
   return (
-    <div className="relative w-full">
-      <div className="flex w-full">
-        {tabs.map((tab, index) => (
-          <button
-            key={tab}
-            onClick={() => onTabChange(tab)}
-            className={cn(
-              "flex-1 text-center py-1 font-medium transition-colors border-b",
-              activeTab === tab
-                ? "border-transparent text-white"
-                : "border-gray-700 text-grayCustom hover:text-white"
-            )}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
+    <div className="relative">
+      {/* Border line on both sides outside of the centered area */}
+      <div className="absolute left-0 right-0 top-full h-px bg-gray-700 z-0" />
 
-      {/* Sliding underline */}
-      <motion.div
-        className="absolute bottom-0 h-0.5 bg-greenCustom rounded"
-        animate={{
-          width: `${tabWidth}%`,
-          left: `${tabWidth * activeIndex}%`,
-        }}
-        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      />
+      <div className="relative z-10 max-w-2xl mx-auto ">
+        <div className="flex w-full">
+          {tabs.map((tab) => (
+            <button
+              key={tab}
+              onClick={() => onTabChange(tab)}
+              className={cn(
+                "flex-1 text-center py-1 font-medium transition-colors",
+                activeTab === tab
+                  ? "text-white"
+                  : "text-grayCustom hover:text-white"
+              )}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+
+        {/* Sliding underline */}
+        <motion.div
+          className="absolute bottom-0 h-0.5 bg-greenCustom rounded"
+          animate={{
+            width: `${tabWidth}%`,
+            left: `${tabWidth * activeIndex}%`,
+          }}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        />
+      </div>
     </div>
   );
 };

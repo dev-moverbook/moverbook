@@ -16,9 +16,14 @@ import ListItemRow from "@/app/components/shared/ListItemRow";
 interface ReferralItemProps {
   referralId: Id<"referrals">;
   name: string;
+  onEdit: (id: Id<"referrals">, name: string) => void;
 }
 
-const ReferralItem: React.FC<ReferralItemProps> = ({ referralId, name }) => {
+const ReferralItem: React.FC<ReferralItemProps> = ({
+  referralId,
+  name,
+  onEdit,
+}) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [editedName, setEditedName] = useState<string>(name);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
@@ -55,49 +60,21 @@ const ReferralItem: React.FC<ReferralItemProps> = ({ referralId, name }) => {
   return (
     <>
       <ListItemRow>
-        {" "}
-        {isEditing ? (
-          <Input
-            type="text"
-            value={editedName}
-            onChange={(e) => setEditedName(e.target.value)}
-          />
-        ) : (
-          <span className="font-medium">{name}</span>
-        )}
+        <span className="font-medium">{name}</span>
         <IconRow>
-          {isEditing ? (
-            <>
-              <IconButton
-                onClick={handleSave}
-                icon={<Save className="w-4 h-4" />}
-                disabled={updateLoading}
-                title="Save"
-              />
-              <IconButton
-                onClick={() => setIsEditing(false)}
-                icon={<X className="w-4 h-4" />}
-                title="Cancel"
-              />
-            </>
-          ) : (
-            <>
-              <IconButton
-                onClick={handleEditClick}
-                icon={<Pencil className="w-4 h-4" />}
-                title="Edit"
-              />
-              <IconButton
-                onClick={handleDeleteClick}
-                icon={<Trash2 className="w-4 h-4" />}
-                variant="outline"
-                disabled={deleteLoading}
-                title="Delete"
-              />
-            </>
-          )}
+          <IconButton
+            onClick={() => onEdit(referralId, name)}
+            icon={<Pencil className="w-4 h-4" />}
+            title="Edit"
+          />
+          <IconButton
+            onClick={handleDeleteClick}
+            icon={<Trash2 className="w-4 h-4" />}
+            variant="outline"
+            disabled={deleteLoading}
+            title="Delete"
+          />
         </IconRow>
-        {updateError && <p className="text-red-500 mt-2">{updateError}</p>}
       </ListItemRow>
 
       <ConfirmDeleteModal

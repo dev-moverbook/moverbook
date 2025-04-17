@@ -78,4 +78,11 @@ body {
   body {
     @apply text-white bg-black;
   }
+  main {
+    @apply min-h-screen;
+  }
+  input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    opacity: 1;
+  }
 }

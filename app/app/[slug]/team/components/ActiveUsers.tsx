@@ -8,6 +8,9 @@ import { useSlugContext } from "@/app/contexts/SlugContext";
 import UserCard from "./UserCard";
 import SectionContainer from "@/app/components/shared/SectionContainer";
 import CenteredContainer from "@/app/components/shared/CenteredContainer";
+import SectionHeader from "@/app/components/shared/SectionHeader";
+import ContainerUserCard from "@/app/components/shared/ContainerUserCard";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ActiveUsers = () => {
   const { companyId } = useSlugContext();
@@ -19,11 +22,11 @@ const ActiveUsers = () => {
   );
 
   if (!companyId) {
-    return <div>Loading slug...</div>;
+    return <Skeleton />;
   }
 
   if (!usersResponse) {
-    return <div>Loading users...</div>;
+    return <Skeleton />;
   }
 
   if (usersResponse.status === ResponseStatus.ERROR) {
@@ -31,14 +34,15 @@ const ActiveUsers = () => {
   }
 
   return (
-    <SectionContainer>
+    <SectionContainer isLast={true}>
       <CenteredContainer>
-        <h1 className="text-2xl font-bold mb-4">Active Users</h1>
-        <div className="grid grid-cols-1 gap-4">
+        <SectionHeader title="Active Users" />
+        <ContainerUserCard>
+          {" "}
           {usersResponse.data.users.map((user) => (
             <UserCard key={user._id} user={user} />
           ))}
-        </div>
+        </ContainerUserCard>{" "}
       </CenteredContainer>
     </SectionContainer>
   );

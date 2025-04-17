@@ -8,7 +8,10 @@ import {
   validateInsurancePolicy,
 } from "./backendUtils/validate";
 import { isUserInOrg } from "./backendUtils/validate";
-import { shouldExposeError } from "./backendUtils/helper";
+import {
+  shouldExposeError,
+  unsetOtherDefaultPolicies,
+} from "./backendUtils/helper";
 import {
   CreateInsurancePolicyResponse,
   UpdateInsurancePolicyResponse,
@@ -42,6 +45,10 @@ export const createInsurancePolicy = mutation({
 
       const company = validateCompany(await ctx.db.get(companyId));
       isUserInOrg(identity, company.clerkOrganizationId);
+
+      if (isDefault) {
+        await unsetOtherDefaultPolicies(ctx, companyId);
+      }
 
       const insurancePolicyId = await ctx.db.insert("insurancePolicies", {
         companyId,
@@ -104,6 +111,9 @@ export const updateInsurancePolicy = mutation({
 
       isUserInOrg(identity, company.clerkOrganizationId);
 
+      if (updates.isDefault) {
+        await unsetOtherDefaultPolicies(ctx, company._id);
+      }
       await ctx.db.patch(insurancePolicyId, updates);
 
       return {

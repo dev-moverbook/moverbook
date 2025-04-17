@@ -1,8 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useMediaQuery } from "react-responsive";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import { FrontEndErrorMessages } from "@/types/errors";
 import FormActions from "@/app/components/shared/FormActions";
@@ -12,43 +17,59 @@ import LabeledInput from "@/app/components/shared/LabeledInput";
 interface CreateReferralModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreate: (name: string) => Promise<boolean>;
-  createLoading: boolean;
-  createError: string | null;
+  onSubmit: (name: string) => Promise<boolean>;
+  loading: boolean;
+  error: string | null;
+  initialName?: string;
+  mode?: "create" | "edit";
 }
 
 const CreateReferralModal: React.FC<CreateReferralModalProps> = ({
   isOpen,
   onClose,
-  onCreate,
-  createLoading,
-  createError,
+  onSubmit,
+  loading,
+  error,
+  initialName = "",
+  mode = "create",
 }) => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
-  const [name, setName] = useState<string>("");
+
+  const [name, setName] = useState<string>(initialName);
   const [nameError, setNameError] = useState<string | null>(null);
 
-  const resetState = () => {
-    setName("");
+  useEffect(() => {
+    setName(initialName);
     setNameError(null);
-  };
+  }, [initialName, isOpen]);
 
   const handleClose = () => {
-    resetState();
+    setName("");
+    setNameError(null);
     onClose();
   };
 
-  const handleCreate = async () => {
+  const handleSubmit = async () => {
     if (!name.trim()) {
       setNameError(FrontEndErrorMessages.REFERARAL_NAME_REQUIRED);
       return;
     }
 
-    const success = await onCreate(name);
+    const success = await onSubmit(name);
     if (success) {
       handleClose();
     }
   };
+
+  const isEditMode = mode === "edit";
+  const modalTitle = isEditMode ? "Edit Referral" : "Create Referral";
+  const saveLabel = isEditMode
+    ? loading
+      ? "Saving..."
+      : "Save Changes"
+    : loading
+      ? "Creating..."
+      : "Create Referral";
 
   const formContent = (
     <FieldGroup>
@@ -64,11 +85,11 @@ const CreateReferralModal: React.FC<CreateReferralModalProps> = ({
       />
 
       <FormActions
-        onSave={handleCreate}
+        onSave={handleSubmit}
         onCancel={handleClose}
-        isSaving={createLoading}
-        saveLabel={createLoading ? "Creating..." : "Create Referral"}
-        error={createError}
+        isSaving={loading}
+        saveLabel={saveLabel}
+        error={error}
       />
     </FieldGroup>
   );
@@ -76,14 +97,17 @@ const CreateReferralModal: React.FC<CreateReferralModalProps> = ({
   return isMobile ? (
     <Drawer open={isOpen} onOpenChange={handleClose}>
       <DrawerContent>
-        <DrawerTitle>Create Referral</DrawerTitle>
+        <DrawerTitle>{modalTitle}</DrawerTitle>
         {formContent}
       </DrawerContent>
     </Drawer>
   ) : (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent>
-        <DialogTitle>Create Referral</DialogTitle>
+        <DialogTitle>{modalTitle}</DialogTitle>
+        <DialogDescription>
+          {isEditMode ? "Update this referral name." : "Add a new referral."}
+        </DialogDescription>
         {formContent}
       </DialogContent>
     </Dialog>

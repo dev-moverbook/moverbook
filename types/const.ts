@@ -27,3 +27,20 @@ export const DEFAULT_TRAVEL_CHARGING_METHOD = TravelChargingTypes.FLAT;
 export const DEFAULT_TRAVEL_RATE = 159;
 
 export const STRIPE_API_VERSION = "2025-02-24.acacia";
+
+export const DEFAULT_ROOMS = [
+  "Bedroom #1",
+  "Bedroom #2",
+  "Bedroom #3",
+  "Bedroom #4",
+  "Living Room",
+  "Office",
+  "Kitchen",
+  "Patio",
+  "Garage",
+  "Basement",
+  "Shed",
+  "Family Room",
+  "Dinning Room",
+  "Den",
+];

@@ -10,9 +10,11 @@ interface FieldRowProps {
   type?: string;
   isEditing?: boolean;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  error?: string;
+  error?: string | null;
   fallback?: string;
   placeholder?: string;
+  min?: number;
+  step?: number;
 }
 
 const FieldRow: React.FC<FieldRowProps> = ({
@@ -25,13 +27,13 @@ const FieldRow: React.FC<FieldRowProps> = ({
   error,
   fallback = "N/A",
   placeholder,
+  min,
+  step,
 }) => {
   if (isEditing) {
     return (
       <div>
-        <Label htmlFor={name} className="">
-          {label}
-        </Label>
+        <Label htmlFor={name}>{label}</Label>
         <Input
           id={name}
           name={name}
@@ -39,13 +41,15 @@ const FieldRow: React.FC<FieldRowProps> = ({
           onChange={onChange}
           type={type}
           placeholder={placeholder}
+          min={min}
+          step={step}
           className={cn(error && "border-red-500")}
         />
-
         {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
       </div>
     );
   }
+
   return (
     <FieldDisplay label={label} value={value?.trim()} fallback={fallback} />
   );

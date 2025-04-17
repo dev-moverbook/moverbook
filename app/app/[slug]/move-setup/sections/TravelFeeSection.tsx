@@ -22,6 +22,8 @@ import { TravelFeeSchema } from "@/types/convex-schemas";
 import { TravelFeeFormData } from "@/types/form-types";
 import { useUpdateTravelFee } from "../hooks/useUpdateTravelFee";
 import ChargingMethodField from "@/app/components/shared/ChargingMethodField";
+import DefaultCheckboxField from "@/app/components/shared/DefaultCheckboxField";
+import { Badge } from "@/components/ui/badge";
 
 interface TravelFeeSectionProps {
   travelFee: TravelFeeSchema;
@@ -92,11 +94,19 @@ const TravelFeeSection: React.FC<TravelFeeSectionProps> = ({ travelFee }) => {
         />
 
         <FieldGroup>
-          <ChargingMethodField
-            value={formData.chargingMethod}
-            isEditing={isEditing}
-            onChange={handleChargingMethodChange}
-          />
+          <div className="flex items-start gap-2">
+            <ChargingMethodField
+              value={formData.chargingMethod}
+              isEditing={isEditing}
+              onChange={handleChargingMethodChange}
+            />
+
+            {!isEditing && formData.isDefault && (
+              <Badge variant="outline" className="text-xs -mt-[2px]">
+                Default
+              </Badge>
+            )}
+          </div>
 
           {/* Rate */}
           <FieldRow
@@ -108,16 +118,13 @@ const TravelFeeSection: React.FC<TravelFeeSectionProps> = ({ travelFee }) => {
             type="number"
           />
 
-          {/* Default Checkbox */}
-          <div className="flex items-center space-x-2 mt-2">
-            <Checkbox
-              id="isDefault"
+          {isEditing && (
+            <DefaultCheckboxField
               checked={formData.isDefault}
-              onCheckedChange={handleCheckboxChange}
-              disabled={!isEditing}
+              onChange={handleCheckboxChange}
+              label="Is Default"
             />
-            <Label htmlFor="isDefault">Is Default</Label>
-          </div>
+          )}
 
           {isEditing && (
             <FormActions

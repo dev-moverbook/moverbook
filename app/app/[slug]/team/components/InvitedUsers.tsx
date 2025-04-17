@@ -9,6 +9,11 @@ import ResponsiveRevokeModal from "./ResponsiveRevokeModal";
 import { InvitationSchema } from "@/types/convex-schemas";
 import { Id } from "@/convex/_generated/dataModel";
 import { useRevokeInvite } from "@/app/hooks/useRevokeInvite";
+import SectionHeader from "@/app/components/shared/SectionHeader";
+import SectionContainer from "@/app/components/shared/SectionContainer";
+import CenteredContainer from "@/app/components/shared/CenteredContainer";
+import ContainerUserCard from "@/app/components/shared/ContainerUserCard";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const InvitedUsers = () => {
   const { companyId } = useSlugContext();
@@ -25,7 +30,7 @@ const InvitedUsers = () => {
   const [revokeModalOpen, setRevokeModalOpen] = useState<boolean>(false);
 
   if (!invitationsResponse) {
-    return <div>Loading...</div>;
+    return <Skeleton />;
   }
 
   if (invitationsResponse.status === ResponseStatus.ERROR) {
@@ -53,27 +58,30 @@ const InvitedUsers = () => {
   };
 
   return (
-    <div>
-      <h2 className="text-xl font-bold mb-4">Invited Users</h2>
-      <div className="grid grid-cols-1 gap-4">
-        {invitationsResponse.data.invitations.map(
-          (invitation: InvitationSchema) => (
-            <InvitationCard
-              key={invitation._id}
-              invitation={invitation}
-              onRevokeClick={handleRevokeClick}
-            />
-          )
-        )}
-      </div>
-      <ResponsiveRevokeModal
-        isOpen={revokeModalOpen && !!selectedInvitationId}
-        onClose={handleCloseModal}
-        onConfirm={handleConfirmRevoke}
-        revokeLoading={revokeLoading}
-        revokeError={revokeError}
-      />
-    </div>
+    <SectionContainer isLast={true}>
+      <CenteredContainer>
+        <SectionHeader title="Invited Users" />
+        <ContainerUserCard>
+          {" "}
+          {invitationsResponse.data.invitations.map(
+            (invitation: InvitationSchema) => (
+              <InvitationCard
+                key={invitation._id}
+                invitation={invitation}
+                onRevokeClick={handleRevokeClick}
+              />
+            )
+          )}
+        </ContainerUserCard>
+        <ResponsiveRevokeModal
+          isOpen={revokeModalOpen && !!selectedInvitationId}
+          onClose={handleCloseModal}
+          onConfirm={handleConfirmRevoke}
+          revokeLoading={revokeLoading}
+          revokeError={revokeError}
+        />
+      </CenteredContainer>
+    </SectionContainer>
   );
 };
 

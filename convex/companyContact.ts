@@ -1,7 +1,7 @@
 import { ClerkRoles, ResponseStatus } from "@/types/enums";
 import { ErrorMessages } from "@/types/errors";
 import { v } from "convex/values";
-import { mutation } from "./_generated/server";
+import { internalMutation, mutation, internalQuery } from "./_generated/server";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import { shouldExposeError } from "./backendUtils/helper";
 import {
@@ -10,6 +10,7 @@ import {
   validateCompanyContact,
 } from "./backendUtils/validate";
 import { UpdateCompanyContactResponse } from "@/types/convex-responses";
+import { CompanyContactSchema } from "@/types/convex-schemas";
 
 export const updateCompanyContact = mutation({
   args: {
@@ -41,7 +42,22 @@ export const updateCompanyContact = mutation({
 
       isUserInOrg(identity, company.clerkOrganizationId);
 
-      await ctx.db.patch(companyContact._id, updates);
+      const emailChanged =
+        updates.email && updates.email !== companyContact.email;
+      const addressChanged =
+        updates.address && updates.address !== companyContact.address;
+
+      const finalUpdates: Record<string, unknown> = {
+        ...updates,
+      };
+
+      if (emailChanged || addressChanged) {
+        finalUpdates.sendgridSenderId = undefined;
+        finalUpdates.sendgridVerified = undefined;
+        finalUpdates.sendgridName = undefined;
+      }
+
+      await ctx.db.patch(companyContact._id, finalUpdates);
 
       return {
         status: ResponseStatus.SUCCESS,
@@ -59,6 +75,43 @@ export const updateCompanyContact = mutation({
           ? errorMessage
           : ErrorMessages.GENERIC_ERROR,
       };
+    }
+  },
+});
+
+export const updateSendgridInfo = internalMutation({
+  args: {
+    companyContactId: v.id("companyContact"),
+    updates: v.object({
+      sendgridSenderId: v.optional(v.string()),
+      sendgridVerified: v.optional(v.boolean()),
+      sendgridName: v.optional(v.string()),
+    }),
+  },
+  handler: async (ctx, { companyContactId, updates }) => {
+    try {
+      await ctx.db.patch(companyContactId, updates);
+    } catch (error) {
+      console.error(ErrorMessages.COMPANY_CONTACT_UPDATE, error);
+      throw new Error(ErrorMessages.COMPANY_CONTACT_UPDATE);
+    }
+  },
+});
+
+export const getCompanyContactInternal = internalQuery({
+  args: {
+    companyContactId: v.id("companyContact"),
+  },
+  handler: async (ctx, { companyContactId }): Promise<CompanyContactSchema> => {
+    try {
+      const companyContact = validateCompanyContact(
+        await ctx.db.get(companyContactId)
+      );
+
+      return companyContact;
+    } catch (error) {
+      console.error(ErrorMessages.COMPANY_CONTACT_QUERY, error);
+      throw new Error(ErrorMessages.COMPANY_CONTACT_QUERY);
     }
   },
 });

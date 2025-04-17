@@ -10,82 +10,34 @@ import IconRow from "@/app/components/shared/IconRow";
 
 interface VariableCardProps {
   variable: VariableSchema;
+  value: string;
+  onChange: (id: string, value: string) => void;
+  isEditing: boolean;
 }
 
-const VariableCard: React.FC<VariableCardProps> = ({ variable }) => {
-  const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [editedDefaultValue, setEditedDefaultValue] = useState<string>(
-    variable.defaultValue
-  );
-
-  const { updateVariable, updateLoading, updateError, setUpdateError } =
-    useUpdateVariable();
-
-  const handleEditClick = () => {
-    setIsEditing(true);
-    setUpdateError(null); // Clear error if re-editing
-  };
-
-  const handleCancel = () => {
-    setIsEditing(false);
-    setEditedDefaultValue(variable.defaultValue); // Reset changes
-    setUpdateError(null);
-  };
-
-  const handleSave = async () => {
-    const success = await updateVariable(variable._id, {
-      defaultValue: editedDefaultValue,
-    });
-    if (success) {
-      setIsEditing(false);
-    }
-  };
-
+const VariableCard: React.FC<VariableCardProps> = ({
+  variable,
+  value,
+  onChange,
+  isEditing,
+}) => {
   return (
-    <div className="flex justify-between items-center">
+    <div className="flex justify-between items-start">
       <div>
         <p className="font-medium text-lg">{variable.name}</p>
 
         {isEditing ? (
           <Input
-            value={editedDefaultValue}
-            onChange={(e) => setEditedDefaultValue(e.target.value)}
+            value={value}
+            onChange={(e) => onChange(variable._id, e.target.value)}
             className="mt-1"
           />
         ) : (
-          <p className="text-gray-600 text-sm">
-            Default: {variable.defaultValue}
+          <p className="text-grayCustom text-sm">
+            Default Value: {variable.defaultValue}
           </p>
         )}
-
-        {updateError && (
-          <p className="text-sm text-red-500 mt-1">{updateError}</p>
-        )}
       </div>
-
-      <IconRow>
-        {isEditing ? (
-          <>
-            <IconButton
-              icon={<Save size={16} />}
-              aria-label="Save"
-              onClick={handleSave}
-              disabled={updateLoading}
-            />
-            <IconButton
-              icon={<X size={16} />}
-              aria-label="Cancel"
-              onClick={handleCancel}
-            />
-          </>
-        ) : (
-          <IconButton
-            icon={<Pencil size={16} />}
-            aria-label="Edit"
-            onClick={handleEditClick}
-          />
-        )}
-      </IconRow>
     </div>
   );
 };

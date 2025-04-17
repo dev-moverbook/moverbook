@@ -12,6 +12,7 @@ import LiabilitySection from "../sections/LiabilitySection";
 import TravelFeeSection from "../sections/TravelFeeSection";
 import FeesSection from "../sections/FeesSection";
 import CreditCardFeeSection from "../sections/CreditCardFeeSection";
+import VerticalSectionGroup from "@/app/components/shared/VerticalSectionGroup";
 
 const RatesTab = () => {
   const { companyId } = useSlugContext();
@@ -33,13 +34,13 @@ const RatesTab = () => {
     queryResult.data;
 
   return (
-    <div className="p-4 space-y-6">
+    <VerticalSectionGroup>
       <LaborSection labor={labor} companyId={companyId} />
       <LiabilitySection policies={insurancePolicies} companyId={companyId} />
       <TravelFeeSection travelFee={travelFee} />
       <CreditCardFeeSection creditCardFee={creditCardFee} />
       <FeesSection fees={fees} companyId={companyId} />
-    </div>
+    </VerticalSectionGroup>
   );
 };
 

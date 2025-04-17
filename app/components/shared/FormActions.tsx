@@ -8,7 +8,12 @@ interface FormActionsProps {
   cancelLabel?: string;
   error?: string | null;
   saveVariant?: "default" | "destructive" | "outline" | "ghost";
-  cancelVariant?: "default" | "destructive" | "outline" | "ghost";
+  cancelVariant?:
+    | "default"
+    | "destructive"
+    | "outline"
+    | "ghost"
+    | "whiteGhost";
 }
 
 const FormActions: React.FC<FormActionsProps> = ({
@@ -22,10 +27,14 @@ const FormActions: React.FC<FormActionsProps> = ({
   cancelVariant = "ghost",
 }) => {
   return (
-    <div className="flex flex-col space-y-2 pb-8">
+    <div className="flex flex-col  ">
       <p className="text-sm min-h-[1.25rem] text-red-500">{error || ""}</p>
-      <div className="grid grid-cols-2 gap-2">
-        <Button onClick={onCancel} variant={cancelVariant} className="w-full">
+      <div className="grid grid-cols-2 gap-2 mb-4 md:mb-0">
+        <Button
+          onClick={onCancel}
+          variant={cancelVariant}
+          className="w-full text-white"
+        >
           {cancelLabel}
         </Button>
         <Button

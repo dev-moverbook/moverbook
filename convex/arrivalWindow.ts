@@ -71,10 +71,10 @@ export const updateArrivalWindow = mutation({
   args: {
     arrivalWindowId: v.id("arrivalWindow"),
     updates: v.object({
-      morningArrival: v.optional(v.number()),
-      morningEnd: v.optional(v.number()),
-      afternoonArrival: v.optional(v.number()),
-      afternoonEnd: v.optional(v.number()),
+      morningArrival: v.optional(v.string()),
+      morningEnd: v.optional(v.string()),
+      afternoonArrival: v.optional(v.string()),
+      afternoonEnd: v.optional(v.string()),
     }),
   },
   handler: async (ctx, args): Promise<UpdateArrivalWindowResponse> => {

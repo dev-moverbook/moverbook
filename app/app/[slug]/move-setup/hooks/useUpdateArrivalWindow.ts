@@ -8,10 +8,10 @@ import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
 
 interface UpdateArrivalWindowData {
-  morningArrival?: number;
-  morningEnd?: number;
-  afternoonArrival?: number;
-  afternoonEnd?: number;
+  morningArrival?: string;
+  morningEnd?: string;
+  afternoonArrival?: string;
+  afternoonEnd?: string;
 }
 
 export const useUpdateArrivalWindow = () => {

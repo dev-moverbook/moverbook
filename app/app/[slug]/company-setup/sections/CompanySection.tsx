@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { CompanySchema } from "@/types/convex-schemas";
 import { UpdateCompanyData } from "@/types/form-types";
@@ -12,6 +12,8 @@ import SectionHeader from "@/app/components/shared/SectionHeader";
 import FormActions from "@/app/components/shared/FormActions";
 import FieldGroup from "@/app/components/shared/FieldGroup";
 import FieldRow from "@/app/components/shared/FieldRow";
+import { fetchTimezones } from "@/app/frontendUtils/apis";
+import SelectFieldRow from "@/app/components/shared/SelectFieldRow";
 
 interface CompanySectionProps {
   company: CompanySchema;
@@ -45,6 +47,22 @@ const CompanySection: React.FC<CompanySectionProps> = ({
     name: company.name || "",
     timeZone: company.timeZone || "UTC",
   });
+
+  const [timezoneOptions, setTimezoneOptions] = useState<string[]>([]);
+
+  useEffect(() => {
+    const loadTimezones = async () => {
+      try {
+        const zones = await fetchTimezones();
+        setTimezoneOptions(zones);
+      } catch (error) {
+        console.error("Failed to load timezones:", error);
+        setTimezoneOptions(["UTC"]);
+      }
+    };
+
+    loadTimezones();
+  }, []);
 
   const handleEditClick = () => {
     setIsEditing(true);
@@ -127,13 +145,28 @@ const CompanySection: React.FC<CompanySectionProps> = ({
               onChange={handleChange}
             />
 
-            <FieldRow
-              label="Time Zone"
-              name="timeZone"
-              value={formData.timeZone}
-              isEditing={isEditing}
-              onChange={handleChange}
-            />
+            {timezoneOptions.length > 0 ? (
+              <SelectFieldRow
+                label="Time Zone"
+                name="timeZone"
+                value={formData.timeZone}
+                options={timezoneOptions}
+                isEditing={isEditing}
+                onChange={(value) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    timeZone: value,
+                  }))
+                }
+              />
+            ) : (
+              <FieldRow
+                label="Time Zone"
+                name="timeZone"
+                value="Loading..."
+                isEditing={false}
+              />
+            )}
 
             {isEditing && (
               <FormActions

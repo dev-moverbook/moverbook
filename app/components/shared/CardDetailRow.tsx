@@ -5,7 +5,7 @@ interface CardDetailRowProps {
 
 const CardDetailRow: React.FC<CardDetailRowProps> = ({ label, value }) => {
   return (
-    <div className="flex w-full justify-between md:justify-normal">
+    <div className="flex w-full justify-between md:justify-normal text-base md:text-sm">
       <div className="md:w-[30rem] font-medium">{label}</div>
       <div>{value}</div>
     </div>
