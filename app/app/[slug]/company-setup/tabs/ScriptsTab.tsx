@@ -8,9 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { CommunicationType, ResponseStatus } from "@/types/enums";
 import { FrontEndErrorMessages } from "@/types/errors";
 import { useCreateScript } from "../hooks/useCreateScript";
-import { useCreateVariable } from "../hooks/useCreateVariable";
 import CreateScriptModal from "../modals/CreateScriptModal";
-import CreateVariableModal from "../modals/CreateVariableModal";
 import { useDeleteScript } from "../hooks/useDeleteScript";
 import { Id } from "@/convex/_generated/dataModel";
 import ConfirmDeleteModal from "../modals/ConfirmDeleteModal";
@@ -29,12 +27,7 @@ const ScriptsTab = () => {
 
   const { createScript, createLoading, createError, setCreateError } =
     useCreateScript();
-  const {
-    createVariable,
-    createLoading: createVariableLoading,
-    createError: createVariableError,
-    setCreateError: setCreateVariableError,
-  } = useCreateVariable();
+
   const {
     updateScript,
     updateLoading: updateScriptLoading,
@@ -70,18 +63,6 @@ const ScriptsTab = () => {
       return false;
     }
     return await createScript({ companyId, title, type, message, emailTitle });
-  };
-
-  const handleCreateVariable = async (
-    name: string,
-    defaultValue: string
-  ): Promise<boolean> => {
-    if (!companyId) {
-      console.error(FrontEndErrorMessages.COMPANY_NOT_FOUND);
-      setCreateVariableError(FrontEndErrorMessages.GENERIC);
-      return false;
-    }
-    return await createVariable(companyId, name, defaultValue);
   };
 
   const handleDeleteClick = (scriptId: Id<"scripts">) => {
