@@ -127,7 +127,7 @@ const RoomSection: React.FC<RoomSectionProps> = ({ rooms, companyId }) => {
               id={room._id}
               label={room.name}
               onEdit={() => handleOpenEditModal(room)}
-              onDelete={handleOpenDeleteModal}
+              onDelete={() => handleOpenDeleteModal(room._id)}
               showEditIcon={isEditMode}
               mode={manageMode}
             />
