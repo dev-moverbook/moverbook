@@ -50,8 +50,7 @@ const ScriptsTab = () => {
 
   const [isScriptModalOpen, setIsScriptModalOpen] = useState<boolean>(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
-  const [isVariableModalOpen, setIsVariableModalOpen] =
-    useState<boolean>(false);
+
   const [editingScript, setEditingScript] = useState<ScriptSchema | null>(null);
 
   const scriptsAndVariablesResponse = useQuery(
@@ -165,10 +164,7 @@ const ScriptsTab = () => {
         onDeleteClick={handleDeleteClick}
         onEdit={handleEditScriptClick}
       />
-      <VariablesSection
-        variables={variables}
-        setIsVariableModalOpen={setIsVariableModalOpen}
-      />
+      <VariablesSection variables={variables} />
 
       <CreateScriptModal
         isOpen={isScriptModalOpen}
@@ -184,13 +180,6 @@ const ScriptsTab = () => {
         editingScript={editingScript}
       />
 
-      <CreateVariableModal
-        isOpen={isVariableModalOpen}
-        onClose={() => setIsVariableModalOpen(false)}
-        onCreate={handleCreateVariable}
-        createLoading={createVariableLoading}
-        createError={createVariableError}
-      />
       <ConfirmDeleteModal
         isOpen={isDeleteModalOpen}
         onClose={handleDeleteModalClose}
