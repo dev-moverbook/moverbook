@@ -1,14 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Input } from "@/app/components/ui/input";
-import { useUpdateReferral } from "../hooks/useUpdateReferral";
 import { useDeleteReferral } from "../hooks/useDeleteReferral";
-import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
 import ConfirmDeleteModal from "../modals/ConfirmDeleteModal";
-
-import { Pencil, Trash2, Save, X } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import IconButton from "@/app/components/shared/IconButton";
 import IconRow from "@/app/components/shared/IconRow";
 import ListItemRow from "@/app/components/shared/ListItemRow";
@@ -24,29 +20,9 @@ const ReferralItem: React.FC<ReferralItemProps> = ({
   name,
   onEdit,
 }) => {
-  const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [editedName, setEditedName] = useState<string>(name);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
 
-  const { updateReferral, updateLoading, updateError, setUpdateError } =
-    useUpdateReferral();
   const { deleteReferral, deleteLoading, deleteError } = useDeleteReferral();
-
-  const handleEditClick = () => {
-    setIsEditing(true);
-  };
-
-  const handleSave = async () => {
-    if (!editedName.trim()) {
-      setUpdateError(FrontEndErrorMessages.REFERARAL_NAME_REQUIRED);
-      return;
-    }
-
-    const success = await updateReferral(referralId, { name: editedName });
-    if (success) {
-      setIsEditing(false);
-    }
-  };
 
   const handleDeleteClick = () => {
     setIsDeleteModalOpen(true);

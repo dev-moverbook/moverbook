@@ -64,7 +64,7 @@ const OnboardingPage = () => {
         <div>
           <Label
             htmlFor="companyName"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-grayCustom"
           >
             Company Name
           </Label>
@@ -74,10 +74,11 @@ const OnboardingPage = () => {
             value={companyName}
             onChange={handleInputChange}
             placeholder="Enter your company name"
-            className="mt-1"
+            className=""
           />
         </div>
         <Button
+          className="mt-4"
           type="submit"
           disabled={isCreateCompanyLoading || companyName.trim() === ""}
         >

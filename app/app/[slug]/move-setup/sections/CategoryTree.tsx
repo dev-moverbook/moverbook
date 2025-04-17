@@ -8,7 +8,6 @@ import { CategorySchema } from "@/types/convex-schemas";
 import { ResponseStatus } from "@/types/enums";
 import RenderSkeleton from "@/app/components/shared/RenderSkeleton";
 import ErrorComponent from "@/app/components/shared/ErrorComponent";
-import CategoryCard from "../cards/CategoryCard";
 import { Button } from "@/app/components/ui/button";
 import ItemSection from "./ItemSection";
 import SelectCard from "../cards/RoomCard";

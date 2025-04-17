@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 import { UserSchema } from "@/types/convex-schemas";
 import { ClerkRoleLabels } from "@/types/enums";
+import Image from "next/image";
 
 interface UserCardProps {
   user: UserSchema;
@@ -27,10 +28,12 @@ const UserCard: React.FC<UserCardProps> = ({ user }) => {
       {/* Left: Avatar + Name */}
       <div className="flex items-center gap-4">
         {user.imageUrl ? (
-          <img
+          <Image
             src={user.imageUrl}
             alt={user.name}
-            className="w-12 h-12 rounded-full object-cover"
+            width={48}
+            height={48}
+            className="rounded-full object-cover"
           />
         ) : (
           <div className="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center text-gray-600">

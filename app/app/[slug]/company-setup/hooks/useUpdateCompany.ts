@@ -18,7 +18,7 @@ export const useUpdateCompany = () => {
   const updateCompany = async (
     companyId: Id<"companies">,
     updates: UpdateCompanyData
-  ): Promise<boolean> => {
+  ): Promise<{ success: boolean; newSlug?: string }> => {
     setUpdateCompanyLoading(true);
     setUpdateCompanyError(null);
 
@@ -26,16 +26,16 @@ export const useUpdateCompany = () => {
       const response = await updateCompanyAction({ companyId, updates });
 
       if (response.status === ResponseStatus.SUCCESS) {
-        return true;
+        return { success: true, newSlug: response.data.slug };
       }
 
       console.error(response.error);
       setUpdateCompanyError(response.error || FrontEndErrorMessages.GENERIC);
-      return false;
+      return { success: false };
     } catch (error) {
       console.error(error);
       setUpdateCompanyError(FrontEndErrorMessages.GENERIC);
-      return false;
+      return { success: false };
     } finally {
       setUpdateCompanyLoading(false);
     }

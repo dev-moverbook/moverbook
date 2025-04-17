@@ -11,7 +11,6 @@ import { useSlugContext } from "@/app/contexts/SlugContext";
 import { FrontEndErrorMessages } from "@/types/errors";
 import TabContentContainer from "@/app/components/shared/TabContentContainer";
 import TabSelector from "@/app/components/shared/TabSelector";
-import SectionTitle from "@/app/components/shared/SectionTitle";
 import SectionHeaderWithAction from "@/app/components/shared/ SectionHeaderWithAction";
 
 const TeamContent: React.FC = () => {

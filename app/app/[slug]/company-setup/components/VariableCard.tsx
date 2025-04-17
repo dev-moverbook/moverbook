@@ -1,12 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { VariableSchema } from "@/types/convex-schemas";
-import { Pencil, Save, X } from "lucide-react";
-import IconButton from "@/app/components/shared/IconButton";
 import { Input } from "@/app/components/ui/input";
-import { useUpdateVariable } from "../hooks/useUpdateVariable";
-import IconRow from "@/app/components/shared/IconRow";
 
 interface VariableCardProps {
   variable: VariableSchema;

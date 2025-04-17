@@ -1,22 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import SectionContainer from "@/app/components/shared/SectionContainer";
 import CenteredContainer from "@/app/components/shared/CenteredContainer";
 import SectionHeader from "@/app/components/shared/SectionHeader";
 import FormActions from "@/app/components/shared/FormActions";
 import FieldGroup from "@/app/components/shared/FieldGroup";
 import FieldRow from "@/app/components/shared/FieldRow";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { TravelChargingTypes } from "@/types/enums";
 import { TravelFeeSchema } from "@/types/convex-schemas";
 import { TravelFeeFormData } from "@/types/form-types";

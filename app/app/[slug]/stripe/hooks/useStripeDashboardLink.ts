@@ -4,7 +4,6 @@ import { useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { ResponseStatus } from "@/types/enums";
 import { FrontEndErrorMessages } from "@/types/errors";
-import { GetStripeDashboardLinkResponse } from "@/types/convex-responses";
 
 export const useStripeDashboardLink = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);

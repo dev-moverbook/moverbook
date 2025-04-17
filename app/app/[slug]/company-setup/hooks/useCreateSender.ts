@@ -32,7 +32,7 @@ export const useCreateSender = (): UseCreateSenderReturn => {
       console.error(response.error);
       setError(response.error);
       return false;
-    } catch (err) {
+    } catch (error) {
       console.error(error);
       setError(FrontEndErrorMessages.GENERIC);
       return false;

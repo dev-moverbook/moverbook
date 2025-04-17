@@ -9,7 +9,7 @@ interface SectionHeaderProps {
   onEditClick?: () => void;
   onDeleteClick?: (userId: Id<"users">) => void;
   actions?: ReactNode;
-  id?: Id<any>;
+  id?: Id<"users">;
 }
 
 const SectionHeader: React.FC<SectionHeaderProps> = ({

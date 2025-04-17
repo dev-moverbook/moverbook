@@ -35,7 +35,7 @@ export const useCheckSenderVerified = (): UseCheckSenderVerifiedReturn => {
       setError(response.error);
       return false;
     } catch (err) {
-      console.error(error);
+      console.error(err);
       setError(FrontEndErrorMessages.GENERIC);
       return false;
     } finally {

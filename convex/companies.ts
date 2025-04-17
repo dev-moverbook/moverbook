@@ -274,14 +274,20 @@ export const updateCompany = action({
         await updateClerkOrgName(company.clerkOrganizationId, updates.name);
       }
 
-      await ctx.runMutation(internal.companies.updateCompanyInternal, {
-        companyId,
-        updates,
-      });
+      const result = await ctx.runMutation(
+        internal.companies.updateCompanyInternal,
+        {
+          companyId,
+          updates,
+        }
+      );
 
       return {
         status: ResponseStatus.SUCCESS,
-        data: { companyId },
+        data: {
+          companyId: result.companyId,
+          slug: result.slug,
+        },
       };
     } catch (error) {
       console.error("Error updating company:", error);
@@ -302,7 +308,10 @@ export const updateCompanyInternal = internalMutation({
       timeZone: v.optional(v.string()),
     }),
   },
-  handler: async (ctx, args): Promise<Id<"companies">> => {
+  handler: async (
+    ctx,
+    args
+  ): Promise<{ companyId: Id<"companies">; slug?: string }> => {
     const { companyId, updates } = args;
 
     try {
@@ -310,13 +319,17 @@ export const updateCompanyInternal = internalMutation({
         {
           ...updates,
         };
+
+      let slug: string | undefined;
+
       if (updates.name) {
-        const slug = await generateUniqueSlug(ctx, updates.name);
+        slug = await generateUniqueSlug(ctx, updates.name);
         updatedFields.slug = slug;
       }
+
       await ctx.db.patch(companyId, updatedFields);
 
-      return companyId;
+      return { companyId, slug };
     } catch (error) {
       console.error("Error updating company:", error);
       throw new Error(ErrorMessages.COMPANY_DB_UPDATE);

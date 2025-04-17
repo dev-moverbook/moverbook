@@ -339,6 +339,7 @@ export interface UpdateCompanySuccess {
 
 export interface UpdateCompanyData {
   companyId: Id<"companies">;
+  slug?: string;
 }
 
 export type UpdateCompanyLogoResponse =

@@ -8,7 +8,6 @@ import CenteredContainer from "@/app/components/shared/CenteredContainer";
 import SectionHeader from "@/app/components/shared/SectionHeader";
 import ConfirmModal from "@/app/components/shared/ConfirmModal";
 import { Button } from "@/app/components/ui/button";
-import RoomCard from "../cards/RoomCard";
 import RoomModal from "../modals/RoomModal";
 import { useCreateRoom } from "../hooks/useCreateRoom";
 import { useUpdateRoom } from "../hooks/useUpdateRoom";

@@ -20,7 +20,7 @@ interface CompanySectionProps {
   updateCompany: (
     companyId: Id<"companies">,
     updates: UpdateCompanyData
-  ) => Promise<boolean>;
+  ) => Promise<{ success: boolean; newSlug?: string }>;
   updateLoading: boolean;
   updateError: string | null;
   setUpdateError: (error: string | null) => void;
@@ -85,9 +85,12 @@ const CompanySection: React.FC<CompanySectionProps> = ({
   };
 
   const handleSave = async () => {
-    const success = await updateCompany(company._id, formData);
+    const { success, newSlug } = await updateCompany(company._id, formData);
     if (success) {
       setIsEditing(false);
+      if (newSlug) {
+        window.location.href = `/app/${newSlug}/company-setup`;
+      }
     }
   };
 

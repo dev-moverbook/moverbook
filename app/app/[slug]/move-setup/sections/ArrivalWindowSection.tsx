@@ -1,18 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import SectionContainer from "@/app/components/shared/SectionContainer";
 import CenteredContainer from "@/app/components/shared/CenteredContainer";
 import SectionHeader from "@/app/components/shared/SectionHeader";
 import FormActions from "@/app/components/shared/FormActions";
 import FieldGroup from "@/app/components/shared/FieldGroup";
-import FieldRow from "@/app/components/shared/FieldRow";
 import { ArrivalWindowSchema } from "@/types/convex-schemas";
 import { ArrivalWindowFormData } from "@/types/form-types";
 import { useUpdateArrivalWindow } from "../hooks/useUpdateArrivalWindow";
-import TimeFieldRow from "@/app/components/shared/TimeFieldRow";
 import TimeRangeFieldRow from "@/app/components/shared/TimeFieldRow";
 
 interface ArrivalWindowSectionProps {
