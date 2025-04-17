@@ -6,12 +6,12 @@ import IconButton from "@/app/components/shared/IconButton";
 import { Id } from "@/convex/_generated/dataModel";
 
 interface SelectCardProps {
-  id: Id<"rooms">;
+  id: Id<"rooms"> | Id<"categories">;
   label: string;
   mode?: "edit" | "delete";
   showEditIcon?: boolean;
   onEdit: () => void;
-  onDelete: (id: Id<"rooms">) => void;
+  onDelete: (id: Id<"rooms"> | Id<"categories">) => void;
 }
 
 const SelectCard: React.FC<SelectCardProps> = ({

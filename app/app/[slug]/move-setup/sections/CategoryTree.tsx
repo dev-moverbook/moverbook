@@ -52,7 +52,7 @@ const CategoryTree: React.FC<CategoryTreeProps> = ({
           id={category._id}
           label={category.name}
           onEdit={() => onEdit(category)}
-          onDelete={onDelete}
+          onDelete={() => onDelete(category._id)}
           mode={mode}
           showEditIcon={showEditIcon}
         />
