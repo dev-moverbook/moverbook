@@ -11,6 +11,10 @@ import { validateCompany } from "./backendUtils/validate";
 import { stripe } from "./backendUtils/stripe";
 import Stripe from "stripe";
 import { WebhookHandlerResponse } from "@/types/convex-responses";
+import {
+  handleOrganizationInvitationAccepted,
+  handleUserCreated,
+} from "./webhooks/clerk";
 
 const http = httpRouter();
 
@@ -55,45 +59,11 @@ http.route({
           //   });
           //   break;
           // }
+          await handleUserCreated(ctx, result.data);
 
-          const customer = await ctx.runQuery(
-            internal.customers.viewCustomerByEmail,
-            {
-              email: result.data.email_addresses[0].email_address,
-            }
-          );
-          if (!customer) {
-            await ctx.runMutation(internal.users.createUser, {
-              clerkUserId: result.data.id,
-              email: result.data.email_addresses[0].email_address,
-              name: `${result.data.first_name} ${result.data.last_name}`,
-              imageUrl: result.data.image_url,
-            });
-          } else {
-            await ctx.runMutation(internal.users.createUser, {
-              clerkUserId: result.data.id,
-              email: result.data.email_addresses[0].email_address,
-              name: `${result.data.first_name} ${result.data.last_name}`,
-              role: ClerkRoles.ADMIN,
-              customerId: customer._id,
-              imageUrl: result.data.image_url,
-            });
-          }
           break;
         case "organizationInvitation.accepted":
-          const invitation = await ctx.runMutation(
-            internal.invitations.updateInvitationByClerkId,
-            {
-              clerkInvitationId: result.data.id,
-              status: InvitationStatus.ACCEPTED,
-            }
-          );
-          await ctx.runMutation(internal.users.updateUserByEmailInternal, {
-            email: result.data.email_address,
-            role: result.data.role as ClerkRoles,
-            clerkOrganizationId: result.data.organization_id,
-            hourlyRate: invitation.hourlyRate || null,
-          });
+          await handleOrganizationInvitationAccepted(ctx, result.data);
 
           break;
       }

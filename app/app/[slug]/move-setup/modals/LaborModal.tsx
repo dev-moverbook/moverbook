@@ -12,7 +12,6 @@ import FieldGroup from "@/app/components/shared/FieldGroup";
 import FormActions from "@/app/components/shared/FormActions";
 import { validatePrice } from "@/app/frontendUtils/validation";
 import FieldRow from "@/app/components/shared/FieldRow";
-import CheckboxField from "@/app/components/shared/CheckboxField";
 import MonthDayPicker from "@/app/components/shared/MonthDayPicker";
 
 interface LaborModalProps {
@@ -53,10 +52,12 @@ const LaborModal: React.FC<LaborModalProps> = ({
     startDate: null,
     endDate: null,
   });
+
   const [startMonth, setStartMonth] = useState("none");
   const [startDay, setStartDay] = useState("none");
   const [endMonth, setEndMonth] = useState("none");
   const [endDay, setEndDay] = useState("none");
+
   const [errors, setErrors] = useState<{
     name?: string;
     twoMovers?: string;
@@ -79,6 +80,20 @@ const LaborModal: React.FC<LaborModalProps> = ({
         startDate: initialData.startDate,
         endDate: initialData.endDate,
       });
+
+      if (initialData.startDate) {
+        const month = Math.floor(initialData.startDate / 100).toString();
+        const day = (initialData.startDate % 100).toString();
+        setStartMonth(month);
+        setStartDay(day);
+      }
+
+      if (initialData.endDate) {
+        const month = Math.floor(initialData.endDate / 100).toString();
+        const day = (initialData.endDate % 100).toString();
+        setEndMonth(month);
+        setEndDay(day);
+      }
     } else {
       resetState();
     }
@@ -95,6 +110,10 @@ const LaborModal: React.FC<LaborModalProps> = ({
       startDate: null,
       endDate: null,
     });
+    setStartMonth("none");
+    setStartDay("none");
+    setEndMonth("none");
+    setEndDay("none");
     setErrors({});
   };
 
@@ -124,17 +143,30 @@ const LaborModal: React.FC<LaborModalProps> = ({
       "fourMovers",
       "extra",
     ] as const;
-
     for (const key of rateFields) {
       const error = validatePrice(formData[key]);
-      if (error) {
-        errors[key] = error;
-      }
+      if (error) errors[key] = error;
     }
 
-    if (formData.startDate && formData.endDate) {
-      if (formData.startDate > formData.endDate) {
-        errors.startDate = FrontEndErrorMessages.START_DATE_AFTER_END_DATE;
+    if (!formData.isDefault) {
+      if (startMonth === "none" || startDay === "none") {
+        errors.startDate = FrontEndErrorMessages.START_DATE_REQUIRED;
+      }
+      if (endMonth === "none" || endDay === "none") {
+        errors.endDate = FrontEndErrorMessages.END_DATE_REQUIRED;
+      }
+
+      if (
+        startMonth !== "none" &&
+        startDay !== "none" &&
+        endMonth !== "none" &&
+        endDay !== "none"
+      ) {
+        const computedStart = parseInt(startMonth) * 100 + parseInt(startDay);
+        const computedEnd = parseInt(endMonth) * 100 + parseInt(endDay);
+        if (computedStart > computedEnd) {
+          errors.startDate = FrontEndErrorMessages.START_DATE_AFTER_END_DATE;
+        }
       }
     }
 
@@ -142,7 +174,6 @@ const LaborModal: React.FC<LaborModalProps> = ({
   };
 
   const handleSubmit = async () => {
-    // Convert selected strings to MMDD numbers (or null)
     const computedStartDate =
       startMonth !== "none" && startDay !== "none"
         ? parseInt(startMonth) * 100 + parseInt(startDay)
@@ -172,9 +203,7 @@ const LaborModal: React.FC<LaborModalProps> = ({
       ? await onEdit(initialData._id, updatedLabor)
       : await onCreate(companyId, updatedLabor);
 
-    if (success) {
-      handleClose();
-    }
+    if (success) handleClose();
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -190,8 +219,6 @@ const LaborModal: React.FC<LaborModalProps> = ({
     }));
     setErrors((prev) => ({ ...prev, [name]: undefined }));
   };
-
-  console.log("labor", labor);
 
   const formContent = (
     <FieldGroup>
@@ -214,7 +241,6 @@ const LaborModal: React.FC<LaborModalProps> = ({
           error={errors.twoMovers}
           min={0}
         />
-
         <FieldRow
           label="Three Movers Rate"
           name="threeMovers"
@@ -225,7 +251,6 @@ const LaborModal: React.FC<LaborModalProps> = ({
           error={errors.threeMovers}
           min={0}
         />
-
         <FieldRow
           label="Four Movers Rate"
           name="fourMovers"
@@ -236,7 +261,6 @@ const LaborModal: React.FC<LaborModalProps> = ({
           error={errors.fourMovers}
           min={0}
         />
-
         <FieldRow
           label="Extra Rate"
           name="extra"
@@ -249,33 +273,30 @@ const LaborModal: React.FC<LaborModalProps> = ({
         />
       </div>
 
-      <MonthDayPicker
-        label="Start Date"
-        month={startMonth}
-        day={startDay}
-        onChange={(m, d) => {
-          setStartMonth(m);
-          setStartDay(d);
-        }}
-      />
-      <MonthDayPicker
-        label="End Date"
-        month={endMonth}
-        day={endDay}
-        onChange={(m, d) => {
-          setEndMonth(m);
-          setEndDay(d);
-        }}
-      />
-
-      <CheckboxField
-        id="isDefault"
-        label="Is Default"
-        checked={labor.isDefault}
-        onChange={(checked) =>
-          setLabor((prev) => ({ ...prev, isDefault: checked }))
-        }
-      />
+      {!initialData?.isDefault && (
+        <>
+          <MonthDayPicker
+            label="Start Date"
+            month={startMonth}
+            day={startDay}
+            onChange={(m, d) => {
+              setStartMonth(m);
+              setStartDay(d);
+            }}
+            error={errors.startDate}
+          />
+          <MonthDayPicker
+            label="End Date"
+            month={endMonth}
+            day={endDay}
+            onChange={(m, d) => {
+              setEndMonth(m);
+              setEndDay(d);
+            }}
+            error={errors.endDate}
+          />
+        </>
+      )}
 
       <FormActions
         onSave={handleSubmit}

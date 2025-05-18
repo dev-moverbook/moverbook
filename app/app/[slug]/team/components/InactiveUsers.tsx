@@ -9,7 +9,7 @@ import ContainerUserCard from "@/app/components/shared/ContainerUserCard";
 import SectionContainer from "@/app/components/shared/SectionContainer";
 import SectionHeader from "@/app/components/shared/SectionHeader";
 import { Skeleton } from "@/components/ui/skeleton";
-
+import ErrorMessage from "@/app/components/shared/error/ErrorMessage";
 const InactiveUsers = () => {
   const { companyId } = useSlugContext();
 
@@ -24,7 +24,7 @@ const InactiveUsers = () => {
   }
 
   if (usersResponse.status === ResponseStatus.ERROR) {
-    return <div>Error: {usersResponse.error}</div>;
+    return <ErrorMessage message={usersResponse.error} />;
   }
   return (
     <SectionContainer isLast={true}>

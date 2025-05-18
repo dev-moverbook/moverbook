@@ -1,21 +1,25 @@
 import React, { useState } from "react";
 import { useMediaQuery } from "react-responsive";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
-import { Input } from "@/components/ui/input";
-import { Button } from "../ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 import { FrontEndErrorMessages } from "@/types/errors";
 import { isValidEmail } from "@/utils/helper";
 import { ClerkRoles } from "@/types/enums";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { isValidHourlyRate } from "@/app/frontendUtils/helper";
-import { Label } from "@/components/ui/label";
+import FormActions from "@/app/components/shared/FormActions";
+import LabeledInput from "../shared/labeled/LabeledInput";
+import LabeledSelect from "../shared/labeled/LabeledSelect";
+import SectionLabeled from "../shared/labeled/SectionLabeled";
 
 interface InviteUserModalProps {
   isOpen: boolean;
@@ -27,6 +31,7 @@ interface InviteUserModalProps {
   ) => Promise<boolean>;
   inviteLoading: boolean;
   inviteError: string | null;
+  setInviteError: (error: string | null) => void;
 }
 
 const InviteUserModal: React.FC<InviteUserModalProps> = ({
@@ -35,6 +40,7 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
   onInvite,
   inviteError,
   inviteLoading,
+  setInviteError,
 }) => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
   const [email, setEmail] = useState<string>("");
@@ -49,6 +55,7 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
     setHourlyRate(null);
     setHourlyRateError(null);
     setRole(ClerkRoles.SALES_REP);
+    setInviteError(null);
   };
 
   const handleClose = () => {
@@ -83,79 +90,67 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
   };
 
   const formContent = (
-    <div className="space-y-4">
+    <SectionLabeled>
       {/* Email Input */}
-      <div>
-        <Label className="block text-sm font-medium">Email</Label>
-        <Input
-          type="email"
-          value={email}
-          onChange={(e) => {
-            setEmail(e.target.value);
-            setEmailError(null);
-          }}
-        />
-        {emailError && <p className="text-red-500 text-sm">{emailError}</p>}
-      </div>
+      <LabeledInput
+        label="Email"
+        type="email"
+        placeholder="Enter email"
+        value={email}
+        onChange={(e) => {
+          setEmail(e.target.value);
+          setEmailError(null);
+        }}
+        error={emailError}
+      />
 
       {/* Role Selection */}
-      <div>
-        <Label className="block text-sm font-medium">Role</Label>
-        <Select
-          value={role}
-          onValueChange={(value) => {
-            setRole(value as ClerkRoles);
-            setHourlyRate(null);
-            setHourlyRateError(null);
-          }}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select Role" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={ClerkRoles.MANAGER}>Manager</SelectItem>
-            <SelectItem value={ClerkRoles.MOVER}>Mover</SelectItem>
-            <SelectItem value={ClerkRoles.SALES_REP}>Sales Rep</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      <LabeledSelect
+        label="Role"
+        value={role}
+        onChange={(value) => {
+          setRole(value as ClerkRoles);
+          setHourlyRateError(null);
+        }}
+        options={[
+          { label: "Manager", value: ClerkRoles.MANAGER },
+          { label: "Mover", value: ClerkRoles.MOVER },
+          { label: "Sales Rep", value: ClerkRoles.SALES_REP },
+        ]}
+      />
 
       {/* Hourly Rate Input (Only for Movers) */}
       {role === ClerkRoles.MOVER && (
-        <div>
-          <Label className="block text-sm font-medium">Hourly Rate ($)</Label>
-          <Input
-            type="text"
-            value={hourlyRate || ""}
-            onChange={(e) => {
-              setHourlyRate(e.target.value);
-              setHourlyRateError(null);
-            }}
-            placeholder="Enter hourly rate"
-          />
-          {hourlyRateError && (
-            <p className="text-red-500 text-sm">{hourlyRateError}</p>
-          )}
-        </div>
+        <LabeledInput
+          label="Hourly Rate ($)"
+          type="text"
+          value={hourlyRate || ""}
+          onChange={(e) => {
+            setHourlyRate(e.target.value);
+            setHourlyRateError(null);
+          }}
+          placeholder="Enter hourly rate"
+          error={hourlyRateError}
+        />
       )}
 
       {/* Submit Button */}
-      <Button
-        onClick={handleInvite}
-        disabled={inviteLoading}
-        className="w-full"
-      >
-        {inviteLoading ? "Inviting..." : "Send Invite"}
-      </Button>
-
-      {inviteError && <p className="text-red-500 text-sm">{inviteError}</p>}
-    </div>
+      <FormActions
+        onSave={handleInvite}
+        onCancel={handleClose}
+        isSaving={inviteLoading}
+        saveLabel="Send Invite"
+        cancelLabel="Cancel"
+        error={inviteError}
+      />
+    </SectionLabeled>
   );
 
   return isMobile ? (
     <Drawer open={isOpen} onOpenChange={handleClose}>
       <DrawerContent>
         <DrawerTitle>Invite User</DrawerTitle>
+        <DrawerDescription>Invite a new user to your team.</DrawerDescription>
         {formContent}
       </DrawerContent>
     </Drawer>
@@ -163,6 +158,7 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent>
         <DialogTitle>Invite User</DialogTitle>
+        <DialogDescription>Invite a new user to your team.</DialogDescription>
         {formContent}
       </DialogContent>
     </Dialog>

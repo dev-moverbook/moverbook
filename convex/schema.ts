@@ -119,7 +119,8 @@ export default defineSchema({
     deposit: v.number(),
     cancellationFee: v.number(),
     cancellationCutoffHour: v.number(),
-    billOfLandingDisclaimerAndTerms: v.string(),
+    additionalTermsAndConditions: v.optional(v.string()),
+    billOfLandingDisclaimerAndTerms: v.optional(v.string()),
   }),
   labor: defineTable({
     companyId: v.id("companies"),

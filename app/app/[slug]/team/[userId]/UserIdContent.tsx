@@ -19,7 +19,8 @@ import ConfirmModal from "@/app/components/shared/ConfirmModal";
 import Image from "next/image";
 
 interface Props {
-  user: UserSchema;
+  userData: UserSchema;
+  isCompanyManagerPermission: boolean;
 }
 
 type UserFormState = {
@@ -29,7 +30,10 @@ type UserFormState = {
   role: string;
 };
 
-const UserIdContent: React.FC<Props> = ({ user }) => {
+const UserIdContent: React.FC<Props> = ({
+  userData,
+  isCompanyManagerPermission,
+}) => {
   const {
     updateUser,
     loading: updateLoading,
@@ -51,10 +55,10 @@ const UserIdContent: React.FC<Props> = ({ user }) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const [formData, setFormData] = useState<UserFormState>({
-    name: user.name || "",
-    email: user.email || "",
-    hourlyRate: user.hourlyRate !== null ? String(user.hourlyRate) : "",
-    role: user.role || "",
+    name: userData.name || "",
+    email: userData.email || "",
+    hourlyRate: userData.hourlyRate !== null ? String(userData.hourlyRate) : "",
+    role: userData.role || "",
   });
 
   const handleEditClick = () => setIsEditing(true);
@@ -62,10 +66,11 @@ const UserIdContent: React.FC<Props> = ({ user }) => {
   const handleCancel = () => {
     setIsEditing(false);
     setFormData({
-      name: user.name || "",
-      email: user.email || "",
-      hourlyRate: user.hourlyRate !== null ? String(user.hourlyRate) : "",
-      role: user.role || "",
+      name: userData.name || "",
+      email: userData.email || "",
+      hourlyRate:
+        userData.hourlyRate !== null ? String(userData.hourlyRate) : "",
+      role: userData.role || "",
     });
     setDeleteError(null);
   };
@@ -76,7 +81,7 @@ const UserIdContent: React.FC<Props> = ({ user }) => {
   };
 
   const handleSave = async () => {
-    const success = await updateUser(user._id, {
+    const success = await updateUser(userData._id, {
       name: formData.name,
       hourlyRate: formData.hourlyRate ? Number(formData.hourlyRate) : null,
       role: formData.role as ClerkRoles,
@@ -85,7 +90,7 @@ const UserIdContent: React.FC<Props> = ({ user }) => {
   };
 
   const handleConfirmDelete = async () => {
-    const success = await deleteUser(user._id);
+    const success = await deleteUser(userData._id);
     if (success) setIsDeleteModalOpen(false);
   };
 
@@ -95,7 +100,7 @@ const UserIdContent: React.FC<Props> = ({ user }) => {
   };
 
   const handleReactivate = async () => {
-    await reactivateUser(user._id);
+    await reactivateUser(userData._id);
   };
 
   return (
@@ -103,13 +108,20 @@ const UserIdContent: React.FC<Props> = ({ user }) => {
       <CenteredContainer>
         <SectionHeader
           title="User Info"
-          onEditClick={user.isActive ? handleEditClick : undefined}
-          onDeleteClick={
-            user.isActive ? () => setIsDeleteModalOpen(true) : undefined
+          onEditClick={
+            isCompanyManagerPermission && userData.isActive
+              ? handleEditClick
+              : undefined
           }
-          id={user._id}
+          onDeleteClick={
+            isCompanyManagerPermission && userData.isActive
+              ? () => setIsDeleteModalOpen(true)
+              : undefined
+          }
+          id={userData._id}
           actions={
-            !user.isActive && (
+            !userData.isActive &&
+            isCompanyManagerPermission && (
               <Button
                 size="sm"
                 onClick={handleReactivate}
@@ -120,11 +132,12 @@ const UserIdContent: React.FC<Props> = ({ user }) => {
             )
           }
         />
-        {user.imageUrl && (
+
+        {userData.imageUrl && (
           <div className="w-full flex justify-center mb-4">
             <Image
-              src={user.imageUrl}
-              alt={user.name}
+              src={userData.imageUrl}
+              alt={userData.name}
               width={100}
               height={100}
               className="rounded-full object-cover"
@@ -170,11 +183,11 @@ const UserIdContent: React.FC<Props> = ({ user }) => {
           <div>
             <Label className="block text-sm font-medium mb-1">Status</Label>
             <p className="text-sm text-grayCustom2">
-              {user.isActive ? "Active" : "Deleted"}
+              {userData.isActive ? "Active" : "Deleted"}
             </p>
           </div>
 
-          {isEditing && (
+          {isEditing && isCompanyManagerPermission && (
             <FormActions
               onSave={handleSave}
               onCancel={handleCancel}
@@ -188,17 +201,19 @@ const UserIdContent: React.FC<Props> = ({ user }) => {
           )}
         </FieldGroup>
 
-        <ConfirmModal
-          isOpen={isDeleteModalOpen}
-          onClose={handleCloseDeleteModal}
-          onConfirm={handleConfirmDelete}
-          deleteLoading={deleteLoading}
-          deleteError={deleteError}
-          title="Confirm Delete"
-          description="Are you sure you want to delete this user? This action cannot be undone."
-          confirmButtonText="Delete"
-          cancelButtonText="Cancel"
-        />
+        {isCompanyManagerPermission && (
+          <ConfirmModal
+            isOpen={isDeleteModalOpen}
+            onClose={handleCloseDeleteModal}
+            onConfirm={handleConfirmDelete}
+            deleteLoading={deleteLoading}
+            deleteError={deleteError}
+            title="Confirm Delete"
+            description="Are you sure you want to delete this user? This action cannot be undone."
+            confirmButtonText="Delete"
+            cancelButtonText="Cancel"
+          />
+        )}
       </CenteredContainer>
     </SectionContainer>
   );

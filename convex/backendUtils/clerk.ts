@@ -9,7 +9,7 @@ import {
   Organization,
   OrganizationInvitation,
 } from "@clerk/nextjs/server";
-import { ClerkRoles } from "@/types/enums";
+import { ClerkRoles, UserRole } from "@/types/enums";
 import { getBaseUrl } from "@/utils/helper";
 
 if (!process.env.CLERK_SECRET_KEY) {
@@ -20,6 +20,7 @@ export const clerkClient = createClerkClient({
   secretKey: process.env.CLERK_SECRET_KEY,
 });
 
+// for admin users
 export async function sendClerkInvitation(email: string): Promise<Invitation> {
   const baseUrl = getBaseUrl();
   const redirectUrl = `${baseUrl}/accept-invite`;
@@ -28,6 +29,9 @@ export async function sendClerkInvitation(email: string): Promise<Invitation> {
       emailAddress: email,
       ignoreExisting: true,
       redirectUrl,
+      publicMetadata: {
+        role: UserRole.ADMIN,
+      },
     });
 
     return invitation;
@@ -64,15 +68,31 @@ export async function clerkInviteUserToOrganizationHelper(
   email: string,
   role: string
 ): Promise<OrganizationInvitation> {
+  const baseUrl = getBaseUrl();
   try {
-    const invitation =
-      await clerkClient.organizations.createOrganizationInvitation({
-        organizationId: clerkOrgId,
-        emailAddress: email,
-        role,
-        redirectUrl: "http://localhost:3001/accept-invite",
-      });
-    return invitation;
+    const response = await fetch(
+      `https://api.clerk.com/v1/organizations/${clerkOrgId}/invitations`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.CLERK_SECRET_KEY}`,
+        },
+        body: JSON.stringify({
+          email_address: email,
+          role: "org:member",
+          public_metadata: {
+            role,
+          },
+          redirect_url: `${baseUrl}/accept-invite`,
+        }),
+      }
+    );
+    if (!response.ok) {
+      throw new Error(`Failed to create invitation: ${await response.text()}`);
+    }
+
+    return response.json();
   } catch (error) {
     console.error(ErrorMessages.CLERK_ORG_INVITATION_ERROR, error);
     throw new Error(ErrorMessages.CLERK_ORG_INVITATION_ERROR);
@@ -159,5 +179,26 @@ export async function updateClerkOrgName(
   } catch (error) {
     console.error(ErrorMessages.CLERK_ORG_UPDATE_NAME, error);
     throw new Error(ErrorMessages.CLERK_ORG_UPDATE_NAME);
+  }
+}
+
+export async function updateClerkUserPublicMetadata(
+  userId: string,
+  newMetadata: Record<string, any>
+): Promise<void> {
+  try {
+    const user = await clerkClient.users.getUser(userId);
+    const currentMetadata = user.publicMetadata || {};
+    const mergedMetadata = { ...currentMetadata, ...newMetadata };
+
+    await clerkClient.users.updateUser(userId, {
+      publicMetadata: mergedMetadata,
+    });
+  } catch (error) {
+    console.error(
+      `Failed to update public metadata for user ${userId}:`,
+      error
+    );
+    throw new Error(ErrorMessages.CLERK_USER_METADATA_UPDATE_ERROR);
   }
 }

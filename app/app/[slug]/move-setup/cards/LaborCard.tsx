@@ -38,12 +38,14 @@ const LaborCard: React.FC<LaborCardProps> = ({
               icon={<Pencil className="w-4 h-4" />}
               title="Edit"
             />
-            <IconButton
-              onClick={() => onDelete(laborItem._id)}
-              icon={<Trash2 className="w-4 h-4" />}
-              variant="outline"
-              title="Delete"
-            />
+            {!laborItem.isDefault && (
+              <IconButton
+                onClick={() => onDelete(laborItem._id)}
+                icon={<Trash2 className="w-4 h-4" />}
+                variant="outline"
+                title="Delete"
+              />
+            )}
           </>
         }
       />

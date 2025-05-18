@@ -8,8 +8,11 @@ import { Id } from "@/convex/_generated/dataModel";
 import { UserSchema } from "@/types/convex-schemas";
 import UserIdContent from "./UserIdContent";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useUser } from "@clerk/nextjs";
+import { canManageCompany } from "@/app/frontendUtils/permissions";
 
 const UserPage: React.FC = () => {
+  const { user } = useUser();
   const { userId } = useParams();
   const id = userId as Id<"users">;
 
@@ -21,11 +24,17 @@ const UserPage: React.FC = () => {
   if (userResponse.status === ResponseStatus.ERROR)
     return <div>Error: {userResponse.error}</div>;
 
-  const user = userResponse.data.user as UserSchema;
+  const userData = userResponse.data.user as UserSchema;
+  const isCompanyManagerPermission = canManageCompany(
+    user?.publicMetadata.role as string
+  );
 
   return (
     <main className="min-h-100vh">
-      <UserIdContent user={user} />
+      <UserIdContent
+        userData={userData}
+        isCompanyManagerPermission={isCompanyManagerPermission}
+      />
     </main>
   );
 };

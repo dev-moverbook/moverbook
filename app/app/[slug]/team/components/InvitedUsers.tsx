@@ -14,7 +14,7 @@ import SectionContainer from "@/app/components/shared/SectionContainer";
 import CenteredContainer from "@/app/components/shared/CenteredContainer";
 import ContainerUserCard from "@/app/components/shared/ContainerUserCard";
 import { Skeleton } from "@/components/ui/skeleton";
-
+import ErrorMessage from "@/app/components/shared/error/ErrorMessage";
 const InvitedUsers = () => {
   const { companyId } = useSlugContext();
 
@@ -34,7 +34,7 @@ const InvitedUsers = () => {
   }
 
   if (invitationsResponse.status === ResponseStatus.ERROR) {
-    return <div>Error: {invitationsResponse.error}</div>;
+    return <ErrorMessage message={invitationsResponse.error} />;
   }
 
   const handleRevokeClick = (invitationId: Id<"invitations">) => {

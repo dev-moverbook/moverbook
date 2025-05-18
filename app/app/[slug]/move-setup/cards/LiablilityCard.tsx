@@ -46,10 +46,15 @@ const LiabilityCard: React.FC<LiabilityCardProps> = ({
       <CardDetailsWrapper>
         <CardDetailRow
           label="Coverage Amount"
-          value={`$${policy.coverageAmount}`}
+          value={`$${policy.coverageAmount}/lb`}
         />
+        <CardDetailRow label="Premium" value={`$${policy.premium}/lb`} />
+
         <CardDetailRow label="Premium" value={`$${policy.premium}`} />
-        <CardDetailRow label="Coverage Type" value={policy.coverageType} />
+        <CardDetailRow
+          label="Coverage Type"
+          value={`$${policy.coverageType}/lb`}
+        />
       </CardDetailsWrapper>
     </CustomCard>
   );

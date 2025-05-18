@@ -5,8 +5,7 @@ export const DEFAULT_WEEKEND_HOUR_MINIMUM = 2;
 export const DEFAULT_DEPOSIT = 100.0;
 export const DEFAULT_CANCELLATION_FEE = 0;
 export const DEFAULT_CANCELLATION_CUTOFF_HOUR = 0;
-export const DEFAULT_BILL_OF_LADING_DISCLAIMER_AND_TERMS =
-  "By signing this Bill of Lading, the customer agrees to the terms and conditions set forth by the company. The company is not liable for damages resulting from improper packing by the customer, unforeseen delays, or circumstances beyond its control. Cancellations may be subject to additional fees as outlined in company policies. Payment in full is required upon completion of services.";
+export const DEFAULT_ADDITIONAL_TERMS_AND_CONDITIONS = "";
 
 export const DEFAULT_PRICING_NAME = "Standard";
 export const DEFAULT_TWO_MOVERS_RATE = 169;
@@ -43,4 +42,15 @@ export const DEFAULT_ROOMS = [
   "Family Room",
   "Dinning Room",
   "Den",
+];
+
+export const TIMEZONE_OPTIONS = [
+  "America/New_York",
+  "America/Chicago",
+  "America/Denver",
+  "America/Los_Angeles",
+  "America/Phoenix",
+  "America/Anchorage",
+  "Pacific/Honolulu",
+  "UTC",
 ];

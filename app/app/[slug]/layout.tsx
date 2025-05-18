@@ -4,12 +4,13 @@ import { useParams } from "next/navigation";
 import { SlugProvider, useSlugContext } from "@/app/contexts/SlugContext";
 import Navbar from "@/app/components/shared/Navbar";
 import Sidebar from "@/app/components/shared/Sidebar";
-
+import { useUser } from "@clerk/nextjs";
 const CompanyLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const { slug } = useParams();
   const cleanSlug = typeof slug === "string" ? slug.split("?")[0] : "";
+  const { user } = useUser();
 
   // Get slug context
   const { slug: contextSlug, setSlug } = useSlugContext();
@@ -22,10 +23,10 @@ const CompanyLayout: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <div className="flex min-h-screen">
-      <Sidebar />
+      <Sidebar slug={cleanSlug} user={user} />
       <div className="flex-1 lg:ml-64">
         {" "}
-        <Navbar />
+        <Navbar slug={cleanSlug} user={user} />
         <main className="pt-14 bg-black">{children}</main>{" "}
       </div>
     </div>

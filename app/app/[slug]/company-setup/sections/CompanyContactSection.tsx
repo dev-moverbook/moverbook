@@ -14,6 +14,7 @@ import { Button } from "@/app/components/ui/button";
 import { CheckCircle, XCircle, Loader2, Mail } from "lucide-react";
 import { useCreateSender } from "../hooks/useCreateSender";
 import { useCheckSenderVerified } from "../hooks/useCheckSenderVerified";
+import { PlacesAutoCompleteInput } from "@/app/components/shared/PlacesAutoCompleteInput";
 
 interface CompanyContactSectionProps {
   companyContact: CompanyContactSchema;
@@ -295,14 +296,23 @@ const CompanyContactSection: React.FC<CompanyContactSectionProps> = ({
             error={fieldErrors.phoneNumber}
           />
 
-          <FieldRow
-            label="Address"
-            name="address"
-            value={formData.address}
-            isEditing={isEditing}
-            onChange={handleChange}
-            error={fieldErrors.address}
-          />
+          {isEditing ? (
+            <PlacesAutoCompleteInput
+              value={formData.address || ""}
+              onChange={(val) =>
+                setFormData((prev) => ({ ...prev, address: val }))
+              }
+            />
+          ) : (
+            <FieldRow
+              label="Address"
+              name="address"
+              value={formData.address}
+              isEditing={false}
+              onChange={handleChange}
+              error={fieldErrors.address}
+            />
+          )}
 
           <FieldRow
             label="Website"

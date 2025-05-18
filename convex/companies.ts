@@ -16,16 +16,22 @@ import {
   validateCompany,
   validateCompanyContact,
   validateCompliance,
+  validateUser,
   validateWebIntegrations,
 } from "./backendUtils/validate";
 import { ClerkRoles, ResponseStatus } from "@/types/enums";
 import {
+  GetCompanyClerkUserIdResponse,
   GetCompanyDetailsResponse,
   GetCompanyIdBySlugResponse,
   UpdateCompanyLogoResponse,
   UpdateCompanyResponse,
 } from "@/types/convex-responses";
-import { createCompanyRecords, shouldExposeError } from "./backendUtils/helper";
+import {
+  createCompanyRecords,
+  handleInternalError,
+  shouldExposeError,
+} from "./backendUtils/helper";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import { internal } from "./_generated/api";
 import { updateClerkOrgName } from "./backendUtils/clerk";
@@ -374,6 +380,39 @@ export const updateCompanyLogo = mutation({
           ? errorMessage
           : ErrorMessages.GENERIC_ERROR,
       };
+    }
+  },
+});
+
+export const getCompanyClerkUserId = query({
+  args: { clerkUserId: v.string() },
+  handler: async (ctx, args): Promise<GetCompanyClerkUserIdResponse> => {
+    const { clerkUserId } = args;
+    try {
+      const user = validateUser(
+        await ctx.db
+          .query("users")
+          .filter((q) => q.eq(q.field("clerkUserId"), clerkUserId))
+          .first()
+      );
+
+      if (!user.companyId) {
+        return {
+          status: ResponseStatus.SUCCESS,
+          data: null,
+        };
+      }
+
+      const company: CompanySchema | null = await ctx.db.get(user.companyId);
+
+      return {
+        status: ResponseStatus.SUCCESS,
+        data: {
+          company,
+        },
+      };
+    } catch (error) {
+      return handleInternalError(error);
     }
   },
 });

@@ -24,6 +24,8 @@ export const SlugProvider = ({ children }: { children: React.ReactNode }) => {
     slug ? { slug } : "skip"
   );
 
+  console.log("companyIdQuery", companyIdQuery);
+
   useEffect(() => {
     if (companyIdQuery && companyIdQuery.status === "success") {
       setCompanyId(companyIdQuery.data.companyId);

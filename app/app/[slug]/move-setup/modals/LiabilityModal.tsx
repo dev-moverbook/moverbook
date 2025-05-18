@@ -148,7 +148,7 @@ const LiabilityModal: React.FC<LiabilityModalProps> = ({
       />
 
       <FieldRow
-        label="Coverage Type"
+        label="Coverage Type ($/lb)"
         name="coverageType"
         type="number"
         value={formData.coverageType.toString()}
@@ -158,7 +158,7 @@ const LiabilityModal: React.FC<LiabilityModalProps> = ({
       />
 
       <FieldRow
-        label="Premium"
+        label="Premium ($)"
         name="premium"
         type="number"
         value={formData.premium.toString()}
@@ -168,7 +168,7 @@ const LiabilityModal: React.FC<LiabilityModalProps> = ({
       />
 
       <FieldRow
-        label="Coverage Amount"
+        label="Coverage Amount ($/lb)"
         name="coverageAmount"
         type="number"
         value={formData.coverageAmount.toString()}

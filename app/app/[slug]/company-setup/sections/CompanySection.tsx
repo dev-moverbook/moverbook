@@ -12,8 +12,8 @@ import SectionHeader from "@/app/components/shared/SectionHeader";
 import FormActions from "@/app/components/shared/FormActions";
 import FieldGroup from "@/app/components/shared/FieldGroup";
 import FieldRow from "@/app/components/shared/FieldRow";
-import { fetchTimezones } from "@/app/frontendUtils/apis";
 import SelectFieldRow from "@/app/components/shared/SelectFieldRow";
+import { TIMEZONE_OPTIONS } from "@/types/const";
 
 interface CompanySectionProps {
   company: CompanySchema;
@@ -47,22 +47,6 @@ const CompanySection: React.FC<CompanySectionProps> = ({
     name: company.name || "",
     timeZone: company.timeZone || "UTC",
   });
-
-  const [timezoneOptions, setTimezoneOptions] = useState<string[]>([]);
-
-  useEffect(() => {
-    const loadTimezones = async () => {
-      try {
-        const zones = await fetchTimezones();
-        setTimezoneOptions(zones);
-      } catch (error) {
-        console.error("Failed to load timezones:", error);
-        setTimezoneOptions(["UTC"]);
-      }
-    };
-
-    loadTimezones();
-  }, []);
 
   const handleEditClick = () => {
     setIsEditing(true);
@@ -112,13 +96,32 @@ const CompanySection: React.FC<CompanySectionProps> = ({
         <div className="flex md:flex-row flex-col items-start md:space-x-8 space-y-4 md:space-y-0">
           {/* Company Image */}
           <div className="relative">
-            <Image
-              src={company.imageUrl || "/default-company-logo.png"}
-              alt="Company Logo"
-              className="w-24 h-24 rounded-md object-cover"
-              width={120}
-              height={120}
-            />
+            {company.imageUrl ? (
+              <Image
+                src={company.imageUrl}
+                alt="Company Logo"
+                className="w-24 h-24 rounded-md object-cover"
+                width={120}
+                height={120}
+              />
+            ) : (
+              <div className="w-24 h-24 rounded-md border-2 border-dashed border-gray-400 flex items-center justify-center text-gray-400">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4-4m0 0l-4 4m4-4v12"
+                  />
+                </svg>
+              </div>
+            )}
 
             {isEditing && (
               <>
@@ -148,28 +151,19 @@ const CompanySection: React.FC<CompanySectionProps> = ({
               onChange={handleChange}
             />
 
-            {timezoneOptions.length > 0 ? (
-              <SelectFieldRow
-                label="Time Zone"
-                name="timeZone"
-                value={formData.timeZone}
-                options={timezoneOptions}
-                isEditing={isEditing}
-                onChange={(value) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    timeZone: value,
-                  }))
-                }
-              />
-            ) : (
-              <FieldRow
-                label="Time Zone"
-                name="timeZone"
-                value="Loading..."
-                isEditing={false}
-              />
-            )}
+            <SelectFieldRow
+              label="Time Zone"
+              name="timeZone"
+              value={formData.timeZone}
+              options={TIMEZONE_OPTIONS}
+              isEditing={isEditing}
+              onChange={(value) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  timeZone: value,
+                }))
+              }
+            />
 
             {isEditing && (
               <FormActions

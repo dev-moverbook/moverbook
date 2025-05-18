@@ -46,6 +46,7 @@ import type * as travelFee from "../travelFee.js";
 import type * as users from "../users.js";
 import type * as variables from "../variables.js";
 import type * as webIntegrations from "../webIntegrations.js";
+import type * as webhooks_clerk from "../webhooks/clerk.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -89,6 +90,7 @@ declare const fullApi: ApiFromModules<{
   users: typeof users;
   variables: typeof variables;
   webIntegrations: typeof webIntegrations;
+  "webhooks/clerk": typeof webhooks_clerk;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

@@ -17,7 +17,7 @@ export const updatePolicy = mutation({
       deposit: v.optional(v.number()),
       cancellationFee: v.optional(v.number()),
       cancellationCutoffHour: v.optional(v.number()),
-      billOfLandingDisclaimerAndTerms: v.optional(v.string()),
+      additionalTermsAndConditions: v.optional(v.string()),
     }),
   },
   handler: async (ctx, args): Promise<UpdatePolicyResponse> => {

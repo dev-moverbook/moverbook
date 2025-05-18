@@ -43,12 +43,12 @@ export interface PolicyFormData {
   deposit: number;
   cancellationFee: number;
   cancellationCutoffHour: number;
-  billOfLandingDisclaimerAndTerms: string;
+  additionalTermsAndConditions: string;
 }
 
 export interface CreateLaborFormData {
   name: string;
-  isDefault: boolean;
+  isDefault?: boolean;
   startDate: number | null;
   endDate: number | null;
   twoMovers: number;

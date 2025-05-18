@@ -1,10 +1,8 @@
 "use client";
 import { SignOutButton, SignedIn, SignedOut } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function AuthButtons() {
-  const router = useRouter();
-
   return (
     <div>
       {/* Show Sign Out button if the user is signed in */}
@@ -19,18 +17,16 @@ export default function AuthButtons() {
       {/* Show Sign In and Sign Up buttons if the user is signed out */}
       <SignedOut>
         <div className="flex gap-4">
-          <button
-            onClick={() => router.push("/sign-in")}
-            className="bg-blue-500 text-white px-4 py-2 rounded"
-          >
-            Sign In
-          </button>
-          <button
-            onClick={() => router.push("/sign-up")}
-            className="bg-green-500 text-white px-4 py-2 rounded"
-          >
-            Sign Up
-          </button>
+          <Link href="/sign-in">
+            <button className="bg-blue-500 text-white px-4 py-2 rounded">
+              Sign In
+            </button>
+          </Link>
+          <Link href="/sign-up">
+            <button className="bg-green-500 text-white px-4 py-2 rounded">
+              Sign Up
+            </button>
+          </Link>
         </div>
       </SignedOut>
     </div>

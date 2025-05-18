@@ -12,7 +12,7 @@ import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import { FrontEndErrorMessages } from "@/types/errors";
 import FormActions from "@/app/components/shared/FormActions";
 import FieldGroup from "@/app/components/shared/FieldGroup";
-import LabeledInput from "@/app/components/shared/LabeledInput";
+import LabeledInput from "@/app/components/shared/labeled/LabeledInput";
 
 interface CreateReferralModalProps {
   isOpen: boolean;

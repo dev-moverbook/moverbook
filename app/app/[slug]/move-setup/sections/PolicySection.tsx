@@ -29,7 +29,7 @@ const PolicySection: React.FC<PolicySectionProps> = ({ policy }) => {
     deposit: policy.deposit,
     cancellationFee: policy.cancellationFee,
     cancellationCutoffHour: policy.cancellationCutoffHour,
-    billOfLandingDisclaimerAndTerms: policy.billOfLandingDisclaimerAndTerms,
+    additionalTermsAndConditions: policy.additionalTermsAndConditions,
   });
 
   const handleEditClick = () => {
@@ -44,7 +44,7 @@ const PolicySection: React.FC<PolicySectionProps> = ({ policy }) => {
       deposit: policy.deposit,
       cancellationFee: policy.cancellationFee,
       cancellationCutoffHour: policy.cancellationCutoffHour,
-      billOfLandingDisclaimerAndTerms: policy.billOfLandingDisclaimerAndTerms,
+      additionalTermsAndConditions: policy.additionalTermsAndConditions,
     });
   };
 
@@ -157,9 +157,9 @@ const PolicySection: React.FC<PolicySectionProps> = ({ policy }) => {
           />
 
           <FieldTextAreaRow
-            label="Bill of Landing Disclaimer and Terms"
-            name="billOfLandingDisclaimerAndTerms"
-            value={formData.billOfLandingDisclaimerAndTerms}
+            label="Additional Terms and Conditions"
+            name="additionalTermsAndConditions"
+            value={formData.additionalTermsAndConditions}
             isEditing={isEditing}
             onChange={handleChange}
           />

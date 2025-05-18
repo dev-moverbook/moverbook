@@ -106,7 +106,7 @@ export function isUserInOrg(
     return true;
   }
 
-  if (identity.org_id !== clerkOrgId) {
+  if (identity.clerk_org_id !== clerkOrgId) {
     throw new Error(ErrorMessages.FOBIDDEN_COMPANY);
   }
 

@@ -28,7 +28,7 @@ const FormActions: React.FC<FormActionsProps> = ({
 }) => {
   return (
     <div className="flex flex-col  ">
-      <p className="text-sm min-h-[1.25rem] text-red-500">{error || ""}</p>
+      <p className="text-sm min-h-[1.25rem] text-red-500 pb-1">{error || ""}</p>
       <div className="grid grid-cols-2 gap-2 mb-4 md:mb-0">
         <Button
           onClick={onCancel}
@@ -42,8 +42,9 @@ const FormActions: React.FC<FormActionsProps> = ({
           disabled={isSaving}
           variant={saveVariant}
           className="w-full"
+          isLoading={isSaving}
         >
-          {isSaving ? "Saving..." : saveLabel}
+          {saveLabel}
         </Button>
       </div>
     </div>

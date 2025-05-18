@@ -28,7 +28,11 @@ const LabeledInput: React.FC<LabeledInputProps> = ({
         onChange={onChange}
         placeholder={placeholder}
       />
-      {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+      <p
+        className={`text-sm mt-1 h-5 transition-opacity duration-200 ${error ? "text-red-500 opacity-100" : "opacity-0"}`}
+      >
+        {error || " "}
+      </p>
     </div>
   );
 };

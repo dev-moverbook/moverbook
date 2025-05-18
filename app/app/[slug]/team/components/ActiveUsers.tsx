@@ -11,7 +11,7 @@ import CenteredContainer from "@/app/components/shared/CenteredContainer";
 import SectionHeader from "@/app/components/shared/SectionHeader";
 import ContainerUserCard from "@/app/components/shared/ContainerUserCard";
 import { Skeleton } from "@/components/ui/skeleton";
-
+import ErrorMessage from "@/app/components/shared/error/ErrorMessage";
 const ActiveUsers = () => {
   const { companyId } = useSlugContext();
 
@@ -21,6 +21,7 @@ const ActiveUsers = () => {
     companyId ? { companyId, isActive: true } : "skip"
   );
 
+  console.log("usersResponse", usersResponse);
   if (!companyId) {
     return <Skeleton />;
   }
@@ -30,7 +31,7 @@ const ActiveUsers = () => {
   }
 
   if (usersResponse.status === ResponseStatus.ERROR) {
-    return <div>Error: {usersResponse.error}</div>;
+    return <ErrorMessage message={usersResponse.error} />;
   }
 
   return (

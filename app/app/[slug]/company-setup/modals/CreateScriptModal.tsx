@@ -15,10 +15,10 @@ import { ScriptSchema, VariableSchema } from "@/types/convex-schemas";
 import { Id } from "@/convex/_generated/dataModel";
 import FormActions from "@/app/components/shared/FormActions";
 import ToggleTabs from "@/app/components/shared/ToggleTabs";
-import LabeledInput from "@/app/components/shared/LabeledInput";
+import LabeledInput from "@/app/components/shared/labeled/LabeledInput";
 import VariableInsertButtons from "@/app/components/shared/VariableInsertButtons";
-import LabeledTextarea from "@/app/components/shared/LabeledTextarea";
 import FieldGroup from "@/app/components/shared/FieldGroup";
+import LabeledTextarea from "@/app/components/shared/labeled/LabeledTextarea";
 
 interface CreateScriptModalProps {
   isOpen: boolean;

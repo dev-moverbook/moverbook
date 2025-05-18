@@ -13,12 +13,18 @@ import {
 import SidebarContent from "./SidebarContent";
 import IconButton from "./IconButton";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import type { UserResource } from "@clerk/types";
 
-const Navbar = () => {
+type NavbarProps = {
+  slug: string;
+  user?: UserResource | null;
+};
+
+const Navbar = ({ slug, user }: NavbarProps) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
   return (
-    <nav className="fixed top-0 left-0 w-full h-14 bg-black flex items-center px-4 z-40 shadow-md border-b border-grayCustom">
+    <nav className="fixed top-0 left-0 w-full h-14 bg-black flex items-center px-4 z-40 shadow-md  border-grayCustom">
       {/* Hamburger only on mobile */}
       <div className="lg:hidden">
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -39,7 +45,11 @@ const Navbar = () => {
                 <SheetTitle>Sidebar Navigation</SheetTitle>
               </VisuallyHidden>
             </SheetHeader>
-            <SidebarContent onNavigate={() => setIsOpen(false)} />
+            <SidebarContent
+              user={user}
+              slug={slug}
+              onNavigate={() => setIsOpen(false)}
+            />
           </SheetContent>
         </Sheet>
       </div>

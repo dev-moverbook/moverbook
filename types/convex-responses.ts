@@ -676,3 +676,16 @@ export interface CheckSenderSuccess {
 export interface CheckSenderData {
   isVerified: boolean;
 }
+
+export type GetCompanyClerkUserIdResponse =
+  | GetCompanyClerkUserIdSuccess
+  | ErrorResponse;
+
+export interface GetCompanyClerkUserIdSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetCompanyClerkUserIdData | null;
+}
+
+export interface GetCompanyClerkUserIdData {
+  company: CompanySchema | null;
+}

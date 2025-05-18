@@ -82,6 +82,7 @@ export enum ErrorMessages {
   ITEM_INACTIVE = "Item inactive",
   ITEM_NOT_FOUND = "Item not found",
   ENV_NOT_SET_STRIPE_KEY = "Stripe env not set",
+  ENV_NOT_SET_GOOGLE_MAPS_API_KEY = "Google Maps API key not set",
   STRIPE_CONNECTED_DEACTIVATE_ERROR = "Stripe error deactivating account",
   STRIPE_CONNECTED_DB_CREATE = "Db error creating stripe connected account",
   STRIPE_CREATE = "Stripe connected error creating account",
@@ -92,6 +93,10 @@ export enum ErrorMessages {
   COMPANY_CONTACT_QUERY = "DB error querying company contact",
   COMPANY_CONTACT_SENDGRID_SENDER_NOT_FOUND = "SendGrid sender not found in Company Contact",
   WORLD_TIME_API_ERROR = "World Time API Error fetching timezones",
+  CLERK_WEBHOOK_ORG_INV_ACCEPTED = "Error handling organizationInvitation.accepted",
+  CLERK_USER_NOT_FOUND = "Clerk user not found",
+  CLERK_USER_METADATA_UPDATE_ERROR = "Error updating public metadata for user",
+  CLERK_WEBHOOK_USER_CREATED = "Error handling user.created",
 }
 
 export enum FrontEndErrorMessages {
@@ -116,4 +121,6 @@ export enum FrontEndErrorMessages {
   CATEGORY_NAME_EMPTY = "Category name cannot be empty.",
   ITEM_NAME_REQUIRED = "Item name is required",
   START_DATE_AFTER_END_DATE = "Start date must be before end date",
+  START_DATE_REQUIRED = "Start date is required",
+  END_DATE_REQUIRED = "End date is required",
 }

@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
+import { Loader2 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -12,9 +13,9 @@ const buttonVariants = cva(
         default:
           "bg-greenCustom text-white rounded-[20px] shadow shadow-greenCustom/10 hover:bg-greenCustom/90 font-medium",
         destructive:
-          " bg-destructive border border-destructive rounded-[20px] text-white shadow shadow-destructive/10 hover:bg-destructive/80",
+          "bg-destructive border border-destructive rounded-[20px] text-white shadow shadow-destructive/10 hover:bg-destructive/80",
         outline:
-          " rounded-[20px] border border-greenCustom bg-transparent text-greenCustom shadow-sm hover:bg-gray-800",
+          "rounded-[20px] border border-greenCustom bg-transparent text-greenCustom shadow-sm hover:bg-gray-800",
         secondary:
           "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
         ghost: "text-greenCustom font-bold hover:underline font-medium",
@@ -22,7 +23,7 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         plain: "",
         sidebar:
-          "hover:bg-gray-800 rounded-md p-1 transition justify-start gap-4",
+          "w-full hover:bg-gray-700 rounded-md p-1 transition justify-start gap-4",
       },
       size: {
         default: "h-9 px-4 py-2",
@@ -43,20 +44,61 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
+  isLoading?: boolean;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : "button";
-    return (
-      <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
-        ref={ref}
-        {...props}
-      />
-    );
+  (
+    {
+      className,
+      variant,
+      size,
+      asChild = false,
+      isLoading = false,
+      children,
+      disabled,
+      ...props
+    },
+    ref
+  ) => {
+    if (asChild) {
+      return (
+        <Slot
+          className={cn(
+            buttonVariants({ variant, size, className }),
+            "relative",
+            (isLoading || disabled) && "pointer-events-none opacity-50"
+          )}
+          ref={ref}
+          {...props} // ← no `disabled` here
+        >
+          {children}
+        </Slot>
+      );
+    } else {
+      // Standard button with loading spinner
+      return (
+        <button
+          className={cn(
+            buttonVariants({ variant, size, className }),
+            "relative"
+          )}
+          ref={ref}
+          disabled={isLoading || disabled}
+          {...props}
+        >
+          <span className={cn(isLoading && "invisible")}>{children}</span>
+          {isLoading && (
+            <span className="absolute inset-0 flex items-center justify-center">
+              <Loader2 className="h-4 w-4 animate-spin" />
+            </span>
+          )}
+        </button>
+      );
+    }
   }
 );
+
 Button.displayName = "Button";
 
 export { Button, buttonVariants };

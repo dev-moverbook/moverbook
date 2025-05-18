@@ -12,9 +12,15 @@ import { FrontEndErrorMessages } from "@/types/errors";
 import TabContentContainer from "@/app/components/shared/TabContentContainer";
 import TabSelector from "@/app/components/shared/TabSelector";
 import SectionHeaderWithAction from "@/app/components/shared/ SectionHeaderWithAction";
-
+import { useUser } from "@clerk/nextjs";
+import { canManageCompany } from "@/app/frontendUtils/permissions";
 const TeamContent: React.FC = () => {
   const { companyId } = useSlugContext();
+  const { user } = useUser();
+
+  const isCompanyManagerPermission = canManageCompany(
+    user?.publicMetadata.role as string
+  );
 
   const [isInviteModalOpen, setIsInviteModalOpen] = useState<boolean>(false);
 
@@ -37,34 +43,42 @@ const TeamContent: React.FC = () => {
 
   return (
     <main>
-      <SectionHeaderWithAction
-        title="Team"
-        action={
-          <Button className="" onClick={() => setIsInviteModalOpen(true)}>
-            + Invite User
-          </Button>
-        }
-      />
+      {isCompanyManagerPermission ? (
+        <>
+          <SectionHeaderWithAction
+            title="Team"
+            action={
+              <Button onClick={() => setIsInviteModalOpen(true)}>
+                + Invite User
+              </Button>
+            }
+          />
+          <TabSelector
+            tabs={["ACTIVE", "INVITED", "DELETED"]}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+          />
 
-      <TabSelector
-        tabs={["ACTIVE", "INVITED", "DELETED"]}
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-      />
+          <TabContentContainer>
+            {activeTab === "ACTIVE" && <ActiveUsers />}
+            {activeTab === "INVITED" && <InvitedUsers />}
+            {activeTab === "DELETED" && <InactiveUsers />}
+          </TabContentContainer>
 
-      <TabContentContainer>
-        {activeTab === "ACTIVE" && <ActiveUsers />}
-        {activeTab === "INVITED" && <InvitedUsers />}
-        {activeTab === "DELETED" && <InactiveUsers />}
-      </TabContentContainer>
-
-      <InviteUserModal
-        isOpen={isInviteModalOpen}
-        onClose={() => setIsInviteModalOpen(false)}
-        onInvite={handleInviteUser}
-        inviteLoading={inviteLoading}
-        inviteError={inviteError}
-      />
+          <InviteUserModal
+            isOpen={isInviteModalOpen}
+            onClose={() => setIsInviteModalOpen(false)}
+            onInvite={handleInviteUser}
+            inviteLoading={inviteLoading}
+            inviteError={inviteError}
+            setInviteError={setInviteError}
+          />
+        </>
+      ) : (
+        <TabContentContainer>
+          <ActiveUsers />
+        </TabContentContainer>
+      )}
     </main>
   );
 };

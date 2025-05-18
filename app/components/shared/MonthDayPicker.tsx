@@ -12,6 +12,7 @@ interface MonthDayPickerProps {
   month: string;
   day: string;
   onChange: (month: string, day: string) => void;
+  error?: string;
 }
 
 const MonthDayPicker: React.FC<MonthDayPickerProps> = ({
@@ -19,6 +20,7 @@ const MonthDayPicker: React.FC<MonthDayPickerProps> = ({
   month,
   day,
   onChange,
+  error,
 }) => {
   return (
     <div className="space-y-1">
@@ -74,6 +76,7 @@ const MonthDayPicker: React.FC<MonthDayPickerProps> = ({
           </Select>
         </div>
       </div>
+      {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
     </div>
   );
 };

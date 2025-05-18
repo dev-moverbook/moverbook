@@ -59,6 +59,7 @@ export const getAllUsersByCompanyId = query({
     const { companyId, isActive } = args;
     try {
       const identity = await requireAuthenticatedUser(ctx);
+      console.log("identity", identity);
 
       const company = await ctx.db.get(companyId);
 
@@ -97,6 +98,7 @@ export const updateUserInternal = internalMutation({
       imageUrl: v.optional(v.string()),
       name: v.optional(v.string()),
       role: v.optional(UserRoleConvex),
+      companyId: v.optional(v.id("companies")),
     }),
   },
   handler: async (ctx, args): Promise<Id<"users">> => {

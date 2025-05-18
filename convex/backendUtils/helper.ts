@@ -7,7 +7,6 @@ import {
   DEFAULT_DEPOSIT,
   DEFAULT_CANCELLATION_FEE,
   DEFAULT_CANCELLATION_CUTOFF_HOUR,
-  DEFAULT_BILL_OF_LADING_DISCLAIMER_AND_TERMS,
   DEFAULT_EXTRA_RATE,
   DEFAULT_FOUR_MOVERS_RATE,
   DEFAULT_IS_ACTIVE,
@@ -23,7 +22,9 @@ import {
   DEFAULT_TRAVEL_CHARGING_METHOD,
   DEFAULT_TRAVEL_RATE,
   DEFAULT_ROOMS,
+  DEFAULT_ADDITIONAL_TERMS_AND_CONDITIONS,
 } from "@/types/const";
+import { ResponseStatus } from "@/types/enums";
 
 export const createCompanyRecords = async (
   ctx: MutationCtx,
@@ -55,8 +56,8 @@ export const createCompanyRecords = async (
       companyId,
       morningArrival: "08:00",
       morningEnd: "11:00",
-      afternoonArrival: "13:00",
-      afternoonEnd: "16:00",
+      afternoonArrival: "12:00",
+      afternoonEnd: "15:00",
     });
 
     await ctx.db.insert("policies", {
@@ -66,8 +67,7 @@ export const createCompanyRecords = async (
       deposit: DEFAULT_DEPOSIT,
       cancellationFee: DEFAULT_CANCELLATION_FEE,
       cancellationCutoffHour: DEFAULT_CANCELLATION_CUTOFF_HOUR,
-      billOfLandingDisclaimerAndTerms:
-        DEFAULT_BILL_OF_LADING_DISCLAIMER_AND_TERMS,
+      additionalTermsAndConditions: DEFAULT_ADDITIONAL_TERMS_AND_CONDITIONS,
     });
 
     await ctx.db.insert("labor", {
@@ -184,18 +184,17 @@ export async function unsetOtherDefaultPolicies(
   await Promise.all(updates);
 }
 
-export async function unsetOtherDefaultLabor(
-  ctx: MutationCtx,
-  companyId: Id<"companies">
-): Promise<void> {
-  const existing = await ctx.db
-    .query("labor")
-    .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
-    .collect();
+export function handleInternalError(error: unknown) {
+  const errorMessage =
+    error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
 
-  const updates = existing
-    .filter((item) => item.isDefault)
-    .map((item) => ctx.db.patch(item._id, { isDefault: false }));
+  console.error("Internal Error:", errorMessage, error);
 
-  await Promise.all(updates);
+  return {
+    status: ResponseStatus.ERROR,
+    data: null,
+    error: shouldExposeError(errorMessage)
+      ? errorMessage
+      : ErrorMessages.GENERIC_ERROR,
+  };
 }

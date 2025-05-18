@@ -30,7 +30,7 @@ export const createLabor = mutation({
   args: {
     companyId: v.id("companies"),
     name: v.string(),
-    isDefault: v.boolean(),
+    isDefault: v.optional(v.boolean()),
     startDate: v.union(v.number(), v.null()),
     endDate: v.union(v.number(), v.null()),
     twoMovers: v.number(),
@@ -63,14 +63,10 @@ export const createLabor = mutation({
 
       validateLaborDateOverlap(ctx, companyId, startDate, endDate);
 
-      if (isDefault) {
-        await unsetOtherDefaultLabor(ctx, companyId);
-      }
-
       const laborId = await ctx.db.insert("labor", {
         companyId,
         name,
-        isDefault,
+        isDefault: isDefault ?? false,
         startDate,
         endDate,
         twoMovers,
@@ -117,7 +113,6 @@ export const updateLabor = mutation({
   },
   handler: async (ctx, args): Promise<UpdateLaborResponse> => {
     const { laborId, updates } = args;
-    console.log("updates", updates);
     try {
       const identity = await requireAuthenticatedUser(ctx, [
         ClerkRoles.ADMIN,
@@ -136,10 +131,6 @@ export const updateLabor = mutation({
         updates.startDate ?? labor.startDate,
         updates.endDate ?? labor.endDate
       );
-
-      if (updates.isDefault) {
-        await unsetOtherDefaultLabor(ctx, company._id);
-      }
 
       await ctx.db.patch(laborId, updates);
 

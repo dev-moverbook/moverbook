@@ -129,7 +129,7 @@ export interface ArrivalWindowSchema {
 export interface PolicySchema {
   _id: Id<"policies">;
   _creationTime: number;
-  billOfLandingDisclaimerAndTerms: string;
+  additionalTermsAndConditions: string;
   cancellationCutoffHour: number;
   cancellationFee: number;
   companyId: Id<"companies">;

@@ -13,7 +13,7 @@ interface UpdatePolicyData {
   deposit?: number;
   cancellationFee?: number;
   cancellationCutoffHour?: number;
-  billOfLandingDisclaimerAndTerms?: string;
+  additionalTermsAndConditions?: string;
 }
 
 export const useUpdatePolicy = () => {

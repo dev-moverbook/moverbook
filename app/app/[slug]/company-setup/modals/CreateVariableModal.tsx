@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import { FrontEndErrorMessages } from "@/types/errors";
-import LabeledInput from "@/app/components/shared/LabeledInput";
+import LabeledInput from "@/app/components/shared/labeled/LabeledInput";
 import FieldGroup from "@/app/components/shared/FieldGroup";
 import FormActions from "@/app/components/shared/FormActions";
 
