@@ -129,7 +129,7 @@ export interface ArrivalWindowSchema {
 export interface PolicySchema {
   _id: Id<"policies">;
   _creationTime: number;
-  additionalTermsAndConditions: string;
+  additionalTermsAndConditions?: string;
   cancellationCutoffHour: number;
   cancellationFee: number;
   companyId: Id<"companies">;
@@ -212,13 +212,14 @@ export interface CategorySchema {
 export interface ItemSchema {
   _id: Id<"items">;
   _creationTime: number;
-  categoryId: Id<"categories">;
+  categoryId?: Id<"categories">;
   companyId: Id<"companies">;
   isActive: boolean;
   isStarter: boolean;
   name: string;
-  size: CategorySize | string;
-  isPopular: boolean;
+  size: CategorySize | number;
+  isPopular?: boolean;
+  weight: number;
 }
 
 export interface ConnectedAccountSchema {

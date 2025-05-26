@@ -2,6 +2,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import FieldDisplay from "./FieldDisplay";
+import FormErrorMessage from "./error/FormErrorMessage";
 
 interface FieldRowProps {
   label: string;
@@ -45,7 +46,7 @@ const FieldRow: React.FC<FieldRowProps> = ({
           step={step}
           className={cn(error && "border-red-500")}
         />
-        {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
+        <FormErrorMessage message={error} />
       </div>
     );
   }

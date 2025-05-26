@@ -5,7 +5,6 @@ import { api } from "@/convex/_generated/api";
 import { useSlugContext } from "@/app/contexts/SlugContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ResponseStatus } from "@/types/enums";
-import { FrontEndErrorMessages } from "@/types/errors";
 import { useUpdateCompany } from "../hooks/useUpdateCompany";
 import { useUpdateCompliance } from "../hooks/useUpdateCompliance";
 import { useUpdateWebIntegrations } from "../hooks/useUpdateWebIntegrations";
@@ -16,6 +15,7 @@ import WebIntegrationsSection from "../sections/WebIntegrationsSection";
 import CompanyContactSection from "../sections/CompanyContactSection";
 import { useUpdateOrganizationLogo } from "../hooks/useUpdateOrganizationLogo";
 import VerticalSectionGroup from "@/app/components/shared/VerticalSectionGroup";
+import ErrorMessage from "@/app/components/shared/error/ErrorMessage";
 
 const GeneralTab = () => {
   const { companyId } = useSlugContext();
@@ -71,11 +71,7 @@ const GeneralTab = () => {
   }
 
   if (companyDetailsResponse.status === ResponseStatus.ERROR) {
-    return (
-      <div className="text-red-500">
-        Error: {companyDetailsResponse.error || FrontEndErrorMessages.GENERIC}
-      </div>
-    );
+    return <ErrorMessage message={companyDetailsResponse.error} />;
   }
 
   const { company, compliance, webIntegrations, companyContact } =

@@ -1,4 +1,5 @@
 import { Button } from "../ui/button";
+import FormErrorMessage from "./error/FormErrorMessage";
 
 interface FormActionsProps {
   onSave: () => void;
@@ -27,9 +28,8 @@ const FormActions: React.FC<FormActionsProps> = ({
   cancelVariant = "ghost",
 }) => {
   return (
-    <div className="flex flex-col  ">
-      <p className="text-sm min-h-[1.25rem] text-red-500 pb-1">{error || ""}</p>
-      <div className="grid grid-cols-2 gap-2 mb-4 md:mb-0">
+    <div>
+      <div className="grid grid-cols-2 gap-2">
         <Button
           onClick={onCancel}
           variant={cancelVariant}
@@ -47,6 +47,7 @@ const FormActions: React.FC<FormActionsProps> = ({
           {saveLabel}
         </Button>
       </div>
+      <FormErrorMessage message={error} />
     </div>
   );
 };

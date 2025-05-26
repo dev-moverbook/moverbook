@@ -37,11 +37,11 @@ export enum ResponseStatus {
 }
 
 export enum ClerkRoles {
-  ADMIN = "org:admin",
-  APP_MODERATOR = "org:app_moderator",
-  MANAGER = "org:manager",
-  MOVER = "org:mover",
-  SALES_REP = "org:sales_rep",
+  ADMIN = "Admin",
+  APP_MODERATOR = "App Moderator",
+  MANAGER = "Manager",
+  MOVER = "Mover",
+  SALES_REP = "Sales Rep",
 }
 
 export enum InvitationStatus {
@@ -85,19 +85,30 @@ export enum CategorySize {
   XL = "XL",
 }
 
-export const CategorySizeLabels: Record<CategorySize, string> = {
-  [CategorySize.SMALL]: "Small - Nightstand",
-  [CategorySize.MEDIUM]: "Medium - Recliner",
-  [CategorySize.LARGE]: "Large - Couch",
-  [CategorySize.XL]: "XL - Sectional",
-};
-
-export const ClerkRoleLabels: Record<ClerkRoles, string> = {
-  [ClerkRoles.ADMIN]: "Admin",
-  [ClerkRoles.APP_MODERATOR]: "App Moderator",
-  [ClerkRoles.MANAGER]: "Manager",
-  [ClerkRoles.MOVER]: "Mover",
-  [ClerkRoles.SALES_REP]: "Sales Rep",
+export const CategorySizeLabels: Record<
+  CategorySize,
+  { label: string; example: string; size: string }
+> = {
+  [CategorySize.SMALL]: {
+    label: "Small",
+    example: "Nightstand",
+    size: "5ft³",
+  },
+  [CategorySize.MEDIUM]: {
+    label: "Medium",
+    example: "Recliner",
+    size: "25ft³",
+  },
+  [CategorySize.LARGE]: {
+    label: "Large",
+    example: "Couch",
+    size: "50ft³",
+  },
+  [CategorySize.XL]: {
+    label: "XL",
+    example: "Sectional",
+    size: "80ft³",
+  },
 };
 
 export enum StripeConnectionStatusEnum {

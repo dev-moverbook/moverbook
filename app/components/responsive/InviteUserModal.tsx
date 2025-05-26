@@ -113,9 +113,9 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
           setHourlyRateError(null);
         }}
         options={[
-          { label: "Manager", value: ClerkRoles.MANAGER },
-          { label: "Mover", value: ClerkRoles.MOVER },
-          { label: "Sales Rep", value: ClerkRoles.SALES_REP },
+          { label: ClerkRoles.MANAGER, value: ClerkRoles.MANAGER },
+          { label: ClerkRoles.MOVER, value: ClerkRoles.MOVER },
+          { label: ClerkRoles.SALES_REP, value: ClerkRoles.SALES_REP },
         ]}
       />
 

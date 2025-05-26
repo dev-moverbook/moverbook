@@ -4,7 +4,6 @@ import { InvitationSchema } from "@/types/convex-schemas";
 import React from "react";
 import { Trash2 } from "lucide-react";
 import IconButton from "@/app/components/shared/IconButton";
-import { ClerkRoleLabels, ClerkRoles } from "@/types/enums";
 import UserCardBorder from "@/app/components/shared/UserCardBorder";
 
 interface InvitationCardProps {
@@ -20,9 +19,7 @@ const InvitationCard: React.FC<InvitationCardProps> = ({
     <UserCardBorder>
       <div>
         <p className="font-semibold">{invitation.email}</p>
-        <p className="text-sm text-gray-500">
-          {ClerkRoleLabels[invitation.role as ClerkRoles] || invitation.role}
-        </p>
+        <p className="text-sm text-gray-500">{invitation.role}</p>
       </div>
       <IconButton
         onClick={() => onRevokeClick(invitation._id)}

@@ -222,10 +222,10 @@ const CompanyContactSection: React.FC<CompanyContactSectionProps> = ({
               Checking...
             </>
           ) : (
-            <>
+            <div className="flex items-center">
               <Mail className="h-4 w-4 mr-1" />
               Verification Complete
-            </>
+            </div>
           )}
         </Button>
       );
@@ -245,10 +245,10 @@ const CompanyContactSection: React.FC<CompanyContactSectionProps> = ({
             Creating...
           </>
         ) : (
-          <>
+          <div className="flex items-center">
             <Mail className="h-4 w-4 mr-1" />
             Verify Email
-          </>
+          </div>
         )}
       </Button>
     );

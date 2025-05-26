@@ -7,27 +7,25 @@ import SectionContainer from "@/app/components/shared/SectionContainer";
 import CenteredContainer from "@/app/components/shared/CenteredContainer";
 import SectionHeader from "@/app/components/shared/SectionHeader";
 import ConfirmModal from "@/app/components/shared/ConfirmModal";
-import { Button } from "@/app/components/ui/button";
 import RoomModal from "../modals/RoomModal";
 import { useCreateRoom } from "../hooks/useCreateRoom";
 import { useUpdateRoom } from "../hooks/useUpdateRoom";
 import { useDeleteRoom } from "../hooks/useDeleteRoom";
 import SingleCardContainer from "@/app/components/shared/SingleCardContainer";
-import ToggleTabs from "@/app/components/shared/ToggleTabs";
-import SelectCard from "../cards/RoomCard";
+import SelectableCardContainer from "@/app/components/shared/containers/SelectableCardContainer";
+import IconButton from "@/app/components/shared/IconButton";
+import { Pencil, Trash2, X } from "lucide-react";
 
 interface RoomSectionProps {
   rooms: RoomSchema[];
   companyId: Id<"companies">;
 }
 
-type RoomManageMode = "edit" | "delete";
-
 const RoomSection: React.FC<RoomSectionProps> = ({ rooms, companyId }) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
-  const [manageMode, setManageMode] = useState<RoomManageMode>("edit");
+  const [isDeleteMode, setIsDeleteMode] = useState<boolean>(false);
 
   const [selectedRoom, setSelectedRoom] = useState<RoomSchema | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
@@ -68,6 +66,7 @@ const RoomSection: React.FC<RoomSectionProps> = ({ rooms, companyId }) => {
   const handleCloseDeleteModal = (): void => {
     setIsDeleteModalOpen(false);
     setRoomToDelete(null);
+    setIsDeleteMode(false);
   };
 
   const handleConfirmDelete = async (): Promise<void> => {
@@ -85,51 +84,51 @@ const RoomSection: React.FC<RoomSectionProps> = ({ rooms, companyId }) => {
         <SectionHeader
           title="Rooms"
           actions={
-            <div className="flex items-center gap-4">
-              {/* Left side: Edit & Add */}
-              {!isEditMode ? (
-                <>
-                  <Button variant="outline" onClick={() => setIsEditMode(true)}>
-                    Edit Rooms
-                  </Button>
-                  <Button onClick={handleOpenCreateModal}>+ Add Room</Button>
-                </>
-              ) : (
-                <>
-                  {/* Edit/Delete Toggle shown only in edit mode */}
-                  <ToggleTabs<RoomManageMode>
-                    value={manageMode}
-                    onChange={(mode) => setManageMode(mode)}
-                    options={[
-                      { label: "Edit", value: "edit" },
-                      { label: "Delete", value: "delete" },
-                    ]}
-                  />
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      setIsEditMode(false);
-                      setManageMode("edit");
-                    }}
-                  >
-                    Done
-                  </Button>
-                </>
-              )}
+            <div className="flex gap-2">
+              <IconButton
+                onClick={() => setIsEditMode(!isEditMode)}
+                icon={
+                  isEditMode ? (
+                    <X className="w-4 h-4 " />
+                  ) : (
+                    <Pencil className="w-4 h-4" />
+                  )
+                }
+                title={isEditMode ? "Cancel Edit" : "Edit Rooms"}
+                disabled={isDeleteMode}
+              />
+              <IconButton
+                onClick={() => setIsDeleteMode(!isDeleteMode)}
+                icon={
+                  isDeleteMode ? (
+                    <X className="w-4 h-4 " />
+                  ) : (
+                    <Trash2 className="w-4 h-4" />
+                  )
+                }
+                variant="outline"
+                title={isDeleteMode ? "Cancel Delete" : "Delete Rooms"}
+                disabled={isEditMode}
+              />
             </div>
           }
         />
 
         <SingleCardContainer>
+          <SelectableCardContainer
+            onClick={handleOpenCreateModal}
+            centerText="ROOM"
+            showPlusIcon={true}
+          />
           {rooms.map((room) => (
-            <SelectCard
+            <SelectableCardContainer
               key={room._id}
               id={room._id}
-              label={room.name}
+              centerText={room.name}
               onEdit={() => handleOpenEditModal(room)}
               onDelete={() => handleOpenDeleteModal(room._id)}
               showEditIcon={isEditMode}
-              mode={manageMode}
+              showDeleteIcon={isDeleteMode}
             />
           ))}
         </SingleCardContainer>

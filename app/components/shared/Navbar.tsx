@@ -14,6 +14,7 @@ import SidebarContent from "./SidebarContent";
 import IconButton from "./IconButton";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import type { UserResource } from "@clerk/types";
+import Link from "next/link";
 
 type NavbarProps = {
   slug: string;
@@ -38,7 +39,7 @@ const Navbar = ({ slug, user }: NavbarProps) => {
 
           <SheetContent
             side="left"
-            className="h-screen w-full max-w-full p-0 bg-gray-900 text-white overflow-y-auto z-[999]"
+            className="border-none h-screen w-full max-w-full p-0 bg-gray-900 text-white overflow-y-auto z-[999]"
           >
             <SheetHeader>
               <VisuallyHidden>
@@ -62,11 +63,13 @@ const Navbar = ({ slug, user }: NavbarProps) => {
             placeholder="Search Customer"
             className="text-sm flex-1 bg-transparent border border-grayCustom text-white placeholder-grayCustom rounded-custom px-4 py-1 focus:outline-none focus:ring focus:ring-grayCustom"
           />
-          <IconButton
-            icon={<FiPlusCircle className="text-2xl" />}
-            variant="ghost"
-            iconClassName="text-white"
-          />
+          <Link href={`/app/${slug}/add-move`}>
+            <IconButton
+              icon={<FiPlusCircle className="text-2xl" />}
+              variant="ghost"
+              iconClassName="text-white"
+            />
+          </Link>
         </div>
       </div>
     </nav>

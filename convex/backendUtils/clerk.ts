@@ -53,7 +53,7 @@ export async function createClerkOrganization(
     await clerkClient.organizations.createOrganizationMembership({
       organizationId: organization.id,
       userId: clerkUserId,
-      role: ClerkRoles.ADMIN,
+      role: "org:admin",
     });
 
     return organization;

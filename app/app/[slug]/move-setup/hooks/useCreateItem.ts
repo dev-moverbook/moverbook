@@ -16,8 +16,8 @@ export const useCreateItem = () => {
 
   const createItem = async (
     companyId: Id<"companies">,
-    categoryId: Id<"categories">,
-    itemData: ItemFormData
+    itemData: ItemFormData,
+    categoryId?: Id<"categories">
   ): Promise<boolean> => {
     setCreateItemLoading(true);
     setCreateItemError(null);
@@ -25,8 +25,8 @@ export const useCreateItem = () => {
     try {
       const response = await createItemMutation({
         companyId,
-        categoryId,
         ...itemData,
+        categoryId,
       });
 
       if (response.status === ResponseStatus.SUCCESS) {

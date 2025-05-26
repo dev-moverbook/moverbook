@@ -24,11 +24,12 @@ const IconButton = ({
         variant === "outline" &&
           "bg-transparent border border-gray-600 hover:bg-gray-700",
         variant === "green" && "bg-greenCustom",
-        variant === "ghost" && "bg-transparent hover:bg-gray-800",
+        variant === "ghost" &&
+          "bg-transparent hover:bg-white/10 text-white border-none",
         className
       )}
     >
-      <span className={cn("text-greenCustom", iconClassName)}>{icon}</span>
+      <span className={cn(iconClassName)}>{icon}</span>
     </button>
   );
 };

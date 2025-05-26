@@ -1,40 +1,53 @@
 "use client";
 
 import React, { useState } from "react";
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { ItemSchema } from "@/types/convex-schemas";
-import { ResponseStatus } from "@/types/enums";
-import RenderSkeleton from "@/app/components/shared/RenderSkeleton";
-import ErrorComponent from "@/app/components/shared/ErrorComponent";
+import { CategorySchema, ItemSchema } from "@/types/convex-schemas";
 import ConfirmModal from "@/app/components/shared/ConfirmModal";
-import ItemCard from "../cards/ItemCard";
 import ItemModal from "../modals/ItemModal";
 import { useCreateItem } from "../hooks/useCreateItem";
 import { useUpdateItem } from "../hooks/useUpdateItem";
 import { useDeleteItem } from "../hooks/useDeleteItem";
-import { Button } from "@/app/components/ui/button";
+import SectionContainer from "@/app/components/shared/SectionContainer";
+import SectionHeader from "@/app/components/shared/SectionHeader";
+import TabSelector from "@/app/components/shared/TabSelector";
+import SearchTab from "../tabs/SearchTab";
+import PopularTab from "../tabs/PopularTab";
+import CategoryTab from "../tabs/CategoryTab";
+import { Trash2 } from "lucide-react";
+import { Pencil } from "lucide-react";
+import IconButton from "@/app/components/shared/IconButton";
+import { X } from "lucide-react";
+import CenteredContainer from "@/app/components/shared/CenteredContainer";
 
 interface ItemSectionProps {
   companyId: Id<"companies">;
-  categoryId: Id<"categories">;
+  categories: CategorySchema[];
+  // categoryId: Id<"categories">;
+  items: ItemSchema[];
 }
 
-const ItemSection: React.FC<ItemSectionProps> = ({ companyId, categoryId }) => {
-  // Fetch items for the category
-  const itemsQuery = useQuery(api.items.getItemsByCategory, {
-    companyId,
-    categoryId,
-  });
+const ItemSection: React.FC<ItemSectionProps> = ({
+  companyId,
+  categories,
+  items,
+}) => {
+  const [activeTab, setActiveTab] = useState<string>("POPULAR");
+  const [isEditMode, setIsEditMode] = useState<boolean>(false);
+  const [isDeleteMode, setIsDeleteMode] = useState<boolean>(false);
 
-  const hasItems =
-    itemsQuery?.status === ResponseStatus.SUCCESS &&
-    itemsQuery.data.items.length > 0;
+  // Fetch items for the category
+  // const itemsQuery = useQuery(api.items.getItemsByCategory, {
+  //   companyId,
+  //   categoryId,
+  // });
+
+  // const hasItems =
+  //   itemsQuery?.status === ResponseStatus.SUCCESS &&
+  //   itemsQuery.data.items.length > 0;
 
   // State for item modal
   const [isItemModalOpen, setIsItemModalOpen] = useState<boolean>(false);
-  const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [selectedItem, setSelectedItem] = useState<ItemSchema | null>(null);
 
   // State for delete modal
@@ -83,15 +96,85 @@ const ItemSection: React.FC<ItemSectionProps> = ({ companyId, categoryId }) => {
   };
 
   return (
-    <div className="ml-6 mt-2 border-l-2 pl-4 space-y-2">
-      <h3 className="text-md font-semibold">Items</h3>
+    <SectionContainer>
+      <CenteredContainer>
+        <SectionHeader
+          title="Items"
+          actions={
+            <div className="flex gap-2">
+              <IconButton
+                onClick={() => setIsEditMode(!isEditMode)}
+                icon={
+                  isEditMode ? (
+                    <X className="w-4 h-4 " />
+                  ) : (
+                    <Pencil className="w-4 h-4" />
+                  )
+                }
+                title={isEditMode ? "Cancel Edit" : "Edit Items"}
+                disabled={isDeleteMode}
+              />
+              <IconButton
+                onClick={() => setIsDeleteMode(!isDeleteMode)}
+                icon={
+                  isDeleteMode ? (
+                    <X className="w-4 h-4 " />
+                  ) : (
+                    <Trash2 className="w-4 h-4" />
+                  )
+                }
+                variant="outline"
+                title={isDeleteMode ? "Cancel Delete" : "Delete Items"}
+                disabled={isEditMode}
+              />
+            </div>
+          }
+        />
+        <div className="mb-4">
+          <TabSelector
+            tabs={["POPULAR", "CATEGORIES", "SEARCH"]}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+          />
+        </div>
+        {activeTab === "SEARCH" && (
+          <SearchTab
+            items={items}
+            isEditMode={isEditMode}
+            handleEditItem={handleEditItem}
+            handleOpenDeleteModal={handleOpenDeleteModal}
+            handleOpenItemModal={handleOpenItemModal}
+            isDeleteMode={isDeleteMode}
+          />
+        )}
+        {activeTab === "POPULAR" && (
+          <PopularTab
+            items={items}
+            isEditMode={isEditMode}
+            handleEditItem={handleEditItem}
+            handleOpenDeleteModal={handleOpenDeleteModal}
+            isDeleteMode={isDeleteMode}
+            handleOpenItemModal={handleOpenItemModal}
+          />
+        )}
+        {activeTab === "CATEGORIES" && (
+          <CategoryTab
+            companyId={companyId}
+            categories={categories}
+            items={items}
+            isEditMode={isEditMode}
+            handleEditItem={handleEditItem}
+            handleDeleteItem={handleOpenDeleteModal}
+            isDeleteMode={isDeleteMode}
+          />
+        )}
 
-      {!itemsQuery && <RenderSkeleton />}
+        {/* {!itemsQuery && <RenderSkeleton />}
       {itemsQuery && itemsQuery.status === ResponseStatus.ERROR && (
         <ErrorComponent message={itemsQuery.error} />
-      )}
+      )} */}
 
-      {hasItems &&
+        {/* {hasItems &&
         itemsQuery.data.items.map((item) => (
           <ItemCard
             key={item._id}
@@ -103,42 +186,36 @@ const ItemSection: React.FC<ItemSectionProps> = ({ companyId, categoryId }) => {
 
       {!hasItems && (
         <p className="text-gray-500">No items found in this category.</p>
-      )}
+      )} */}
 
-      {/* Add Item Button */}
-      <Button
-        onClick={handleOpenItemModal}
-        className="mt-4 px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
-      >
-        + Add Item
-      </Button>
+        {/* Add Item Button */}
 
-      {/* Item Modal */}
-      <ItemModal
-        isOpen={isItemModalOpen}
-        onClose={handleCloseItemModal}
-        onCreate={createItem}
-        onEdit={updateItem}
-        loading={isEditMode ? updateItemLoading : createItemLoading}
-        error={isEditMode ? updateItemError : createItemError}
-        companyId={companyId}
-        categoryId={categoryId}
-        initialData={selectedItem}
-      />
+        {/* Item Modal */}
+        <ItemModal
+          isOpen={isItemModalOpen}
+          onClose={handleCloseItemModal}
+          onCreate={createItem}
+          onEdit={updateItem}
+          loading={isEditMode ? updateItemLoading : createItemLoading}
+          error={isEditMode ? updateItemError : createItemError}
+          companyId={companyId}
+          initialData={selectedItem}
+        />
 
-      {/* Delete Confirmation Modal */}
-      <ConfirmModal
-        isOpen={isDeleteModalOpen}
-        onClose={handleCloseDeleteModal}
-        onConfirm={handleConfirmDelete}
-        deleteLoading={deleteItemLoading}
-        deleteError={deleteItemError}
-        title="Confirm Delete"
-        description="Are you sure you want to delete this item? This action cannot be undone."
-        confirmButtonText="Delete"
-        cancelButtonText="Cancel"
-      />
-    </div>
+        {/* Delete Confirmation Modal */}
+        <ConfirmModal
+          isOpen={isDeleteModalOpen}
+          onClose={handleCloseDeleteModal}
+          onConfirm={handleConfirmDelete}
+          deleteLoading={deleteItemLoading}
+          deleteError={deleteItemError}
+          title="Confirm Delete"
+          description="Are you sure you want to delete this item? This action cannot be undone."
+          confirmButtonText="Delete"
+          cancelButtonText="Cancel"
+        />
+      </CenteredContainer>
+    </SectionContainer>
   );
 };
 

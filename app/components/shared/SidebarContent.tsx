@@ -1,7 +1,6 @@
 "use client";
 
-import { useOrganization, UserButton, useUser } from "@clerk/nextjs";
-import { Button } from "../ui/button";
+import { UserButton } from "@clerk/nextjs";
 import {
   Newspaper,
   Calendar,
@@ -12,7 +11,7 @@ import {
   Briefcase,
   Truck,
 } from "lucide-react";
-import { ClerkRoleLabels, ClerkRoles } from "@/types/enums";
+import { ClerkRoles } from "@/types/enums";
 import NavLink from "./buttons/NavLink";
 import type { UserResource } from "@clerk/types";
 import { isCompanyAdminRole } from "@/app/frontendUtils/permissions";
@@ -27,10 +26,10 @@ const SidebarContent = ({ onNavigate, user, slug }: SidebarContentProps) => {
   if (!user) return null;
   const role = user.publicMetadata.role as ClerkRoles;
   const canSeeAdmin = isCompanyAdminRole(role);
-  const roleLabel = ClerkRoleLabels[role] ?? "Unknown";
+  const roleLabel = role ?? "Unknown";
 
   return (
-    <nav className="flex flex-col gap-2 bg-gray-800 text-white h-screen">
+    <nav className="flex flex-col gap-2 bg-gray-800 text-white h-screen w-full">
       <div className="flex items-center  gap-x-2 px-4 h-14 py-3 ">
         <UserButton />
         <div className="flex flex-col items-start justify-center leading-tight">

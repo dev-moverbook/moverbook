@@ -6,7 +6,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { ClerkRoles, ClerkRoleLabels } from "@/types/enums";
+import { ClerkRoles } from "@/types/enums";
 
 interface RoleSelectFieldProps {
   value: ClerkRoles;
@@ -22,7 +22,7 @@ const RoleSelectField: React.FC<RoleSelectFieldProps> = ({
   label = "Role",
 }) => {
   const isAdmin = value === ClerkRoles.ADMIN;
-  const displayRole = ClerkRoleLabels[value as ClerkRoles];
+  const displayRole = value;
 
   return (
     <div>

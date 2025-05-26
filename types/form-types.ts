@@ -91,6 +91,7 @@ export interface CategoryFormData {
 
 export interface ItemFormData {
   name: string;
-  size: string | CategorySize;
+  size: number | CategorySize;
   isPopular: boolean;
+  weight: number;
 }

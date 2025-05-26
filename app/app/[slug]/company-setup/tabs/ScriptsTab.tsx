@@ -14,6 +14,7 @@ import { Id } from "@/convex/_generated/dataModel";
 import ConfirmDeleteModal from "../modals/ConfirmDeleteModal";
 import { ScriptSchema } from "@/types/convex-schemas";
 import { useUpdateScript } from "../hooks/useUpdateScript";
+import ErrorMessage from "@/app/components/shared/error/ErrorMessage";
 
 interface UpdateScriptData {
   title?: string;
@@ -128,11 +129,7 @@ const ScriptsTab = () => {
     );
   }
   if (scriptsAndVariablesResponse.status === ResponseStatus.ERROR) {
-    return (
-      <div className="text-red-500">
-        Error: {scriptsAndVariablesResponse.error || "Failed to load scripts"}
-      </div>
-    );
+    return <ErrorMessage message={scriptsAndVariablesResponse.error} />;
   }
 
   const { scripts, variables } = scriptsAndVariablesResponse.data;

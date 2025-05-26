@@ -120,7 +120,6 @@ export default defineSchema({
     cancellationFee: v.number(),
     cancellationCutoffHour: v.number(),
     additionalTermsAndConditions: v.optional(v.string()),
-    billOfLandingDisclaimerAndTerms: v.optional(v.string()),
   }),
   labor: defineTable({
     companyId: v.id("companies"),
@@ -174,11 +173,12 @@ export default defineSchema({
   }),
   items: defineTable({
     companyId: v.id("companies"),
-    categoryId: v.id("categories"),
+    categoryId: v.optional(v.id("categories")),
     name: v.string(),
-    size: v.union(CategorySizeConvex, v.string()),
+    size: v.union(CategorySizeConvex, v.number()),
     isActive: v.boolean(),
-    isPopular: v.boolean(),
+    isPopular: v.optional(v.boolean()),
     isStarter: v.boolean(),
+    weight: v.number(),
   }),
 });

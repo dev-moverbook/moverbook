@@ -1,5 +1,6 @@
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import FieldErrorMessage from "./FieldErrorMessage";
 
 interface LabeledTextareaProps {
   label: string;
@@ -20,7 +21,7 @@ const LabeledTextarea: React.FC<LabeledTextareaProps> = ({
     <div>
       <Label className="block text-sm font-medium mb-1">{label}</Label>
       <Textarea value={value} onChange={onChange} placeholder={placeholder} />
-      {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+      <FieldErrorMessage error={error} />
     </div>
   );
 };

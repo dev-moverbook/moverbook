@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { Label } from "@/components/ui/label";
 import {
@@ -7,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import FieldErrorMessage from "./FieldErrorMessage";
 
 interface SelectOption {
   label: string;
@@ -20,6 +23,8 @@ interface LabeledSelectProps {
   options: SelectOption[];
   placeholder?: string;
   error?: string | null;
+  loading?: boolean;
+  queryError?: string | null;
 }
 
 const LabeledSelect: React.FC<LabeledSelectProps> = ({
@@ -29,29 +34,35 @@ const LabeledSelect: React.FC<LabeledSelectProps> = ({
   options,
   placeholder = "Select an option",
   error,
+  queryError,
+  loading = false,
 }) => {
   return (
     <div>
-      <Label className="block text-sm font-medium mb-1">{label}</Label>
-      <Select value={value} onValueChange={onChange}>
+      <Label className="block text-sm font-medium">{label}</Label>
+      <Select value={value} onValueChange={onChange} disabled={loading}>
         <SelectTrigger>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>
-          {options.map((opt) => (
-            <SelectItem key={opt.value} value={opt.value}>
-              {opt.label}
+          {loading ? (
+            <SelectItem disabled value="loading">
+              Loading...
             </SelectItem>
-          ))}
+          ) : options.length > 0 ? (
+            options.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))
+          ) : (
+            <SelectItem disabled value="no-options">
+              No options available
+            </SelectItem>
+          )}
         </SelectContent>
       </Select>
-      <p
-        className={`text-sm mt-1 h-5 transition-opacity duration-200 ${
-          error ? "text-red-500 opacity-100" : "opacity-0"
-        }`}
-      >
-        {error || " "}
-      </p>
+      <FieldErrorMessage error={error || queryError} />
     </div>
   );
 };

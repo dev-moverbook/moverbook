@@ -4,29 +4,30 @@ import React, { useState, useEffect } from "react";
 import { useMediaQuery } from "react-responsive";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/app/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Id } from "@/convex/_generated/dataModel";
 import { ItemSchema } from "@/types/convex-schemas";
 import { ItemFormData } from "@/types/form-types";
 import { FrontEndErrorMessages } from "@/types/errors";
 import { CategorySize } from "@/types/convex-enums";
+import FieldGroup from "@/app/components/shared/FieldGroup";
+import LabeledInput from "@/app/components/shared/labeled/LabeledInput";
+import FormActions from "@/app/components/shared/FormActions";
+import CheckboxField from "@/app/components/shared/CheckboxField";
+import SizeSelector from "@/app/components/shared/labeled/SizeSelector";
 
 interface ItemModalProps {
   isOpen: boolean;
   onClose: () => void;
   onCreate: (
     companyId: Id<"companies">,
-    categoryId: Id<"categories">,
-    itemData: ItemFormData
+    itemData: ItemFormData,
+    categoryId?: Id<"categories">
   ) => Promise<boolean>;
   onEdit: (itemId: Id<"items">, itemData: ItemFormData) => Promise<boolean>;
   loading: boolean;
   error: string | null;
   companyId: Id<"companies">;
-  categoryId: Id<"categories">;
+  categoryId?: Id<"categories">;
   initialData?: ItemSchema | null;
 }
 
@@ -42,10 +43,12 @@ const ItemModal: React.FC<ItemModalProps> = ({
   initialData,
 }) => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
+  const [isCustomSize, setIsCustomSize] = useState<boolean>(false);
   const [formData, setFormData] = useState<ItemFormData>({
     name: "",
-    size: "",
+    size: CategorySize.SMALL,
     isPopular: false,
+    weight: 0,
   });
 
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -55,13 +58,15 @@ const ItemModal: React.FC<ItemModalProps> = ({
       setFormData({
         name: initialData.name,
         size: initialData.size,
-        isPopular: initialData.isPopular,
+        isPopular: initialData.isPopular || false,
+        weight: initialData.weight,
       });
     } else {
       setFormData({
         name: "",
-        size: "",
+        size: CategorySize.SMALL,
         isPopular: false,
+        weight: 0,
       });
     }
     setValidationError(null);
@@ -104,75 +109,55 @@ const ItemModal: React.FC<ItemModalProps> = ({
     if (initialData) {
       await onEdit(initialData._id, formData);
     } else {
-      await onCreate(companyId, categoryId, formData);
+      await onCreate(companyId, formData, categoryId);
     }
 
     onClose();
   };
 
   const formContent = (
-    <div className="space-y-4">
-      <div>
-        <Label className="block text-sm font-medium">Item Name</Label>
-        <Input
-          type="text"
-          name="name"
-          value={formData.name}
-          onChange={handleInputChange}
-          placeholder="Enter item name"
-        />
-      </div>
+    <FieldGroup>
+      <LabeledInput
+        label="Item Name"
+        value={formData.name}
+        onChange={handleInputChange}
+        placeholder="Enter item name"
+      />
 
       {/* Size Selection */}
-      <div>
-        <Label className="block text-sm font-medium">Size</Label>
-        <div className="flex gap-2">
-          {Object.values(CategorySize).map((size) => (
-            <Button
-              key={size}
-              onClick={() => handleSizeSelect(size)}
-              className={`px-3 py-1 rounded ${
-                formData.size === size
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-200 text-gray-700"
-              }`}
-            >
-              {size}
-            </Button>
-          ))}
-        </div>
-        <div className="mt-2">
-          <Label className="block text-sm font-medium">Custom Size</Label>
-          <Input
-            type="text"
-            name="size"
-            value={formData.size}
-            onChange={handleInputChange}
-            placeholder="Enter custom size if needed"
-          />
-        </div>
-      </div>
+      <SizeSelector value={formData.size} onChange={handleSizeSelect} />
+
+      <LabeledInput
+        label="size"
+        placeholder="Enter Custom Size ft³"
+        value={formData.size.toString()}
+        onChange={handleInputChange}
+      />
+
+      <LabeledInput
+        label="Item Weight"
+        value={formData.weight.toString()}
+        onChange={handleInputChange}
+        placeholder="Enter item weight"
+      />
 
       {/* Popular Checkbox */}
-      <div className="flex items-center space-x-2">
-        <Checkbox
-          id="isPopular"
-          checked={formData.isPopular}
-          onCheckedChange={handleCheckboxChange}
-        />
-        <Label htmlFor="isPopular" className="text-sm">
-          Mark as Popular Item
-        </Label>
-      </div>
+      <CheckboxField
+        id="isPopular"
+        label="Mark as Popular Item"
+        checked={formData.isPopular}
+        onChange={handleCheckboxChange}
+      />
 
-      <Button onClick={handleSubmit} disabled={loading} className="w-full">
-        {loading ? "Saving..." : initialData ? "Save Changes" : "Add Item"}
-      </Button>
-      {validationError && (
-        <p className="text-red-500 text-sm">{validationError}</p>
-      )}
-      {error && <p className="text-red-500 text-sm">{error}</p>}
-    </div>
+      <FormActions
+        onSave={handleSubmit}
+        onCancel={onClose}
+        isSaving={loading}
+        error={error || validationError}
+        saveLabel={initialData ? "Update Item" : "Add Item"}
+        cancelLabel="Cancel"
+      />
+    </FieldGroup>
   );
 
   return isMobile ? (

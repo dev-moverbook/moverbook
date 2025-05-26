@@ -61,7 +61,7 @@ const RedirectingPage = () => {
       if (!companyData) {
         if (orgRole === UserRole.ADMIN) {
           NProgress.start();
-          router.push("/create-company");
+          router.push("/app/onboarding");
         }
         return;
       }

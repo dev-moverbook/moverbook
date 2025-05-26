@@ -15,6 +15,7 @@ import CenteredContainer from "@/app/components/shared/CenteredContainer";
 import ContainerUserCard from "@/app/components/shared/ContainerUserCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import ErrorMessage from "@/app/components/shared/error/ErrorMessage";
+import EmptyList from "@/app/components/shared/message/EmptyList";
 const InvitedUsers = () => {
   const { companyId } = useSlugContext();
 
@@ -63,14 +64,18 @@ const InvitedUsers = () => {
         <SectionHeader title="Invited Users" />
         <ContainerUserCard>
           {" "}
-          {invitationsResponse.data.invitations.map(
-            (invitation: InvitationSchema) => (
-              <InvitationCard
-                key={invitation._id}
-                invitation={invitation}
-                onRevokeClick={handleRevokeClick}
-              />
+          {invitationsResponse.data.invitations.length > 0 ? (
+            invitationsResponse.data.invitations.map(
+              (invitation: InvitationSchema) => (
+                <InvitationCard
+                  key={invitation._id}
+                  invitation={invitation}
+                  onRevokeClick={handleRevokeClick}
+                />
+              )
             )
+          ) : (
+            <EmptyList message="No invited users." />
           )}
         </ContainerUserCard>
         <ResponsiveRevokeModal

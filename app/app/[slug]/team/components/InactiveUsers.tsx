@@ -10,6 +10,7 @@ import SectionContainer from "@/app/components/shared/SectionContainer";
 import SectionHeader from "@/app/components/shared/SectionHeader";
 import { Skeleton } from "@/components/ui/skeleton";
 import ErrorMessage from "@/app/components/shared/error/ErrorMessage";
+import EmptyList from "@/app/components/shared/message/EmptyList";
 const InactiveUsers = () => {
   const { companyId } = useSlugContext();
 
@@ -30,11 +31,15 @@ const InactiveUsers = () => {
     <SectionContainer isLast={true}>
       <CenteredContainer>
         <SectionHeader title="Inactive Users" />
-        <ContainerUserCard>
-          {usersResponse.data.users.map((user) => (
-            <UserCard key={user._id} user={user} />
-          ))}
-        </ContainerUserCard>
+        {usersResponse.data.users.length > 0 ? (
+          <ContainerUserCard>
+            {usersResponse.data.users.map((user) => (
+              <UserCard key={user._id} user={user} />
+            ))}
+          </ContainerUserCard>
+        ) : (
+          <EmptyList message="No inactive users." />
+        )}
       </CenteredContainer>
     </SectionContainer>
   );

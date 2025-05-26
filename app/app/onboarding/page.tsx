@@ -1,14 +1,10 @@
 "use client";
-import { Button } from "@/app/components/ui/button";
-import { Input } from "@/app/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { api } from "@/convex/_generated/api";
-import { ResponseStatus } from "@/types/enums";
-import { ErrorMessages } from "@/types/errors";
+import SingleFormAction from "@/app/components/shared/buttons/SingleFormAction";
+import LabeledInput from "@/app/components/shared/labeled/LabeledInput";
 import { useOrganizationList } from "@clerk/nextjs";
-import { useAction } from "convex/react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import { useCreateCompany } from "./hooks/useCreateCompany";
 
 const OnboardingPage = () => {
   const router = useRouter();
@@ -16,13 +12,8 @@ const OnboardingPage = () => {
 
   const [companyName, setCompanyName] = useState<string>("");
 
-  const [isCreateCompanyLoading, setIsCreateCompanyLoading] =
-    useState<boolean>(false);
-  const [createCompanyError, setCreateCompanyError] = useState<string | null>(
-    null
-  );
-
-  const createOrganization = useAction(api.clerk.createOrganization);
+  const { createCompany, createCompanyLoading, createCompanyError } =
+    useCreateCompany();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCompanyName(e.target.value);
@@ -31,26 +22,12 @@ const OnboardingPage = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    setIsCreateCompanyLoading(true);
-    setCreateCompanyError(null);
-    try {
-      const response = await createOrganization({ name: companyName });
-      if (response.status === ResponseStatus.ERROR) {
-        console.error(
-          "Error from createOrganization response:",
-          response.error
-        );
-        setCreateCompanyError(ErrorMessages.GENERIC_ERROR);
-      } else {
-        await setActive?.({ organization: response.data.clerkOrganizationId });
-        const slug = response.data.slug;
-        router.replace(`/app/${slug}`);
-      }
-    } catch (error) {
-      console.error("error creating company", error);
-      setCreateCompanyError(ErrorMessages.GENERIC_ERROR);
-    } finally {
-      setIsCreateCompanyLoading(false);
+    const response = await createCompany(companyName);
+
+    if (response.success) {
+      await setActive?.({ organization: response.data.clerkOrganizationId });
+      const slug = response.data.slug;
+      router.replace(`/app/${slug}`);
     }
   };
 
@@ -61,35 +38,19 @@ const OnboardingPage = () => {
         onSubmit={handleSubmit}
         className="flex flex-col gap-4 w-full max-w-md"
       >
-        <div>
-          <Label
-            htmlFor="companyName"
-            className="block text-sm font-medium text-grayCustom"
-          >
-            Company Name
-          </Label>
-          <Input
-            type="text"
-            id="companyName"
-            value={companyName}
-            onChange={handleInputChange}
-            placeholder="Enter your company name"
-            className=""
-          />
-        </div>
-        <Button
-          className="mt-4"
-          type="submit"
-          disabled={isCreateCompanyLoading || companyName.trim() === ""}
-        >
-          {" "}
-          {isCreateCompanyLoading ? "Submitting..." : "Submit"}
-        </Button>
-        <p
-          className={`text-red-500 text-sm mt-1 ${createCompanyError ? "visible" : "invisible"}`}
-        >
-          {createCompanyError || "Placeholder for error"}
-        </p>
+        <LabeledInput
+          label="Company Name"
+          value={companyName}
+          onChange={handleInputChange}
+          placeholder="Enter your company name"
+        />
+
+        <SingleFormAction
+          isSubmitting={createCompanyLoading}
+          submitLabel="Submit"
+          error={createCompanyError}
+          disabled={companyName.trim().length === 0}
+        />
       </form>
     </div>
   );

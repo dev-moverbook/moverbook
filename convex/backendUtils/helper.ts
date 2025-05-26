@@ -23,8 +23,11 @@ import {
   DEFAULT_TRAVEL_RATE,
   DEFAULT_ROOMS,
   DEFAULT_ADDITIONAL_TERMS_AND_CONDITIONS,
+  STARTER_ITEMS,
+  STARTER_CATEGORIES,
 } from "@/types/const";
 import { ResponseStatus } from "@/types/enums";
+import { ErrorResponse } from "@/types/convex-responses";
 
 export const createCompanyRecords = async (
   ctx: MutationCtx,
@@ -127,6 +130,25 @@ export const createCompanyRecords = async (
     for (const variable of defaultVariables) {
       await ctx.db.insert("variables", { companyId, ...variable });
     }
+
+    for (const category of STARTER_CATEGORIES) {
+      await ctx.db.insert("categories", {
+        companyId,
+        name: category.name,
+        isActive: true,
+        isStarter: true,
+      });
+    }
+
+    for (const item of STARTER_ITEMS) {
+      await ctx.db.insert("items", {
+        ...item,
+        companyId,
+        isStarter: true,
+        isActive: true,
+        isPopular: false,
+      });
+    }
   } catch (error) {
     console.error("Error creating company-related records:", error);
     throw new Error(ErrorMessages.COMPANY_RELATED_RECORDS_CREATE_ERROR);
@@ -184,11 +206,9 @@ export async function unsetOtherDefaultPolicies(
   await Promise.all(updates);
 }
 
-export function handleInternalError(error: unknown) {
+export function handleInternalError(error: unknown): ErrorResponse {
   const errorMessage =
     error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
-
-  console.error("Internal Error:", errorMessage, error);
 
   return {
     status: ResponseStatus.ERROR,

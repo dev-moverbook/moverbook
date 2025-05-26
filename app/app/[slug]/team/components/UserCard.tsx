@@ -4,7 +4,6 @@ import React from "react";
 import { usePathname } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 import { UserSchema } from "@/types/convex-schemas";
-import { ClerkRoleLabels } from "@/types/enums";
 import Image from "next/image";
 import UserCardBorder from "@/app/components/shared/UserCardBorder";
 import Link from "next/link";
@@ -17,6 +16,7 @@ interface UserCardProps {
 const UserCard: React.FC<UserCardProps> = ({ user }) => {
   const pathname = usePathname();
 
+  console.log(user.role);
   const handleClick = () => {
     NProgress.start();
   };
@@ -44,7 +44,7 @@ const UserCard: React.FC<UserCardProps> = ({ user }) => {
             {user.role && (
               <p className="text-sm text-grayCustom2 capitalize">
                 {" "}
-                {ClerkRoleLabels[user.role]}
+                {[user.role]}
               </p>
             )}
           </div>

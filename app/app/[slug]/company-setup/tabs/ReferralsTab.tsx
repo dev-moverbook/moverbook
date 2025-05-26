@@ -17,6 +17,7 @@ import SectionHeader from "@/app/components/shared/SectionHeader";
 import CardListContainer from "@/app/components/shared/CardListContainer";
 import { Id } from "@/convex/_generated/dataModel";
 import { useUpdateReferral } from "../hooks/useUpdateReferral";
+import ErrorMessage from "@/app/components/shared/error/ErrorMessage";
 
 const ReferralsTab = () => {
   const { companyId } = useSlugContext();
@@ -66,11 +67,7 @@ const ReferralsTab = () => {
   }
 
   if (referralsResponse.status === ResponseStatus.ERROR) {
-    return (
-      <div className="text-red-500">
-        Error: {referralsResponse.error || "Failed to load referrals"}
-      </div>
-    );
+    return <ErrorMessage message={referralsResponse.error} />;
   }
 
   const { referrals } = referralsResponse.data;

@@ -9,9 +9,10 @@ import {
   validateArrivalWindow,
   validatePolicy,
 } from "./backendUtils/validate";
-import { shouldExposeError } from "./backendUtils/helper";
+import { handleInternalError, shouldExposeError } from "./backendUtils/helper";
 import {
   GetCompanyArrivalAndPoliciesResponse,
+  GetCompanyArrivalResponse,
   UpdateArrivalWindowResponse,
 } from "@/types/convex-responses";
 
@@ -63,6 +64,40 @@ export const getCompanyArrivalAndPolicies = query({
           ? errorMessage
           : ErrorMessages.GENERIC_ERROR,
       };
+    }
+  },
+});
+
+export const getCompanyArrival = query({
+  args: { companyId: v.id("companies") },
+  handler: async (ctx, args): Promise<GetCompanyArrivalResponse> => {
+    const { companyId } = args;
+
+    try {
+      const identity = await requireAuthenticatedUser(ctx, [
+        ClerkRoles.ADMIN,
+        ClerkRoles.APP_MODERATOR,
+        ClerkRoles.MANAGER,
+        ClerkRoles.SALES_REP,
+      ]);
+      const company = validateCompany(await ctx.db.get(companyId));
+      isUserInOrg(identity, company.clerkOrganizationId);
+
+      const arrivalWindow = validateArrivalWindow(
+        await ctx.db
+          .query("arrivalWindow")
+          .filter((q) => q.eq(q.field("companyId"), companyId))
+          .first()
+      );
+
+      return {
+        status: ResponseStatus.SUCCESS,
+        data: {
+          arrivalWindow,
+        },
+      };
+    } catch (error) {
+      return handleInternalError(error);
     }
   },
 });

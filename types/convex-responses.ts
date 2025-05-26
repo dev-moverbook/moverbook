@@ -689,3 +689,44 @@ export interface GetCompanyClerkUserIdSuccess {
 export interface GetCompanyClerkUserIdData {
   company: CompanySchema | null;
 }
+
+export type GetCompanyArrivalResponse =
+  | GetCompanyArrivalSuccess
+  | ErrorResponse;
+
+export interface GetCompanyArrivalSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetCompanyArrivalData;
+}
+
+export interface GetCompanyArrivalData {
+  arrivalWindow: ArrivalWindowSchema;
+}
+
+export type GetItemsByCompanyResponse =
+  | GetItemsByCompanySuccess
+  | ErrorResponse;
+
+export interface GetItemsByCompanySuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetItemsByCompanyData;
+}
+
+export interface GetItemsByCompanyData {
+  items: ItemSchema[];
+}
+
+export type GetItemsAndCategoriesAndRoomsByCompanyResponse =
+  | GetItemsAndCategoriesAndRoomsByCompanySuccess
+  | ErrorResponse;
+
+export interface GetItemsAndCategoriesAndRoomsByCompanySuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetItemsAndCategoriesAndRoomsByCompanyData;
+}
+
+export interface GetItemsAndCategoriesAndRoomsByCompanyData {
+  items: ItemSchema[];
+  categories: CategorySchema[];
+  rooms: RoomSchema[];
+}

@@ -1,7 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { ClerkRoles, ResponseStatus } from "@/types/enums";
-import { ErrorMessages } from "@/types/errors";
 import {
   isUserInOrg,
   validateCategory,
@@ -9,11 +8,13 @@ import {
   validateItem,
 } from "./backendUtils/validate";
 import {
+  GetItemsAndCategoriesAndRoomsByCompanyResponse,
   GetItemsByCategoryResponse,
+  GetItemsByCompanyResponse,
   UpdateItemResponse,
 } from "@/types/convex-responses";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
-import { shouldExposeError } from "./backendUtils/helper";
+import { handleInternalError } from "./backendUtils/helper";
 import { CategorySizeConvex } from "@/types/convex-enums";
 
 export const getItemsByCategory = query({
@@ -46,17 +47,7 @@ export const getItemsByCategory = query({
         },
       };
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
-      console.error("Internal Error:", errorMessage, error);
-
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error: shouldExposeError(errorMessage)
-          ? errorMessage
-          : ErrorMessages.GENERIC_ERROR,
-      };
+      return handleInternalError(error);
     }
   },
 });
@@ -67,8 +58,9 @@ export const updateItem = mutation({
     updates: v.object({
       name: v.optional(v.string()),
       isActive: v.optional(v.boolean()),
-      size: v.optional(v.union(v.string(), CategorySizeConvex)),
+      size: v.optional(v.union(v.number(), CategorySizeConvex)),
       isPopular: v.optional(v.boolean()),
+      weight: v.optional(v.number()),
     }),
   },
   handler: async (ctx, args): Promise<UpdateItemResponse> => {
@@ -93,17 +85,7 @@ export const updateItem = mutation({
         data: { itemId },
       };
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
-      console.error("Internal Error:", errorMessage, error);
-
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error: shouldExposeError(errorMessage)
-          ? errorMessage
-          : ErrorMessages.GENERIC_ERROR,
-      };
+      return handleInternalError(error);
     }
   },
 });
@@ -111,13 +93,14 @@ export const updateItem = mutation({
 export const createItem = mutation({
   args: {
     companyId: v.id("companies"),
-    categoryId: v.id("categories"),
+    categoryId: v.optional(v.id("categories")),
     name: v.string(),
-    size: v.union(v.string(), CategorySizeConvex),
-    isPopular: v.boolean(),
+    size: v.union(v.number(), CategorySizeConvex),
+    isPopular: v.optional(v.boolean()),
+    weight: v.number(),
   },
   handler: async (ctx, args): Promise<UpdateItemResponse> => {
-    const { companyId, categoryId, name, size, isPopular } = args;
+    const { companyId, categoryId, name, size, isPopular, weight } = args;
 
     try {
       const identity = await requireAuthenticatedUser(ctx, [
@@ -129,7 +112,9 @@ export const createItem = mutation({
       const company = validateCompany(await ctx.db.get(companyId));
       isUserInOrg(identity, company.clerkOrganizationId);
 
-      validateCategory(await ctx.db.get(categoryId));
+      if (categoryId) {
+        validateCategory(await ctx.db.get(categoryId));
+      }
 
       const itemId = await ctx.db.insert("items", {
         companyId,
@@ -138,7 +123,8 @@ export const createItem = mutation({
         size,
         isActive: true,
         isStarter: false,
-        isPopular,
+        isPopular: false,
+        weight,
       });
 
       return {
@@ -146,17 +132,86 @@ export const createItem = mutation({
         data: { itemId },
       };
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
-      console.error(ErrorMessages.INTERNAL_ERROR, errorMessage, error);
+      return handleInternalError(error);
+    }
+  },
+});
+
+export const getItemsByCompany = query({
+  args: { companyId: v.id("companies") },
+  handler: async (ctx, args): Promise<GetItemsByCompanyResponse> => {
+    const { companyId } = args;
+
+    try {
+      const identity = await requireAuthenticatedUser(ctx, [
+        ClerkRoles.ADMIN,
+        ClerkRoles.APP_MODERATOR,
+        ClerkRoles.MANAGER,
+        ClerkRoles.SALES_REP,
+      ]);
+
+      const company = validateCompany(await ctx.db.get(companyId));
+      isUserInOrg(identity, company.clerkOrganizationId);
+
+      const items = await ctx.db
+        .query("items")
+        .filter((q) => q.eq(q.field("companyId"), companyId))
+        .filter((q) => q.eq(q.field("isActive"), true))
+        .collect();
 
       return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error: shouldExposeError(errorMessage)
-          ? errorMessage
-          : ErrorMessages.GENERIC_ERROR,
+        status: ResponseStatus.SUCCESS,
+        data: { items },
       };
+    } catch (error) {
+      return handleInternalError(error);
+    }
+  },
+});
+
+export const getItemsAndCategoriesAndRoomsByCompany = query({
+  args: { companyId: v.id("companies") },
+  handler: async (
+    ctx,
+    args
+  ): Promise<GetItemsAndCategoriesAndRoomsByCompanyResponse> => {
+    const { companyId } = args;
+
+    try {
+      const identity = await requireAuthenticatedUser(ctx, [
+        ClerkRoles.ADMIN,
+        ClerkRoles.APP_MODERATOR,
+        ClerkRoles.MANAGER,
+        ClerkRoles.SALES_REP,
+      ]);
+
+      const company = validateCompany(await ctx.db.get(companyId));
+      isUserInOrg(identity, company.clerkOrganizationId);
+
+      const items = await ctx.db
+        .query("items")
+        .filter((q) => q.eq(q.field("companyId"), companyId))
+        .filter((q) => q.eq(q.field("isActive"), true))
+        .collect();
+
+      const categories = await ctx.db
+        .query("categories")
+        .filter((q) => q.eq(q.field("companyId"), companyId))
+        .filter((q) => q.eq(q.field("isActive"), true))
+        .collect();
+
+      const rooms = await ctx.db
+        .query("rooms")
+        .filter((q) => q.eq(q.field("companyId"), companyId))
+        .filter((q) => q.eq(q.field("isActive"), true))
+        .collect();
+
+      return {
+        status: ResponseStatus.SUCCESS,
+        data: { items, categories, rooms },
+      };
+    } catch (error) {
+      return handleInternalError(error);
     }
   },
 });
