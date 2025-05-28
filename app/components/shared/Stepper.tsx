@@ -38,9 +38,9 @@ const Stepper: React.FC<StepperProps> = ({
               className={cn(
                 "w-8 h-8 rounded-full flex items-center justify-center text-xs md:text-sm font-bold border-2 z-10 transition-colors",
                 isCompleted &&
-                  "bg-green-600 text-white border-green-600 group-hover:brightness-110",
+                  "bg-greenCustom text-white border-greenCustom group-hover:brightness-110",
                 isCurrent &&
-                  "border-green-600 text-green-500 group-hover:brightness-110",
+                  "border-greenCustom text-greenCustom group-hover:brightness-110",
                 !isCompleted &&
                   !isCurrent &&
                   "border-gray-500 text-white group-hover:border-white"

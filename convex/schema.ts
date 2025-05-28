@@ -69,7 +69,8 @@ export default defineSchema({
     companyId: v.id("companies"),
     name: v.string(),
     isActive: v.boolean(),
-  }),
+  }).index("by_companyId", ["companyId"]),
+
   variables: defineTable({
     companyId: v.id("companies"),
     name: v.string(),
@@ -151,7 +152,7 @@ export default defineSchema({
     name: v.string(),
     price: v.number(),
     isActive: v.boolean(),
-  }),
+  }).index("byCompanyId", ["companyId"]),
   travelFee: defineTable({
     companyId: v.id("companies"),
     isDefault: v.boolean(),
@@ -163,14 +164,14 @@ export default defineSchema({
     name: v.string(),
     isActive: v.boolean(),
     isStarter: v.boolean(),
-  }),
+  }).index("by_companyId", ["companyId"]),
   categories: defineTable({
     companyId: v.id("companies"),
     name: v.string(),
     parentCategory: v.optional(v.id("categories")),
     isActive: v.boolean(),
     isStarter: v.boolean(),
-  }),
+  }).index("by_companyId", ["companyId"]),
   items: defineTable({
     companyId: v.id("companies"),
     categoryId: v.optional(v.id("categories")),
@@ -180,5 +181,5 @@ export default defineSchema({
     isPopular: v.optional(v.boolean()),
     isStarter: v.boolean(),
     weight: v.number(),
-  }),
+  }).index("by_companyId", ["companyId"]),
 });

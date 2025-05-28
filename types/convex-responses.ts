@@ -393,6 +393,17 @@ export interface UpdatePolicyData {
   policyId: Id<"policies">;
 }
 
+export type GetPolicyResponse = GetPolicySuccess | ErrorResponse;
+
+export interface GetPolicySuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetPolicyData;
+}
+
+export interface GetPolicyData {
+  policy: PolicySchema;
+}
+
 export type CreateLaborResponse = CreateLaborSuccess | ErrorResponse;
 
 export interface CreateLaborSuccess {
@@ -441,6 +452,19 @@ export interface UpdateInsurancePolicyData {
   insurancePolicyId: Id<"insurancePolicies">;
 }
 
+export type GetInsurancePoliciesResponse =
+  | GetInsurancePoliciesSuccess
+  | ErrorResponse;
+
+export interface GetInsurancePoliciesSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetInsurancePoliciesData;
+}
+
+export interface GetInsurancePoliciesData {
+  insurancePolicies: InsurancePolicySchema[];
+}
+
 export type UpdateCreditCardFeeResponse =
   | UpdateCreditCardFeeSuccess
   | ErrorResponse;
@@ -474,6 +498,17 @@ export interface UpdateFeeSuccess {
 
 export interface UpdateFeeData {
   feeId: Id<"fees">;
+}
+
+export type GetFeesResponse = GetFeesSuccess | ErrorResponse;
+
+export interface GetFeesSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetFeesData;
+}
+
+export interface GetFeesData {
+  fees: FeeSchema[];
 }
 
 export type UpdateTravelFeeResponse = UpdateTravelFeeSuccess | ErrorResponse;
@@ -729,4 +764,39 @@ export interface GetItemsAndCategoriesAndRoomsByCompanyData {
   items: ItemSchema[];
   categories: CategorySchema[];
   rooms: RoomSchema[];
+}
+
+export type GetMoveRepsByCompanyIdResponse =
+  | GetMoveRepsByCompanyIdSuccess
+  | ErrorResponse;
+
+export interface GetMoveRepsByCompanyIdSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetMoveRepsByCompanyIdData;
+}
+
+export interface GetMoveRepsByCompanyIdData {
+  users: UserSchema[];
+}
+
+export type GetMoveOptionsResponse = GetMoveOptionsSuccess | ErrorResponse;
+
+export interface GetMoveOptionsSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetMoveOptionsData;
+}
+
+export interface GetMoveOptionsData {
+  arrivalWindow: ArrivalWindowSchema;
+  labor: LaborSchema[];
+  travelFee: TravelFeeSchema;
+  insurancePolicies: InsurancePolicySchema[];
+  fees: FeeSchema[];
+  moveReps: UserSchema[];
+  referrals: ReferralSchema[];
+  laborRates: LaborSchema[];
+  creditCardFee: CreditCardFeeSchema;
+  rooms: RoomSchema[];
+  categories: CategorySchema[];
+  items: ItemSchema[];
 }

@@ -34,7 +34,7 @@ const InventoryTab = () => {
             companyId={companyId}
             categories={categories}
           />
-          <ResetSection />
+          <ResetSection companyId={companyId} />
         </VerticalSectionGroup>
       )}
     </DataLoader>

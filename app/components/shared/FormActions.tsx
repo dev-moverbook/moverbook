@@ -33,7 +33,7 @@ const FormActions: React.FC<FormActionsProps> = ({
         <Button
           onClick={onCancel}
           variant={cancelVariant}
-          className="w-full text-white"
+          className="w-full text-greenCustom "
         >
           {cancelLabel}
         </Button>

@@ -8,9 +8,12 @@ import PersonalDetails from "./components/PersonalDetails";
 import PageContainer from "@/app/components/shared/containers/PageContainer";
 import { MoveFormProvider } from "@/app/contexts/MoveFormContext";
 import Location from "./components/Location";
-import MoveDetails from "./components/MoveDetails";
+import Inventory from "./components/Inventory";
 import JobDetails from "./components/JobDetails";
 import { useSlugContext } from "@/app/contexts/SlugContext";
+import ErrorMessage from "@/app/components/shared/error/ErrorMessage";
+import { useUser } from "@clerk/nextjs";
+
 const AddMovePage = () => {
   return (
     <MoveFormProvider>
@@ -24,11 +27,16 @@ const AddMovePageContent = () => {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [currentStep, setCurrentStep] = useState(1);
   const { companyId } = useSlugContext();
+  const { user } = useUser();
 
   const handleClose = () => {
     setShowModal(false);
     router.back();
   };
+
+  if (!companyId || !user) {
+    return <ErrorMessage message="Company not found" />;
+  }
 
   return (
     <PageContainer>
@@ -42,7 +50,7 @@ const AddMovePageContent = () => {
         steps={[
           { label: "Personal Details" },
           { label: "Location" },
-          { label: "Move Details" },
+          { label: "Inventory" },
           { label: "Job Details" },
         ]}
         onStepClick={(step) => setCurrentStep(step)}
@@ -61,15 +69,18 @@ const AddMovePageContent = () => {
         />
       )}
       {currentStep === 3 && (
-        <MoveDetails
+        <Inventory
           onNext={() => setCurrentStep(currentStep + 1)}
           onBack={() => setCurrentStep(currentStep - 1)}
+          companyId={companyId}
         />
       )}
       {currentStep === 4 && (
         <JobDetails
+          companyId={companyId}
           onNext={() => setCurrentStep(currentStep + 1)}
           onBack={() => setCurrentStep(currentStep - 1)}
+          user={user}
         />
       )}
 

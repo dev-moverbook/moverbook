@@ -11,10 +11,7 @@ import {
   validateTravelFee,
 } from "./backendUtils/validate";
 import { isUserInOrg } from "./backendUtils/validate";
-import {
-  shouldExposeError,
-  unsetOtherDefaultLabor,
-} from "./backendUtils/helper";
+import { shouldExposeError } from "./backendUtils/helper";
 import {
   CreateLaborResponse,
   GetCompanyRatesResponse,

@@ -1,0 +1,31 @@
+import React from "react";
+import RemovableTag from "@/app/components/shared/ui/RemovableTag"; // update path as needed
+
+interface SectionHeaderWithTagProps {
+  tag: {
+    label: string;
+    onRemove: () => void;
+    className?: string;
+  };
+  action?: React.ReactNode;
+}
+
+const SectionHeaderWithTag: React.FC<SectionHeaderWithTagProps> = ({
+  tag,
+  action,
+}) => {
+  return (
+    <div className="px-4 md:px-2 my-4">
+      <div className="flex items-center justify-between max-w-2xl mx-auto">
+        <RemovableTag
+          label={tag.label}
+          onRemove={tag.onRemove}
+          className={tag.className}
+        />
+        {action}
+      </div>
+    </div>
+  );
+};
+
+export default SectionHeaderWithTag;

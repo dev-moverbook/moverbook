@@ -1,5 +1,7 @@
 import { TravelChargingTypes } from "./enums";
 
+export const MOVILE_BREAKPOINT = 768;
+
 export const DEFAULT_WEEKDAY_HOUR_MINIMUM = 2;
 export const DEFAULT_WEEKEND_HOUR_MINIMUM = 2;
 export const DEFAULT_DEPOSIT = 100.0;

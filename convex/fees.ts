@@ -1,12 +1,16 @@
 import { ClerkRoles, ResponseStatus } from "@/types/enums";
-import { ErrorMessages } from "@/types/errors";
 import { v } from "convex/values";
-import { mutation } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import { validateCompany, validateFee } from "./backendUtils/validate";
 import { isUserInOrg } from "./backendUtils/validate";
-import { shouldExposeError } from "./backendUtils/helper";
-import { CreateFeeResponse, UpdateFeeResponse } from "@/types/convex-responses";
+import { handleInternalError } from "./backendUtils/helper";
+import {
+  CreateFeeResponse,
+  GetFeesResponse,
+  UpdateFeeResponse,
+} from "@/types/convex-responses";
+import { FeeSchema } from "@/types/convex-schemas";
 
 export const createFee = mutation({
   args: {
@@ -39,17 +43,7 @@ export const createFee = mutation({
         data: { feeId },
       };
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
-      console.error("Internal Error:", errorMessage, error);
-
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error: shouldExposeError(errorMessage)
-          ? errorMessage
-          : ErrorMessages.GENERIC_ERROR,
-      };
+      return handleInternalError(error);
     }
   },
 });
@@ -85,17 +79,43 @@ export const updateFee = mutation({
         data: { feeId },
       };
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
-      console.error("Internal Error:", errorMessage, error);
+      return handleInternalError(error);
+    }
+  },
+});
+
+export const getFees = query({
+  args: {
+    companyId: v.id("companies"),
+  },
+  handler: async (ctx, args): Promise<GetFeesResponse> => {
+    const { companyId } = args;
+
+    try {
+      const identity = await requireAuthenticatedUser(ctx, [
+        ClerkRoles.ADMIN,
+        ClerkRoles.APP_MODERATOR,
+        ClerkRoles.MANAGER,
+        ClerkRoles.SALES_REP,
+      ]);
+
+      const company = validateCompany(await ctx.db.get(companyId));
+      isUserInOrg(identity, company.clerkOrganizationId);
+
+      const fees: FeeSchema[] = await ctx.db
+        .query("fees")
+        .withIndex("byCompanyId", (q) => q.eq("companyId", companyId))
+        .filter((q) => q.eq(q.field("isActive"), true))
+        .collect();
+
+      const sortedFees = fees.sort((a, b) => a.name.localeCompare(b.name));
 
       return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error: shouldExposeError(errorMessage)
-          ? errorMessage
-          : ErrorMessages.GENERIC_ERROR,
+        status: ResponseStatus.SUCCESS,
+        data: { fees: sortedFees },
       };
+    } catch (error) {
+      return handleInternalError(error);
     }
   },
 });

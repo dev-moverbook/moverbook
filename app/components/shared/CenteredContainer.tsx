@@ -11,7 +11,10 @@ const CenteredContainer: React.FC<CenteredContainerProps> = ({
 }) => {
   return (
     <div
-      className={cn("flex flex-col max-w-2xl mx-auto px-4 md:px-2", className)}
+      className={cn(
+        "flex flex-col max-w-2xl mx-auto px-4 md:px-2 w-full",
+        className
+      )}
     >
       {children}
     </div>

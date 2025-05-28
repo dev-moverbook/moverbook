@@ -68,3 +68,22 @@ export const MOVE_SIZE_OPTIONS: { label: string; value: MoveSize }[] = [
 ];
 
 export type ManageMode = "edit" | "delete";
+
+export type MoveStatus =
+  | "New Lead"
+  | "Quoted"
+  | "Booked"
+  | "Lost"
+  | "Cancelled"
+  | "Completed";
+
+export const MOVE_STATUS_OPTIONS: { label: string; value: MoveStatus }[] = [
+  { label: "New Lead", value: "New Lead" },
+  { label: "Quoted", value: "Quoted" },
+  { label: "Booked", value: "Booked" },
+  { label: "Lost", value: "Lost" },
+  { label: "Cancelled", value: "Cancelled" },
+  { label: "Completed", value: "Completed" },
+];
+
+export type MoveTimes = "morning" | "afternoon" | "custom";

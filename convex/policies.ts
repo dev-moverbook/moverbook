@@ -1,12 +1,14 @@
 import { ClerkRoles, ResponseStatus } from "@/types/enums";
-import { ErrorMessages } from "@/types/errors";
 import { v } from "convex/values";
-import { mutation } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import { validateCompany, validatePolicy } from "./backendUtils/validate";
 import { isUserInOrg } from "./backendUtils/validate";
-import { shouldExposeError } from "./backendUtils/helper";
-import { UpdatePolicyResponse } from "@/types/convex-responses";
+import { handleInternalError } from "./backendUtils/helper";
+import {
+  GetPolicyResponse,
+  UpdatePolicyResponse,
+} from "@/types/convex-responses";
 
 export const updatePolicy = mutation({
   args: {
@@ -42,17 +44,42 @@ export const updatePolicy = mutation({
         data: { policyId },
       };
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
-      console.error("Internal Error:", errorMessage, error);
+      return handleInternalError(error);
+    }
+  },
+});
+
+export const getPolicy = query({
+  args: {
+    companyId: v.id("companies"),
+  },
+  handler: async (ctx, args): Promise<GetPolicyResponse> => {
+    const { companyId } = args;
+
+    try {
+      const identity = await requireAuthenticatedUser(ctx, [
+        ClerkRoles.ADMIN,
+        ClerkRoles.APP_MODERATOR,
+        ClerkRoles.MANAGER,
+        ClerkRoles.SALES_REP,
+      ]);
+
+      const company = validateCompany(await ctx.db.get(companyId));
+      isUserInOrg(identity, company.clerkOrganizationId);
+
+      const policy = validatePolicy(
+        await ctx.db
+          .query("policies")
+          .filter((q) => q.eq(q.field("companyId"), companyId))
+          .first()
+      );
 
       return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error: shouldExposeError(errorMessage)
-          ? errorMessage
-          : ErrorMessages.GENERIC_ERROR,
+        status: ResponseStatus.SUCCESS,
+        data: { policy },
       };
+    } catch (error) {
+      return handleInternalError(error);
     }
   },
 });

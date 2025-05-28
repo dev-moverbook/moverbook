@@ -1,8 +1,4 @@
-import {
-  CompanySchema,
-  CustomerSchema,
-  UserSchema,
-} from "@/types/convex-schemas";
+import { CompanySchema, UserSchema } from "@/types/convex-schemas";
 import { ErrorMessages } from "@/types/errors";
 import { v } from "convex/values";
 import {
@@ -12,10 +8,10 @@ import {
   mutation,
   query,
 } from "./_generated/server";
-import { UserRoleConvex, UserStatusConvex } from "@/types/convex-enums";
+import { UserRoleConvex } from "@/types/convex-enums";
 import { Id } from "./_generated/dataModel";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
-import { ClerkRoles, ResponseStatus, UserRole } from "@/types/enums";
+import { ClerkRoles, ResponseStatus } from "@/types/enums";
 import {
   isUserInOrg,
   validateCompany,
@@ -24,12 +20,14 @@ import {
 import { internal } from "./_generated/api";
 import {
   GetAllUsersByCompanyIdResponse,
+  GetMoveRepsByCompanyIdResponse,
   GetUserByIdResponse,
 } from "@/types/convex-responses";
 import {
   updateOrganizationMembershipHelper,
   updateUserNameHelper,
 } from "./backendUtils/clerk";
+import { handleInternalError } from "./backendUtils/helper";
 
 export const getUserByEmailInternal = internalQuery({
   args: {
@@ -78,14 +76,7 @@ export const getAllUsersByCompanyId = query({
         data: { users },
       };
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
-      console.error(errorMessage, error);
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error: errorMessage,
-      };
+      return handleInternalError(error);
     }
   },
 });
@@ -149,14 +140,7 @@ export const getUserById = query({
         data: { user: validatedUser },
       };
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
-      console.error(errorMessage, error);
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error: errorMessage,
-      };
+      return handleInternalError(error);
     }
   },
 });
@@ -231,14 +215,7 @@ export const updateUserActiveStatus = mutation({
         },
       };
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
-      console.error(errorMessage, error);
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error: errorMessage,
-      };
+      return handleInternalError(error);
     }
   },
 });
@@ -297,14 +274,7 @@ export const updateUser = action({
         data: { userId },
       };
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
-      console.error(errorMessage, error);
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error: errorMessage,
-      };
+      return handleInternalError(error);
     }
   },
 });
@@ -343,6 +313,47 @@ export const updateUserByEmailInternal = internalMutation({
       return validatedUser._id;
     } catch (error) {
       throw new Error(ErrorMessages.USER_DB_UPDATE);
+    }
+  },
+});
+
+export const getMoveRepsByCompanyId = query({
+  args: {
+    companyId: v.id("companies"),
+  },
+  handler: async (ctx, args): Promise<GetMoveRepsByCompanyIdResponse> => {
+    const { companyId } = args;
+    try {
+      const identity = await requireAuthenticatedUser(ctx, [
+        ClerkRoles.ADMIN,
+        ClerkRoles.APP_MODERATOR,
+        ClerkRoles.MANAGER,
+        ClerkRoles.SALES_REP,
+      ]);
+
+      const company = validateCompany(await ctx.db.get(companyId));
+      isUserInOrg(identity, company.clerkOrganizationId);
+
+      const users = await ctx.db
+        .query("users")
+        .filter((q) => q.eq(q.field("companyId"), companyId))
+        .filter((q) => q.eq(q.field("isActive"), true))
+        .collect();
+
+      const sortedUsers = users.sort((a, b) => a.name.localeCompare(b.name));
+      const moveReps = sortedUsers.filter(
+        (user) =>
+          user.role === ClerkRoles.SALES_REP ||
+          user.role === ClerkRoles.ADMIN ||
+          user.role === ClerkRoles.MANAGER
+      );
+
+      return {
+        status: ResponseStatus.SUCCESS,
+        data: { users: moveReps },
+      };
+    } catch (error) {
+      return handleInternalError(error);
     }
   },
 });

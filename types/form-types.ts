@@ -70,6 +70,12 @@ export interface FeeFormData {
   price: number | null;
 }
 
+export interface FeeLineItemFormData {
+  name: string;
+  price: number | null;
+  quantity: number;
+}
+
 export interface CreateFeeData {
   name: string;
   price: number;

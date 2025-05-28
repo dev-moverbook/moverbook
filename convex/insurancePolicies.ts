@@ -1,7 +1,7 @@
 import { ClerkRoles, ResponseStatus } from "@/types/enums";
 import { ErrorMessages } from "@/types/errors";
 import { v } from "convex/values";
-import { mutation } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import {
   validateCompany,
@@ -14,9 +14,10 @@ import {
 } from "./backendUtils/helper";
 import {
   CreateInsurancePolicyResponse,
+  GetInsurancePoliciesResponse,
   UpdateInsurancePolicyResponse,
 } from "@/types/convex-responses";
-
+import { handleInternalError } from "./backendUtils/helper";
 export const createInsurancePolicy = mutation({
   args: {
     companyId: v.id("companies"),
@@ -65,17 +66,7 @@ export const createInsurancePolicy = mutation({
         data: { insurancePolicyId },
       };
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
-      console.error("Internal Error:", errorMessage, error);
-
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error: shouldExposeError(errorMessage)
-          ? errorMessage
-          : ErrorMessages.GENERIC_ERROR,
-      };
+      return handleInternalError(error);
     }
   },
 });
@@ -121,17 +112,41 @@ export const updateInsurancePolicy = mutation({
         data: { insurancePolicyId },
       };
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
-      console.error("Internal Error:", errorMessage, error);
+      return handleInternalError(error);
+    }
+  },
+});
+
+export const getInsurancePolicies = query({
+  args: {
+    companyId: v.id("companies"),
+  },
+  handler: async (ctx, args): Promise<GetInsurancePoliciesResponse> => {
+    const { companyId } = args;
+
+    try {
+      const identity = await requireAuthenticatedUser(ctx, [
+        ClerkRoles.ADMIN,
+        ClerkRoles.APP_MODERATOR,
+        ClerkRoles.MANAGER,
+        ClerkRoles.SALES_REP,
+      ]);
+
+      const company = validateCompany(await ctx.db.get(companyId));
+      isUserInOrg(identity, company.clerkOrganizationId);
+
+      const insurancePolicies = await ctx.db
+        .query("insurancePolicies")
+        .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
+        .filter((q) => q.eq(q.field("isActive"), true))
+        .collect();
 
       return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error: shouldExposeError(errorMessage)
-          ? errorMessage
-          : ErrorMessages.GENERIC_ERROR,
+        status: ResponseStatus.SUCCESS,
+        data: { insurancePolicies },
       };
+    } catch (error) {
+      return handleInternalError(error);
     }
   },
 });

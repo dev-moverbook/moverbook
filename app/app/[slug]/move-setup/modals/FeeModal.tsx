@@ -11,6 +11,7 @@ import FormActions from "@/app/components/shared/FormActions";
 import FieldGroup from "@/app/components/shared/FieldGroup";
 import FieldRow from "@/app/components/shared/FieldRow";
 import { validatePrice } from "@/app/frontendUtils/validation";
+import { MOVILE_BREAKPOINT } from "@/types/const";
 
 interface FeeModalProps {
   isOpen: boolean;
@@ -36,7 +37,7 @@ const FeeModal: React.FC<FeeModalProps> = ({
   companyId,
   initialData,
 }) => {
-  const isMobile = useMediaQuery({ maxWidth: 768 });
+  const isMobile = useMediaQuery({ maxWidth: MOVILE_BREAKPOINT });
   const [formData, setFormData] = useState<FeeFormData>({
     name: "",
     price: 0,
