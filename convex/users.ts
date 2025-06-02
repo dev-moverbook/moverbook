@@ -21,6 +21,7 @@ import { internal } from "./_generated/api";
 import {
   GetAllUsersByCompanyIdResponse,
   GetMoveRepsByCompanyIdResponse,
+  GetUserByClerkIdResponse,
   GetUserByIdResponse,
 } from "@/types/convex-responses";
 import {
@@ -351,6 +352,34 @@ export const getMoveRepsByCompanyId = query({
       return {
         status: ResponseStatus.SUCCESS,
         data: { users: moveReps },
+      };
+    } catch (error) {
+      return handleInternalError(error);
+    }
+  },
+});
+
+export const getUserByClerkId = query({
+  args: {},
+  handler: async (ctx): Promise<GetUserByClerkIdResponse> => {
+    try {
+      const identity = await requireAuthenticatedUser(ctx, [
+        ClerkRoles.ADMIN,
+        ClerkRoles.APP_MODERATOR,
+        ClerkRoles.MANAGER,
+        ClerkRoles.SALES_REP,
+      ]);
+
+      const clerkId = identity.id as string;
+      const user = validateUser(
+        await ctx.db
+          .query("users")
+          .withIndex("by_clerkUserId", (q) => q.eq("clerkUserId", clerkId))
+          .first()
+      );
+      return {
+        status: ResponseStatus.SUCCESS,
+        data: { user },
       };
     } catch (error) {
       return handleInternalError(error);

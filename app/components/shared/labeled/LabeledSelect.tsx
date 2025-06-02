@@ -11,14 +11,14 @@ import {
 } from "@/components/ui/select";
 import FieldErrorMessage from "./FieldErrorMessage";
 
-interface SelectOption {
+export interface SelectOption {
   label: string;
   value: string;
 }
 
 interface LabeledSelectProps {
   label: string;
-  value: string;
+  value: string | null;
   onChange: (value: string) => void;
   options: SelectOption[];
   placeholder?: string;
@@ -40,7 +40,11 @@ const LabeledSelect: React.FC<LabeledSelectProps> = ({
   return (
     <div>
       <Label className="block text-sm font-medium">{label}</Label>
-      <Select value={value} onValueChange={onChange} disabled={loading}>
+      <Select
+        value={value ?? undefined}
+        onValueChange={onChange}
+        disabled={loading}
+      >
         <SelectTrigger>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>

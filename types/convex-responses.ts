@@ -14,6 +14,7 @@ import {
   InvitationSchema,
   ItemSchema,
   LaborSchema,
+  MoveSchema,
   PolicySchema,
   ReferralSchema,
   RoomSchema,
@@ -799,4 +800,37 @@ export interface GetMoveOptionsData {
   rooms: RoomSchema[];
   categories: CategorySchema[];
   items: ItemSchema[];
+  policy: PolicySchema;
+}
+
+export type CreateMoveResponse = CreateMoveSuccess | ErrorResponse;
+
+export interface CreateMoveSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: CreateMoveData;
+}
+
+export interface CreateMoveData {
+  moveId: Id<"move">;
+}
+
+export type GetUserByClerkIdResponse = GetUserByClerkIdSuccess | ErrorResponse;
+
+export interface GetUserByClerkIdSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetUserByClerkIdData;
+}
+
+export interface GetUserByClerkIdData {
+  user: UserSchema;
+}
+export type GetMoveResponse = GetMoveSuccess | ErrorResponse;
+
+export interface GetMoveSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetMoveData;
+}
+
+export interface GetMoveData {
+  move: MoveSchema;
 }

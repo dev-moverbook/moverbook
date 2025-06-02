@@ -10,6 +10,7 @@ import {
   InvitationSchema,
   ItemSchema,
   LaborSchema,
+  MoveSchema,
   PolicySchema,
   ReferralSchema,
   RoomSchema,
@@ -320,4 +321,11 @@ export function validateItem(item: ItemSchema | null): ItemSchema {
     throw new Error(ErrorMessages.ITEM_INACTIVE);
   }
   return item;
+}
+
+export function validateMove(move: MoveSchema | null): MoveSchema {
+  if (!move) {
+    throw new Error(ErrorMessages.MOVE_NOT_FOUND);
+  }
+  return move;
 }

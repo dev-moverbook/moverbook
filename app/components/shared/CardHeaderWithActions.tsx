@@ -3,7 +3,7 @@ import IconRow from "./IconRow"; // adjust path as needed
 
 interface CardHeaderWithActionsProps {
   title: React.ReactNode; // <-- changed from string
-  actions: React.ReactNode;
+  actions?: React.ReactNode;
   className?: string;
 }
 

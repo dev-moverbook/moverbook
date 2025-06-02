@@ -8,12 +8,12 @@ import { Id } from "@/convex/_generated/dataModel";
 import { ItemSchema } from "@/types/convex-schemas";
 import { ItemFormData } from "@/types/form-types";
 import { FrontEndErrorMessages } from "@/types/errors";
-import { CategorySize } from "@/types/convex-enums";
 import FieldGroup from "@/app/components/shared/FieldGroup";
 import LabeledInput from "@/app/components/shared/labeled/LabeledInput";
 import FormActions from "@/app/components/shared/FormActions";
 import CheckboxField from "@/app/components/shared/CheckboxField";
 import SizeSelector from "@/app/components/shared/labeled/SizeSelector";
+import { calculateWeightFromSize } from "@/utils/helper";
 
 interface ItemModalProps {
   isOpen: boolean;
@@ -43,12 +43,11 @@ const ItemModal: React.FC<ItemModalProps> = ({
   initialData,
 }) => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
-  const [isCustomSize, setIsCustomSize] = useState<boolean>(false);
   const [formData, setFormData] = useState<ItemFormData>({
     name: "",
-    size: CategorySize.SMALL,
+    size: null,
     isPopular: false,
-    weight: 0,
+    weight: null,
   });
 
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -64,9 +63,9 @@ const ItemModal: React.FC<ItemModalProps> = ({
     } else {
       setFormData({
         name: "",
-        size: CategorySize.SMALL,
+        size: null,
         isPopular: false,
-        weight: 0,
+        weight: null,
       });
     }
     setValidationError(null);
@@ -74,10 +73,7 @@ const ItemModal: React.FC<ItemModalProps> = ({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData({ ...formData, [name]: value });
     setValidationError(null);
   };
 
@@ -88,10 +84,18 @@ const ItemModal: React.FC<ItemModalProps> = ({
     }));
   };
 
-  const handleSizeSelect = (size: CategorySize) => {
+  const handleSizeSelect = (size: number) => {
     setFormData((prev) => ({
       ...prev,
       size,
+      weight: calculateWeightFromSize(size),
+    }));
+  };
+
+  const handleWeightChange = (weight: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      weight,
     }));
   };
 
@@ -125,20 +129,28 @@ const ItemModal: React.FC<ItemModalProps> = ({
       />
 
       {/* Size Selection */}
-      <SizeSelector value={formData.size} onChange={handleSizeSelect} />
-
-      <LabeledInput
-        label="size"
-        placeholder="Enter Custom Size ft³"
-        value={formData.size.toString()}
-        onChange={handleInputChange}
+      <SizeSelector
+        value={formData.size || 0}
+        onChange={handleSizeSelect}
+        label="Click a preset size or enter a custom size"
       />
 
       <LabeledInput
-        label="Item Weight"
-        value={formData.weight.toString()}
-        onChange={handleInputChange}
-        placeholder="Enter item weight"
+        label="Item Size (ft³)"
+        placeholder="Enter Custom Size (ft³)"
+        value={formData.size?.toString() || ""}
+        onChange={(e) => handleSizeSelect(Number(e.target.value))}
+        type="number"
+        min={1}
+      />
+
+      <LabeledInput
+        label="Item Weight (lbs)"
+        value={formData.weight?.toString() || ""}
+        onChange={(e) => handleWeightChange(Number(e.target.value))}
+        placeholder="Enter item weight (lbs)"
+        type="number"
+        min={1}
       />
 
       {/* Popular Checkbox */}
@@ -148,9 +160,11 @@ const ItemModal: React.FC<ItemModalProps> = ({
         checked={formData.isPopular}
         onChange={handleCheckboxChange}
       />
-
       <FormActions
-        onSave={handleSubmit}
+        onSave={(e) => {
+          e.preventDefault();
+          handleSubmit();
+        }}
         onCancel={onClose}
         isSaving={loading}
         error={error || validationError}

@@ -36,7 +36,7 @@ import type * as insurancePolicies from "../insurancePolicies.js";
 import type * as invitations from "../invitations.js";
 import type * as items from "../items.js";
 import type * as labor from "../labor.js";
-import type * as moveOptions from "../moveOptions.js";
+import type * as move from "../move.js";
 import type * as policies from "../policies.js";
 import type * as referrals from "../referrals.js";
 import type * as rooms from "../rooms.js";
@@ -81,7 +81,7 @@ declare const fullApi: ApiFromModules<{
   invitations: typeof invitations;
   items: typeof items;
   labor: typeof labor;
-  moveOptions: typeof moveOptions;
+  move: typeof move;
   policies: typeof policies;
   referrals: typeof referrals;
   rooms: typeof rooms;

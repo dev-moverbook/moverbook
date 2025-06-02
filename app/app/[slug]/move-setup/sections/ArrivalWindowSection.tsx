@@ -94,7 +94,10 @@ const ArrivalWindowSection: React.FC<ArrivalWindowSectionProps> = ({
 
           {isEditing && (
             <FormActions
-              onSave={handleSave}
+              onSave={(e) => {
+                e.preventDefault();
+                handleSave();
+              }}
               onCancel={handleCancel}
               isSaving={updateArrivalWindowLoading}
               error={updateArrivalWindowError}

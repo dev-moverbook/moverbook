@@ -5,13 +5,17 @@ import SelectableCardContainer from "@/app/components/shared/containers/Selectab
 import SearchInput from "@/app/components/shared/ui/SearchInput";
 
 interface SearchInventoryProps {
-  items: ItemSchema[];
+  items?: ItemSchema[];
+  handleAddMoveItem: (item: ItemSchema) => void;
 }
 
-const SearchInventory: React.FC<SearchInventoryProps> = ({ items }) => {
+const SearchInventory: React.FC<SearchInventoryProps> = ({
+  items,
+  handleAddMoveItem,
+}) => {
   const [searchQuery, setSearchQuery] = useState<string>("");
 
-  const filteredItems = items.filter((item) =>
+  const filteredItems = items?.filter((item) =>
     item.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -24,12 +28,13 @@ const SearchInventory: React.FC<SearchInventoryProps> = ({ items }) => {
         className=""
       />
       <SingleCardContainer>
-        <SelectableCardContainer centerText="SEARCH" showPlusIcon={true} />
-        {filteredItems.map((item) => (
+        <SelectableCardContainer centerText="Item" showPlusIcon={true} />
+        {filteredItems?.map((item) => (
           <SelectableCardContainer
             key={item._id}
             centerText={item.name}
             bottomCenterText={`${item.size}ft³`}
+            onClick={() => handleAddMoveItem(item)}
           />
         ))}
       </SingleCardContainer>

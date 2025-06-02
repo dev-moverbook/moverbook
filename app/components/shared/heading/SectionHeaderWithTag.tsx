@@ -15,7 +15,7 @@ const SectionHeaderWithTag: React.FC<SectionHeaderWithTagProps> = ({
   action,
 }) => {
   return (
-    <div className="px-4 md:px-2 my-4">
+    <div className="px-4 md:px-2 pt-4">
       <div className="flex items-center justify-between max-w-2xl mx-auto">
         <RemovableTag
           label={tag.label}

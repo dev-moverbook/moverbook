@@ -36,7 +36,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
 
   const content = (
     <div className="space-y-4 ">
-      <p>{description}</p>
+      <p className="text-white">{description}</p>
 
       {deleteError && <p className="text-red-500 text-sm">{deleteError}</p>}
 

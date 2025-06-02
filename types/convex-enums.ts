@@ -78,4 +78,56 @@ export const CategorySizeConvex = v.union(
   v.literal(CategorySize.LARGE),
   v.literal(CategorySize.XL)
 );
+
+export const MoveStatusConvex = v.union(
+  v.literal("New Lead"),
+  v.literal("Quoted"),
+  v.literal("Booked"),
+  v.literal("Lost"),
+  v.literal("Cancelled"),
+  v.literal("Completed")
+);
+
+export const ServiceTypesConvex = v.union(
+  v.literal("moving"),
+  v.literal("packing"),
+  v.literal("labor")
+);
+
+export const MoveTimesConvex = v.union(
+  v.literal("morning"),
+  v.literal("afternoon"),
+  v.literal("custom")
+);
+
+export const JobTypeConvex = v.union(v.literal("hourly"), v.literal("flat"));
+
+export const LocationTypeConvex = v.union(
+  v.literal("starting"),
+  v.literal("ending"),
+  v.literal("stop")
+);
+
+export const AccessTypeConvex = v.union(
+  v.literal("ground"),
+  v.literal("one_flight"),
+  v.literal("two_flights"),
+  v.literal("three_or_more_flights"),
+  v.literal("elevator")
+);
+
+export const MoveSizeConvex = v.union(
+  v.literal("studio"),
+  v.literal("1_bedroom"),
+  v.literal("2_bedroom"),
+  v.literal("3_bedroom"),
+  v.literal("4_bedroom"),
+  v.literal("5_bedroom")
+);
+
+export const MoveTypeConvex = v.union(
+  v.literal("apartment"),
+  v.literal("house")
+);
+
 export { CategorySize };

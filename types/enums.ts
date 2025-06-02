@@ -92,22 +92,22 @@ export const CategorySizeLabels: Record<
   [CategorySize.SMALL]: {
     label: "Small",
     example: "Nightstand",
-    size: "5ft³",
+    size: "5",
   },
   [CategorySize.MEDIUM]: {
     label: "Medium",
     example: "Recliner",
-    size: "25ft³",
+    size: "25",
   },
   [CategorySize.LARGE]: {
     label: "Large",
     example: "Couch",
-    size: "50ft³",
+    size: "50",
   },
   [CategorySize.XL]: {
     label: "XL",
     example: "Sectional",
-    size: "80ft³",
+    size: "80",
   },
 };
 

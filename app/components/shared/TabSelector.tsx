@@ -35,7 +35,10 @@ const TabSelector: React.FC<TabSelectorProps> = ({
           {tabs.map((tab) => (
             <button
               key={tab}
-              onClick={() => onTabChange(tab)}
+              onClick={(e) => {
+                e.preventDefault();
+                onTabChange(tab);
+              }}
               className={cn(
                 "flex-1 text-center py-1 font-medium transition-colors",
                 activeTab === tab

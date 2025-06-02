@@ -3,16 +3,13 @@
 import FormContainer from "@/app/components/shared/containers/FormContainer";
 import LabeledInput from "@/app/components/shared/labeled/LabeledInput";
 import { useMoveForm } from "@/app/contexts/MoveFormContext";
-import React, { useState } from "react";
-import Header3 from "@/app/components/shared/heading/Header3";
+import React, { useEffect, useState } from "react";
+import Header2 from "@/app/components/shared/heading/Header2";
 import SectionContainer from "@/app/components/shared/containers/SectionContainer";
 import LabeledRadio from "@/app/components/shared/labeled/LabeledRadio";
 import LabeledDateInput from "@/app/components/shared/labeled/LabeledDateInput";
 import LabeledSelect from "@/app/components/shared/labeled/LabeledSelect";
 import FormActions from "@/app/components/shared/FormActions";
-import { useReferralSources } from "@/app/hooks/queries/useReferralSources";
-import { Id } from "@/convex/_generated/dataModel";
-import { useCompanyArrivalResult } from "@/app/hooks/queries/useCompanyArrivalResult";
 import TimeSlotSelector from "@/app/components/shared/labeled/TimeSlotSelector";
 import LabeledTimeInput from "@/app/components/shared/labeled/LabeledTimeInput";
 import FormActionContainer from "@/app/components/shared/containers/FormActionContainer";
@@ -22,18 +19,14 @@ import {
   START_WINDOW_OPTIONS,
   StartWindowOption,
 } from "@/types/types";
+import { formatTime } from "@/app/frontendUtils/helper";
 
-interface PersonalDetailsProps {
+interface InfoStepProps {
   onNext: () => void;
   onCancel: () => void;
-  companyId: Id<"companies"> | null;
 }
 
-const PersonalDetails = ({
-  onNext,
-  onCancel,
-  companyId,
-}: PersonalDetailsProps) => {
+const InfoStep = ({ onNext, onCancel }: InfoStepProps) => {
   const {
     name,
     setName,
@@ -67,30 +60,57 @@ const PersonalDetails = ({
     setArrivalWindow,
     arrivalWindowError,
     setArrivalWindowError,
+    referralOptions,
+    isLoading,
+    isError,
+    errorMessage,
+    arrivalWindowOptions,
+    setMoveWindow,
   } = useMoveForm();
 
   const [startWindowOption, setStartWindowOption] =
     useState<StartWindowOption>("available");
-  const {
-    options: referralOptions,
-    isLoading: loadingReferrals,
-    isError: referralQueryFailed,
-    errorMessage: referralQueryErrorMessage,
-  } = useReferralSources(companyId);
 
-  const {
-    arrivalWindow: arrivalWindowResult,
-    isLoading: loadingArrivalWindow,
-    isError: arrivalWindowQueryFailed,
-    errorMessage: arrivalWindowQueryErrorMessage,
-  } = useCompanyArrivalResult(companyId);
+  useEffect(() => {
+    if (startWindowOption === "custom") {
+      setMoveWindow("custom");
+    }
+  }, [startWindowOption]);
+
+  const referralSelectOptions =
+    referralOptions?.map((r) => ({ label: r.name, value: r.name })) ?? [];
+
+  const validateInfoStep = (e: React.FormEvent): void => {
+    let isValid = true;
+    if (!name.trim()) {
+      setNameError("Full name is required");
+      isValid = false;
+    }
+
+    if (isValid) {
+      onNext();
+    } else {
+      e.preventDefault();
+    }
+  };
+
+  const isCompleted =
+    !!name.trim() &&
+    !!email.trim() &&
+    !!phoneNumber.trim() &&
+    !!alternatePhoneNumber.trim() &&
+    !!serviceType &&
+    !!moveDate &&
+    !!referralSource?.trim() &&
+    !!arrivalWindow?.arrivalWindowStarts &&
+    !!arrivalWindow?.arrivalWindowEnds;
 
   return (
-    <SectionContainer>
-      <Header3>Personal Details</Header3>
-      <FormContainer>
+    <FormContainer>
+      <Header2 isCompleted={isCompleted}>Information</Header2>
+      <div className="px-4 md:px-0 mt-4 md:mt-0">
         <LabeledInput
-          label="Full Name"
+          label="Full Name*"
           value={name}
           onChange={(e) => {
             setName(e.target.value);
@@ -143,18 +163,18 @@ const PersonalDetails = ({
           label="Referral Source"
           value={referralSource}
           onChange={(value) => {
-            setReferralSource(value);
+            setReferralSource(value === "none" ? null : value);
             setReferralSourceError(null);
           }}
-          options={referralOptions}
-          loading={loadingReferrals}
-          error={referralSourceError}
-          queryError={referralQueryFailed ? referralQueryErrorMessage : null}
+          options={[...referralSelectOptions, { label: "None", value: "none" }]}
+          loading={isLoading}
+          queryError={errorMessage}
+          placeholder="Select a referral source"
         />
 
         <LabeledDateInput
           label="Move Date"
-          value={moveDate}
+          value={moveDate || ""}
           onChange={(e) => {
             setMoveDate(e.target.value);
             setMoveDateError(null);
@@ -214,52 +234,71 @@ const PersonalDetails = ({
                   arrivalWindowStarts: parsed.arrivalWindowStarts,
                   arrivalWindowEnds: parsed.arrivalWindowEnds,
                 });
+
+                if (
+                  parsed.arrivalWindowStarts ===
+                    arrivalWindowOptions?.morningArrival &&
+                  parsed.arrivalWindowEnds === arrivalWindowOptions?.morningEnd
+                ) {
+                  setMoveWindow("morning");
+                } else if (
+                  parsed.arrivalWindowStarts ===
+                    arrivalWindowOptions?.afternoonArrival &&
+                  parsed.arrivalWindowEnds ===
+                    arrivalWindowOptions?.afternoonEnd
+                ) {
+                  setMoveWindow("afternoon");
+                } else {
+                  setMoveWindow("custom"); // fallback
+                }
               } catch {
                 setArrivalWindow({
                   arrivalWindowStarts: "",
                   arrivalWindowEnds: "",
                 });
+                setMoveWindow("custom");
               }
             }}
             options={
-              arrivalWindowResult
+              arrivalWindowOptions
                 ? [
                     {
-                      label: `${arrivalWindowResult.morningArrival} - ${arrivalWindowResult.morningEnd}`,
+                      label: `${formatTime(arrivalWindowOptions.morningArrival)} - ${formatTime(arrivalWindowOptions.morningEnd)}`,
                       value: JSON.stringify({
-                        arrivalWindowStarts: arrivalWindowResult.morningArrival,
-                        arrivalWindowEnds: arrivalWindowResult.morningEnd,
+                        arrivalWindowStarts:
+                          arrivalWindowOptions.morningArrival,
+                        arrivalWindowEnds: arrivalWindowOptions.morningEnd,
                       }),
                     },
                     {
-                      label: `${arrivalWindowResult.afternoonArrival} - ${arrivalWindowResult.afternoonEnd}`,
+                      label: `${formatTime(arrivalWindowOptions.afternoonArrival)} - ${formatTime(arrivalWindowOptions.afternoonEnd)}`,
                       value: JSON.stringify({
                         arrivalWindowStarts:
-                          arrivalWindowResult.afternoonArrival,
-                        arrivalWindowEnds: arrivalWindowResult.afternoonEnd,
+                          arrivalWindowOptions.afternoonArrival,
+                        arrivalWindowEnds: arrivalWindowOptions.afternoonEnd,
                       }),
                     },
                   ]
                 : null
             }
-            isLoading={loadingArrivalWindow}
-            isError={arrivalWindowQueryFailed}
-            errorMessage={arrivalWindowQueryErrorMessage}
+            isLoading={isLoading}
+            isError={isError}
+            errorMessage={errorMessage}
           />
         )}
-        <FormActionContainer>
-          {" "}
-          <FormActions
-            onSave={onNext}
-            onCancel={onCancel}
-            isSaving={false}
-            saveLabel="Next"
-            cancelLabel="Cancel"
-          />
-        </FormActionContainer>
-      </FormContainer>
-    </SectionContainer>
+      </div>
+      <FormActionContainer className="pt-10">
+        {" "}
+        <FormActions
+          onSave={validateInfoStep}
+          onCancel={onCancel}
+          isSaving={false}
+          saveLabel="Next"
+          cancelLabel="Cancel"
+        />
+      </FormActionContainer>
+    </FormContainer>
   );
 };
 
-export default PersonalDetails;
+export default InfoStep;

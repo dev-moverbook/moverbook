@@ -11,7 +11,13 @@ const FormContainer: React.FC<FormContainerProps> = ({
   ...props
 }) => {
   return (
-    <form className={cn("flex flex-col w-full", className)} {...props}>
+    <form
+      className={cn(
+        "flex flex-col w-full max-w-screen-sm mx-auto pb-10",
+        className
+      )}
+      {...props}
+    >
       {children}
     </form>
   );

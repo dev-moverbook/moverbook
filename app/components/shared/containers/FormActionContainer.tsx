@@ -11,7 +11,7 @@ const FormActionContainer: React.FC<FormActionContainerProps> = ({
   children,
   className = "",
 }) => {
-  return <div className={`pt-10 ${className}`}>{children}</div>;
+  return <div className={` px-4 pb-6 ${className}`}>{children}</div>;
 };
 
 export default FormActionContainer;

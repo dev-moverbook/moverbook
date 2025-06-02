@@ -42,8 +42,9 @@ const SelectableCardContainer: React.FC<SelectableCardContainerProps> = ({
       onEdit();
     }
   };
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.preventDefault();
 
-  const handleClick = () => {
     if (onClick) {
       onClick();
     } else if (showEditIcon && onEdit) {
@@ -79,12 +80,12 @@ const SelectableCardContainer: React.FC<SelectableCardContainerProps> = ({
             {showPlusIcon ? (
               <div className="flex flex-col items-center gap-1">
                 <PlusCircle className="w-6 h-6 text-center " />
-                <p className="text-sm text-center font-semibold  max-w-[90%] leading-tight">
+                <p className="text-sm text-center font-medium  max-w-[90%] leading-tight">
                   {centerText}
                 </p>
               </div>
             ) : (
-              <p className="text-sm text-center truncate max-w-[90%] leading-tight">
+              <p className="text-sm text-white font-medium text-center truncate max-w-[90%] leading-tight">
                 {centerText}
               </p>
             )}

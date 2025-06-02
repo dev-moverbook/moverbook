@@ -1,8 +1,9 @@
+import { FormEvent } from "react";
 import { Button } from "../ui/button";
 import FormErrorMessage from "./error/FormErrorMessage";
 
 interface FormActionsProps {
-  onSave: () => void;
+  onSave: (e: React.FormEvent) => void | (() => void);
   onCancel: () => void;
   isSaving?: boolean;
   saveLabel?: string;
@@ -15,6 +16,7 @@ interface FormActionsProps {
     | "outline"
     | "ghost"
     | "whiteGhost";
+  disabled?: boolean;
 }
 
 const FormActions: React.FC<FormActionsProps> = ({
@@ -26,6 +28,7 @@ const FormActions: React.FC<FormActionsProps> = ({
   error,
   saveVariant = "default",
   cancelVariant = "ghost",
+  disabled = false,
 }) => {
   return (
     <div>
@@ -39,7 +42,7 @@ const FormActions: React.FC<FormActionsProps> = ({
         </Button>
         <Button
           onClick={onSave}
-          disabled={isSaving}
+          disabled={isSaving || disabled}
           variant={saveVariant}
           className="w-full"
           isLoading={isSaving}

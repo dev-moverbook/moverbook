@@ -1,15 +1,12 @@
-"use client";
-
 import React from "react";
-import { Button } from "@/app/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { CategorySize } from "@/types/convex-enums";
 import SelectableCardContainer from "../containers/SelectableCardContainer";
 import { CategorySizeLabels } from "@/types/enums";
+import { cn } from "@/lib/utils";
 
 interface SizeSelectorProps {
-  value: CategorySize | number;
-  onChange: (size: CategorySize) => void;
+  value: number;
+  onChange: (size: number) => void;
   label?: string;
 }
 
@@ -18,22 +15,28 @@ const SizeSelector: React.FC<SizeSelectorProps> = ({
   onChange,
   label = "Size",
 }) => {
-  const handleCardClick = () => {
-    onChange(value as CategorySize);
-  };
-
   return (
     <div>
       <Label className="block text-sm font-medium">{label}</Label>
       <div className="flex flex-wrap gap-4 mt-1">
-        {Object.values(CategorySizeLabels).map((categorySize) => (
-          <SelectableCardContainer
-            onClick={handleCardClick}
-            key={categorySize.label}
-            centerText={categorySize.label}
-            bottomCenterText={categorySize.size}
-          ></SelectableCardContainer>
-        ))}
+        {Object.entries(CategorySizeLabels).map(([_, categorySize]) => {
+          const numericSize = parseInt(categorySize.size);
+          const isSelected = value === numericSize;
+
+          return (
+            <SelectableCardContainer
+              key={categorySize.label}
+              onClick={() => onChange(numericSize)}
+              centerText={categorySize.label}
+              bottomCenterText={`${categorySize.size}ft³`}
+              topLeftText={categorySize.example}
+              className={cn(
+                "cursor-pointer border",
+                isSelected ? "border-greenCustom " : ""
+              )}
+            />
+          );
+        })}
       </div>
     </div>
   );

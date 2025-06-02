@@ -4,6 +4,7 @@ import React from "react";
 import { Minus, Plus } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import clsx from "clsx";
+import FormErrorMessage from "../error/FormErrorMessage";
 
 interface CounterInputProps {
   label: string;
@@ -12,6 +13,7 @@ interface CounterInputProps {
   min?: number;
   max?: number;
   className?: string;
+  error?: string | null;
 }
 
 const CounterInput: React.FC<CounterInputProps> = ({
@@ -21,6 +23,7 @@ const CounterInput: React.FC<CounterInputProps> = ({
   min = 0,
   max = 99,
   className,
+  error,
 }) => {
   const decrement = () => {
     if (value > min) onChange(value - 1);
@@ -52,6 +55,7 @@ const CounterInput: React.FC<CounterInputProps> = ({
           <Plus className="w-4 h-4" />
         </button>
       </div>
+      <FormErrorMessage message={error} />
     </div>
   );
 };

@@ -1,5 +1,12 @@
 import { Id } from "@/convex/_generated/dataModel";
 import { CategorySize, TravelChargingTypes } from "./enums";
+import {
+  AccessType,
+  LocationType,
+  MoveSize,
+  MoveType,
+  ServiceType,
+} from "./types";
 
 export interface ComplianceFormData {
   statePucPermitNumber: string;
@@ -67,12 +74,12 @@ export interface InsurancePolicyFormData {
 
 export interface FeeFormData {
   name: string;
-  price: number | null;
+  price: number;
 }
 
 export interface FeeLineItemFormData {
   name: string;
-  price: number | null;
+  price: number;
   quantity: number;
 }
 
@@ -97,7 +104,59 @@ export interface CategoryFormData {
 
 export interface ItemFormData {
   name: string;
-  size: number | CategorySize;
+  size: number | null;
   isPopular: boolean;
+  weight: number | null;
+}
+
+export interface AddItemFormData {
+  name: string;
+  size: number | null;
+  weight: number | null;
+}
+
+export interface MoveFeeInput {
+  name: string;
+  price: number;
+  quantity: number;
+}
+
+export interface AddMoveLineItemInput {
+  name: string;
+  price: number | null;
+  quantity: number;
+}
+
+export interface MoveItemInput {
+  item: string;
+  room: string;
+  quantity: number;
   weight: number;
+  size: number;
+}
+
+export interface FormMoveItemInput {
+  item: string;
+  room: string;
+  quantity: number;
+  weight: number | null;
+  size: number | null;
+}
+
+export interface LocationInput {
+  locationType: LocationType;
+  address: string | null;
+  moveType: MoveType | null;
+  aptNumber: string | null;
+  aptName: string | null;
+  squareFootage: number | null;
+  accessType: AccessType | null;
+  moveSize: MoveSize | null;
+}
+
+export interface InsurancePolicyInput {
+  name: string;
+  coverageAmount: number;
+  coverageType: number;
+  premium: number;
 }

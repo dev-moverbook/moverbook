@@ -4,14 +4,21 @@ import { cn } from "@/lib/utils"; // if you're using tailwind `cn` helper
 interface CustomCardProps {
   children: React.ReactNode;
   className?: string;
+  onClick?: () => void;
 }
 
-const CustomCard: React.FC<CustomCardProps> = ({ children, className }) => {
+const CustomCard: React.FC<CustomCardProps> = ({
+  children,
+  className,
+  onClick,
+}) => {
   return (
     <div
+      onClick={onClick}
       className={cn(
         "p-4 border rounded shadow-xl shadow-white/10 w-full border-grayCustom",
-        className
+        className,
+        onClick && "cursor-pointer"
       )}
     >
       {children}

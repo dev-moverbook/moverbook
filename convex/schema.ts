@@ -1,8 +1,16 @@
 import {
+  AccessTypeConvex,
   CategorySizeConvex,
   CommunicationTypeConvex,
   InvitationStatusConvex,
+  JobTypeConvex,
+  LocationTypeConvex,
+  MoveSizeConvex,
+  MoveStatusConvex,
+  MoveTimesConvex,
+  MoveTypeConvex,
   PresSetScriptsConvex,
+  ServiceTypesConvex,
   StripeAccountStatusConvex,
   SubscriptionStatusConvex,
   TravelChargingTypesConvex,
@@ -10,6 +18,37 @@ import {
 } from "@/types/convex-enums";
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
+
+export const MoveFeeConvex = v.object({
+  name: v.string(),
+  price: v.number(),
+});
+
+export const MoveItemConvex = v.object({
+  item: v.string(),
+  room: v.string(),
+  quantity: v.number(),
+  weigth: v.number(),
+  size: v.number(),
+});
+
+export const LocationConvex = v.object({
+  locationType: LocationTypeConvex,
+  address: v.union(v.string(), v.null()),
+  moveType: v.union(MoveTypeConvex, v.null()),
+  aptNumber: v.union(v.string(), v.null()),
+  aptName: v.union(v.string(), v.null()),
+  squareFootage: v.union(v.number(), v.null()),
+  accessType: v.union(AccessTypeConvex, v.null()),
+  moveSize: v.union(MoveSizeConvex, v.null()),
+});
+
+export const InsurancePolicyConvex = v.object({
+  name: v.string(),
+  coverageType: v.number(),
+  coverageAmount: v.number(),
+  premium: v.number(),
+});
 
 export default defineSchema({
   companies: defineTable({
@@ -121,7 +160,7 @@ export default defineSchema({
     cancellationFee: v.number(),
     cancellationCutoffHour: v.number(),
     additionalTermsAndConditions: v.optional(v.string()),
-  }),
+  }).index("by_companyId", ["companyId"]),
   labor: defineTable({
     companyId: v.id("companies"),
     name: v.string(),
@@ -182,4 +221,35 @@ export default defineSchema({
     isStarter: v.boolean(),
     weight: v.number(),
   }).index("by_companyId", ["companyId"]),
+  move: defineTable({
+    altPhoneNumber: v.union(v.null(), v.string()),
+    arrivalTimes: v.union(v.null(), v.string()),
+    companyId: v.id("companies"),
+    deposit: v.union(v.null(), v.number()),
+    destinationToOrigin: v.union(v.null(), v.number()),
+    email: v.union(v.null(), v.string()),
+    endingMoveTime: v.union(v.null(), v.number()),
+    hourlyRate: v.union(v.null(), v.number()),
+    jobType: JobTypeConvex,
+    liabilityCoverage: v.union(v.null(), InsurancePolicyConvex),
+    locations: v.array(LocationConvex),
+    moveDate: v.union(v.null(), v.string()),
+    moveFees: v.union(v.null(), v.array(MoveFeeConvex)),
+    moveItems: v.union(v.null(), v.array(MoveItemConvex)),
+    moveRep: v.id("users"),
+    moveWindow: MoveTimesConvex,
+    movers: v.number(),
+    name: v.string(),
+    notes: v.union(v.null(), v.string()),
+    officeToOrigin: v.union(v.null(), v.number()),
+    phoneNumber: v.union(v.null(), v.string()),
+    referral: v.union(v.null(), v.string()),
+    roundTripDrive: v.union(v.null(), v.number()),
+    roundTripMiles: v.union(v.null(), v.number()),
+    serviceType: v.union(v.null(), ServiceTypesConvex),
+    startingMoveTime: v.union(v.null(), v.number()),
+    status: MoveStatusConvex,
+    totalMiles: v.union(v.null(), v.number()),
+    trucks: v.number(),
+  }),
 });

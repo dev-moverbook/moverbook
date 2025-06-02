@@ -9,6 +9,16 @@ import {
   SubscriptionStatus,
   TravelChargingTypes,
 } from "./enums";
+import {
+  AccessType,
+  JobType,
+  LocationType,
+  MoveSize,
+  MoveStatus,
+  MoveTimes,
+  MoveType,
+  ServiceType,
+} from "./types";
 
 export interface CompanySchema {
   _id: Id<"companies">;
@@ -217,9 +227,9 @@ export interface ItemSchema {
   isActive: boolean;
   isStarter: boolean;
   name: string;
-  size: CategorySize | number;
+  size: number | null;
   isPopular?: boolean;
-  weight: number;
+  weight: number | null;
 }
 
 export interface ConnectedAccountSchema {
@@ -231,4 +241,69 @@ export interface ConnectedAccountSchema {
   lastStripeUpdate?: number;
   stripeAccountId: string;
   _creationTime: number;
+}
+
+export interface MoveSchema {
+  _id: Id<"move">;
+  _creationTime: number;
+  altPhoneNumber: string | null;
+  arrivalTimes: string | null;
+  companyId: Id<"companies">;
+  deposit: number | null;
+  destinationToOrigin: number | null;
+  email: string | null;
+  endingMoveTime: number | null;
+  hourlyRate: number | null;
+  jobType: JobType;
+  liabilityCoverage: MoveInsurancePolicy | null;
+  locations: MoveLocation[];
+  moveDate: string | null;
+  moveFees: MoveFee[] | null;
+  moveItems: MoveItem[] | null;
+  moveRep: Id<"users">;
+  moveWindow: MoveTimes;
+  movers: number;
+  name: string;
+  notes: string | null;
+  officeToOrigin: number | null;
+  phoneNumber: string | null;
+  referral: string | null;
+  roundTripDrive: number | null;
+  roundTripMiles: number | null;
+  serviceType: ServiceType | null;
+  startingMoveTime: number | null;
+  status: MoveStatus;
+  totalMiles: number | null;
+  trucks: number;
+}
+
+export interface MoveItem {
+  quantity: number;
+  item: string;
+  room: string;
+  weigth: number;
+  size: number;
+}
+
+export interface MoveFee {
+  name: string;
+  price: number;
+}
+
+export interface MoveLocation {
+  locationType: LocationType;
+  address: string | null;
+  moveType: MoveType | null;
+  aptNumber: string | null;
+  aptName: string | null;
+  squareFootage: number | null;
+  accessType: AccessType | null;
+  moveSize: MoveSize | null;
+}
+
+export interface MoveInsurancePolicy {
+  name: string;
+  coverageType: number;
+  coverageAmount: number;
+  premium: number;
 }

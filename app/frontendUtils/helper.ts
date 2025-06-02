@@ -1,4 +1,5 @@
 import { CreatableUserRole } from "@/types/enums";
+import { DateTime } from "luxon";
 
 export const isValidEmail = (email: string) => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -21,3 +22,6 @@ export const formatMonthDay = (value: number | null | undefined) => {
   const day = value % 100;
   return `${month}-${day}`;
 };
+
+export const formatTime = (time: string) =>
+  DateTime.fromFormat(time, "HH:mm").toFormat("h:mm a");

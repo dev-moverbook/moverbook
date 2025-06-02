@@ -6,20 +6,20 @@ import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md md:text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md md:text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         default:
-          "bg-greenCustom text-white rounded-[20px] shadow shadow-greenCustom/10 hover:bg-greenCustom/90 font-medium",
+          "bg-greenCustom text-white rounded-[20px] shadow shadow-greenCustom/10 hover:bg-greenCustom/90 font-semibold",
         destructive:
           "bg-destructive border border-destructive rounded-[20px] text-white shadow shadow-destructive/10 hover:bg-destructive/80",
         outline:
           "rounded-[20px] border border-greenCustom bg-transparent text-greenCustom shadow-sm hover:bg-gray-800",
         secondary:
           "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
-        ghost: "text-greenCustom font-bold hover:underline font-medium",
-        whiteGhost: "text-white font-bold hover:underline font-medium",
+        ghost: "text-greenCustom font-bold hover:underline font-semibold",
+        whiteGhost: "text-white font-bold hover:underline font-semibold",
         link: "text-primary underline-offset-4 hover:underline",
         plain: "",
         sidebar:
@@ -27,7 +27,7 @@ const buttonVariants = cva(
       },
       size: {
         default: "h-9 px-4 py-2",
-        sm: "h-8 rounded-md px-3 text-xs",
+        sm: "h-8 rounded-[20px] px-3 text-sm",
         lg: "h-10 rounded-md px-8",
         icon: "h-6 w-6",
         auto: "p-0 h-auto w-auto",

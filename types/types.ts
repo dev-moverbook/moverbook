@@ -87,3 +87,5 @@ export const MOVE_STATUS_OPTIONS: { label: string; value: MoveStatus }[] = [
 ];
 
 export type MoveTimes = "morning" | "afternoon" | "custom";
+
+export type LocationType = "starting" | "ending" | "stop";

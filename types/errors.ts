@@ -97,6 +97,7 @@ export enum ErrorMessages {
   CLERK_USER_NOT_FOUND = "Clerk user not found",
   CLERK_USER_METADATA_UPDATE_ERROR = "Error updating public metadata for user",
   CLERK_WEBHOOK_USER_CREATED = "Error handling user.created",
+  MOVE_NOT_FOUND = "Move not found",
 }
 
 export enum FrontEndErrorMessages {
@@ -123,4 +124,10 @@ export enum FrontEndErrorMessages {
   START_DATE_AFTER_END_DATE = "Start date must be before end date",
   START_DATE_REQUIRED = "Start date is required",
   END_DATE_REQUIRED = "End date is required",
+  ROOM_REQUIRED = "Room is required",
+  QUANTITY_REQUIRED = "Quantity must be greater than 0.",
+  SIZE_REQUIRED = "Size must be greater than 0.",
+  WEIGHT_REQUIRED = "Weight must be greater than 0.",
+  FEE_NAME_REQUIRED = "Fee name is required",
+  PRICE_REQUIRED = "Valid price is required",
 }

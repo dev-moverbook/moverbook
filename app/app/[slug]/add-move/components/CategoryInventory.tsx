@@ -5,20 +5,22 @@ import { CategorySchema } from "@/types/convex-schemas";
 import React, { useState } from "react";
 
 interface CategoryInventoryProps {
-  categories: CategorySchema[];
-  items: ItemSchema[];
+  categories?: CategorySchema[];
+  items?: ItemSchema[];
+  handleAddMoveItem: (item: ItemSchema) => void;
 }
 
 const CategoryInventory: React.FC<CategoryInventoryProps> = ({
   categories,
   items,
+  handleAddMoveItem,
 }) => {
   const [selectedCategory, setSelectedCategory] =
     useState<CategorySchema | null>(null);
   return (
     <SingleCardContainer>
       <SelectableCardContainer centerText="CATEGORY" showPlusIcon={true} />
-      {categories.map((category) => (
+      {categories?.map((category) => (
         <SelectableCardContainer
           key={category._id}
           id={category._id}

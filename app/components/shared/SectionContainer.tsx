@@ -11,7 +11,7 @@ const SectionContainer = ({
     <div
       className={cn(
         "shadow-sm space-y-4 ",
-        isLast ? "pb-20" : "border-b border-grayCustom pb-8"
+        isLast ? "pb-20" : "border-b md:border-b-0 border-grayCustom pb-8"
       )}
     >
       {children}

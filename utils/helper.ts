@@ -49,3 +49,9 @@ export const generateUniqueSlug = async (
 
   return slug;
 };
+
+// utils/itemHelpers.ts or similar path
+export const calculateWeightFromSize = (size: number | null): number | null => {
+  if (size === null || isNaN(size)) return null;
+  return size * 7;
+};

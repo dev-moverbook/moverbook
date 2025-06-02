@@ -1,11 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import FieldErrorMessage from "./FieldErrorMessage";
 
 interface LabeledDateInputProps {
   label: string;
-  value: string; // should be in YYYY-MM-DD format
+  value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   error?: string | null;
   min?: string;
@@ -20,17 +20,31 @@ const LabeledDateInput: React.FC<LabeledDateInputProps> = ({
   min,
   max,
 }) => {
+  const [focused, setFocused] = useState(false);
+
+  const showGhostText = !value && !focused;
+
   return (
-    <div>
+    <div className="relative">
       <Label className="block text-sm font-medium">{label}</Label>
+
+      {showGhostText && (
+        <span className="absolute left-3 top-[30px] text-white pointer-events-none text-sm md:hidden">
+          Select Date
+        </span>
+      )}
+
       <Input
         type="date"
         value={value}
         onChange={onChange}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
         min={min}
         max={max}
-        className="cursor-pointer text-white bg-transparent pr-2 [&::-webkit-calendar-picker-indicator]:invert"
+        className="min-h-[34px] text-white bg-transparent pr-2 cursor-pointer [&::-webkit-calendar-picker-indicator]:invert"
       />
+
       <FieldErrorMessage error={error} />
     </div>
   );

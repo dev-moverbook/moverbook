@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useMediaQuery } from "react-responsive";
-import { MOVILE_BREAKPOINT } from "@/types/const";
+import { MOBILE_BREAKPOINT } from "@/types/const";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import FieldGroup from "@/app/components/shared/FieldGroup";
@@ -19,7 +19,7 @@ const ChangeLiabilityCoverageModal = ({
   onClose,
   coverage,
 }: ChangeLiabilityCoverageModalProps) => {
-  const isMobile = useMediaQuery({ maxWidth: MOVILE_BREAKPOINT });
+  const isMobile = useMediaQuery({ maxWidth: MOBILE_BREAKPOINT });
 
   const handleSubmit = () => {
     console.log();
