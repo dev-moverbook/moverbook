@@ -6,6 +6,7 @@ import { ClerkRoles, ResponseStatus } from "@/types/enums";
 import {
   validateArrivalWindow,
   validateCompany,
+  validateCompanyContact,
   validateCreditCardFee,
   validateMove,
   validatePolicy,
@@ -24,6 +25,7 @@ import {
   ServiceTypesConvex,
 } from "@/types/convex-enums";
 import {
+  ArrivalTimesConvex,
   InsurancePolicyConvex,
   LocationConvex,
   MoveFeeConvex,
@@ -59,6 +61,7 @@ export const getMoveOptions = query({
         categories,
         items,
         rawPolicy,
+        rawCompanyContact,
       ] = await Promise.all([
         ctx.db
           .query("arrivalWindow")
@@ -121,9 +124,13 @@ export const getMoveOptions = query({
           .query("policies")
           .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
           .first(),
+        ctx.db
+          .query("companyContact")
+          .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
+          .first(),
       ]);
 
-      const moveReps = rawUsers
+      const salesReps = rawUsers
         .filter((user) =>
           [ClerkRoles.ADMIN, ClerkRoles.MANAGER, ClerkRoles.SALES_REP].includes(
             user.role as ClerkRoles
@@ -138,6 +145,7 @@ export const getMoveOptions = query({
       const travelFee = validateTravelFee(rawTravelFee);
       const creditCardFee = validateCreditCardFee(rawCreditCardFees);
       const policy = validatePolicy(rawPolicy);
+      const companyContact = validateCompanyContact(rawCompanyContact);
       return {
         status: ResponseStatus.SUCCESS,
         data: {
@@ -146,7 +154,7 @@ export const getMoveOptions = query({
           fees,
           insurancePolicies,
           travelFee,
-          moveReps,
+          salesReps,
           referrals,
           laborRates,
           creditCardFee,
@@ -154,6 +162,7 @@ export const getMoveOptions = query({
           categories,
           items,
           policy,
+          companyContact,
         },
       };
     } catch (error) {
@@ -165,20 +174,20 @@ export const getMoveOptions = query({
 export const createMove = mutation({
   args: {
     altPhoneNumber: v.union(v.null(), v.string()),
-    arrivalTimes: v.union(v.null(), v.string()),
+    arrivalTimes: ArrivalTimesConvex,
     companyId: v.id("companies"),
     deposit: v.union(v.null(), v.number()),
     destinationToOrigin: v.union(v.null(), v.number()),
     email: v.union(v.null(), v.string()),
     endingMoveTime: v.union(v.null(), v.number()),
-    hourlyRate: v.union(v.null(), v.number()),
     jobType: JobTypeConvex,
+    jobTypeRate: v.union(v.null(), v.number()),
     liabilityCoverage: v.union(v.null(), InsurancePolicyConvex),
     locations: v.array(LocationConvex),
     moveDate: v.union(v.null(), v.string()),
-    moveFees: v.union(v.null(), v.array(MoveFeeConvex)),
-    moveItems: v.union(v.null(), v.array(MoveItemConvex)),
-    moveRep: v.id("users"),
+    moveFees: v.array(MoveFeeConvex),
+    moveItems: v.array(MoveItemConvex),
+    salesRep: v.id("users"),
     moveWindow: MoveTimesConvex,
     movers: v.number(),
     name: v.string(),

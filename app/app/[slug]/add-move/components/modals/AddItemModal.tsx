@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useMediaQuery } from "react-responsive";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
@@ -17,21 +17,34 @@ import { validateMoveItemForm } from "@/app/frontendUtils/validation";
 interface AddItemModalProps {
   isOpen: boolean;
   onClose: () => void;
+  selectedRoom: string | null;
 }
 
-const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose }) => {
+const AddItemModal: React.FC<AddItemModalProps> = ({
+  isOpen,
+  onClose,
+  selectedRoom,
+}) => {
   const { addMoveItem } = useMoveForm();
   const isMobile = useMediaQuery({ maxWidth: MOBILE_BREAKPOINT });
   const [formData, setFormData] = useState<FormMoveItemInput>({
     item: "",
-    room: "Unassigned",
+    room: selectedRoom || "Unassigned",
     quantity: 1,
     weight: null,
     size: null,
   });
+
   const [errors, setErrors] = useState<
     Partial<Record<keyof FormMoveItemInput, string>>
   >({});
+
+  useEffect(() => {
+    setFormData((prev) => ({
+      ...prev,
+      room: selectedRoom || "Unassigned",
+    }));
+  }, [selectedRoom]);
 
   const isDisabled =
     !formData.item.trim() ||

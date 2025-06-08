@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import PageHeader from "@/app/components/shared/heading/NavigationHeader";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import ConfirmModal from "@/app/components/shared/ConfirmModal";
 import Stepper from "@/app/components/shared/Stepper";
 import PageContainer from "@/app/components/shared/containers/PageContainer";
@@ -29,7 +29,7 @@ const AddMovePageContent = () => {
   const { createMove, createMoveLoading, createMoveError, setCreateMoveError } =
     useCreateMove();
   const moveForm = useMoveForm();
-
+  const { slug } = useParams();
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       e.preventDefault();
@@ -66,15 +66,15 @@ const AddMovePageContent = () => {
         return;
       }
 
-      if (!moveForm.moveRep) {
-        setCreateMoveError("Move Rep is required");
+      if (!moveForm.salesRep) {
+        setCreateMoveError("Sales Rep is required");
         return;
       }
 
       const { success, moveId } = await createMove({
         companyId: moveForm.companyId,
         status: moveForm.moveStatus,
-        moveRep: moveForm.moveRep,
+        salesRep: moveForm.salesRep,
         liabilityCoverage: moveForm.insurancePolicy,
         name: moveForm.name,
         email: moveForm.email,
@@ -85,27 +85,29 @@ const AddMovePageContent = () => {
         referral: moveForm.referralSource,
         moveDate: moveForm.moveDate,
         moveWindow: moveForm.moveWindow,
-        arrivalTimes: "", // if applicable
+        arrivalTimes: {
+          arrivalWindowStarts: moveForm.startingHour.toString(),
+          arrivalWindowEnds: moveForm.endingHour.toString(),
+        },
         trucks: moveForm.truckCount,
         movers: moveForm.moversCount,
         startingMoveTime: moveForm.startingHour,
         endingMoveTime: moveForm.endingHour,
         jobType: moveForm.jobType,
-        hourlyRate: moveForm.hourlyRate,
+        jobTypeRate: moveForm.jobTypeRate,
         deposit: moveForm.deposit,
-        CreditCardFee: 0, // if applicable
         moveFees: moveForm.moveFees,
-        moveItems: [], // if needed
+        moveItems: moveForm.moveItems,
         locations: moveForm.locations,
-        totalMiles: 0, // if needed
-        officeToOrigin: 0, // if needed
-        destinationToOrigin: 0, // if needed
-        roundTripMiles: 0, // if needed
-        roundTripDrive: 0, // if needed
+        totalMiles: moveForm.totalMiles,
+        officeToOrigin: moveForm.officeToOrigin,
+        destinationToOrigin: moveForm.destinationToOrigin,
+        roundTripMiles: moveForm.roundTripMiles,
+        roundTripDrive: moveForm.roundTripDrive,
       });
 
       if (success) {
-        router.push(`/app/${moveForm.companyId}/move/${moveId}/quote`);
+        router.push(`/app/${slug}/moves/${moveId}/quote`);
       }
     }
   };

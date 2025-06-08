@@ -5,7 +5,6 @@ import LabeledInput from "@/app/components/shared/labeled/LabeledInput";
 import { useMoveForm } from "@/app/contexts/MoveFormContext";
 import React, { useEffect, useState } from "react";
 import Header2 from "@/app/components/shared/heading/Header2";
-import SectionContainer from "@/app/components/shared/containers/SectionContainer";
 import LabeledRadio from "@/app/components/shared/labeled/LabeledRadio";
 import LabeledDateInput from "@/app/components/shared/labeled/LabeledDateInput";
 import LabeledSelect from "@/app/components/shared/labeled/LabeledSelect";
@@ -66,6 +65,7 @@ const InfoStep = ({ onNext, onCancel }: InfoStepProps) => {
     errorMessage,
     arrivalWindowOptions,
     setMoveWindow,
+    isInfoSectionComplete,
   } = useMoveForm();
 
   const [startWindowOption, setStartWindowOption] =
@@ -94,20 +94,9 @@ const InfoStep = ({ onNext, onCancel }: InfoStepProps) => {
     }
   };
 
-  const isCompleted =
-    !!name.trim() &&
-    !!email.trim() &&
-    !!phoneNumber.trim() &&
-    !!alternatePhoneNumber.trim() &&
-    !!serviceType &&
-    !!moveDate &&
-    !!referralSource?.trim() &&
-    !!arrivalWindow?.arrivalWindowStarts &&
-    !!arrivalWindow?.arrivalWindowEnds;
-
   return (
     <FormContainer>
-      <Header2 isCompleted={isCompleted}>Information</Header2>
+      <Header2 isCompleted={isInfoSectionComplete}>Information</Header2>
       <div className="px-4 md:px-0 mt-4 md:mt-0">
         <LabeledInput
           label="Full Name*"
@@ -152,9 +141,10 @@ const InfoStep = ({ onNext, onCancel }: InfoStepProps) => {
         <LabeledRadio
           label="Type of Service"
           name="serviceType"
-          value={serviceType}
+          value={serviceType || ""}
           onChange={(value) => {
             setServiceType(value as ServiceType);
+            setServiceTypeError(null);
           }}
           options={SERVICE_TYPE_OPTIONS}
           error={serviceTypeError}
@@ -170,6 +160,7 @@ const InfoStep = ({ onNext, onCancel }: InfoStepProps) => {
           loading={isLoading}
           queryError={errorMessage}
           placeholder="Select a referral source"
+          error={referralSourceError}
         />
 
         <LabeledDateInput

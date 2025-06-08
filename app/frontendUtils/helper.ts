@@ -25,3 +25,11 @@ export const formatMonthDay = (value: number | null | undefined) => {
 
 export const formatTime = (time: string) =>
   DateTime.fromFormat(time, "HH:mm").toFormat("h:mm a");
+
+export const formatDecimalNumber = (
+  value: number | null | undefined,
+  unit: string
+) => {
+  if (value == null || isNaN(value)) return "—";
+  return `${value.toFixed(2)} ${unit}`;
+};

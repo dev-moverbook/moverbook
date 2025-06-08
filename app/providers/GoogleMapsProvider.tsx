@@ -21,3 +21,5 @@ export const GoogleMapsProvider: React.FC<GoogleMapsProviderProps> = ({
     </LoadScript>
   );
 };
+
+// To be deleted

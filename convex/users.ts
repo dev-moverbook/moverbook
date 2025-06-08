@@ -20,7 +20,6 @@ import {
 import { internal } from "./_generated/api";
 import {
   GetAllUsersByCompanyIdResponse,
-  GetMoveRepsByCompanyIdResponse,
   GetUserByClerkIdResponse,
   GetUserByIdResponse,
 } from "@/types/convex-responses";
@@ -318,11 +317,11 @@ export const updateUserByEmailInternal = internalMutation({
   },
 });
 
-export const getMoveRepsByCompanyId = query({
+export const getSalesRepsByCompanyId = query({
   args: {
     companyId: v.id("companies"),
   },
-  handler: async (ctx, args): Promise<GetMoveRepsByCompanyIdResponse> => {
+  handler: async (ctx, args): Promise<GetSalesRepsByCompanyIdResponse> => {
     const { companyId } = args;
     try {
       const identity = await requireAuthenticatedUser(ctx, [

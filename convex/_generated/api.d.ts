@@ -31,6 +31,7 @@ import type * as connectedAccount from "../connectedAccount.js";
 import type * as creditCardFee from "../creditCardFee.js";
 import type * as customers from "../customers.js";
 import type * as fees from "../fees.js";
+import type * as google from "../google.js";
 import type * as http from "../http.js";
 import type * as insurancePolicies from "../insurancePolicies.js";
 import type * as invitations from "../invitations.js";
@@ -76,6 +77,7 @@ declare const fullApi: ApiFromModules<{
   creditCardFee: typeof creditCardFee;
   customers: typeof customers;
   fees: typeof fees;
+  google: typeof google;
   http: typeof http;
   insurancePolicies: typeof insurancePolicies;
   invitations: typeof invitations;

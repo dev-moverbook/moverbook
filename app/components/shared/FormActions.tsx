@@ -50,7 +50,7 @@ const FormActions: React.FC<FormActionsProps> = ({
           {saveLabel}
         </Button>
       </div>
-      <FormErrorMessage message={error} />
+      <FormErrorMessage className="text-center" message={error} />
     </div>
   );
 };

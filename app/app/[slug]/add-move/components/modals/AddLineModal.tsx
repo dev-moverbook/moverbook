@@ -11,7 +11,6 @@ import CheckboxField from "@/app/components/shared/CheckboxField";
 import LabeledSelect from "@/app/components/shared/labeled/LabeledSelect";
 import CounterInput from "@/app/components/shared/labeled/CounterInput";
 import { useMoveForm } from "@/app/contexts/MoveFormContext";
-import LabeledInput from "@/app/components/shared/labeled/LabeledInput";
 import {
   AddLineValidationErrors,
   validateAddLineForm,
@@ -77,7 +76,18 @@ const AddLineModal = ({
     handleClose();
   };
 
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      price: null,
+      quantity: 1,
+    });
+    setErrors({});
+    setIsCustomFee(false);
+  };
+
   const handleClose = () => {
+    resetForm();
     onClose();
   };
 
@@ -107,8 +117,19 @@ const AddLineModal = ({
           label="Fee"
           value={formData.name}
           onChange={(value) => {
-            setFormData({ ...formData, name: value });
-            setErrors((prev) => ({ ...prev, name: undefined }));
+            const selectedFee = moveFeeOptions?.find(
+              (fee) => fee.name === value
+            );
+            setFormData({
+              ...formData,
+              name: value,
+              price: selectedFee?.price ?? null,
+            });
+            setErrors((prev) => ({
+              ...prev,
+              name: undefined,
+              price: undefined,
+            }));
           }}
           options={feeOptions}
           loading={isLoading}
@@ -130,12 +151,14 @@ const AddLineModal = ({
       <CounterInput
         label="Quantity"
         value={formData.quantity}
-        onChange={(value) =>
-          setFormData((prev) => ({
-            ...prev,
-            quantity: value,
-          }))
-        }
+        onChange={(value) => {
+          if (value !== null) {
+            setFormData((prev) => ({
+              ...prev,
+              quantity: value,
+            }));
+          }
+        }}
         min={1}
         max={10}
         error={errors.quantity}

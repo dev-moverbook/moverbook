@@ -1,31 +1,70 @@
-import React, { useState } from "react";
-import { RoomSchema } from "@/types/convex-schemas";
-import { Button } from "@/app/components/ui/button";
+import React, { useEffect, useState } from "react";
 import SingleCardContainer from "@/app/components/shared/SingleCardContainer";
 import SelectableCardContainer from "@/app/components/shared/containers/SelectableCardContainer";
-import ItemContainer from "../ItemContainer";
+import ItemContainer from "./ItemContainer";
 import SectionHeaderWithTag from "@/app/components/shared/heading/SectionHeaderWithTag";
 import SectionContainer from "@/app/components/shared/containers/SectionContainer";
 import { useMoveForm } from "@/app/contexts/MoveFormContext";
 import Header3 from "@/app/components/shared/heading/Header3";
 import AddRoomModal from "../modals/AddRoomModal";
+import IconButton from "@/app/components/shared/IconButton";
+import { Trash2, X } from "lucide-react";
+import CounterInput from "@/app/components/shared/labeled/CounterInput";
+import Header4 from "@/app/components/shared/heading/Header4";
+import IconRow from "@/app/components/shared/IconRow";
+import ConfirmModal from "@/app/components/shared/ConfirmModal";
 
 interface SelectionInventoryProps {
   selectedItemIndices: Set<number>;
   setSelectedItemIndices: React.Dispatch<React.SetStateAction<Set<number>>>;
+  selectedRoom: string | null;
+  setSelectedRoom: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 const SelectionInventory = ({
   selectedItemIndices,
   setSelectedItemIndices,
+  selectedRoom,
+  setSelectedRoom,
 }: SelectionInventoryProps) => {
   const [isCreateItemModal, setIsCreateItemModal] = useState(false);
-  const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
-  const { roomOptions, itemOptions, updateMoveItem } = useMoveForm();
+  const {
+    roomOptions,
+    itemOptions,
+    updateMoveItem,
+    removeMoveItem,
+    moveItems,
+  } = useMoveForm();
   const [addRoomModalOpen, setAddRoomModalOpen] = useState<boolean>(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false);
+  const [quantity, setQuantity] = useState<null | number>(null);
+
+  useEffect(() => {
+    if (selectedItemIndices.size === 0) {
+      setQuantity(null);
+    }
+    if (selectedItemIndices.size === 1) {
+      const selectedIndex = Array.from(selectedItemIndices)[0];
+      const selectedItem = moveItems[selectedIndex];
+      if (selectedItem) {
+        setQuantity(selectedItem.quantity);
+      }
+    }
+  }, [selectedItemIndices, moveItems]);
+
+  const handleDeleteSelected = () => {
+    setDeleteModalOpen(true);
+  };
 
   const handleOpenCreateModal = () => {
     setIsCreateItemModal(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    const indices = Array.from(selectedItemIndices);
+    indices.forEach((index) => removeMoveItem(index));
+    setSelectedItemIndices(new Set());
+    setDeleteModalOpen(false);
   };
 
   const handleCreatedRoom = (name: string) => {
@@ -44,18 +83,68 @@ const SelectionInventory = ({
     setSelectedItemIndices(new Set());
   };
 
+  const handleClearSelectedItems = () => {
+    setSelectedItemIndices(new Set());
+    setQuantity(null);
+  };
+
+  const handleEditSubmit = (val: number) => {
+    if (val >= 1) setQuantity(val);
+
+    const indices = Array.from(selectedItemIndices);
+    indices.forEach((index) => updateMoveItem(index, { quantity: val }));
+  };
+
   return (
     <>
       {selectedItemIndices.size > 0 ? (
         <div>
-          <Header3
-            wrapperClassName="px-4 md:px-0 pt-4 md:pt-0"
-            showCheckmark={false}
-          >
-            Assign Selected Items to Room
-          </Header3>
+          <SectionContainer>
+            <Header3
+              showCheckmark={false}
+              button={
+                <IconRow>
+                  <IconButton
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleClearSelectedItems();
+                    }}
+                    icon={<X className="w-4 h-4" />}
+                    variant="outline"
+                    title="Clear selection"
+                  />
+                  <IconButton
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleDeleteSelected();
+                    }}
+                    icon={<Trash2 className="w-4 h-4" />}
+                    variant="outline"
+                    title="Delete"
+                  />
+                </IconRow>
+              }
+            >
+              {selectedItemIndices.size === 1
+                ? "Update Selected Item"
+                : "Delete Selected Items"}
+            </Header3>
 
+            {selectedItemIndices.size === 1 && (
+              <CounterInput
+                label="Quantity"
+                value={quantity}
+                onChange={(val) => {
+                  if (val !== null) handleEditSubmit(val);
+                }}
+                min={1}
+              />
+            )}
+          </SectionContainer>
           <SectionContainer showBorder={false}>
+            <Header4>Update Room Assignment</Header4>
             <SingleCardContainer>
               {roomOptions?.map((room) => (
                 <SelectableCardContainer
@@ -110,6 +199,15 @@ const SelectionInventory = ({
         isOpen={addRoomModalOpen}
         onClose={() => setAddRoomModalOpen(false)}
         onCreatedRoom={handleCreatedRoom}
+      />
+      <ConfirmModal
+        title="Are you sure you want to delete these items?"
+        description="This action cannot be undone."
+        onClose={() => setDeleteModalOpen(false)}
+        isOpen={deleteModalOpen}
+        onConfirm={handleDeleteConfirm}
+        deleteLoading={false}
+        deleteError={null}
       />
     </>
   );

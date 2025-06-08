@@ -3,7 +3,8 @@ import { Id } from "@/convex/_generated/dataModel";
 import { ResponseStatus } from "@/types/enums";
 import { UserSchema } from "@/types/convex-schemas";
 import { api } from "@/convex/_generated/api";
-interface UseGetMoveRepsResult {
+
+interface UseGetSalesRepsResult {
   users: UserSchema[] | null;
   isLoading: boolean;
   isError: boolean;
@@ -12,9 +13,9 @@ interface UseGetMoveRepsResult {
 
 export const useGetMoveReps = (
   companyId: Id<"companies"> | null
-): UseGetMoveRepsResult => {
-  const response = useQuery<typeof api.users.getMoveRepsByCompanyId>(
-    api.users.getMoveRepsByCompanyId,
+): UseGetSalesRepsResult => {
+  const response = useQuery<typeof api.users.getSalesRepsByCompanyId>(
+    api.users.getSalesRepsByCompanyId,
     companyId ? { companyId } : "skip"
   );
 
@@ -27,7 +28,7 @@ export const useGetMoveReps = (
     isLoading,
     isError,
     errorMessage: isError
-      ? (response.error ?? "Failed to load move reps.")
+      ? (response.error ?? "Failed to load sales reps.")
       : null,
   };
 };

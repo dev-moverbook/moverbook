@@ -9,12 +9,14 @@ import {
   MoveType,
   MoveSize,
   MOVE_SIZE_OPTIONS,
+  StopBehavior,
 } from "@/types/types";
 import React, { useState } from "react";
 import { LocationInput } from "@/types/form-types";
 import { Button } from "@/app/components/ui/button";
 import { PlacesAutoCompleteInput } from "@/app/components/shared/PlacesAutoCompleteInput";
 import Header3 from "@/app/components/shared/heading/Header3";
+import LabeledCheckboxGroup from "@/app/components/shared/labeled/LabeledCheckboxGroup";
 
 interface MoveAddressProps {
   title: string;
@@ -23,25 +25,22 @@ interface MoveAddressProps {
 }
 
 const MoveAddress = ({ title, index, location }: MoveAddressProps) => {
-  const { updateLocation, removeLocation } = useMoveForm();
+  const { updateLocation, removeLocation, locations, isLocationComplete } =
+    useMoveForm();
   const [isManualAddress, setIsManualAddress] = useState<boolean>(false);
-
-  const isComplete =
-    !!location.address &&
-    !!location.squareFootage &&
-    !!location.moveType &&
-    !!location.moveSize &&
-    !!location.accessType;
 
   return (
     <SectionContainer className="pt-4 md:pt-0">
       <div className="flex justify-between items-center">
-        <Header3 isCompleted={isComplete}>{title}</Header3>
-        {index > 1 && (
+        <Header3 isCompleted={isLocationComplete(index)}>{title}</Header3>
+        {index !== 0 && index !== locations.length - 1 && (
           <Button
             variant="outline"
             size="sm"
-            onClick={() => removeLocation(index)}
+            onClick={(e) => {
+              e.preventDefault();
+              removeLocation(index);
+            }}
           >
             Delete
           </Button>
@@ -75,7 +74,9 @@ const MoveAddress = ({ title, index, location }: MoveAddressProps) => {
         ) : (
           <PlacesAutoCompleteInput
             value={location.address || ""}
-            onChange={(value) => updateLocation(index, { address: value })}
+            onChange={(value: string) =>
+              updateLocation(index, { address: value })
+            }
             showLabel={false}
           />
         )}
@@ -100,6 +101,7 @@ const MoveAddress = ({ title, index, location }: MoveAddressProps) => {
             updateLocation(index, { squareFootage: Number(e.target.value) })
           }
           type="number"
+          min={0}
         />
         <LabeledRadio
           label="Move Size"
@@ -119,6 +121,36 @@ const MoveAddress = ({ title, index, location }: MoveAddressProps) => {
           }
           options={ACCESS_TYPE_OPTIONS}
         />
+        {location.locationType === "stop" && (
+          <LabeledCheckboxGroup
+            label="Stop Behavior"
+            name="stopBehavior"
+            values={
+              location.stopBehavior === "both"
+                ? ["pickup", "stop"]
+                : location.stopBehavior
+                  ? [location.stopBehavior]
+                  : []
+            }
+            options={[
+              { label: "Pickup", value: "pickup" },
+              { label: "Drop", value: "stop" },
+            ]}
+            onChange={(selected) => {
+              let value: StopBehavior | undefined;
+              if (selected.includes("pickup") && selected.includes("stop")) {
+                value = "both";
+              } else if (selected.includes("pickup")) {
+                value = "pickup";
+              } else if (selected.includes("stop")) {
+                value = "stop";
+              } else {
+                value = undefined;
+              }
+              updateLocation(index, { stopBehavior: value });
+            }}
+          />
+        )}
       </div>
     </SectionContainer>
   );

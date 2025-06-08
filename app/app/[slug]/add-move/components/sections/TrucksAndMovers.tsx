@@ -19,28 +19,18 @@ const TrucksAndMovers = () => {
     setEndingHour,
     jobType,
     setJobType,
-    hourlyRate,
-    setHourlyRate,
-    flatRate,
-    setFlatRate,
-    hourlyRateError,
-    setHourlyRateError,
-    flatRateError,
-    setFlatRateError,
+    isTruckAndMoverCompleted,
+    setJobTypeRate,
+    setJobTypeRateError,
+    jobTypeRate,
+    jobTypeRateError,
   } = useMoveForm();
 
-  const isCompleted =
-    (truckCount > 0 &&
-      moversCount > 0 &&
-      startingHour > 0 &&
-      endingHour > 0 &&
-      jobType !== null &&
-      jobType === "hourly" &&
-      hourlyRate > 0) ||
-    (jobType === "flat" && flatRate > 0);
   return (
     <SectionContainer>
-      <Header3 isCompleted={isCompleted}>Trucks and Movers</Header3>
+      <Header3 isCompleted={isTruckAndMoverCompleted}>
+        Trucks and Movers
+      </Header3>
       <div className="grid grid-cols-2 ">
         <CounterInput
           label="Trucks"
@@ -83,32 +73,18 @@ const TrucksAndMovers = () => {
           { label: "Flat", value: "flat" },
         ]}
       />
-      {jobType === "hourly" && (
-        <LabeledInput
-          label="Hourly Rate ($/hr)"
-          value={hourlyRate.toString()}
-          onChange={(e) =>
-            setHourlyRate(Math.round(Number(e.target.value) * 100) / 100)
-          }
-          error={hourlyRateError}
-          type="number"
-          min={0}
-          step="0.01"
-        />
-      )}
-      {jobType === "flat" && (
-        <LabeledInput
-          label="Flat Rate ($)"
-          value={flatRate.toString()}
-          onChange={(e) =>
-            setFlatRate(Math.round(Number(e.target.value) * 100) / 100)
-          }
-          error={flatRateError}
-          type="number"
-          min={0}
-          step="0.01"
-        />
-      )}
+      <LabeledInput
+        label={jobType === "hourly" ? "Hourly Rate ($/hr)" : "Flat Rate ($)"}
+        value={jobTypeRate?.toString() || ""}
+        onChange={(e) => {
+          setJobTypeRate(Math.round(Number(e.target.value) * 100) / 100);
+          setJobTypeRateError(null);
+        }}
+        error={jobTypeRateError}
+        type="number"
+        min={0}
+        step="0.01"
+      />
     </SectionContainer>
   );
 };

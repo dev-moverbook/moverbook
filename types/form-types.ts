@@ -6,6 +6,7 @@ import {
   MoveSize,
   MoveType,
   ServiceType,
+  StopBehavior,
 } from "./types";
 
 export interface ComplianceFormData {
@@ -152,6 +153,7 @@ export interface LocationInput {
   squareFootage: number | null;
   accessType: AccessType | null;
   moveSize: MoveSize | null;
+  stopBehavior?: StopBehavior;
 }
 
 export interface InsurancePolicyInput {

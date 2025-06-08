@@ -3,6 +3,7 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import FieldDisplay from "./FieldDisplay";
 import FormErrorMessage from "./error/FormErrorMessage";
+import React from "react"; // Needed for `React.Ref`
 
 interface FieldRowProps {
   label: string;
@@ -16,6 +17,7 @@ interface FieldRowProps {
   placeholder?: string;
   min?: number;
   step?: number;
+  inputRef?: React.Ref<HTMLInputElement>; // ← Add this line
 }
 
 const FieldRow: React.FC<FieldRowProps> = ({
@@ -30,12 +32,14 @@ const FieldRow: React.FC<FieldRowProps> = ({
   placeholder,
   min,
   step,
+  inputRef, // ← Destructure it
 }) => {
   if (isEditing) {
     return (
       <div>
         <Label htmlFor={name}>{label}</Label>
         <Input
+          ref={inputRef} // ← Use it here
           id={name}
           name={name}
           value={value ?? ""}

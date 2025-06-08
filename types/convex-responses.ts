@@ -767,16 +767,16 @@ export interface GetItemsAndCategoriesAndRoomsByCompanyData {
   rooms: RoomSchema[];
 }
 
-export type GetMoveRepsByCompanyIdResponse =
-  | GetMoveRepsByCompanyIdSuccess
+export type GetSalesRepsByCompanyIdResponse =
+  | GetSalesRepsByCompanyIdSuccess
   | ErrorResponse;
 
-export interface GetMoveRepsByCompanyIdSuccess {
+export interface GetSalesRepsByCompanyIdSuccess {
   status: ResponseStatus.SUCCESS;
-  data: GetMoveRepsByCompanyIdData;
+  data: GetSalesRepsByCompanyIdData;
 }
 
-export interface GetMoveRepsByCompanyIdData {
+export interface GetSalesRepsByCompanyIdData {
   users: UserSchema[];
 }
 
@@ -793,7 +793,7 @@ export interface GetMoveOptionsData {
   travelFee: TravelFeeSchema;
   insurancePolicies: InsurancePolicySchema[];
   fees: FeeSchema[];
-  moveReps: UserSchema[];
+  salesReps: UserSchema[];
   referrals: ReferralSchema[];
   laborRates: LaborSchema[];
   creditCardFee: CreditCardFeeSchema;
@@ -801,6 +801,7 @@ export interface GetMoveOptionsData {
   categories: CategorySchema[];
   items: ItemSchema[];
   policy: PolicySchema;
+  companyContact: CompanyContactSchema;
 }
 
 export type CreateMoveResponse = CreateMoveSuccess | ErrorResponse;
@@ -833,4 +834,18 @@ export interface GetMoveSuccess {
 
 export interface GetMoveData {
   move: MoveSchema;
+}
+
+export type GetDistanceMatrixResponse =
+  | GetDistanceMatrixSuccess
+  | ErrorResponse;
+
+export interface GetDistanceMatrixSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetDistanceMatrixData;
+}
+
+export interface GetDistanceMatrixData {
+  distanceMiles: number;
+  durationMinutes: number;
 }

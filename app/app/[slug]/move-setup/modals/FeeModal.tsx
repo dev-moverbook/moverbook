@@ -123,10 +123,14 @@ const FeeModal: React.FC<FeeModalProps> = ({
         onChange={handleInputChange}
         placeholder="Enter Price"
         error={errors.price}
+        min={0}
+        step={0.01}
       />
-
       <FormActions
-        onSave={handleSubmit}
+        onSave={(e) => {
+          e.preventDefault();
+          handleSubmit();
+        }}
         onCancel={onClose}
         isSaving={loading}
         error={error}

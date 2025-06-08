@@ -1,30 +1,32 @@
 import React from "react";
 import SectionContainer from "@/app/components/shared/containers/SectionContainer";
-import Header4 from "@/app/components/shared/heading/Header4";
 import LabeledTextarea from "@/app/components/shared/labeled/LabeledTextarea";
 import LabeledSelect from "@/app/components/shared/labeled/LabeledSelect";
 import { MOVE_STATUS_OPTIONS, MoveStatus } from "@/types/types";
 import { useMoveForm } from "@/app/contexts/MoveFormContext";
 import { Id } from "@/convex/_generated/dataModel";
+import Header3 from "@/app/components/shared/heading/Header3";
 
 const InternalNotes = () => {
   const {
-    moveRep,
-    setMoveRep,
-    moveRepOptions,
+    salesRep,
+    setSalesRep,
+    salesRepOptions,
     moveStatus,
     setMoveStatus,
     notes,
     setNotes,
+    isInternalNotesComplete,
   } = useMoveForm();
+
   return (
     <SectionContainer>
-      <Header4>Internal Notes</Header4>
+      <Header3 isCompleted={isInternalNotesComplete}>Internal Notes</Header3>
       <LabeledSelect
-        label="Move Rep"
-        value={moveRep ?? ""}
-        options={moveRepOptions}
-        onChange={(value) => setMoveRep(value as Id<"users">)}
+        label="Sales Rep"
+        value={salesRep ?? ""}
+        options={salesRepOptions}
+        onChange={(value) => setSalesRep(value as Id<"users">)}
       />
       <LabeledSelect
         label="Move Status"
@@ -36,7 +38,7 @@ const InternalNotes = () => {
         label="Notes"
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
-        placeholder="Add internal notes"
+        placeholder="Add internal note"
       />
     </SectionContainer>
   );

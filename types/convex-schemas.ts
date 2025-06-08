@@ -247,20 +247,20 @@ export interface MoveSchema {
   _id: Id<"move">;
   _creationTime: number;
   altPhoneNumber: string | null;
-  arrivalTimes: string | null;
+  arrivalTimes: ArrivalTimes;
   companyId: Id<"companies">;
   deposit: number | null;
   destinationToOrigin: number | null;
   email: string | null;
   endingMoveTime: number | null;
-  hourlyRate: number | null;
   jobType: JobType;
+  jobTypeRate: number | null;
   liabilityCoverage: MoveInsurancePolicy | null;
   locations: MoveLocation[];
   moveDate: string | null;
-  moveFees: MoveFee[] | null;
-  moveItems: MoveItem[] | null;
-  moveRep: Id<"users">;
+  moveFees: MoveFee[];
+  moveItems: MoveItem[];
+  salesRep: Id<"users">;
   moveWindow: MoveTimes;
   movers: number;
   name: string;
@@ -281,7 +281,7 @@ export interface MoveItem {
   quantity: number;
   item: string;
   room: string;
-  weigth: number;
+  weight: number;
   size: number;
 }
 
@@ -306,4 +306,9 @@ export interface MoveInsurancePolicy {
   coverageType: number;
   coverageAmount: number;
   premium: number;
+}
+
+export interface ArrivalTimes {
+  arrivalWindowStarts: string | null;
+  arrivalWindowEnds: string | null;
 }

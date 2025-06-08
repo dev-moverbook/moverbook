@@ -13,38 +13,38 @@ import {
 } from "@/types/form-types"; // <-- Define these based on your form shape
 import { api } from "@/convex/_generated/api";
 import { JobType, MoveStatus, MoveTimes, ServiceType } from "@/types/types";
+import { ArrivalTimes } from "@/types/convex-schemas";
 
 interface CreateMoveInput {
   companyId: Id<"companies">;
   status: MoveStatus;
-  moveRep: Id<"users">;
+  salesRep: Id<"users">;
   liabilityCoverage: InsurancePolicyInput | null;
   name: string;
   email: string | null;
   phoneNumber: string | null;
   altPhoneNumber: string | null;
-  notes?: string;
+  notes: string | null;
   serviceType: ServiceType | null;
   referral: string | null;
-  moveDate?: string;
+  moveDate: string | null;
   moveWindow: MoveTimes;
-  arrivalTimes?: string;
+  arrivalTimes: ArrivalTimes;
   trucks: number;
   movers: number;
   startingMoveTime: number;
   endingMoveTime: number;
   jobType: JobType;
-  hourlyRate?: number;
-  deposit?: number;
-  CreditCardFee?: number;
-  moveFees?: MoveFeeInput[];
-  moveItems?: MoveItemInput[];
-  locations?: LocationInput[];
-  totalMiles?: number;
-  officeToOrigin?: number;
-  destinationToOrigin?: number;
-  roundTripMiles?: number;
-  roundTripDrive?: number;
+  jobTypeRate: number | null;
+  deposit: number | null;
+  moveFees: MoveFeeInput[];
+  moveItems: MoveItemInput[];
+  locations: LocationInput[];
+  totalMiles: number | null;
+  officeToOrigin: number | null;
+  destinationToOrigin: number | null;
+  roundTripMiles: number | null;
+  roundTripDrive: number | null;
 }
 
 export const useCreateMove = () => {

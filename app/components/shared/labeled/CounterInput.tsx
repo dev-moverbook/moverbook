@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Minus, Plus } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import clsx from "clsx";
@@ -8,7 +8,7 @@ import FormErrorMessage from "../error/FormErrorMessage";
 
 interface CounterInputProps {
   label: string;
-  value: number;
+  value: number | null;
   onChange: (value: number) => void;
   min?: number;
   max?: number;
@@ -25,12 +25,51 @@ const CounterInput: React.FC<CounterInputProps> = ({
   className,
   error,
 }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [inputValue, setInputValue] = useState<string>("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Focus and select input when entering edit mode
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [isEditing]);
+
+  const handleEdit = () => {
+    setIsEditing(true);
+    setInputValue(""); // Show empty field on edit
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setInputValue(val);
+    const num = Number(val);
+    if (!isNaN(num) && val !== "" && num >= min && num <= max) {
+      onChange(num);
+    }
+  };
+
+  const handleBlur = () => {
+    setIsEditing(false);
+    setInputValue("");
+  };
+
   const decrement = () => {
-    if (value > min) onChange(value - 1);
+    if (value === null) {
+      onChange(min);
+    } else if (value > min) {
+      onChange(value - 1);
+    }
   };
 
   const increment = () => {
-    if (value < max) onChange(value + 1);
+    if (value === null) {
+      onChange(min);
+    } else if (value < max) {
+      onChange(value + 1);
+    }
   };
 
   return (
@@ -40,17 +79,41 @@ const CounterInput: React.FC<CounterInputProps> = ({
         <button
           type="button"
           onClick={decrement}
-          className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-700 text-white hover:bg-gray-600"
+          className="w-8 h-8 flex items-center justify-center rounded-full border border-grayCustom text-white shadow-sm transition duration-150 hover:bg-white/10 hover:scale-105 active:scale-95"
         >
           <Minus className="w-4 h-4" />
         </button>
-        <div className="min-w-[60px] px-4 py-1 text-center text-white border border-gray-500 rounded-xl text-lg">
-          {value}
-        </div>
+        {isEditing ? (
+          <input
+            ref={inputRef}
+            type="number"
+            value={inputValue}
+            onChange={handleInputChange}
+            onBlur={handleBlur}
+            min={min}
+            max={max}
+            className="min-w-[60px] w-[70px] px-2 py-1 text-center text-white border border-grayCustom rounded-xl text-lg bg-transparent focus:outline-none focus:ring-1 focus:ring-greenCustom"
+            inputMode="numeric"
+            placeholder="" // No placeholder, field is empty on edit
+            autoComplete="off"
+          />
+        ) : (
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={handleEdit}
+            onKeyPress={(e) => {
+              if (e.key === "Enter" || e.key === " ") handleEdit();
+            }}
+            className="min-w-[60px] px-4 py-1 text-center text-white border border-grayCustom rounded-xl text-lg cursor-pointer hover:bg-white/10"
+          >
+            {value === null ? "-" : value}
+          </div>
+        )}
         <button
           type="button"
           onClick={increment}
-          className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-700 text-white hover:bg-gray-600"
+          className="w-8 h-8 flex items-center justify-center rounded-full border border-grayCustom text-white shadow-sm transition duration-150 hover:bg-white/10 hover:scale-105 active:scale-95"
         >
           <Plus className="w-4 h-4" />
         </button>

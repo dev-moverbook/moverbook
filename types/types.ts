@@ -21,11 +21,19 @@ export const START_WINDOW_OPTIONS: {
   { label: "Custom Start Window", value: "custom" },
 ];
 
-export type MoveType = "apartment" | "house";
+export type MoveType =
+  | "apartment"
+  | "house"
+  | "office"
+  | "storage unit"
+  | "speciality item";
 
 export const MOVE_TYPE_OPTIONS: { label: string; value: MoveType }[] = [
   { label: "Apartment", value: "apartment" },
   { label: "House", value: "house" },
+  { label: "Office", value: "office" },
+  { label: "Storage Unit", value: "storage unit" },
+  { label: "Speciality Item", value: "speciality item" },
 ];
 
 export type AccessType =
@@ -89,3 +97,5 @@ export const MOVE_STATUS_OPTIONS: { label: string; value: MoveStatus }[] = [
 export type MoveTimes = "morning" | "afternoon" | "custom";
 
 export type LocationType = "starting" | "ending" | "stop";
+
+export type StopBehavior = "stop" | "pickup" | "both";

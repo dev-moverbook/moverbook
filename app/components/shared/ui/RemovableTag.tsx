@@ -22,7 +22,11 @@ const RemovableTag: React.FC<RemovableTagProps> = ({
     >
       {label}
       <button
-        onClick={onRemove}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onRemove();
+        }}
         className="ml-1 p-1 text-muted-foreground hover:bg-gray-800 rounded"
       >
         <X className="w-3.5 h-3.5" />

@@ -1,4 +1,3 @@
-import CenteredContainer from "@/app/components/shared/CenteredContainer";
 import SectionContainer from "@/app/components/shared/containers/SectionContainer";
 import React, { useState } from "react";
 import TabSelector from "@/app/components/shared/TabSelector";
@@ -20,17 +19,17 @@ const ItemContainer: React.FC<ItemContainerProps> = ({ roomName }) => {
     itemOptions,
     addMoveItem,
     updateMoveItem,
-    addedItems,
+    moveItems,
   } = useMoveForm();
 
   const handleAddItem = (item: ItemSchema) => {
-    const existingIndex = addedItems.findIndex(
+    const existingIndex = moveItems.findIndex(
       (i) => i.item === item.name && i.room === roomName
     );
 
     if (existingIndex !== -1) {
       // Increment quantity
-      const existingItem = addedItems[existingIndex];
+      const existingItem = moveItems[existingIndex];
       updateMoveItem(existingIndex, { quantity: existingItem.quantity + 1 });
     } else {
       // Add new item
@@ -39,7 +38,7 @@ const ItemContainer: React.FC<ItemContainerProps> = ({ roomName }) => {
         room: roomName,
         quantity: 1,
         size: typeof item.size === "number" ? item.size : 0,
-        weigth: item.weight,
+        weight: item.weight ?? 0,
       };
       addMoveItem(moveItem);
     }
@@ -52,7 +51,11 @@ const ItemContainer: React.FC<ItemContainerProps> = ({ roomName }) => {
         onTabChange={setActiveTab}
       />
       {activeTab === "POPULAR" && (
-        <PopularItems items={itemOptions} handleAddMoveItem={handleAddItem} />
+        <PopularItems
+          items={itemOptions}
+          handleAddMoveItem={handleAddItem}
+          selectedRoom={roomName}
+        />
       )}
       {activeTab === "CATEGORIES" && (
         <CategoryInventory
@@ -65,6 +68,7 @@ const ItemContainer: React.FC<ItemContainerProps> = ({ roomName }) => {
         <SearchInventory
           items={itemOptions}
           handleAddMoveItem={handleAddItem}
+          selectedRoom={roomName}
         />
       )}
     </SectionContainer>

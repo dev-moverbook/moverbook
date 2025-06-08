@@ -28,7 +28,7 @@ export const MoveItemConvex = v.object({
   item: v.string(),
   room: v.string(),
   quantity: v.number(),
-  weigth: v.number(),
+  weight: v.number(),
   size: v.number(),
 });
 
@@ -48,6 +48,12 @@ export const InsurancePolicyConvex = v.object({
   coverageType: v.number(),
   coverageAmount: v.number(),
   premium: v.number(),
+});
+
+// schema.ts or similar
+export const ArrivalTimesConvex = v.object({
+  arrivalWindowStarts: v.union(v.string(), v.null()),
+  arrivalWindowEnds: v.union(v.string(), v.null()),
 });
 
 export default defineSchema({
@@ -144,7 +150,7 @@ export default defineSchema({
     sendgridSenderId: v.optional(v.string()),
     sendgridVerified: v.optional(v.boolean()),
     sendgridName: v.optional(v.string()),
-  }),
+  }).index("by_companyId", ["companyId"]),
   arrivalWindow: defineTable({
     companyId: v.id("companies"),
     morningArrival: v.string(),
@@ -215,7 +221,7 @@ export default defineSchema({
     companyId: v.id("companies"),
     categoryId: v.optional(v.id("categories")),
     name: v.string(),
-    size: v.union(CategorySizeConvex, v.number()),
+    size: v.number(),
     isActive: v.boolean(),
     isPopular: v.optional(v.boolean()),
     isStarter: v.boolean(),
@@ -223,20 +229,20 @@ export default defineSchema({
   }).index("by_companyId", ["companyId"]),
   move: defineTable({
     altPhoneNumber: v.union(v.null(), v.string()),
-    arrivalTimes: v.union(v.null(), v.string()),
+    arrivalTimes: ArrivalTimesConvex,
     companyId: v.id("companies"),
     deposit: v.union(v.null(), v.number()),
     destinationToOrigin: v.union(v.null(), v.number()),
     email: v.union(v.null(), v.string()),
     endingMoveTime: v.union(v.null(), v.number()),
-    hourlyRate: v.union(v.null(), v.number()),
     jobType: JobTypeConvex,
+    jobTypeRate: v.union(v.null(), v.number()),
     liabilityCoverage: v.union(v.null(), InsurancePolicyConvex),
     locations: v.array(LocationConvex),
     moveDate: v.union(v.null(), v.string()),
-    moveFees: v.union(v.null(), v.array(MoveFeeConvex)),
-    moveItems: v.union(v.null(), v.array(MoveItemConvex)),
-    moveRep: v.id("users"),
+    moveFees: v.array(MoveFeeConvex),
+    moveItems: v.array(MoveItemConvex),
+    salesRep: v.id("users"),
     moveWindow: MoveTimesConvex,
     movers: v.number(),
     name: v.string(),

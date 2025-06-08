@@ -3,9 +3,6 @@ import React, { useState } from "react";
 import SectionContainer from "@/app/components/shared/containers/SectionContainer";
 import { useMoveForm } from "@/app/contexts/MoveFormContext";
 import GroupedItemsList from "../lists/GroupedItemList";
-import IconButton from "@/app/components/shared/IconButton";
-import { Pencil, Trash2 } from "lucide-react";
-import IconRow from "@/app/components/shared/IconRow";
 import ConfirmModal from "@/app/components/shared/ConfirmModal";
 import EditItemsModal from "../modals/EditItemsModal";
 import { Button } from "@/app/components/ui/button";
@@ -14,13 +11,15 @@ import AddItemModal from "../modals/AddItemModal";
 interface AddedItemsProps {
   selectedItemIndices: Set<number>;
   setSelectedItemIndices: React.Dispatch<React.SetStateAction<Set<number>>>;
+  selectedRoom: string | null;
 }
 
 const AddedItems = ({
   selectedItemIndices,
   setSelectedItemIndices,
+  selectedRoom,
 }: AddedItemsProps) => {
-  const { addedItems, updateMoveItem, removeMoveItem } = useMoveForm();
+  const { moveItems, updateMoveItem, removeMoveItem } = useMoveForm();
   const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false);
   const [editModalOpen, setEditModalOpen] = useState<boolean>(false);
   const [quickAddModalOpen, setQuickAddModalOpen] = useState<boolean>(false);
@@ -33,19 +32,11 @@ const AddedItems = ({
     });
   };
 
-  const handleDeleteSelected = () => {
-    setDeleteModalOpen(true);
-  };
-
   const handleDeleteConfirm = () => {
     const indices = Array.from(selectedItemIndices);
     indices.forEach((index) => removeMoveItem(index));
     setSelectedItemIndices(new Set());
     setDeleteModalOpen(false);
-  };
-
-  const handleEditSelected = () => {
-    setEditModalOpen(true);
   };
 
   const handleEditSubmit = (newQuantity: number) => {
@@ -65,41 +56,18 @@ const AddedItems = ({
     <SectionContainer>
       <Header3
         button={
-          selectedItemIndices.size > 0 ? (
-            <IconRow>
-              <IconButton
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleEditSelected();
-                }}
-                icon={<Pencil className="w-4 h-4" />}
-                title="Edit"
-              />
-              <IconButton
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleDeleteSelected();
-                }}
-                icon={<Trash2 className="w-4 h-4" />}
-                variant="outline"
-                title="Delete"
-              />
-            </IconRow>
-          ) : (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                handleQuickAdd();
-              }}
-            >
-              Quick Add
-            </Button>
-          )
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleQuickAdd();
+            }}
+          >
+            Quick Add
+          </Button>
+          // )
         }
         showCheckmark={false}
       >
@@ -107,7 +75,7 @@ const AddedItems = ({
       </Header3>
 
       <GroupedItemsList
-        items={addedItems}
+        items={moveItems}
         selectedItemIndices={selectedItemIndices}
         onToggle={handleToggle}
       />
@@ -128,6 +96,7 @@ const AddedItems = ({
       <AddItemModal
         isOpen={quickAddModalOpen}
         onClose={() => setQuickAddModalOpen(false)}
+        selectedRoom={selectedRoom}
       />
     </SectionContainer>
   );

@@ -3,18 +3,21 @@ import { ItemSchema } from "@/types/convex-schemas";
 import SingleCardContainer from "@/app/components/shared/SingleCardContainer";
 import SelectableCardContainer from "@/app/components/shared/containers/SelectableCardContainer";
 import SearchInput from "@/app/components/shared/ui/SearchInput";
+import AddItemModal from "../modals/AddItemModal";
 
 interface SearchInventoryProps {
   items?: ItemSchema[];
   handleAddMoveItem: (item: ItemSchema) => void;
+  selectedRoom: string | null;
 }
 
 const SearchInventory: React.FC<SearchInventoryProps> = ({
   items,
   handleAddMoveItem,
+  selectedRoom,
 }) => {
   const [searchQuery, setSearchQuery] = useState<string>("");
-
+  const [showAddItemModal, setShowAddItemModal] = useState<boolean>(false);
   const filteredItems = items?.filter((item) =>
     item.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -28,7 +31,11 @@ const SearchInventory: React.FC<SearchInventoryProps> = ({
         className=""
       />
       <SingleCardContainer>
-        <SelectableCardContainer centerText="Item" showPlusIcon={true} />
+        <SelectableCardContainer
+          centerText="Item"
+          showPlusIcon={true}
+          onClick={() => setShowAddItemModal(true)}
+        />
         {filteredItems?.map((item) => (
           <SelectableCardContainer
             key={item._id}
@@ -38,6 +45,11 @@ const SearchInventory: React.FC<SearchInventoryProps> = ({
           />
         ))}
       </SingleCardContainer>
+      <AddItemModal
+        isOpen={showAddItemModal}
+        onClose={() => setShowAddItemModal(false)}
+        selectedRoom={selectedRoom}
+      />
     </div>
   );
 };

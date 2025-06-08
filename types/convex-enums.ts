@@ -127,7 +127,10 @@ export const MoveSizeConvex = v.union(
 
 export const MoveTypeConvex = v.union(
   v.literal("apartment"),
-  v.literal("house")
+  v.literal("house"),
+  v.literal("office"),
+  v.literal("storage unit"),
+  v.literal("speciality item")
 );
 
 export { CategorySize };

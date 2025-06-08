@@ -6,16 +6,23 @@ import React, { useState } from "react";
 import { useMoveForm } from "@/app/contexts/MoveFormContext";
 import CardContainer from "@/app/components/shared/CardContainer";
 import { MoveFeeInput } from "@/types/form-types";
-import SectionHeaderWithAction from "@/app/components/shared/ SectionHeaderWithAction";
 import AddLineModal from "../modals/AddLineModal";
 import LineItemFeeCard from "../cards/LineItemFeeCard";
+import Header3 from "@/app/components/shared/heading/Header3";
+import { Plus } from "lucide-react";
 
 const LineItems = () => {
   const [showAddLineItemModal, setShowAddLineItemModal] =
     useState<boolean>(false);
   const [editIndex, setEditIndex] = useState<number | null>(null);
 
-  const { moveFees, addMoveFee, updateMoveFee, deleteMoveFee } = useMoveForm();
+  const {
+    moveFees,
+    addMoveFee,
+    updateMoveFee,
+    deleteMoveFee,
+    isLineItemsComplete,
+  } = useMoveForm();
 
   const handleOpenAddLineItemModal = (
     e: React.MouseEvent<HTMLButtonElement>
@@ -55,14 +62,20 @@ const LineItems = () => {
 
   return (
     <SectionContainer>
-      <SectionHeaderWithAction
-        title="Line Items"
-        action={
+      <Header3
+        isCompleted={isLineItemsComplete}
+        button={
           <Button variant="outline" onClick={handleOpenAddLineItemModal}>
-            Add Line Item
+            <div className="flex items-center gap-1">
+              <Plus className="w-5 h-5" />
+              Line Item
+            </div>
           </Button>
         }
-      />
+      >
+        Line Items
+      </Header3>
+
       <AddLineModal
         isOpen={showAddLineItemModal}
         onClose={() => setShowAddLineItemModal(false)}

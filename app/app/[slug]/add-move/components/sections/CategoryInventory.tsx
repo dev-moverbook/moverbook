@@ -19,7 +19,6 @@ const CategoryInventory: React.FC<CategoryInventoryProps> = ({
     useState<CategorySchema | null>(null);
   return (
     <SingleCardContainer>
-      <SelectableCardContainer centerText="CATEGORY" showPlusIcon={true} />
       {categories?.map((category) => (
         <SelectableCardContainer
           key={category._id}

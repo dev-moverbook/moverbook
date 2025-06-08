@@ -1,4 +1,6 @@
 import { MutationCtx } from "@/convex/_generated/server";
+import { InsurancePolicySchema } from "@/types/convex-schemas";
+import { InsurancePolicyInput } from "@/types/form-types";
 
 export const isValidEmail = (email: string) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -55,3 +57,12 @@ export const calculateWeightFromSize = (size: number | null): number | null => {
   if (size === null || isNaN(size)) return null;
   return size * 7;
 };
+
+export const transformInsurancePolicy = (
+  policy: InsurancePolicySchema
+): InsurancePolicyInput => ({
+  name: policy.name,
+  coverageAmount: policy.coverageAmount,
+  coverageType: policy.coverageType,
+  premium: policy.premium,
+});
