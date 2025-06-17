@@ -14,7 +14,7 @@ const CardDetailRow: React.FC<CardDetailRowProps> = ({
   return (
     <div
       className={cn(
-        "flex w-full justify-between md:justify-normal text-base md:text-sm",
+        " flex w-full justify-between md:justify-normal text-base md:text-sm px-4 py-2",
         className
       )}
     >

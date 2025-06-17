@@ -21,7 +21,9 @@ const InternalNotes = () => {
 
   return (
     <SectionContainer>
-      <Header3 isCompleted={isInternalNotesComplete}>Internal Notes</Header3>
+      <Header3 wrapperClassName="px-0" isCompleted={isInternalNotesComplete}>
+        Internal Notes
+      </Header3>
       <LabeledSelect
         label="Sales Rep"
         value={salesRep ?? ""}

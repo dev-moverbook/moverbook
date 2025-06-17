@@ -12,6 +12,7 @@ import FormActions from "@/app/components/shared/FormActions";
 import TimeSlotSelector from "@/app/components/shared/labeled/TimeSlotSelector";
 import LabeledTimeInput from "@/app/components/shared/labeled/LabeledTimeInput";
 import FormActionContainer from "@/app/components/shared/containers/FormActionContainer";
+
 import {
   SERVICE_TYPE_OPTIONS,
   ServiceType,
@@ -274,7 +275,7 @@ const InfoStep = ({ onNext, onCancel }: InfoStepProps) => {
             }
             isLoading={isLoading}
             isError={isError}
-            errorMessage={errorMessage}
+            error={errorMessage}
           />
         )}
       </div>

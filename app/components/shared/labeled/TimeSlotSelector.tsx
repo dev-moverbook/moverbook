@@ -1,6 +1,8 @@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import FieldDisplay from "@/app/components/shared/FieldDisplay";
 import clsx from "clsx";
+import FieldErrorMessage from "./FieldErrorMessage";
 
 interface TimeSlotOption {
   label: string;
@@ -13,7 +15,9 @@ interface TimeSlotSelectorProps {
   options: TimeSlotOption[] | null;
   isLoading: boolean;
   isError: boolean;
-  errorMessage?: string | null;
+  fetchErrorMessage?: string | null;
+  isEditing?: boolean;
+  error?: string | null;
 }
 
 const TimeSlotSelector: React.FC<TimeSlotSelectorProps> = ({
@@ -22,8 +26,19 @@ const TimeSlotSelector: React.FC<TimeSlotSelectorProps> = ({
   options,
   isLoading,
   isError,
-  errorMessage,
+  fetchErrorMessage,
+  isEditing = true,
+  error,
 }) => {
+  if (!isEditing) {
+    const selectedLabel =
+      options?.find((option) => option.value === value)?.label || "—";
+
+    return (
+      <FieldDisplay label="Time Slot" value={selectedLabel} fallback="—" />
+    );
+  }
+
   if (isLoading) {
     return <p className="text-sm text-gray-400">Loading time slots...</p>;
   }
@@ -31,7 +46,7 @@ const TimeSlotSelector: React.FC<TimeSlotSelectorProps> = ({
   if (isError || !options) {
     return (
       <p className="text-sm text-red-500">
-        {errorMessage || "Failed to load time slots."}
+        {fetchErrorMessage || "Failed to load time slots."}
       </p>
     );
   }
@@ -40,28 +55,29 @@ const TimeSlotSelector: React.FC<TimeSlotSelectorProps> = ({
     <RadioGroup
       value={value}
       onValueChange={onChange}
-      className="flex flex-col md:flex-row gap-3 md:gap-10"
+      className="flex flex-col md:flex-row gap-3 md:gap-10 mb-4"
     >
       {options.map((option) => (
         <div key={option.value} className="w-full">
           <RadioGroupItem
             value={option.value}
             id={`timeslot-${option.value}`}
-            className="sr-only  " // hide the actual radio input
+            className="sr-only"
           />
           <Label
             htmlFor={`timeslot-${option.value}`}
             className={clsx(
               "block cursor-pointer rounded-full px-6 py-2 text-center border text-sm font-medium transition-all w-full hover:bg-gray-900",
               value === option.value
-                ? "border-green-500 text-white font-semibold"
-                : "border-gray-500 text-gray-400"
+                ? "border-greenCustom text-white font-semibold"
+                : "border-grayCustom text-grayCustom2"
             )}
           >
             {option.label}
           </Label>
         </div>
       ))}
+      <FieldErrorMessage error={error} />
     </RadioGroup>
   );
 };

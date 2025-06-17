@@ -13,7 +13,16 @@ interface InventoryStepProps {
 }
 
 const InventoryStep = ({ onNext, onBack }: InventoryStepProps) => {
-  const { isInventorySectionComplete } = useMoveForm();
+  const {
+    isInventorySectionComplete,
+    moveItems,
+    updateMoveItem,
+    removeMoveItem,
+    addMoveItem,
+    roomOptions,
+    itemOptions,
+    categoryOptions,
+  } = useMoveForm();
   const [selectedItemIndices, setSelectedItemIndices] = useState<Set<number>>(
     new Set()
   );
@@ -23,6 +32,10 @@ const InventoryStep = ({ onNext, onBack }: InventoryStepProps) => {
     <FormContainer>
       <Header2 isCompleted={isInventorySectionComplete}>Inventory</Header2>
       <AddedItems
+        moveItems={moveItems}
+        updateMoveItem={updateMoveItem}
+        removeMoveItem={removeMoveItem}
+        addMoveItem={addMoveItem}
         selectedItemIndices={selectedItemIndices}
         setSelectedItemIndices={setSelectedItemIndices}
         selectedRoom={selectedRoom}
@@ -32,6 +45,13 @@ const InventoryStep = ({ onNext, onBack }: InventoryStepProps) => {
         setSelectedItemIndices={setSelectedItemIndices}
         selectedRoom={selectedRoom}
         setSelectedRoom={setSelectedRoom}
+        roomOptions={roomOptions}
+        itemOptions={itemOptions}
+        updateMoveItem={updateMoveItem}
+        removeMoveItem={removeMoveItem}
+        addMoveItem={addMoveItem}
+        moveItems={moveItems}
+        categoryOptions={categoryOptions}
       />
 
       <FormActionContainer className="pt-10">

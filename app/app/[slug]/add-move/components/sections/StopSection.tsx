@@ -1,18 +1,24 @@
-import Header2 from "@/app/components/shared/heading/Header2";
-import InlineBanner from "@/app/components/shared/ui/InlineBanner";
-import { Button } from "@/app/components/ui/button";
-import { useMoveForm } from "@/app/contexts/MoveFormContext";
-import { Plus } from "lucide-react";
 import React, { useState } from "react";
 import MoveAddress from "./MoveAddress";
-import Header3 from "@/app/components/shared/heading/Header3";
-import SectionContainer from "@/app/components/shared/containers/SectionContainer";
+import StopSectionHeader from "@/app/components/move/header/StopSectionHeader";
+import { LocationInput } from "@/types/form-types";
 
-const StopSection = () => {
-  const { locations, addStopLocation, isLocationSectionComplete } =
-    useMoveForm();
+interface StopSectionProps {
+  locations: LocationInput[];
+  addStopLocation: () => void;
+  removeLocation: (index: number) => void;
+  updateLocation: (index: number, partial: Partial<LocationInput>) => void;
+  showEditButton?: boolean;
+}
 
-  const [showBanner, setShowBanner] = useState<boolean>(false);
+const StopSection = ({
+  locations,
+  addStopLocation,
+  removeLocation,
+  updateLocation,
+  showEditButton,
+}: StopSectionProps) => {
+  const [showBanner, setShowBanner] = useState(false);
 
   const handleAddStop = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -20,45 +26,26 @@ const StopSection = () => {
     setShowBanner(true);
     setTimeout(() => setShowBanner(false), 2000);
   };
+
   const stops = locations.slice(1, -1);
 
   return (
     <div>
-      <SectionContainer>
-        <Header3
-          showCheckmark={false}
-          className="pt-0"
-          button={
-            <div className="flex items-center gap-3">
-              <InlineBanner
-                message={`Stop #${locations.length - 2} added.`}
-                show={showBanner}
-                className="pt-0"
-              />
-              <Button
-                onClick={handleAddStop}
-                className=" flex items-center gap-1"
-                size="sm"
-                variant="outline"
-              >
-                <div className="flex items-center gap-1">
-                  <Plus className="w-5 h-5" />{" "}
-                  <span className="text-sm">Stop</span>
-                </div>
-              </Button>
-            </div>
-          }
-          isCompleted={true}
-        >
-          Stops
-        </Header3>
-      </SectionContainer>
+      <StopSectionHeader
+        stopCount={locations.length - 2}
+        showBanner={showBanner}
+        onAddStop={handleAddStop}
+      />
+
       {stops.map((stop, i) => (
         <MoveAddress
           key={i + 1}
           title={`Stop #${i + 1}`}
           index={i + 1}
           location={stop}
+          updateLocation={updateLocation}
+          removeLocation={removeLocation}
+          showEditButton={showEditButton}
         />
       ))}
     </div>

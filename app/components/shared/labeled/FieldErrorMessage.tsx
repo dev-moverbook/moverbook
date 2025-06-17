@@ -11,7 +11,7 @@ const FieldErrorMessage: React.FC<FieldErrorMessageProps> = ({ error }) => {
   return (
     <p
       className={clsx(
-        "text-sm h-5 transition-opacity duration-200 pl-1.5",
+        "text-xs h-5 transition-opacity duration-200 pl-1.5",
         error ? "text-red-500 opacity-100" : "opacity-0"
       )}
     >

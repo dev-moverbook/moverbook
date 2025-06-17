@@ -2,6 +2,7 @@ import { FrontEndErrorMessages } from "@/types/errors";
 import {
   AddMoveLineItemInput,
   FormMoveItemInput,
+  InfoFormData,
   RoomFormData,
 } from "@/types/form-types";
 
@@ -106,4 +107,63 @@ export const validateAddLineForm = (
     isValid: Object.keys(errors).length === 0,
     errors,
   };
+};
+
+export interface ContactValidationErrors {
+  name?: string | null;
+  email?: string | null;
+  phoneNumber?: string | null;
+  altPhoneNumber?: string | null;
+  referral?: string | null;
+}
+
+export const validateContactForm = (
+  formData: InfoFormData,
+  allowedReferrals: string[]
+): { isValid: boolean; errors: ContactValidationErrors } => {
+  const errors: ContactValidationErrors = {};
+
+  if (!formData.name.trim()) {
+    errors.name = FrontEndErrorMessages.NAME_REQUIRED;
+  }
+
+  if (formData.email?.trim()) {
+    if (!emailRegex.test(formData.email)) {
+      errors.email = FrontEndErrorMessages.EMAIL_INVALID;
+    }
+  }
+
+  const phoneError = validatePhoneNumber(formData.phoneNumber);
+  if (phoneError) {
+    errors.phoneNumber = phoneError;
+  }
+
+  const altPhoneError = validatePhoneNumber(formData.altPhoneNumber);
+  if (altPhoneError) {
+    errors.altPhoneNumber = altPhoneError;
+  }
+
+  if (formData.referral && !allowedReferrals.includes(formData.referral)) {
+    errors.referral = FrontEndErrorMessages.REFERRAL_INVALID;
+  }
+
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors,
+  };
+};
+
+export const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+export const validatePhoneNumber = (
+  value: string | null | undefined
+): string | null => {
+  if (!value) return null;
+
+  const phoneDigits = value.replace(/\D/g, "");
+  if (phoneDigits.length < 10 || phoneDigits.length > 15) {
+    return FrontEndErrorMessages.PHONE_NUMBER_INVALID;
+  }
+
+  return null;
 };

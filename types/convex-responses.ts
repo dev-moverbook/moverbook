@@ -14,8 +14,11 @@ import {
   InvitationSchema,
   ItemSchema,
   LaborSchema,
+  MoveAssignmentSchema,
   MoveSchema,
   PolicySchema,
+  PreMoveDocSchema,
+  QuoteSchema,
   ReferralSchema,
   RoomSchema,
   ScriptSchema,
@@ -834,6 +837,22 @@ export interface GetMoveSuccess {
 
 export interface GetMoveData {
   move: MoveSchema;
+  quote: QuoteSchema | null;
+  company: CompanySchema;
+  salesRep: UserSchema;
+  companyContact: CompanyContactSchema;
+  policy: PolicySchema;
+}
+
+export type UpdateMoveResponse = UpdateMoveSuccess | ErrorResponse;
+
+export interface UpdateMoveSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: UpdateMoveData;
+}
+
+export interface UpdateMoveData {
+  moveId: Id<"move">;
 }
 
 export type GetDistanceMatrixResponse =
@@ -848,4 +867,97 @@ export interface GetDistanceMatrixSuccess {
 export interface GetDistanceMatrixData {
   distanceMiles: number;
   durationMinutes: number;
+}
+
+export type GetCompanyContactResponse =
+  | GetCompanyContactSuccess
+  | ErrorResponse;
+
+export interface GetCompanyContactSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetCompanyContactData;
+}
+
+export interface GetCompanyContactData {
+  companyContact: CompanyContactSchema;
+}
+
+export type CreateOrUpdateQuoteResponse =
+  | CreateOrUpdateQuoteSuccess
+  | ErrorResponse;
+
+export interface CreateOrUpdateQuoteSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: CreateOrUpdateQuoteData;
+}
+
+export interface CreateOrUpdateQuoteData {
+  quoteId: Id<"quotes">;
+}
+
+export type GetMoversByCompanyIdResponse =
+  | GetMoversByCompanyIdSuccess
+  | ErrorResponse;
+
+export interface GetMoversByCompanyIdSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetMoversByCompanyIdData;
+}
+
+export interface GetMoversByCompanyIdData {
+  users: UserSchema[];
+}
+
+export type UpdateMoveAssignmentResponse =
+  | UpdateMoveAssignmentSuccess
+  | ErrorResponse;
+
+export interface UpdateMoveAssignmentSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: UpdateMoveAssignmentData;
+}
+
+export interface UpdateMoveAssignmentData {
+  assignmentId: Id<"moveAssignments">;
+}
+
+export type CreateMoveAssignmentResponse =
+  | CreateMoveAssignmentSuccess
+  | ErrorResponse;
+
+export interface CreateMoveAssignmentSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: CreateMoveAssignmentData;
+}
+
+export interface CreateMoveAssignmentData {
+  assignmentId: Id<"moveAssignments">;
+}
+
+export type GetMoveAssignmentsPageResponse =
+  | GetMoveAssignmentsPageSuccess
+  | ErrorResponse;
+
+export interface GetMoveAssignmentsPageSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetMoveAssignmentsPageData;
+}
+
+export interface GetMoveAssignmentsPageData {
+  assignments: MoveAssignmentSchema[];
+  allMovers: UserSchema[];
+  preMoveDoc: PreMoveDocSchema | null;
+}
+
+export type CreateOrUpdatePreMoveDocResponse =
+  | CreateOrUpdatePreMoveDocSuccess
+  | ErrorResponse;
+
+export interface CreateOrUpdatePreMoveDocSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: CreateOrUpdatePreMoveDocData;
+}
+
+export interface CreateOrUpdatePreMoveDocData {
+  preMoveDocId: Id<"preMoveDocs">;
 }

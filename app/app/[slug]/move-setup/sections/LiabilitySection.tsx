@@ -92,53 +92,52 @@ const LiabilitySection: React.FC<LiabilitySectionProps> = ({
 
   return (
     <SectionContainer>
-      <CenteredContainer>
-        <SectionHeader
-          title="Liability Coverage"
-          actions={
-            <Button onClick={handleOpenCreateModal}>+ Add Coverage</Button>
-          }
-        />
-        <CardContainer>
-          {policies.map((policy) => (
-            <LiabilityCard
-              policy={policy}
-              onEdit={handleOpenEditModal}
-              onDelete={handleOpenDeleteModal}
-              key={policy._id}
-            />
-          ))}
-        </CardContainer>
+      <SectionHeader
+        className=""
+        title="Liability Coverage"
+        actions={
+          <Button onClick={handleOpenCreateModal}>+ Add Coverage</Button>
+        }
+      />
+      <CardContainer>
+        {policies.map((policy) => (
+          <LiabilityCard
+            policy={policy}
+            onEdit={handleOpenEditModal}
+            onDelete={handleOpenDeleteModal}
+            key={policy._id}
+          />
+        ))}
+      </CardContainer>
 
-        <LiabilityModal
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-          onCreate={createInsurancePolicy}
-          onEdit={updateInsurancePolicy}
-          loading={
-            isEditMode
-              ? updateInsurancePolicyLoading
-              : createInsurancePolicyLoading
-          }
-          error={
-            isEditMode ? updateInsurancePolicyError : createInsurancePolicyError
-          }
-          companyId={companyId}
-          initialData={selectedPolicy}
-        />
+      <LiabilityModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onCreate={createInsurancePolicy}
+        onEdit={updateInsurancePolicy}
+        loading={
+          isEditMode
+            ? updateInsurancePolicyLoading
+            : createInsurancePolicyLoading
+        }
+        error={
+          isEditMode ? updateInsurancePolicyError : createInsurancePolicyError
+        }
+        companyId={companyId}
+        initialData={selectedPolicy}
+      />
 
-        <ConfirmModal
-          isOpen={isDeleteModalOpen}
-          onClose={handleCloseDeleteModal}
-          onConfirm={handleConfirmDelete}
-          deleteLoading={deleteInsurancePolicyLoading}
-          deleteError={deleteInsurancePolicyError}
-          title="Confirm Delete"
-          description="Are you sure you want to delete this policy? This action cannot be undone."
-          confirmButtonText="Delete"
-          cancelButtonText="Cancel"
-        />
-      </CenteredContainer>
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={handleCloseDeleteModal}
+        onConfirm={handleConfirmDelete}
+        deleteLoading={deleteInsurancePolicyLoading}
+        deleteError={deleteInsurancePolicyError}
+        title="Confirm Delete"
+        description="Are you sure you want to delete this policy? This action cannot be undone."
+        confirmButtonText="Delete"
+        cancelButtonText="Cancel"
+      />
     </SectionContainer>
   );
 };

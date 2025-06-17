@@ -5,21 +5,23 @@ import { useMutation } from "convex/react";
 import { ResponseStatus } from "@/types/enums";
 import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
-import {
-  LocationInput,
-  MoveFeeInput,
-  MoveItemInput,
-  InsurancePolicyInput,
-} from "@/types/form-types"; // <-- Define these based on your form shape
+import { LocationInput, MoveFeeInput, MoveItemInput } from "@/types/form-types"; // <-- Define these based on your form shape
 import { api } from "@/convex/_generated/api";
-import { JobType, MoveStatus, MoveTimes, ServiceType } from "@/types/types";
-import { ArrivalTimes } from "@/types/convex-schemas";
+import {
+  JobType,
+  MoveStatus,
+  MoveTimes,
+  PaymentMethod,
+  SegmentDistance,
+  ServiceType,
+} from "@/types/types";
+import { ArrivalTimes, InsurancePolicySchema } from "@/types/convex-schemas";
 
 interface CreateMoveInput {
   companyId: Id<"companies">;
   status: MoveStatus;
   salesRep: Id<"users">;
-  liabilityCoverage: InsurancePolicyInput | null;
+  liabilityCoverage: InsurancePolicySchema | null;
   name: string;
   email: string | null;
   phoneNumber: string | null;
@@ -45,6 +47,8 @@ interface CreateMoveInput {
   destinationToOrigin: number | null;
   roundTripMiles: number | null;
   roundTripDrive: number | null;
+  segmentDistances: SegmentDistance[];
+  depositMethod: PaymentMethod;
 }
 
 export const useCreateMove = () => {

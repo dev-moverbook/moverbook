@@ -8,16 +8,23 @@ interface Step {
 interface StepperProps {
   steps: Step[];
   currentStep: number; // starts at 1
-  onStepClick?: (stepNumber: number) => void; // new prop
+  onStepClick?: (stepNumber: number) => void;
+  className?: string; // ← new optional className prop
 }
 
 const Stepper: React.FC<StepperProps> = ({
   steps,
   currentStep,
   onStepClick,
+  className, // ← include here
 }) => {
   return (
-    <div className="flex items-center justify-center gap-2 md:gap-6 relative">
+    <div
+      className={cn(
+        "flex items-center justify-center gap-2 md:gap-6 relative",
+        className // ← append user-defined className
+      )}
+    >
       {steps.map((step, index) => {
         const stepNumber = index + 1;
         const isCompleted = stepNumber < currentStep;

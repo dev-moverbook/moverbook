@@ -1,28 +1,38 @@
 "use client";
 
+import React, { useState } from "react";
 import SectionContainer from "@/app/components/shared/containers/SectionContainer";
 import { Button } from "@/app/components/ui/button";
-import React, { useState } from "react";
-import { useMoveForm } from "@/app/contexts/MoveFormContext";
 import CardContainer from "@/app/components/shared/CardContainer";
-import { MoveFeeInput } from "@/types/form-types";
 import AddLineModal from "../modals/AddLineModal";
 import LineItemFeeCard from "../cards/LineItemFeeCard";
 import Header3 from "@/app/components/shared/heading/Header3";
 import { Plus } from "lucide-react";
+import { MoveFeeInput } from "@/types/form-types";
+import { FeeSchema } from "@/types/convex-schemas";
 
-const LineItems = () => {
+interface LineItemsProps {
+  moveFees: MoveFeeInput[];
+  addMoveFee: (fee: MoveFeeInput) => void;
+  updateMoveFee: (index: number, fee: MoveFeeInput) => void;
+  deleteMoveFee: (index: number) => void;
+  moveFeeOptions?: FeeSchema[];
+  isLoading: boolean;
+  errorMessage?: string | null;
+}
+
+const LineItems: React.FC<LineItemsProps> = ({
+  moveFees,
+  addMoveFee,
+  updateMoveFee,
+  deleteMoveFee,
+  moveFeeOptions,
+  isLoading,
+  errorMessage,
+}) => {
   const [showAddLineItemModal, setShowAddLineItemModal] =
     useState<boolean>(false);
   const [editIndex, setEditIndex] = useState<number | null>(null);
-
-  const {
-    moveFees,
-    addMoveFee,
-    updateMoveFee,
-    deleteMoveFee,
-    isLineItemsComplete,
-  } = useMoveForm();
 
   const handleOpenAddLineItemModal = (
     e: React.MouseEvent<HTMLButtonElement>
@@ -63,7 +73,8 @@ const LineItems = () => {
   return (
     <SectionContainer>
       <Header3
-        isCompleted={isLineItemsComplete}
+        wrapperClassName="px-0 py-0"
+        showCheckmark={false}
         button={
           <Button variant="outline" onClick={handleOpenAddLineItemModal}>
             <div className="flex items-center gap-1">
@@ -81,17 +92,22 @@ const LineItems = () => {
         onClose={() => setShowAddLineItemModal(false)}
         initialData={editIndex !== null ? moveFees[editIndex] : null}
         onSubmit={handleSubmitFee}
+        moveFeeOptions={moveFeeOptions}
+        isLoading={isLoading}
+        errorMessage={errorMessage}
       />
-      <CardContainer>
-        {moveFees.map((fee, index) => (
-          <LineItemFeeCard
-            key={`${fee.name}-${index}`}
-            fee={fee}
-            onEdit={handleOpenEditModal}
-            onDelete={handleOpenDeleteModal}
-          />
-        ))}
-      </CardContainer>
+      {moveFees.length > 0 && (
+        <CardContainer>
+          {moveFees.map((fee, index) => (
+            <LineItemFeeCard
+              key={`${fee.name}-${index}`}
+              fee={fee}
+              onEdit={handleOpenEditModal}
+              onDelete={handleOpenDeleteModal}
+            />
+          ))}
+        </CardContainer>
+      )}
     </SectionContainer>
   );
 };

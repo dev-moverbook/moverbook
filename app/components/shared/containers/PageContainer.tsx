@@ -12,7 +12,7 @@ const PageContainer: React.FC<PageContainerProps> = ({
 }) => {
   return (
     <div
-      className={cn("flex flex-col gap-4 max-w-screen-md mx-auto", className)}
+      className={cn("flex flex-col gap-4 max-w-screen-sm mx-auto", className)}
     >
       {children}
     </div>

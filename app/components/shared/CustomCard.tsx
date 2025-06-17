@@ -16,7 +16,7 @@ const CustomCard: React.FC<CustomCardProps> = ({
     <div
       onClick={onClick}
       className={cn(
-        "p-4 border rounded shadow-xl shadow-white/10 w-full border-grayCustom",
+        "p-0 border rounded shadow-xl shadow-white/10 w-full border-grayCustom overflow-hidden",
         className,
         onClick && "cursor-pointer"
       )}
@@ -25,5 +25,4 @@ const CustomCard: React.FC<CustomCardProps> = ({
     </div>
   );
 };
-
 export default CustomCard;

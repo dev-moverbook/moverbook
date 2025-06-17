@@ -11,7 +11,7 @@ interface UseGetSalesRepsResult {
   errorMessage: string | null;
 }
 
-export const useGetMoveReps = (
+export const useGetSalesReps = (
   companyId: Id<"companies"> | null
 ): UseGetSalesRepsResult => {
   const response = useQuery<typeof api.users.getSalesRepsByCompanyId>(

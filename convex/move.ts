@@ -10,13 +10,16 @@ import {
   validateCreditCardFee,
   validateMove,
   validatePolicy,
+  validateQuote,
   validateTravelFee,
+  validateUser,
 } from "./backendUtils/validate";
 import { isUserInOrg } from "./backendUtils/validate";
 import {
   CreateMoveResponse,
   GetMoveOptionsResponse,
   GetMoveResponse,
+  UpdateMoveResponse,
 } from "@/types/convex-responses";
 import {
   JobTypeConvex,
@@ -30,7 +33,17 @@ import {
   LocationConvex,
   MoveFeeConvex,
   MoveItemConvex,
+  PaymentMethodConvex,
+  SegmentDistanceConvex,
 } from "./schema";
+import { ErrorMessages } from "@/types/errors";
+import {
+  CreditCardFeeSchema,
+  InsurancePolicySchema,
+  LaborSchema,
+  QuoteSchema,
+  ReferralSchema,
+} from "@/types/convex-schemas";
 
 export const getMoveOptions = query({
   args: { companyId: v.id("companies") },
@@ -202,6 +215,8 @@ export const createMove = mutation({
     status: MoveStatusConvex,
     totalMiles: v.union(v.null(), v.number()),
     trucks: v.number(),
+    segmentDistances: v.array(SegmentDistanceConvex),
+    depositMethod: PaymentMethodConvex,
   },
   handler: async (ctx, args): Promise<CreateMoveResponse> => {
     try {
@@ -228,20 +243,99 @@ export const createMove = mutation({
 });
 
 export const getMove = query({
-  args: { moveId: v.id("move") },
+  args: { moveId: v.string() },
   handler: async (ctx, args): Promise<GetMoveResponse> => {
     const { moveId } = args;
+
     try {
+      const normalizedId = ctx.db.normalizeId("move", moveId);
+      if (!normalizedId) {
+        throw new Error(ErrorMessages.INVALID_MOVE_ID);
+      }
+
       const identity = await requireAuthenticatedUser(ctx);
 
-      const move = validateMove(await ctx.db.get(moveId));
-
+      const move = validateMove(await ctx.db.get(normalizedId));
       const company = validateCompany(await ctx.db.get(move.companyId));
+      const quote: QuoteSchema | null = await ctx.db
+        .query("quotes")
+        .withIndex("by_move", (q) => q.eq("moveId", normalizedId))
+        .first();
       isUserInOrg(identity, company.clerkOrganizationId);
+      const salesRep = validateUser(await ctx.db.get(move.salesRep));
+      const companyContact = validateCompanyContact(
+        await ctx.db
+          .query("companyContact")
+          .withIndex("by_companyId", (q) => q.eq("companyId", move.companyId))
+          .first()
+      );
+      const policy = validatePolicy(
+        await ctx.db
+          .query("policies")
+          .withIndex("by_companyId", (q) => q.eq("companyId", move.companyId))
+          .first()
+      );
 
       return {
         status: ResponseStatus.SUCCESS,
-        data: { move },
+        data: { move, quote, company, salesRep, companyContact, policy },
+      };
+    } catch (error) {
+      return handleInternalError(error);
+    }
+  },
+});
+
+export const UpdateMoveFields = v.object({
+  name: v.optional(v.string()),
+  phoneNumber: v.optional(v.union(v.string(), v.null())),
+  altPhoneNumber: v.optional(v.union(v.string(), v.null())),
+  email: v.optional(v.union(v.string(), v.null())),
+  notes: v.optional(v.union(v.string(), v.null())),
+  moveDate: v.optional(v.union(v.string(), v.null())),
+  status: v.optional(MoveStatusConvex),
+  serviceType: v.optional(v.union(ServiceTypesConvex, v.null())),
+  jobType: v.optional(JobTypeConvex),
+  jobTypeRate: v.optional(v.union(v.number(), v.null())),
+  arrivalTimes: v.optional(ArrivalTimesConvex),
+  moveWindow: v.optional(MoveTimesConvex),
+  startingMoveTime: v.optional(v.union(v.number(), v.null())),
+  endingMoveTime: v.optional(v.union(v.number(), v.null())),
+  salesRep: v.optional(v.id("users")),
+  locations: v.optional(v.array(LocationConvex)),
+  moveItems: v.optional(v.array(MoveItemConvex)),
+  moveFees: v.optional(v.array(MoveFeeConvex)),
+  trucks: v.optional(v.number()),
+  movers: v.optional(v.number()),
+  totalMiles: v.optional(v.union(v.number(), v.null())),
+  officeToOrigin: v.optional(v.union(v.number(), v.null())),
+  destinationToOrigin: v.optional(v.union(v.number(), v.null())),
+  roundTripMiles: v.optional(v.union(v.number(), v.null())),
+  roundTripDrive: v.optional(v.union(v.number(), v.null())),
+  liabilityCoverage: v.optional(v.union(InsurancePolicyConvex, v.null())),
+  referral: v.optional(v.union(v.string(), v.null())),
+  deposit: v.optional(v.union(v.number(), v.null())),
+  segmentDistances: v.optional(v.array(SegmentDistanceConvex)),
+  depositMethod: v.optional(PaymentMethodConvex),
+});
+
+export const updateMove = mutation({
+  args: {
+    moveId: v.id("move"),
+    updates: UpdateMoveFields,
+  },
+  handler: async (ctx, { moveId, updates }): Promise<UpdateMoveResponse> => {
+    try {
+      const identity = await requireAuthenticatedUser(ctx);
+      const move = validateMove(await ctx.db.get(moveId));
+      const company = validateCompany(await ctx.db.get(move.companyId));
+      isUserInOrg(identity, company.clerkOrganizationId);
+
+      await ctx.db.patch(moveId, updates);
+
+      return {
+        status: ResponseStatus.SUCCESS,
+        data: { moveId },
       };
     } catch (error) {
       return handleInternalError(error);

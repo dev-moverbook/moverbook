@@ -4,6 +4,7 @@ import * as React from "react";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import FieldErrorMessage from "./FieldErrorMessage";
+import FieldDisplay from "@/app/components/shared/FieldDisplay";
 
 interface CheckboxOption {
   label: string;
@@ -18,6 +19,7 @@ interface LabeledCheckboxGroupProps {
   onChange: (newValues: string[]) => void;
   disabled?: boolean;
   error?: string | null;
+  isEditing?: boolean;
 }
 
 const LabeledCheckboxGroup: React.FC<LabeledCheckboxGroupProps> = ({
@@ -28,7 +30,23 @@ const LabeledCheckboxGroup: React.FC<LabeledCheckboxGroupProps> = ({
   onChange,
   disabled = false,
   error,
+  isEditing = true,
 }) => {
+  if (!isEditing) {
+    const selectedLabels = options
+      .filter((opt) => values.includes(opt.value))
+      .map((opt) => opt.label)
+      .join(", ");
+
+    return (
+      <FieldDisplay
+        label={label}
+        value={selectedLabels || undefined}
+        fallback="—"
+      />
+    );
+  }
+
   const toggleValue = (value: string) => {
     if (values.includes(value)) {
       onChange(values.filter((v) => v !== value));

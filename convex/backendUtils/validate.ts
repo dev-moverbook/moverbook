@@ -10,8 +10,10 @@ import {
   InvitationSchema,
   ItemSchema,
   LaborSchema,
+  MoveAssignmentSchema,
   MoveSchema,
   PolicySchema,
+  QuoteSchema,
   ReferralSchema,
   RoomSchema,
   ScriptSchema,
@@ -122,6 +124,14 @@ export function validateVariable(
   }
 
   return variable;
+}
+
+export function validateQuote(quote: QuoteSchema | null): QuoteSchema {
+  if (!quote) {
+    throw new Error(ErrorMessages.QUOTE_NOT_FOUND);
+  }
+
+  return quote;
 }
 
 export const validateScriptFields = (
@@ -328,4 +338,13 @@ export function validateMove(move: MoveSchema | null): MoveSchema {
     throw new Error(ErrorMessages.MOVE_NOT_FOUND);
   }
   return move;
+}
+
+export function validateMoveAssignment(
+  moveAssignment: MoveAssignmentSchema | null
+): MoveAssignmentSchema {
+  if (!moveAssignment) {
+    throw new Error(ErrorMessages.MOVE_ASSIGNMENT_NOT_FOUND);
+  }
+  return moveAssignment;
 }

@@ -30,12 +30,13 @@ const AddMovePageContent = () => {
     useCreateMove();
   const moveForm = useMoveForm();
   const { slug } = useParams();
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      e.preventDefault();
-      e.returnValue = "";
-    };
 
+  const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+    e.preventDefault();
+    e.returnValue = "";
+  };
+
+  useEffect(() => {
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
@@ -104,10 +105,13 @@ const AddMovePageContent = () => {
         destinationToOrigin: moveForm.destinationToOrigin,
         roundTripMiles: moveForm.roundTripMiles,
         roundTripDrive: moveForm.roundTripDrive,
+        segmentDistances: moveForm.segmentDistances,
+        depositMethod: moveForm.depositMethod,
       });
 
       if (success) {
-        router.push(`/app/${slug}/moves/${moveId}/quote`);
+        window.removeEventListener("beforeunload", handleBeforeUnload);
+        router.push(`/app/${slug}/moves/${moveId}`);
       }
     }
   };

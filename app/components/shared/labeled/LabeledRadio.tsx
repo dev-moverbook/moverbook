@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import FieldDisplay from "@/app/components/shared/FieldDisplay";
 import FieldErrorMessage from "./FieldErrorMessage";
 
 interface RadioOption {
@@ -18,6 +19,7 @@ interface LabeledRadioProps {
   onChange: (value: string) => void;
   disabled?: boolean;
   error?: string | null;
+  isEditing?: boolean;
 }
 
 const LabeledRadio: React.FC<LabeledRadioProps> = ({
@@ -28,10 +30,17 @@ const LabeledRadio: React.FC<LabeledRadioProps> = ({
   onChange,
   disabled = false,
   error,
+  isEditing = true,
 }) => {
+  const selectedLabel = options.find((opt) => opt.value === value)?.label;
+
+  if (!isEditing) {
+    return <FieldDisplay label={label} value={selectedLabel} fallback="—" />;
+  }
+
   return (
     <div>
-      <Label className="block text-sm font-medium text-white ">{label}</Label>
+      <Label className="block text-sm font-medium text-white">{label}</Label>
       <RadioGroup
         name={name}
         value={value}
@@ -44,8 +53,7 @@ const LabeledRadio: React.FC<LabeledRadioProps> = ({
             <RadioGroupItem
               value={option.value}
               id={`${name}-${option.value}`}
-              className="w-4 h-4 rounded-full border border-white  data-[state=checked]:bg-greenCustom 
-    data-[state=checked]:border-greenCustom"
+              className="w-4 h-4 rounded-full border border-white data-[state=checked]:bg-greenCustom data-[state=checked]:border-greenCustom"
             />
             <Label
               htmlFor={`${name}-${option.value}`}

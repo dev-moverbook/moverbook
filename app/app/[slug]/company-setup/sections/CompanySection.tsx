@@ -167,7 +167,10 @@ const CompanySection: React.FC<CompanySectionProps> = ({
 
             {isEditing && (
               <FormActions
-                onSave={handleSave}
+                onSave={(e) => {
+                  e.preventDefault();
+                  handleSave();
+                }}
                 onCancel={handleCancel}
                 isSaving={updateLoading}
                 error={updateError}

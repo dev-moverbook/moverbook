@@ -10,9 +10,7 @@ const CardDetailsWrapper: React.FC<CardDetailsWrapperProps> = ({
   children,
   className,
 }) => {
-  return (
-    <div className={cn("mt-4 space-y-1 text-sm ", className)}>{children}</div>
-  );
+  return <div className={cn("text-sm  ", className)}>{children}</div>;
 };
 
 export default CardDetailsWrapper;

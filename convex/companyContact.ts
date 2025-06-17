@@ -1,15 +1,23 @@
 import { ClerkRoles, ResponseStatus } from "@/types/enums";
 import { ErrorMessages } from "@/types/errors";
 import { v } from "convex/values";
-import { internalMutation, mutation, internalQuery } from "./_generated/server";
+import {
+  internalMutation,
+  mutation,
+  internalQuery,
+  query,
+} from "./_generated/server";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
-import { shouldExposeError } from "./backendUtils/helper";
+import { handleInternalError, shouldExposeError } from "./backendUtils/helper";
 import {
   validateCompany,
   isUserInOrg,
   validateCompanyContact,
 } from "./backendUtils/validate";
-import { UpdateCompanyContactResponse } from "@/types/convex-responses";
+import {
+  GetCompanyContactResponse,
+  UpdateCompanyContactResponse,
+} from "@/types/convex-responses";
 import { CompanyContactSchema } from "@/types/convex-schemas";
 
 export const updateCompanyContact = mutation({
@@ -112,6 +120,41 @@ export const getCompanyContactInternal = internalQuery({
     } catch (error) {
       console.error(ErrorMessages.COMPANY_CONTACT_QUERY, error);
       throw new Error(ErrorMessages.COMPANY_CONTACT_QUERY);
+    }
+  },
+});
+
+export const getCompanyContact = query({
+  args: {
+    companyId: v.id("companies"),
+  },
+  handler: async (ctx, args): Promise<GetCompanyContactResponse> => {
+    const { companyId } = args;
+
+    try {
+      const identity = await requireAuthenticatedUser(ctx, [
+        ClerkRoles.ADMIN,
+        ClerkRoles.APP_MODERATOR,
+        ClerkRoles.MANAGER,
+        ClerkRoles.SALES_REP,
+      ]);
+
+      const company = validateCompany(await ctx.db.get(companyId));
+      isUserInOrg(identity, company.clerkOrganizationId);
+
+      const companyContact = validateCompanyContact(
+        await ctx.db
+          .query("companyContact")
+          .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
+          .first()
+      );
+
+      return {
+        status: ResponseStatus.SUCCESS,
+        data: { companyContact },
+      };
+    } catch (error) {
+      return handleInternalError(error);
     }
   },
 });

@@ -1,8 +1,9 @@
 import React from "react";
 import IconRow from "./IconRow"; // adjust path as needed
+import { cn } from "@/lib/utils";
 
 interface CardHeaderWithActionsProps {
-  title: React.ReactNode; // <-- changed from string
+  title: React.ReactNode;
   actions?: React.ReactNode;
   className?: string;
 }
@@ -10,10 +11,12 @@ interface CardHeaderWithActionsProps {
 const CardHeaderWithActions: React.FC<CardHeaderWithActionsProps> = ({
   title,
   actions,
-  className = "",
+  className,
 }) => {
   return (
-    <div className={`flex justify-between items-start ${className}`}>
+    <div
+      className={cn("py-4 px-4 flex justify-between items-start", className)}
+    >
       <h4 className="text-2xl font-medium">{title}</h4>
       <IconRow>{actions}</IconRow>
     </div>

@@ -11,22 +11,23 @@ import FormActions from "@/app/components/shared/FormActions";
 import SizeSelector from "@/app/components/shared/labeled/SizeSelector";
 import { calculateWeightFromSize } from "@/utils/helper";
 import { MOBILE_BREAKPOINT } from "@/types/const";
-import { useMoveForm } from "@/app/contexts/MoveFormContext";
 import { validateMoveItemForm } from "@/app/frontendUtils/validation";
 
 interface AddItemModalProps {
   isOpen: boolean;
   onClose: () => void;
   selectedRoom: string | null;
+  addMoveItem: (item: MoveItemInput) => void;
 }
 
 const AddItemModal: React.FC<AddItemModalProps> = ({
   isOpen,
   onClose,
   selectedRoom,
+  addMoveItem,
 }) => {
-  const { addMoveItem } = useMoveForm();
   const isMobile = useMediaQuery({ maxWidth: MOBILE_BREAKPOINT });
+
   const [formData, setFormData] = useState<FormMoveItemInput>({
     item: "",
     room: selectedRoom || "Unassigned",
@@ -69,10 +70,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
   };
 
   const handleItemChange = (item: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      item,
-    }));
+    setFormData((prev) => ({ ...prev, item }));
   };
 
   const handleSizeSelect = (size: number) => {
@@ -84,20 +82,14 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
   };
 
   const handleWeightChange = (weight: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      weight,
-    }));
+    setFormData((prev) => ({ ...prev, weight }));
   };
 
   const handleQuantityChange = (quantity: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      quantity,
-    }));
+    setFormData((prev) => ({ ...prev, quantity }));
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     const { isValid, errors } = validateMoveItemForm(formData);
 
     if (!isValid) {
@@ -114,7 +106,6 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
     };
 
     addMoveItem(cleanData);
-
     handleClose();
   };
 
@@ -128,7 +119,6 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
         error={errors.item}
       />
 
-      {/* Size Selection */}
       <SizeSelector
         value={formData.size || 0}
         onChange={handleSizeSelect}
@@ -154,6 +144,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
         min={1}
         error={errors.weight}
       />
+
       <LabeledInput
         label="Quantity"
         value={formData.quantity?.toString() || ""}
@@ -170,7 +161,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
           handleSubmit();
         }}
         onCancel={handleClose}
-        saveLabel={"Add Item"}
+        saveLabel="Add Item"
         cancelLabel="Cancel"
         disabled={isDisabled}
       />
@@ -180,14 +171,14 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
   return isMobile ? (
     <Drawer open={isOpen} onOpenChange={handleClose}>
       <DrawerContent>
-        <DrawerTitle>{"Add Item"}</DrawerTitle>
+        <DrawerTitle>Add Item</DrawerTitle>
         {formContent}
       </DrawerContent>
     </Drawer>
   ) : (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent>
-        <DialogTitle>{"Add Item"}</DialogTitle>
+        <DialogTitle>Add Item</DialogTitle>
         {formContent}
       </DialogContent>
     </Dialog>

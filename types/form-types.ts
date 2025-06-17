@@ -1,13 +1,16 @@
 import { Id } from "@/convex/_generated/dataModel";
-import { CategorySize, TravelChargingTypes } from "./enums";
+import { TravelChargingTypes } from "./enums";
 import {
   AccessType,
   LocationType,
   MoveSize,
+  MoveStatus,
+  MoveTimes,
   MoveType,
   ServiceType,
   StopBehavior,
 } from "./types";
+import { ArrivalTimes } from "./convex-schemas";
 
 export interface ComplianceFormData {
   statePucPermitNumber: string;
@@ -51,7 +54,7 @@ export interface PolicyFormData {
   deposit: number;
   cancellationFee: number;
   cancellationCutoffHour: number;
-  additionalTermsAndConditions: string;
+  additionalTermsAndConditions?: string;
 }
 
 export interface CreateLaborFormData {
@@ -145,6 +148,7 @@ export interface FormMoveItemInput {
 }
 
 export interface LocationInput {
+  uid: string;
   locationType: LocationType;
   address: string | null;
   moveType: MoveType | null;
@@ -153,7 +157,7 @@ export interface LocationInput {
   squareFootage: number | null;
   accessType: AccessType | null;
   moveSize: MoveSize | null;
-  stopBehavior?: StopBehavior;
+  stopBehavior?: StopBehavior[];
 }
 
 export interface InsurancePolicyInput {
@@ -161,4 +165,32 @@ export interface InsurancePolicyInput {
   coverageAmount: number;
   coverageType: number;
   premium: number;
+}
+
+export interface InfoFormData {
+  name: string;
+  email: string | null;
+  phoneNumber: string | null;
+  altPhoneNumber: string | null;
+  referral: string | null;
+}
+
+export interface MoveTypeFormData {
+  moveDate: string | null;
+  serviceType: ServiceType | null;
+  moveWindow: MoveTimes;
+  arrivalTimes: {
+    arrivalWindowStarts: string | null;
+    arrivalWindowEnds: string | null;
+  };
+}
+
+export interface InternalNotesFormData {
+  notes: string | null;
+  status: MoveStatus;
+  salesRep: Id<"users">;
+}
+
+export interface DepositFormData {
+  deposit: number | null;
 }

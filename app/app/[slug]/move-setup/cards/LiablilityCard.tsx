@@ -27,6 +27,7 @@ const LiabilityCard: React.FC<LiabilityCardProps> = ({
         title={
           <TitleWithBadge title={policy.name} showBadge={policy.isDefault} />
         }
+        className="px-4 py-4"
         actions={
           <>
             <IconButton
@@ -43,7 +44,7 @@ const LiabilityCard: React.FC<LiabilityCardProps> = ({
           </>
         }
       />
-      <CardDetailsWrapper>
+      <CardDetailsWrapper className="mt-0">
         <CardDetailRow
           label="Coverage Amount"
           value={`$${policy.coverageAmount}/lb`}

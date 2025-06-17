@@ -1,5 +1,5 @@
 interface ErrorComponentProps {
-  message?: string;
+  message?: string | null;
 }
 
 const ErrorComponent: React.FC<ErrorComponentProps> = ({

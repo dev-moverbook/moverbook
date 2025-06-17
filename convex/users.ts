@@ -20,6 +20,8 @@ import {
 import { internal } from "./_generated/api";
 import {
   GetAllUsersByCompanyIdResponse,
+  GetMoversByCompanyIdResponse,
+  GetSalesRepsByCompanyIdResponse,
   GetUserByClerkIdResponse,
   GetUserByIdResponse,
 } from "@/types/convex-responses";
@@ -379,6 +381,44 @@ export const getUserByClerkId = query({
       return {
         status: ResponseStatus.SUCCESS,
         data: { user },
+      };
+    } catch (error) {
+      return handleInternalError(error);
+    }
+  },
+});
+
+export const getMoversByCompanyId = query({
+  args: {
+    companyId: v.id("companies"),
+  },
+  handler: async (ctx, args): Promise<GetMoversByCompanyIdResponse> => {
+    const { companyId } = args;
+    try {
+      const identity = await requireAuthenticatedUser(ctx, [
+        ClerkRoles.ADMIN,
+        ClerkRoles.APP_MODERATOR,
+        ClerkRoles.MANAGER,
+        ClerkRoles.SALES_REP,
+      ]);
+
+      const company = validateCompany(await ctx.db.get(companyId));
+      isUserInOrg(identity, company.clerkOrganizationId);
+
+      const users = await ctx.db
+        .query("users")
+        .filter((q) => q.eq(q.field("companyId"), companyId))
+        .filter((q) => q.eq(q.field("isActive"), true))
+        .collect();
+
+      const sortedUsers = users.sort((a, b) => a.name.localeCompare(b.name));
+      const movers = sortedUsers.filter(
+        (user) => user.role === ClerkRoles.MOVER
+      );
+
+      return {
+        status: ResponseStatus.SUCCESS,
+        data: { users: movers },
       };
     } catch (error) {
       return handleInternalError(error);

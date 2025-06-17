@@ -160,6 +160,7 @@ export const shouldExposeError = (errorMessage: string): boolean => {
     ErrorMessages.LABOR_START_DATES_INCOMPLETE,
     ErrorMessages.LABOR_OVERLAPS,
     ErrorMessages.ROOM_NAME_ALREADY_EXISTS,
+    ErrorMessages.INVALID_MOVE_ID,
   ];
 
   return allowedErrors.includes(errorMessage);

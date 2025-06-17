@@ -13,7 +13,22 @@ interface LocationProps {
 }
 
 const Location = ({ onNext, onBack }: LocationProps) => {
-  const { locations, isLocationSectionComplete } = useMoveForm();
+  const {
+    updateLocation,
+    removeLocation,
+    locations,
+    isLocationSectionComplete,
+    addStopLocation,
+    companyContact,
+    segmentDistances,
+    roundTripMiles,
+    roundTripDrive,
+  } = useMoveForm();
+
+  const handleAddStop = (e: React.MouseEvent) => {
+    e.preventDefault();
+    addStopLocation();
+  };
 
   return (
     <FormContainer>
@@ -23,14 +38,27 @@ const Location = ({ onNext, onBack }: LocationProps) => {
         title="Starting Location"
         index={0}
         location={locations[0]}
+        updateLocation={updateLocation}
       />
-      <StopSection />
+      <StopSection
+        locations={locations}
+        addStopLocation={addStopLocation}
+        removeLocation={removeLocation}
+        updateLocation={updateLocation}
+      />
       <MoveAddress
         title="Ending Location"
         index={locations.length - 1}
         location={locations[locations.length - 1]}
+        updateLocation={updateLocation}
       />
-      <LocationSummary />
+      <LocationSummary
+        companyContact={companyContact}
+        locations={locations}
+        segmentDistances={segmentDistances}
+        roundTripMiles={roundTripMiles}
+        roundTripDrive={roundTripDrive}
+      />
 
       <FormActionContainer className="mt-6">
         <FormActions

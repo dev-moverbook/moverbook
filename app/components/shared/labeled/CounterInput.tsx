@@ -14,6 +14,7 @@ interface CounterInputProps {
   max?: number;
   className?: string;
   error?: string | null;
+  isEditingProp?: boolean;
 }
 
 const CounterInput: React.FC<CounterInputProps> = ({
@@ -24,8 +25,9 @@ const CounterInput: React.FC<CounterInputProps> = ({
   max = 99,
   className,
   error,
+  isEditingProp = true,
 }) => {
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(isEditingProp);
   const [inputValue, setInputValue] = useState<string>("");
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -72,6 +74,19 @@ const CounterInput: React.FC<CounterInputProps> = ({
     }
   };
 
+  if (!isEditingProp) {
+    return (
+      <div className={clsx("flex flex-col gap-2", className)}>
+        <Label className="text-white text-sm font-medium">{label}</Label>
+        <div className="flex items-center gap-4">
+          <div className="min-w-[60px] px-4 py-1 text-center text-white border border-grayCustom rounded-xl text-lg bg-transparent">
+            {value ?? "-"}
+          </div>
+        </div>
+        <FormErrorMessage message={error} />
+      </div>
+    );
+  }
   return (
     <div className={clsx("flex flex-col gap-2", className)}>
       <Label className="text-white text-sm font-medium">{label}</Label>
@@ -124,3 +139,124 @@ const CounterInput: React.FC<CounterInputProps> = ({
 };
 
 export default CounterInput;
+
+// "use client";
+
+// import React, { useRef, useEffect, useState } from "react";
+// import { Minus, Plus } from "lucide-react";
+// import { Label } from "@/components/ui/label";
+// import clsx from "clsx";
+// import FormErrorMessage from "../error/FormErrorMessage";
+
+// interface CounterInputProps {
+//   label: string;
+//   value: number | null;
+//   onChange: (value: number) => void;
+//   min?: number;
+//   max?: number;
+//   className?: string;
+//   error?: string | null;
+//   isEditing?: boolean;
+// }
+
+// const CounterInput: React.FC<CounterInputProps> = ({
+//   label,
+//   value,
+//   onChange,
+//   min = 0,
+//   max = 99,
+//   className,
+//   error,
+//   isEditing = true,
+// }) => {
+//   const inputRef = useRef<HTMLInputElement>(null);
+//   const [inputValue, setInputValue] = useState<string>("");
+
+//   // Focus input if in editing mode and switching to it
+//   useEffect(() => {
+//     if (isEditing && inputRef.current) {
+//       inputRef.current.focus();
+//       inputRef.current.select();
+//     }
+//   }, [isEditing]);
+
+//   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+//     const val = e.target.value;
+//     setInputValue(val);
+//     const num = Number(val);
+//     if (!isNaN(num) && val !== "" && num >= min && num <= max) {
+//       onChange(num);
+//     }
+//   };
+
+//   const decrement = () => {
+//     if (value === null) {
+//       onChange(min);
+//     } else if (value > min) {
+//       onChange(value - 1);
+//     }
+//   };
+
+//   const increment = () => {
+//     if (value === null) {
+//       onChange(min);
+//     } else if (value < max) {
+//       onChange(value + 1);
+//     }
+//   };
+
+//   return (
+//     <div className={clsx("flex flex-col gap-2", className)}>
+//       <Label className="text-white text-sm font-medium">{label}</Label>
+//       <div className="flex items-center gap-4">
+//         <button
+//           type="button"
+//           onClick={decrement}
+//           disabled={!isEditing}
+//           className={clsx(
+//             "w-8 h-8 flex items-center justify-center rounded-full border border-grayCustom text-white shadow-sm transition duration-150",
+//             isEditing && "hover:bg-white/10 hover:scale-105 active:scale-95",
+//             !isEditing && "opacity-50 cursor-default"
+//           )}
+//         >
+//           <Minus className="w-4 h-4" />
+//         </button>
+
+//         {isEditing ? (
+//           <input
+//             ref={inputRef}
+//             type="number"
+//             value={inputValue || value?.toString() || ""}
+//             onChange={handleInputChange}
+//             onBlur={() => setInputValue("")}
+//             min={min}
+//             max={max}
+//             className="min-w-[60px] w-[70px] px-2 py-1 text-center text-white border border-grayCustom rounded-xl text-lg bg-transparent focus:outline-none focus:ring-1 focus:ring-greenCustom"
+//             inputMode="numeric"
+//             autoComplete="off"
+//           />
+//         ) : (
+//           <div className="min-w-[60px] px-4 py-1 text-center text-white border border-grayCustom rounded-xl text-lg bg-transparent">
+//             {value ?? "-"}
+//           </div>
+//         )}
+
+//         <button
+//           type="button"
+//           onClick={increment}
+//           disabled={!isEditing}
+//           className={clsx(
+//             "w-8 h-8 flex items-center justify-center rounded-full border border-grayCustom text-white shadow-sm transition duration-150",
+//             isEditing && "hover:bg-white/10 hover:scale-105 active:scale-95",
+//             !isEditing && "opacity-50 cursor-default"
+//           )}
+//         >
+//           <Plus className="w-4 h-4" />
+//         </button>
+//       </div>
+//       <FormErrorMessage message={error} />
+//     </div>
+//   );
+// };
+
+// export default CounterInput;

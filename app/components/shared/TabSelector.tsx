@@ -30,7 +30,7 @@ const TabSelector: React.FC<TabSelectorProps> = ({
       {/* Border line on both sides outside of the centered area */}
       <div className="absolute left-0 right-0 top-full h-px bg-gray-700 z-0" />
 
-      <div className="relative z-10 max-w-2xl mx-auto ">
+      <div className="relative z-10 max-w-screen-sm mx-auto ">
         <div className="flex w-full">
           {tabs.map((tab) => (
             <button

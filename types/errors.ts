@@ -98,6 +98,10 @@ export enum ErrorMessages {
   CLERK_USER_METADATA_UPDATE_ERROR = "Error updating public metadata for user",
   CLERK_WEBHOOK_USER_CREATED = "Error handling user.created",
   MOVE_NOT_FOUND = "Move not found",
+  INVALID_MOVE_ID = "Invalid move ID",
+  QUOTE_NOT_FOUND = "Quote not found",
+  MISSING_REQUIRED_STATUS = "Missing required status when creating new quote.",
+  MOVE_ASSIGNMENT_NOT_FOUND = "Move assignment not found",
 }
 
 export enum FrontEndErrorMessages {
@@ -130,4 +134,8 @@ export enum FrontEndErrorMessages {
   WEIGHT_REQUIRED = "Weight must be greater than 0.",
   FEE_NAME_REQUIRED = "Fee name is required",
   PRICE_REQUIRED = "Valid price is required",
+  INVALID_MOVE_ID = "Invalid  move ID",
+  NAME_REQUIRED = "Full name is required",
+  PHONE_NUMBER_INVALID = "Enter a valid phone number (10–15 digits).",
+  REFERRAL_INVALID = "Referral must be a valid option.",
 }

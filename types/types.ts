@@ -98,4 +98,31 @@ export type MoveTimes = "morning" | "afternoon" | "custom";
 
 export type LocationType = "starting" | "ending" | "stop";
 
-export type StopBehavior = "stop" | "pickup" | "both";
+export type StopBehavior = "drop_off" | "pick_up";
+
+export interface SegmentDistance {
+  label: string;
+  distance: number | null;
+  duration: number | null;
+}
+
+export type QuoteStatus = "pending" | "completed" | "customer_change";
+
+export const PAYMENT_METHOD_OPTIONS: {
+  label: string;
+  value: PaymentMethod;
+}[] = [
+  { label: "Credit Card", value: "credit_card" },
+  { label: "Check", value: "check" },
+  { label: "Cash", value: "cash" },
+];
+
+export type PaymentMethod = "credit_card" | "check" | "cash";
+
+export const QUOTE_STATUS_LABELS: Record<QuoteStatus, string> = {
+  pending: "Pending",
+  completed: "Completed",
+  customer_change: "Customer Requested Changes",
+};
+
+export type HourStatus = "pending" | "approved" | "rejected";

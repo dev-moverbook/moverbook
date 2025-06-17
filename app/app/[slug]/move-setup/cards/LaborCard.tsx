@@ -50,9 +50,17 @@ const LaborCard: React.FC<LaborCardProps> = ({
         }
       />
       <CardDetailsWrapper>
-        <CardDetailRow label="2 Movers" value={`$${laborItem.twoMovers}`} />
+        <CardDetailRow
+          label="2 Movers"
+          value={`$${laborItem.twoMovers}`}
+          className="bg-background2"
+        />
         <CardDetailRow label="3 Movers" value={`$${laborItem.threeMovers}`} />
-        <CardDetailRow label="4 Movers" value={`$${laborItem.fourMovers}`} />
+        <CardDetailRow
+          className="bg-background2"
+          label="4 Movers"
+          value={`$${laborItem.fourMovers}`}
+        />
         <CardDetailRow label="Extra Mover" value={`$${laborItem.extra}`} />
         {laborItem.startDate != null && (
           <CardDetailRow

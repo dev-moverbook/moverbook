@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import FieldErrorMessage from "./FieldErrorMessage";
+import FieldDisplay from "@/app/components/shared/FieldDisplay";
+import { formatDateToLong } from "@/app/frontendUtils/helper";
 
 interface LabeledDateInputProps {
   label: string;
@@ -10,6 +12,7 @@ interface LabeledDateInputProps {
   error?: string | null;
   min?: string;
   max?: string;
+  isEditing?: boolean;
 }
 
 const LabeledDateInput: React.FC<LabeledDateInputProps> = ({
@@ -19,10 +22,29 @@ const LabeledDateInput: React.FC<LabeledDateInputProps> = ({
   error,
   min,
   max,
+  isEditing = true,
 }) => {
   const [focused, setFocused] = useState(false);
+  const [isIphone, setIsIphone] = useState(false);
 
-  const showGhostText = !value && !focused;
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const ua = window.navigator.userAgent.toLowerCase();
+      setIsIphone(/iphone/.test(ua));
+    }
+  }, []);
+
+  const showGhostText = !value && !focused && isIphone;
+
+  if (!isEditing) {
+    return (
+      <FieldDisplay
+        label={label}
+        value={formatDateToLong(value)}
+        fallback="—"
+      />
+    );
+  }
 
   return (
     <div className="relative">

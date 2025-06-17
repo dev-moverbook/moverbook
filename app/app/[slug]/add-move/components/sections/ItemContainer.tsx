@@ -5,22 +5,27 @@ import PopularItems from "./PopularItems";
 import CategoryInventory from "./CategoryInventory";
 import SearchInventory from "./SearchInventory";
 import { useMoveForm } from "@/app/contexts/MoveFormContext";
-import { ItemSchema } from "@/types/convex-schemas";
+import { CategorySchema, ItemSchema } from "@/types/convex-schemas";
 import { MoveItemInput } from "@/types/form-types";
 
 interface ItemContainerProps {
   roomName: string;
+  categoryOptions: CategorySchema[];
+  itemOptions: ItemSchema[];
+  addMoveItem: (item: MoveItemInput) => void;
+  updateMoveItem: (index: number, updates: Partial<MoveItemInput>) => void;
+  moveItems: MoveItemInput[];
 }
 
-const ItemContainer: React.FC<ItemContainerProps> = ({ roomName }) => {
+const ItemContainer: React.FC<ItemContainerProps> = ({
+  roomName,
+  categoryOptions,
+  itemOptions,
+  addMoveItem,
+  updateMoveItem,
+  moveItems,
+}) => {
   const [activeTab, setActiveTab] = useState<string>("POPULAR");
-  const {
-    categoryOptions,
-    itemOptions,
-    addMoveItem,
-    updateMoveItem,
-    moveItems,
-  } = useMoveForm();
 
   const handleAddItem = (item: ItemSchema) => {
     const existingIndex = moveItems.findIndex(
@@ -55,6 +60,7 @@ const ItemContainer: React.FC<ItemContainerProps> = ({ roomName }) => {
           items={itemOptions}
           handleAddMoveItem={handleAddItem}
           selectedRoom={roomName}
+          addMoveItem={addMoveItem}
         />
       )}
       {activeTab === "CATEGORIES" && (
@@ -69,6 +75,7 @@ const ItemContainer: React.FC<ItemContainerProps> = ({ roomName }) => {
           items={itemOptions}
           handleAddMoveItem={handleAddItem}
           selectedRoom={roomName}
+          addMoveItem={addMoveItem}
         />
       )}
     </SectionContainer>

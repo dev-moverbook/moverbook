@@ -11,14 +11,20 @@ import {
 } from "./enums";
 import {
   AccessType,
+  HourStatus,
   JobType,
   LocationType,
   MoveSize,
   MoveStatus,
   MoveTimes,
   MoveType,
+  PaymentMethod,
+  QuoteStatus,
+  SegmentDistance,
   ServiceType,
+  StopBehavior,
 } from "./types";
+import { MoveFeeInput } from "./form-types";
 
 export interface CompanySchema {
   _id: Id<"companies">;
@@ -255,10 +261,10 @@ export interface MoveSchema {
   endingMoveTime: number | null;
   jobType: JobType;
   jobTypeRate: number | null;
-  liabilityCoverage: MoveInsurancePolicy | null;
+  liabilityCoverage: InsurancePolicySchema | null;
   locations: MoveLocation[];
   moveDate: string | null;
-  moveFees: MoveFee[];
+  moveFees: MoveFeeInput[];
   moveItems: MoveItem[];
   salesRep: Id<"users">;
   moveWindow: MoveTimes;
@@ -275,6 +281,8 @@ export interface MoveSchema {
   status: MoveStatus;
   totalMiles: number | null;
   trucks: number;
+  segmentDistances: SegmentDistance[];
+  depositMethod: PaymentMethod;
 }
 
 export interface MoveItem {
@@ -291,6 +299,7 @@ export interface MoveFee {
 }
 
 export interface MoveLocation {
+  uid: string;
   locationType: LocationType;
   address: string | null;
   moveType: MoveType | null;
@@ -299,6 +308,7 @@ export interface MoveLocation {
   squareFootage: number | null;
   accessType: AccessType | null;
   moveSize: MoveSize | null;
+  stopBehavior?: StopBehavior[];
 }
 
 export interface MoveInsurancePolicy {
@@ -311,4 +321,38 @@ export interface MoveInsurancePolicy {
 export interface ArrivalTimes {
   arrivalWindowStarts: string | null;
   arrivalWindowEnds: string | null;
+}
+
+export interface QuoteSchema {
+  _id: Id<"quotes">;
+  _creationTime: number;
+  moveId: Id<"move">;
+  status: QuoteStatus;
+  customerSignature?: string;
+  customerSignedAt?: number;
+  repSignature?: string;
+  repSignedAt?: number;
+}
+
+export interface MoveAssignmentSchema {
+  _id: Id<"moveAssignments">;
+  _creationTime: number;
+  moveId: Id<"move">;
+  moverId: Id<"users">;
+  isLead: boolean;
+  startTime?: number;
+  endTime?: number;
+  breakAmount?: number;
+  hourStatus?: HourStatus;
+  managerNotes?: string;
+}
+
+export interface PreMoveDocSchema {
+  _id: Id<"preMoveDocs">;
+  _creationTime: number;
+  moveId: Id<"move">;
+  customerSignature?: string;
+  customerSignedAt?: number;
+  repSignature?: string;
+  repSignedAt?: number;
 }

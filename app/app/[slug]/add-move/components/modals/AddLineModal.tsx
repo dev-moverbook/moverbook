@@ -15,12 +15,16 @@ import {
   AddLineValidationErrors,
   validateAddLineForm,
 } from "@/app/frontendUtils/validation";
+import { FeeSchema } from "@/types/convex-schemas";
 
 interface AddLineModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (fee: MoveFeeInput) => void;
   initialData?: MoveFeeInput | null;
+  moveFeeOptions?: FeeSchema[];
+  isLoading: boolean;
+  errorMessage?: string | null;
 }
 
 const AddLineModal = ({
@@ -28,8 +32,10 @@ const AddLineModal = ({
   onClose,
   onSubmit,
   initialData,
+  moveFeeOptions,
+  isLoading,
+  errorMessage,
 }: AddLineModalProps) => {
-  const { moveFeeOptions, isLoading, errorMessage } = useMoveForm();
   const isMobile = useMediaQuery({ maxWidth: MOBILE_BREAKPOINT });
 
   const [formData, setFormData] = useState<AddMoveLineItemInput>({

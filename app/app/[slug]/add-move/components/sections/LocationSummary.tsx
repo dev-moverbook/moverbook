@@ -3,13 +3,28 @@ import SectionContainer from "@/app/components/shared/containers/SectionContaine
 import Header3 from "@/app/components/shared/heading/Header3";
 import React from "react";
 import LocationCard from "@/app/components/move/LocationCard";
-import { useMoveForm } from "@/app/contexts/MoveFormContext";
 import { AddressProvider } from "@/app/components/move/AddressContext";
 import RouteMap from "@/app/components/move/RouteMap";
+import { CompanyContactSchema } from "@/types/convex-schemas";
+import { LocationInput } from "@/types/form-types";
+import { SegmentDistance } from "@/types/types";
+interface LocationSummaryProps {
+  companyContact?: CompanyContactSchema;
+  locations: LocationInput[];
+  segmentDistances: SegmentDistance[];
+  roundTripMiles: number | null;
+  roundTripDrive: number | null;
+  showBorder?: boolean;
+}
 
-const LocationSummary = () => {
-  const { companyContact, locations } = useMoveForm();
-
+const LocationSummary = ({
+  companyContact,
+  locations,
+  segmentDistances,
+  roundTripMiles,
+  roundTripDrive,
+  showBorder = false,
+}: LocationSummaryProps) => {
   const moveAddresses = locations.map((loc) => loc.address).filter(Boolean);
   const office = companyContact?.address;
 
@@ -17,15 +32,21 @@ const LocationSummary = () => {
   const addresses = [office, ...moveAddresses, office] as string[];
 
   return (
-    <SectionContainer showBorder={false}>
-      <Header3 showCheckmark={false}>Summary</Header3>
+    <SectionContainer showBorder={showBorder}>
+      <Header3 wrapperClassName="px-0 pt-0" showCheckmark={false}>
+        Location Summary
+      </Header3>
 
       <AddressProvider addresses={addresses}>
         <RouteMap />
       </AddressProvider>
 
       <CardContainer>
-        <LocationCard />
+        <LocationCard
+          segmentDistances={segmentDistances}
+          roundTripMiles={roundTripMiles}
+          roundTripDrive={roundTripDrive}
+        />
       </CardContainer>
     </SectionContainer>
   );

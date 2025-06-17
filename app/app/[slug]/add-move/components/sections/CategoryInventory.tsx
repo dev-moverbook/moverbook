@@ -2,6 +2,7 @@ import SelectableCardContainer from "@/app/components/shared/containers/Selectab
 import SingleCardContainer from "@/app/components/shared/SingleCardContainer";
 import { ItemSchema } from "@/types/convex-schemas";
 import { CategorySchema } from "@/types/convex-schemas";
+import { MoveItemInput } from "@/types/form-types";
 import React, { useState } from "react";
 
 interface CategoryInventoryProps {

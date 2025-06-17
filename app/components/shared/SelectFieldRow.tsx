@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import FieldDisplay from "./FieldDisplay";
+import FieldErrorMessage from "./labeled/FieldErrorMessage";
 
 interface SelectFieldRowProps {
   label: string;
@@ -16,7 +17,7 @@ interface SelectFieldRowProps {
   options: string[];
   isEditing?: boolean;
   onChange?: (value: string) => void;
-  error?: string;
+  error?: string | null;
   fallback?: string;
 }
 
@@ -28,7 +29,7 @@ const SelectFieldRow: React.FC<SelectFieldRowProps> = ({
   isEditing = true,
   onChange,
   error,
-  fallback = "N/A",
+  fallback = "—",
 }) => {
   if (isEditing) {
     return (
@@ -47,7 +48,7 @@ const SelectFieldRow: React.FC<SelectFieldRowProps> = ({
             ))}
           </SelectContent>
         </Select>
-        {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
+        <FieldErrorMessage error={error} />
       </div>
     );
   }

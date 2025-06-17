@@ -10,9 +10,9 @@ import TitleWithBadge from "@/app/components/shared/TitleWithBadge";
 import clsx from "clsx";
 
 interface SelectLiabilityCardProps {
-  policy: InsurancePolicySchema;
-  isSelected: boolean;
-  onSelect: (policyId: Id<"insurancePolicies">) => void;
+  policy?: InsurancePolicySchema;
+  isSelected?: boolean;
+  onSelect?: (policyId: Id<"insurancePolicies">) => void;
 }
 
 const SelectLiabilityCard: React.FC<SelectLiabilityCardProps> = ({
@@ -20,13 +20,14 @@ const SelectLiabilityCard: React.FC<SelectLiabilityCardProps> = ({
   isSelected,
   onSelect,
 }) => {
+  if (!policy) return null;
   return (
     <CustomCard
       className={clsx(
-        "cursor-pointer border-2 transition",
+        "  transition p-0 pb-2",
         isSelected ? "border-greenCustom" : ""
       )}
-      onClick={() => onSelect(policy._id)}
+      onClick={onSelect ? () => onSelect(policy._id) : undefined}
     >
       <CardHeaderWithActions
         title={

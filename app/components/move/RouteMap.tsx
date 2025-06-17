@@ -164,7 +164,7 @@ const RouteMap: React.FC = () => {
       {error && <div style={{ color: "red" }}>{error}</div>}
       <div
         ref={mapDivRef}
-        className="w-[99%] h-[350px] mt-5 rounded overflow-hidden"
+        className="w-[99%] h-[350px] rounded overflow-hidden"
       />
 
       {polyline.length > 0 && <Polyline path={polyline} map={mapRef.current} />}

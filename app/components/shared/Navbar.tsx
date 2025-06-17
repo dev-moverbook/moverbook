@@ -25,7 +25,7 @@ const Navbar = ({ slug, user }: NavbarProps) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
   return (
-    <nav className="fixed top-0 left-0 w-full h-14 bg-black flex items-center px-4 z-40 shadow-md  border-grayCustom">
+    <nav className="fixed top-0 left-0 w-full h-14 bg-black flex items-center px-2 z-40 shadow-md  border-grayCustom">
       {/* Hamburger only on mobile */}
       <div className="lg:hidden">
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -57,21 +57,22 @@ const Navbar = ({ slug, user }: NavbarProps) => {
 
       {/* Centered Search + Plus Button */}
       <div className="flex-1 lg:ml-64">
-        <div className="flex items-center justify-between gap-2 px-4 lg:px-0 mx-auto max-w-2xl">
+        <div className="flex items-center justify-between  mx-auto max-w-screen-sm px-1">
           <input
             type="text"
             placeholder="Search Customer"
             className="text-sm flex-1 bg-transparent border border-grayCustom text-white placeholder-grayCustom rounded-custom px-4 py-1 focus:outline-none focus:ring focus:ring-grayCustom"
           />
-          <Link href={`/app/${slug}/add-move`}>
-            <IconButton
-              icon={<FiPlusCircle className="text-2xl" />}
-              variant="ghost"
-              iconClassName="text-white"
-            />
-          </Link>
         </div>
       </div>
+      <Link href={`/app/${slug}/add-move`}>
+        <IconButton
+          icon={<FiPlusCircle className="text-2xl" />}
+          variant="ghost"
+          iconClassName="text-white"
+          title="Add Move"
+        />
+      </Link>
     </nav>
   );
 };

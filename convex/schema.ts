@@ -22,6 +22,7 @@ import { v } from "convex/values";
 export const MoveFeeConvex = v.object({
   name: v.string(),
   price: v.number(),
+  quantity: v.number(),
 });
 
 export const MoveItemConvex = v.object({
@@ -32,7 +33,13 @@ export const MoveItemConvex = v.object({
   size: v.number(),
 });
 
+export const StopBehaviorConvex = v.union(
+  v.literal("drop_off"),
+  v.literal("pick_up")
+);
+
 export const LocationConvex = v.object({
+  uid: v.string(),
   locationType: LocationTypeConvex,
   address: v.union(v.string(), v.null()),
   moveType: v.union(MoveTypeConvex, v.null()),
@@ -41,6 +48,7 @@ export const LocationConvex = v.object({
   squareFootage: v.union(v.number(), v.null()),
   accessType: v.union(AccessTypeConvex, v.null()),
   moveSize: v.union(MoveSizeConvex, v.null()),
+  stopBehavior: v.optional(v.array(StopBehaviorConvex)),
 });
 
 export const InsurancePolicyConvex = v.object({
@@ -48,6 +56,17 @@ export const InsurancePolicyConvex = v.object({
   coverageType: v.number(),
   coverageAmount: v.number(),
   premium: v.number(),
+  isDefault: v.boolean(),
+  isActive: v.boolean(),
+  _id: v.id("insurancePolicies"),
+  companyId: v.id("companies"),
+  _creationTime: v.number(),
+});
+
+export const SegmentDistanceConvex = v.object({
+  label: v.string(),
+  distance: v.union(v.number(), v.null()),
+  duration: v.union(v.number(), v.null()),
 });
 
 // schema.ts or similar
@@ -55,6 +74,24 @@ export const ArrivalTimesConvex = v.object({
   arrivalWindowStarts: v.union(v.string(), v.null()),
   arrivalWindowEnds: v.union(v.string(), v.null()),
 });
+
+export const PaymentMethodConvex = v.union(
+  v.literal("credit_card"),
+  v.literal("check"),
+  v.literal("cash")
+);
+
+export const QuoteStatusConvex = v.union(
+  v.literal("pending"),
+  v.literal("completed"),
+  v.literal("customer_change")
+);
+
+export const HourStatusConvex = v.union(
+  v.literal("pending"),
+  v.literal("approved"),
+  v.literal("rejected")
+);
 
 export default defineSchema({
   companies: defineTable({
@@ -232,6 +269,7 @@ export default defineSchema({
     arrivalTimes: ArrivalTimesConvex,
     companyId: v.id("companies"),
     deposit: v.union(v.null(), v.number()),
+    depositMethod: PaymentMethodConvex,
     destinationToOrigin: v.union(v.null(), v.number()),
     email: v.union(v.null(), v.string()),
     endingMoveTime: v.union(v.null(), v.number()),
@@ -257,5 +295,31 @@ export default defineSchema({
     status: MoveStatusConvex,
     totalMiles: v.union(v.null(), v.number()),
     trucks: v.number(),
+    segmentDistances: v.array(SegmentDistanceConvex),
   }),
+  quotes: defineTable({
+    moveId: v.id("move"),
+    customerSignature: v.optional(v.string()),
+    customerSignedAt: v.optional(v.number()),
+    repSignature: v.optional(v.string()),
+    repSignedAt: v.optional(v.number()),
+    status: QuoteStatusConvex,
+  }).index("by_move", ["moveId"]),
+  moveAssignments: defineTable({
+    moveId: v.id("move"),
+    moverId: v.id("users"),
+    isLead: v.boolean(),
+    startTime: v.optional(v.number()),
+    endTime: v.optional(v.number()),
+    breakAmount: v.optional(v.number()),
+    hourStatus: v.optional(HourStatusConvex),
+    managerNotes: v.optional(v.string()),
+  }).index("by_move", ["moveId"]),
+  preMoveDocs: defineTable({
+    moveId: v.id("move"),
+    customerSignature: v.optional(v.string()),
+    customerSignedAt: v.optional(v.number()),
+    repSignature: v.optional(v.string()),
+    repSignedAt: v.optional(v.number()),
+  }).index("by_move", ["moveId"]),
 });

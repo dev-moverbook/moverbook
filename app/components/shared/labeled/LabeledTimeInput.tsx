@@ -4,14 +4,17 @@ import React from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import FieldErrorMessage from "./FieldErrorMessage";
+import FieldDisplay from "@/app/components/shared/FieldDisplay";
+import { formatTime } from "@/app/frontendUtils/helper";
 
 interface LabeledTimeInputProps {
   label: string;
   value: string; // Format: "HH:mm"
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   error?: string | null;
-  min?: string; // Optional min time, e.g. "08:00"
-  max?: string; // Optional max time, e.g. "18:00"
+  min?: string; // Optional min time
+  max?: string; // Optional max time
+  isEditing?: boolean;
 }
 
 const LabeledTimeInput: React.FC<LabeledTimeInputProps> = ({
@@ -21,7 +24,18 @@ const LabeledTimeInput: React.FC<LabeledTimeInputProps> = ({
   error,
   min,
   max,
+  isEditing = true,
 }) => {
+  if (!isEditing) {
+    return (
+      <FieldDisplay
+        label={label}
+        value={value?.trim() ? formatTime(value) : ""}
+        fallback="—"
+      />
+    );
+  }
+
   return (
     <div className="flex flex-col gap-2">
       <Label className="block text-sm font-medium">{label}</Label>

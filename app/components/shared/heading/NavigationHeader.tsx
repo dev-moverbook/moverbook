@@ -10,7 +10,7 @@ interface HeaderProps {
 
 const PageHeader: React.FC<HeaderProps> = ({ title, onBack, onClose }) => {
   return (
-    <div className="flex items-center justify-between px-2 py-2  text-white ">
+    <div className="flex items-center justify-between px-2 md:px-0 py-2  text-white ">
       <IconButton
         variant="ghost"
         icon={<ArrowLeft className="w-5 h-5" />}

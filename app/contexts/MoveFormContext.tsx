@@ -3,6 +3,8 @@ import {
   JobType,
   MoveStatus,
   MoveTimes,
+  PaymentMethod,
+  SegmentDistance,
   SelectOption,
   ServiceType,
 } from "@/types/types";
@@ -36,6 +38,7 @@ import { useSlugContext } from "./SlugContext";
 import { transformInsurancePolicy } from "@/utils/helper";
 import { getDistanceAndDuration } from "../frontendUtils/google";
 import { useDistanceMatrix } from "../app/[slug]/add-move/hooks/useDistanceMatrix";
+import { nanoid } from "nanoid";
 
 interface MoveFormData {
   addMoveFee: (fee: MoveFeeInput) => void;
@@ -56,7 +59,7 @@ interface MoveFormData {
   emailError: string | null;
   endingHour: number;
   errorMessage: string | null;
-  insurancePolicy: InsurancePolicyInput | null;
+  insurancePolicy: InsurancePolicySchema | null;
   insurancePolicyOptions?: InsurancePolicySchema[];
   isError: boolean;
   isLoading: boolean;
@@ -94,7 +97,7 @@ interface MoveFormData {
   setEmail: (email: string) => void;
   setEmailError: (error: string | null) => void;
   setEndingHour: (endingHour: number) => void;
-  setInsurancePolicy: (insurancePolicy: InsurancePolicyInput | null) => void;
+  setInsurancePolicy: (insurancePolicy: InsurancePolicySchema | null) => void;
   setJobType: (jobType: JobType) => void;
   setJobTypeError: (error: string | null) => void;
   setMoveDate: (moveDate: string) => void;
@@ -130,7 +133,6 @@ interface MoveFormData {
   removeMoveItem: (index: number) => void;
   isCostSectionComplete: boolean;
   isTruckAndMoverCompleted: boolean;
-  isLineItemsComplete: boolean;
   isLiabilityCoverageComplete: boolean;
   isDepositComplete: boolean;
   isInternalNotesComplete: boolean;
@@ -150,11 +152,9 @@ interface MoveFormData {
   setJobTypeRate: (jobTypeRate: number) => void;
   setJobTypeRateError: (error: string | null) => void;
   companyContact?: CompanyContactSchema;
-  segmentDistances: {
-    label: string;
-    distance: number | null;
-    duration: number | null;
-  }[];
+  segmentDistances: SegmentDistance[];
+  depositMethod: PaymentMethod;
+  setDepositMethod: (depositMethod: PaymentMethod) => void;
 }
 const MoveFormContext = createContext<MoveFormData | undefined>(undefined);
 
@@ -231,7 +231,7 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
   const [notes, setNotes] = useState<string>("");
   const [moveFees, setMoveFees] = useState<MoveFeeInput[]>([]);
   const [insurancePolicy, setInsurancePolicy] =
-    useState<InsurancePolicyInput | null>(null);
+    useState<InsurancePolicySchema | null>(null);
 
   const [totalMiles, setTotalMiles] = useState<number | null>(null);
   const [officeToOrigin, setOfficeToOrigin] = useState<number | null>(null);
@@ -247,9 +247,11 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
   const [segmentDistances, setSegmentDistances] = useState<
     { label: string; distance: number | null; duration: number | null }[]
   >([]);
-
+  const [depositMethod, setDepositMethod] =
+    useState<PaymentMethod>("credit_card");
   const [locations, setLocations] = useState<LocationInput[]>([
     {
+      uid: nanoid(),
       locationType: "starting",
       address: null,
       moveType: null,
@@ -260,6 +262,7 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
       moveSize: null,
     },
     {
+      uid: nanoid(),
       locationType: "ending",
       address: null,
       moveType: null,
@@ -287,9 +290,7 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
 
     if (insurancePolicyOptions) {
       const defaultPolicy = insurancePolicyOptions.find((p) => p.isDefault);
-      setInsurancePolicy(
-        transformInsurancePolicy(defaultPolicy ?? insurancePolicyOptions[0])
-      );
+      setInsurancePolicy(defaultPolicy ?? insurancePolicyOptions[0]);
     }
 
     if (
@@ -406,6 +407,7 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
 
   const addStopLocation = () => {
     const newStop: LocationInput = {
+      uid: nanoid(),
       locationType: "stop",
       address: null,
       moveType: null,
@@ -486,14 +488,12 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
     jobTypeRate !== null &&
     jobTypeRate > 0;
 
-  const isLineItemsComplete = moveFees.length > 0;
   const isLiabilityCoverageComplete = insurancePolicy != null;
   const isDepositComplete = deposit >= 0;
   const isInternalNotesComplete = !!salesRep && !!moveStatus;
 
   const isCostSectionComplete =
     isTruckAndMoverCompleted &&
-    isLineItemsComplete &&
     isLiabilityCoverageComplete &&
     isDepositComplete &&
     isInternalNotesComplete;
@@ -619,7 +619,6 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
         removeMoveItem,
         isCostSectionComplete,
         isTruckAndMoverCompleted,
-        isLineItemsComplete,
         isLiabilityCoverageComplete,
         isDepositComplete,
         isInternalNotesComplete,
@@ -641,6 +640,8 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
         setJobTypeRateError,
         companyContact,
         segmentDistances,
+        depositMethod,
+        setDepositMethod,
       }}
     >
       {children}

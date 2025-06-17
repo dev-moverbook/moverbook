@@ -2,33 +2,37 @@
 
 import React, { useState } from "react";
 import SectionContainer from "@/app/components/shared/containers/SectionContainer";
-import { useMoveForm } from "@/app/contexts/MoveFormContext";
 import CardContainer from "@/app/components/shared/CardContainer";
 import SelectLiabilityCard from "../cards/SelectLiabilityCard";
 import Header3 from "@/app/components/shared/heading/Header3";
 import IconButton from "@/app/components/shared/IconButton";
 import { Pencil, X } from "lucide-react";
+import { InsurancePolicySchema } from "@/types/convex-schemas";
+import FieldErrorMessage from "@/app/components/shared/labeled/FieldErrorMessage";
 
-const LiabilityCoverage = () => {
-  const {
-    insurancePolicyOptions,
-    insurancePolicy,
-    setInsurancePolicy,
-    isLiabilityCoverageComplete,
-  } = useMoveForm();
+interface LiabilityCoverageProps {
+  insurancePolicyOptions?: InsurancePolicySchema[] | null;
+  insurancePolicy?: InsurancePolicySchema | null;
+  isLiabilityCoverageComplete?: boolean;
+  onSelectPolicy: (policy: InsurancePolicySchema) => void;
+  error?: string | null;
+}
 
-  const [isEditing, setIsEditing] = useState(false);
+const LiabilityCoverage: React.FC<LiabilityCoverageProps> = ({
+  insurancePolicyOptions,
+  insurancePolicy,
+  isLiabilityCoverageComplete,
+  onSelectPolicy,
+  error,
+}) => {
+  const [isEditing, setIsEditing] = useState<boolean>(false);
 
-  const handleSelect = (id: string) => {
-    const selected = insurancePolicyOptions?.find((p) => p._id === id);
-    if (selected) {
-      setInsurancePolicy(selected);
-      setIsEditing(false);
-    }
-  };
+  const selectedPolicy = insurancePolicyOptions?.find(
+    (p) => p.name === insurancePolicy?.name
+  );
 
   return (
-    <SectionContainer>
+    <div>
       <Header3
         isCompleted={isLiabilityCoverageComplete}
         button={
@@ -52,26 +56,27 @@ const LiabilityCoverage = () => {
       >
         Liability Coverage
       </Header3>
-
-      <CardContainer>
-        {isEditing
-          ? insurancePolicyOptions?.map((policy) => (
-              <SelectLiabilityCard
-                key={policy._id}
-                policy={policy}
-                isSelected={insurancePolicy?._id === policy._id}
-                onSelect={handleSelect}
-              />
-            ))
-          : insurancePolicy && (
-              <SelectLiabilityCard
-                policy={insurancePolicy}
-                isSelected={true}
-                onSelect={() => {}}
-              />
-            )}
-      </CardContainer>
-    </SectionContainer>
+      <SectionContainer>
+        <CardContainer>
+          {isEditing
+            ? insurancePolicyOptions?.map((policy) => (
+                <SelectLiabilityCard
+                  key={policy.name}
+                  policy={policy}
+                  isSelected={insurancePolicy?.name === policy.name}
+                  onSelect={() => {
+                    onSelectPolicy(policy);
+                    setIsEditing(false);
+                  }}
+                />
+              ))
+            : insurancePolicy && (
+                <SelectLiabilityCard policy={selectedPolicy} />
+              )}
+        </CardContainer>
+        <FieldErrorMessage error={error} />
+      </SectionContainer>
+    </div>
   );
 };
 

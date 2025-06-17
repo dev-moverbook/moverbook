@@ -68,6 +68,117 @@ export type StarterItem = {
   weight: number;
 };
 
+export const PRE_MOVE_TERMS_AND_CONDITIONS = `
+  <h2>Important Information About Your Upcoming Move</h2>
+
+  <p>Hi <strong>[Customer Name]</strong>,</p>
+
+  <p>We’re looking forward to assisting you with your upcoming move! Here’s what you need to know to help ensure everything goes smoothly:</p>
+
+  <ul>
+    <li><strong>📦 Move Date:</strong> [Insert Date]</li>
+    <li><strong>🕒 Arrival Window:</strong> [Insert Time Range]</li>
+    <li><strong>📍 Starting Address:</strong> [Insert Starting Address]</li>
+    <li><strong>📍 Destination Address:</strong> [Insert Destination Address]</li>
+  </ul>
+
+  <h3>Before Moving Day:</h3>
+  <ul>
+    <li><strong>Packing:</strong> Have all items securely packed and labeled unless packing services are included.</li>
+    <li><strong>Access:</strong> Ensure clear access to entrances, elevators, and arrange any required parking permits.</li>
+    <li><strong>Valuables:</strong> Personally transport high-value or sensitive items.</li>
+    <li><strong>Appliances:</strong> Disconnect and prepare appliances in advance if they’re being moved.</li>
+  </ul>
+
+  <h3>On Moving Day:</h3>
+  <ul>
+    <li>Be available during the arrival window to review the plan and sign paperwork.</li>
+    <li>Clear a path from your door to the moving truck.</li>
+    <li>Keep pets and children in a safe area during the move.</li>
+  </ul>
+
+  <p>If you have any questions, contact us at <a href="mailto:[Email]">[Email]</a> or call us at <strong>[Phone Number]</strong>.</p>
+
+  <p>We appreciate your trust and look forward to a smooth move!</p>
+
+  <p>
+    Best regards,<br />
+    <strong>[Your Company Name]</strong><br />
+    [Contact Info] <br />
+    <a href="[Website URL]">[Website URL]</a>
+  </p>
+`;
+
+export const MOVE_TERMS_AND_CONDITIONS = `
+
+    <p className="text-base md:text-sm font-bold">Terms and Conditions</p>
+    <p className="text-base md:text-sm font-semibold mb-2">For Moving Services</p>
+
+    <p className="text-base md:text-sm">
+      <strong>Effective Date:</strong> [Insert Date]
+    </p>
+    <p className="text-base md:text-sm">
+      <strong>Company Name:</strong> [Your Moving Company Name]
+    </p>
+    <p className="text-base md:text-sm mb-4">
+      <strong>Contact Information:</strong> [Phone | Email | Address]
+    </p>
+
+    <p className="text-base md:text-sm font-semibold mt-4">1. Services Provided</p>
+    <p className="text-base md:text-sm">
+      We provide residential and/or commercial moving services, including packing,
+      transportation, loading, unloading, and optional storage.
+    </p>
+
+    <p className="text-base md:text-sm font-semibold mt-4">2. Estimates & Quotes</p>
+    <p className="text-base md:text-sm">• All quotes are non-binding unless stated otherwise.</p>
+    <p className="text-base md:text-sm">• Final charges are based on actual time, labor, distance, materials, and services used.</p>
+    <p className="text-base md:text-sm">• Additional charges may apply for long carries, stairs, elevator delays, oversized items, packing materials, or specialty items (e.g., pianos, safes).</p>
+
+    <p className="text-base md:text-sm font-semibold mt-4">3. Booking & Cancellation</p>
+    <p className="text-base md:text-sm">• A deposit may be required to secure your move date.</p>
+    <p className="text-base md:text-sm">• Cancellations made less than 48 hours in advance may incur a cancellation fee or deposit forfeiture.</p>
+    <p className="text-base md:text-sm">• Rescheduling is subject to availability.</p>
+
+    <p className="text-base md:text-sm font-semibold mt-4">4. Customer Responsibilities</p>
+    <p className="text-base md:text-sm">• Properly pack and label all items unless using our packing service.</p>
+    <p className="text-base md:text-sm">• Be present or assign someone authorized during the move.</p>
+    <p className="text-base md:text-sm">• Ensure clear access at all locations.</p>
+    <p className="text-base md:text-sm">• Remove valuables, documents, or fragile items beforehand.</p>
+
+    <p className="text-base md:text-sm font-semibold mt-4">5. Liability & Claims</p>
+    <p className="text-base md:text-sm">• We are not liable for damage to items with pre-existing defects or items packed by the customer.</p>
+    <p className="text-base md:text-sm">• Basic liability is $0.60 per pound per item unless otherwise agreed.</p>
+    <p className="text-base md:text-sm">• Claims must be submitted in writing within 10 business days of the move.</p>
+
+    <p className="text-base md:text-sm font-semibold mt-4">6. Delays & Force Majeure</p>
+    <p className="text-base md:text-sm">
+      We are not responsible for delays due to weather, traffic, road conditions,
+      mechanical issues, or other events beyond our control.
+    </p>
+
+    <p className="text-base md:text-sm font-semibold mt-4">7. Payment Terms</p>
+    <p className="text-base md:text-sm">• Payment is due upon completion unless agreed in writing.</p>
+    <p className="text-base md:text-sm">• Accepted methods: cash, credit card, or certified check.</p>
+    <p className="text-base md:text-sm">• Late payments may incur fees or interest.</p>
+
+    <p className="text-base md:text-sm font-semibold mt-4">8. Right to Refuse Service</p>
+    <p className="text-base md:text-sm">
+      We may refuse service if the environment is unsafe, illegal items are present,
+      or payment cannot be secured.
+    </p>
+
+    <p className="text-base md:text-sm font-semibold mt-4">9. Governing Law</p>
+    <p className="text-base md:text-sm">
+      These terms are governed by the laws of the state/province of [Your Location].
+    </p>
+
+    <p className="text-base md:text-sm font-semibold mt-4">10. Agreement</p>
+    <p className="text-base md:text-sm">
+      By booking and accepting our services, you agree to these Terms and Conditions.
+    </p>
+`;
+
 export const STARTER_ITEMS: StarterItem[] = [
   { name: "10' Conf. Table", size: 70, weight: 438 },
   { name: "10x10 Storage Unit - Full", size: 800, weight: 5600 },

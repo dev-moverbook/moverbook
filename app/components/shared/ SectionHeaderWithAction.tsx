@@ -11,7 +11,7 @@ const SectionHeaderWithAction: React.FC<SectionHeaderWithActionProps> = ({
 }) => {
   return (
     <div className="px-4 md:px-0 my-4">
-      <div className="flex items-center justify-between max-w-2xl mx-auto">
+      <div className="flex items-center justify-between max-w-screen-sm mx-auto">
         <h2 className="text-2xl font-medium">{title}</h2>
         {action}
       </div>

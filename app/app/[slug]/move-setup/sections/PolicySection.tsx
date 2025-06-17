@@ -166,7 +166,10 @@ const PolicySection: React.FC<PolicySectionProps> = ({ policy }) => {
 
           {isEditing && (
             <FormActions
-              onSave={handleSave}
+              onSave={(e) => {
+                e.preventDefault();
+                handleSave();
+              }}
               onCancel={handleCancel}
               isSaving={updatePolicyLoading}
               error={updatePolicyError}

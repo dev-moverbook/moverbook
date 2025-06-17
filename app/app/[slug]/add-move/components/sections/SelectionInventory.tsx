@@ -13,12 +13,21 @@ import CounterInput from "@/app/components/shared/labeled/CounterInput";
 import Header4 from "@/app/components/shared/heading/Header4";
 import IconRow from "@/app/components/shared/IconRow";
 import ConfirmModal from "@/app/components/shared/ConfirmModal";
+import { RoomSchema, ItemSchema, CategorySchema } from "@/types/convex-schemas";
+import { MoveItemInput } from "@/types/form-types";
 
 interface SelectionInventoryProps {
   selectedItemIndices: Set<number>;
   setSelectedItemIndices: React.Dispatch<React.SetStateAction<Set<number>>>;
   selectedRoom: string | null;
   setSelectedRoom: React.Dispatch<React.SetStateAction<string | null>>;
+  roomOptions?: RoomSchema[];
+  itemOptions?: ItemSchema[];
+  updateMoveItem: (index: number, updates: Partial<MoveItemInput>) => void;
+  removeMoveItem: (index: number) => void;
+  addMoveItem: (item: MoveItemInput) => void;
+  moveItems: MoveItemInput[];
+  categoryOptions?: CategorySchema[];
 }
 
 const SelectionInventory = ({
@@ -26,15 +35,16 @@ const SelectionInventory = ({
   setSelectedItemIndices,
   selectedRoom,
   setSelectedRoom,
+  roomOptions,
+  itemOptions,
+  updateMoveItem,
+  removeMoveItem,
+  addMoveItem,
+  moveItems,
+  categoryOptions,
 }: SelectionInventoryProps) => {
   const [isCreateItemModal, setIsCreateItemModal] = useState(false);
-  const {
-    roomOptions,
-    itemOptions,
-    updateMoveItem,
-    removeMoveItem,
-    moveItems,
-  } = useMoveForm();
+
   const [addRoomModalOpen, setAddRoomModalOpen] = useState<boolean>(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false);
   const [quantity, setQuantity] = useState<null | number>(null);
@@ -165,7 +175,14 @@ const SelectionInventory = ({
               onRemove: handleClearSelectedRoom,
             }}
           />
-          <ItemContainer roomName={selectedRoom} />
+          <ItemContainer
+            roomName={selectedRoom}
+            categoryOptions={categoryOptions || []}
+            itemOptions={itemOptions || []}
+            addMoveItem={addMoveItem}
+            updateMoveItem={updateMoveItem}
+            moveItems={moveItems}
+          />
         </div>
       ) : (
         <div>
