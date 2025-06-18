@@ -1,15 +1,43 @@
-import CenteredContainer from "@/app/components/shared/CenteredContainer";
-import SectionContainer from "@/app/components/shared/containers/SectionContainer";
-import SectionHeader from "@/app/components/shared/SectionHeader";
 import React from "react";
+import PaymentHeading from "../payment/PaymentHeading";
+import AdditionalFees from "../payment/AdditionalFees";
+import Discounts from "../payment/Discounts";
+import InvoiceSummary from "../payment/InvoiceSummary";
+import InvoiceSignature from "../payment/InnvoiceSignature";
+import InternalReview from "../payment/InternalReview";
+import ExternalReview from "../payment/ExternalReview";
+import { useGetPaymentPage } from "@/app/hooks/queries/useGetPaymentPage";
+import { Id } from "@/convex/_generated/dataModel";
+import FullLoading from "@/app/components/shared/FullLoading";
+import ErrorComponent from "@/app/components/shared/ErrorComponent";
 
-const PaymentStep = () => {
+interface PaymentStepProps {
+  moveId: Id<"move">;
+}
+
+const PaymentStep = ({ moveId }: PaymentStepProps) => {
+  const { data, isLoading, isError, errorMessage } = useGetPaymentPage(moveId);
+
+  const { additionalFees, discounts, invoice, internalReview } = data ?? {
+    additionalFees: [],
+    discounts: [],
+    invoice: null,
+    internalReview: null,
+  };
+
+  if (isLoading) return <FullLoading />;
+  if (isError) return <ErrorComponent message={errorMessage} />;
+
   return (
-    <SectionContainer>
-      <CenteredContainer>
-        <SectionHeader title="Payment" />
-      </CenteredContainer>
-    </SectionContainer>
+    <div>
+      <PaymentHeading />
+      <AdditionalFees additionalFees={additionalFees} moveId={moveId} />
+      <Discounts discounts={discounts} />
+      <InvoiceSummary invoice={invoice} />
+      <InvoiceSignature />
+      <InternalReview />
+      <ExternalReview />
+    </div>
   );
 };
 

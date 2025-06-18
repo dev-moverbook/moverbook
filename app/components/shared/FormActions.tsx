@@ -41,7 +41,7 @@ const FormActions: React.FC<FormActionsProps> = ({
           disabled={cancelDisabled || isCanceling}
           isLoading={isCanceling}
           variant={cancelVariant}
-          className="w-full text-greenCustom"
+          className="w-full "
         >
           {cancelLabel}
         </Button>

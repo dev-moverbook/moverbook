@@ -13,6 +13,7 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as additionalFees from "../additionalFees.js";
 import type * as arrivalWindow from "../arrivalWindow.js";
 import type * as backendUtils_auth from "../backendUtils/auth.js";
 import type * as backendUtils_checkUnique from "../backendUtils/checkUnique.js";
@@ -30,6 +31,7 @@ import type * as compliance from "../compliance.js";
 import type * as connectedAccount from "../connectedAccount.js";
 import type * as creditCardFee from "../creditCardFee.js";
 import type * as customers from "../customers.js";
+import type * as discounts from "../discounts.js";
 import type * as fees from "../fees.js";
 import type * as google from "../google.js";
 import type * as http from "../http.js";
@@ -39,6 +41,7 @@ import type * as items from "../items.js";
 import type * as labor from "../labor.js";
 import type * as move from "../move.js";
 import type * as moveAssignments from "../moveAssignments.js";
+import type * as paymentStep from "../paymentStep.js";
 import type * as policies from "../policies.js";
 import type * as preMoveDocs from "../preMoveDocs.js";
 import type * as quotes from "../quotes.js";
@@ -62,6 +65,7 @@ import type * as webhooks_clerk from "../webhooks/clerk.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  additionalFees: typeof additionalFees;
   arrivalWindow: typeof arrivalWindow;
   "backendUtils/auth": typeof backendUtils_auth;
   "backendUtils/checkUnique": typeof backendUtils_checkUnique;
@@ -79,6 +83,7 @@ declare const fullApi: ApiFromModules<{
   connectedAccount: typeof connectedAccount;
   creditCardFee: typeof creditCardFee;
   customers: typeof customers;
+  discounts: typeof discounts;
   fees: typeof fees;
   google: typeof google;
   http: typeof http;
@@ -88,6 +93,7 @@ declare const fullApi: ApiFromModules<{
   labor: typeof labor;
   move: typeof move;
   moveAssignments: typeof moveAssignments;
+  paymentStep: typeof paymentStep;
   policies: typeof policies;
   preMoveDocs: typeof preMoveDocs;
   quotes: typeof quotes;

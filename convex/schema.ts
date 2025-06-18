@@ -322,4 +322,29 @@ export default defineSchema({
     repSignature: v.optional(v.string()),
     repSignedAt: v.optional(v.number()),
   }).index("by_move", ["moveId"]),
+  additionalFees: defineTable({
+    moveId: v.id("move"),
+    name: v.string(),
+    price: v.number(),
+    quantity: v.number(),
+    feeId: v.optional(v.id("fees")),
+    isActive: v.boolean(),
+  }).index("by_move", ["moveId"]),
+  discounts: defineTable({
+    moveId: v.id("move"),
+    name: v.string(),
+    price: v.number(),
+    isActive: v.boolean(),
+  }).index("by_move", ["moveId"]),
+  invoice: defineTable({
+    moveId: v.id("move"),
+    customerSignature: v.optional(v.string()),
+    customerSignedAt: v.optional(v.number()),
+    repSignature: v.optional(v.string()),
+    repSignedAt: v.optional(v.number()),
+  }).index("by_move", ["moveId"]),
+  internalReview: defineTable({
+    moveId: v.id("move"),
+    review: v.string(),
+  }).index("by_move", ["moveId"]),
 });

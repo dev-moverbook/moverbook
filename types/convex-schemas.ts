@@ -356,3 +356,49 @@ export interface PreMoveDocSchema {
   repSignature?: string;
   repSignedAt?: number;
 }
+
+export interface AdditionalFeeSchema {
+  _id: Id<"additionalFees">;
+  _creationTime: number;
+  moveId: Id<"move">;
+  name: string;
+  price: number;
+  quantity: number;
+  feeId?: Id<"fees">;
+  isActive: boolean;
+}
+
+export interface DiscountSchema {
+  _id: Id<"discounts">;
+  _creationTime: number;
+  moveId: Id<"move">;
+  name: string;
+  price: number;
+  isActive: boolean;
+}
+
+export interface InvoiceSchema {
+  _id: Id<"invoice">;
+  _creationTime: number;
+  moveId: Id<"move">;
+  customerSignature?: string;
+  customerSignedAt?: number;
+  repSignature?: string;
+  repSignedAt?: number;
+}
+
+export interface InternalReviewSchema {
+  _id: Id<"internalReview">;
+  _creationTime: number;
+  moveId: Id<"move">;
+  review: string;
+}
+
+export interface DiscountSchema {
+  _id: Id<"discounts">;
+  _creationTime: number;
+  moveId: Id<"move">;
+  name: string;
+  price: number;
+  isActive: boolean;
+}

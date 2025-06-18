@@ -326,7 +326,12 @@ export const updateMove = mutation({
   },
   handler: async (ctx, { moveId, updates }): Promise<UpdateMoveResponse> => {
     try {
-      const identity = await requireAuthenticatedUser(ctx);
+      const identity = await requireAuthenticatedUser(ctx, [
+        ClerkRoles.ADMIN,
+        ClerkRoles.APP_MODERATOR,
+        ClerkRoles.MANAGER,
+        ClerkRoles.SALES_REP,
+      ]);
       const move = validateMove(await ctx.db.get(moveId));
       const company = validateCompany(await ctx.db.get(move.companyId));
       isUserInOrg(identity, company.clerkOrganizationId);

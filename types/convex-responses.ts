@@ -2,6 +2,7 @@ import { Id } from "@/convex/_generated/dataModel";
 import { ResponseStatus, StripeAccountStatus } from "./enums";
 import { ErrorMessages } from "./errors";
 import {
+  AdditionalFeeSchema,
   ArrivalWindowSchema,
   CategorySchema,
   CompanyContactSchema,
@@ -9,9 +10,12 @@ import {
   ComplianceSchema,
   ConnectedAccountSchema,
   CreditCardFeeSchema,
+  DiscountSchema,
   FeeSchema,
   InsurancePolicySchema,
+  InternalReviewSchema,
   InvitationSchema,
+  InvoiceSchema,
   ItemSchema,
   LaborSchema,
   MoveAssignmentSchema,
@@ -960,4 +964,44 @@ export interface CreateOrUpdatePreMoveDocSuccess {
 
 export interface CreateOrUpdatePreMoveDocData {
   preMoveDocId: Id<"preMoveDocs">;
+}
+
+export type GetPaymentPageResponse = GetPaymentPageSuccess | ErrorResponse;
+
+export interface GetPaymentPageSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetPaymentPageData;
+}
+
+export interface GetPaymentPageData {
+  additionalFees: AdditionalFeeSchema[];
+  discounts: DiscountSchema[];
+  invoice: InvoiceSchema | null;
+  internalReview: InternalReviewSchema | null;
+}
+
+export type CreateAdditionalFeeResponse =
+  | CreateAdditionalFeeSuccess
+  | ErrorResponse;
+
+export interface CreateAdditionalFeeSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: CreateAdditionalFeeData;
+}
+
+export interface CreateAdditionalFeeData {
+  additionalFeeId: Id<"additionalFees">;
+}
+
+export type UpdateAdditionalFeeResponse =
+  | UpdateAdditionalFeeSuccess
+  | ErrorResponse;
+
+export interface UpdateAdditionalFeeSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: UpdateAdditionalFeeData;
+}
+
+export interface UpdateAdditionalFeeData {
+  additionalFeeId: Id<"additionalFees">;
 }

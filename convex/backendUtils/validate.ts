@@ -1,10 +1,12 @@
 import {
+  AdditionalFeeSchema,
   ArrivalWindowSchema,
   CategorySchema,
   CompanyContactSchema,
   CompanySchema,
   ComplianceSchema,
   CreditCardFeeSchema,
+  DiscountSchema,
   FeeSchema,
   InsurancePolicySchema,
   InvitationSchema,
@@ -347,4 +349,22 @@ export function validateMoveAssignment(
     throw new Error(ErrorMessages.MOVE_ASSIGNMENT_NOT_FOUND);
   }
   return moveAssignment;
+}
+
+export function validateAdditionalFee(
+  additionalFee: AdditionalFeeSchema | null
+): AdditionalFeeSchema {
+  if (!additionalFee) {
+    throw new Error(ErrorMessages.ADDITIONAL_FEE_NOT_FOUND);
+  }
+  return additionalFee;
+}
+
+export function validateDiscount(
+  discount: DiscountSchema | null
+): DiscountSchema {
+  if (!discount) {
+    throw new Error(ErrorMessages.DISCOUNT_NOT_FOUND);
+  }
+  return discount;
 }

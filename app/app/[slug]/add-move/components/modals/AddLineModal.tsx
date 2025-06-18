@@ -15,13 +15,13 @@ import {
   AddLineValidationErrors,
   validateAddLineForm,
 } from "@/app/frontendUtils/validation";
-import { FeeSchema } from "@/types/convex-schemas";
+import { AdditionalFeeSchema, FeeSchema } from "@/types/convex-schemas";
 
 interface AddLineModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (fee: MoveFeeInput) => void;
-  initialData?: MoveFeeInput | null;
+  initialData?: MoveFeeInput | null | AdditionalFeeSchema;
   moveFeeOptions?: FeeSchema[];
   isLoading: boolean;
   errorMessage?: string | null;

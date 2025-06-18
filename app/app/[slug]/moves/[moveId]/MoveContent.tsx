@@ -78,7 +78,9 @@ const MoveContent = ({ moveData }: MoveContentProps) => {
       {currentStep === 3 && activeTab === "INFO" && (
         <MoveStep move={move} quote={quote} />
       )}
-      {currentStep === 4 && activeTab === "INFO" && <PaymentStep />}
+      {currentStep === 4 && activeTab === "INFO" && (
+        <PaymentStep moveId={move._id} />
+      )}
     </main>
   );
 };

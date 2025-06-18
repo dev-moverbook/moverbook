@@ -102,6 +102,8 @@ export enum ErrorMessages {
   QUOTE_NOT_FOUND = "Quote not found",
   MISSING_REQUIRED_STATUS = "Missing required status when creating new quote.",
   MOVE_ASSIGNMENT_NOT_FOUND = "Move assignment not found",
+  ADDITIONAL_FEE_NOT_FOUND = "Additional fee not found",
+  DISCOUNT_NOT_FOUND = "Discount not found",
 }
 
 export enum FrontEndErrorMessages {
