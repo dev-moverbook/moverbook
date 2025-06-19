@@ -7,15 +7,16 @@ import InvoiceSignature from "../payment/InnvoiceSignature";
 import InternalReview from "../payment/InternalReview";
 import ExternalReview from "../payment/ExternalReview";
 import { useGetPaymentPage } from "@/app/hooks/queries/useGetPaymentPage";
-import { Id } from "@/convex/_generated/dataModel";
 import FullLoading from "@/app/components/shared/FullLoading";
 import ErrorComponent from "@/app/components/shared/ErrorComponent";
+import { MoveSchema } from "@/types/convex-schemas";
 
 interface PaymentStepProps {
-  moveId: Id<"move">;
+  move: MoveSchema;
 }
 
-const PaymentStep = ({ moveId }: PaymentStepProps) => {
+const PaymentStep = ({ move }: PaymentStepProps) => {
+  const { _id: moveId } = move;
   const { data, isLoading, isError, errorMessage } = useGetPaymentPage(moveId);
 
   const { additionalFees, discounts, invoice, internalReview } = data ?? {
@@ -32,11 +33,15 @@ const PaymentStep = ({ moveId }: PaymentStepProps) => {
     <div>
       <PaymentHeading />
       <AdditionalFees additionalFees={additionalFees} moveId={moveId} />
-      <Discounts discounts={discounts} />
-      <InvoiceSummary invoice={invoice} />
-      <InvoiceSignature />
-      <InternalReview />
-      <ExternalReview />
+      <Discounts discounts={discounts} moveId={moveId} />
+      <InvoiceSummary
+        move={move}
+        discounts={discounts}
+        additionalFees={additionalFees}
+      />
+      <InvoiceSignature invoice={invoice} move={move} />
+      <InternalReview internalReview={internalReview} move={move} />
+      <ExternalReview move={move} />
     </div>
   );
 };

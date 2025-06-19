@@ -37,6 +37,7 @@ import type * as google from "../google.js";
 import type * as http from "../http.js";
 import type * as insurancePolicies from "../insurancePolicies.js";
 import type * as invitations from "../invitations.js";
+import type * as invoices from "../invoices.js";
 import type * as items from "../items.js";
 import type * as labor from "../labor.js";
 import type * as move from "../move.js";
@@ -89,6 +90,7 @@ declare const fullApi: ApiFromModules<{
   http: typeof http;
   insurancePolicies: typeof insurancePolicies;
   invitations: typeof invitations;
+  invoices: typeof invoices;
   items: typeof items;
   labor: typeof labor;
   move: typeof move;

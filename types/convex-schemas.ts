@@ -378,7 +378,7 @@ export interface DiscountSchema {
 }
 
 export interface InvoiceSchema {
-  _id: Id<"invoice">;
+  _id: Id<"invoices">;
   _creationTime: number;
   moveId: Id<"move">;
   customerSignature?: string;
@@ -391,7 +391,7 @@ export interface InternalReviewSchema {
   _id: Id<"internalReview">;
   _creationTime: number;
   moveId: Id<"move">;
-  review: string;
+  rating: number;
 }
 
 export interface DiscountSchema {

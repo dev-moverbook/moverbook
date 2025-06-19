@@ -5,6 +5,9 @@ import {
   InfoFormData,
   RoomFormData,
 } from "@/types/form-types";
+import { CreateDiscountInput } from "../app/[slug]/moves/hooks/useCreateDiscount";
+import { DiscountFormData } from "../app/[slug]/moves/[moveId]/components/modals/DiscountModal";
+import { AdditionalFeeFormData } from "../app/[slug]/moves/[moveId]/components/modals/AdditionalFeeModal";
 
 export const validatePrice = (price: number | null): string | null => {
   if (price === null || isNaN(price)) {
@@ -166,4 +169,65 @@ export const validatePhoneNumber = (
   }
 
   return null;
+};
+
+export type DiscountValidationErrors = {
+  name?: string;
+  price?: string;
+};
+
+export const validateDiscountForm = (
+  formData: DiscountFormData
+): { isValid: boolean; errors: DiscountValidationErrors } => {
+  const errors: DiscountValidationErrors = {};
+
+  if (!formData.name.trim()) {
+    errors.name = FrontEndErrorMessages.NAME_REQUIRED;
+  }
+
+  if (
+    formData.price === null ||
+    isNaN(Number(formData.price)) ||
+    Number(formData.price) < 0
+  ) {
+    errors.price = FrontEndErrorMessages.PRICE_REQUIRED;
+  }
+
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors,
+  };
+};
+
+export type AdditionalFeeValidationErrors = {
+  name?: string;
+  price?: string;
+  quantity?: string;
+};
+
+export const validateAdditionalFeeForm = (
+  formData: AdditionalFeeFormData
+): { isValid: boolean; errors: AdditionalFeeValidationErrors } => {
+  const errors: AdditionalFeeValidationErrors = {};
+
+  if (!formData.name.trim()) {
+    errors.name = FrontEndErrorMessages.NAME_REQUIRED;
+  }
+
+  if (
+    formData.price === null ||
+    isNaN(Number(formData.price)) ||
+    Number(formData.price) < 0
+  ) {
+    errors.price = FrontEndErrorMessages.PRICE_REQUIRED;
+  }
+
+  if (!formData.quantity || formData.quantity < 1) {
+    errors.quantity = FrontEndErrorMessages.QUANTITY_REQUIRED;
+  }
+
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors,
+  };
 };

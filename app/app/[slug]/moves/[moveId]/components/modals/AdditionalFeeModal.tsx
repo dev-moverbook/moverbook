@@ -6,27 +6,34 @@ import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import FieldGroup from "@/app/components/shared/FieldGroup";
 import FieldRow from "@/app/components/shared/FieldRow";
 import FormActions from "@/app/components/shared/FormActions";
-import { AddMoveLineItemInput, MoveFeeInput } from "@/types/form-types";
 import CheckboxField from "@/app/components/shared/CheckboxField";
 import LabeledSelect from "@/app/components/shared/labeled/LabeledSelect";
 import CounterInput from "@/app/components/shared/labeled/CounterInput";
 import {
-  AddLineValidationErrors,
-  validateAddLineForm,
+  AdditionalFeeValidationErrors,
+  validateAdditionalFeeForm,
 } from "@/app/frontendUtils/validation";
 import { AdditionalFeeSchema, FeeSchema } from "@/types/convex-schemas";
+import { Id } from "@/convex/_generated/dataModel";
 
-interface AddLineModalProps {
+interface AdditionalFeeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (fee: MoveFeeInput) => void;
-  initialData?: MoveFeeInput | null;
+  onSubmit: (fee: AdditionalFeeFormData) => void;
+  initialData?: AdditionalFeeSchema | null;
   moveFeeOptions?: FeeSchema[];
   isLoading: boolean;
   errorMessage?: string | null;
 }
 
-const AddLineModal = ({
+export interface AdditionalFeeFormData {
+  name: string;
+  price: string;
+  quantity: number;
+  feeId?: Id<"fees">;
+}
+
+const AdditionalFeeModal = ({
   isOpen,
   onClose,
   onSubmit,
@@ -34,15 +41,15 @@ const AddLineModal = ({
   moveFeeOptions,
   isLoading,
   errorMessage,
-}: AddLineModalProps) => {
+}: AdditionalFeeModalProps) => {
   const isMobile = useMediaQuery({ maxWidth: MOBILE_BREAKPOINT });
 
-  const [formData, setFormData] = useState<AddMoveLineItemInput>({
+  const [formData, setFormData] = useState<AdditionalFeeFormData>({
     name: "",
-    price: null,
+    price: "",
     quantity: 1,
   });
-  const [errors, setErrors] = useState<AddLineValidationErrors>({});
+  const [errors, setErrors] = useState<AdditionalFeeValidationErrors>({});
   const [isCustomFee, setIsCustomFee] = useState<boolean>(false);
 
   const feeOptions =
@@ -53,38 +60,51 @@ const AddLineModal = ({
 
   useEffect(() => {
     if (initialData) {
-      setFormData(initialData);
+      const matchedOption = initialData.feeId
+        ? moveFeeOptions?.find((option) => option._id === initialData.feeId)
+        : null;
+
+      if (matchedOption) {
+        setFormData({
+          name: matchedOption.name,
+          price: matchedOption.price.toString(),
+          quantity: initialData.quantity,
+        });
+        setIsCustomFee(false);
+      } else {
+        setFormData({
+          name: initialData.name,
+          price: initialData.price.toString(),
+          quantity: initialData.quantity,
+        });
+        setIsCustomFee(true);
+      }
     }
-  }, [initialData]);
+  }, [initialData, moveFeeOptions]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev: AddMoveLineItemInput) => ({
+    setFormData((prev: AdditionalFeeFormData) => ({
       ...prev,
       [name]: name === "price" ? parseFloat(value) : value,
     }));
   };
 
   const handleSubmit = () => {
-    const { isValid, errors } = validateAddLineForm(formData);
+    const { isValid, errors } = validateAdditionalFeeForm(formData);
     if (!isValid) {
       setErrors(errors);
       return;
     }
 
-    const newFee: MoveFeeInput = {
-      ...formData,
-      price: Number(formData.price),
-      quantity: Number(formData.quantity),
-    };
-    onSubmit(newFee);
+    onSubmit(formData);
     handleClose();
   };
 
   const resetForm = () => {
     setFormData({
       name: "",
-      price: null,
+      price: "",
       quantity: 1,
     });
     setErrors({});
@@ -128,7 +148,8 @@ const AddLineModal = ({
             setFormData({
               ...formData,
               name: value,
-              price: selectedFee?.price ?? null,
+              price: selectedFee?.price?.toString() ?? "",
+              feeId: selectedFee?._id,
             });
             setErrors((prev) => ({
               ...prev,
@@ -196,4 +217,4 @@ const AddLineModal = ({
   );
 };
 
-export default AddLineModal;
+export default AdditionalFeeModal;

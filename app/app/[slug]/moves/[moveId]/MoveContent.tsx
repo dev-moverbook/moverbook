@@ -31,21 +31,7 @@ const MoveContent = ({ moveData }: MoveContentProps) => {
 
   return (
     <main>
-      <MoveCard
-        date={move.moveDate ?? ""}
-        name={move.name}
-        avatarUrl="/avatars/samantha.jpg"
-        status={move.status}
-        price={formatCurrency(2)}
-        tags={
-          [
-            formatMoveSize(move.locations[0].moveSize),
-            formatAccessType(move.locations[0].accessType),
-            formatMoveType(move.locations[0].moveType),
-            move.referral,
-          ].filter(Boolean) as string[]
-        }
-      />
+      <MoveCard move={move} />
       <Stepper
         currentStep={currentStep}
         steps={[
@@ -78,9 +64,7 @@ const MoveContent = ({ moveData }: MoveContentProps) => {
       {currentStep === 3 && activeTab === "INFO" && (
         <MoveStep move={move} quote={quote} />
       )}
-      {currentStep === 4 && activeTab === "INFO" && (
-        <PaymentStep moveId={move._id} />
-      )}
+      {currentStep === 4 && activeTab === "INFO" && <PaymentStep move={move} />}
     </main>
   );
 };

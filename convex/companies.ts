@@ -178,6 +178,7 @@ export const getCompanyIdBySlug = query({
           companyId: validatedCompany._id,
           connectedAccountId: connectedAccount?.stripeAccountId || null,
           connectedAccountStatus: connectedAccount?.status || null,
+          timeZone: validatedCompany.timeZone,
         },
       };
     } catch (error) {

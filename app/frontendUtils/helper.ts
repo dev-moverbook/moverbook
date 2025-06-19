@@ -10,7 +10,7 @@ import {
   ServiceType,
   StopBehavior,
 } from "@/types/types";
-import { DateTime } from "luxon";
+import { DateTime, DateTimeOptions } from "luxon";
 import { MoveItem } from "@/types/convex-schemas";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 
@@ -242,4 +242,46 @@ export const getMoveStatus = (
   }
 
   return "Booked";
+};
+
+export const formatNarrowWeekday = (
+  locale: string | undefined,
+  date: Date
+): string => {
+  const dt = DateTime.fromJSDate(date, {
+    locale: locale || "en",
+  } as DateTimeOptions);
+
+  const shortWeekday = dt.toLocaleString({ weekday: "short" });
+
+  return shortWeekday.charAt(0);
+};
+
+export const formatShortDate = (date: Date): string => {
+  const dt = DateTime.fromJSDate(date);
+  return dt.toLocaleString({ month: "short", day: "numeric", year: "numeric" });
+};
+
+export const formatLongDate = (date: Date): string => {
+  const dt = DateTime.fromJSDate(date);
+  return dt.toLocaleString({ month: "long", day: "numeric", year: "numeric" });
+};
+
+export const getCurrentDate = (timeZone: string): Date => {
+  return DateTime.now().setZone(timeZone).toJSDate();
+};
+
+export function navigateDate(
+  currentDate: Date,
+  direction: "prev" | "next",
+  timeZone: string
+): Date {
+  return DateTime.fromJSDate(currentDate)
+    .setZone(timeZone)
+    .plus({ days: direction === "next" ? 7 : -7 })
+    .toJSDate();
+}
+
+export const formatMonthYear = (date: Date, timeZone: string): string => {
+  return DateTime.fromJSDate(date).setZone(timeZone).toFormat("LLLL yyyy");
 };

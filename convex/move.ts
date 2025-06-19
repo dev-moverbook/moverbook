@@ -19,6 +19,8 @@ import {
   CreateMoveResponse,
   GetMoveOptionsResponse,
   GetMoveResponse,
+  GetMovesByNameResponse,
+  GetMovesForCalendarResponse,
   UpdateMoveResponse,
 } from "@/types/convex-responses";
 import {
@@ -341,6 +343,97 @@ export const updateMove = mutation({
       return {
         status: ResponseStatus.SUCCESS,
         data: { moveId },
+      };
+    } catch (error) {
+      return handleInternalError(error);
+    }
+  },
+});
+
+export const getMovesForCalendar = query({
+  args: {
+    start: v.string(),
+    end: v.string(),
+    companyId: v.id("companies"),
+    statuses: v.optional(v.array(v.string())),
+  },
+  handler: async (ctx, args): Promise<GetMovesForCalendarResponse> => {
+    const { start, end, companyId, statuses } = args;
+    try {
+      const identity = await requireAuthenticatedUser(ctx, [
+        ClerkRoles.ADMIN,
+        ClerkRoles.APP_MODERATOR,
+        ClerkRoles.MANAGER,
+        ClerkRoles.SALES_REP,
+        ClerkRoles.MOVER,
+      ]);
+      const company = validateCompany(await ctx.db.get(companyId));
+      isUserInOrg(identity, company.clerkOrganizationId);
+
+      let q = ctx.db
+        .query("move")
+        .withIndex("by_moveDate")
+        .filter((q) =>
+          q.and(
+            q.eq(q.field("companyId"), companyId),
+            q.gte(q.field("moveDate"), start),
+            q.lte(q.field("moveDate"), end)
+          )
+        );
+
+      if (statuses?.length) {
+        q = q.filter((q) =>
+          q.or(...statuses.map((status) => q.eq(q.field("status"), status)))
+        );
+      }
+
+      const moves = await q.collect();
+
+      return {
+        status: ResponseStatus.SUCCESS,
+        data: { moves },
+      };
+    } catch (error) {
+      console.error("Error in getMovesForCalendar:", error);
+      return handleInternalError(error);
+    }
+  },
+});
+
+export const getMovesByName = query({
+  args: {
+    companyId: v.id("companies"),
+    name: v.string(),
+  },
+  handler: async (
+    ctx,
+    { companyId, name }
+  ): Promise<GetMovesByNameResponse> => {
+    const lowerSearch = name.toLowerCase();
+
+    try {
+      const identity = await requireAuthenticatedUser(ctx, [
+        ClerkRoles.ADMIN,
+        ClerkRoles.APP_MODERATOR,
+        ClerkRoles.MANAGER,
+        ClerkRoles.SALES_REP,
+        ClerkRoles.MOVER,
+      ]);
+      const company = validateCompany(await ctx.db.get(companyId));
+      isUserInOrg(identity, company.clerkOrganizationId);
+
+      const moves = await ctx.db
+        .query("move")
+        .withIndex("by_company_name", (q) => q.eq("companyId", companyId))
+        .collect();
+
+      const filteredMoves = moves.filter((move) =>
+        move.name.toLowerCase().includes(lowerSearch)
+      );
+
+      return {
+        status: ResponseStatus.SUCCESS,
+        data: { moves: filteredMoves },
       };
     } catch (error) {
       return handleInternalError(error);

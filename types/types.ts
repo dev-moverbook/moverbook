@@ -126,3 +126,11 @@ export const QUOTE_STATUS_LABELS: Record<QuoteStatus, string> = {
 };
 
 export type HourStatus = "pending" | "approved" | "rejected";
+
+export interface DisplayRow {
+  left: string;
+  right: string;
+  className?: string;
+}
+
+export type CalendarValue = Date | null | [Date | null, Date | null];

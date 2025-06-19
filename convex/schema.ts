@@ -296,7 +296,9 @@ export default defineSchema({
     totalMiles: v.union(v.null(), v.number()),
     trucks: v.number(),
     segmentDistances: v.array(SegmentDistanceConvex),
-  }),
+  })
+    .index("by_moveDate", ["moveDate"])
+    .index("by_company_name", ["companyId", "name"]),
   quotes: defineTable({
     moveId: v.id("move"),
     customerSignature: v.optional(v.string()),
@@ -336,7 +338,7 @@ export default defineSchema({
     price: v.number(),
     isActive: v.boolean(),
   }).index("by_move", ["moveId"]),
-  invoice: defineTable({
+  invoices: defineTable({
     moveId: v.id("move"),
     customerSignature: v.optional(v.string()),
     customerSignedAt: v.optional(v.number()),
@@ -345,6 +347,6 @@ export default defineSchema({
   }).index("by_move", ["moveId"]),
   internalReview: defineTable({
     moveId: v.id("move"),
-    review: v.string(),
+    rating: v.number(),
   }).index("by_move", ["moveId"]),
 });

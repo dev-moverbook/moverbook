@@ -7,12 +7,12 @@ import { Id } from "@/convex/_generated/dataModel";
 import { DiscountSchema } from "@/types/convex-schemas";
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import {
-  CreateDiscountInput,
-  useCreateDiscount,
-} from "../../../hooks/useCreateDiscount";
+import { useCreateDiscount } from "../../../hooks/useCreateDiscount";
 import { useUpdateDiscount } from "../../../hooks/useUpdateDiscount";
 import ConfirmDeleteModal from "@/app/app/[slug]/company-setup/modals/ConfirmDeleteModal";
+import DiscountModal, { DiscountFormData } from "../modals/DiscountModal";
+import CardContainer from "@/app/components/shared/CardContainer";
+import DiscountCard from "../card/DiscountCard";
 
 interface DiscountsProps {
   discounts: DiscountSchema[];
@@ -21,7 +21,7 @@ interface DiscountsProps {
 
 const Discounts = ({ discounts, moveId }: DiscountsProps) => {
   const [showDiscountModal, setShowDiscountModal] = useState<boolean>(false);
-  const [editIndex, setEditIndex] = useState<Id<"discounts"> | null>(null);
+  const [editDiscount, setEditDiscount] = useState<DiscountSchema | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [discountToDelete, setDiscountToDelete] =
     useState<Id<"discounts"> | null>(null);
@@ -44,16 +44,24 @@ const Discounts = ({ discounts, moveId }: DiscountsProps) => {
     setShowDiscountModal(true);
   };
 
-  const handleSubmitDiscount = async (discount: CreateDiscountInput) => {
-    if (!editIndex) {
-      const response = await createDiscount(discount);
+  const handleSubmitDiscount = async (discount: DiscountFormData) => {
+    const parsedPrice = parseFloat(discount.price);
+    if (!editDiscount) {
+      const response = await createDiscount({
+        moveId,
+        name: discount.name,
+        price: parsedPrice,
+      });
       if (response.success) {
         handleCloseDiscountModal();
       }
     } else {
       const response = await updateDiscount({
-        discountId: editIndex,
-        updates: discount,
+        discountId: editDiscount._id,
+        updates: {
+          name: discount.name,
+          price: parsedPrice,
+        },
       });
       if (response.success) {
         handleCloseDiscountModal();
@@ -67,8 +75,8 @@ const Discounts = ({ discounts, moveId }: DiscountsProps) => {
     setUpdateDiscountError(null);
   };
 
-  const handleEditDiscount = (discount: Id<"discounts">) => {
-    setEditIndex(discount);
+  const handleEditDiscount = (discount: DiscountSchema) => {
+    setEditDiscount(discount);
     setShowDiscountModal(true);
   };
 
@@ -115,6 +123,20 @@ const Discounts = ({ discounts, moveId }: DiscountsProps) => {
         >
           Discounts
         </Header3>
+        {discounts.length > 0 ? (
+          <CardContainer>
+            {discounts.map((discount) => (
+              <DiscountCard
+                key={discount._id}
+                discount={discount}
+                onEdit={handleEditDiscount}
+                onDelete={handleDeleteDiscount}
+              />
+            ))}
+          </CardContainer>
+        ) : (
+          <p className="text-grayCustom2">No discounts added.</p>
+        )}
       </SectionContainer>
       <ConfirmDeleteModal
         isOpen={showDeleteModal}
@@ -122,6 +144,14 @@ const Discounts = ({ discounts, moveId }: DiscountsProps) => {
         onConfirm={handleConfirmDeleteDiscount}
         deleteLoading={updateDiscountLoading}
         deleteError={updateDiscountError}
+      />
+      <DiscountModal
+        isOpen={showDiscountModal}
+        onClose={handleCloseDiscountModal}
+        onSubmit={handleSubmitDiscount}
+        initialData={editDiscount ? editDiscount : null}
+        isLoading={editDiscount ? updateDiscountLoading : createDiscountLoading}
+        errorMessage={editDiscount ? updateDiscountError : createDiscountError}
       />
     </div>
   );

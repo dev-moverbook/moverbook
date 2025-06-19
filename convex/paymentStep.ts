@@ -47,7 +47,7 @@ export const getPaymentPage = query({
         .collect();
 
       const invoice: InvoiceSchema | null = await ctx.db
-        .query("invoice")
+        .query("invoices")
         .withIndex("by_move", (q) => q.eq("moveId", moveId))
         .unique();
 

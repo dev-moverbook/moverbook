@@ -15,6 +15,7 @@ import IconButton from "./IconButton";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import type { UserResource } from "@clerk/types";
 import Link from "next/link";
+import SearchInput from "./SearchInput";
 
 type NavbarProps = {
   slug: string;
@@ -57,12 +58,8 @@ const Navbar = ({ slug, user }: NavbarProps) => {
 
       {/* Centered Search + Plus Button */}
       <div className="flex-1 lg:ml-64">
-        <div className="flex items-center justify-between  mx-auto max-w-screen-sm px-1">
-          <input
-            type="text"
-            placeholder="Search Customer"
-            className="text-sm flex-1 bg-transparent border border-grayCustom text-white placeholder-grayCustom rounded-custom px-4 py-1 focus:outline-none focus:ring focus:ring-grayCustom"
-          />
+        <div className="flex items-center justify-between   px-1">
+          <SearchInput />
         </div>
       </div>
       <Link href={`/app/${slug}/add-move`}>

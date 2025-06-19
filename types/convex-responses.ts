@@ -188,6 +188,7 @@ export interface GetCompanyIdBySlugData {
   companyId: Id<"companies">;
   connectedAccountId: string | null;
   connectedAccountStatus: StripeAccountStatus | null;
+  timeZone: string;
 }
 
 export type GetActiveVariablesByCompanyIdResponse =
@@ -1004,4 +1005,63 @@ export interface UpdateAdditionalFeeSuccess {
 
 export interface UpdateAdditionalFeeData {
   additionalFeeId: Id<"additionalFees">;
+}
+
+export type CreateDiscountResponse = CreateDiscountSuccess | ErrorResponse;
+
+export interface CreateDiscountSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: CreateDiscountData;
+}
+
+export interface CreateDiscountData {
+  discountId: Id<"discounts">;
+}
+
+export type UpdateDiscountResponse = UpdateDiscountSuccess | ErrorResponse;
+
+export interface UpdateDiscountSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: UpdateDiscountData;
+}
+
+export interface UpdateDiscountData {
+  discountId: Id<"discounts">;
+}
+
+export type CreateOrUpdateInvoiceResponse =
+  | CreateOrUpdateInvoiceSuccess
+  | ErrorResponse;
+
+export interface CreateOrUpdateInvoiceSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: CreateOrUpdateInvoiceData;
+}
+
+export interface CreateOrUpdateInvoiceData {
+  invoiceId: Id<"invoices">;
+}
+
+export type GetMovesForCalendarResponse =
+  | GetMovesForCalendarSuccess
+  | ErrorResponse;
+
+export interface GetMovesForCalendarSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetMovesForCalendarData;
+}
+
+export interface GetMovesForCalendarData {
+  moves: MoveSchema[];
+}
+
+export type GetMovesByNameResponse = GetMovesByNameSuccess | ErrorResponse;
+
+export interface GetMovesByNameSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetMovesByNameData;
+}
+
+export interface GetMovesByNameData {
+  moves: MoveSchema[];
 }
