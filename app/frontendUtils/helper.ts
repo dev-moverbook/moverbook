@@ -4,6 +4,7 @@ import { CreatableUserRole } from "@/types/enums";
 import {
   AccessType,
   MoveSize,
+  MoveStatus,
   MoveType,
   PaymentMethod,
   QUOTE_STATUS_LABELS,
@@ -284,4 +285,23 @@ export function navigateDate(
 
 export const formatMonthYear = (date: Date, timeZone: string): string => {
   return DateTime.fromJSDate(date).setZone(timeZone).toFormat("LLLL yyyy");
+};
+
+export const getStatusColor = (status: MoveStatus): string => {
+  switch (status) {
+    case "New Lead":
+      return "#108A01";
+    case "Quoted":
+      return "#FFC107";
+    case "Booked":
+      return "#2196F3";
+    case "Completed":
+      return "#F57EF1";
+    case "Lost":
+      return "#FF5252";
+    case "Cancelled":
+      return "#9E9E9E";
+    default:
+      return "#FFC107";
+  }
 };

@@ -10,7 +10,7 @@ const ToggleCalendar: React.FC<ToggleCalendarProps> = ({
   onToggle,
 }) => {
   return (
-    <div className="flex justify-center mt-1">
+    <div className="flex justify-center ">
       <button
         onClick={onToggle}
         className=" text-grayText hover:text-whiteText transition "

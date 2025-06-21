@@ -5,10 +5,17 @@ import { DateTime } from "luxon";
 import { useSlugContext } from "@/app/contexts/SlugContext";
 import { CalendarSwitcher } from "./components/CalendarSwitcher";
 import { useMovesForCalendar } from "@/app/hooks/queries/useGetMovesForCalendar";
-import { getCurrentDate, navigateDate } from "@/app/frontendUtils/helper";
+import {
+  formatDateToLong,
+  getCurrentDate,
+  getStatusColor,
+} from "@/app/frontendUtils/helper";
 import ToggleCalendar from "./components/ToggleCalendar";
 import PageContainer from "@/app/components/shared/containers/PageContainer";
 import MoveCardContainer from "@/app/components/move/MoveCardContainer";
+import CalendarNav from "./components/CalendarNav";
+import { MoveStatus } from "@/types/types";
+import DateRangeFields from "@/app/components/shared/ui/DateRangerPiker";
 
 const CalendarPage = () => {
   const { companyId, timeZone } = useSlugContext();
@@ -17,11 +24,23 @@ const CalendarPage = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(() =>
     getCurrentDate(timeZone)
   );
-
+  const [selectedStatuses, setSelectedStatuses] = useState<MoveStatus[]>([
+    "New Lead",
+    "Booked",
+  ]);
+  const [isList, setIsList] = useState<boolean>(false);
   const [calendarMonthYear, setCalendarMonthYear] = useState(() => {
     const now = DateTime.local().setZone(timeZone);
     return { month: now.month, year: now.year };
   });
+  const todayISO = DateTime.local().setZone(timeZone).toISODate()!;
+  const weekLaterISO = DateTime.local()
+    .setZone(timeZone)
+    .plus({ days: 7 })
+    .toISODate()!;
+
+  const [filterStartDate, setFilterStartDate] = useState(todayISO);
+  const [filterEndDate, setFilterEndDate] = useState(weekLaterISO);
 
   const today = getCurrentDate(timeZone);
 
@@ -46,15 +65,21 @@ const CalendarPage = () => {
     isError,
     errorMessage,
   } = useMovesForCalendar({
-    start: startDate,
-    end: endDate,
+    start: isList ? filterStartDate : startDate,
+    end: isList ? filterEndDate : endDate,
     companyId,
   });
 
   const { weekStart, weekEnd } = useMemo(() => {
     const selected = DateTime.fromJSDate(selectedDate).setZone(timeZone);
-    const start = selected.startOf("week"); // Sunday
-    const end = selected.endOf("week"); // Saturday
+
+    // Force week start to Sunday
+    const start = selected
+      .minus({ days: selected.weekday % 7 }) // Sunday = 7 % 7 = 0, Monday = 1 % 7 = 1, etc.
+      .startOf("day");
+
+    const end = start.plus({ days: 6 }).endOf("day");
+
     return {
       weekStart: start.toISODate() ?? "",
       weekEnd: end.toISODate() ?? "",
@@ -81,38 +106,89 @@ const CalendarPage = () => {
     );
   }, [moves, timeZone]);
 
-  const hasEventOnDate = (date: Date) => {
+  const getTotalPriceForDate = (date: Date): string | null => {
     const isoDate = DateTime.fromJSDate(date).setZone(timeZone).toISODate();
-    return moveDatesSet.has(isoDate);
+    const moveOnDate = moves.find((move) => {
+      const moveDate = DateTime.fromISO(move.moveDate ?? "")
+        .setZone(timeZone)
+        .toISODate();
+      return moveDate === isoDate;
+    });
+    return "--";
   };
 
-  const handleNavigation = (direction: "prev" | "next") =>
-    setSelectedDate(navigateDate(selectedDate, direction, timeZone));
+  const getEventDotColor = (date: Date): string | null => {
+    const isoDate = DateTime.fromJSDate(date).setZone(timeZone).toISODate();
+
+    const moveOnDate = moves.find((move) => {
+      const moveDate = DateTime.fromISO(move.moveDate ?? "")
+        .setZone(timeZone)
+        .toISODate();
+      return moveDate === isoDate;
+    });
+
+    return moveOnDate ? getStatusColor(moveOnDate.status) : null;
+  };
+
+  const handleNavigation = (direction: "prev" | "next") => {
+    const current = DateTime.fromJSDate(selectedDate).setZone(timeZone);
+
+    const newDate = isWeekView
+      ? current.plus({ weeks: direction === "next" ? 1 : -1 })
+      : current.plus({ months: direction === "next" ? 1 : -1 });
+
+    setSelectedDate(newDate.toJSDate());
+
+    // Also update the calendarMonthYear state if in month view
+    if (!isWeekView) {
+      setCalendarMonthYear({
+        month: newDate.month,
+        year: newDate.year,
+      });
+    }
+  };
 
   return (
-    <PageContainer>
-      <CalendarSwitcher
-        isWeekView={isWeekView}
-        date={selectedDate}
-        onDateClick={setSelectedDate}
-        onNavigate={handleNavigation}
-        hasEventOnDate={hasEventOnDate}
-        handleActiveStartDateChange={() => {}}
-        TIME_ZONE={timeZone}
-        today={today}
+    <PageContainer className="gap-2 pb-10">
+      <CalendarNav
+        selectedStatuses={selectedStatuses}
+        setSelectedStatuses={setSelectedStatuses}
+        isList={isList}
+        setIsList={setIsList}
       />
-      <ToggleCalendar
-        isWeekView={isWeekView}
-        onToggle={() => setIsWeekView(!isWeekView)}
-      />
+      {isList ? (
+        <DateRangeFields
+          startDate={filterStartDate}
+          endDate={filterEndDate}
+          setStartDate={setFilterStartDate}
+          setEndDate={setFilterEndDate}
+        />
+      ) : (
+        <>
+          <CalendarSwitcher
+            isWeekView={isWeekView}
+            date={selectedDate}
+            onDateClick={setSelectedDate}
+            onNavigate={handleNavigation}
+            TIME_ZONE={timeZone}
+            today={today}
+            getEventDotColor={getEventDotColor}
+            getTotalPriceForDate={getTotalPriceForDate}
+          />
+          <ToggleCalendar
+            isWeekView={isWeekView}
+            onToggle={() => setIsWeekView(!isWeekView)}
+          />
+        </>
+      )}
 
       {isLoading && <p>Loading moves...</p>}
       {isError && <p className="text-red-500">{errorMessage}</p>}
 
       {!isLoading && !isError && (
-        <div className="mt-4">
-          <h3 className="font-semibold">
-            Moves for Week of {weekStart} - {weekEnd}
+        <div className="mt-2">
+          <h3 className="font-medium pl-4">
+            {formatDateToLong(weekStart)} - {formatDateToLong(weekEnd)}
           </h3>
           <MoveCardContainer moves={weeklyMoves} />
         </div>

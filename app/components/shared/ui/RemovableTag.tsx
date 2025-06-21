@@ -6,20 +6,28 @@ interface RemovableTagProps {
   label: string;
   onRemove: () => void;
   className?: string;
+  dotColor?: string; // optional
 }
 
 const RemovableTag: React.FC<RemovableTagProps> = ({
   label,
   onRemove,
   className,
+  dotColor,
 }) => {
   return (
     <span
       className={cn(
-        "shadow-lg shadow-white/10 transition inline-flex items-center text-sm pl-3 pr-1 py-1 rounded border border-grayCustom",
+        "shadow-lg shadow-white/10 transition inline-flex items-center text-xs pl-2 py-0.5 rounded border border-grayCustom",
         className
       )}
     >
+      {dotColor && (
+        <span
+          className="w-1.5 h-1.5 rounded-full mr-1"
+          style={{ backgroundColor: dotColor }}
+        />
+      )}
       {label}
       <button
         onClick={(e) => {
@@ -27,7 +35,7 @@ const RemovableTag: React.FC<RemovableTagProps> = ({
           e.stopPropagation();
           onRemove();
         }}
-        className="ml-1 p-1 text-muted-foreground hover:bg-gray-800 rounded"
+        className="ml-1 p-1 text-muted-foreground hover:bg-background2 rounded"
       >
         <X className="w-3.5 h-3.5" />
       </button>

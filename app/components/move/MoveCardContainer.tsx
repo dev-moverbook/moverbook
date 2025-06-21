@@ -8,9 +8,9 @@ interface MoveCardContainerProps {
 
 const MoveCardContainer: React.FC<MoveCardContainerProps> = ({ moves }) => {
   return (
-    <div className=" mt-2 space-y-2">
+    <div className=" border-t border-grayCustom mt-2">
       {moves.length === 0 ? (
-        <p className="text-sm ">No moves this week.</p>
+        <p className="text-sm p-4 text-grayCustom2">No moves this week.</p>
       ) : (
         moves.map((move) => <MoveCard key={move._id} move={move} />)
       )}

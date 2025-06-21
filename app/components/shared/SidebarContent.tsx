@@ -29,7 +29,7 @@ const SidebarContent = ({ onNavigate, user, slug }: SidebarContentProps) => {
   const roleLabel = role ?? "Unknown";
 
   return (
-    <nav className="flex flex-col gap-2 bg-gray-800 text-white h-screen w-full">
+    <nav className="flex flex-col gap-2  text-white h-screen w-full">
       <div className="flex items-center  gap-x-2 px-4 h-14 py-3 ">
         <UserButton />
         <div className="flex flex-col items-start justify-center leading-tight">

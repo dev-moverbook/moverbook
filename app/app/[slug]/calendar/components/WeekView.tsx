@@ -1,28 +1,42 @@
 import { DateTime } from "luxon";
-import {
-  formatShortDate,
-  formatNarrowWeekday,
-  formatMonthYear,
-} from "@/app/frontendUtils/helper";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { formatMonthYear } from "@/app/frontendUtils/helper";
+import CalendarHeader from "./CalendarHeader";
+import WeekdayHeader from "./WeekdayHeader";
+import CalendarMonthGrid from "./CalendarMonthGrid";
+import CalendarContainer from "./CalendarContainer";
 
 interface WeekViewProps {
   date: Date;
   today: Date;
-  onDateClick: (date: Date) => void;
   onNavigate: (direction: "prev" | "next") => void;
-  hasEventOnDate: (date: Date) => boolean;
   TIME_ZONE: string;
+  getEventDotColor: (date: Date) => string | null;
+  getTotalPriceForDate?: (date: Date) => string | null;
 }
 
 const WeekView: React.FC<WeekViewProps> = ({
   date,
   today,
-  onDateClick,
   onNavigate,
-  hasEventOnDate,
   TIME_ZONE,
+  getEventDotColor,
+  getTotalPriceForDate,
 }) => {
+  const getMajorityMonth = (weekDates: Date[], timeZone: string): Date => {
+    const monthCount: Record<number, number> = {};
+    for (const date of weekDates) {
+      const month = DateTime.fromJSDate(date).setZone(timeZone).month;
+      monthCount[month] = (monthCount[month] || 0) + 1;
+    }
+    // Sort months by count descending
+    const sortedMonths = Object.entries(monthCount).sort((a, b) => b[1] - a[1]);
+    const majorityMonth = Number(sortedMonths[0][0]);
+    const majorityDate = weekDates.find(
+      (d) => DateTime.fromJSDate(d).setZone(timeZone).month === majorityMonth
+    );
+    return majorityDate ?? weekDates[0];
+  };
+
   const getWeekDates = (currentDate: Date) => {
     const startOfWeek = DateTime.fromJSDate(currentDate)
       .setZone(TIME_ZONE)
@@ -35,78 +49,24 @@ const WeekView: React.FC<WeekViewProps> = ({
 
   const weekDates = getWeekDates(date);
 
+  const majorityMonth = getMajorityMonth(weekDates, TIME_ZONE);
+
   return (
-    <div className="border-b border-grayCustom">
-      <div className="flex items-center justify-between w-full max-w-[600px] mb-4 h-[44px]">
-        <button
-          onClick={() => onNavigate("prev")}
-          className="px-3 py-2 hover:bg-cardBackgroundHover rounded"
-        >
-          <ChevronLeft className="text-2xl" />
-        </button>
-        <h3 className="text-xl leading-[18px] font-sans">
-          {formatMonthYear(weekDates[0], TIME_ZONE)}
-        </h3>
-        <button
-          onClick={() => onNavigate("next")}
-          className="px-3 py-2 hover:bg-cardBackgroundHover rounded"
-        >
-          <ChevronRight className="text-2xl" />
-        </button>
-      </div>
+    <CalendarContainer>
+      <CalendarHeader
+        label={formatMonthYear(majorityMonth, TIME_ZONE)}
+        onNavigate={onNavigate}
+      />
 
-      <div className="flex justify-between w-full mb-2 pt-1.5">
-        {weekDates.map((day) => (
-          <div
-            key={`${day.toISOString()}-label`}
-            className="w-[14.2857%] text-center text-xs font-semibold text-gray-600"
-          >
-            {formatNarrowWeekday(undefined, day)}
-          </div>
-        ))}
-      </div>
+      <WeekdayHeader weekdays={weekDates} />
 
-      <div className="flex justify-between w-full">
-        {weekDates.map((day) => {
-          const isToday = day.toDateString() === today.toDateString();
-          const isSelected = day.toDateString() === date.toDateString();
-          const hasEvent = hasEventOnDate(day);
-
-          return (
-            <button
-              key={day.toISOString()}
-              type="button"
-              className={`react-calendar__tile w-[14.2857%] aspect-square flex items-center justify-center 
-                text-lg font-medium transition-all overflow-hidden
-                md:hover:bg-cardBackgroundHover
-                ${isSelected ? "md:hover:hover:bg-cardBackgroundHover react-calendar__tile--active" : ""}`}
-              onClick={() => onDateClick(day)}
-            >
-              <abbr
-                aria-label={day.toDateString()}
-                className="relative font-medium flex flex-col justify-center items-center leading-none translate-y-[1px]"
-              >
-                {isToday && (
-                  <div className="absolute w-7 h-7 bg-greenCustom  rounded-full"></div>
-                )}
-                <span
-                  className={`relative ${
-                    day.getMonth() !== weekDates[0].getMonth()
-                      ? "text-gray-500"
-                      : ""
-                  }`}
-                >
-                  {day.getDate()}
-                </span>
-                {hasEvent && (
-                  <div className="absolute -bottom-[16px] left-[50%] transform -translate-x-[50%] bg-red-500 rounded-full w-[6px] h-[6px]" />
-                )}
-              </abbr>
-            </button>
-          );
-        })}
-      </div>
-    </div>
+      <CalendarMonthGrid
+        dates={weekDates}
+        today={today}
+        getDotColor={getEventDotColor}
+        getPriceLabel={getTotalPriceForDate}
+      />
+    </CalendarContainer>
   );
 };
 

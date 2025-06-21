@@ -7,6 +7,7 @@ import {
   formatDateToLong,
   formatMoveSize,
   formatMoveType,
+  getStatusColor,
 } from "@/app/frontendUtils/helper";
 import { MoveSchema } from "@/types/convex-schemas";
 import Link from "next/link";
@@ -30,7 +31,7 @@ const MoveCard: React.FC<MoveCardProps> = ({ move }) => {
 
   return (
     <Link href={`/app/${slug}/moves/${_id}`}>
-      <div className="bg-black p-2 text-white shadow-md border-b border-grayCustom hover:bg-background2 transition-colors duration-200">
+      <div className="bg-black py-2 px-4 text-white shadow-md border-b border-grayCustom hover:bg-background2 transition-colors duration-200">
         <div className="max-w-screen-sm mx-auto">
           <p className="text-xs text-grayCustom2">
             {formatDateToLong(moveDate)}
@@ -39,9 +40,11 @@ const MoveCard: React.FC<MoveCardProps> = ({ move }) => {
             <div>
               <h3 className="text-lg font-medium">{name}</h3>
               <div className="flex items-center gap-1 text-sm">
-                <span className="text-green-500">●</span>
+                <span style={{ color: getStatusColor(status) }}>●</span>{" "}
                 <span className="">{status}</span>
-                <span className="text-green-500 font-medium pl-2">{price}</span>
+                <span className="text-greenCustom font-medium pl-2">
+                  {price}
+                </span>
               </div>
             </div>
             <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center">
@@ -50,11 +53,7 @@ const MoveCard: React.FC<MoveCardProps> = ({ move }) => {
           </div>
           <div className="flex gap-2 flex-wrap mt-1">
             {tags.map((tag, i) => (
-              <Badge
-                key={i}
-                variant="secondary"
-                className="bg-gray-700 text-white rounded-full px-3 py-1 text-xs"
-              >
+              <Badge key={i} className="">
                 {tag}
               </Badge>
             ))}
