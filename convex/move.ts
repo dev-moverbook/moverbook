@@ -46,6 +46,7 @@ import {
   QuoteSchema,
   ReferralSchema,
 } from "@/types/convex-schemas";
+import { getMoveCostRange } from "@/app/frontendUtils/helper";
 
 export const getMoveOptions = query({
   args: { companyId: v.id("companies") },
@@ -356,9 +357,14 @@ export const getMovesForCalendar = query({
     end: v.string(),
     companyId: v.id("companies"),
     statuses: v.optional(v.array(v.string())),
+    salesRepId: v.optional(v.union(v.id("users"), v.null())),
+    priceOrder: v.optional(
+      v.union(v.literal("asc"), v.literal("desc"), v.null())
+    ),
   },
   handler: async (ctx, args): Promise<GetMovesForCalendarResponse> => {
-    const { start, end, companyId, statuses } = args;
+    const { start, end, companyId, statuses, salesRepId, priceOrder } = args;
+
     try {
       const identity = await requireAuthenticatedUser(ctx, [
         ClerkRoles.ADMIN,
@@ -367,6 +373,7 @@ export const getMovesForCalendar = query({
         ClerkRoles.SALES_REP,
         ClerkRoles.MOVER,
       ]);
+
       const company = validateCompany(await ctx.db.get(companyId));
       isUserInOrg(identity, company.clerkOrganizationId);
 
@@ -387,7 +394,19 @@ export const getMovesForCalendar = query({
         );
       }
 
-      const moves = await q.collect();
+      if (salesRepId) {
+        q = q.filter((q) => q.eq(q.field("salesRep"), salesRepId));
+      }
+
+      let moves = await q.collect();
+
+      if (priceOrder) {
+        moves.sort((a, b) => {
+          const [aLow] = getMoveCostRange(a);
+          const [bLow] = getMoveCostRange(b);
+          return priceOrder === "asc" ? aLow - bLow : bLow - aLow;
+        });
+      }
 
       return {
         status: ResponseStatus.SUCCESS,

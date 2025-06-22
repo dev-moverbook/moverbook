@@ -7,6 +7,8 @@ import {
   MoveStatus,
   MoveType,
   PaymentMethod,
+  PriceFilter,
+  PriceOrder,
   QUOTE_STATUS_LABELS,
   ServiceType,
   StopBehavior,
@@ -104,6 +106,24 @@ export function formatCurrency(amount: number): string {
     currency: "USD",
     maximumFractionDigits: 2,
   }).format(amount);
+}
+
+export function formatCurrencyCompact(amount: number): string {
+  if (amount < 1000) {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 0,
+    }).format(amount);
+  }
+
+  const compactAmount = amount / 1000;
+  const rounded =
+    compactAmount % 1 === 0
+      ? compactAmount.toFixed(0)
+      : compactAmount.toFixed(1);
+
+  return `$${rounded}K`;
 }
 
 export const getMoveStatusType = (
@@ -304,4 +324,67 @@ export const getStatusColor = (status: MoveStatus): string => {
     default:
       return "#FFC107";
   }
+};
+
+export function getMoveCostRange(move: MoveSchema): [number, number?] {
+  let base = 0;
+
+  // Flat rate
+  if (move.jobType === "flat") {
+    base = move.jobTypeRate ?? 0;
+  }
+
+  // Hourly rate (use starting and ending time)
+  if (move.jobType === "hourly" && move.startingMoveTime) {
+    const start = move.startingMoveTime;
+    const end = move.endingMoveTime ?? start;
+
+    const highHours = (end - start) / (1000 * 60 * 60);
+    const rate = move.jobTypeRate ?? 0;
+
+    const low = base; // starting at base 0 for hourly
+    const high = highHours * rate;
+
+    // Add insurance and fees to both
+    const extras =
+      (move.liabilityCoverage?.premium ?? 0) +
+      move.moveFees.reduce(
+        (sum, fee) => sum + (fee.price ?? 0) * (fee.quantity ?? 1),
+        0
+      );
+
+    return [low + extras, high + extras];
+  }
+
+  // Add extras for flat jobs
+  base += move.liabilityCoverage?.premium ?? 0;
+  base += move.moveFees.reduce(
+    (sum, fee) => sum + (fee.price ?? 0) * (fee.quantity ?? 1),
+    0
+  );
+
+  return [base]; // only one value for flat jobs
+}
+
+export const formatPriceRange = (low: number, high?: number): string => {
+  if (!high || low === high) {
+    return formatCurrency(low);
+  }
+  return `${formatCurrency(low)} – ${formatCurrency(high)}`;
+};
+
+export const priceFilterToOrder = (
+  filter: PriceFilter | null
+): PriceOrder | null => {
+  if (filter === "Lowest to Highest") return "asc";
+  if (filter === "Highest to Lowest") return "desc";
+  return null;
+};
+
+export const priceOrderToFilter = (
+  order: PriceOrder | null
+): PriceFilter | null => {
+  if (order === "asc") return "Lowest to Highest";
+  if (order === "desc") return "Highest to Lowest";
+  return null;
 };

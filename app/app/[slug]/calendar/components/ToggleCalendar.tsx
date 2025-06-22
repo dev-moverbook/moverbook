@@ -1,18 +1,15 @@
 "use client";
 
-interface ToggleCalendarProps {
-  isWeekView: boolean;
-  onToggle: () => void;
-}
+import { useMoveFilter } from "@/app/contexts/MoveFilterContext";
 
-const ToggleCalendar: React.FC<ToggleCalendarProps> = ({
-  isWeekView,
-  onToggle,
-}) => {
+interface ToggleCalendarProps {}
+
+const ToggleCalendar: React.FC<ToggleCalendarProps> = ({}) => {
+  const { isWeekView, setIsWeekView } = useMoveFilter();
   return (
     <div className="flex justify-center ">
       <button
-        onClick={onToggle}
+        onClick={() => setIsWeekView(!isWeekView)}
         className=" text-grayText hover:text-whiteText transition "
       >
         {isWeekView ? (

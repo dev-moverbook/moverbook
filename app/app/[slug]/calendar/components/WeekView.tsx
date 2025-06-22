@@ -4,24 +4,15 @@ import CalendarHeader from "./CalendarHeader";
 import WeekdayHeader from "./WeekdayHeader";
 import CalendarMonthGrid from "./CalendarMonthGrid";
 import CalendarContainer from "./CalendarContainer";
+import { useSlugContext } from "@/app/contexts/SlugContext";
+import { useMoveFilter } from "@/app/contexts/MoveFilterContext";
 
-interface WeekViewProps {
-  date: Date;
-  today: Date;
-  onNavigate: (direction: "prev" | "next") => void;
-  TIME_ZONE: string;
-  getEventDotColor: (date: Date) => string | null;
-  getTotalPriceForDate?: (date: Date) => string | null;
-}
+interface WeekViewProps {}
 
-const WeekView: React.FC<WeekViewProps> = ({
-  date,
-  today,
-  onNavigate,
-  TIME_ZONE,
-  getEventDotColor,
-  getTotalPriceForDate,
-}) => {
+const WeekView: React.FC<WeekViewProps> = ({}) => {
+  const { timeZone } = useSlugContext();
+  const { today, selectedDate } = useMoveFilter();
+
   const getMajorityMonth = (weekDates: Date[], timeZone: string): Date => {
     const monthCount: Record<number, number> = {};
     for (const date of weekDates) {
@@ -39,7 +30,7 @@ const WeekView: React.FC<WeekViewProps> = ({
 
   const getWeekDates = (currentDate: Date) => {
     const startOfWeek = DateTime.fromJSDate(currentDate)
-      .setZone(TIME_ZONE)
+      .setZone(timeZone)
       .startOf("week");
 
     return Array.from({ length: 7 }, (_, i) =>
@@ -47,25 +38,17 @@ const WeekView: React.FC<WeekViewProps> = ({
     );
   };
 
-  const weekDates = getWeekDates(date);
+  const weekDates = getWeekDates(selectedDate);
 
-  const majorityMonth = getMajorityMonth(weekDates, TIME_ZONE);
+  const majorityMonth = getMajorityMonth(weekDates, timeZone);
 
   return (
     <CalendarContainer>
-      <CalendarHeader
-        label={formatMonthYear(majorityMonth, TIME_ZONE)}
-        onNavigate={onNavigate}
-      />
+      <CalendarHeader label={formatMonthYear(majorityMonth, timeZone)} />
 
       <WeekdayHeader weekdays={weekDates} />
 
-      <CalendarMonthGrid
-        dates={weekDates}
-        today={today}
-        getDotColor={getEventDotColor}
-        getPriceLabel={getTotalPriceForDate}
-      />
+      <CalendarMonthGrid dates={weekDates} today={today} />
     </CalendarContainer>
   );
 };

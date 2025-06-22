@@ -134,3 +134,7 @@ export interface DisplayRow {
 }
 
 export type CalendarValue = Date | null | [Date | null, Date | null];
+
+export type PriceFilter = "Highest to Lowest" | "Lowest to Highest";
+
+export type PriceOrder = "asc" | "desc";

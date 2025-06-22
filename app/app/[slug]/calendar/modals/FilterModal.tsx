@@ -1,175 +1,3 @@
-// "use client";
-
-// import React, { useState, useEffect } from "react";
-// import { useMediaQuery } from "react-responsive";
-// import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-// import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
-// import FieldGroup from "@/app/components/shared/FieldGroup";
-// import FormActions from "@/app/components/shared/FormActions";
-// import { MOVE_STATUS_OPTIONS, MoveStatus } from "@/types/types";
-// import LabeledCheckboxGroup from "@/app/components/shared/labeled/LabeledCheckboxGroup";
-
-// interface CategoryFormData {
-//   name: string;
-//   selectedStatuses: MoveStatus[];
-//   setSelectedStatuses: (statuses: MoveStatus[]) => void;
-// }
-
-// interface FilterModalProps {
-//   isOpen: boolean;
-//   onClose: () => void;
-//   selectedStatuses: MoveStatus[];
-//   setSelectedStatuses: (statuses: MoveStatus[]) => void;
-// }
-
-// const FilterModal: React.FC<FilterModalProps> = ({
-//   isOpen,
-//   onClose,
-//   selectedStatuses,
-//   setSelectedStatuses,
-// }) => {
-//   const isMobile = useMediaQuery({ maxWidth: 768 });
-//   const title = "Filter Moves";
-//   const [tempStatuses, setTempStatuses] =
-//     useState<MoveStatus[]>(selectedStatuses);
-
-//   useEffect(() => {
-//     if (isOpen) {
-//       setTempStatuses(selectedStatuses);
-//     }
-//   }, [isOpen, selectedStatuses]);
-
-//   const handleSubmit = () => {
-//     setSelectedStatuses(tempStatuses);
-//     onClose();
-//   };
-
-//   const formContent = (
-//     <FieldGroup>
-//       <LabeledCheckboxGroup
-//         label="Move Status"
-//         name="status"
-//         values={tempStatuses.map((status) => status.toString())}
-//         options={MOVE_STATUS_OPTIONS}
-//         onChange={(newValues) =>
-//           setTempStatuses(newValues.map((value) => value as MoveStatus))
-//         }
-//       />
-//       <FormActions
-//         onSave={handleSubmit}
-//         onCancel={onClose}
-//         isSaving={false}
-//         error={null}
-//         saveLabel="Apply Filters"
-//         cancelLabel="Cancel"
-//       />
-//     </FieldGroup>
-//   );
-
-//   return isMobile ? (
-//     <Drawer open={isOpen} onOpenChange={onClose}>
-//       <DrawerContent>
-//         <DrawerTitle>{title}</DrawerTitle>
-//         {formContent}
-//       </DrawerContent>
-//     </Drawer>
-//   ) : (
-//     <Dialog open={isOpen} onOpenChange={onClose}>
-//       <DialogContent>
-//         <DialogTitle>{title}</DialogTitle>
-//         {formContent}
-//       </DialogContent>
-//     </Dialog>
-//   );
-// };
-
-// export default FilterModal;
-
-// "use client";
-
-// import React, { useState, useEffect } from "react";
-// import { useMediaQuery } from "react-responsive";
-// import {
-//   Drawer,
-//   DrawerContent,
-//   DrawerHeader,
-//   DrawerTitle,
-// } from "@/components/ui/drawer";
-// import FieldGroup from "@/app/components/shared/FieldGroup";
-// import FormActions from "@/app/components/shared/FormActions";
-// import { MOVE_STATUS_OPTIONS, MoveStatus } from "@/types/types";
-// import LabeledCheckboxGroup from "@/app/components/shared/labeled/LabeledCheckboxGroup";
-
-// interface FilterModalProps {
-//   isOpen: boolean;
-//   onClose: () => void;
-//   selectedStatuses: MoveStatus[];
-//   setSelectedStatuses: (statuses: MoveStatus[]) => void;
-// }
-
-// const FilterModal: React.FC<FilterModalProps> = ({
-//   isOpen,
-//   onClose,
-//   selectedStatuses,
-//   setSelectedStatuses,
-// }) => {
-//   const isMobile = useMediaQuery({ maxWidth: 768 });
-//   const title = "Filter Moves";
-
-//   const [tempStatuses, setTempStatuses] =
-//     useState<MoveStatus[]>(selectedStatuses);
-
-//   useEffect(() => {
-//     if (isOpen) {
-//       setTempStatuses(selectedStatuses);
-//     }
-//   }, [isOpen, selectedStatuses]);
-
-//   const handleSubmit = () => {
-//     setSelectedStatuses(tempStatuses);
-//     onClose();
-//   };
-
-//   const formContent = (
-//     <FieldGroup>
-//       <LabeledCheckboxGroup
-//         label="Move Status"
-//         name="status"
-//         values={tempStatuses}
-//         options={MOVE_STATUS_OPTIONS}
-//         onChange={(newValues) =>
-//           setTempStatuses(newValues.map((value) => value as MoveStatus))
-//         }
-//       />
-//       <FormActions
-//         onSave={handleSubmit}
-//         onCancel={onClose}
-//         isSaving={false}
-//         error={null}
-//         saveLabel="Apply Filters"
-//         cancelLabel="Cancel"
-//       />
-//     </FieldGroup>
-//   );
-
-//   return (
-//     <Drawer
-//       open={isOpen}
-//       onOpenChange={onClose}
-//       direction={isMobile ? "bottom" : "right"}
-//     >
-//       <DrawerContent className={isMobile ? "" : "w-[320px] ml-auto"}>
-//         <DrawerHeader>
-//           <DrawerTitle>{title}</DrawerTitle>
-//         </DrawerHeader>
-//         <div className="p-4">{formContent}</div>
-//       </DrawerContent>
-//     </Drawer>
-//   );
-// };
-
-// export default FilterModal;
-
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -181,33 +9,64 @@ import {
 } from "@/components/ui/sheet";
 import FieldGroup from "@/app/components/shared/FieldGroup";
 import FormActions from "@/app/components/shared/FormActions";
-import { MOVE_STATUS_OPTIONS, MoveStatus } from "@/types/types";
+import { MOVE_STATUS_OPTIONS, MoveStatus, PriceFilter } from "@/types/types";
 import LabeledCheckboxGroup from "@/app/components/shared/labeled/LabeledCheckboxGroup";
+import ButtonRadioGroup from "@/app/components/shared/labeled/ButtonRadioGroup";
+import { PRICE_FILTER_OPTIONS } from "@/types/tsx-types";
+import LabeledSelect from "@/app/components/shared/labeled/LabeledSelect";
+import { useGetSalesReps } from "@/app/hooks/queries/useGetSalesReps";
+import { useSlugContext } from "@/app/contexts/SlugContext";
+import {
+  SalesRepOption,
+  useMoveFilter,
+} from "@/app/contexts/MoveFilterContext";
+import {
+  priceFilterToOrder,
+  priceOrderToFilter,
+} from "@/app/frontendUtils/helper";
 
 interface FilterModalProps {
   isOpen: boolean;
   onClose: () => void;
-  selectedStatuses: MoveStatus[];
-  setSelectedStatuses: (statuses: MoveStatus[]) => void;
 }
 
-const FilterModal: React.FC<FilterModalProps> = ({
-  isOpen,
-  onClose,
-  selectedStatuses,
-  setSelectedStatuses,
-}) => {
+const FilterModal: React.FC<FilterModalProps> = ({ isOpen, onClose }) => {
+  const { companyId } = useSlugContext();
+  const {
+    selectedStatuses,
+    setSelectedStatuses,
+    setPriceFilter,
+    setSalesRep,
+    priceFilter,
+    salesRep,
+  } = useMoveFilter();
   const [tempStatuses, setTempStatuses] =
     useState<MoveStatus[]>(selectedStatuses);
+  const [tempPriceFilter, setTempPriceFilter] = useState<PriceFilter | null>(
+    null
+  );
+  const [tempSalesRep, setTempSalesRep] = useState<SalesRepOption | null>(null);
+  const { users, isLoading: isLoadingSalesRepOptions } =
+    useGetSalesReps(companyId);
+
+  const salesRepOptions: SalesRepOption[] =
+    users?.map((user) => ({
+      id: user._id,
+      name: user.name,
+    })) ?? [];
 
   useEffect(() => {
     if (isOpen) {
       setTempStatuses(selectedStatuses);
+      setTempPriceFilter(priceOrderToFilter(priceFilter));
+      setTempSalesRep(salesRep);
     }
-  }, [isOpen, selectedStatuses]);
+  }, [isOpen, selectedStatuses, priceFilter, salesRep]);
 
   const handleSubmit = () => {
     setSelectedStatuses(tempStatuses);
+    setPriceFilter(priceFilterToOrder(tempPriceFilter));
+    setSalesRep(tempSalesRep);
     onClose();
   };
 
@@ -221,8 +80,24 @@ const FilterModal: React.FC<FilterModalProps> = ({
           <SheetTitle className="text-lg text-white">Filter Moves</SheetTitle>
         </SheetHeader>
 
-        <div className="mt-4 space-y-4">
+        <div className="mt-4 ">
           <FieldGroup>
+            <LabeledSelect
+              label="Sales Rep"
+              value={tempSalesRep?.id ?? null}
+              options={salesRepOptions.map((rep) => ({
+                label: rep.name,
+                value: rep.id,
+              }))}
+              onChange={(value) => {
+                const selectedRep = salesRepOptions.find(
+                  (rep) => rep.id === value
+                );
+                if (selectedRep) {
+                  setTempSalesRep(selectedRep);
+                }
+              }}
+            />
             <LabeledCheckboxGroup
               label="Move Status"
               name="status"
@@ -232,6 +107,15 @@ const FilterModal: React.FC<FilterModalProps> = ({
                 setTempStatuses(newValues.map((v) => v as MoveStatus))
               }
             />
+            <ButtonRadioGroup
+              name="priceFilter"
+              value={tempPriceFilter}
+              options={PRICE_FILTER_OPTIONS}
+              onChange={(val) => setTempPriceFilter(val as PriceFilter)}
+              label="Price Filter"
+              layout="vertical"
+            />
+
             <FormActions
               onSave={handleSubmit}
               onCancel={onClose}

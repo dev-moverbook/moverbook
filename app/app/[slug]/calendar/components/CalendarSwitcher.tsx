@@ -2,49 +2,14 @@
 
 import WeekView from "./WeekView";
 import MonthView from "./MonthView";
+import { useMoveFilter } from "@/app/contexts/MoveFilterContext";
 
-interface CalendarSwitcherProps {
-  isWeekView: boolean;
-  date: Date;
-  today: Date;
-  onDateClick: (value: Date) => void;
-  onNavigate: (direction: "prev" | "next") => void;
-  TIME_ZONE: string;
-  getEventDotColor: (date: Date) => string | null;
-  getTotalPriceForDate?: (date: Date) => string | null;
-}
+interface CalendarSwitcherProps {}
 
-export const CalendarSwitcher: React.FC<CalendarSwitcherProps> = ({
-  isWeekView,
-  date,
-  today,
-  onDateClick,
-  onNavigate,
-  getEventDotColor,
-  TIME_ZONE,
-  getTotalPriceForDate,
-}) => {
+export const CalendarSwitcher: React.FC<CalendarSwitcherProps> = ({}) => {
+  const { isWeekView } = useMoveFilter();
   if (isWeekView) {
-    return (
-      <WeekView
-        date={date}
-        today={today}
-        onNavigate={onNavigate}
-        TIME_ZONE={TIME_ZONE}
-        getEventDotColor={getEventDotColor}
-        getTotalPriceForDate={getTotalPriceForDate}
-      />
-    );
+    return <WeekView />;
   }
-  return (
-    <MonthView
-      date={date}
-      today={today}
-      onDateClick={onDateClick}
-      onNavigate={onNavigate}
-      TIME_ZONE={TIME_ZONE}
-      getEventDotColor={getEventDotColor}
-      getTotalPriceForDate={getTotalPriceForDate}
-    />
-  );
+  return <MonthView />;
 };

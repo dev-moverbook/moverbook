@@ -1,25 +1,27 @@
+"use client";
+
 import IconButton from "@/app/components/shared/IconButton";
 import { Calendar, Filter, List } from "lucide-react";
 import React, { useState } from "react";
 import FilterModal from "../modals/FilterModal";
-import { MoveStatus } from "@/types/types";
 import RemovableTag from "@/app/components/shared/ui/RemovableTag";
 import { getStatusColor } from "@/app/frontendUtils/helper";
 import { cn } from "@/lib/utils";
+import { useMoveFilter } from "@/app/contexts/MoveFilterContext";
+import { PRICE_FILTER_TAG_LABEL_MAP } from "@/types/tsx-types";
 
-interface CalendarNavProps {
-  selectedStatuses: MoveStatus[];
-  setSelectedStatuses: React.Dispatch<React.SetStateAction<MoveStatus[]>>;
-  isList: boolean;
-  setIsList: React.Dispatch<React.SetStateAction<boolean>>;
-}
+const CalendarNav = () => {
+  const {
+    selectedStatuses,
+    setSelectedStatuses,
+    setIsList,
+    isList,
+    priceFilter,
+    setPriceFilter,
+    salesRep,
+    setSalesRep,
+  } = useMoveFilter();
 
-const CalendarNav = ({
-  selectedStatuses,
-  setSelectedStatuses,
-  isList,
-  setIsList,
-}: CalendarNavProps) => {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState<boolean>(false);
 
   return (
@@ -43,6 +45,18 @@ const CalendarNav = ({
               }
             />
           ))}
+          {priceFilter && (
+            <RemovableTag
+              label={PRICE_FILTER_TAG_LABEL_MAP[priceFilter] || ""}
+              onRemove={() => setPriceFilter(null)}
+            />
+          )}
+          {salesRep && (
+            <RemovableTag
+              label={salesRep.name}
+              onRemove={() => setSalesRep(null)}
+            />
+          )}
         </div>
 
         {/* Right: toggle icons always top-aligned */}
@@ -53,7 +67,8 @@ const CalendarNav = ({
             title="Calendar"
             className={cn(
               "w-8 h-8 border border-grayCustom rounded-full flex items-center justify-center",
-              !isList && "bg-greenCustom border-greenCustom"
+              !isList &&
+                "bg-greenCustom border-greenCustom hover:bg-greenCustom/80 "
             )}
           />
           <IconButton
@@ -62,7 +77,8 @@ const CalendarNav = ({
             title="List"
             className={cn(
               "w-8 h-8 border border-grayCustom rounded-full flex items-center justify-center",
-              isList && "bg-greenCustom border-greenCustom"
+              isList &&
+                "bg-greenCustom border-greenCustom  hover:bg-greenCustom/80 "
             )}
           />
         </div>
@@ -71,8 +87,6 @@ const CalendarNav = ({
       <FilterModal
         isOpen={isFilterModalOpen}
         onClose={() => setIsFilterModalOpen(false)}
-        selectedStatuses={selectedStatuses}
-        setSelectedStatuses={setSelectedStatuses}
       />
     </div>
   );

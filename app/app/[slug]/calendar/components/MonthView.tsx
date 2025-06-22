@@ -6,16 +6,10 @@ import CalendarHeader from "./CalendarHeader";
 import WeekdayHeader from "./WeekdayHeader";
 import CalendarMonthGrid from "./CalendarMonthGrid";
 import CalendarContainer from "./CalendarContainer";
+import { useSlugContext } from "@/app/contexts/SlugContext";
+import { useMoveFilter } from "@/app/contexts/MoveFilterContext";
 
-interface MonthViewProps {
-  date: Date;
-  today: Date;
-  onDateClick: (value: Date) => void;
-  onNavigate: (direction: "prev" | "next") => void;
-  TIME_ZONE: string;
-  getEventDotColor: (date: Date) => string | null;
-  getTotalPriceForDate?: (date: Date) => string | null;
-}
+interface MonthViewProps {}
 
 const getMonthGrid = (viewDate: Date, timeZone: string) => {
   const month = DateTime.fromJSDate(viewDate).setZone(timeZone).month;
@@ -43,21 +37,14 @@ const getMonthGrid = (viewDate: Date, timeZone: string) => {
   return trimmedWeeks.flat();
 };
 
-const MonthView: React.FC<MonthViewProps> = ({
-  date,
-  today,
-  onDateClick,
-  onNavigate,
-
-  TIME_ZONE,
-  getEventDotColor,
-  getTotalPriceForDate,
-}) => {
-  const monthDates = getMonthGrid(date, TIME_ZONE);
+const MonthView: React.FC<MonthViewProps> = ({}) => {
+  const { timeZone } = useSlugContext();
+  const { today, selectedDate } = useMoveFilter();
+  const monthDates = getMonthGrid(selectedDate, timeZone);
 
   // Get weekday headers, starting from the first day of the week in current locale/timezone
-  const weekStart = DateTime.fromJSDate(date)
-    .setZone(TIME_ZONE)
+  const weekStart = DateTime.fromJSDate(selectedDate)
+    .setZone(timeZone)
     .startOf("week");
   const weekdays = Array.from({ length: 7 }, (_, i) =>
     weekStart.plus({ days: i }).toJSDate()
@@ -76,20 +63,16 @@ const MonthView: React.FC<MonthViewProps> = ({
 
   return (
     <CalendarContainer>
-      <CalendarHeader
-        label={formatMonthYear(date, TIME_ZONE)}
-        onNavigate={onNavigate}
-      />
+      <CalendarHeader label={formatMonthYear(selectedDate, timeZone)} />
 
       <WeekdayHeader weekdays={weekdays} />
 
       <CalendarMonthGrid
         dates={monthDates}
         today={today}
-        onDateClick={onDateClick}
-        getDotColor={getEventDotColor}
-        getPriceLabel={getTotalPriceForDate}
-        shouldDimDate={(day) => shouldDimDateForMonth(day, date, TIME_ZONE)}
+        shouldDimDate={(day) =>
+          shouldDimDateForMonth(day, selectedDate, timeZone)
+        }
       />
     </CalendarContainer>
   );

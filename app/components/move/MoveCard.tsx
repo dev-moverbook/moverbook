@@ -3,10 +3,11 @@ import { Badge } from "@/components/ui/badge";
 import { Phone } from "lucide-react";
 import {
   formatAccessType,
-  formatCurrency,
   formatDateToLong,
   formatMoveSize,
   formatMoveType,
+  formatPriceRange,
+  getMoveCostRange,
   getStatusColor,
 } from "@/app/frontendUtils/helper";
 import { MoveSchema } from "@/types/convex-schemas";
@@ -27,7 +28,8 @@ const MoveCard: React.FC<MoveCardProps> = ({ move }) => {
     move.referral,
   ].filter(Boolean) as string[];
 
-  const price = formatCurrency(2);
+  const [low, high] = getMoveCostRange(move);
+  const price = formatPriceRange(low, high);
 
   return (
     <Link href={`/app/${slug}/moves/${_id}`}>
@@ -47,7 +49,7 @@ const MoveCard: React.FC<MoveCardProps> = ({ move }) => {
                 </span>
               </div>
             </div>
-            <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center">
+            <div className="w-10 h-10 border border-grayCustom rounded-full flex items-center justify-center">
               <Phone className="w-5 h-5 text-white" />
             </div>
           </div>

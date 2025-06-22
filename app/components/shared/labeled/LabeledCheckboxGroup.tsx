@@ -66,7 +66,7 @@ const LabeledCheckboxGroup: React.FC<LabeledCheckboxGroupProps> = ({
               checked={values.includes(option.value)}
               onCheckedChange={() => toggleValue(option.value)}
               disabled={disabled}
-              className="border-white data-[state=checked]:bg-greenCustom data-[state=checked]:border-greenCustom"
+              className="border-grayCustom data-[state=checked]:bg-greenCustom data-[state=checked]:border-greenCustom"
             />
             <Label
               htmlFor={`${name}-${option.value}`}

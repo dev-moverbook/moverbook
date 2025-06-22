@@ -48,7 +48,7 @@ const LabeledSelect: React.FC<LabeledSelectProps> = ({
         <SelectTrigger>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="z-[9999]">
           {loading ? (
             <SelectItem disabled value="loading">
               Loading...
