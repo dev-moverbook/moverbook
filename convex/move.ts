@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { internalQuery, mutation, query } from "./_generated/server";
 import { handleInternalError } from "./backendUtils/helper";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import { ClerkRoles, ResponseStatus } from "@/types/enums";
@@ -43,6 +43,7 @@ import {
   CreditCardFeeSchema,
   InsurancePolicySchema,
   LaborSchema,
+  MoveSchema,
   QuoteSchema,
   ReferralSchema,
 } from "@/types/convex-schemas";
@@ -456,6 +457,21 @@ export const getMovesByName = query({
       };
     } catch (error) {
       return handleInternalError(error);
+    }
+  },
+});
+
+export const getMoveByIdInternal = internalQuery({
+  args: {
+    id: v.id("move"),
+  },
+  handler: async (ctx, args): Promise<MoveSchema | null> => {
+    const { id } = args;
+    try {
+      return await ctx.db.get(id);
+    } catch (error) {
+      console.error("Error in getMoveByIdInternal:", error);
+      throw new Error(ErrorMessages.MOVE_DB_QUERY_BY_ID);
     }
   },
 });

@@ -11,7 +11,7 @@ interface UseMovesForCalendarParams {
   companyId: Id<"companies"> | null;
   statuses?: MoveStatus[];
   salesRepId?: Id<"users"> | null;
-  priceOrder?: PriceOrder;
+  priceOrder?: PriceOrder | null;
 }
 
 interface UseMovesForCalendarResult {

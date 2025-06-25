@@ -210,7 +210,7 @@ export async function unsetOtherDefaultPolicies(
 export function handleInternalError(error: unknown): ErrorResponse {
   const errorMessage =
     error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
-
+  console.error(errorMessage);
   return {
     status: ResponseStatus.ERROR,
     data: null,

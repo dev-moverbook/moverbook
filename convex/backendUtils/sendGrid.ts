@@ -92,3 +92,36 @@ export async function checkSenderVerified(senderId: string): Promise<boolean> {
     throw new Error(ErrorMessages.SENDGRID_SENDER_VERIFICATION_ERROR);
   }
 }
+
+import sgMail from "@sendgrid/mail";
+
+export const sendSendGridEmail = async (
+  to: string,
+  body: string,
+  subject?: string | null
+): Promise<string> => {
+  if (!process.env.SENDGRID_API_KEY || !process.env.SENDGRID_FROM_EMAIL) {
+    console.error("Missing SendGrid environment variables.");
+    throw new Error(ErrorMessages.SENDGRID_ENV_MISSING);
+  }
+
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+  const msg = {
+    to,
+    from: process.env.SENDGRID_FROM_EMAIL,
+    subject: subject ?? "No Subject",
+    text: body,
+    html: `<p>${body}</p>`,
+  };
+
+  try {
+    const [response] = await sgMail.send(msg);
+    const sid =
+      response.headers["x-message-id"] || response.headers["x-msg-id"];
+    return sid;
+  } catch (error) {
+    console.error("SendGrid email failed:", error);
+    throw new Error(ErrorMessages.SENDGRID_EMAIL_FAILED);
+  }
+};

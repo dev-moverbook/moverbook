@@ -1,3 +1,5 @@
+import { Id } from "@/convex/_generated/dataModel";
+
 export interface SelectOption {
   label: string;
   value: string;
@@ -138,3 +140,18 @@ export type CalendarValue = Date | null | [Date | null, Date | null];
 export type PriceFilter = "Highest to Lowest" | "Lowest to Highest";
 
 export type PriceOrder = "asc" | "desc";
+
+export type MessageStatus = "pending" | "sent" | "failed";
+
+export interface RecentMoveMessageSummary {
+  moveId: Id<"move">;
+  customerName: string;
+  lastMessage: string;
+  timestamp: number; // _creationTime
+  status: MoveStatus; // from your MoveStatusConvex union
+}
+
+export type CommunicationType = "email" | "sms";
+
+export type MessageSentType = "outgoing" | "incoming";
+export type MessageVariablesTarget = "subject" | "body";

@@ -15,9 +15,9 @@ import {
 } from "@/types/convex-responses";
 import { VariableSchema } from "@/types/convex-schemas";
 import { checkExistingVariable } from "./backendUtils/checkUnique";
+import { handleInternalError } from "./backendUtils/helper";
 
-//not used
-export const getActiveVariablesByCompanyId = query({
+export const getVariablesByCompanyId = query({
   args: { companyId: v.id("companies") },
   handler: async (
     ctx,
@@ -47,14 +47,7 @@ export const getActiveVariablesByCompanyId = query({
         data: { variables },
       };
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
-      console.error(errorMessage, error);
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error: errorMessage,
-      };
+      return handleInternalError(error);
     }
   },
 });

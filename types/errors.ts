@@ -104,6 +104,14 @@ export enum ErrorMessages {
   MOVE_ASSIGNMENT_NOT_FOUND = "Move assignment not found",
   ADDITIONAL_FEE_NOT_FOUND = "Additional fee not found",
   DISCOUNT_NOT_FOUND = "Discount not found",
+  MESSAGE_DB_CREATE = "DB error creating message",
+  MOVE_DB_QUERY_BY_ID = "DB error querying move by id",
+  TWILIO_SMS_FAILED = "Twilio SMS failed",
+  MISSING_TWILIO_SID = "Missing Twilio SID",
+  MOVE_PHONE_NUMBER_NOT_FOUND = "Move phone number not found",
+  MOVE_EMAIL_NOT_FOUND = "Move email not found",
+  SENDGRID_EMAIL_FAILED = "SendGrid email failed",
+  SENDGRID_ENV_MISSING = "Missing SendGrid environment variables",
 }
 
 export enum FrontEndErrorMessages {

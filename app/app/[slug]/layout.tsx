@@ -26,15 +26,18 @@ const CompanyLayout: React.FC<CompanyLayoutProps> = ({ children }) => {
       setSlug(cleanSlug);
     }
   }, [cleanSlug, setSlug, contextSlug]);
-  const HIDE_NAVBAR_ROUTES = [`/app/${cleanSlug}/add-move`];
-  const hideNavbar = HIDE_NAVBAR_ROUTES.includes(pathname);
+  const hideNavbar =
+    pathname === `/app/${cleanSlug}/add-move` ||
+    (pathname.includes(`/app/${cleanSlug}/moves/`) &&
+      pathname.endsWith("/messages"));
+
   return (
     <div className="flex min-h-screen">
       <Sidebar slug={cleanSlug} user={user} />
       <div className={`flex-1  lg:ml-64 ${hideNavbar ? "" : ""} `}>
         {!hideNavbar && <Navbar slug={cleanSlug} user={user} />}{" "}
         <MoveSearchDropDown />
-        <main className={`${hideNavbar ? "pt-4" : "pt-14"} `}>{children}</main>
+        <main className={`${hideNavbar ? "pt-2" : "pt-14"} `}>{children}</main>
       </div>
     </div>
   );

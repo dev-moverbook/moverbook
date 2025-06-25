@@ -54,8 +54,8 @@ export const StripeAccountStatusConvex = v.union(
 );
 
 export const CommunicationTypeConvex = v.union(
-  v.literal(CommunicationType.EMAIL),
-  v.literal(CommunicationType.SMS)
+  v.literal("email"),
+  v.literal("sms")
 );
 
 export const PresSetScriptsConvex = v.union(
@@ -134,3 +134,14 @@ export const MoveTypeConvex = v.union(
 );
 
 export { CategorySize };
+
+export const MessageStatusConvex = v.union(
+  v.literal("pending"),
+  v.literal("sent"),
+  v.literal("failed")
+);
+
+export const MessageSentTypeConvex = v.union(
+  v.literal("outgoing"),
+  v.literal("incoming")
+);

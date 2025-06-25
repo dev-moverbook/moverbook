@@ -388,3 +388,11 @@ export const priceOrderToFilter = (
   if (order === "desc") return "Highest to Lowest";
   return null;
 };
+export const formatTimestamp = (
+  timestamp: number,
+  timeZone: string
+): string => {
+  return DateTime.fromMillis(Math.floor(timestamp), {
+    zone: timeZone,
+  }).toFormat("MMMM d, h:mm a");
+};

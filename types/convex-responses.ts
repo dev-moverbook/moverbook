@@ -18,6 +18,7 @@ import {
   InvoiceSchema,
   ItemSchema,
   LaborSchema,
+  MessageSchema,
   MoveAssignmentSchema,
   MoveSchema,
   PolicySchema,
@@ -31,6 +32,7 @@ import {
   VariableSchema,
   WebIntegrationsSchema,
 } from "./convex-schemas";
+import { RecentMoveMessageSummary } from "./types";
 
 export interface ErrorResponse {
   status: ResponseStatus.ERROR;
@@ -1064,4 +1066,41 @@ export interface GetMovesByNameSuccess {
 
 export interface GetMovesByNameData {
   moves: MoveSchema[];
+}
+
+export type GetMessagesByMoveIdResponse =
+  | GetMessagesByMoveIdSuccess
+  | ErrorResponse;
+
+export interface GetMessagesByMoveIdSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetMessagesByMoveIdData;
+}
+
+export interface GetMessagesByMoveIdData {
+  messages: MessageSchema[];
+}
+
+export type GetRecentMessagesByCompanyIdResponse =
+  | GetRecentMessagesByCompanyIdSuccess
+  | ErrorResponse;
+
+export interface GetRecentMessagesByCompanyIdSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetRecentMessagesByCompanyIdData;
+}
+
+export interface GetRecentMessagesByCompanyIdData {
+  messages: RecentMoveMessageSummary[];
+}
+
+export type CreateMessageResponse = CreateMessageSuccess | ErrorResponse;
+
+export interface CreateMessageSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: CreateMessageData;
+}
+
+export interface CreateMessageData {
+  messageId: Id<"messages">;
 }

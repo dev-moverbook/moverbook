@@ -19,9 +19,9 @@ import {
 import { CommunicationTypeConvex } from "@/types/convex-enums";
 import { checkExistingScript } from "./backendUtils/checkUnique";
 import { ScriptSchema, VariableSchema } from "@/types/convex-schemas";
+import { handleInternalError } from "./backendUtils/helper";
 
-//not used
-export const getActiveScriptsByCompanyId = query({
+export const getScriptsByCompanyId = query({
   args: { companyId: v.id("companies") },
   handler: async (ctx, args): Promise<GetActiveScriptsByCompanyIdResponse> => {
     const { companyId } = args;
@@ -52,14 +52,7 @@ export const getActiveScriptsByCompanyId = query({
         data: { scripts },
       };
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
-      console.error(errorMessage, error);
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error: errorMessage,
-      };
+      return handleInternalError(error);
     }
   },
 });
@@ -223,8 +216,7 @@ export const updateScript = mutation({
 
       await ctx.db.patch(scriptId, {
         ...updates,
-        emailTitle:
-          finalType === CommunicationType.EMAIL ? finalEmailTitle : undefined,
+        emailTitle: finalType === "email" ? finalEmailTitle : undefined,
       });
 
       return {

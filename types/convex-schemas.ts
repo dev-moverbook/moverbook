@@ -2,7 +2,6 @@ import { Id } from "@/convex/_generated/dataModel";
 import {
   CategorySize,
   ClerkRoles,
-  CommunicationType,
   InvitationStatus,
   PresSetScripts,
   StripeAccountStatus,
@@ -23,6 +22,9 @@ import {
   SegmentDistance,
   ServiceType,
   StopBehavior,
+  MessageStatus,
+  CommunicationType,
+  MessageSentType,
 } from "./types";
 import { MoveFeeInput } from "./form-types";
 
@@ -401,4 +403,17 @@ export interface DiscountSchema {
   name: string;
   price: number;
   isActive: boolean;
+}
+
+export interface MessageSchema {
+  _id: Id<"messages">;
+  _creationTime: number;
+  moveId: Id<"move">;
+  companyId: Id<"companies">;
+  method: CommunicationType;
+  status: MessageStatus;
+  resolvedMessage: string;
+  message: string;
+  sid?: string;
+  sentType: MessageSentType;
 }

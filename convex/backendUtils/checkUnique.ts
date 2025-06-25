@@ -1,7 +1,7 @@
 import { Id } from "@/convex/_generated/dataModel";
 import { MutationCtx } from "../_generated/server";
 import { VariableSchema } from "@/types/convex-schemas";
-import { CommunicationType } from "@/types/enums";
+import { CommunicationType } from "@/types/types";
 
 export const checkExistingVariable = async (
   ctx: MutationCtx,

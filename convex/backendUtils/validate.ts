@@ -24,7 +24,8 @@ import {
   VariableSchema,
   WebIntegrationsSchema,
 } from "@/types/convex-schemas";
-import { CommunicationType, InvitationStatus, UserRole } from "@/types/enums";
+import { InvitationStatus, UserRole } from "@/types/enums";
+import { CommunicationType } from "@/types/types";
 import { ErrorMessages } from "@/types/errors";
 import { UserIdentity } from "convex/server";
 import { MutationCtx } from "../_generated/server";
@@ -140,10 +141,7 @@ export const validateScriptFields = (
   type: CommunicationType,
   emailTitle?: string
 ) => {
-  if (
-    type === CommunicationType.EMAIL &&
-    (!emailTitle || emailTitle.trim() === "")
-  ) {
+  if (type === "email" && (!emailTitle || emailTitle.trim() === "")) {
     throw new Error(ErrorMessages.EMAIL_TITLE_REQUIRED);
   }
 };

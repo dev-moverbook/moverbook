@@ -22,6 +22,8 @@ import type * as backendUtils_connectedAccountWebhook from "../backendUtils/conn
 import type * as backendUtils_helper from "../backendUtils/helper.js";
 import type * as backendUtils_sendGrid from "../backendUtils/sendGrid.js";
 import type * as backendUtils_stripe from "../backendUtils/stripe.js";
+import type * as backendUtils_template from "../backendUtils/template.js";
+import type * as backendUtils_twilio from "../backendUtils/twilio.js";
 import type * as backendUtils_validate from "../backendUtils/validate.js";
 import type * as categories from "../categories.js";
 import type * as clerk from "../clerk.js";
@@ -40,6 +42,7 @@ import type * as invitations from "../invitations.js";
 import type * as invoices from "../invoices.js";
 import type * as items from "../items.js";
 import type * as labor from "../labor.js";
+import type * as messages from "../messages.js";
 import type * as move from "../move.js";
 import type * as moveAssignments from "../moveAssignments.js";
 import type * as paymentStep from "../paymentStep.js";
@@ -75,6 +78,8 @@ declare const fullApi: ApiFromModules<{
   "backendUtils/helper": typeof backendUtils_helper;
   "backendUtils/sendGrid": typeof backendUtils_sendGrid;
   "backendUtils/stripe": typeof backendUtils_stripe;
+  "backendUtils/template": typeof backendUtils_template;
+  "backendUtils/twilio": typeof backendUtils_twilio;
   "backendUtils/validate": typeof backendUtils_validate;
   categories: typeof categories;
   clerk: typeof clerk;
@@ -93,6 +98,7 @@ declare const fullApi: ApiFromModules<{
   invoices: typeof invoices;
   items: typeof items;
   labor: typeof labor;
+  messages: typeof messages;
   move: typeof move;
   moveAssignments: typeof moveAssignments;
   paymentStep: typeof paymentStep;

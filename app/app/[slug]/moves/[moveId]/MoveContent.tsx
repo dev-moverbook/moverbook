@@ -1,4 +1,7 @@
+"use client";
+
 import React, { useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import MoveCard from "@/app/components/move/MoveCard";
 import Stepper from "@/app/components/shared/Stepper";
 import TabSelector from "@/app/components/shared/TabSelector";
@@ -22,11 +25,21 @@ const MoveContent = ({ moveData }: MoveContentProps) => {
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [activeTab, setActiveTab] = useState<string>("INFO");
 
+  const router = useRouter();
+  const pathname = usePathname();
+
   const { move, quote, company, salesRep, companyContact, policy } = moveData;
 
   const onEditQuote = () => {
     setCurrentStep(1);
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    if (tab === "MESSAGES" && !pathname.endsWith("/messages")) {
+      router.push(`${pathname}/messages`);
+    }
   };
 
   return (
@@ -46,7 +59,7 @@ const MoveContent = ({ moveData }: MoveContentProps) => {
       <TabSelector
         tabs={["INFO", "ACTIVITES", "MESSAGES"]}
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={handleTabChange}
       />
 
       {currentStep === 1 && activeTab === "INFO" && <LeadStep move={move} />}

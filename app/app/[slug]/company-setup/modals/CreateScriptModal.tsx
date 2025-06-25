@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import { FrontEndErrorMessages } from "@/types/errors";
-import { CommunicationType } from "@/types/enums";
+import { CommunicationType } from "@/types/types";
 import { ScriptSchema, VariableSchema } from "@/types/convex-schemas";
 import { Id } from "@/convex/_generated/dataModel";
 import FormActions from "@/app/components/shared/FormActions";
@@ -55,7 +55,7 @@ const CreateScriptModal: React.FC<CreateScriptModalProps> = ({
   const isMobile = useMediaQuery({ maxWidth: 768 });
 
   const [title, setTitle] = useState<string>("");
-  const [type, setType] = useState<CommunicationType>(CommunicationType.EMAIL);
+  const [type, setType] = useState<CommunicationType>("email");
   const [message, setMessage] = useState<string>("");
   const [emailTitle, setEmailTitle] = useState<string>("");
   const [titleError, setTitleError] = useState<string | null>(null);
@@ -75,7 +75,7 @@ const CreateScriptModal: React.FC<CreateScriptModalProps> = ({
 
   const resetState = () => {
     setTitle("");
-    setType(CommunicationType.EMAIL);
+    setType("email");
     setMessage("");
     setEmailTitle("");
     setTitleError(null);
@@ -99,10 +99,7 @@ const CreateScriptModal: React.FC<CreateScriptModalProps> = ({
       return;
     }
 
-    if (
-      type === CommunicationType.EMAIL &&
-      (!emailTitle || emailTitle.trim() === "")
-    ) {
+    if (type === "email" && (!emailTitle || emailTitle.trim() === "")) {
       setEmailTitleError(FrontEndErrorMessages.EMAIL_TITLE_REQUIRED);
       return;
     }
@@ -156,15 +153,15 @@ const CreateScriptModal: React.FC<CreateScriptModalProps> = ({
         value={type}
         onChange={(val) => {
           setType(val);
-          if (val !== CommunicationType.EMAIL) setEmailTitle("");
+          if (val !== "email") setEmailTitle("");
         }}
         options={[
-          { label: "Email", value: CommunicationType.EMAIL },
-          { label: "SMS", value: CommunicationType.SMS },
+          { label: "Email", value: "email" },
+          { label: "SMS", value: "sms" },
         ]}
       />
 
-      {type === CommunicationType.EMAIL && (
+      {type === "email" && (
         <div>
           <LabeledInput
             label="Email Subject"
@@ -201,9 +198,11 @@ const CreateScriptModal: React.FC<CreateScriptModalProps> = ({
           onInsert={(name) => insertVariable(name, "message")}
         />
       </div>
-
       <FormActions
-        onSave={handleSubmit}
+        onSave={(e) => {
+          e.preventDefault();
+          handleSubmit();
+        }}
         onCancel={handleClose}
         isSaving={createLoading}
         saveLabel={editingScript ? "Save Changes" : "Create Script"}

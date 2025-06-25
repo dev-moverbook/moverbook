@@ -23,6 +23,7 @@
     "@radix-ui/react-slot": "^1.2.0",
     "@react-google-maps/api": "^2.20.6",
     "@sendgrid/client": "^8.1.5",
+    "@sendgrid/mail": "^8.1.5",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "convex": "^1.19.2",
@@ -43,6 +44,7 @@
     "svix": "^1.59.1",
     "tailwind-merge": "^3.0.1",
     "tailwindcss-animate": "^1.0.7",
+    "twilio": "^5.7.1",
     "vaul": "^1.1.2"
   },
   "devDependencies": {

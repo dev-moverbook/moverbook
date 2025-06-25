@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { CommunicationType, ResponseStatus } from "@/types/enums";
+import { ResponseStatus } from "@/types/enums";
+import { CommunicationType } from "@/types/types";
 import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
 
@@ -25,7 +26,7 @@ export const useCreateScript = () => {
 
     try {
       if (
-        data.type === CommunicationType.EMAIL &&
+        data.type === "email" &&
         (!data.emailTitle || data.emailTitle.trim() === "")
       ) {
         setCreateError(FrontEndErrorMessages.EMAIL_TITLE_REQUIRED);

@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { CommunicationType, ResponseStatus } from "@/types/enums";
+import { ResponseStatus } from "@/types/enums";
+import { CommunicationType } from "@/types/types";
 import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
 
