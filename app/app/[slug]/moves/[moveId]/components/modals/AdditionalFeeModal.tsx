@@ -1,34 +1,33 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
-import { useMediaQuery } from "react-responsive";
-import { MOBILE_BREAKPOINT } from "@/types/const";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import FieldGroup from "@/app/components/shared/FieldGroup";
 import FieldRow from "@/app/components/shared/FieldRow";
 import FormActions from "@/app/components/shared/FormActions";
-import CheckboxField from "@/app/components/shared/CheckboxField";
 import LabeledSelect from "@/app/components/shared/labeled/LabeledSelect";
 import CounterInput from "@/app/components/shared/labeled/CounterInput";
+import TagLabel from "@/app/components/shared/labeled/TagLabel";
+import CurrencyInput from "@/app/components/shared/labeled/CurrencyInput";
+import ResponsiveModal from "@/app/components/shared/modal/ResponsiveModal";
 import {
   AdditionalFeeValidationErrors,
   validateAdditionalFeeForm,
 } from "@/app/frontendUtils/validation";
-import { AdditionalFeeSchema, FeeSchema } from "@/types/convex-schemas";
-import { Id } from "@/convex/_generated/dataModel";
 
 interface AdditionalFeeModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (fee: AdditionalFeeFormData) => void;
-  initialData?: AdditionalFeeSchema | null;
-  moveFeeOptions?: FeeSchema[];
+  initialData?: Doc<"additionalFees"> | null;
+  moveFeeOptions?: Doc<"fees">[];
   isLoading: boolean;
   errorMessage?: string | null;
 }
 
 export interface AdditionalFeeFormData {
   name: string;
-  price: string;
+  price: number | null;
   quantity: number;
   feeId?: Id<"fees">;
 }
@@ -42,11 +41,9 @@ const AdditionalFeeModal = ({
   isLoading,
   errorMessage,
 }: AdditionalFeeModalProps) => {
-  const isMobile = useMediaQuery({ maxWidth: MOBILE_BREAKPOINT });
-
   const [formData, setFormData] = useState<AdditionalFeeFormData>({
     name: "",
-    price: "",
+    price: null,
     quantity: 1,
   });
   const [errors, setErrors] = useState<AdditionalFeeValidationErrors>({});
@@ -67,14 +64,14 @@ const AdditionalFeeModal = ({
       if (matchedOption) {
         setFormData({
           name: matchedOption.name,
-          price: matchedOption.price.toString(),
+          price: matchedOption.price,
           quantity: initialData.quantity,
         });
         setIsCustomFee(false);
       } else {
         setFormData({
           name: initialData.name,
-          price: initialData.price.toString(),
+          price: initialData.price,
           quantity: initialData.quantity,
         });
         setIsCustomFee(true);
@@ -84,7 +81,7 @@ const AdditionalFeeModal = ({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev: AdditionalFeeFormData) => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: name === "price" ? parseFloat(value) : value,
     }));
@@ -104,7 +101,7 @@ const AdditionalFeeModal = ({
   const resetForm = () => {
     setFormData({
       name: "",
-      price: "",
+      price: null,
       quantity: 1,
     });
     setErrors({});
@@ -119,61 +116,72 @@ const AdditionalFeeModal = ({
   const isDisabled =
     formData.name === "" || !formData.price || formData.quantity === 0;
 
+  const title = initialData ? "Update Fee" : "Add Fee";
+  const description = initialData
+    ? "Edit fee name, price, or quantity."
+    : "Create a new fee for this move. Use preset fees or enter a custom name and price.";
+
   const formContent = (
     <FieldGroup>
-      <CheckboxField
-        label="Custom Fee"
-        checked={isCustomFee}
-        onChange={() => setIsCustomFee((prev) => !prev)}
-        id="custom-fee"
+      <div>
+        <TagLabel
+          label="Fee"
+          buttonText={isCustomFee ? "Preset" : "Custom"}
+          onToggle={() => setIsCustomFee((prev) => !prev)}
+        />
+        {isCustomFee ? (
+          <FieldRow
+            label=""
+            name="name"
+            value={formData.name}
+            onChange={handleInputChange}
+            placeholder="Enter Fee Name"
+            error={errors.name}
+          />
+        ) : (
+          <LabeledSelect
+            label=""
+            value={formData.name}
+            onChange={(value) => {
+              const selectedFee = moveFeeOptions?.find(
+                (fee) => fee.name === value
+              );
+              setFormData({
+                ...formData,
+                name: value,
+                price: selectedFee?.price ?? null,
+              });
+              setErrors((prev) => ({
+                ...prev,
+                name: undefined,
+                price: undefined,
+              }));
+            }}
+            options={feeOptions}
+            loading={isLoading}
+            queryError={errorMessage}
+            error={errors.name}
+          />
+        )}
+      </div>
+
+      <CurrencyInput
+        label="Price"
+        value={formData.price}
+        onChange={(val) => {
+          setFormData((prev) => ({
+            ...prev,
+            price: val ? Math.round(val * 100) / 100 : null,
+          }));
+          if (errors.price) {
+            const { price, ...rest } = errors;
+            setErrors(rest);
+          }
+        }}
+        error={errors.price}
+        isEditing={true}
       />
 
-      {isCustomFee ? (
-        <FieldRow
-          label="Fee Name"
-          name="name"
-          value={formData.name}
-          onChange={handleInputChange}
-          placeholder="Enter Fee Name"
-          error={errors.name}
-        />
-      ) : (
-        <LabeledSelect
-          label="Fee"
-          value={formData.name}
-          onChange={(value) => {
-            const selectedFee = moveFeeOptions?.find(
-              (fee) => fee.name === value
-            );
-            setFormData({
-              ...formData,
-              name: value,
-              price: selectedFee?.price?.toString() ?? "",
-              feeId: selectedFee?._id,
-            });
-            setErrors((prev) => ({
-              ...prev,
-              name: undefined,
-              price: undefined,
-            }));
-          }}
-          options={feeOptions}
-          loading={isLoading}
-          queryError={errorMessage}
-          error={errors.name}
-        />
-      )}
-      <FieldRow
-        label="Price"
-        type="number"
-        name="price"
-        value={formData.price?.toString() ?? ""}
-        onChange={handleInputChange}
-        placeholder="Enter Price"
-        error={errors.price}
-        step={0.01}
-        min={0}
-      />
       <CounterInput
         label="Quantity"
         value={formData.quantity}
@@ -200,20 +208,14 @@ const AdditionalFeeModal = ({
     </FieldGroup>
   );
 
-  return isMobile ? (
-    <Drawer open={isOpen} onOpenChange={handleClose}>
-      <DrawerContent>
-        <DrawerTitle>{initialData ? "Update Fee" : "Add Fee"}</DrawerTitle>
-        {formContent}
-      </DrawerContent>
-    </Drawer>
-  ) : (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent>
-        <DialogTitle>{initialData ? "Update Fee" : "Add Fee"}</DialogTitle>
-        {formContent}
-      </DialogContent>
-    </Dialog>
+  return (
+    <ResponsiveModal
+      isOpen={isOpen}
+      onClose={handleClose}
+      title={title}
+      description={description}
+      children={formContent}
+    />
   );
 };
 

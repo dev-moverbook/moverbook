@@ -1,27 +1,25 @@
 import React, { useEffect, useState } from "react";
-import { useMediaQuery } from "react-responsive";
-import { MOBILE_BREAKPOINT } from "@/types/const";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
+import { AddMoveLineItemInput, MoveFeeInput } from "@/types/form-types";
 import FieldGroup from "@/app/components/shared/FieldGroup";
 import FieldRow from "@/app/components/shared/FieldRow";
 import FormActions from "@/app/components/shared/FormActions";
-import { AddMoveLineItemInput, MoveFeeInput } from "@/types/form-types";
-import CheckboxField from "@/app/components/shared/CheckboxField";
 import LabeledSelect from "@/app/components/shared/labeled/LabeledSelect";
 import CounterInput from "@/app/components/shared/labeled/CounterInput";
 import {
   AddLineValidationErrors,
   validateAddLineForm,
 } from "@/app/frontendUtils/validation";
-import { AdditionalFeeSchema, FeeSchema } from "@/types/convex-schemas";
+import CurrencyInput from "@/app/components/shared/labeled/CurrencyInput";
+import TagLabel from "@/app/components/shared/labeled/TagLabel";
+import ResponsiveModal from "@/app/components/shared/modal/ResponsiveModal";
+import { Doc } from "@/convex/_generated/dataModel";
 
 interface AddLineModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (fee: MoveFeeInput) => void;
   initialData?: MoveFeeInput | null;
-  moveFeeOptions?: FeeSchema[];
+  moveFeeOptions?: Doc<"fees">[];
   isLoading: boolean;
   errorMessage?: string | null;
 }
@@ -35,8 +33,6 @@ const AddLineModal = ({
   isLoading,
   errorMessage,
 }: AddLineModalProps) => {
-  const isMobile = useMediaQuery({ maxWidth: MOBILE_BREAKPOINT });
-
   const [formData, setFormData] = useState<AddMoveLineItemInput>({
     name: "",
     price: null,
@@ -53,13 +49,17 @@ const AddLineModal = ({
 
   useEffect(() => {
     if (initialData) {
+      const feeExists = feeOptions.some(
+        (opt) => opt.value === initialData.name
+      );
+      setIsCustomFee(!feeExists);
       setFormData(initialData);
     }
-  }, [initialData]);
+  }, [initialData, feeOptions]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev: AddMoveLineItemInput) => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: name === "price" ? parseFloat(value) : value,
     }));
@@ -99,60 +99,71 @@ const AddLineModal = ({
   const isDisabled =
     formData.name === "" || !formData.price || formData.quantity === 0;
 
+  const title = initialData ? "Update Fee" : "Add Fee";
+  const description = initialData
+    ? "Edit line item details."
+    : "Add a custom or preset line item to this move.";
+
   const formContent = (
     <FieldGroup>
-      <CheckboxField
-        label="Custom Fee"
-        checked={isCustomFee}
-        onChange={() => setIsCustomFee((prev) => !prev)}
-        id="custom-fee"
+      <div>
+        <TagLabel
+          label="Fee"
+          buttonText={isCustomFee ? "Preset" : "Custom"}
+          onToggle={() => setIsCustomFee((prev) => !prev)}
+        />
+        {isCustomFee ? (
+          <FieldRow
+            label=""
+            name="name"
+            value={formData.name}
+            onChange={handleInputChange}
+            placeholder="Enter Fee Name"
+            error={errors.name}
+          />
+        ) : (
+          <LabeledSelect
+            label=""
+            value={formData.name}
+            onChange={(value) => {
+              const selectedFee = moveFeeOptions?.find(
+                (fee) => fee.name === value
+              );
+              setFormData({
+                ...formData,
+                name: value,
+                price: selectedFee?.price ?? null,
+              });
+              setErrors((prev) => ({
+                ...prev,
+                name: undefined,
+                price: undefined,
+              }));
+            }}
+            options={feeOptions}
+            loading={isLoading}
+            queryError={errorMessage}
+            error={errors.name}
+          />
+        )}
+      </div>
+      <CurrencyInput
+        label="Price"
+        value={formData.price}
+        onChange={(val) => {
+          setFormData((prev) => ({
+            ...prev,
+            price: val ? Math.round(val * 100) / 100 : null,
+          }));
+          if (errors.price) {
+            const { price, ...rest } = errors;
+            setErrors(rest);
+          }
+        }}
+        error={errors.price}
+        isEditing={true}
       />
 
-      {isCustomFee ? (
-        <FieldRow
-          label="Fee Name"
-          name="name"
-          value={formData.name}
-          onChange={handleInputChange}
-          placeholder="Enter Fee Name"
-          error={errors.name}
-        />
-      ) : (
-        <LabeledSelect
-          label="Fee"
-          value={formData.name}
-          onChange={(value) => {
-            const selectedFee = moveFeeOptions?.find(
-              (fee) => fee.name === value
-            );
-            setFormData({
-              ...formData,
-              name: value,
-              price: selectedFee?.price ?? null,
-            });
-            setErrors((prev) => ({
-              ...prev,
-              name: undefined,
-              price: undefined,
-            }));
-          }}
-          options={feeOptions}
-          loading={isLoading}
-          queryError={errorMessage}
-          error={errors.name}
-        />
-      )}
-      <FieldRow
-        label="Price"
-        type="number"
-        name="price"
-        value={formData.price?.toString() ?? ""}
-        onChange={handleInputChange}
-        placeholder="Enter Price"
-        error={errors.price}
-        step={0.01}
-        min={0}
-      />
       <CounterInput
         label="Quantity"
         value={formData.quantity}
@@ -179,20 +190,15 @@ const AddLineModal = ({
     </FieldGroup>
   );
 
-  return isMobile ? (
-    <Drawer open={isOpen} onOpenChange={handleClose}>
-      <DrawerContent>
-        <DrawerTitle>{initialData ? "Update Fee" : "Add Fee"}</DrawerTitle>
-        {formContent}
-      </DrawerContent>
-    </Drawer>
-  ) : (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent>
-        <DialogTitle>{initialData ? "Update Fee" : "Add Fee"}</DialogTitle>
-        {formContent}
-      </DialogContent>
-    </Dialog>
+  return (
+    <ResponsiveModal
+      isOpen={isOpen}
+      onClose={handleClose}
+      title={title}
+      description={description}
+    >
+      {formContent}
+    </ResponsiveModal>
   );
 };
 

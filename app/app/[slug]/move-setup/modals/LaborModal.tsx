@@ -2,8 +2,18 @@
 
 import React, { useState, useEffect } from "react";
 import { useMediaQuery } from "react-responsive";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 import { FrontEndErrorMessages } from "@/types/errors";
 import { CreateLaborFormData } from "@/types/form-types";
 import { Id } from "@/convex/_generated/dataModel";
@@ -13,6 +23,8 @@ import FormActions from "@/app/components/shared/FormActions";
 import { validatePrice } from "@/app/frontendUtils/validation";
 import FieldRow from "@/app/components/shared/FieldRow";
 import MonthDayPicker from "@/app/components/shared/MonthDayPicker";
+import CurrencyInput from "@/app/components/shared/labeled/CurrencyInput";
+import ResponsiveModal from "@/app/components/shared/modal/ResponsiveModal";
 
 interface LaborModalProps {
   isOpen: boolean;
@@ -44,11 +56,10 @@ const LaborModal: React.FC<LaborModalProps> = ({
   const isMobile = useMediaQuery({ maxWidth: 768 });
   const [labor, setLabor] = useState<CreateLaborFormData>({
     name: "",
-    twoMovers: 0,
-    threeMovers: 0,
-    fourMovers: 0,
-    extra: 0,
-    isDefault: false,
+    twoMovers: null,
+    threeMovers: null,
+    fourMovers: null,
+    extra: null,
     startDate: null,
     endDate: null,
   });
@@ -76,7 +87,6 @@ const LaborModal: React.FC<LaborModalProps> = ({
         threeMovers: initialData.threeMovers,
         fourMovers: initialData.fourMovers,
         extra: initialData.extra,
-        isDefault: initialData.isDefault,
         startDate: initialData.startDate,
         endDate: initialData.endDate,
       });
@@ -102,11 +112,10 @@ const LaborModal: React.FC<LaborModalProps> = ({
   const resetState = () => {
     setLabor({
       name: "",
-      twoMovers: 0,
-      threeMovers: 0,
-      fourMovers: 0,
-      extra: 0,
-      isDefault: false,
+      twoMovers: null,
+      threeMovers: null,
+      fourMovers: null,
+      extra: null,
       startDate: null,
       endDate: null,
     });
@@ -148,7 +157,7 @@ const LaborModal: React.FC<LaborModalProps> = ({
       if (error) errors[key] = error;
     }
 
-    if (!formData.isDefault) {
+    if (initialData) {
       if (startMonth === "none" || startDay === "none") {
         errors.startDate = FrontEndErrorMessages.START_DATE_REQUIRED;
       }
@@ -220,6 +229,24 @@ const LaborModal: React.FC<LaborModalProps> = ({
     setErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
+  const isMissingRates =
+    labor.twoMovers === null ||
+    labor.threeMovers === null ||
+    labor.fourMovers === null ||
+    labor.extra === null ||
+    labor.name.trim() === "";
+
+  const isMissingDates =
+    startMonth === "none" ||
+    startDay === "none" ||
+    endMonth === "none" ||
+    endDay === "none";
+
+  const isDisabled =
+    isMissingRates || (!initialData?.isDefault && isMissingDates);
+
+  const isDefault = initialData?.isDefault;
+
   const formContent = (
     <FieldGroup>
       <FieldRow
@@ -231,45 +258,41 @@ const LaborModal: React.FC<LaborModalProps> = ({
         error={errors.name}
       />
       <div className="grid grid-cols-2 gap-4">
-        <FieldRow
+        <CurrencyInput
           label="Two Movers Rate"
-          name="twoMovers"
-          type="number"
-          value={labor.twoMovers.toString()}
-          onChange={handleInputChange}
-          placeholder="Enter rate for two movers"
+          value={labor.twoMovers}
+          isEditing={true}
+          onChange={(value) => {
+            setLabor((prev) => ({ ...prev, twoMovers: value ?? null }));
+          }}
           error={errors.twoMovers}
-          min={0}
         />
-        <FieldRow
+        <CurrencyInput
           label="Three Movers Rate"
-          name="threeMovers"
-          type="number"
-          value={labor.threeMovers.toString()}
-          onChange={handleInputChange}
-          placeholder="Enter rate for three movers"
+          value={labor.threeMovers}
+          isEditing={true}
+          onChange={(value) => {
+            setLabor((prev) => ({ ...prev, threeMovers: value ?? null }));
+          }}
           error={errors.threeMovers}
-          min={0}
         />
-        <FieldRow
+        <CurrencyInput
           label="Four Movers Rate"
-          name="fourMovers"
-          type="number"
-          value={labor.fourMovers.toString()}
-          onChange={handleInputChange}
-          placeholder="Enter rate for four movers"
+          value={labor.fourMovers}
+          isEditing={true}
+          onChange={(value) => {
+            setLabor((prev) => ({ ...prev, fourMovers: value ?? null }));
+          }}
           error={errors.fourMovers}
-          min={0}
         />
-        <FieldRow
+        <CurrencyInput
           label="Extra Rate"
-          name="extra"
-          type="number"
-          value={labor.extra.toString()}
-          onChange={handleInputChange}
-          placeholder="Enter extra rate"
+          value={labor.extra}
+          isEditing={true}
+          onChange={(value) => {
+            setLabor((prev) => ({ ...prev, extra: value ?? null }));
+          }}
           error={errors.extra}
-          min={0}
         />
       </div>
 
@@ -299,32 +322,33 @@ const LaborModal: React.FC<LaborModalProps> = ({
       )}
 
       <FormActions
-        onSave={handleSubmit}
+        onSave={(e) => {
+          e.preventDefault();
+          handleSubmit();
+        }}
         onCancel={handleClose}
         isSaving={loading}
         error={error}
         saveLabel={initialData ? "Update Labor" : "Create Labor"}
         cancelLabel="Cancel"
+        disabled={isDisabled}
       />
     </FieldGroup>
   );
 
   const title = initialData ? "Edit Labor" : "Create Labor";
+  const description = initialData
+    ? `Update labor rates${!isDefault ? " and availability window. Make sure the start date is not after the end date" : ""}.`
+    : "Enter labor rates for different crew sizes. Set the active start and end dates. Make sure the start date is not after the end date.";
 
-  return isMobile ? (
-    <Drawer open={isOpen} onOpenChange={handleClose}>
-      <DrawerContent>
-        <DrawerTitle>{title}</DrawerTitle>
-        {formContent}
-      </DrawerContent>
-    </Drawer>
-  ) : (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent>
-        <DialogTitle>{title}</DialogTitle>
-        {formContent}
-      </DialogContent>
-    </Dialog>
+  return (
+    <ResponsiveModal
+      isOpen={isOpen}
+      onClose={handleClose}
+      title={title}
+      description={description}
+      children={formContent}
+    />
   );
 };
 

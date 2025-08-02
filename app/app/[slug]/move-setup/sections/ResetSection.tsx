@@ -35,7 +35,7 @@ const ResetSection = ({ companyId }: ResetSectionProps) => {
   return (
     <SectionContainer isLast={true}>
       <CenteredContainer>
-        <SectionHeader title="Reset" />
+        <SectionHeader className="px-0 pb-4" title="Reset" />
         <p className="text-grayCustom2 mb-4">
           Reset the items, rooms, and categories to the default values.
         </p>

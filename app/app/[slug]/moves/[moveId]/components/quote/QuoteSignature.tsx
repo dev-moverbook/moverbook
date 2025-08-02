@@ -1,16 +1,15 @@
 "use client";
 
 import React from "react";
-import { MoveSchema } from "@/types/convex-schemas";
 import SectionContainer from "@/app/components/shared/containers/SectionContainer";
 import SectionHeader from "@/app/components/shared/SectionHeader";
 import Signature from "@/app/components/move/shared/Signature";
-import { QuoteSchema } from "@/types/convex-schemas";
 import DisplaySignature from "@/app/components/move/shared/DisplaySignature";
+import { Doc } from "@/convex/_generated/dataModel";
 interface QuoteSignatureProps {
-  move: MoveSchema;
+  move: Doc<"move">;
   setSignatureDataUrl: (dataUrl: string | null) => void;
-  quote: QuoteSchema | null;
+  quote: Doc<"quotes"> | null;
 }
 
 const QuoteSignature = ({
@@ -27,7 +26,7 @@ const QuoteSignature = ({
 
   return (
     <div>
-      <SectionHeader title="Signature" />
+      <SectionHeader className="mx-auto" title="Signature" />
       <SectionContainer>
         {showRepSignature ? (
           <DisplaySignature

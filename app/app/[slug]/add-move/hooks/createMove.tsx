@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useMutation } from "convex/react";
-import { ResponseStatus } from "@/types/enums";
+import { ResponseStatus, TravelChargingTypes } from "@/types/enums";
 import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
 import { LocationInput, MoveFeeInput, MoveItemInput } from "@/types/form-types"; // <-- Define these based on your form shape
@@ -17,42 +17,41 @@ import {
 } from "@/types/types";
 import { ArrivalTimes, InsurancePolicySchema } from "@/types/convex-schemas";
 
-interface CreateMoveInput {
-  companyId: Id<"companies">;
-  status: MoveStatus;
-  salesRep: Id<"users">;
-  liabilityCoverage: InsurancePolicySchema | null;
-  name: string;
-  email: string | null;
-  phoneNumber: string | null;
-  altPhoneNumber: string | null;
-  notes: string | null;
-  serviceType: ServiceType | null;
-  referral: string | null;
-  moveDate: string | null;
-  moveWindow: MoveTimes;
+export interface CreateMoveInput {
   arrivalTimes: ArrivalTimes;
-  trucks: number;
-  movers: number;
-  startingMoveTime: number;
-  endingMoveTime: number;
+  companyId: Id<"companies">;
+  creditCardFee: number | null;
+  deposit: number;
+  depositMethod: PaymentMethod | null;
+  destinationToOrigin: number | null;
+  endingMoveTime: number | null;
   jobType: JobType;
   jobTypeRate: number | null;
-  deposit: number | null;
+  liabilityCoverage: InsurancePolicySchema | null;
+  locations: LocationInput[];
+  moveCustomerId: Id<"moveCustomers">;
+  moveDate: string | null;
   moveFees: MoveFeeInput[];
   moveItems: MoveItemInput[];
-  locations: LocationInput[];
-  totalMiles: number | null;
+  moveStatus: MoveStatus;
+  moveWindow: MoveTimes;
+  movers: number;
+  notes: string | null;
   officeToOrigin: number | null;
-  destinationToOrigin: number | null;
-  roundTripMiles: number | null;
   roundTripDrive: number | null;
+  roundTripMiles: number | null;
+  salesRep: Id<"users">;
   segmentDistances: SegmentDistance[];
-  depositMethod: PaymentMethod;
+  serviceType: ServiceType | null;
+  startingMoveTime: number | null;
+  totalMiles: number | null;
+  trucks: number;
+  travelFeeRate?: number | null;
+  travelFeeMethod?: TravelChargingTypes | null;
 }
 
 export const useCreateMove = () => {
-  const [createMoveLoading, setCreateMoveLoading] = useState(false);
+  const [createMoveLoading, setCreateMoveLoading] = useState<boolean>(false);
   const [createMoveError, setCreateMoveError] = useState<string | null>(null);
 
   const createMoveMutation = useMutation(api.move.createMove);

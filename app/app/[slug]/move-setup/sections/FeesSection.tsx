@@ -14,6 +14,7 @@ import SectionContainer from "@/app/components/shared/SectionContainer";
 import SectionHeader from "@/app/components/shared/SectionHeader";
 import { Button } from "@/app/components/ui/button";
 import CardContainer from "@/app/components/shared/CardContainer";
+import AddItemButton from "@/app/components/shared/buttons/AddItemButton";
 
 interface FeesSectionProps {
   fees: FeeSchema[];
@@ -79,9 +80,10 @@ const FeesSection: React.FC<FeesSectionProps> = ({ fees, companyId }) => {
     <SectionContainer isLast={true}>
       <CenteredContainer>
         <SectionHeader
+          className="px-0 pb-4"
           title="Fees"
           actions={
-            <Button onClick={handleOpenCreateModal}>+ Create Fee</Button>
+            <AddItemButton label="Fee" onClick={handleOpenCreateModal} />
           }
         />
         <CardContainer>

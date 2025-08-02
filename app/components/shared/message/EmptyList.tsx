@@ -6,7 +6,7 @@ interface EmptyListProps {
 }
 
 const EmptyList: React.FC<EmptyListProps> = ({
-  message = "No items found",
+  message = "No items added.",
   className = "",
 }) => {
   return (

@@ -1,32 +1,27 @@
 import React, { useEffect, useState } from "react";
-import CenteredContainer from "@/app/components/shared/CenteredContainer";
-import SectionContainer from "@/app/components/shared/containers/SectionContainer";
-import SectionHeader from "@/app/components/shared/SectionHeader";
-import FieldGroup from "@/app/components/shared/FieldGroup";
-import FormActions from "@/app/components/shared/FormActions";
-import { MoveSchema } from "@/types/convex-schemas";
 import { LocationInput } from "@/types/form-types";
 import MoveAddress from "@/app/app/[slug]/add-move/components/sections/MoveAddress";
 import LocationSummary from "@/app/app/[slug]/add-move/components/sections/LocationSummary";
-import StopSectionHeader from "@/app/components/move/header/StopSectionHeader";
 import StopSection from "@/app/app/[slug]/add-move/components/sections/StopSection";
 import ConfirmDeleteModal from "@/app/app/[slug]/company-setup/modals/ConfirmDeleteModal";
 import { useUpdateMove } from "../../../hooks/useUpdateMove";
 import { useCompanyContact } from "@/app/hooks/queries/useCompanyContact";
 import { nanoid } from "nanoid";
+import { useMoveContext } from "@/app/contexts/MoveContext";
+import ConfirmModal from "@/app/components/shared/ConfirmModal";
 
-interface LocationSectionProps {
-  move: MoveSchema;
-}
+interface LocationSectionProps {}
 
-const LocationSection = ({ move }: LocationSectionProps) => {
-  const [isEditing, setIsEditing] = useState<boolean>(false);
+const LocationSection = ({}: LocationSectionProps) => {
+  const { moveData } = useMoveContext();
+  const move = moveData.move;
+  const [addingStopIndex, setAddingStopIndex] = useState<number | null>(null);
   const [editedLocations, setEditedLocations] = useState<LocationInput[]>(
     move.locations
   );
-  const [showBanner, setShowBanner] = useState<boolean>(false);
   const [confirmDeleteModal, setConfirmDeleteModal] = useState<boolean>(false);
   const [deleteIndex, setDeleteIndex] = useState<number | null>(null);
+  const [showBanner, setShowBanner] = useState<boolean>(false);
 
   const { data: companyContact } = useCompanyContact(move.companyId);
   const { updateMove, updateMoveLoading, updateMoveError } = useUpdateMove();
@@ -58,40 +53,26 @@ const LocationSection = ({ move }: LocationSectionProps) => {
   const addStopLocation = () => {
     const newStop: LocationInput = {
       uid: nanoid(),
-      locationType: "stop",
+      locationRole: "stop",
       address: "",
-      moveType: null,
+      locationType: null,
       aptNumber: null,
       aptName: null,
       squareFootage: null,
       accessType: null,
       moveSize: null,
-      stopBehavior: undefined,
+      timeDistanceRange: "0-30 sec (less than 100 ft)",
     };
+
     const insertIndex = editedLocations.length - 1;
+
     setEditedLocations((prev) => [
       ...prev.slice(0, insertIndex),
       newStop,
       ...prev.slice(insertIndex),
     ]);
-  };
 
-  const handleSave = async () => {
-    const result = await updateMove({
-      moveId: move._id,
-      updates: {
-        locations: editedLocations,
-      },
-    });
-
-    if (result.success) {
-      setIsEditing(false);
-    }
-  };
-
-  const handleCancel = () => {
-    setEditedLocations(move.locations);
-    setIsEditing(false);
+    setAddingStopIndex(insertIndex);
   };
 
   const handleAddStop = () => {
@@ -109,10 +90,15 @@ const LocationSection = ({ move }: LocationSectionProps) => {
     if (deleteIndex !== null) {
       removeLocation(deleteIndex);
       setConfirmDeleteModal(false);
+      if (addingStopIndex === deleteIndex) {
+        setAddingStopIndex(null);
+      }
     }
   };
 
-  const stops = editedLocations.slice(1, -1);
+  const handleSavedStop = () => {
+    setAddingStopIndex(null);
+  };
 
   return (
     <div>
@@ -127,12 +113,17 @@ const LocationSection = ({ move }: LocationSectionProps) => {
           error={updateMoveError}
         />
       )}
+
       <StopSection
         locations={editedLocations}
         addStopLocation={handleAddStop}
         removeLocation={handleRemoveStop}
         updateLocation={updateLocation}
         showEditButton={true}
+        isAddingIndex={addingStopIndex}
+        onSaved={handleSavedStop}
+        isLoading={updateMoveLoading}
+        error={updateMoveError}
       />
 
       {editedLocations.length > 1 &&
@@ -157,7 +148,7 @@ const LocationSection = ({ move }: LocationSectionProps) => {
         showBorder={true}
       />
 
-      <ConfirmDeleteModal
+      <ConfirmModal
         isOpen={confirmDeleteModal}
         onClose={() => {
           setConfirmDeleteModal(false);
@@ -166,6 +157,8 @@ const LocationSection = ({ move }: LocationSectionProps) => {
         onConfirm={handleConfirmDelete}
         deleteLoading={updateMoveLoading}
         deleteError={updateMoveError}
+        title="Remove Stop"
+        description="Are you sure you want to remove this stop?"
       />
     </div>
   );

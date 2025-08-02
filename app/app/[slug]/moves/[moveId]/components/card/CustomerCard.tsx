@@ -1,17 +1,19 @@
 import React from "react";
 import CustomCard from "@/app/components/shared/CustomCard";
 import { CompanyContactSchema, UserSchema } from "@/types/convex-schemas";
-import { Phone, Mail } from "lucide-react";
+import { Phone, Mail, PhoneForwarded } from "lucide-react";
 import { MoveSchema } from "@/types/convex-schemas";
 import CardHeaderWithActions from "@/app/components/shared/CardHeaderWithActions";
 import { formatPhoneNumber } from "@/app/frontendUtils/helper";
+import { Doc } from "@/convex/_generated/dataModel";
 
 interface CustomerCardProps {
-  move: MoveSchema;
+  moveCustomer: Doc<"moveCustomers">;
 }
 
-const CustomerCard = ({ move }: CustomerCardProps) => {
-  const { name, phoneNumber, email, altPhoneNumber } = move;
+const CustomerCard = ({ moveCustomer }: CustomerCardProps) => {
+  const { name, phoneNumber, email, altPhoneNumber } = moveCustomer;
+
   return (
     <CustomCard className="items-center justify-between gap-4 p-4">
       <div className="flex justify-between items-center gap-1">
@@ -27,10 +29,10 @@ const CustomerCard = ({ move }: CustomerCardProps) => {
           <span>{phoneNumber && formatPhoneNumber(phoneNumber)}</span>
         </div>
         <div className="flex items-center text-sm  text-grayCustom2 gap-2 mt-1">
-          <Phone className="w-4 h-4 text-white" />
+          <PhoneForwarded className="w-4 h-4 text-white" />
           <span>
             {altPhoneNumber && formatPhoneNumber(altPhoneNumber)}
-            <span className="italic"> &#40;alternative&#41;</span>
+            {/* <span className="italic"> &#40;alternative&#41;</span> */}
           </span>
         </div>
 

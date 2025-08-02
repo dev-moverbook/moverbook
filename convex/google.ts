@@ -44,7 +44,6 @@ export const getDistanceMatrix = action({
       }
 
       const data = await response.json();
-      console.log("Routes API response:", data);
 
       const route = data?.routes?.[0];
       if (!route || !route.distanceMeters || !route.duration) {

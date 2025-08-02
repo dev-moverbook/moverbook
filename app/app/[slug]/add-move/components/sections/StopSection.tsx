@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import MoveAddress from "./MoveAddress";
 import StopSectionHeader from "@/app/components/move/header/StopSectionHeader";
 import { LocationInput } from "@/types/form-types";
+import ConfirmModal from "@/app/components/shared/ConfirmModal";
 
 interface StopSectionProps {
   locations: LocationInput[];
@@ -9,6 +10,10 @@ interface StopSectionProps {
   removeLocation: (index: number) => void;
   updateLocation: (index: number, partial: Partial<LocationInput>) => void;
   showEditButton?: boolean;
+  isAddingIndex?: number | null;
+  onSaved?: () => void;
+  isLoading?: boolean;
+  error?: string | null;
 }
 
 const StopSection = ({
@@ -17,6 +22,10 @@ const StopSection = ({
   removeLocation,
   updateLocation,
   showEditButton,
+  isAddingIndex,
+  onSaved,
+  isLoading,
+  error,
 }: StopSectionProps) => {
   const [showBanner, setShowBanner] = useState(false);
 
@@ -32,22 +41,29 @@ const StopSection = ({
   return (
     <div>
       <StopSectionHeader
-        stopCount={locations.length - 2}
+        stopCount={stops.length}
         showBanner={showBanner}
         onAddStop={handleAddStop}
       />
 
-      {stops.map((stop, i) => (
-        <MoveAddress
-          key={i + 1}
-          title={`Stop #${i + 1}`}
-          index={i + 1}
-          location={stop}
-          updateLocation={updateLocation}
-          removeLocation={removeLocation}
-          showEditButton={showEditButton}
-        />
-      ))}
+      {stops.map((stop, i) => {
+        const actualIndex = i + 1;
+        return (
+          <MoveAddress
+            key={stop.uid}
+            title={`Stop #${i + 1}`}
+            index={actualIndex}
+            location={stop}
+            updateLocation={updateLocation}
+            removeLocation={() => removeLocation(actualIndex)}
+            showEditButton={showEditButton}
+            isAdding={isAddingIndex === actualIndex}
+            onSaved={onSaved}
+            isLoading={isLoading}
+            error={error}
+          />
+        );
+      })}
     </div>
   );
 };

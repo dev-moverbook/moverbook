@@ -26,12 +26,9 @@ const TabSelector: React.FC<TabSelectorProps> = ({
   const activeIndex = tabs.findIndex((tab) => tab === activeTab);
 
   return (
-    <div className="relative">
-      {/* Border line on both sides outside of the centered area */}
-      <div className="absolute left-0 right-0 top-full h-px bg-gray-700 z-0" />
-
-      <div className="relative z-10 max-w-screen-sm mx-auto ">
-        <div className="flex w-full">
+    <div className="relative border-b border-gray-700">
+      <div className="relative z-10 max-w-screen-sm mx-auto">
+        <div className="flex w-full relative">
           {tabs.map((tab) => (
             <button
               key={tab}
@@ -49,17 +46,17 @@ const TabSelector: React.FC<TabSelectorProps> = ({
               {tab}
             </button>
           ))}
-        </div>
 
-        {/* Sliding underline */}
-        <motion.div
-          className="absolute bottom-0 h-0.5 bg-greenCustom rounded"
-          animate={{
-            width: `${tabWidth}%`,
-            left: `${tabWidth * activeIndex}%`,
-          }}
-          transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        />
+          {/* Sliding underline INSIDE the button container */}
+          <motion.div
+            className="absolute bottom-0 h-0.5 bg-greenCustom rounded"
+            animate={{
+              width: `${tabWidth}%`,
+              left: `${tabWidth * activeIndex}%`,
+            }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          />
+        </div>
       </div>
     </div>
   );

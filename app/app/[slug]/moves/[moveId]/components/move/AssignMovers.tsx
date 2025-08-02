@@ -3,11 +3,6 @@
 import React from "react";
 import SectionContainer from "@/app/components/shared/containers/SectionContainer";
 import SectionHeader from "@/app/components/shared/SectionHeader";
-import {
-  MoveAssignmentSchema,
-  MoveSchema,
-  UserSchema,
-} from "@/types/convex-schemas";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -16,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Id } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import { useInsertMoveAssignment } from "../../../hooks/useInsertMoveAssignment";
 import { useUpdateMoveAssignment } from "../../../hooks/useUpdateMoveAssignment";
 
@@ -25,9 +20,9 @@ const AssignMovers = ({
   allMovers,
   move,
 }: {
-  assignments: MoveAssignmentSchema[];
-  allMovers: UserSchema[];
-  move: MoveSchema;
+  assignments: Doc<"moveAssignments">[];
+  allMovers: Doc<"users">[];
+  move: Doc<"move">;
 }) => {
   const moverNumber = move.movers;
 
@@ -57,7 +52,7 @@ const AssignMovers = ({
   }: {
     moverId: Id<"users">;
     isLead: boolean;
-    assignment: MoveAssignmentSchema | null;
+    assignment: Doc<"moveAssignments"> | null;
   }) => {
     if (assignment) {
       await updateMoveAssignment({
@@ -78,7 +73,7 @@ const AssignMovers = ({
 
   return (
     <div>
-      <SectionHeader title="Movers" />
+      <SectionHeader className="mx-auto" title="Movers" />
       <SectionContainer>
         <div className="flex flex-col gap-4">
           {slots.map(({ slot, label, assignment, isLead }) => (

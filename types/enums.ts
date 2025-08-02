@@ -73,7 +73,7 @@ export enum PresSetScripts {
 }
 
 export enum TravelChargingTypes {
-  LABOR_HOURS = "Labor Hours",
+  LABOR_HOURS = "Labor Rate",
   MILEAGE = "Mileage",
   FLAT = "Flat",
 }

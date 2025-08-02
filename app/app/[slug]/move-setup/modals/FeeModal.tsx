@@ -1,17 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useMediaQuery } from "react-responsive";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
-import { Id } from "@/convex/_generated/dataModel";
-import { FeeSchema } from "@/types/convex-schemas";
+import { Id, Doc } from "@/convex/_generated/dataModel";
 import { CreateFeeData, FeeFormData } from "@/types/form-types";
 import FormActions from "@/app/components/shared/FormActions";
 import FieldGroup from "@/app/components/shared/FieldGroup";
 import FieldRow from "@/app/components/shared/FieldRow";
+import CurrencyInput from "@/app/components/shared/labeled/CurrencyInput";
 import { validatePrice } from "@/app/frontendUtils/validation";
-import { MOBILE_BREAKPOINT } from "@/types/const";
+import ResponsiveModal from "@/app/components/shared/modal/ResponsiveModal";
 
 interface FeeModalProps {
   isOpen: boolean;
@@ -24,7 +21,7 @@ interface FeeModalProps {
   loading: boolean;
   error: string | null;
   companyId: Id<"companies">;
-  initialData?: FeeSchema | null;
+  initialData?: Doc<"fees"> | null;
 }
 
 const FeeModal: React.FC<FeeModalProps> = ({
@@ -37,10 +34,9 @@ const FeeModal: React.FC<FeeModalProps> = ({
   companyId,
   initialData,
 }) => {
-  const isMobile = useMediaQuery({ maxWidth: MOBILE_BREAKPOINT });
   const [formData, setFormData] = useState<FeeFormData>({
     name: "",
-    price: 0,
+    price: null,
   });
   const [errors, setErrors] = useState<{ name?: string; price?: string }>({});
 
@@ -51,10 +47,7 @@ const FeeModal: React.FC<FeeModalProps> = ({
         price: initialData.price,
       });
     } else {
-      setFormData({
-        name: "",
-        price: null,
-      });
+      setFormData({ name: "", price: null });
     }
   }, [initialData, isOpen]);
 
@@ -64,6 +57,7 @@ const FeeModal: React.FC<FeeModalProps> = ({
       ...prev,
       [name]: name === "price" ? parseFloat(value) : value,
     }));
+    setErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
   const validateFeeForm = (formData: FeeFormData) => {
@@ -95,14 +89,22 @@ const FeeModal: React.FC<FeeModalProps> = ({
       price: formData.price as number,
     };
 
-    if (initialData) {
-      await onEdit(initialData._id, safeFeeData);
-    } else {
-      await onCreate(companyId, safeFeeData);
-    }
+    const success = initialData
+      ? await onEdit(initialData._id, safeFeeData)
+      : await onCreate(companyId, safeFeeData);
 
-    onClose();
+    if (success) onClose();
   };
+
+  const isDisabled =
+    formData.name.trim() === "" ||
+    formData.price === null ||
+    formData.price === undefined;
+
+  const title = initialData ? "Edit Fee" : "Add Fee";
+  const description = initialData
+    ? "Update fee name and price."
+    : "Enter the name of the fee and its associated price.";
 
   const formContent = (
     <FieldGroup>
@@ -115,17 +117,19 @@ const FeeModal: React.FC<FeeModalProps> = ({
         error={errors.name}
       />
 
-      <FieldRow
+      <CurrencyInput
         label="Price"
-        name="price"
-        type="number"
-        value={formData.price !== null ? formData.price.toString() : ""}
-        onChange={handleInputChange}
-        placeholder="Enter Price"
+        value={formData.price}
+        isEditing={true}
+        onChange={(value) => {
+          setFormData((prev) => ({
+            ...prev,
+            price: value ?? null,
+          }));
+        }}
         error={errors.price}
-        min={0}
-        step={0.01}
       />
+
       <FormActions
         onSave={(e) => {
           e.preventDefault();
@@ -136,24 +140,19 @@ const FeeModal: React.FC<FeeModalProps> = ({
         error={error}
         saveLabel={initialData ? "Save Changes" : "Add Fee"}
         cancelLabel="Cancel"
+        disabled={isDisabled}
       />
     </FieldGroup>
   );
 
-  return isMobile ? (
-    <Drawer open={isOpen} onOpenChange={onClose}>
-      <DrawerContent>
-        <DrawerTitle>{initialData ? "Edit Fee" : "Add Fee"}</DrawerTitle>
-        {formContent}
-      </DrawerContent>
-    </Drawer>
-  ) : (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
-        <DialogTitle>{initialData ? "Edit Fee" : "Add Fee"}</DialogTitle>
-        {formContent}
-      </DialogContent>
-    </Dialog>
+  return (
+    <ResponsiveModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={title}
+      description={description}
+      children={formContent}
+    />
   );
 };
 

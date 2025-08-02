@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { ResponseStatus } from "@/types/enums";
-import { Button } from "@/app/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSlugContext } from "@/app/contexts/SlugContext";
 import { useCreateReferral } from "../hooks/useCreateReferral";
@@ -18,6 +17,7 @@ import CardListContainer from "@/app/components/shared/CardListContainer";
 import { Id } from "@/convex/_generated/dataModel";
 import { useUpdateReferral } from "../hooks/useUpdateReferral";
 import ErrorMessage from "@/app/components/shared/error/ErrorMessage";
+import AddItemButton from "@/app/components/shared/buttons/AddItemButton";
 
 const ReferralsTab = () => {
   const { companyId } = useSlugContext();
@@ -87,8 +87,12 @@ const ReferralsTab = () => {
         <SectionHeader
           title="Referrals"
           actions={
-            <Button onClick={() => setIsModalOpen(true)}>+ Add Referral</Button>
+            <AddItemButton
+              label="Referral"
+              onClick={() => setIsModalOpen(true)}
+            />
           }
+          className="px-0 pb-4"
         />
         {referrals.length === 0 ? (
           <p className="text-gray-500">No active referrals found.</p>

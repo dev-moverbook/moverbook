@@ -1,9 +1,9 @@
 import React from "react";
-import { MoveSchema } from "@/types/convex-schemas";
 import MoveCard from "./MoveCard";
+import { EnrichedMove } from "@/types/convex-responses";
 
 interface MoveCardContainerProps {
-  moves: MoveSchema[];
+  moves: EnrichedMove[];
 }
 
 const MoveCardContainer: React.FC<MoveCardContainerProps> = ({ moves }) => {
@@ -14,7 +14,12 @@ const MoveCardContainer: React.FC<MoveCardContainerProps> = ({ moves }) => {
       ) : (
         <div className="border-t border-grayCustom mt-2">
           {moves.map((move) => (
-            <MoveCard key={move._id} move={move} />
+            <MoveCard
+              key={move._id}
+              move={move}
+              moveCustomer={move.moveCustomer}
+              salesRep={move.salesRepUser}
+            />
           ))}
         </div>
       )}

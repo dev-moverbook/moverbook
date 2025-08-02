@@ -1,7 +1,6 @@
 "use client";
 import React, { useState } from "react";
 import InviteUserModal from "@/app/components/responsive/InviteUserModal";
-import { Button } from "@/app/components/ui/button";
 import ActiveUsers from "./components/ActiveUsers";
 import InvitedUsers from "./components/InvitedUsers";
 import InactiveUsers from "./components/InactiveUsers";
@@ -14,6 +13,7 @@ import TabSelector from "@/app/components/shared/TabSelector";
 import SectionHeaderWithAction from "@/app/components/shared/ SectionHeaderWithAction";
 import { useUser } from "@clerk/nextjs";
 import { canManageCompany } from "@/app/frontendUtils/permissions";
+import AddItemButton from "@/app/components/shared/buttons/AddItemButton";
 const TeamContent: React.FC = () => {
   const { companyId } = useSlugContext();
   const { user } = useUser();
@@ -32,7 +32,7 @@ const TeamContent: React.FC = () => {
   const handleInviteUser = async (
     email: string,
     role: ClerkRoles,
-    hourlyRate: string | null
+    hourlyRate: number | null
   ): Promise<boolean> => {
     if (!companyId) {
       setInviteError(FrontEndErrorMessages.GENERIC);
@@ -48,9 +48,10 @@ const TeamContent: React.FC = () => {
           <SectionHeaderWithAction
             title="Team"
             action={
-              <Button onClick={() => setIsInviteModalOpen(true)}>
-                + Invite User
-              </Button>
+              <AddItemButton
+                label="Invite User"
+                onClick={() => setIsInviteModalOpen(true)}
+              />
             }
           />
           <TabSelector

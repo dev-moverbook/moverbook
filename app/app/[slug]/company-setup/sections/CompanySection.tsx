@@ -84,6 +84,8 @@ const CompanySection: React.FC<CompanySectionProps> = ({
     await uploadOrganizationLogo(company._id, file);
   };
 
+  const isDisabled = !formData.name || !formData.timeZone;
+
   return (
     <SectionContainer>
       <CenteredContainer>
@@ -91,6 +93,8 @@ const CompanySection: React.FC<CompanySectionProps> = ({
           title="Info"
           isEditing={isEditing}
           onEditClick={handleEditClick}
+          onCancelEdit={handleCancel}
+          className="px-0 pb-4"
         />
 
         <div className="flex md:flex-row flex-col items-start md:space-x-8 space-y-4 md:space-y-0">
@@ -142,7 +146,7 @@ const CompanySection: React.FC<CompanySectionProps> = ({
             )}
           </div>
 
-          <FieldGroup>
+          <FieldGroup className="w-full">
             <FieldRow
               label="Company Name"
               name="name"
@@ -174,6 +178,7 @@ const CompanySection: React.FC<CompanySectionProps> = ({
                 onCancel={handleCancel}
                 isSaving={updateLoading}
                 error={updateError}
+                disabled={isDisabled}
               />
             )}
           </FieldGroup>

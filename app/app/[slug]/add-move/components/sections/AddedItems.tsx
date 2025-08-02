@@ -63,6 +63,7 @@ const AddedItems = ({
     <SectionContainer>
       {isEditing && (
         <Header3
+          wrapperClassName="px-0"
           button={
             <Button
               variant="outline"

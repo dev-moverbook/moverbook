@@ -3,8 +3,7 @@
 import SectionContainer from "@/app/components/shared/containers/SectionContainer";
 import Header3 from "@/app/components/shared/heading/Header3";
 import { Button } from "@/app/components/ui/button";
-import { Id } from "@/convex/_generated/dataModel";
-import { DiscountSchema } from "@/types/convex-schemas";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useCreateDiscount } from "../../../hooks/useCreateDiscount";
@@ -15,13 +14,15 @@ import CardContainer from "@/app/components/shared/CardContainer";
 import DiscountCard from "../card/DiscountCard";
 
 interface DiscountsProps {
-  discounts: DiscountSchema[];
+  discounts: Doc<"discounts">[];
   moveId: Id<"move">;
 }
 
 const Discounts = ({ discounts, moveId }: DiscountsProps) => {
   const [showDiscountModal, setShowDiscountModal] = useState<boolean>(false);
-  const [editDiscount, setEditDiscount] = useState<DiscountSchema | null>(null);
+  const [editDiscount, setEditDiscount] = useState<Doc<"discounts"> | null>(
+    null
+  );
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [discountToDelete, setDiscountToDelete] =
     useState<Id<"discounts"> | null>(null);
@@ -45,12 +46,16 @@ const Discounts = ({ discounts, moveId }: DiscountsProps) => {
   };
 
   const handleSubmitDiscount = async (discount: DiscountFormData) => {
-    const parsedPrice = parseFloat(discount.price);
+    const { name, price } = discount;
+    if (!price) {
+      setCreateDiscountError("Price is required");
+      return;
+    }
     if (!editDiscount) {
       const response = await createDiscount({
         moveId,
-        name: discount.name,
-        price: parsedPrice,
+        name,
+        price,
       });
       if (response.success) {
         handleCloseDiscountModal();
@@ -59,8 +64,8 @@ const Discounts = ({ discounts, moveId }: DiscountsProps) => {
       const response = await updateDiscount({
         discountId: editDiscount._id,
         updates: {
-          name: discount.name,
-          price: parsedPrice,
+          name,
+          price,
         },
       });
       if (response.success) {
@@ -75,14 +80,20 @@ const Discounts = ({ discounts, moveId }: DiscountsProps) => {
     setUpdateDiscountError(null);
   };
 
-  const handleEditDiscount = (discount: DiscountSchema) => {
-    setEditDiscount(discount);
+  const handleEditDiscount = (discount: Id<"discounts">) => {
+    const match: Doc<"discounts"> | undefined = discounts.find(
+      (d) => d._id === discount
+    );
+    if (match) {
+      setEditDiscount(match);
+    }
     setShowDiscountModal(true);
   };
 
   const handleDeleteDiscount = (discount: Id<"discounts">) => {
     setShowDeleteModal(true);
     setDiscountToDelete(discount);
+    setEditDiscount(null);
   };
 
   const handleCloseDeleteModal = () => {

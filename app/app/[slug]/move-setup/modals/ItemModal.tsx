@@ -2,8 +2,18 @@
 
 import React, { useState, useEffect } from "react";
 import { useMediaQuery } from "react-responsive";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 import { Id } from "@/convex/_generated/dataModel";
 import { ItemSchema } from "@/types/convex-schemas";
 import { ItemFormData } from "@/types/form-types";
@@ -14,6 +24,7 @@ import FormActions from "@/app/components/shared/FormActions";
 import CheckboxField from "@/app/components/shared/CheckboxField";
 import SizeSelector from "@/app/components/shared/labeled/SizeSelector";
 import { calculateWeightFromSize } from "@/utils/helper";
+import FieldRow from "@/app/components/shared/FieldRow";
 
 interface ItemModalProps {
   isOpen: boolean;
@@ -119,13 +130,18 @@ const ItemModal: React.FC<ItemModalProps> = ({
     onClose();
   };
 
+  const isDisabled =
+    !formData.name.trim() || !formData.size || !formData.weight;
+
   const formContent = (
     <FieldGroup>
-      <LabeledInput
+      <FieldRow
         label="Item Name"
+        name="name"
         value={formData.name}
         onChange={handleInputChange}
         placeholder="Enter item name"
+        error={validationError}
       />
 
       {/* Size Selection */}
@@ -170,21 +186,29 @@ const ItemModal: React.FC<ItemModalProps> = ({
         error={error || validationError}
         saveLabel={initialData ? "Update Item" : "Add Item"}
         cancelLabel="Cancel"
+        disabled={isDisabled}
       />
     </FieldGroup>
   );
 
+  const title = initialData ? "Edit Item" : "Add Item";
+  const description = initialData
+    ? "Update the item name, size, and weight. You can also mark it as popular."
+    : "Enter the item name, select or enter a custom size and weight. Optionally, mark the item as popular.";
+
   return isMobile ? (
     <Drawer open={isOpen} onOpenChange={onClose}>
       <DrawerContent>
-        <DrawerTitle>{initialData ? "Edit Item" : "Add Item"}</DrawerTitle>
+        <DrawerTitle>{title}</DrawerTitle>
+        <DrawerDescription>{description}</DrawerDescription>
         {formContent}
       </DrawerContent>
     </Drawer>
   ) : (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
-        <DialogTitle>{initialData ? "Edit Item" : "Add Item"}</DialogTitle>
+        <DialogTitle>{title}</DialogTitle>
+        <DialogDescription>{description}</DialogDescription>
         {formContent}
       </DialogContent>
     </Dialog>

@@ -14,11 +14,13 @@ interface CreateOrUpdateInvoiceInput {
     customerSignedAt?: number;
     repSignature?: string;
     repSignedAt?: number;
+    status?: "completed" | "pending";
   };
 }
 
 export const useCreateOrUpdateInvoice = () => {
-  const [invoiceUpdateLoading, setInvoiceUpdateLoading] = useState(false);
+  const [invoiceUpdateLoading, setInvoiceUpdateLoading] =
+    useState<boolean>(false);
   const [invoiceUpdateError, setInvoiceUpdateError] = useState<string | null>(
     null
   );

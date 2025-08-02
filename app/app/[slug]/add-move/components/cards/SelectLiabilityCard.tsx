@@ -8,6 +8,7 @@ import CardDetailsWrapper from "@/app/components/shared/CardDetailsWrapper";
 import CardDetailRow from "@/app/components/shared/CardDetailRow";
 import TitleWithBadge from "@/app/components/shared/TitleWithBadge";
 import clsx from "clsx";
+import { formatCurrency } from "@/app/frontendUtils/helper";
 
 interface SelectLiabilityCardProps {
   policy?: InsurancePolicySchema;
@@ -37,12 +38,15 @@ const SelectLiabilityCard: React.FC<SelectLiabilityCardProps> = ({
       <CardDetailsWrapper>
         <CardDetailRow
           label="Coverage Amount"
-          value={`$${policy.coverageAmount}/lb`}
+          value={`${formatCurrency(policy.coverageAmount)}/lb`}
         />
-        <CardDetailRow label="Premium" value={`$${policy.premium}`} />
+        <CardDetailRow
+          label="Premium"
+          value={`${formatCurrency(policy.premium)}`}
+        />
         <CardDetailRow
           label="Coverage Type"
-          value={`$${policy.coverageType}/lb`}
+          value={`${formatCurrency(policy.coverageType)}/lb`}
         />
       </CardDetailsWrapper>
     </CustomCard>

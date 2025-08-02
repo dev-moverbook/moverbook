@@ -13,6 +13,7 @@ export default {
         grayCustom: "#535353",
         grayCustom2: "#8D8C8C",
         greenCustom: "#108A01",
+        greenCustom80: "#108A0180",
         background: "hsl(var(--background))",
         background2: "#1E1E1E",
         foreground: "hsl(var(--foreground))",
@@ -46,7 +47,7 @@ export default {
         },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
+        ring: "#108A01",
         chart: {
           "1": "hsl(var(--chart-1))",
           "2": "hsl(var(--chart-2))",

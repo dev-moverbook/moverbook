@@ -5,10 +5,12 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import FieldErrorMessage from "./FieldErrorMessage";
 import clsx from "clsx";
+import FieldDisplay from "../FieldDisplay";
 
 interface Option {
   label: React.ReactNode;
   value: string;
+  icon?: React.ReactNode;
 }
 
 interface ButtonRadioGroupProps {
@@ -21,9 +23,11 @@ interface ButtonRadioGroupProps {
   selectedClassName?: string;
   unselectedClassName?: string;
   label?: string;
+  isEditing?: boolean;
 }
 
 const ButtonRadioGroup: React.FC<ButtonRadioGroupProps> = ({
+  isEditing = true,
   options,
   value,
   onChange,
@@ -37,35 +41,40 @@ const ButtonRadioGroup: React.FC<ButtonRadioGroupProps> = ({
   const responsiveLayoutClass =
     layout === "vertical" ? "flex-col" : "flex-col md:flex-row";
 
+  if (!isEditing) {
+    return <FieldDisplay label={label || ""} value={value} fallback="N/A" />;
+  }
+
   return (
     <div>
       {label && (
-        <Label className="text-white text-sm font-medium mb-2 block">
+        <Label
+          className="text-white text-sm font-medium mb-2 block"
+          id={`${name}-label`}
+        >
           {label}
         </Label>
       )}
 
       <RadioGroup
         value={value ?? ""}
-        onValueChange={() => {}}
+        onValueChange={(val) => onChange(val === value ? null : val)}
         className={clsx("mb-4 flex gap-3", responsiveLayoutClass)}
+        aria-labelledby={label ? `${name}-label` : undefined}
       >
         {options.map((option) => (
-          <div key={option.value} className="w-full">
+          <div key={option.value} className="w-full relative">
             <RadioGroupItem
               value={option.value}
               id={`${name}-${option.value}`}
-              className="sr-only"
+              className="absolute left-[-9999px]"
             />
             <Label
               htmlFor={`${name}-${option.value}`}
               className={clsx(
-                " flex items-center justify-center gap-2 cursor-pointer rounded-full px-6 py-2 text-center border text-sm font-medium w-full hover:bg-background2 transition-all duration-200",
+                "flex items-center justify-center gap-2 cursor-pointer rounded-full px-6 py-2 text-center border text-sm font-medium w-full hover:bg-background2 transition-all duration-200",
                 value === option.value ? selectedClassName : unselectedClassName
               )}
-              onClick={() =>
-                onChange(value === option.value ? null : option.value)
-              }
             >
               {option.icon && <span>{option.icon}</span>}
               <span>{option.label}</span>

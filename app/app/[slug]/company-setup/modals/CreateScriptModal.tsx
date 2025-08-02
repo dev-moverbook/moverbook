@@ -1,24 +1,16 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useMediaQuery } from "react-responsive";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import { FrontEndErrorMessages } from "@/types/errors";
 import { CommunicationType } from "@/types/types";
-import { ScriptSchema, VariableSchema } from "@/types/convex-schemas";
-import { Id } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import FormActions from "@/app/components/shared/FormActions";
 import ToggleTabs from "@/app/components/shared/ToggleTabs";
 import LabeledInput from "@/app/components/shared/labeled/LabeledInput";
+import LabeledTextarea from "@/app/components/shared/labeled/LabeledTextarea";
 import VariableInsertButtons from "@/app/components/shared/VariableInsertButtons";
 import FieldGroup from "@/app/components/shared/FieldGroup";
-import LabeledTextarea from "@/app/components/shared/labeled/LabeledTextarea";
+import ResponsiveModal from "@/app/components/shared/modal/ResponsiveModal";
 
 interface CreateScriptModalProps {
   isOpen: boolean;
@@ -38,8 +30,8 @@ interface CreateScriptModalProps {
   ) => Promise<boolean>;
   createLoading: boolean;
   createError: string | null;
-  variables: VariableSchema[];
-  editingScript: ScriptSchema | null;
+  variables: Doc<"variables">[];
+  editingScript: Doc<"scripts"> | null;
 }
 
 const CreateScriptModal: React.FC<CreateScriptModalProps> = ({
@@ -52,8 +44,6 @@ const CreateScriptModal: React.FC<CreateScriptModalProps> = ({
   variables,
   editingScript,
 }) => {
-  const isMobile = useMediaQuery({ maxWidth: 768 });
-
   const [title, setTitle] = useState<string>("");
   const [type, setType] = useState<CommunicationType>("email");
   const [message, setMessage] = useState<string>("");
@@ -61,6 +51,11 @@ const CreateScriptModal: React.FC<CreateScriptModalProps> = ({
   const [titleError, setTitleError] = useState<string | null>(null);
   const [emailTitleError, setEmailTitleError] = useState<string | null>(null);
   const [messageError, setMessageError] = useState<string | null>(null);
+
+  const isDisabled =
+    title.trim() === "" ||
+    message.trim() === "" ||
+    (type === "email" && emailTitle.trim() === "");
 
   useEffect(() => {
     if (editingScript) {
@@ -104,23 +99,11 @@ const CreateScriptModal: React.FC<CreateScriptModalProps> = ({
       return;
     }
 
-    if (editingScript) {
-      const success = await onEdit(
-        editingScript._id,
-        title,
-        type,
-        message,
-        emailTitle
-      );
-      if (success) {
-        handleClose();
-      }
-    } else {
-      const success = await onCreate(title, type, message, emailTitle);
-      if (success) {
-        handleClose();
-      }
-    }
+    const success = editingScript
+      ? await onEdit(editingScript._id, title, type, message, emailTitle)
+      : await onCreate(title, type, message, emailTitle);
+
+    if (success) handleClose();
   };
 
   const insertVariable = (
@@ -130,7 +113,7 @@ const CreateScriptModal: React.FC<CreateScriptModalProps> = ({
     const formattedVariable = `{{${variableName}}}`;
     if (target === "message") {
       setMessage((prev) => prev + formattedVariable);
-    } else if (target === "emailTitle") {
+    } else {
       setEmailTitle((prev) => prev + formattedVariable);
     }
   };
@@ -173,7 +156,6 @@ const CreateScriptModal: React.FC<CreateScriptModalProps> = ({
             placeholder="Enter email subject"
             error={emailTitleError}
           />
-
           <VariableInsertButtons
             variables={variables}
             onInsert={(name) => insertVariable(name, "emailTitle")}
@@ -192,12 +174,12 @@ const CreateScriptModal: React.FC<CreateScriptModalProps> = ({
           placeholder="Enter script message"
           error={messageError}
         />
-
         <VariableInsertButtons
           variables={variables}
           onInsert={(name) => insertVariable(name, "message")}
         />
       </div>
+
       <FormActions
         onSave={(e) => {
           e.preventDefault();
@@ -205,31 +187,26 @@ const CreateScriptModal: React.FC<CreateScriptModalProps> = ({
         }}
         onCancel={handleClose}
         isSaving={createLoading}
-        saveLabel={editingScript ? "Save Changes" : "Create Script"}
         error={createError}
+        saveLabel={editingScript ? "Save Changes" : "Create Script"}
+        disabled={isDisabled}
       />
     </FieldGroup>
   );
 
-  return isMobile ? (
-    <Drawer open={isOpen} onOpenChange={handleClose}>
-      <DrawerContent>
-        <DrawerTitle>
-          {editingScript ? "Edit Script" : "Create Script"}
-        </DrawerTitle>
-        {formContent}
-      </DrawerContent>
-    </Drawer>
-  ) : (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent>
-        <DialogTitle>
-          {editingScript ? "Edit Script" : "Create Script"}
-        </DialogTitle>
-        <DialogDescription>Enter in a script</DialogDescription>
-        {formContent}
-      </DialogContent>
-    </Dialog>
+  const titleText = editingScript ? "Edit Script" : "Create Script";
+  const description = editingScript
+    ? "Modify the communication script and variables."
+    : "Create a reusable script template for email or SMS, using variables to personalize your message.";
+
+  return (
+    <ResponsiveModal
+      isOpen={isOpen}
+      onClose={handleClose}
+      title={titleText}
+      description={description}
+      children={formContent}
+    />
   );
 };
 

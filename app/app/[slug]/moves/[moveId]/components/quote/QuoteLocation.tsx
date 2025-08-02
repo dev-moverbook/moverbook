@@ -6,9 +6,10 @@ import SectionContainer from "@/app/components/shared/containers/SectionContaine
 import SectionHeader from "@/app/components/shared/SectionHeader";
 import CardContainer from "@/app/components/shared/CardContainer";
 import QuoteLocationCard from "@/app/app/[slug]/moves/[moveId]/components/card/QuoteLocationCard";
+import { Doc } from "@/convex/_generated/dataModel";
 
 interface QuoteLocationProps {
-  move: MoveSchema;
+  move: Doc<"move">;
 }
 
 const QuoteLocation = ({ move }: QuoteLocationProps) => {
@@ -16,7 +17,7 @@ const QuoteLocation = ({ move }: QuoteLocationProps) => {
 
   return (
     <div>
-      <SectionHeader title="Location" />
+      <SectionHeader className="mx-auto" title="Location" />
       <SectionContainer>
         <CardContainer>
           {location.map((loc, index) => (

@@ -34,10 +34,11 @@ const FieldRow: React.FC<FieldRowProps> = ({
   step,
   inputRef, // ← Destructure it
 }) => {
+  const isLabeled = label !== "";
   if (isEditing) {
     return (
       <div>
-        <Label htmlFor={name}>{label}</Label>
+        {isLabeled && <Label htmlFor={name}>{label}</Label>}
         <Input
           ref={inputRef} // ← Use it here
           id={name}

@@ -10,6 +10,7 @@ import { ArrivalWindowSchema } from "@/types/convex-schemas";
 import { ArrivalWindowFormData } from "@/types/form-types";
 import { useUpdateArrivalWindow } from "../hooks/useUpdateArrivalWindow";
 import TimeRangeFieldRow from "@/app/components/shared/TimeFieldRow";
+import FormActionContainer from "@/app/components/shared/containers/FormActionContainer";
 
 interface ArrivalWindowSectionProps {
   arrivalWindow: ArrivalWindowSchema;
@@ -69,6 +70,8 @@ const ArrivalWindowSection: React.FC<ArrivalWindowSectionProps> = ({
           title="Arrival Window"
           isEditing={isEditing}
           onEditClick={handleEditClick}
+          className="px-0 pb-4"
+          onCancelEdit={handleCancel}
         />
 
         <FieldGroup>
@@ -93,15 +96,17 @@ const ArrivalWindowSection: React.FC<ArrivalWindowSectionProps> = ({
           />
 
           {isEditing && (
-            <FormActions
-              onSave={(e) => {
-                e.preventDefault();
-                handleSave();
-              }}
-              onCancel={handleCancel}
-              isSaving={updateArrivalWindowLoading}
-              error={updateArrivalWindowError}
-            />
+            <FormActionContainer>
+              <FormActions
+                onSave={(e) => {
+                  e.preventDefault();
+                  handleSave();
+                }}
+                onCancel={handleCancel}
+                isSaving={updateArrivalWindowLoading}
+                error={updateArrivalWindowError}
+              />
+            </FormActionContainer>
           )}
         </FieldGroup>
       </CenteredContainer>

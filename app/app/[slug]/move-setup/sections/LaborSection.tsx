@@ -14,6 +14,7 @@ import { useCreateLabor } from "../hooks/useCreateLabor";
 import { useUpdateLabor } from "../hooks/useUpdateLabor";
 import { useDeleteLabor } from "../hooks/useDeleteLabor";
 import CardContainer from "@/app/components/shared/CardContainer";
+import AddItemButton from "@/app/components/shared/buttons/AddItemButton";
 
 interface LaborSectionProps {
   labor: LaborSchema[];
@@ -90,7 +91,10 @@ const LaborSection: React.FC<LaborSectionProps> = ({ labor, companyId }) => {
       <CenteredContainer>
         <SectionHeader
           title="Labor Rates"
-          actions={<Button onClick={handleOpenCreateModal}>+ Add Labor</Button>}
+          actions={
+            <AddItemButton label="Labor" onClick={handleOpenCreateModal} />
+          }
+          className="px-0 pb-4"
         />
         <CardContainer>
           {labor.map((laborItem) => (

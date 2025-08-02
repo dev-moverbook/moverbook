@@ -8,6 +8,7 @@ interface Header2Props {
   wrapperClassName?: string; // new: class for outer div
   isCompleted?: boolean;
   button?: React.ReactNode;
+  showCheck?: boolean;
 }
 
 const Header2: React.FC<Header2Props> = ({
@@ -16,22 +17,25 @@ const Header2: React.FC<Header2Props> = ({
   wrapperClassName,
   isCompleted = false,
   button,
+  showCheck = true,
 }) => {
   return (
     <div
       className={cn(
-        "flex justify-between gap-1.5 px-4 md:px-0 border-b border-grayCustom md:border-none pb-1 md:pb-4",
+        "flex justify-between gap-1.5 px-4 md:px-0 border-b border-grayCustom sm:border-none pb-1 md:pb-4",
         wrapperClassName
       )}
     >
       <div className="flex items-center gap-1.5">
         <h2 className={cn("text-xl font-bold", className)}>{children}</h2>
-        <CircleCheckBig
-          className={cn(
-            "w-5 h-5",
-            isCompleted ? "text-greenCustom" : "text-grayCustom2"
-          )}
-        />
+        {showCheck && (
+          <CircleCheckBig
+            className={cn(
+              "w-5 h-5",
+              isCompleted ? "text-greenCustom" : "text-grayCustom2"
+            )}
+          />
+        )}
       </div>
       {button}
     </div>

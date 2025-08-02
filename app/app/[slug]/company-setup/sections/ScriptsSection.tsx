@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/app/components/ui/button";
 import ScriptCard from "../components/ScriptCard";
 import { ScriptSchema } from "@/types/convex-schemas";
 import { Id } from "@/convex/_generated/dataModel";
@@ -8,6 +7,7 @@ import SectionContainer from "@/app/components/shared/SectionContainer";
 import CenteredContainer from "@/app/components/shared/CenteredContainer";
 import SectionHeader from "@/app/components/shared/SectionHeader";
 import CardContainer from "@/app/components/shared/CardContainer";
+import AddItemButton from "@/app/components/shared/buttons/AddItemButton";
 
 interface ScriptsSectionProps {
   scripts: ScriptSchema[]; // Replace `any` with the actual Script type
@@ -28,14 +28,16 @@ const ScriptsSection: React.FC<ScriptsSectionProps> = ({
         <SectionHeader
           title="Scripts"
           actions={
-            <Button onClick={() => setIsScriptModalOpen(true)}>
-              + Create Script
-            </Button>
+            <AddItemButton
+              label="Script"
+              onClick={() => setIsScriptModalOpen(true)}
+            />
           }
+          className="px-0 pb-4"
         />
 
         {scripts.length === 0 ? (
-          <p className="text-gray-500">No active scripts found.</p>
+          <p className="text-grayCustom2">No active scripts found.</p>
         ) : (
           <CardContainer>
             {scripts.map((script) => (

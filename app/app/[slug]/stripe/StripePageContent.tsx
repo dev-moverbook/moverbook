@@ -51,7 +51,7 @@ const StripePageContent: React.FC<StripePageContentProps> = ({
   return (
     <SectionContainer isLast={true}>
       <CenteredContainer>
-        <SectionHeader title="Stripe Connection" />
+        <SectionHeader className="px-0" title="Stripe Connection" />
 
         <div className="mt-4">
           <FieldDisplay label="Status" value={statusToDisplay} />
@@ -62,9 +62,10 @@ const StripePageContent: React.FC<StripePageContentProps> = ({
             <Button
               onClick={handleOnboardingClick}
               disabled={onboardingLoading}
+              isLoading={onboardingLoading}
               className=""
             >
-              {onboardingLoading ? "Loading..." : "Connect with Stripe"}
+              Connect with Stripe
             </Button>
             {onboardingLinkError && (
               <p className="text-red-500 mt-2">{onboardingLinkError}</p>
@@ -76,8 +77,9 @@ const StripePageContent: React.FC<StripePageContentProps> = ({
               onClick={handleDashboardClick}
               disabled={dashboardLoading}
               className=""
+              isLoading={dashboardLoading}
             >
-              {dashboardLoading ? "Loading..." : "Stripe Dashboard"}
+              Stripe Dashboard
             </Button>
             {dashboardError && (
               <p className="text-red-500 mt-2">{dashboardError}</p>

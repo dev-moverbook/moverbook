@@ -1,29 +1,24 @@
 "use client";
 
 import React from "react";
-import { MoveSchema, PolicySchema } from "@/types/convex-schemas";
 import SectionContainer from "@/app/components/shared/containers/SectionContainer";
 import SectionHeader from "@/app/components/shared/SectionHeader";
-import { MOVE_TERMS_AND_CONDITIONS } from "@/types/const";
+import { Doc } from "@/convex/_generated/dataModel";
+import MoveTermsAndConditions from "./MoveTermsAndConditions";
 
 interface QuoteTermsProps {
-  move: MoveSchema;
-  policy: PolicySchema;
+  policy: Doc<"policies">;
 }
 
-const QuoteTerms = ({ move, policy }: QuoteTermsProps) => {
+const QuoteTerms = ({ policy }: QuoteTermsProps) => {
   const additionalTermsAndConditions = policy.additionalTermsAndConditions;
   return (
     <div>
-      <SectionHeader title="Terms" />
+      <SectionHeader className="mx-auto" title="Terms" />
       <SectionContainer>
-        <div
-          className="prose prose-sm max-w-none md:text-sm"
-          dangerouslySetInnerHTML={{ __html: MOVE_TERMS_AND_CONDITIONS }}
+        <MoveTermsAndConditions
+          additionalTermsAndConditions={additionalTermsAndConditions}
         />
-        {additionalTermsAndConditions && (
-          <p className="mt-4 md:text-sm">{additionalTermsAndConditions}</p>
-        )}
       </SectionContainer>
     </div>
   );

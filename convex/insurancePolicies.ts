@@ -23,19 +23,11 @@ export const createInsurancePolicy = mutation({
     companyId: v.id("companies"),
     coverageType: v.number(),
     coverageAmount: v.number(),
-    isDefault: v.boolean(),
     name: v.string(),
     premium: v.number(),
   },
   handler: async (ctx, args): Promise<CreateInsurancePolicyResponse> => {
-    const {
-      companyId,
-      coverageType,
-      coverageAmount,
-      isDefault,
-      name,
-      premium,
-    } = args;
+    const { companyId, coverageType, coverageAmount, name, premium } = args;
 
     try {
       const identity = await requireAuthenticatedUser(ctx, [
@@ -47,16 +39,12 @@ export const createInsurancePolicy = mutation({
       const company = validateCompany(await ctx.db.get(companyId));
       isUserInOrg(identity, company.clerkOrganizationId);
 
-      if (isDefault) {
-        await unsetOtherDefaultPolicies(ctx, companyId);
-      }
-
       const insurancePolicyId = await ctx.db.insert("insurancePolicies", {
         companyId,
         coverageType,
         coverageAmount,
         isActive: true,
-        isDefault,
+        isDefault: false,
         name,
         premium,
       });
@@ -78,7 +66,6 @@ export const updateInsurancePolicy = mutation({
       coverageType: v.optional(v.number()),
       coverageAmount: v.optional(v.number()),
       isActive: v.optional(v.boolean()),
-      isDefault: v.optional(v.boolean()),
       name: v.optional(v.string()),
       premium: v.optional(v.number()),
     }),
@@ -102,9 +89,6 @@ export const updateInsurancePolicy = mutation({
 
       isUserInOrg(identity, company.clerkOrganizationId);
 
-      if (updates.isDefault) {
-        await unsetOtherDefaultPolicies(ctx, company._id);
-      }
       await ctx.db.patch(insurancePolicyId, updates);
 
       return {

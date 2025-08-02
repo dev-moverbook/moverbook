@@ -1,17 +1,19 @@
 import React from "react";
 import CustomCard from "@/app/components/shared/CustomCard";
-import { CompanyContactSchema, UserSchema } from "@/types/convex-schemas";
+import { CompanyContactSchema } from "@/types/convex-schemas";
 import { Phone, Mail } from "lucide-react";
 import Image from "next/image";
 import CardHeaderWithActions from "@/app/components/shared/CardHeaderWithActions";
+import { Doc } from "@/convex/_generated/dataModel";
+import { formatPhoneNumber } from "@/app/frontendUtils/helper";
 
 interface ContactCardProps {
-  salesRep: UserSchema;
+  salesRep: Doc<"users"> | null;
   companyContact: CompanyContactSchema;
 }
 
 const ContactCard = ({ salesRep, companyContact }: ContactCardProps) => {
-  const { name, email, imageUrl } = salesRep;
+  const { name, email, imageUrl } = salesRep ?? {};
   const { phoneNumber } = companyContact;
   return (
     <CustomCard className="items-center justify-between gap-4 p-4">
@@ -24,7 +26,7 @@ const ContactCard = ({ salesRep, companyContact }: ContactCardProps) => {
           <div className="shrink-0">
             <Image
               src={imageUrl}
-              alt={name}
+              alt={name ?? "Sales Rep"}
               width={48}
               height={48}
               className="rounded-full object-cover"
@@ -36,7 +38,7 @@ const ContactCard = ({ salesRep, companyContact }: ContactCardProps) => {
       <div className="flex flex-col gap-1">
         <div className="flex items-center text-sm  text-grayCustom2 gap-2 mt-1">
           <Phone className="w-4 h-4 text-white" />
-          <span>{phoneNumber}</span>
+          <span>{formatPhoneNumber(phoneNumber)}</span>
         </div>
 
         <div className="flex items-center text-sm  text-grayCustom2 gap-2">

@@ -57,6 +57,8 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({
     handleClose();
   };
 
+  const isDisabled = formData.name.trim() === "";
+
   const formContent = (
     <FieldGroup>
       <FieldRow
@@ -75,6 +77,7 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({
         onCancel={handleClose}
         saveLabel={"Add Room"}
         cancelLabel="Cancel"
+        disabled={isDisabled}
       />
     </FieldGroup>
   );

@@ -11,9 +11,15 @@ interface NavLinkProps {
   href: string;
   children: React.ReactNode;
   onNavigate?: () => void;
+  disabled?: boolean;
 }
 
-const NavLink = ({ href, children, onNavigate }: NavLinkProps) => {
+const NavLink = ({
+  href,
+  children,
+  onNavigate,
+  disabled = false,
+}: NavLinkProps) => {
   const pathname = usePathname();
   const router = useRouter();
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -21,6 +27,11 @@ const NavLink = ({ href, children, onNavigate }: NavLinkProps) => {
 
   const handleClick = useCallback(
     (e: React.MouseEvent) => {
+      if (disabled) {
+        e.preventDefault();
+        return;
+      }
+
       if (pathname?.includes("add-move")) {
         e.preventDefault();
         setPendingHref(href);
@@ -28,10 +39,11 @@ const NavLink = ({ href, children, onNavigate }: NavLinkProps) => {
         NProgress.done();
         return;
       }
+
       NProgress.start();
       onNavigate?.();
     },
-    [onNavigate, pathname, href]
+    [disabled, onNavigate, pathname, href]
   );
 
   const handleConfirm = () => {
@@ -50,8 +62,8 @@ const NavLink = ({ href, children, onNavigate }: NavLinkProps) => {
 
   return (
     <>
-      <Link href={href} onClick={handleClick} passHref>
-        <Button variant="sidebar" asChild>
+      <Link href={disabled ? "#" : href} onClick={handleClick} passHref>
+        <Button variant="sidebar" asChild disabled={disabled}>
           <span className="flex items-center gap-2">{children}</span>
         </Button>
       </Link>

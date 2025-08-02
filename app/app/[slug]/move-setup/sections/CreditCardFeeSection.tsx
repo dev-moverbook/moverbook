@@ -6,18 +6,18 @@ import CenteredContainer from "@/app/components/shared/CenteredContainer";
 import SectionHeader from "@/app/components/shared/SectionHeader";
 import FormActions from "@/app/components/shared/FormActions";
 import FieldGroup from "@/app/components/shared/FieldGroup";
-import FieldRow from "@/app/components/shared/FieldRow";
-import { CreditCardFeeSchema } from "@/types/convex-schemas";
 import { useUpdateCreditCardFee } from "../hooks/useUpdateCreditCardFee";
+import { Doc } from "@/convex/_generated/dataModel";
+import PercentageInput from "@/app/components/shared/labeled/PercentageInput";
 
 interface CreditCardFeeSectionProps {
-  creditCardFee: CreditCardFeeSchema;
+  creditCardFee: Doc<"creditCardFees">;
 }
 
 const CreditCardFeeSection: React.FC<CreditCardFeeSectionProps> = ({
   creditCardFee,
 }) => {
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
   const [rate, setRate] = useState<number>(creditCardFee.rate);
 
   const {
@@ -38,11 +38,6 @@ const CreditCardFeeSection: React.FC<CreditCardFeeSectionProps> = ({
     setUpdateCreditCardFeeError(null);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseFloat(e.target.value);
-    setRate(value);
-  };
-
   const handleSave = async () => {
     const success = await updateCreditCardFee(creditCardFee._id, { rate });
     if (success) {
@@ -57,21 +52,30 @@ const CreditCardFeeSection: React.FC<CreditCardFeeSectionProps> = ({
           title="Credit Card Fee"
           isEditing={isEditing}
           onEditClick={handleEditClick}
+          className="px-0 pb-4"
+          onCancelEdit={handleCancel}
         />
 
         <FieldGroup>
-          <FieldRow
-            label="Fee Rate (%)"
-            name="rate"
-            value={rate.toString()}
+          <PercentageInput
+            label="Fee Rate"
+            value={rate}
+            onChange={(value) => {
+              if (value === null) {
+                setRate(0);
+              } else {
+                setRate(value);
+              }
+            }}
             isEditing={isEditing}
-            onChange={handleChange}
-            type="number"
           />
 
           {isEditing && (
             <FormActions
-              onSave={handleSave}
+              onSave={(e) => {
+                e.preventDefault();
+                handleSave();
+              }}
               onCancel={handleCancel}
               isSaving={updateCreditCardFeeLoading}
               error={updateCreditCardFeeError}

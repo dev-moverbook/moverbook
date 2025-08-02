@@ -1,20 +1,24 @@
 import { formatLongDate, getStatusColor } from "@/app/frontendUtils/helper";
-import { MoveSchema } from "@/types/convex-schemas";
+import { Doc } from "@/convex/_generated/dataModel";
 import { ChevronLeft, Phone, Truck } from "lucide-react";
 
 interface MessageHeaderProps {
-  move: MoveSchema;
+  move: Doc<"move">;
   onBack: () => void;
   onCall: () => void;
+  moveCustomer: Doc<"moveCustomers">;
 }
 
 const MessageHeader: React.FC<MessageHeaderProps> = ({
   move,
+  moveCustomer,
   onBack,
   onCall,
 }) => {
-  const { name, moveDate, status } = move;
-  const dotColor = getStatusColor(status);
+  const { moveDate, moveStatus } = move;
+  const { name } = moveCustomer;
+
+  const dotColor = getStatusColor(moveStatus);
   return (
     <div className="bg-black border-b border-grayCustom w-full">
       <div className="max-w-screen-sm mx-auto flex flex-col w-full text-white pb-3 px-1 md:px-0">

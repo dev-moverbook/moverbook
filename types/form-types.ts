@@ -2,15 +2,19 @@ import { Id } from "@/convex/_generated/dataModel";
 import { TravelChargingTypes } from "./enums";
 import {
   AccessType,
+  JobType,
+  LocationRole,
   LocationType,
   MoveSize,
   MoveStatus,
   MoveTimes,
-  MoveType,
+  PaymentMethod,
+  SegmentDistance,
   ServiceType,
   StopBehavior,
+  TimeDistanceRange,
 } from "./types";
-import { ArrivalTimes } from "./convex-schemas";
+import { ArrivalTimes, InsurancePolicySchema } from "./convex-schemas";
 
 export interface ComplianceFormData {
   statePucPermitNumber: string;
@@ -21,6 +25,7 @@ export interface ComplianceFormData {
 export interface WebIntegrationsFormData {
   webform?: string;
   webformEmbeddedCode?: string;
+  externalReviewUrl?: string;
 }
 
 export interface CompanyContactFormData {
@@ -51,34 +56,32 @@ export interface ArrivalWindowFormData {
 export interface PolicyFormData {
   weekdayHourMinimum: number;
   weekendHourMinimum: number;
-  deposit: number;
-  cancellationFee: number;
+  deposit: number | null;
+  cancellationFee: number | null;
   cancellationCutoffHour: number;
   additionalTermsAndConditions?: string;
 }
 
 export interface CreateLaborFormData {
   name: string;
-  isDefault?: boolean;
   startDate: number | null;
   endDate: number | null;
-  twoMovers: number;
-  threeMovers: number;
-  fourMovers: number;
-  extra: number;
+  twoMovers: number | null;
+  threeMovers: number | null;
+  fourMovers: number | null;
+  extra: number | null;
 }
 
 export interface InsurancePolicyFormData {
   name: string;
-  coverageAmount: number;
-  coverageType: number;
-  premium: number;
-  isDefault: boolean;
+  coverageAmount: number | null;
+  coverageType: number | null;
+  premium: number | null;
 }
 
 export interface FeeFormData {
   name: string;
-  price: number;
+  price: number | null;
 }
 
 export interface FeeLineItemFormData {
@@ -95,7 +98,7 @@ export interface CreateFeeData {
 export interface TravelFeeFormData {
   isDefault: boolean;
   chargingMethod: TravelChargingTypes;
-  rate?: number;
+  rate?: number | null;
 }
 export interface RoomFormData {
   name: string;
@@ -123,6 +126,7 @@ export interface MoveFeeInput {
   name: string;
   price: number;
   quantity: number;
+  feeId?: Id<"fees">;
 }
 
 export interface AddMoveLineItemInput {
@@ -149,15 +153,16 @@ export interface FormMoveItemInput {
 
 export interface LocationInput {
   uid: string;
-  locationType: LocationType;
+  locationRole: LocationRole;
   address: string | null;
-  moveType: MoveType | null;
+  locationType: LocationType | null;
   aptNumber: string | null;
   aptName: string | null;
   squareFootage: number | null;
   accessType: AccessType | null;
   moveSize: MoveSize | null;
   stopBehavior?: StopBehavior[];
+  timeDistanceRange: TimeDistanceRange;
 }
 
 export interface InsurancePolicyInput {
@@ -187,10 +192,100 @@ export interface MoveTypeFormData {
 
 export interface InternalNotesFormData {
   notes: string | null;
-  status: MoveStatus;
+  moveStatus: MoveStatus;
   salesRep: Id<"users">;
 }
 
 export interface DepositFormData {
-  deposit: number | null;
+  deposit: number;
+}
+
+export interface MoveTravelFeeFormData {
+  travelFeeRate?: number | null;
+  travelFeeMethod?: TravelChargingTypes | null;
+}
+
+export interface MoveCreditCardFeeFormData {
+  creditCardFeeRate: number | null;
+}
+
+export interface CustomerFormData {
+  name: string;
+  email: string;
+  phoneNumber: string;
+  altPhoneNumber: string | null;
+  referral: string | null;
+}
+
+export interface CustomerFormErrors {
+  name?: string;
+  email?: string;
+  phoneNumber?: string;
+  altPhoneNumber?: string;
+  referral?: string;
+}
+
+export interface MoveFormData {
+  arrivalTimes: ArrivalTimes;
+  companyId: Id<"companies"> | null;
+  creditCardFee: number | null;
+  deposit: number;
+  depositMethod: PaymentMethod | null;
+  destinationToOrigin: number | null;
+  endingMoveTime: number | null;
+  liabilityCoverage: InsurancePolicySchema | null;
+  jobType: JobType;
+  jobTypeRate: number | null;
+  locations: LocationInput[];
+  moveCustomerId: Id<"moveCustomers"> | null;
+  moveDate: string | null;
+  moveFees: MoveFeeInput[];
+  moveItems: MoveItemInput[];
+  moveStatus: MoveStatus;
+  moveWindow: MoveTimes;
+  movers: number;
+  notes: string | null;
+  officeToOrigin: number | null;
+  roundTripDrive: number | null;
+  roundTripMiles: number | null;
+  salesRep: Id<"users"> | null;
+  segmentDistances: SegmentDistance[];
+  serviceType: ServiceType | null;
+  startingMoveTime: number | null;
+  totalMiles: number | null;
+  travelFeeRate?: number | null;
+  travelFeeMethod?: TravelChargingTypes | null;
+  trucks: number;
+}
+
+export interface MoveFormErrors {
+  arrivalWindowStarts?: string;
+  arrivalWindowEnds?: string;
+  companyId?: string;
+  deposit?: string;
+  depositMethod?: string;
+  destinationToOrigin?: string;
+  endingMoveTime?: string;
+  liabilityCoverage?: string;
+  jobType?: string;
+  jobTypeRate?: string;
+  locations?: string;
+  moveCustomerId?: string;
+  moveDate?: string;
+  moveFees?: string;
+  moveItems?: string;
+  moveStatus?: string;
+  moveWindow?: string;
+  movers?: string;
+  notes?: string;
+  officeToOrigin?: string;
+  referralSource?: string;
+  roundTripDrive?: string;
+  roundTripMiles?: string;
+  salesRep?: string;
+  segmentDistances?: string;
+  serviceType?: string;
+  startingMoveTime?: string;
+  totalMiles?: string;
+  trucks?: string;
 }

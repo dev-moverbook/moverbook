@@ -29,7 +29,10 @@ export const useCreateInsurancePolicy = () => {
     try {
       const response = await createInsurancePolicyMutation({
         companyId,
-        ...policy,
+        name: policy.name,
+        coverageType: policy.coverageType!,
+        coverageAmount: policy.coverageAmount!,
+        premium: policy.premium!,
       });
 
       if (response.status === ResponseStatus.SUCCESS) {

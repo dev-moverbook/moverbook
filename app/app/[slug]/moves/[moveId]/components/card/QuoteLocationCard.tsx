@@ -4,7 +4,7 @@ import { MoveLocation } from "@/types/convex-schemas";
 import {
   formatAccessType,
   formatMoveSize,
-  formatMoveType,
+  formatLocationType,
   formatStopBehaviorTags,
   getLocationLabel,
 } from "@/app/frontendUtils/helper";
@@ -22,14 +22,24 @@ const QuoteLocationCard = ({
   index,
   locationLength,
 }: QuoteLocationCardProps) => {
-  const { address, moveSize, accessType, moveType, stopBehavior } = location;
+  const {
+    address,
+    moveSize,
+    accessType,
+    locationType,
+    stopBehavior,
+    locationRole,
+  } = location;
   const title = getLocationLabel(index, locationLength);
   const locationTags = [
-    formatMoveSize(moveSize),
+    ...(locationRole !== "ending" && moveSize
+      ? [formatMoveSize(moveSize)]
+      : []),
     formatAccessType(accessType),
-    formatMoveType(moveType),
+    formatLocationType(locationType),
     ...formatStopBehaviorTags(stopBehavior),
   ];
+
   return (
     <CustomCard className="flex flex-col justify-between gap-4 p-4">
       <CardHeaderWithActions title={title} className="p-0" />

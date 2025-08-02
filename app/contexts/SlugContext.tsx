@@ -11,6 +11,8 @@ interface SlugContextType {
   setSlug: (slug: string) => void;
   companyId: Id<"companies"> | null;
   timeZone: string;
+  isCompanyContactComplete?: boolean;
+  isStripeComplete?: boolean;
 }
 
 const SlugContext = createContext<SlugContextType | undefined>(undefined);
@@ -26,6 +28,10 @@ export const SlugProvider = ({ children }: { children: React.ReactNode }) => {
     slug ? { slug } : "skip"
   );
 
+  const isCompanyContactComplete =
+    companyIdQuery?.data?.isCompanyContactComplete || false;
+  const isStripeComplete = companyIdQuery?.data?.isStripeComplete || false;
+
   useEffect(() => {
     if (companyIdQuery && companyIdQuery.status === "success") {
       setCompanyId(companyIdQuery.data.companyId);
@@ -34,7 +40,16 @@ export const SlugProvider = ({ children }: { children: React.ReactNode }) => {
   }, [companyIdQuery]);
 
   return (
-    <SlugContext.Provider value={{ slug, setSlug, companyId, timeZone }}>
+    <SlugContext.Provider
+      value={{
+        slug,
+        setSlug,
+        companyId,
+        timeZone,
+        isCompanyContactComplete,
+        isStripeComplete,
+      }}
+    >
       {children}
     </SlugContext.Provider>
   );

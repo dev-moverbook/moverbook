@@ -12,6 +12,7 @@ import SizeSelector from "@/app/components/shared/labeled/SizeSelector";
 import { calculateWeightFromSize } from "@/utils/helper";
 import { MOBILE_BREAKPOINT } from "@/types/const";
 import { validateMoveItemForm } from "@/app/frontendUtils/validation";
+import FieldRow from "@/app/components/shared/FieldRow";
 
 interface AddItemModalProps {
   isOpen: boolean;
@@ -111,12 +112,13 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
 
   const formContent = (
     <FieldGroup>
-      <LabeledInput
+      <FieldRow
         label="Item Name"
         value={formData.item}
         onChange={(e) => handleItemChange(e.target.value)}
         placeholder="Enter item name"
         error={errors.item}
+        name="item"
       />
 
       <SizeSelector

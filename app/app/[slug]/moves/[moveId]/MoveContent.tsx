@@ -9,26 +9,34 @@ import LeadStep from "./components/steps/LeadStep";
 import MoveStep from "./components/steps/MoveStep";
 import QuoteStep from "./components/steps/QuoteStep";
 import PaymentStep from "./components/steps/PaymentStep";
-import {
-  formatAccessType,
-  formatCurrency,
-  formatMoveSize,
-  formatMoveType,
-} from "@/app/frontendUtils/helper";
-import { GetMoveData } from "@/types/convex-responses";
+import { useMoveContext } from "@/app/contexts/MoveContext";
+import { Doc } from "@/convex/_generated/dataModel";
+import DuplicateMoveModal from "../../customer/[customerId]/modals/DuplicateMoveModal";
+import { hasRequiredMoveFields } from "@/app/frontendUtils/helper";
 
-interface MoveContentProps {
-  moveData: GetMoveData;
-}
+interface MoveContentProps {}
 
-const MoveContent = ({ moveData }: MoveContentProps) => {
+const MoveContent = ({}: MoveContentProps) => {
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [activeTab, setActiveTab] = useState<string>("INFO");
 
   const router = useRouter();
   const pathname = usePathname();
+  const { moveData } = useMoveContext();
 
-  const { move, quote, company, salesRep, companyContact, policy } = moveData;
+  const [isDuplicateMoveModalOpen, setIsDuplicateMoveModalOpen] =
+    useState<boolean>(false);
+  const [selectedMove, setSelectedMove] = useState<Doc<"move"> | null>(null);
+
+  const {
+    move,
+    quote,
+    company,
+    companyContact,
+    policy,
+    moveCustomer,
+    salesRepUser,
+  } = moveData;
 
   const onEditQuote = () => {
     setCurrentStep(1);
@@ -42,9 +50,28 @@ const MoveContent = ({ moveData }: MoveContentProps) => {
     }
   };
 
+  const handleDuplicateMove = (move: Doc<"move">) => {
+    setSelectedMove(move);
+    setIsDuplicateMoveModalOpen(true);
+  };
+
+  const handleCloseDuplicateMoveModal = () => {
+    setIsDuplicateMoveModalOpen(false);
+    setSelectedMove(null);
+  };
+
+  const isLeadStepComplete = hasRequiredMoveFields(move, moveCustomer);
+  const isQuoteStepComplete = quote?.status === "completed";
+
   return (
     <main>
-      <MoveCard move={move} />
+      <MoveCard
+        move={move}
+        moveCustomer={moveCustomer}
+        showActions={true}
+        onDuplicate={handleDuplicateMove}
+        salesRep={salesRepUser}
+      />
       <Stepper
         currentStep={currentStep}
         steps={[
@@ -55,20 +82,26 @@ const MoveContent = ({ moveData }: MoveContentProps) => {
         ]}
         onStepClick={(step) => setCurrentStep(step)}
         className="mt-4"
+        disabledSteps={[
+          ...(!isLeadStepComplete ? [2, 3, 4] : []),
+          ...(isLeadStepComplete && !isQuoteStepComplete ? [3, 4] : []),
+        ]}
       />
+
       <TabSelector
         tabs={["INFO", "ACTIVITES", "MESSAGES"]}
         activeTab={activeTab}
         onTabChange={handleTabChange}
       />
 
-      {currentStep === 1 && activeTab === "INFO" && <LeadStep move={move} />}
+      {currentStep === 1 && activeTab === "INFO" && <LeadStep />}
       {currentStep === 2 && activeTab === "INFO" && (
         <QuoteStep
-          quote={quote}
           move={move}
+          moveCustomer={moveCustomer}
+          quote={quote}
           company={company}
-          salesRep={salesRep}
+          salesRep={salesRepUser}
           companyContact={companyContact}
           policy={policy}
           onEditQuote={onEditQuote}
@@ -78,6 +111,13 @@ const MoveContent = ({ moveData }: MoveContentProps) => {
         <MoveStep move={move} quote={quote} />
       )}
       {currentStep === 4 && activeTab === "INFO" && <PaymentStep move={move} />}
+      {selectedMove && isDuplicateMoveModalOpen && (
+        <DuplicateMoveModal
+          isOpen={isDuplicateMoveModalOpen}
+          onClose={handleCloseDuplicateMoveModal}
+          move={selectedMove}
+        />
+      )}
     </main>
   );
 };

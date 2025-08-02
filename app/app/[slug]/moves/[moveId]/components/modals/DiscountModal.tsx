@@ -1,9 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { DiscountSchema } from "@/types/convex-schemas";
-import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { useMediaQuery } from "react-responsive";
-import { MOBILE_BREAKPOINT } from "@/types/const";
 import FieldGroup from "@/app/components/shared/FieldGroup";
 import FieldRow from "@/app/components/shared/FieldRow";
 import {
@@ -11,6 +7,8 @@ import {
   validateDiscountForm,
 } from "@/app/frontendUtils/validation";
 import FormActions from "@/app/components/shared/FormActions";
+import CurrencyInput from "@/app/components/shared/labeled/CurrencyInput";
+import ResponsiveModal from "@/app/components/shared/modal/ResponsiveModal";
 
 interface DiscountModalProps {
   isOpen: boolean;
@@ -23,7 +21,7 @@ interface DiscountModalProps {
 
 export interface DiscountFormData {
   name: string;
-  price: string;
+  price: number | null;
 }
 
 const DiscountModal = ({
@@ -34,28 +32,23 @@ const DiscountModal = ({
   isLoading,
   errorMessage,
 }: DiscountModalProps) => {
-  const isMobile = useMediaQuery({ maxWidth: MOBILE_BREAKPOINT });
   const [errors, setErrors] = useState<DiscountValidationErrors>({});
-
   const [formData, setFormData] = useState<DiscountFormData>({
     name: "",
-    price: "",
+    price: null,
   });
 
   useEffect(() => {
     if (initialData) {
       setFormData({
         name: initialData.name,
-        price: initialData.price.toString(),
+        price: initialData.price,
       });
     }
   }, [initialData]);
 
   const resetForm = () => {
-    setFormData({
-      name: "",
-      price: "",
-    });
+    setFormData({ name: "", price: null });
     setErrors({});
   };
 
@@ -66,7 +59,7 @@ const DiscountModal = ({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev: DiscountFormData) => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
@@ -74,7 +67,6 @@ const DiscountModal = ({
 
   const handleSubmit = () => {
     const trimmedName = formData.name.trim();
-
     const { isValid, errors } = validateDiscountForm({
       name: trimmedName,
       price: formData.price,
@@ -84,15 +76,15 @@ const DiscountModal = ({
       return;
     }
 
-    onSubmit(formData);
-
+    onSubmit({ ...formData, name: trimmedName });
     handleClose();
   };
 
-  const isDisabled =
-    formData.name.trim() === "" ||
-    formData.price.trim() === "" ||
-    isNaN(parseFloat(formData.price));
+  const isDisabled = formData.name.trim() === "" || formData.price === null;
+  const title = initialData ? "Update Discount" : "Add Discount";
+  const description = initialData
+    ? "Edit the discount details."
+    : "Add a new discount to this move.";
 
   const formContent = (
     <FieldGroup>
@@ -104,16 +96,21 @@ const DiscountModal = ({
         placeholder="Enter Discount"
         error={errors.name}
       />
-      <FieldRow
+      <CurrencyInput
         label="Price"
-        type="number"
-        name="price"
         value={formData.price}
-        onChange={handleInputChange}
-        placeholder="Enter Price"
+        onChange={(val) => {
+          setFormData((prev) => ({
+            ...prev,
+            price: val ? Math.round(val * 100) / 100 : null,
+          }));
+          if (errors.price) {
+            const { price, ...rest } = errors;
+            setErrors(rest);
+          }
+        }}
         error={errors.price}
-        step={0.01}
-        min={0}
+        isEditing={true}
       />
       <FormActions
         onSave={handleSubmit}
@@ -127,24 +124,15 @@ const DiscountModal = ({
     </FieldGroup>
   );
 
-  return isMobile ? (
-    <Drawer open={isOpen} onOpenChange={handleClose}>
-      <DrawerContent>
-        <DrawerTitle>
-          {initialData ? "Update Discount" : "Add Discount"}
-        </DrawerTitle>
-        {formContent}
-      </DrawerContent>
-    </Drawer>
-  ) : (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent>
-        <DialogTitle>
-          {initialData ? "Update Discount" : "Add Discount"}
-        </DialogTitle>
-        {formContent}
-      </DialogContent>
-    </Dialog>
+  return (
+    <ResponsiveModal
+      isOpen={isOpen}
+      onClose={handleClose}
+      title={title}
+      description={description}
+    >
+      {formContent}
+    </ResponsiveModal>
   );
 };
 

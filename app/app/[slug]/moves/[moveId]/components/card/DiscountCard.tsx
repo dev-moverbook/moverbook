@@ -5,13 +5,12 @@ import IconRow from "@/app/components/shared/IconRow";
 import IconButton from "@/app/components/shared/IconButton";
 import { Pencil, Trash2 } from "lucide-react";
 import ListItemRow from "@/app/components/shared/ListItemRow";
-import { DiscountSchema } from "@/types/convex-schemas";
-import { Id } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import { formatCurrency } from "@/app/frontendUtils/helper";
 
 interface DiscountCardProps {
-  discount: DiscountSchema;
-  onEdit: (discount: DiscountSchema) => void;
+  discount: Doc<"discounts">;
+  onEdit: (discount: Id<"discounts">) => void;
   onDelete: (discount: Id<"discounts">) => void;
 }
 
@@ -36,7 +35,7 @@ const DiscountCard: React.FC<DiscountCardProps> = ({
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            onEdit(discount);
+            onEdit(_id);
           }}
           icon={<Pencil className="w-4 h-4" />}
           title="Edit"

@@ -15,6 +15,7 @@ import { ClerkRoles } from "@/types/enums";
 import NavLink from "./buttons/NavLink";
 import type { UserResource } from "@clerk/types";
 import { isCompanyAdminRole } from "@/app/frontendUtils/permissions";
+import { useSlugContext } from "@/app/contexts/SlugContext";
 
 type SidebarContentProps = {
   onNavigate?: () => void;
@@ -27,6 +28,8 @@ const SidebarContent = ({ onNavigate, user, slug }: SidebarContentProps) => {
   const role = user.publicMetadata.role as ClerkRoles;
   const canSeeAdmin = isCompanyAdminRole(role);
   const roleLabel = role ?? "Unknown";
+  const { isCompanyContactComplete, isStripeComplete } = useSlugContext();
+  const isAddMoveDisabled = !isCompanyContactComplete || !isStripeComplete;
 
   return (
     <nav className="flex flex-col gap-2  text-white h-screen w-full">
@@ -39,21 +42,37 @@ const SidebarContent = ({ onNavigate, user, slug }: SidebarContentProps) => {
       </div>
 
       {/* Static buttons */}
-      <NavLink href={`/app/${slug}`} onNavigate={onNavigate}>
+      <NavLink
+        href={`/app/${slug}`}
+        onNavigate={onNavigate}
+        disabled={isAddMoveDisabled}
+      >
         <Newspaper size={24} />
         News Feed
       </NavLink>
 
-      <NavLink href={`/app/${slug}/calendar`} onNavigate={onNavigate}>
+      <NavLink
+        href={`/app/${slug}/calendar`}
+        onNavigate={onNavigate}
+        disabled={isAddMoveDisabled}
+      >
         <Calendar size={24} />
         Calendar
       </NavLink>
-      <NavLink href={`/app/${slug}/messages`} onNavigate={onNavigate}>
+      <NavLink
+        href={`/app/${slug}/messages`}
+        onNavigate={onNavigate}
+        disabled={isAddMoveDisabled}
+      >
         <MessageSquare size={24} />
         Messages
       </NavLink>
 
-      <NavLink href={`/app/${slug}/analytics`} onNavigate={onNavigate}>
+      <NavLink
+        href={`/app/${slug}/analytics`}
+        onNavigate={onNavigate}
+        disabled={isAddMoveDisabled}
+      >
         <BarChart2 size={24} />
         Analytics
       </NavLink>

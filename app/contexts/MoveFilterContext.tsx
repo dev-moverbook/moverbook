@@ -4,10 +4,10 @@ import React, { createContext, useContext, useState, useMemo } from "react";
 import { DateTime } from "luxon";
 import { useMovesForCalendar } from "@/app/hooks/queries/useGetMovesForCalendar";
 import { useSlugContext } from "@/app/contexts/SlugContext";
-import { MoveStatus, PriceFilter, PriceOrder } from "@/types/types";
+import { MoveStatus, PriceOrder } from "@/types/types";
 import { Id } from "@/convex/_generated/dataModel";
-import { MoveSchema } from "@/types/convex-schemas";
 import { getCurrentDate } from "../frontendUtils/helper";
+import { EnrichedMove } from "@/types/convex-responses";
 
 export type SalesRepOption = { id: Id<"users">; name: string };
 
@@ -22,7 +22,7 @@ interface MoveFilterContextProps {
   setPriceFilter: React.Dispatch<React.SetStateAction<PriceOrder | null>>;
   salesRep: SalesRepOption | null;
   setSalesRep: React.Dispatch<React.SetStateAction<SalesRepOption | null>>;
-  moves: MoveSchema[];
+  moves: EnrichedMove[];
   isLoading: boolean;
   isError: boolean;
   errorMessage: string | null;

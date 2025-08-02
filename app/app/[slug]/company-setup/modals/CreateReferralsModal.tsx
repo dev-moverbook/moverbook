@@ -1,18 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useMediaQuery } from "react-responsive";
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import { FrontEndErrorMessages } from "@/types/errors";
 import FormActions from "@/app/components/shared/FormActions";
 import FieldGroup from "@/app/components/shared/FieldGroup";
 import LabeledInput from "@/app/components/shared/labeled/LabeledInput";
+import ResponsiveModal from "@/app/components/shared/modal/ResponsiveModal";
 
 interface CreateReferralModalProps {
   isOpen: boolean;
@@ -33,8 +26,6 @@ const CreateReferralModal: React.FC<CreateReferralModalProps> = ({
   initialName = "",
   mode = "create",
 }) => {
-  const isMobile = useMediaQuery({ maxWidth: 768 });
-
   const [name, setName] = useState<string>(initialName);
   const [nameError, setNameError] = useState<string | null>(null);
 
@@ -63,6 +54,9 @@ const CreateReferralModal: React.FC<CreateReferralModalProps> = ({
 
   const isEditMode = mode === "edit";
   const modalTitle = isEditMode ? "Edit Referral" : "Create Referral";
+  const description = isEditMode
+    ? "Update this referral name."
+    : "Add a new referral to your list.";
   const saveLabel = isEditMode
     ? loading
       ? "Saving..."
@@ -70,6 +64,8 @@ const CreateReferralModal: React.FC<CreateReferralModalProps> = ({
     : loading
       ? "Creating..."
       : "Create Referral";
+
+  const isDisabled = name.trim() === "";
 
   const formContent = (
     <FieldGroup>
@@ -85,32 +81,27 @@ const CreateReferralModal: React.FC<CreateReferralModalProps> = ({
       />
 
       <FormActions
-        onSave={handleSubmit}
+        onSave={(e) => {
+          e.preventDefault();
+          handleSubmit();
+        }}
         onCancel={handleClose}
         isSaving={loading}
         saveLabel={saveLabel}
         error={error}
+        disabled={isDisabled}
       />
     </FieldGroup>
   );
 
-  return isMobile ? (
-    <Drawer open={isOpen} onOpenChange={handleClose}>
-      <DrawerContent>
-        <DrawerTitle>{modalTitle}</DrawerTitle>
-        {formContent}
-      </DrawerContent>
-    </Drawer>
-  ) : (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent>
-        <DialogTitle>{modalTitle}</DialogTitle>
-        <DialogDescription>
-          {isEditMode ? "Update this referral name." : "Add a new referral."}
-        </DialogDescription>
-        {formContent}
-      </DialogContent>
-    </Dialog>
+  return (
+    <ResponsiveModal
+      isOpen={isOpen}
+      onClose={handleClose}
+      title={modalTitle}
+      description={description}
+      children={formContent}
+    />
   );
 };
 

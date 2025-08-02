@@ -1,11 +1,10 @@
-import { PreMoveDocSchema, QuoteSchema } from "@/types/convex-schemas";
-import { MoveSchema } from "@/types/convex-schemas";
-import { CreatableUserRole } from "@/types/enums";
+import { CreatableUserRole, TravelChargingTypes } from "@/types/enums";
 import {
   AccessType,
+  JobType,
+  LocationType,
   MoveSize,
   MoveStatus,
-  MoveType,
   PaymentMethod,
   PriceFilter,
   PriceOrder,
@@ -16,6 +15,7 @@ import {
 import { DateTime, DateTimeOptions } from "luxon";
 import { MoveItem } from "@/types/convex-schemas";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
+import { Doc } from "@/convex/_generated/dataModel";
 
 export const isValidEmail = (email: string) => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -25,18 +25,18 @@ export const isValidRole = (role: string): role is CreatableUserRole => {
   return Object.values(CreatableUserRole).includes(role as CreatableUserRole);
 };
 
-export const isValidHourlyRate = (rate: string): boolean => {
-  const numericRate = parseFloat(rate);
-  return (
-    !isNaN(numericRate) && numericRate >= 0 && /^\d+(\.\d{1,2})?$/.test(rate)
-  );
+export const isValidHourlyRate = (rate: number): boolean => {
+  return !isNaN(rate) && rate >= 0;
 };
 
 export const formatMonthDay = (value: number | null | undefined) => {
   if (!value) return "";
+
   const month = Math.floor(value / 100);
   const day = value % 100;
-  return `${month}-${day}`;
+
+  const dt = DateTime.fromObject({ month, day });
+  return dt.isValid ? dt.toFormat("MMM d") : "";
 };
 
 export const formatTime = (time: string | null) =>
@@ -51,7 +51,7 @@ export const formatDecimalNumber = (
 };
 
 export function formatDateToLong(dateString: string | null): string | null {
-  if (!dateString) return "Unknown Date";
+  if (!dateString) return "Missing Date";
   return DateTime.fromISO(dateString).toFormat("MMMM d, yyyy");
 }
 
@@ -67,6 +67,7 @@ export function formatMoveSize(size: MoveSize | null): string | null {
     "3_bedroom": "3 Bedroom",
     "4_bedroom": "4 Bedroom",
     "5_bedroom": "5 Bedroom",
+    not_applicable: "Not Applicable",
   };
 
   return size ? map[size] : null;
@@ -86,10 +87,10 @@ export function formatAccessType(type?: AccessType | null): string | null {
   return map[type];
 }
 
-export function formatMoveType(type?: MoveType | null): string | null {
+export function formatLocationType(type?: LocationType | null): string | null {
   if (!type) return null;
 
-  const map: Record<MoveType, string> = {
+  const map: Record<LocationType, string> = {
     apartment: "Apartment",
     house: "House",
     office: "Office",
@@ -104,6 +105,7 @@ export function formatCurrency(amount: number): string {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
+    minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(amount);
 }
@@ -127,19 +129,29 @@ export function formatCurrencyCompact(amount: number): string {
 }
 
 export const getMoveStatusType = (
-  move: MoveSchema,
-  quote: QuoteSchema | null
+  move: Doc<"move">,
+  moveCustomer: Doc<"moveCustomers">,
+  quote: Doc<"quotes"> | null
 ): string => {
   if (quote) {
     return QUOTE_STATUS_LABELS[quote.status] || quote.status;
   }
-  return hasRequiredMoveFields(move) ? "Ready to Send" : "Missing Information";
+  return hasRequiredMoveFields(move, moveCustomer)
+    ? "Ready to Send"
+    : "Missing Information";
 };
 
 // Need to update
-const hasRequiredMoveFields = (move: MoveSchema): boolean => {
+export const hasRequiredMoveFields = (
+  move: Doc<"move">,
+  moveCustomer: Doc<"moveCustomers">
+): boolean => {
   const hasContactInfo =
-    move.name?.trim() && move.email?.trim() && move.phoneNumber?.trim();
+    moveCustomer.name?.trim() &&
+    moveCustomer.email?.trim() &&
+    moveCustomer.phoneNumber?.trim() &&
+    moveCustomer.altPhoneNumber?.trim() &&
+    moveCustomer.referral?.trim();
 
   const hasLocations =
     Array.isArray(move.locations) &&
@@ -159,8 +171,35 @@ export function formatServiceTypeLabel(
       return "Moving Service Proposal";
     case "packing":
       return "Packing Service Proposal";
-    case "labor":
-      return "Labor Service Proposal";
+    case "load_only":
+      return "Load Only Service Proposal";
+    case "unload_only":
+      return "Unload Only Service Proposal";
+    case "moving_and_packing":
+      return "Moving and Packing Service Proposal";
+    case "commercial":
+      return "Commercial Service Proposal";
+    default:
+      return null;
+  }
+}
+
+export function formatServiceTypeName(type: ServiceType | null): string | null {
+  if (!type) return null;
+
+  switch (type) {
+    case "moving":
+      return "Moving";
+    case "packing":
+      return "Packing";
+    case "load_only":
+      return "Load Only";
+    case "unload_only":
+      return "Unload Only";
+    case "moving_and_packing":
+      return "Moving and Packing";
+    case "commercial":
+      return "Commercial";
     default:
       return null;
   }
@@ -214,7 +253,7 @@ export function groupItemsByRoom(
 export function formatPaymentMethod(
   method?: PaymentMethod | null
 ): string | null {
-  if (!method) return null;
+  if (!method) return "";
 
   const map: Record<PaymentMethod, string> = {
     credit_card: "Credit Card",
@@ -224,46 +263,6 @@ export function formatPaymentMethod(
 
   return map[method];
 }
-
-export const getMoveStatus = (
-  move: MoveSchema,
-  quote: QuoteSchema | null,
-  assignedMovers: number,
-  preMoveDoc: PreMoveDocSchema | null
-):
-  | "Pending Quote"
-  | "Assign Movers"
-  | "Pre Doc Ready To Send"
-  | "Pending Customer Pre Doc Signature"
-  | "Pre Doc Signed"
-  | "Booked" => {
-  const quoteIsIncomplete = !quote || quote.status !== "completed";
-
-  console.log("preMoveDoc", preMoveDoc);
-  if (quoteIsIncomplete) {
-    return "Pending Quote";
-  }
-
-  if (assignedMovers < move.movers) {
-    return "Assign Movers";
-  }
-
-  if (!preMoveDoc) {
-    return "Pre Doc Ready To Send";
-  }
-
-  const { repSignature, customerSignature } = preMoveDoc;
-
-  if (repSignature && !customerSignature) {
-    return "Pending Customer Pre Doc Signature";
-  }
-
-  if (repSignature && customerSignature) {
-    return "Pre Doc Signed";
-  }
-
-  return "Booked";
-};
 
 export const formatNarrowWeekday = (
   locale: string | undefined,
@@ -326,7 +325,7 @@ export const getStatusColor = (status: MoveStatus): string => {
   }
 };
 
-export function getMoveCostRange(move: MoveSchema): [number, number?] {
+export function getMoveCostRange(move: Doc<"move">): [number, number?] {
   let base = 0;
 
   // Flat rate
@@ -396,3 +395,100 @@ export const formatTimestamp = (
     zone: timeZone,
   }).toFormat("MMMM d, h:mm a");
 };
+
+export const getInitials = (name: string): string => {
+  const parts = name.trim().split(" ");
+  if (parts.length === 1) return parts[0][0]?.toUpperCase() ?? "";
+  return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+};
+
+export const getHourlyRateFromLabor = (
+  movers: number,
+  laborRates?: Doc<"labor">[]
+): number | null => {
+  if (!laborRates) return null;
+
+  const active = laborRates.find((l) => l.isDefault && l.isActive);
+  if (!active) return null;
+
+  if (movers === 2) return active.twoMovers;
+  if (movers === 3) return active.threeMovers;
+  if (movers === 4) return active.fourMovers;
+  if (movers > 4) return active.fourMovers + (movers - 4) * active.extra;
+
+  return null;
+};
+
+export interface ListRowType {
+  left: string;
+  right: string | null;
+}
+
+export function getMoveDisplayRows({
+  moveFees,
+  jobType,
+  jobTypeRate,
+  liabilityCoverage,
+  creditCardFee,
+  travelFeeRate,
+  travelFeeMethod,
+}: {
+  moveFees: { name: string; quantity: number; price: number }[];
+  jobType: "hourly" | "flat";
+  jobTypeRate: number | null;
+  liabilityCoverage?: { premium: number } | null;
+  creditCardFee?: number | null;
+  travelFeeRate?: number | null;
+  travelFeeMethod?: TravelChargingTypes | null;
+}): ListRowType[] {
+  const jobTypeRateDisplay = jobType === "hourly" ? "Hourly Rate" : "Job Rate";
+  const jobRateValue =
+    jobType === "hourly"
+      ? `${formatCurrency(jobTypeRate ?? 0)}/hr`
+      : `${formatCurrency(jobTypeRate ?? 0)}`;
+
+  return [
+    ...moveFees.map((fee) => ({
+      left: `${fee.name} (${fee.quantity} @ ${formatCurrency(fee.price)})`,
+      right: `$${(fee.price * fee.quantity).toFixed(2)}`,
+    })),
+    {
+      left: "Liability Coverage",
+      right: formatCurrency(liabilityCoverage?.premium ?? 0),
+    },
+    {
+      left: jobTypeRateDisplay,
+      right: jobRateValue,
+    },
+  ];
+}
+
+export function getTotalHoursRange(
+  start: number,
+  end: number,
+  drive: number = 0
+): string {
+  if (typeof start !== "number" || typeof end !== "number") return "-";
+  const totalStart = start + drive;
+  const totalEnd = end + drive;
+  return `${totalStart}-${totalEnd} hours`;
+}
+
+export function formatJobTypeRateRow(
+  jobType: JobType,
+  rate: number | null | undefined
+): string {
+  if (rate == null) return "";
+  const formatted = formatCurrency(rate);
+  return jobType === "hourly" ? `${formatted}/hr` : formatted;
+}
+
+export function formatJobRate(
+  jobType: JobType | null | undefined,
+  jobTypeRate: number | null | undefined
+): string {
+  if (!jobTypeRate || !jobType) return "—";
+
+  const amount = formatCurrency(jobTypeRate);
+  return jobType === "hourly" ? `${amount}/hr` : `${amount} flat`;
+}

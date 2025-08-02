@@ -1,9 +1,21 @@
 "use client";
 
 import { useMediaQuery } from "react-responsive";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
-import { Button } from "@/app/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerTitle,
+} from "@/components/ui/drawer";
+import { MOBILE_BREAKPOINT } from "@/types/const";
+import FormActions from "./FormActions";
+import ResponsiveModal from "./modal/ResponsiveModal";
 
 interface ConfirmModalProps {
   isOpen: boolean;
@@ -11,7 +23,6 @@ interface ConfirmModalProps {
   onConfirm: () => void;
   deleteLoading: boolean;
   deleteError: string | null;
-
   // Customizable texts
   title?: string;
   description?: string;
@@ -32,43 +43,31 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   confirmButtonText = "Confirm",
   cancelButtonText = "Cancel",
 }) => {
-  const isMobile = useMediaQuery({ maxWidth: 768 });
+  const isMobile = useMediaQuery({ maxWidth: MOBILE_BREAKPOINT });
 
   const content = (
     <div className="space-y-4 ">
-      <p className="text-white">{description}</p>
-
-      {deleteError && <p className="text-red-500 text-sm">{deleteError}</p>}
-
-      <div className="grid grid-cols-2 gap-2">
-        <Button variant="whiteGhost" onClick={onClose} disabled={deleteLoading}>
-          {cancelButtonText}
-        </Button>
-        <Button
-          variant="destructive"
-          onClick={onConfirm}
-          disabled={deleteLoading}
-        >
-          {deleteLoading ? `${confirmButtonText}ing...` : confirmButtonText}
-        </Button>
-      </div>
+      <FormActions
+        onSave={onConfirm}
+        onCancel={onClose}
+        saveVariant="destructive"
+        saveLabel={confirmButtonText}
+        cancelLabel={cancelButtonText}
+        isSaving={deleteLoading}
+        error={deleteError}
+        cancelVariant="whiteGhost"
+      />
     </div>
   );
 
-  return isMobile ? (
-    <Drawer open={isOpen} onOpenChange={onClose}>
-      <DrawerContent>
-        <DrawerTitle>{title}</DrawerTitle>
-        {content}
-      </DrawerContent>
-    </Drawer>
-  ) : (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
-        <DialogTitle>{title}</DialogTitle>
-        {content}
-      </DialogContent>
-    </Dialog>
+  return (
+    <ResponsiveModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={title}
+      description={description}
+      children={content}
+    />
   );
 };
 

@@ -16,6 +16,7 @@ const MessagesPage = () => {
       <div className="w-full max-w-screen-sm mx-auto px-4">
         <MessageHeader
           move={moveData.move}
+          moveCustomer={moveData.moveCustomer}
           onBack={() => router.back()}
           onCall={() => {}}
         />

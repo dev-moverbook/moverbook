@@ -20,6 +20,7 @@ import { CommunicationTypeConvex } from "@/types/convex-enums";
 import { checkExistingScript } from "./backendUtils/checkUnique";
 import { ScriptSchema, VariableSchema } from "@/types/convex-schemas";
 import { handleInternalError } from "./backendUtils/helper";
+import { Doc } from "./_generated/dataModel";
 
 export const getScriptsByCompanyId = query({
   args: { companyId: v.id("companies") },
@@ -76,7 +77,7 @@ export const getActiveScriptsAndVariablesByCompanyId = query({
       const validatedCompany = validateCompany(company);
       isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
-      const scripts: ScriptSchema[] = await ctx.db
+      const scripts: Doc<"scripts">[] = await ctx.db
         .query("scripts")
         .filter((q) =>
           q.and(
@@ -86,7 +87,7 @@ export const getActiveScriptsAndVariablesByCompanyId = query({
         )
         .collect();
 
-      const variables: VariableSchema[] = await ctx.db
+      const variables: Doc<"variables">[] = await ctx.db
         .query("variables")
         .filter((q) => q.eq(q.field("companyId"), validatedCompany._id))
         .collect();
@@ -95,14 +96,7 @@ export const getActiveScriptsAndVariablesByCompanyId = query({
         data: { scripts, variables },
       };
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
-      console.error(errorMessage, error);
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error: errorMessage,
-      };
+      return handleInternalError(error);
     }
   },
 });

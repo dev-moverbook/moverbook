@@ -8,9 +8,9 @@ import {
 } from "./backendUtils/validate";
 import { handleInternalError } from "./backendUtils/helper";
 import { ClerkRoles, ResponseStatus } from "@/types/enums";
-import { Id } from "./_generated/dataModel";
+import { Doc, Id } from "./_generated/dataModel";
 import { CreateOrUpdateInvoiceResponse } from "@/types/convex-responses";
-import { InvoiceSchema } from "@/types/convex-schemas";
+import { InvoiceStatusConvex } from "./schema";
 
 export const createOrUpdateInvoice = mutation({
   args: {
@@ -20,6 +20,7 @@ export const createOrUpdateInvoice = mutation({
       customerSignedAt: v.optional(v.number()),
       repSignature: v.optional(v.string()),
       repSignedAt: v.optional(v.number()),
+      status: v.optional(InvoiceStatusConvex),
     }),
   },
   handler: async (ctx, args): Promise<CreateOrUpdateInvoiceResponse> => {
@@ -49,7 +50,7 @@ export const createOrUpdateInvoice = mutation({
         updates.repSignedAt = now;
       }
 
-      const existing: InvoiceSchema | null = await ctx.db
+      const existing: Doc<"invoices"> | null = await ctx.db
         .query("invoices")
         .withIndex("by_move", (q) => q.eq("moveId", moveId))
         .unique();
@@ -62,6 +63,7 @@ export const createOrUpdateInvoice = mutation({
       } else {
         invoiceId = await ctx.db.insert("invoices", {
           moveId,
+          status: updates.status || "pending",
           ...updates,
         });
       }

@@ -1,19 +1,17 @@
 "use client";
 
 import React from "react";
-import { MoveSchema } from "@/types/convex-schemas";
 import SectionContainer from "@/app/components/shared/containers/SectionContainer";
-import SectionHeader from "@/app/components/shared/SectionHeader";
 import ReusableCard from "../card/ReusableCard";
 import {
-  formatCurrency,
   formatPaymentMethod,
+  getMoveDisplayRows,
 } from "@/app/frontendUtils/helper";
-import ListRow from "@/app/components/shared/ui/ListRow";
-import ListRowContainer from "@/app/components/shared/containers/ListRowContainer";
+import { Doc } from "@/convex/_generated/dataModel";
+import CostTable from "@/app/components/move/sections/CostTable";
 
 interface QuoteCostProps {
-  move: MoveSchema;
+  move: Doc<"move">;
 }
 
 const QuoteCost = ({ move }: QuoteCostProps) => {
@@ -26,53 +24,27 @@ const QuoteCost = ({ move }: QuoteCostProps) => {
     depositMethod,
   } = move;
 
-  const jobTypeRateDisplay = jobType === "hourly" ? `Hourly Rate` : `Job Rate`;
-  const jobRateValue =
-    jobType === "hourly"
-      ? `${formatCurrency(jobTypeRate ?? 0)}/hr`
-      : `${formatCurrency(jobTypeRate ?? 0)}`;
+  const displayRows = getMoveDisplayRows({
+    moveFees,
+    jobType,
+    jobTypeRate,
+    liabilityCoverage,
+  });
 
-  const displayRows = [
-    ...moveFees.map((fee) => ({
-      left: `${fee.name} x${fee.quantity}`,
-      right: `$${(fee.price * fee.quantity).toFixed(2)}`,
-    })),
-    {
-      left: "Liability Coverage",
-      right: formatCurrency(liabilityCoverage?.premium ?? 0),
-    },
-    {
-      left: jobTypeRateDisplay,
-      right: jobRateValue,
-    },
+  const texts: [string, number | string | null, boolean?][] = [
+    ["Deposit", deposit ?? 0, true],
   ];
+
+  if (depositMethod) {
+    texts.push([`(${formatPaymentMethod(depositMethod)})`, null]);
+  }
 
   return (
     <div>
-      <SectionHeader title="Cost" />
-
-      {displayRows.length > 0 && (
-        <ListRowContainer>
-          {displayRows.map((row, i) => (
-            <ListRow
-              key={i}
-              left={row.left}
-              right={row.right}
-              className={i % 2 === 1 ? "bg-background2" : ""}
-            />
-          ))}
-        </ListRowContainer>
-      )}
+      <CostTable title="Cost" rows={displayRows} />
 
       <SectionContainer>
-        <ReusableCard
-          title="Due Today"
-          texts={[
-            ["Deposit", deposit ?? 0, true],
-            [`(${formatPaymentMethod(depositMethod)})`, null],
-          ]}
-          isCurrency
-        />
+        <ReusableCard title="Due Today" texts={texts} isCurrency />
       </SectionContainer>
     </div>
   );

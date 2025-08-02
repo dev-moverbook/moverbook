@@ -3,65 +3,74 @@
 import SectionContainer from "@/app/components/shared/containers/SectionContainer";
 import SectionHeader from "@/app/components/shared/SectionHeader";
 import React, { useState } from "react";
-import { MoveSchema } from "@/types/convex-schemas";
 import FormActions from "@/app/components/shared/FormActions";
 import SelectFieldRow from "@/app/components/shared/SelectFieldRow";
 import { useReferralSources } from "@/app/hooks/queries/useReferralSources";
-import { useUpdateMove } from "../../../hooks/useUpdateMove";
-import { InfoFormData } from "@/types/form-types";
+import { CustomerFormData, CustomerFormErrors } from "@/types/form-types";
 import LabeledInput from "@/app/components/shared/labeled/LabeledInput";
 import { cn } from "@/lib/utils";
-import {
-  ContactValidationErrors,
-  validateContactForm,
-} from "@/app/frontendUtils/validation";
+import { validateCustomerForm } from "@/app/frontendUtils/validation";
+import { useMoveContext } from "@/app/contexts/MoveContext";
+import { useUpdateMoveCustomer } from "@/app/hooks/mutations/customers/useUpdateMoveCustomer";
+import PhoneNumberInput from "@/app/components/shared/labeled/PhoneNumberInput";
 
-interface InfoSectionProps {
-  move: MoveSchema;
-}
+interface CustomerSectionProps {}
 
-const InfoSection = ({ move }: InfoSectionProps) => {
+const CustomerSection = ({}: CustomerSectionProps) => {
+  const { moveData } = useMoveContext();
+  const moveCustomer = moveData.moveCustomer;
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const { options: referralOptions } = useReferralSources(move.companyId);
+  const { options: referralOptions } = useReferralSources(
+    moveCustomer.companyId
+  );
   const referralSelectOptions =
     referralOptions?.map((r) => ({ label: r.label, value: r.value })) ?? [];
 
-  const { updateMove, updateMoveLoading, updateMoveError } = useUpdateMove();
+  const {
+    updateMoveCustomer,
+    updateMoveCustomerLoading,
+    updateMoveCustomerError,
+    setUpdateMoveCustomerError,
+  } = useUpdateMoveCustomer();
 
-  const [formData, setFormData] = useState<InfoFormData>({
-    name: move.name,
-    email: move.email,
-    phoneNumber: move.phoneNumber,
-    altPhoneNumber: move.altPhoneNumber,
-    referral: move.referral,
+  const [formData, setFormData] = useState<CustomerFormData>({
+    name: moveCustomer.name,
+    email: moveCustomer.email,
+    phoneNumber: moveCustomer.phoneNumber,
+    altPhoneNumber: moveCustomer.altPhoneNumber,
+    referral: moveCustomer.referral,
   });
 
-  const [errors, setErrors] = useState<ContactValidationErrors>({});
+  const [errors, setErrors] = useState<CustomerFormErrors>({});
 
   const handleEditClick = () => {
     setIsEditing(true);
   };
 
   const handleSave = async () => {
+    setUpdateMoveCustomerError(null);
     const referralValues = referralSelectOptions.map((r) => r.value);
 
-    const { isValid, errors } = validateContactForm(formData, referralValues);
+    const { isValid, errors } = validateCustomerForm(formData, referralValues);
     if (!isValid) {
       setErrors(errors);
       return;
     }
 
-    await updateMove({ moveId: move._id, updates: formData });
+    await updateMoveCustomer({
+      moveCustomerId: moveCustomer._id,
+      updates: formData,
+    });
     setIsEditing(false);
   };
 
   const handleCancel = () => {
     setFormData({
-      name: move.name,
-      email: move.email,
-      phoneNumber: move.phoneNumber,
-      altPhoneNumber: move.altPhoneNumber,
-      referral: move.referral,
+      name: moveCustomer.name,
+      email: moveCustomer.email,
+      phoneNumber: moveCustomer.phoneNumber,
+      altPhoneNumber: moveCustomer.altPhoneNumber,
+      referral: moveCustomer.referral,
     });
     setIsEditing(false);
   };
@@ -91,7 +100,10 @@ const InfoSection = ({ move }: InfoSectionProps) => {
           value={formData.name}
           onChange={(e) => {
             setFormData((prev) => ({ ...prev, name: e.target.value }));
-            setErrors((prev) => ({ ...prev, name: null }));
+            if (errors.name) {
+              const { name, ...rest } = errors;
+              setErrors(rest);
+            }
           }}
           isEditing={isEditing}
           placeholder="Enter full name"
@@ -103,7 +115,10 @@ const InfoSection = ({ move }: InfoSectionProps) => {
           value={formData.email ?? ""}
           onChange={(e) => {
             setFormData((prev) => ({ ...prev, email: e.target.value }));
-            setErrors((prev) => ({ ...prev, email: null }));
+            if (errors.email) {
+              const { email, ...rest } = errors;
+              setErrors(rest);
+            }
           }}
           isEditing={isEditing}
           placeholder="Enter email"
@@ -115,7 +130,10 @@ const InfoSection = ({ move }: InfoSectionProps) => {
           value={formData.phoneNumber ?? ""}
           onChange={(e) => {
             setFormData((prev) => ({ ...prev, phoneNumber: e.target.value }));
-            setErrors((prev) => ({ ...prev, phoneNumber: null }));
+            if (errors.phoneNumber) {
+              const { phoneNumber, ...rest } = errors;
+              setErrors(rest);
+            }
           }}
           isEditing={isEditing}
           placeholder="Enter phone number"
@@ -131,7 +149,10 @@ const InfoSection = ({ move }: InfoSectionProps) => {
               ...prev,
               altPhoneNumber: e.target.value,
             }));
-            setErrors((prev) => ({ ...prev, altPhoneNumber: null }));
+            if (errors.altPhoneNumber) {
+              const { altPhoneNumber, ...rest } = errors;
+              setErrors(rest);
+            }
           }}
           isEditing={isEditing}
           placeholder="Enter alternative phone number"
@@ -147,7 +168,10 @@ const InfoSection = ({ move }: InfoSectionProps) => {
           isEditing={isEditing}
           onChange={(val) => {
             setFormData((prev) => ({ ...prev, referral: val }));
-            setErrors((prev) => ({ ...prev, referral: null }));
+            if (errors.referral) {
+              const { referral, ...rest } = errors;
+              setErrors(rest);
+            }
           }}
           error={errors.referral}
         />
@@ -159,8 +183,8 @@ const InfoSection = ({ move }: InfoSectionProps) => {
               handleSave();
             }}
             onCancel={handleCancel}
-            isSaving={updateMoveLoading}
-            error={updateMoveError}
+            isSaving={updateMoveCustomerLoading}
+            error={updateMoveCustomerError}
             disabled={isDisabled}
           />
         )}
@@ -169,4 +193,4 @@ const InfoSection = ({ move }: InfoSectionProps) => {
   );
 };
 
-export default InfoSection;
+export default CustomerSection;

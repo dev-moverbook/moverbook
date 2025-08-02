@@ -9,41 +9,35 @@ import LineItemFeeCard from "../cards/LineItemFeeCard";
 import Header3 from "@/app/components/shared/heading/Header3";
 import { Plus } from "lucide-react";
 import { MoveFeeInput } from "@/types/form-types";
-import { FeeSchema } from "@/types/convex-schemas";
+import { useMoveForm } from "@/app/contexts/MoveFormContext";
+import ConfirmModal from "@/app/components/shared/ConfirmModal";
+import AddItemButton from "@/app/components/shared/buttons/AddItemButton";
 
-interface LineItemsProps {
-  moveFees: MoveFeeInput[];
-  addMoveFee: (fee: MoveFeeInput) => void;
-  updateMoveFee: (index: number, fee: MoveFeeInput) => void;
-  deleteMoveFee: (index: number) => void;
-  moveFeeOptions?: FeeSchema[];
-  isLoading: boolean;
-  errorMessage?: string | null;
-}
+interface LineItemsProps {}
 
-const LineItems: React.FC<LineItemsProps> = ({
-  moveFees,
-  addMoveFee,
-  updateMoveFee,
-  deleteMoveFee,
-  moveFeeOptions,
-  isLoading,
-  errorMessage,
-}) => {
+const LineItems: React.FC<LineItemsProps> = ({}) => {
+  const {
+    moveFormData,
+    moveFeeOptions,
+    isLoading,
+    errorMessage,
+    addMoveFee,
+    updateMoveFee,
+    deleteMoveFee,
+  } = useMoveForm();
   const [showAddLineItemModal, setShowAddLineItemModal] =
     useState<boolean>(false);
   const [editIndex, setEditIndex] = useState<number | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+  const [deleteIndex, setDeleteIndex] = useState<number | null>(null);
 
-  const handleOpenAddLineItemModal = (
-    e: React.MouseEvent<HTMLButtonElement>
-  ) => {
-    e.preventDefault();
+  const handleOpenAddLineItemModal = () => {
     setEditIndex(null);
     setShowAddLineItemModal(true);
   };
 
   const handleOpenEditModal = (fee: MoveFeeInput) => {
-    const index = moveFees.findIndex(
+    const index = moveFormData.moveFees.findIndex(
       (f) => f.name === fee.name && f.price === fee.price
     );
     if (index !== -1) {
@@ -53,12 +47,20 @@ const LineItems: React.FC<LineItemsProps> = ({
   };
 
   const handleOpenDeleteModal = (fee: MoveFeeInput) => {
-    const index = moveFees.findIndex(
+    const index = moveFormData.moveFees.findIndex(
       (f) => f.name === fee.name && f.price === fee.price
     );
     if (index !== -1) {
-      deleteMoveFee(index);
+      setDeleteIndex(index);
+      setShowDeleteModal(true);
     }
+  };
+
+  const handleDeleteFee = () => {
+    if (deleteIndex !== null) {
+      deleteMoveFee(deleteIndex);
+    }
+    setShowDeleteModal(false);
   };
 
   const handleSubmitFee = (fee: MoveFeeInput) => {
@@ -76,12 +78,10 @@ const LineItems: React.FC<LineItemsProps> = ({
         wrapperClassName="px-0 py-0"
         showCheckmark={false}
         button={
-          <Button variant="outline" onClick={handleOpenAddLineItemModal}>
-            <div className="flex items-center gap-1">
-              <Plus className="w-5 h-5" />
-              Line Item
-            </div>
-          </Button>
+          <AddItemButton
+            label="Line Item"
+            onClick={handleOpenAddLineItemModal}
+          />
         }
       >
         Line Items
@@ -90,15 +90,17 @@ const LineItems: React.FC<LineItemsProps> = ({
       <AddLineModal
         isOpen={showAddLineItemModal}
         onClose={() => setShowAddLineItemModal(false)}
-        initialData={editIndex !== null ? moveFees[editIndex] : null}
+        initialData={
+          editIndex !== null ? moveFormData.moveFees[editIndex] : null
+        }
         onSubmit={handleSubmitFee}
         moveFeeOptions={moveFeeOptions}
         isLoading={isLoading}
         errorMessage={errorMessage}
       />
-      {moveFees.length > 0 && (
+      {moveFormData.moveFees.length > 0 && (
         <CardContainer>
-          {moveFees.map((fee, index) => (
+          {moveFormData.moveFees.map((fee, index) => (
             <LineItemFeeCard
               key={`${fee.name}-${index}`}
               fee={fee}
@@ -108,6 +110,16 @@ const LineItems: React.FC<LineItemsProps> = ({
           ))}
         </CardContainer>
       )}
+
+      <ConfirmModal
+        title="Are you sure you want to delete this line item?"
+        description="This action cannot be undone."
+        onClose={() => setShowDeleteModal(false)}
+        isOpen={showDeleteModal}
+        onConfirm={handleDeleteFee}
+        deleteLoading={false}
+        deleteError={null}
+      />
     </SectionContainer>
   );
 };

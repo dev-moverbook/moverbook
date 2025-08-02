@@ -3,20 +3,19 @@
 import React from "react";
 import { usePathname } from "next/navigation";
 import { ChevronRight } from "lucide-react";
-import { UserSchema } from "@/types/convex-schemas";
 import Image from "next/image";
 import UserCardBorder from "@/app/components/shared/UserCardBorder";
 import Link from "next/link";
 import NProgress from "nprogress";
+import { Doc } from "@/convex/_generated/dataModel";
 
 interface UserCardProps {
-  user: UserSchema;
+  user: Doc<"users">;
 }
 
 const UserCard: React.FC<UserCardProps> = ({ user }) => {
   const pathname = usePathname();
 
-  console.log(user.role);
   const handleClick = () => {
     NProgress.start();
   };

@@ -30,6 +30,9 @@ interface TripleFormActionProps {
     | "outline"
     | "ghost"
     | "whiteGhost";
+  primaryDisabled?: boolean;
+  secondaryDisabled?: boolean;
+  tertiaryDisabled?: boolean;
 }
 
 const TripleFormAction: React.FC<TripleFormActionProps> = ({
@@ -48,35 +51,37 @@ const TripleFormAction: React.FC<TripleFormActionProps> = ({
   primaryVariant = "default",
   secondaryVariant = "ghost",
   tertiaryVariant = "outline",
+  primaryDisabled = false,
+  secondaryDisabled = false,
+  tertiaryDisabled = false,
 }) => {
   return (
     <div className="max-w-screen-sm mx-auto md:px-0 px-4 mt-4">
-      <div className="flex flex-col-reverse sm:grid sm:grid-cols-3 gap-4">
+      <div className="flex flex-col sm:grid sm:grid-cols-3 gap-4">
+        <Button
+          onClick={onTertiary}
+          variant={tertiaryVariant}
+          className="w-full"
+          disabled={tertiaryLoading || disabled || tertiaryDisabled}
+          isLoading={tertiaryLoading}
+        >
+          {tertiaryLabel}
+        </Button>
         <Button
           onClick={onSecondary}
           variant={secondaryVariant}
           className="w-full"
-          disabled={secondaryLoading || disabled}
+          disabled={secondaryLoading || disabled || secondaryDisabled}
           isLoading={secondaryLoading}
         >
           {secondaryLabel}
         </Button>
 
         <Button
-          onClick={onTertiary}
-          variant={tertiaryVariant}
-          className="w-full"
-          disabled={tertiaryLoading || disabled}
-          isLoading={tertiaryLoading}
-        >
-          {tertiaryLabel}
-        </Button>
-
-        <Button
           onClick={onPrimary}
           variant={primaryVariant}
           className="w-full"
-          disabled={primaryLoading || isLoading || disabled}
+          disabled={primaryLoading || isLoading || disabled || primaryDisabled}
           isLoading={primaryLoading || isLoading}
         >
           {primaryLabel}

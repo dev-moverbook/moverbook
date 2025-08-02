@@ -67,7 +67,7 @@ const TimeSlotSelector: React.FC<TimeSlotSelectorProps> = ({
           <Label
             htmlFor={`timeslot-${option.value}`}
             className={clsx(
-              "block cursor-pointer rounded-full px-6 py-2 text-center border text-sm font-medium transition-all w-full hover:bg-gray-900",
+              "block cursor-pointer rounded-full px-6 py-2 text-center border text-sm font-medium transition-all w-full hover:border-greenCustom80 hover:text-[#ffffffcc]",
               value === option.value
                 ? "border-greenCustom text-white font-semibold"
                 : "border-grayCustom text-grayCustom2"

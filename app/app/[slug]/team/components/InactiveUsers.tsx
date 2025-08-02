@@ -30,7 +30,7 @@ const InactiveUsers = () => {
   return (
     <SectionContainer isLast={true}>
       <CenteredContainer>
-        <SectionHeader title="Inactive Users" />
+        <SectionHeader className="px-0" title="Inactive Users" />
         {usersResponse.data.users.length > 0 ? (
           <ContainerUserCard>
             {usersResponse.data.users.map((user) => (

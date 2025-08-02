@@ -1,4 +1,4 @@
-import { Id } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import { ResponseStatus, StripeAccountStatus } from "./enums";
 import { ErrorMessages } from "./errors";
 import {
@@ -20,6 +20,7 @@ import {
   LaborSchema,
   MessageSchema,
   MoveAssignmentSchema,
+  MoveCustomerSchema,
   MoveSchema,
   PolicySchema,
   PreMoveDocSchema,
@@ -104,7 +105,7 @@ export interface GetAllUsersByCompanyIdSuccess {
 }
 
 export interface GetAllUsersByCompanyIdData {
-  users: UserSchema[];
+  users: Doc<"users">[];
 }
 
 export type GetActiveInvitationsByCompanyIdResponse =
@@ -139,7 +140,7 @@ export interface GetUserByIdSuccess {
 }
 
 export interface GetUserByIdData {
-  user: UserSchema;
+  user: Doc<"users">;
 }
 
 export type GetActiveReferralsByCompanyIdResponse =
@@ -191,6 +192,8 @@ export interface GetCompanyIdBySlugData {
   connectedAccountId: string | null;
   connectedAccountStatus: StripeAccountStatus | null;
   timeZone: string;
+  isCompanyContactComplete: boolean;
+  isStripeComplete: boolean;
 }
 
 export type GetActiveVariablesByCompanyIdResponse =
@@ -284,8 +287,8 @@ export interface GetActiveScriptsAndVariablesByCompanyIdSuccess {
 }
 
 export interface GetActiveScriptsAndVariablesByCompanyIdData {
-  scripts: ScriptSchema[];
-  variables: VariableSchema[];
+  scripts: Doc<"scripts">[];
+  variables: Doc<"variables">[];
 }
 
 export type GetCompanyDetailsResponse =
@@ -298,10 +301,10 @@ export interface GetCompanyDetailsSuccess {
 }
 
 export interface GetCompanyDetailsData {
-  company: CompanySchema;
-  compliance: ComplianceSchema;
-  webIntegrations: WebIntegrationsSchema;
-  companyContact: CompanyContactSchema;
+  company: Doc<"companies">;
+  compliance: Doc<"compliance">;
+  webIntegrations: Doc<"webIntegrations">;
+  companyContact: Doc<"companyContact">;
 }
 
 export type UpdateComplianceResponse = UpdateComplianceSuccess | ErrorResponse;
@@ -633,11 +636,11 @@ export interface GetCompanyRatesSuccess {
 }
 
 export interface GetCompanyRatesData {
-  labor: LaborSchema[];
-  insurancePolicies: InsurancePolicySchema[];
-  travelFee: TravelFeeSchema;
-  creditCardFee: CreditCardFeeSchema;
-  fees: FeeSchema[];
+  labor: Doc<"labor">[];
+  insurancePolicies: Doc<"insurancePolicies">[];
+  travelFee: Doc<"travelFee">;
+  creditCardFee: Doc<"creditCardFees">;
+  fees: Doc<"fees">[];
 }
 
 export type GetConnectedAccountByCompanyIdResponse =
@@ -798,20 +801,20 @@ export interface GetMoveOptionsSuccess {
 }
 
 export interface GetMoveOptionsData {
-  arrivalWindow: ArrivalWindowSchema;
-  labor: LaborSchema[];
-  travelFee: TravelFeeSchema;
-  insurancePolicies: InsurancePolicySchema[];
-  fees: FeeSchema[];
-  salesReps: UserSchema[];
-  referrals: ReferralSchema[];
-  laborRates: LaborSchema[];
-  creditCardFee: CreditCardFeeSchema;
-  rooms: RoomSchema[];
-  categories: CategorySchema[];
-  items: ItemSchema[];
-  policy: PolicySchema;
-  companyContact: CompanyContactSchema;
+  arrivalWindow: Doc<"arrivalWindow">;
+  labor: Doc<"labor">[];
+  travelFee: Doc<"travelFee">;
+  insurancePolicies: Doc<"insurancePolicies">[];
+  fees: Doc<"fees">[];
+  salesReps: Doc<"users">[];
+  referrals: Doc<"referrals">[];
+  laborRates: Doc<"labor">[];
+  creditCardFee: Doc<"creditCardFees">;
+  rooms: Doc<"rooms">[];
+  categories: Doc<"categories">[];
+  items: Doc<"items">[];
+  policy: Doc<"policies">;
+  companyContact: Doc<"companyContact">;
 }
 
 export type CreateMoveResponse = CreateMoveSuccess | ErrorResponse;
@@ -843,12 +846,14 @@ export interface GetMoveSuccess {
 }
 
 export interface GetMoveData {
-  move: MoveSchema;
-  quote: QuoteSchema | null;
-  company: CompanySchema;
-  salesRep: UserSchema;
-  companyContact: CompanyContactSchema;
-  policy: PolicySchema;
+  move: Doc<"move">;
+  quote: Doc<"quotes"> | null;
+  company: Doc<"companies">;
+  companyContact: Doc<"companyContact">;
+  policy: Doc<"policies">;
+  moveCustomer: Doc<"moveCustomers">;
+  salesRepUser: Doc<"users"> | null;
+  travelFee: Doc<"travelFee">;
 }
 
 export type UpdateMoveResponse = UpdateMoveSuccess | ErrorResponse;
@@ -951,9 +956,10 @@ export interface GetMoveAssignmentsPageSuccess {
 }
 
 export interface GetMoveAssignmentsPageData {
-  assignments: MoveAssignmentSchema[];
-  allMovers: UserSchema[];
-  preMoveDoc: PreMoveDocSchema | null;
+  assignments: Doc<"moveAssignments">[];
+  allMovers: Doc<"users">[];
+  preMoveDoc: Doc<"preMoveDocs"> | null;
+  additionalLiabilityCoverage: Doc<"additionalLiabilityCoverage"> | null;
 }
 
 export type CreateOrUpdatePreMoveDocResponse =
@@ -977,10 +983,11 @@ export interface GetPaymentPageSuccess {
 }
 
 export interface GetPaymentPageData {
-  additionalFees: AdditionalFeeSchema[];
-  discounts: DiscountSchema[];
-  invoice: InvoiceSchema | null;
-  internalReview: InternalReviewSchema | null;
+  additionalFees: Doc<"additionalFees">[];
+  discounts: Doc<"discounts">[];
+  invoice: Doc<"invoices"> | null;
+  internalReview: Doc<"internalReview"> | null;
+  fees: Doc<"fees">[];
 }
 
 export type CreateAdditionalFeeResponse =
@@ -1054,7 +1061,7 @@ export interface GetMovesForCalendarSuccess {
 }
 
 export interface GetMovesForCalendarData {
-  moves: MoveSchema[];
+  moves: EnrichedMove[];
 }
 
 export type GetMovesByNameResponse = GetMovesByNameSuccess | ErrorResponse;
@@ -1064,8 +1071,13 @@ export interface GetMovesByNameSuccess {
   data: GetMovesByNameData;
 }
 
+export interface EnrichedMove extends Doc<"move"> {
+  moveCustomer: Doc<"moveCustomers"> | null;
+  salesRepUser: Doc<"users"> | null;
+}
+
 export interface GetMovesByNameData {
-  moves: MoveSchema[];
+  moves: EnrichedMove[];
 }
 
 export type GetMessagesByMoveIdResponse =
@@ -1103,4 +1115,83 @@ export interface CreateMessageSuccess {
 
 export interface CreateMessageData {
   messageId: Id<"messages">;
+}
+
+export type CreateMoveCustomerResponse =
+  | CreateMoveCustomerSuccess
+  | ErrorResponse;
+
+export interface CreateMoveCustomerSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: CreateMoveCustomerData;
+}
+
+export interface CreateMoveCustomerData {
+  moveCustomerId?: Id<"moveCustomers">;
+  moveCustomer?: Doc<"moveCustomers">;
+}
+
+export type SearchMoveCustomersAndJobIdResponse =
+  | SearchMoveCustomersAndJobIdSuccess
+  | ErrorResponse;
+
+export interface SearchMoveCustomersAndJobIdSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: SearchMoveCustomersAndJobIdData;
+}
+
+export interface SearchMoveCustomersAndJobIdData {
+  moveCustomers: Doc<"moveCustomers">[];
+  moves: Doc<"move">[];
+}
+
+export type UpdateMoveCustomerResponse =
+  | UpdateMoveCustomerSuccess
+  | ErrorResponse;
+
+export interface UpdateMoveCustomerSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: UpdateMoveCustomerData;
+}
+
+export interface UpdateMoveCustomerData {
+  moveCustomerId: Id<"moveCustomers">;
+}
+
+export type GetCustomerAndMovesResponse =
+  | GetCustomerAndMovesSuccess
+  | ErrorResponse;
+
+export interface GetCustomerAndMovesSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetCustomerAndMovesData;
+}
+
+export interface GetCustomerAndMovesData {
+  moveCustomer: Doc<"moveCustomers">;
+  moves: Doc<"move">[];
+}
+
+export type GetMoveCustomerResponse = GetMoveCustomerSuccess | ErrorResponse;
+
+export interface GetMoveCustomerSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetMoveCustomerData;
+}
+
+export interface GetMoveCustomerData {
+  moveCustomer: Doc<"moveCustomers">;
+}
+
+export type CreateOrUpdateAdditionalLiabilityCoverageResponse =
+  | CreateOrUpdateAdditionalLiabilityCoverageSuccess
+  | ErrorResponse;
+
+export interface CreateOrUpdateAdditionalLiabilityCoverageSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: CreateOrUpdateAdditionalLiabilityCoverageData;
+}
+
+export interface CreateOrUpdateAdditionalLiabilityCoverageData {
+  additionalLiabilityCoverageId: Id<"additionalLiabilityCoverage">;
 }

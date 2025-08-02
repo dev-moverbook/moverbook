@@ -4,6 +4,7 @@ import Header3 from "@/app/components/shared/heading/Header3";
 import InlineBanner from "@/app/components/shared/ui/InlineBanner";
 import { Button } from "@/app/components/ui/button";
 import { Plus } from "lucide-react";
+import AddItemButton from "../../shared/buttons/AddItemButton";
 
 interface StopSectionHeaderProps {
   stopCount: number;
@@ -31,6 +32,7 @@ const StopSectionHeader: React.FC<StopSectionHeaderProps> = ({
                 show={showBanner}
                 className="pt-0"
               />
+
               <Button
                 onClick={onAddStop}
                 variant="outline"
@@ -39,7 +41,7 @@ const StopSectionHeader: React.FC<StopSectionHeaderProps> = ({
               >
                 <div className="flex flex-row items-center gap-1">
                   <Plus className="w-4 h-4" />
-                  <span className="text-sm">Stop</span>
+                  <span className="">Stop</span>
                 </div>
               </Button>
             </div>

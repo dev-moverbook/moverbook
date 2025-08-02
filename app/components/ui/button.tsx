@@ -6,21 +6,23 @@ import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md md:text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md md:text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         default:
-          "bg-greenCustom text-white rounded-[20px] shadow shadow-greenCustom/10 hover:bg-greenCustom/90 font-semibold",
+          "bg-greenCustom text-white rounded-[20px] shadow shadow-greenCustom/10 hover:bg-greenCustom/90 font-semibold focus-visible:ring-1 focus-visible:ring-white",
         destructive:
           "bg-destructive border border-destructive rounded-[20px] text-white shadow shadow-destructive/10 hover:bg-destructive/80",
         outline:
-          "rounded-[20px] border border-greenCustom bg-transparent text-greenCustom shadow-sm hover:shadow-[0_0_0_2px_rgba(34,197,94,0.3)]",
+          "rounded-[20px] border border-greenCustom bg-transparent text-greenCustom shadow-sm hover:shadow-[0_0_0_2px_rgba(34,197,94,0.3)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white",
         secondary:
           "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
-        ghost: "text-greenCustom font-bold hover:underline font-semibold",
-        whiteGhost: "text-white font-bold hover:underline font-semibold",
-        link: "text-primary underline-offset-4 hover:underline",
+        ghost:
+          "text-greenCustom font-bold hover:underline font-semibold rounded-[20px]",
+        whiteGhost:
+          "text-white font-bold hover:underline font-semibold rounded-[20px]",
+        link: "text-sm underline font-normal  hover:opacity-80 ",
         plain: "",
         sidebar:
           "w-full hover:bg-gray-700 rounded-md p-1 transition justify-start gap-4",

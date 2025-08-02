@@ -1,23 +1,49 @@
 import React, { FormEvent, useState } from "react";
 import TripleFormAction from "@/app/components/shared/buttons/TripleFormAction";
 import { useCreateOrUpdateQuote } from "../../../hooks/useCreateOrUpdateQuote";
-import { Id } from "@/convex/_generated/dataModel";
+import { Doc } from "@/convex/_generated/dataModel";
+import FormActionContainer from "@/app/components/shared/containers/FormActionContainer";
+import { useUpdateMove } from "../../../hooks/useUpdateMove";
 
 interface QuoteActionsProps {
   onEditQuote: () => void;
   signatureDataUrl: string | null;
-  moveId: Id<"move">;
+  quote: Doc<"quotes"> | null;
+  move: Doc<"move">;
 }
 
 const QuoteActions = ({
   onEditQuote,
   signatureDataUrl,
-  moveId,
+  quote,
+  move,
 }: QuoteActionsProps) => {
   const [activeLoading, setActiveLoading] = useState<
     "send" | "complete" | null
   >(null);
   const { createOrUpdateQuote, quoteUpdateError } = useCreateOrUpdateQuote();
+  const { updateMove, updateMoveError } = useUpdateMove();
+  const { _id: moveId, moveStatus } = move;
+
+  const handleUpdateMoveStatusToQuoted = async () => {
+    if (moveStatus === "New Lead") {
+      await updateMove({
+        moveId,
+        updates: {
+          moveStatus: "Quoted",
+        },
+      });
+    }
+  };
+
+  const handleUpdateMoveStatusToBooked = async () => {
+    if (moveStatus === "Quoted" || moveStatus === "New Lead") {
+      await updateMove({
+        moveId,
+        updates: { moveStatus: "Booked" },
+      });
+    }
+  };
 
   const handleSendQuote = async (e: FormEvent) => {
     e.preventDefault();
@@ -29,6 +55,7 @@ const QuoteActions = ({
         ...(signatureDataUrl && { repSignature: signatureDataUrl }),
       },
     });
+    handleUpdateMoveStatusToQuoted();
     setActiveLoading(null);
   };
 
@@ -45,15 +72,20 @@ const QuoteActions = ({
         ...(signatureDataUrl && { repSignature: signatureDataUrl }),
       },
     });
+    handleUpdateMoveStatusToBooked();
     setActiveLoading(null);
   };
+  const isRepSigned = !!signatureDataUrl || quote?.repSignature;
+  const isPrimaryDisabled = quote?.status === isRepSigned;
 
+  const isSecondaryDisabled = quote?.status === isRepSigned;
+  const isTertiaryDisabled = move.moveStatus === "Booked" || !isRepSigned;
   return (
-    <div className="max-w-screen-sm mx-auto md:px-0 px-4 mt-4">
+    <FormActionContainer>
       <TripleFormAction
-        primaryLabel="Send Quote"
-        secondaryLabel="Edit Quote"
-        tertiaryLabel="Mark as Complete"
+        primaryLabel="Text Quote"
+        secondaryLabel="Email Quote"
+        tertiaryLabel="Mark as Booked"
         secondaryVariant="outline"
         tertiaryVariant="outline"
         onPrimary={(e) => void handleSendQuote(e)}
@@ -61,10 +93,12 @@ const QuoteActions = ({
         onTertiary={() => void handleMarkAsComplete()}
         primaryLoading={activeLoading === "send"}
         tertiaryLoading={activeLoading === "complete"}
-        disabled={!signatureDataUrl}
-        error={quoteUpdateError}
+        error={quoteUpdateError || updateMoveError}
+        primaryDisabled={isPrimaryDisabled}
+        secondaryDisabled={isSecondaryDisabled}
+        tertiaryDisabled={isTertiaryDisabled}
       />
-    </div>
+    </FormActionContainer>
   );
 };
 

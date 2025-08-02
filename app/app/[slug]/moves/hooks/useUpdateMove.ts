@@ -2,50 +2,43 @@
 
 import { useState } from "react";
 import { useMutation } from "convex/react";
-import { ResponseStatus } from "@/types/enums";
+import { ResponseStatus, TravelChargingTypes } from "@/types/enums";
 import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
 import { api } from "@/convex/_generated/api";
-import {
-  LocationInput,
-  MoveFeeInput,
-  MoveItemInput,
-  InsurancePolicyInput,
-} from "@/types/form-types";
+import { LocationInput, MoveFeeInput, MoveItemInput } from "@/types/form-types";
 import { MoveStatus, MoveTimes, ServiceType, JobType } from "@/types/types";
 import { ArrivalTimes, InsurancePolicySchema } from "@/types/convex-schemas";
 
-interface UpdateMoveInput {
+export interface UpdateMoveInput {
   moveId: Id<"move">;
   updates: {
-    name?: string;
-    phoneNumber?: string | null;
-    altPhoneNumber?: string | null;
-    email?: string | null;
-    notes?: string | null;
-    moveDate?: string | null;
-    status?: MoveStatus;
-    serviceType?: ServiceType | null;
+    arrivalTimes?: ArrivalTimes;
+    creditCardFee?: number | null;
+    deposit?: number;
+    destinationToOrigin?: number | null;
+    endingMoveTime?: number | null;
     jobType?: JobType;
     jobTypeRate?: number | null;
-    arrivalTimes?: ArrivalTimes;
-    moveWindow?: MoveTimes;
-    startingMoveTime?: number | null;
-    endingMoveTime?: number | null;
-    salesRep?: Id<"users">;
-    locations?: LocationInput[];
-    moveItems?: MoveItemInput[];
-    moveFees?: MoveFeeInput[];
-    trucks?: number;
-    movers?: number;
-    totalMiles?: number | null;
-    officeToOrigin?: number | null;
-    destinationToOrigin?: number | null;
-    roundTripMiles?: number | null;
-    roundTripDrive?: number | null;
     liabilityCoverage?: InsurancePolicySchema | null;
-    referral?: string | null;
-    deposit?: number | null;
+    locations?: LocationInput[];
+    moveDate?: string | null;
+    moveFees?: MoveFeeInput[];
+    moveItems?: MoveItemInput[];
+    moveStatus?: MoveStatus;
+    moveWindow?: MoveTimes;
+    movers?: number;
+    notes?: string | null;
+    officeToOrigin?: number | null;
+    roundTripDrive?: number | null;
+    roundTripMiles?: number | null;
+    salesRep?: Id<"users">;
+    serviceType?: ServiceType | null;
+    startingMoveTime?: number | null;
+    totalMiles?: number | null;
+    travelFeeRate?: number | null;
+    travelFeeMethod?: TravelChargingTypes | null;
+    trucks?: number;
   };
 }
 

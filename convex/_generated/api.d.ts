@@ -14,12 +14,14 @@ import type {
   FunctionReference,
 } from "convex/server";
 import type * as additionalFees from "../additionalFees.js";
+import type * as additionalLiabilityCoverage from "../additionalLiabilityCoverage.js";
 import type * as arrivalWindow from "../arrivalWindow.js";
 import type * as backendUtils_auth from "../backendUtils/auth.js";
 import type * as backendUtils_checkUnique from "../backendUtils/checkUnique.js";
 import type * as backendUtils_clerk from "../backendUtils/clerk.js";
 import type * as backendUtils_connectedAccountWebhook from "../backendUtils/connectedAccountWebhook.js";
 import type * as backendUtils_helper from "../backendUtils/helper.js";
+import type * as backendUtils_nano from "../backendUtils/nano.js";
 import type * as backendUtils_sendGrid from "../backendUtils/sendGrid.js";
 import type * as backendUtils_stripe from "../backendUtils/stripe.js";
 import type * as backendUtils_template from "../backendUtils/template.js";
@@ -45,6 +47,7 @@ import type * as labor from "../labor.js";
 import type * as messages from "../messages.js";
 import type * as move from "../move.js";
 import type * as moveAssignments from "../moveAssignments.js";
+import type * as moveCustomers from "../moveCustomers.js";
 import type * as paymentStep from "../paymentStep.js";
 import type * as policies from "../policies.js";
 import type * as preMoveDocs from "../preMoveDocs.js";
@@ -70,12 +73,14 @@ import type * as webhooks_clerk from "../webhooks/clerk.js";
  */
 declare const fullApi: ApiFromModules<{
   additionalFees: typeof additionalFees;
+  additionalLiabilityCoverage: typeof additionalLiabilityCoverage;
   arrivalWindow: typeof arrivalWindow;
   "backendUtils/auth": typeof backendUtils_auth;
   "backendUtils/checkUnique": typeof backendUtils_checkUnique;
   "backendUtils/clerk": typeof backendUtils_clerk;
   "backendUtils/connectedAccountWebhook": typeof backendUtils_connectedAccountWebhook;
   "backendUtils/helper": typeof backendUtils_helper;
+  "backendUtils/nano": typeof backendUtils_nano;
   "backendUtils/sendGrid": typeof backendUtils_sendGrid;
   "backendUtils/stripe": typeof backendUtils_stripe;
   "backendUtils/template": typeof backendUtils_template;
@@ -101,6 +106,7 @@ declare const fullApi: ApiFromModules<{
   messages: typeof messages;
   move: typeof move;
   moveAssignments: typeof moveAssignments;
+  moveCustomers: typeof moveCustomers;
   paymentStep: typeof paymentStep;
   policies: typeof policies;
   preMoveDocs: typeof preMoveDocs;

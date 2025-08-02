@@ -1,14 +1,22 @@
-import GroupedItemsList from "@/app/app/[slug]/add-move/components/lists/GroupedItemList";
-import React, { useState } from "react";
-import { MoveSchema } from "@/types/convex-schemas";
-import CostSummary from "@/app/app/[slug]/add-move/components/sections/CostSummary";
+import { useMoveContext } from "@/app/contexts/MoveContext";
+import { getMoveDisplayRows } from "@/app/frontendUtils/helper";
+import CostTable from "@/app/components/move/sections/CostTable";
 
-interface CostSectionProps {
-  move: MoveSchema;
-}
+interface CostSectionProps {}
 
-const CostSection = ({ move }: CostSectionProps) => {
-  return <CostSummary />;
+const CostSection = ({}: CostSectionProps) => {
+  const { moveData } = useMoveContext();
+  const move = moveData.move;
+  const { moveFees, liabilityCoverage, jobTypeRate, jobType } = move;
+
+  const displayRows = getMoveDisplayRows({
+    moveFees,
+    jobType,
+    jobTypeRate,
+    liabilityCoverage,
+  });
+
+  return <CostTable title="Cost" rows={displayRows} />;
 };
 
 export default CostSection;

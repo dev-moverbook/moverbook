@@ -91,10 +91,10 @@ const ToggleButtonGroup = <T extends string>({
             type="button"
             onClick={() => onChange(option.value)}
             className={clsx(
-              "px-6 py-2 rounded-xl border text-sm font-medium transition-all min-w-[80px]",
+              "px-6 py-2 rounded-xl border text-sm font-medium transition-all min-w-[80px] hover:bg-white/10",
               value === option.value
-                ? "bg-greenCustom text-black border-greenCustom"
-                : "border-greenCustom text-greenCustom bg-transparent"
+                ? "bg-greenCustom  border-greenCustom "
+                : "border-grayCustom bg-transparent"
             )}
           >
             {option.label}

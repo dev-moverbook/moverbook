@@ -15,6 +15,7 @@ import { CheckCircle, XCircle, Loader2, Mail } from "lucide-react";
 import { useCreateSender } from "../hooks/useCreateSender";
 import { useCheckSenderVerified } from "../hooks/useCheckSenderVerified";
 import { PlacesAutoCompleteInput } from "@/app/components/shared/PlacesAutoCompleteInput";
+import PhoneNumberInput from "@/app/components/shared/labeled/PhoneNumberInput";
 
 interface CompanyContactSectionProps {
   companyContact: CompanyContactSchema;
@@ -104,6 +105,15 @@ const CompanyContactSection: React.FC<CompanyContactSectionProps> = ({
     setFormData((prev) => ({ ...prev, [name]: value }));
     setFieldErrors((prev) => ({ ...prev, [name as FieldKey]: "" }));
   };
+
+  const isDisabled =
+    !formData.email ||
+    !formData.phoneNumber ||
+    !formData.address ||
+    !formData.website;
+
+  const isComplete =
+    !!formData.email && !!formData.phoneNumber && !!formData.address;
 
   const handleSave = async () => {
     const errors: Record<FieldKey, string> = {
@@ -261,6 +271,11 @@ const CompanyContactSection: React.FC<CompanyContactSectionProps> = ({
           title="Company Contact"
           isEditing={isEditing}
           onEditClick={handleEditClick}
+          onCancelEdit={handleCancel}
+          className="px-0 pb-4"
+          isCompleted={isComplete}
+          showCheckmark={isComplete}
+          showAlert={!isComplete}
         />
 
         <FieldGroup>
@@ -286,14 +301,15 @@ const CompanyContactSection: React.FC<CompanyContactSectionProps> = ({
               </div>
             )}
           </div>
-
-          <FieldRow
+          <PhoneNumberInput
             label="Phone Number"
-            name="phoneNumber"
-            value={formData.phoneNumber}
-            isEditing={isEditing}
-            onChange={handleChange}
+            value={formData.phoneNumber ?? ""}
+            onChange={(val) =>
+              setFormData((prev) => ({ ...prev, phoneNumber: val }))
+            }
             error={fieldErrors.phoneNumber}
+            placeholder="Enter phone number"
+            isEditing={isEditing}
           />
 
           {isEditing ? (
@@ -332,6 +348,7 @@ const CompanyContactSection: React.FC<CompanyContactSectionProps> = ({
               onCancel={handleCancel}
               isSaving={updateLoading}
               error={updateError}
+              disabled={isDisabled}
             />
           )}
         </FieldGroup>

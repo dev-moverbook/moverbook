@@ -2,8 +2,18 @@
 
 import React, { useState, useEffect } from "react";
 import { useMediaQuery } from "react-responsive";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 import { Id } from "@/convex/_generated/dataModel";
 import { RoomSchema } from "@/types/convex-schemas";
 import { RoomFormData } from "@/types/form-types";
@@ -70,6 +80,8 @@ const RoomModal: React.FC<RoomModalProps> = ({
     }
   };
 
+  const isDisabled = formData.name.trim() === "";
+
   const formContent = (
     <FieldGroup>
       <FieldRow
@@ -81,22 +93,30 @@ const RoomModal: React.FC<RoomModalProps> = ({
         error={fieldError.name}
       />
       <FormActions
-        onSave={handleSubmit}
+        onSave={(e) => {
+          e.preventDefault();
+          handleSubmit();
+        }}
         onCancel={onClose}
         isSaving={loading}
         error={error}
         saveLabel={initialData ? "Save Changes" : "Add Room"}
         cancelLabel="Cancel"
+        disabled={isDisabled}
       />
     </FieldGroup>
   );
 
   const title = initialData ? "Edit Room" : "Add Room";
+  const description = initialData
+    ? "Edit the name of the room you want to update."
+    : "Enter a name for the room you want to add.";
 
   return isMobile ? (
     <Drawer open={isOpen} onOpenChange={onClose}>
       <DrawerContent>
         <DrawerTitle>{title}</DrawerTitle>
+        <DrawerDescription>{description}</DrawerDescription>
         {formContent}
       </DrawerContent>
     </Drawer>
@@ -104,6 +124,7 @@ const RoomModal: React.FC<RoomModalProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogTitle>{title}</DialogTitle>
+        <DialogDescription>{description}</DialogDescription>
         {formContent}
       </DialogContent>
     </Dialog>

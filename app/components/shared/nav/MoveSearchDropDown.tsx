@@ -3,9 +3,11 @@
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useSlugContext } from "@/app/contexts/SlugContext";
-import { useMovesByName } from "@/app/hooks/queries/ useMovesByName";
-import MoveCard from "../../move/MoveCard";
 import { useSearchContext } from "@/app/contexts/SearchContext";
+import { useSearchMoveCustomersAndJobId } from "@/app/hooks/queries/useSearchMoveCustomersAndJobId";
+import MoveCustomerCard from "../../customer/CustomerCard";
+import MoveOnlyCard from "../../move/MoveOnlyCard";
+import { Id } from "@/convex/_generated/dataModel";
 
 const MoveSearchDropdown = () => {
   const { query, visible, setVisible, setQuery } = useSearchContext();
@@ -13,7 +15,7 @@ const MoveSearchDropdown = () => {
   const router = useRouter();
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
-  const { data: moves, isLoading } = useMovesByName(companyId, query);
+  const { data, isLoading } = useSearchMoveCustomersAndJobId(companyId, query);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -28,10 +30,16 @@ const MoveSearchDropdown = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [setVisible]);
 
-  const handleSelect = (id: string) => {
-    router.push(`/app/${slug}/moves/${id}`);
+  const handleSelectCustomer = (id: string) => {
+    router.push(`/app/${slug}/customer/${id}`);
     setQuery("");
     setVisible(false);
+  };
+
+  const handleSelectMove = (moveId: Id<"move">) => {
+    setQuery("");
+    setVisible(false);
+    router.push(`/app/${slug}/moves/${moveId}`);
   };
 
   if (!visible || query.trim() === "") return null;
@@ -40,25 +48,42 @@ const MoveSearchDropdown = () => {
     <div
       ref={dropdownRef}
       className={`
-    z-50
-    
-    bg-black border rounded border-grayCustom shadow-xl shadow-white/10
-    max-h-80 overflow-auto
-    text-sm
-lg:ml-28
-    fixed top-14 left-0 w-full  
-    sm:absolute sm:top-[52px] sm:left-1/2 sm:-translate-x-1/2 sm:w-[640px] 
-  `}
+        z-50
+        bg-black border rounded border-grayCustom shadow-xl shadow-white/10
+        max-h-80 overflow-auto
+        text-sm
+        lg:ml-28
+        fixed top-14 left-0 w-full  
+        sm:absolute sm:top-[52px] sm:left-1/2 sm:-translate-x-1/2 sm:w-[640px] 
+      `}
     >
       {isLoading ? (
         <p className="p-4 text-gray-400 text-sm">Loading...</p>
-      ) : moves?.length ? (
+      ) : data?.moveCustomers.length || data?.moves.length ? (
         <ul className="max-h-80 overflow-auto">
-          {moves.map((move) => (
-            <li key={move._id} onClick={() => handleSelect(move._id)}>
-              <MoveCard move={move} />
-            </li>
-          ))}
+          {data.moveCustomers.length > 0 && (
+            <>
+              {data.moveCustomers.map((customer) => (
+                <MoveCustomerCard
+                  key={customer._id}
+                  moveCustomer={customer}
+                  onClick={() => handleSelectCustomer(customer._id)}
+                />
+              ))}
+            </>
+          )}
+
+          {data.moves.length > 0 && (
+            <>
+              {data.moves.map((move) => (
+                <MoveOnlyCard
+                  key={move._id}
+                  move={move}
+                  onClick={() => handleSelectMove(move._id)}
+                />
+              ))}
+            </>
+          )}
         </ul>
       ) : (
         <div className="p-4 text-gray-400 text-sm">No matches found.</div>

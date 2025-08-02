@@ -1,16 +1,15 @@
 import {
   AccessTypeConvex,
-  CategorySizeConvex,
   CommunicationTypeConvex,
   InvitationStatusConvex,
   JobTypeConvex,
-  LocationTypeConvex,
+  LocationRoleConvex,
   MessageSentTypeConvex,
   MessageStatusConvex,
   MoveSizeConvex,
   MoveStatusConvex,
   MoveTimesConvex,
-  MoveTypeConvex,
+  LocationTypeConvex,
   PresSetScriptsConvex,
   ServiceTypesConvex,
   StripeAccountStatusConvex,
@@ -40,17 +39,25 @@ export const StopBehaviorConvex = v.union(
   v.literal("pick_up")
 );
 
+export const TimeDistanceRangeConvex = v.union(
+  v.literal("0-30 sec (less than 100 ft)"),
+  v.literal("30-50 sec (200 ft)"),
+  v.literal("50-70 sec (300 ft)"),
+  v.literal("70-90 sec (400 ft)")
+);
+
 export const LocationConvex = v.object({
   uid: v.string(),
-  locationType: LocationTypeConvex,
+  locationRole: LocationRoleConvex,
   address: v.union(v.string(), v.null()),
-  moveType: v.union(MoveTypeConvex, v.null()),
+  locationType: v.union(LocationTypeConvex, v.null()),
   aptNumber: v.union(v.string(), v.null()),
   aptName: v.union(v.string(), v.null()),
   squareFootage: v.union(v.number(), v.null()),
   accessType: v.union(AccessTypeConvex, v.null()),
   moveSize: v.union(MoveSizeConvex, v.null()),
   stopBehavior: v.optional(v.array(StopBehaviorConvex)),
+  timeDistanceRange: v.union(TimeDistanceRangeConvex),
 });
 
 export const InsurancePolicyConvex = v.object({
@@ -93,6 +100,11 @@ export const HourStatusConvex = v.union(
   v.literal("pending"),
   v.literal("approved"),
   v.literal("rejected")
+);
+
+export const InvoiceStatusConvex = v.union(
+  v.literal("pending"),
+  v.literal("completed")
 );
 
 export default defineSchema({
@@ -177,6 +189,7 @@ export default defineSchema({
   }),
   webIntegrations: defineTable({
     companyId: v.id("companies"),
+    externalReviewUrl: v.string(),
     webform: v.string(),
     webformEmbeddedCode: v.string(),
   }),
@@ -239,9 +252,9 @@ export default defineSchema({
   }).index("byCompanyId", ["companyId"]),
   travelFee: defineTable({
     companyId: v.id("companies"),
-    isDefault: v.boolean(),
-    chargingMethod: TravelChargingTypesConvex,
-    rate: v.optional(v.number()),
+    mileageRate: v.optional(v.number()),
+    flatRate: v.optional(v.number()),
+    defaultMethod: v.union(v.null(), TravelChargingTypesConvex),
   }),
   rooms: defineTable({
     companyId: v.id("companies"),
@@ -266,15 +279,26 @@ export default defineSchema({
     isStarter: v.boolean(),
     weight: v.number(),
   }).index("by_companyId", ["companyId"]),
-  move: defineTable({
+  moveCustomers: defineTable({
     altPhoneNumber: v.union(v.null(), v.string()),
+    email: v.string(),
+    name: v.string(),
+    phoneNumber: v.string(),
+    referral: v.union(v.null(), v.string()),
+    companyId: v.id("companies"),
+  })
+    .index("by_email", ["email"])
+    .index("by_phone", ["phoneNumber"])
+    .index("by_name", ["name"]),
+  move: defineTable({
     arrivalTimes: ArrivalTimesConvex,
     companyId: v.id("companies"),
-    deposit: v.union(v.null(), v.number()),
-    depositMethod: PaymentMethodConvex,
+    creditCardFee: v.optional(v.union(v.null(), v.number())),
+    deposit: v.number(),
+    depositMethod: v.union(v.null(), PaymentMethodConvex),
     destinationToOrigin: v.union(v.null(), v.number()),
-    email: v.union(v.null(), v.string()),
     endingMoveTime: v.union(v.null(), v.number()),
+    jobId: v.string(),
     jobType: JobTypeConvex,
     jobTypeRate: v.union(v.null(), v.number()),
     liabilityCoverage: v.union(v.null(), InsurancePolicyConvex),
@@ -282,25 +306,25 @@ export default defineSchema({
     moveDate: v.union(v.null(), v.string()),
     moveFees: v.array(MoveFeeConvex),
     moveItems: v.array(MoveItemConvex),
-    salesRep: v.id("users"),
+    moveStatus: MoveStatusConvex,
+    moveCustomerId: v.id("moveCustomers"),
     moveWindow: MoveTimesConvex,
     movers: v.number(),
-    name: v.string(),
     notes: v.union(v.null(), v.string()),
     officeToOrigin: v.union(v.null(), v.number()),
-    phoneNumber: v.union(v.null(), v.string()),
-    referral: v.union(v.null(), v.string()),
     roundTripDrive: v.union(v.null(), v.number()),
     roundTripMiles: v.union(v.null(), v.number()),
+    salesRep: v.id("users"),
     serviceType: v.union(v.null(), ServiceTypesConvex),
     startingMoveTime: v.union(v.null(), v.number()),
-    status: MoveStatusConvex,
     totalMiles: v.union(v.null(), v.number()),
+    travelFeeRate: v.optional(v.union(v.null(), v.number())),
+    travelFeeMethod: v.optional(v.union(v.null(), TravelChargingTypesConvex)),
     trucks: v.number(),
     segmentDistances: v.array(SegmentDistanceConvex),
   })
     .index("by_moveDate", ["moveDate"])
-    .index("by_company_name", ["companyId", "name"]),
+    .index("by_moveCustomerId", ["moveCustomerId"]),
   quotes: defineTable({
     moveId: v.id("move"),
     customerSignature: v.optional(v.string()),
@@ -320,6 +344,13 @@ export default defineSchema({
     managerNotes: v.optional(v.string()),
   }).index("by_move", ["moveId"]),
   preMoveDocs: defineTable({
+    moveId: v.id("move"),
+    customerSignature: v.optional(v.string()),
+    customerSignedAt: v.optional(v.number()),
+    repSignature: v.optional(v.string()),
+    repSignedAt: v.optional(v.number()),
+  }).index("by_move", ["moveId"]),
+  additionalLiabilityCoverage: defineTable({
     moveId: v.id("move"),
     customerSignature: v.optional(v.string()),
     customerSignedAt: v.optional(v.number()),
@@ -346,6 +377,7 @@ export default defineSchema({
     customerSignedAt: v.optional(v.number()),
     repSignature: v.optional(v.string()),
     repSignedAt: v.optional(v.number()),
+    status: InvoiceStatusConvex,
   }).index("by_move", ["moveId"]),
   internalReview: defineTable({
     moveId: v.id("move"),

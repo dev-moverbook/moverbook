@@ -8,11 +8,10 @@ import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
 
 interface UpdateInsurancePolicyData {
-  coverageType?: number;
-  coverageAmount?: number;
-  isDefault?: boolean;
-  name?: string;
-  premium?: number;
+  coverageType?: number | null;
+  coverageAmount?: number | null;
+  name?: string | null;
+  premium?: number | null;
 }
 
 export const useUpdateInsurancePolicy = () => {
@@ -36,7 +35,12 @@ export const useUpdateInsurancePolicy = () => {
     try {
       const response = await updateInsurancePolicyMutation({
         insurancePolicyId,
-        updates,
+        updates: {
+          coverageType: updates.coverageType ?? undefined,
+          coverageAmount: updates.coverageAmount ?? undefined,
+          name: updates.name ?? undefined,
+          premium: updates.premium ?? undefined,
+        },
       });
 
       if (response.status === ResponseStatus.SUCCESS) {

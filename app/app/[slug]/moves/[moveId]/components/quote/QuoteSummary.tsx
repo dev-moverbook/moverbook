@@ -2,7 +2,6 @@
 
 import React from "react";
 import Image from "next/image";
-import { CompanySchema, MoveSchema } from "@/types/convex-schemas";
 import {
   formatCurrency,
   formatDateToLong,
@@ -10,10 +9,11 @@ import {
   formatTime,
   getTotalWeightAndSize,
 } from "@/app/frontendUtils/helper";
+import { Doc } from "@/convex/_generated/dataModel";
 
 interface QuoteSummaryProps {
-  move: MoveSchema;
-  company: CompanySchema;
+  move: Doc<"move">;
+  company: Doc<"companies">;
 }
 
 const QuoteSummary = ({ move, company }: QuoteSummaryProps) => {
@@ -26,6 +26,7 @@ const QuoteSummary = ({ move, company }: QuoteSummaryProps) => {
     movers,
     startingMoveTime,
     moveItems,
+    jobId,
   } = move;
 
   const minHours = 2;
@@ -39,14 +40,17 @@ const QuoteSummary = ({ move, company }: QuoteSummaryProps) => {
     <div className="bg-background2 text-white w-full mx-auto text-center py-6">
       {/* Logo using Next.js Image */}
       <div className="flex justify-center">
-        <Image
-          src={company.imageUrl || ""} // fallback to default if needed
-          alt={company.name}
-          width={80}
-          height={80}
-          //   className="object-contain"
-        />
+        {company.imageUrl && (
+          <Image
+            src={company.imageUrl} // fallback to default if needed
+            alt={company.name}
+            width={80}
+            height={80}
+            //   className="object-contain"
+          />
+        )}
       </div>
+      <h2 className="">Job ID: {jobId}</h2>
       <h2 className="font-bold text-xl">{company.name}</h2>
 
       {/* Price Estimate */}

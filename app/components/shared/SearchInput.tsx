@@ -23,7 +23,7 @@ const SearchInput = () => {
           setVisible(true);
         }}
         onFocus={() => setVisible(true)}
-        placeholder="Search Customer"
+        placeholder="Search Customer or Job ID"
         className="text-base w-full bg-transparent border border-grayCustom text-white placeholder-grayCustom rounded-custom px-4 py-1 pr-10 focus:outline-none focus:ring-1 focus:ring-grayCustom"
       />
       {query && (

@@ -45,6 +45,7 @@ export const createCompanyRecords = async (
       companyId,
       webform: "",
       webformEmbeddedCode: "",
+      externalReviewUrl: "",
     });
 
     await ctx.db.insert("companyContact", {
@@ -103,9 +104,6 @@ export const createCompanyRecords = async (
 
     await ctx.db.insert("travelFee", {
       companyId,
-      isDefault: true,
-      chargingMethod: DEFAULT_TRAVEL_CHARGING_METHOD,
-      rate: DEFAULT_TRAVEL_RATE,
     });
 
     // Create Default Variables

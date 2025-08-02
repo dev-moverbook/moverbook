@@ -61,7 +61,7 @@ const InvitedUsers = () => {
   return (
     <SectionContainer isLast={true}>
       <CenteredContainer>
-        <SectionHeader title="Invited Users" />
+        <SectionHeader className="px-0" title="Invited Users" />
         <ContainerUserCard>
           {" "}
           {invitationsResponse.data.invitations.length > 0 ? (

@@ -7,6 +7,7 @@ import { api } from "@/convex/_generated/api";
 import { ErrorMessages } from "@/types/errors";
 import { isValidEmail } from "@/utils/helper";
 import { ResponseStatus } from "@/types/enums";
+import FormErrorMessage from "../components/shared/error/FormErrorMessage";
 
 const SignUpPage = () => {
   const [email, setEmail] = useState<string>("");
@@ -40,6 +41,8 @@ const SignUpPage = () => {
     }
   };
 
+  const isDisabled = email.trim() === "";
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (error) {
       setError(null);
@@ -56,13 +59,14 @@ const SignUpPage = () => {
         value={email}
         onChange={handleInputChange}
       />
-      {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+      <FormErrorMessage message={error} />
       <Button
         className="mt-3 w-full"
         onClick={handleSignUp}
-        disabled={isLoading || !email}
+        disabled={isDisabled}
+        isLoading={isLoading}
       >
-        {isLoading ? "Sending..." : "Invite"}
+        Invite
       </Button>
     </div>
   );

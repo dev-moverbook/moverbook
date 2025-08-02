@@ -10,6 +10,7 @@ interface FieldTextAreaRowProps {
   onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   error?: string;
   fallback?: string;
+  placeholder?: string;
 }
 
 const FieldTextAreaRow: React.FC<FieldTextAreaRowProps> = ({
@@ -20,6 +21,7 @@ const FieldTextAreaRow: React.FC<FieldTextAreaRowProps> = ({
   onChange,
   error,
   fallback = "N/A",
+  placeholder,
 }) => {
   if (isEditing) {
     return (
@@ -33,6 +35,7 @@ const FieldTextAreaRow: React.FC<FieldTextAreaRowProps> = ({
           value={value ?? ""}
           onChange={onChange}
           className={cn(error && "border-red-500")}
+          placeholder={placeholder}
         />
         {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
       </div>

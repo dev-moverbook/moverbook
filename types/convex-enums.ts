@@ -91,7 +91,10 @@ export const MoveStatusConvex = v.union(
 export const ServiceTypesConvex = v.union(
   v.literal("moving"),
   v.literal("packing"),
-  v.literal("labor")
+  v.literal("load_only"),
+  v.literal("unload_only"),
+  v.literal("moving_and_packing"),
+  v.literal("commercial")
 );
 
 export const MoveTimesConvex = v.union(
@@ -102,7 +105,7 @@ export const MoveTimesConvex = v.union(
 
 export const JobTypeConvex = v.union(v.literal("hourly"), v.literal("flat"));
 
-export const LocationTypeConvex = v.union(
+export const LocationRoleConvex = v.union(
   v.literal("starting"),
   v.literal("ending"),
   v.literal("stop")
@@ -122,10 +125,11 @@ export const MoveSizeConvex = v.union(
   v.literal("2_bedroom"),
   v.literal("3_bedroom"),
   v.literal("4_bedroom"),
-  v.literal("5_bedroom")
+  v.literal("5_bedroom"),
+  v.literal("not_applicable")
 );
 
-export const MoveTypeConvex = v.union(
+export const LocationTypeConvex = v.union(
   v.literal("apartment"),
   v.literal("house"),
   v.literal("office"),

@@ -16,6 +16,7 @@ import {
   UpdateMoveAssignmentResponse,
 } from "@/types/convex-responses";
 import { MoveAssignmentSchema, PreMoveDocSchema } from "@/types/convex-schemas";
+import { Doc } from "./_generated/dataModel";
 
 export const updateMoveAssignment = mutation({
   args: {
@@ -116,7 +117,7 @@ export const getMoveAssignmentsPage = query({
       const company = validateCompany(await ctx.db.get(move.companyId));
       isUserInOrg(identity, company.clerkOrganizationId);
 
-      const assignments: MoveAssignmentSchema[] = await ctx.db
+      const assignments: Doc<"moveAssignments">[] = await ctx.db
         .query("moveAssignments")
         .withIndex("by_move", (q) => q.eq("moveId", moveId))
         .collect();
@@ -132,14 +133,25 @@ export const getMoveAssignmentsPage = query({
         (user) => user.role === ClerkRoles.MOVER
       );
 
-      const preMoveDoc: PreMoveDocSchema | null = await ctx.db
+      const preMoveDoc: Doc<"preMoveDocs"> | null = await ctx.db
         .query("preMoveDocs")
         .withIndex("by_move", (q) => q.eq("moveId", moveId))
         .unique();
 
+      const additionalLiabilityCoverage: Doc<"additionalLiabilityCoverage"> | null =
+        await ctx.db
+          .query("additionalLiabilityCoverage")
+          .withIndex("by_move", (q) => q.eq("moveId", moveId))
+          .unique();
+
       return {
         status: ResponseStatus.SUCCESS,
-        data: { assignments, allMovers, preMoveDoc },
+        data: {
+          assignments,
+          allMovers,
+          preMoveDoc,
+          additionalLiabilityCoverage,
+        },
       };
     } catch (error) {
       return handleInternalError(error);

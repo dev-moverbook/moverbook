@@ -16,6 +16,8 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import type { UserResource } from "@clerk/types";
 import Link from "next/link";
 import SearchInput from "./SearchInput";
+import { useSlugContext } from "@/app/contexts/SlugContext";
+import { useRouter } from "next/navigation";
 
 type NavbarProps = {
   slug: string;
@@ -24,6 +26,15 @@ type NavbarProps = {
 
 const Navbar = ({ slug, user }: NavbarProps) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const { isCompanyContactComplete, isStripeComplete } = useSlugContext();
+  const isAddMoveDisabled = !isCompanyContactComplete || !isStripeComplete;
+  const router = useRouter();
+
+  const handleAddMove = () => {
+    if (!isAddMoveDisabled) {
+      router.push(`/app/${slug}/add-move`);
+    }
+  };
 
   return (
     <nav className="fixed top-0 left-0 w-full h-14 bg-black flex items-center px-2 z-40 shadow-md  border-grayCustom">
@@ -40,7 +51,7 @@ const Navbar = ({ slug, user }: NavbarProps) => {
 
           <SheetContent
             side="left"
-            className="border-none h-screen w-full max-w-full p-0 bg-gray-900 text-white overflow-y-auto z-[999]"
+            className="border-none h-screen w-full max-w-full p-0 bg-background2 text-white overflow-y-auto z-[999]"
           >
             <SheetHeader>
               <VisuallyHidden>
@@ -62,14 +73,17 @@ const Navbar = ({ slug, user }: NavbarProps) => {
           <SearchInput />
         </div>
       </div>
-      <Link href={`/app/${slug}/add-move`}>
-        <IconButton
-          icon={<FiPlusCircle className="text-2xl" />}
-          variant="ghost"
-          iconClassName="text-white"
-          title="Add Move"
-        />
-      </Link>
+
+      <IconButton
+        icon={<FiPlusCircle className="text-2xl" />}
+        asChild
+        variant="ghost"
+        title="Add Move"
+        disabled={isAddMoveDisabled}
+        onClick={handleAddMove}
+      >
+        <Link href={`/app/${slug}/add-move`} />
+      </IconButton>
     </nav>
   );
 };

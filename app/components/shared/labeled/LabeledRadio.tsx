@@ -53,11 +53,11 @@ const LabeledRadio: React.FC<LabeledRadioProps> = ({
             <RadioGroupItem
               value={option.value}
               id={`${name}-${option.value}`}
-              className="w-4 h-4 rounded-full border border-white data-[state=checked]:bg-greenCustom data-[state=checked]:border-greenCustom"
+              className="hover:bg-greenCustom80 hover:border-none w-4 h-4 rounded-full border border-grayCustom data-[state=checked]:bg-greenCustom data-[state=checked]:border-greenCustom"
             />
             <Label
               htmlFor={`${name}-${option.value}`}
-              className="text-sm pt-1 text-white"
+              className="text-sm pt-1 text-white cursor-pointer"
             >
               {option.label}
             </Label>

@@ -16,7 +16,6 @@ import { validateUser } from "./backendUtils/validate";
 import {
   GetStripeConnectionResponse,
   GetStripeDashboardLinkResponse,
-  WebhookHandlerResponse,
 } from "@/types/convex-responses";
 import { internal } from "./_generated/api";
 import {
@@ -24,10 +23,7 @@ import {
   generateStripeAccountLink,
   stripe,
 } from "./backendUtils/stripe";
-import {
-  verifyStripeConnectedWebhook,
-  handleAccountUpdated,
-} from "./backendUtils/connectedAccountWebhook";
+import { handleAccountUpdated } from "./backendUtils/connectedAccountWebhook";
 import Stripe from "stripe";
 
 export const saveConnectedAccount = internalMutation({

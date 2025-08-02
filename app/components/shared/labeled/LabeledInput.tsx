@@ -3,7 +3,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import FieldErrorMessage from "./FieldErrorMessage";
 import FieldDisplay from "@/app/components/shared/FieldDisplay";
-import { formatPhoneNumber } from "@/app/frontendUtils/helper";
+import { formatCurrency, formatPhoneNumber } from "@/app/frontendUtils/helper";
 
 interface LabeledInputProps {
   label?: string;
@@ -18,6 +18,9 @@ interface LabeledInputProps {
   step?: string;
   isEditing?: boolean;
   isPhoneNumber?: boolean;
+  valueClassName?: string; // NEW
+  isCurrency?: boolean;
+  name?: string;
 }
 
 const LabeledInput: React.FC<LabeledInputProps> = ({
@@ -33,13 +36,23 @@ const LabeledInput: React.FC<LabeledInputProps> = ({
   step,
   isEditing = true,
   isPhoneNumber = false,
+  valueClassName = "md:text-sm text-grayCustom2",
+  isCurrency = false,
+  name,
 }) => {
   if (!isEditing) {
     const displayValue = isPhoneNumber
       ? formatPhoneNumber(value)
-      : value?.trim();
+      : isCurrency
+        ? formatCurrency(Number(value))
+        : value?.trim();
     return (
-      <FieldDisplay label={label || "-"} value={displayValue} fallback="—" />
+      <FieldDisplay
+        label={label || ""}
+        value={displayValue}
+        fallback="—"
+        valueClassName={valueClassName}
+      />
     );
   }
 
@@ -56,6 +69,7 @@ const LabeledInput: React.FC<LabeledInputProps> = ({
         error={error}
         min={min}
         step={step}
+        name={name}
       />
       <FieldErrorMessage error={error} />
     </div>

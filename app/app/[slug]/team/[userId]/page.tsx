@@ -5,7 +5,6 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { ResponseStatus } from "@/types/enums";
 import { Id } from "@/convex/_generated/dataModel";
-import { UserSchema } from "@/types/convex-schemas";
 import UserIdContent from "./UserIdContent";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUser } from "@clerk/nextjs";
@@ -24,7 +23,7 @@ const UserPage: React.FC = () => {
   if (userResponse.status === ResponseStatus.ERROR)
     return <div>Error: {userResponse.error}</div>;
 
-  const userData = userResponse.data.user as UserSchema;
+  const userData = userResponse.data.user;
   const isCompanyManagerPermission = canManageCompany(
     user?.publicMetadata.role as string
   );

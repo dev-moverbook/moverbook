@@ -7,9 +7,9 @@ import { ClerkRoles } from "./types/enums";
 
 const isProtectedRoute = createRouteMatcher(["/app(.*)"]);
 const isProtectedManagerRoute = createRouteMatcher([
-  "/app/:slug/company-settings",
+  "/app/[slug]/company-settings",
 ]);
-const isProtectedAdminRoute = createRouteMatcher(["/app/:slug/stripe"]);
+const isProtectedAdminRoute = createRouteMatcher(["/app/[slug]/stripe"]);
 
 export default clerkMiddleware(async (auth, req) => {
   const url = req.nextUrl;

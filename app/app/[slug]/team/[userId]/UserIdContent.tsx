@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { UserSchema } from "@/types/convex-schemas";
 import { ClerkRoles } from "@/types/enums";
 import { useUpdateUser } from "@/app/hooks/useUpdateUser";
 import { useDeleteUser } from "@/app/hooks/useDeleteUser";
@@ -17,16 +16,18 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/app/components/ui/button";
 import ConfirmModal from "@/app/components/shared/ConfirmModal";
 import Image from "next/image";
+import CurrencyInput from "@/app/components/shared/labeled/CurrencyInput";
+import { Doc } from "@/convex/_generated/dataModel";
 
 interface Props {
-  userData: UserSchema;
+  userData: Doc<"users">;
   isCompanyManagerPermission: boolean;
 }
 
 type UserFormState = {
   name: string;
   email: string;
-  hourlyRate: string;
+  hourlyRate: number | null;
   role: string;
 };
 
@@ -57,7 +58,7 @@ const UserIdContent: React.FC<Props> = ({
   const [formData, setFormData] = useState<UserFormState>({
     name: userData.name || "",
     email: userData.email || "",
-    hourlyRate: userData.hourlyRate !== null ? String(userData.hourlyRate) : "",
+    hourlyRate: userData.hourlyRate !== undefined ? userData.hourlyRate : null,
     role: userData.role || "",
   });
 
@@ -69,7 +70,7 @@ const UserIdContent: React.FC<Props> = ({
       name: userData.name || "",
       email: userData.email || "",
       hourlyRate:
-        userData.hourlyRate !== null ? String(userData.hourlyRate) : "",
+        userData.hourlyRate !== undefined ? userData.hourlyRate : null,
       role: userData.role || "",
     });
     setDeleteError(null);
@@ -103,6 +104,12 @@ const UserIdContent: React.FC<Props> = ({
     await reactivateUser(userData._id);
   };
 
+  const isDisabled =
+    formData.name.trim() === "" ||
+    formData.email.trim() === "" ||
+    formData.role.trim() === "" ||
+    formData.hourlyRate === null;
+
   return (
     <SectionContainer isLast={true}>
       <CenteredContainer>
@@ -131,6 +138,9 @@ const UserIdContent: React.FC<Props> = ({
               </Button>
             )
           }
+          className="px-0"
+          onCancelEdit={handleCancel}
+          isEditing={isEditing}
         />
 
         {userData.imageUrl && (
@@ -163,12 +173,16 @@ const UserIdContent: React.FC<Props> = ({
           />
 
           {formData.role === ClerkRoles.MOVER && (
-            <FieldRow
+            <CurrencyInput
               label="Hourly Rate"
-              name="hourlyRate"
               value={formData.hourlyRate}
+              onChange={(value: number | null) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  hourlyRate: value || null,
+                }))
+              }
               isEditing={isEditing}
-              onChange={handleChange}
             />
           )}
 
@@ -189,7 +203,10 @@ const UserIdContent: React.FC<Props> = ({
 
           {isEditing && isCompanyManagerPermission && (
             <FormActions
-              onSave={handleSave}
+              onSave={(e) => {
+                e.preventDefault();
+                handleSave();
+              }}
               onCancel={handleCancel}
               isSaving={updateLoading}
               error={updateError}

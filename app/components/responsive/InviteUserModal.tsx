@@ -20,6 +20,8 @@ import FormActions from "@/app/components/shared/FormActions";
 import LabeledInput from "../shared/labeled/LabeledInput";
 import LabeledSelect from "../shared/labeled/LabeledSelect";
 import SectionLabeled from "../shared/labeled/SectionLabeled";
+import CurrencyInput from "../shared/labeled/CurrencyInput";
+import ResponsiveModal from "../shared/modal/ResponsiveModal";
 
 interface InviteUserModalProps {
   isOpen: boolean;
@@ -27,7 +29,7 @@ interface InviteUserModalProps {
   onInvite: (
     email: string,
     role: ClerkRoles,
-    hourlyRate: string | null
+    hourlyRate: number | null
   ) => Promise<boolean>;
   inviteLoading: boolean;
   inviteError: string | null;
@@ -45,7 +47,7 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
   const isMobile = useMediaQuery({ maxWidth: 768 });
   const [email, setEmail] = useState<string>("");
   const [emailError, setEmailError] = useState<string | null>(null);
-  const [hourlyRate, setHourlyRate] = useState<string | null>(null);
+  const [hourlyRate, setHourlyRate] = useState<number | null>(null);
   const [hourlyRateError, setHourlyRateError] = useState<string | null>(null);
   const [role, setRole] = useState<ClerkRoles>(ClerkRoles.SALES_REP);
 
@@ -89,6 +91,12 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
     }
   };
 
+  const isDisabled =
+    email.trim() === "" ||
+    emailError !== null ||
+    (role === ClerkRoles.MOVER &&
+      (!hourlyRate || !isValidHourlyRate(hourlyRate)));
+
   const formContent = (
     <SectionLabeled>
       {/* Email Input */}
@@ -121,47 +129,40 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
 
       {/* Hourly Rate Input (Only for Movers) */}
       {role === ClerkRoles.MOVER && (
-        <LabeledInput
+        <CurrencyInput
           label="Hourly Rate ($)"
-          type="text"
-          value={hourlyRate || ""}
-          onChange={(e) => {
-            setHourlyRate(e.target.value);
+          value={hourlyRate}
+          onChange={(value) => {
+            setHourlyRate(value);
             setHourlyRateError(null);
           }}
-          placeholder="Enter hourly rate"
-          error={hourlyRateError}
         />
       )}
 
       {/* Submit Button */}
       <FormActions
-        onSave={handleInvite}
+        onSave={(e) => {
+          e.preventDefault();
+          handleInvite();
+        }}
         onCancel={handleClose}
         isSaving={inviteLoading}
         saveLabel="Send Invite"
         cancelLabel="Cancel"
         error={inviteError}
+        disabled={isDisabled}
       />
     </SectionLabeled>
   );
 
-  return isMobile ? (
-    <Drawer open={isOpen} onOpenChange={handleClose}>
-      <DrawerContent>
-        <DrawerTitle>Invite User</DrawerTitle>
-        <DrawerDescription>Invite a new user to your team.</DrawerDescription>
-        {formContent}
-      </DrawerContent>
-    </Drawer>
-  ) : (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent>
-        <DialogTitle>Invite User</DialogTitle>
-        <DialogDescription>Invite a new user to your team.</DialogDescription>
-        {formContent}
-      </DialogContent>
-    </Dialog>
+  return (
+    <ResponsiveModal
+      isOpen={isOpen}
+      onClose={handleClose}
+      title="Invite User"
+      description="Invite a new user to your team."
+      children={formContent}
+    />
   );
 };
 

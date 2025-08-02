@@ -14,8 +14,7 @@ interface InventoryStepProps {
 
 const InventoryStep = ({ onNext, onBack }: InventoryStepProps) => {
   const {
-    isInventorySectionComplete,
-    moveItems,
+    moveFormData,
     updateMoveItem,
     removeMoveItem,
     addMoveItem,
@@ -30,9 +29,9 @@ const InventoryStep = ({ onNext, onBack }: InventoryStepProps) => {
 
   return (
     <FormContainer>
-      <Header2 isCompleted={isInventorySectionComplete}>Inventory</Header2>
+      <Header2 showCheck={false}>Inventory</Header2>
       <AddedItems
-        moveItems={moveItems}
+        moveItems={moveFormData.moveItems}
         updateMoveItem={updateMoveItem}
         removeMoveItem={removeMoveItem}
         addMoveItem={addMoveItem}
@@ -50,7 +49,7 @@ const InventoryStep = ({ onNext, onBack }: InventoryStepProps) => {
         updateMoveItem={updateMoveItem}
         removeMoveItem={removeMoveItem}
         addMoveItem={addMoveItem}
-        moveItems={moveItems}
+        moveItems={moveFormData.moveItems}
         categoryOptions={categoryOptions}
       />
 

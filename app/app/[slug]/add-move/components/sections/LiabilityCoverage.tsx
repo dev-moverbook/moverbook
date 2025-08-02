@@ -7,34 +7,28 @@ import SelectLiabilityCard from "../cards/SelectLiabilityCard";
 import Header3 from "@/app/components/shared/heading/Header3";
 import IconButton from "@/app/components/shared/IconButton";
 import { Pencil, X } from "lucide-react";
-import { InsurancePolicySchema } from "@/types/convex-schemas";
 import FieldErrorMessage from "@/app/components/shared/labeled/FieldErrorMessage";
+import { useMoveForm } from "@/app/contexts/MoveFormContext";
 
-interface LiabilityCoverageProps {
-  insurancePolicyOptions?: InsurancePolicySchema[] | null;
-  insurancePolicy?: InsurancePolicySchema | null;
-  isLiabilityCoverageComplete?: boolean;
-  onSelectPolicy: (policy: InsurancePolicySchema) => void;
-  error?: string | null;
-}
+interface LiabilityCoverageProps {}
 
-const LiabilityCoverage: React.FC<LiabilityCoverageProps> = ({
-  insurancePolicyOptions,
-  insurancePolicy,
-  isLiabilityCoverageComplete,
-  onSelectPolicy,
-  error,
-}) => {
+const LiabilityCoverage: React.FC<LiabilityCoverageProps> = ({}) => {
+  const {
+    moveFormData,
+    setMoveFormData,
+    moveFormErrors,
+    insurancePolicyOptions,
+  } = useMoveForm();
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
   const selectedPolicy = insurancePolicyOptions?.find(
-    (p) => p.name === insurancePolicy?.name
+    (p) => p.name === moveFormData.liabilityCoverage?.name
   );
 
   return (
     <div>
       <Header3
-        isCompleted={isLiabilityCoverageComplete}
+        showCheckmark={false}
         button={
           <IconButton
             icon={
@@ -63,18 +57,23 @@ const LiabilityCoverage: React.FC<LiabilityCoverageProps> = ({
                 <SelectLiabilityCard
                   key={policy.name}
                   policy={policy}
-                  isSelected={insurancePolicy?.name === policy.name}
+                  isSelected={
+                    moveFormData.liabilityCoverage?.name === policy.name
+                  }
                   onSelect={() => {
-                    onSelectPolicy(policy);
+                    setMoveFormData({
+                      ...moveFormData,
+                      liabilityCoverage: policy,
+                    });
                     setIsEditing(false);
                   }}
                 />
               ))
-            : insurancePolicy && (
+            : moveFormData.liabilityCoverage && (
                 <SelectLiabilityCard policy={selectedPolicy} />
               )}
         </CardContainer>
-        <FieldErrorMessage error={error} />
+        <FieldErrorMessage error={moveFormErrors.liabilityCoverage} />
       </SectionContainer>
     </div>
   );

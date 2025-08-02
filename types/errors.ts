@@ -112,6 +112,9 @@ export enum ErrorMessages {
   MOVE_EMAIL_NOT_FOUND = "Move email not found",
   SENDGRID_EMAIL_FAILED = "SendGrid email failed",
   SENDGRID_ENV_MISSING = "Missing SendGrid environment variables",
+  MOVE_CUSTOMER_NOT_FOUND = "Move customer not found",
+  CUSTOMER_EMAIL_TAKEN = "A customer with this email already exists.",
+  CUSTOMER_PHONE_TAKEN = "A customer with this phone number already exists.",
 }
 
 export enum FrontEndErrorMessages {
@@ -148,4 +151,5 @@ export enum FrontEndErrorMessages {
   NAME_REQUIRED = "Full name is required",
   PHONE_NUMBER_INVALID = "Enter a valid phone number (10–15 digits).",
   REFERRAL_INVALID = "Referral must be a valid option.",
+  PHONE_NUMBER_REQUIRED = "Phone number is required.",
 }

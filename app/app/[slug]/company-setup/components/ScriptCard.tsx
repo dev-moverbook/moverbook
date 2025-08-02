@@ -1,15 +1,14 @@
 "use client";
 
 import { Pencil, Trash2, Mail, MessageSquare } from "lucide-react";
-import { CommunicationType } from "@/types/enums";
-import { ScriptSchema } from "@/types/convex-schemas";
 import IconButton from "@/app/components/shared/IconButton";
 import IconRow from "@/app/components/shared/IconRow";
+import { Doc } from "@/convex/_generated/dataModel";
 
 interface ScriptCardProps {
-  script: ScriptSchema;
+  script: Doc<"scripts">;
   onDelete: () => void;
-  onEdit: (script: ScriptSchema) => void;
+  onEdit: (script: Doc<"scripts">) => void;
 }
 
 const ScriptCard: React.FC<ScriptCardProps> = ({
@@ -23,8 +22,8 @@ const ScriptCard: React.FC<ScriptCardProps> = ({
     <div className="w-full   ">
       <div className="flex justify-between items-start">
         <div className="flex items-center gap-2">
-          {script.type === CommunicationType.EMAIL && <Mail size={16} />}
-          {script.type === CommunicationType.SMS && <MessageSquare size={16} />}
+          {script.type === "email" && <Mail size={16} />}
+          {script.type === "sms" && <MessageSquare size={16} />}
           <h3 className="text-lg font-semibold">{script.title}</h3>
         </div>
 
@@ -46,7 +45,7 @@ const ScriptCard: React.FC<ScriptCardProps> = ({
         </IconRow>
       </div>
 
-      {script.type === CommunicationType.EMAIL && (
+      {script.type === "email" && (
         <p className="text-sm mt-1 font-bold text-grayCustom">
           Subject: {script.emailTitle}
         </p>

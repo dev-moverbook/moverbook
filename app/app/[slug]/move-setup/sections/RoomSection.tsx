@@ -82,6 +82,7 @@ const RoomSection: React.FC<RoomSectionProps> = ({ rooms, companyId }) => {
     <SectionContainer>
       <CenteredContainer>
         <SectionHeader
+          className="px-0 pb-4"
           title="Rooms"
           actions={
             <div className="flex gap-2">

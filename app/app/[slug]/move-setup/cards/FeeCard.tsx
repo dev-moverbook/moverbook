@@ -7,6 +7,7 @@ import IconRow from "@/app/components/shared/IconRow";
 import IconButton from "@/app/components/shared/IconButton";
 import { Pencil, Trash2 } from "lucide-react";
 import ListItemRow from "@/app/components/shared/ListItemRow";
+import { formatCurrency } from "@/app/frontendUtils/helper";
 
 interface FeeCardProps {
   fee: FeeSchema;
@@ -15,7 +16,7 @@ interface FeeCardProps {
 }
 
 const FeeCard: React.FC<FeeCardProps> = ({ fee, onEdit, onDelete }) => {
-  const formattedPrice = `$${fee.price.toFixed(2)}`;
+  const formattedPrice = formatCurrency(fee.price);
 
   return (
     <ListItemRow>

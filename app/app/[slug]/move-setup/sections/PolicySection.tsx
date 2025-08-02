@@ -7,14 +7,15 @@ import SectionHeader from "@/app/components/shared/SectionHeader";
 import FormActions from "@/app/components/shared/FormActions";
 import FieldGroup from "@/app/components/shared/FieldGroup";
 import FieldRow from "@/app/components/shared/FieldRow";
-import { PolicySchema } from "@/types/convex-schemas";
 import { PolicyFormData } from "@/types/form-types";
 import { useUpdatePolicy } from "../hooks/useUpdatePolicy";
 import FieldTextAreaRow from "@/app/components/shared/FieldTextAreaRow";
 import { validatePrice } from "@/app/frontendUtils/validation";
+import CurrencyInput from "@/app/components/shared/labeled/CurrencyInput";
+import { Doc } from "@/convex/_generated/dataModel";
 
 interface PolicySectionProps {
-  policy: PolicySchema;
+  policy: Doc<"policies">;
 }
 
 const PolicySection: React.FC<PolicySectionProps> = ({ policy }) => {
@@ -49,7 +50,9 @@ const PolicySection: React.FC<PolicySectionProps> = ({ policy }) => {
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e:
+      | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+      | { target: { name: string; value: string | number | null } }
   ) => {
     const { name, value } = e.target;
 
@@ -92,7 +95,11 @@ const PolicySection: React.FC<PolicySectionProps> = ({ policy }) => {
     const hasErrors = Object.values(newErrors).some((error) => error !== null);
     if (hasErrors) return;
 
-    const success = await updatePolicy(policy._id, formData);
+    const success = await updatePolicy(policy._id, {
+      ...formData,
+      deposit: formData.deposit ?? undefined,
+      cancellationFee: formData.cancellationFee ?? undefined,
+    });
     if (success) {
       setIsEditing(false);
     }
@@ -105,6 +112,8 @@ const PolicySection: React.FC<PolicySectionProps> = ({ policy }) => {
           title="Policy Information"
           isEditing={isEditing}
           onEditClick={handleEditClick}
+          className="px-0 pb-4"
+          onCancelEdit={handleCancel}
         />
 
         <FieldGroup>
@@ -128,24 +137,23 @@ const PolicySection: React.FC<PolicySectionProps> = ({ policy }) => {
             type="number"
           />
 
-          <FieldRow
+          <CurrencyInput
             label="Deposit"
-            name="deposit"
-            value={formData.deposit.toString()}
+            value={formData.deposit}
             isEditing={isEditing}
-            onChange={handleChange}
+            onChange={(value) =>
+              handleChange({ target: { name: "deposit", value } })
+            }
             error={errors.deposit}
-            type="number"
           />
-
-          <FieldRow
+          <CurrencyInput
             label="Cancellation Fee"
-            name="cancellationFee"
-            value={formData.cancellationFee.toString()}
+            value={formData.cancellationFee}
             isEditing={isEditing}
-            onChange={handleChange}
+            onChange={(value) =>
+              handleChange({ target: { name: "cancellationFee", value } })
+            }
             error={errors.cancellationFee}
-            type="number"
           />
 
           <FieldRow
@@ -162,6 +170,7 @@ const PolicySection: React.FC<PolicySectionProps> = ({ policy }) => {
             value={formData.additionalTermsAndConditions}
             isEditing={isEditing}
             onChange={handleChange}
+            placeholder="Enter additional terms and conditions"
           />
 
           {isEditing && (

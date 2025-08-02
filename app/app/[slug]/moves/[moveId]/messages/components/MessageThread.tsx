@@ -22,7 +22,6 @@ const MessageThread = () => {
       </div>
     );
   }
-  console.log(messages);
 
   return (
     <MessageContainer>

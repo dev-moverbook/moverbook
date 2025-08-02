@@ -1,16 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useMediaQuery } from "react-responsive";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import { Id } from "@/convex/_generated/dataModel";
 import { InsurancePolicySchema } from "@/types/convex-schemas";
 import { InsurancePolicyFormData } from "@/types/form-types";
 import FieldGroup from "@/app/components/shared/FieldGroup";
 import FieldRow from "@/app/components/shared/FieldRow";
-import CheckboxField from "@/app/components/shared/CheckboxField";
 import FormActions from "@/app/components/shared/FormActions";
+import CurrencyInput from "@/app/components/shared/labeled/CurrencyInput";
+import ResponsiveModal from "@/app/components/shared/modal/ResponsiveModal";
 import { validatePrice } from "@/app/frontendUtils/validation";
 
 interface LiabilityModalProps {
@@ -40,13 +38,11 @@ const LiabilityModal: React.FC<LiabilityModalProps> = ({
   companyId,
   initialData,
 }) => {
-  const isMobile = useMediaQuery({ maxWidth: 768 });
   const [formData, setFormData] = useState<InsurancePolicyFormData>({
     name: "",
-    coverageAmount: 0,
-    coverageType: 0,
-    premium: 0,
-    isDefault: false,
+    coverageAmount: null,
+    coverageType: null,
+    premium: null,
   });
 
   const [errors, setErrors] = useState<
@@ -60,7 +56,6 @@ const LiabilityModal: React.FC<LiabilityModalProps> = ({
         coverageAmount: initialData.coverageAmount,
         coverageType: initialData.coverageType,
         premium: initialData.premium,
-        isDefault: initialData.isDefault,
       });
     } else {
       resetState();
@@ -70,10 +65,9 @@ const LiabilityModal: React.FC<LiabilityModalProps> = ({
   const resetState = () => {
     setFormData({
       name: "",
-      coverageAmount: 0,
-      coverageType: 0,
-      premium: 0,
-      isDefault: false,
+      coverageAmount: null,
+      coverageType: null,
+      premium: null,
     });
     setErrors({});
   };
@@ -136,6 +130,17 @@ const LiabilityModal: React.FC<LiabilityModalProps> = ({
     setErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
+  const isDisabled =
+    formData.coverageType === null ||
+    formData.coverageAmount === null ||
+    formData.premium === null ||
+    formData.name.trim() === "";
+
+  const title = initialData ? "Edit Policy" : "Add Policy";
+  const description = initialData
+    ? "Update the details of this liability policy."
+    : "Create a new liability policy to include in your company settings.";
+
   const formContent = (
     <FieldGroup>
       <FieldRow
@@ -147,72 +152,59 @@ const LiabilityModal: React.FC<LiabilityModalProps> = ({
         error={errors.name}
       />
 
-      <FieldRow
+      <CurrencyInput
         label="Coverage Type ($/lb)"
-        name="coverageType"
-        type="number"
-        value={formData.coverageType.toString()}
-        onChange={handleInputChange}
-        placeholder="Enter coverage type"
+        value={formData.coverageType}
+        isEditing={true}
+        onChange={(value) =>
+          setFormData((prev) => ({ ...prev, coverageType: value ?? null }))
+        }
         error={errors.coverageType}
       />
 
-      <FieldRow
-        label="Premium ($)"
-        name="premium"
-        type="number"
-        value={formData.premium.toString()}
-        onChange={handleInputChange}
-        placeholder="Enter premium"
+      <CurrencyInput
+        label="Premium"
+        value={formData.premium}
+        isEditing={true}
+        onChange={(value) =>
+          setFormData((prev) => ({ ...prev, premium: value ?? null }))
+        }
         error={errors.premium}
       />
 
-      <FieldRow
+      <CurrencyInput
         label="Coverage Amount ($/lb)"
-        name="coverageAmount"
-        type="number"
-        value={formData.coverageAmount.toString()}
-        onChange={handleInputChange}
-        placeholder="Enter coverage amount"
+        value={formData.coverageAmount}
+        isEditing={true}
+        onChange={(value) =>
+          setFormData((prev) => ({ ...prev, coverageAmount: value ?? null }))
+        }
         error={errors.coverageAmount}
       />
 
-      <CheckboxField
-        id="isDefault"
-        label="Is Default"
-        checked={formData.isDefault}
-        onChange={(checked) =>
-          setFormData((prev) => ({ ...prev, isDefault: checked }))
-        }
-      />
-
       <FormActions
-        onSave={handleSubmit}
+        onSave={(e) => {
+          e.preventDefault();
+          handleSubmit();
+        }}
         onCancel={handleClose}
         isSaving={loading}
         error={error}
         saveLabel={initialData ? "Save Changes" : "Add Policy"}
         cancelLabel="Cancel"
+        disabled={isDisabled}
       />
     </FieldGroup>
   );
 
-  const title = initialData ? "Edit Policy" : "Add Policy";
-
-  return isMobile ? (
-    <Drawer open={isOpen} onOpenChange={handleClose}>
-      <DrawerContent>
-        <DrawerTitle>{title}</DrawerTitle>
-        {formContent}
-      </DrawerContent>
-    </Drawer>
-  ) : (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent>
-        <DialogTitle>{title}</DialogTitle>
-        {formContent}
-      </DialogContent>
-    </Dialog>
+  return (
+    <ResponsiveModal
+      isOpen={isOpen}
+      onClose={handleClose}
+      title={title}
+      description={description}
+      children={formContent}
+    />
   );
 };
 

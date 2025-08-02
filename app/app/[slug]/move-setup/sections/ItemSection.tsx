@@ -99,6 +99,7 @@ const ItemSection: React.FC<ItemSectionProps> = ({
     <SectionContainer>
       <CenteredContainer>
         <SectionHeader
+          className="px-0 pb-4"
           title="Items"
           actions={
             <div className="flex gap-2">

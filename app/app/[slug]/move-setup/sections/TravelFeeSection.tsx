@@ -6,22 +6,23 @@ import CenteredContainer from "@/app/components/shared/CenteredContainer";
 import SectionHeader from "@/app/components/shared/SectionHeader";
 import FormActions from "@/app/components/shared/FormActions";
 import FieldGroup from "@/app/components/shared/FieldGroup";
-import FieldRow from "@/app/components/shared/FieldRow";
 import { TravelChargingTypes } from "@/types/enums";
-import { TravelFeeSchema } from "@/types/convex-schemas";
-import { TravelFeeFormData } from "@/types/form-types";
 import { useUpdateTravelFee } from "../hooks/useUpdateTravelFee";
-import ChargingMethodField from "@/app/components/shared/ChargingMethodField";
-import DefaultCheckboxField from "@/app/components/shared/DefaultCheckboxField";
-import { Badge } from "@/components/ui/badge";
+import CurrencyInput from "@/app/components/shared/labeled/CurrencyInput";
+import { Doc } from "@/convex/_generated/dataModel";
+import {
+  PAYMENT_METHOD_OPTIONS,
+  TRAVEL_FEE_METHOD_OPTIONS,
+} from "@/types/types";
+import ButtonRadioGroup from "@/app/components/shared/labeled/ButtonRadioGroup";
 
 interface TravelFeeSectionProps {
-  travelFee: TravelFeeSchema;
+  travelFee: Doc<"travelFee">;
 }
 
 const TravelFeeSection: React.FC<TravelFeeSectionProps> = ({ travelFee }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState<TravelFeeFormData>(travelFee);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [formData, setFormData] = useState<Doc<"travelFee">>(travelFee);
 
   const {
     updateTravelFee,
@@ -40,33 +41,18 @@ const TravelFeeSection: React.FC<TravelFeeSectionProps> = ({ travelFee }) => {
     setUpdateTravelFeeError(null);
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type } = e.target;
+  const handleDefaultTravelFeeChange = (value: string | null) => {
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "number" ? parseFloat(value) : value,
-    }));
-  };
-
-  const handleCheckboxChange = (checked: boolean) => {
-    setFormData((prev) => ({
-      ...prev,
-      isDefault: checked,
-    }));
-  };
-
-  const handleChargingMethodChange = (value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      chargingMethod: value as TravelChargingTypes,
+      defaultMethod: value === "None" ? null : (value as TravelChargingTypes),
     }));
   };
 
   const handleSave = async () => {
     const success = await updateTravelFee(travelFee._id, {
-      isDefault: formData.isDefault,
-      chargingMethod: formData.chargingMethod,
-      rate: formData.rate,
+      mileageRate: formData.mileageRate,
+      flatRate: formData.flatRate,
+      defaultMethod: formData.defaultMethod ?? null,
     });
 
     if (success) {
@@ -81,44 +67,48 @@ const TravelFeeSection: React.FC<TravelFeeSectionProps> = ({ travelFee }) => {
           title="Travel Fee"
           isEditing={isEditing}
           onEditClick={handleEditClick}
+          className="px-0 pb-4"
+          onCancelEdit={handleCancel}
         />
 
         <FieldGroup>
-          <div className="flex items-start gap-2">
-            <ChargingMethodField
-              value={formData.chargingMethod}
-              isEditing={isEditing}
-              onChange={handleChargingMethodChange}
-            />
-
-            {!isEditing && formData.isDefault && (
-              <Badge variant="outline" className="text-xs -mt-[2px]">
-                Default
-              </Badge>
-            )}
-          </div>
-
-          {/* Rate */}
-          <FieldRow
-            label="Rate"
-            name="rate"
-            value={formData.rate?.toString() || ""}
+          <CurrencyInput
+            label="Mileage Rate ($/mile)"
+            value={formData.mileageRate || null}
             isEditing={isEditing}
-            onChange={handleInputChange}
-            type="number"
+            onChange={(value) => {
+              setFormData((prev) => ({
+                ...prev,
+                mileageRate: value === null ? undefined : value,
+              }));
+            }}
+          />
+          <CurrencyInput
+            label="Flat Rate"
+            value={formData.flatRate || null}
+            isEditing={isEditing}
+            onChange={(value) => {
+              setFormData((prev) => ({
+                ...prev,
+                flatRate: value === null ? undefined : value,
+              }));
+            }}
+          />
+          <ButtonRadioGroup
+            name="defaultTravelFee"
+            value={formData.defaultMethod ?? "None"} // 👈 show "none" if null
+            options={TRAVEL_FEE_METHOD_OPTIONS}
+            onChange={handleDefaultTravelFeeChange}
+            label="Default Travel Fee"
+            isEditing={isEditing}
           />
 
           {isEditing && (
-            <DefaultCheckboxField
-              checked={formData.isDefault}
-              onChange={handleCheckboxChange}
-              label="Is Default"
-            />
-          )}
-
-          {isEditing && (
             <FormActions
-              onSave={handleSave}
+              onSave={(e) => {
+                e.preventDefault();
+                handleSave();
+              }}
               onCancel={handleCancel}
               isSaving={updateTravelFeeLoading}
               error={updateTravelFeeError}

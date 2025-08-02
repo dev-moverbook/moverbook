@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import FieldDisplay from "../FieldDisplay";
 import FieldErrorMessage from "./FieldErrorMessage";
+import { X } from "lucide-react";
 
 interface PlacesAutoCompleteInputProps {
   label?: string;
@@ -49,7 +50,7 @@ const LabeledPlacesAutocomplete: React.FC<PlacesAutoCompleteInputProps> = ({
   }
 
   return (
-    <div>
+    <div className="relative">
       {showLabel && <Label>{label}</Label>}
       <Input
         ref={inputRef}
@@ -57,7 +58,17 @@ const LabeledPlacesAutocomplete: React.FC<PlacesAutoCompleteInputProps> = ({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         type="text"
+        className="pr-8" // space for the clear button
       />
+      {value && (
+        <button
+          type="button"
+          onClick={() => onChange("")}
+          className="absolute right-2 top-[10px] text-gray-400 hover:text-white"
+        >
+          <X size={16} />
+        </button>
+      )}
       <FieldErrorMessage error={error} />
     </div>
   );

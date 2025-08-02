@@ -9,7 +9,7 @@ const ContainerUserCard: React.FC<ContainerUserCardProps> = ({
   children,
   className,
 }) => {
-  return <div className={cn("grid gap-4", className)}>{children}</div>;
+  return <div className={cn("", className)}>{children}</div>;
 };
 
 export default ContainerUserCard;

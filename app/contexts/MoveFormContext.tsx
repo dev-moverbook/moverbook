@@ -1,13 +1,5 @@
 "use client";
-import {
-  JobType,
-  MoveStatus,
-  MoveTimes,
-  PaymentMethod,
-  SegmentDistance,
-  SelectOption,
-  ServiceType,
-} from "@/types/types";
+import { SegmentDistance, SelectOption } from "@/types/types";
 import React, {
   createContext,
   useContext,
@@ -25,138 +17,64 @@ import {
   ItemSchema,
   ReferralSchema,
   RoomSchema,
+  TravelFeeSchema,
 } from "@/types/convex-schemas";
 import {
-  InsurancePolicyInput,
+  CustomerFormData,
+  CustomerFormErrors,
   LocationInput,
   MoveFeeInput,
+  MoveFormData,
+  MoveFormErrors,
   MoveItemInput,
 } from "@/types/form-types";
-import { Id } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import { useCurrentUser } from "../hooks/queries/useCurrentUser";
 import { useSlugContext } from "./SlugContext";
-import { transformInsurancePolicy } from "@/utils/helper";
-import { getDistanceAndDuration } from "../frontendUtils/google";
 import { useDistanceMatrix } from "../app/[slug]/add-move/hooks/useDistanceMatrix";
 import { nanoid } from "nanoid";
+import { getHourlyRateFromLabor } from "../frontendUtils/helper";
+import { TravelChargingTypes } from "@/types/enums";
 
-interface MoveFormData {
+interface AddMoveFormData {
   addMoveFee: (fee: MoveFeeInput) => void;
   addStopLocation: () => void;
-  alternatePhoneNumber: string;
-  alternatePhoneNumberError: string | null;
-  arrivalWindow: {
-    arrivalWindowStarts: string;
-    arrivalWindowEnds: string;
-  };
-  arrivalWindowError: string | null;
   arrivalWindowOptions?: ArrivalWindowSchema;
   categoryOptions?: CategorySchema[];
   companyId: Id<"companies"> | null;
   deleteMoveFee: (index: number) => void;
-  deposit: number;
-  email: string;
-  emailError: string | null;
-  endingHour: number;
   errorMessage: string | null;
-  insurancePolicy: InsurancePolicySchema | null;
   insurancePolicyOptions?: InsurancePolicySchema[];
   isError: boolean;
   isLoading: boolean;
   itemOptions?: ItemSchema[];
-  jobType: JobType;
-  jobTypeError: string | null;
-  locations: LocationInput[];
-  moveDate: string | null;
-  moveDateError: string | null;
   moveFeeOptions?: FeeSchema[];
-  moveFees: MoveFeeInput[];
-  salesRep: Id<"users"> | null;
   salesRepOptions: SelectOption[];
-  moveStatus: MoveStatus;
-  name: string;
-  nameError: string | null;
-  notes: string;
-  phoneNumber: string;
-  phoneNumberError: string | null;
   referralOptions?: ReferralSchema[];
-  referralSource: string | null;
-  referralSourceError: string | null;
   removeLocation: (index: number) => void;
   roomOptions?: RoomSchema[];
-  serviceType: ServiceType | null;
-  serviceTypeError: string | null;
-  setAlternatePhoneNumber: (alternatePhoneNumber: string) => void;
-  setAlternatePhoneNumberError: (error: string | null) => void;
-  setArrivalWindow: (arrivalWindow: {
-    arrivalWindowStarts: string;
-    arrivalWindowEnds: string;
-  }) => void;
-  setArrivalWindowError: (error: string | null) => void;
-  setDeposit: (deposit: number) => void;
-  setEmail: (email: string) => void;
-  setEmailError: (error: string | null) => void;
-  setEndingHour: (endingHour: number) => void;
-  setInsurancePolicy: (insurancePolicy: InsurancePolicySchema | null) => void;
-  setJobType: (jobType: JobType) => void;
-  setJobTypeError: (error: string | null) => void;
-  setMoveDate: (moveDate: string) => void;
-  setMoveDateError: (error: string | null) => void;
-  setMoveFees: (value: MoveFeeInput[]) => void;
-  setMoveStatus: (moveStatus: MoveStatus) => void;
-  setName: (name: string) => void;
-  setNameError: (error: string | null) => void;
-  setNotes: (notes: string) => void;
-  setPhoneNumber: (phoneNumber: string) => void;
-  setPhoneNumberError: (error: string | null) => void;
-  setReferralSource: (referralSource: string | null) => void;
-  setReferralSourceError: (error: string | null) => void;
-  setServiceType: (serviceType: ServiceType) => void;
-  setServiceTypeError: (error: string | null) => void;
-  setStartingHour: (startingHour: number) => void;
-  setTruckCount: (truckCount: number) => void;
-  setTruckCountError: (error: string | null) => void;
-  setMoversCount: (moversCount: number) => void;
-  setMoversCountError: (error: string | null) => void;
-  startingHour: number;
-  truckCount: number;
-  truckCountError: string | null;
   updateLocation: (index: number, updated: Partial<LocationInput>) => void;
   updateMoveFee: (index: number, updated: Partial<MoveFeeInput>) => void;
-  moversCount: number;
-  moversCountError: string | null;
-  moveWindow: MoveTimes;
-  setMoveWindow: (moveWindow: MoveTimes) => void;
-  moveItems: MoveItemInput[];
   addMoveItem: (item: MoveItemInput) => void;
   updateMoveItem: (index: number, updated: Partial<MoveItemInput>) => void;
   removeMoveItem: (index: number) => void;
-  isCostSectionComplete: boolean;
-  isTruckAndMoverCompleted: boolean;
-  isLiabilityCoverageComplete: boolean;
-  isDepositComplete: boolean;
-  isInternalNotesComplete: boolean;
-  isInventorySectionComplete: boolean;
   isInfoSectionComplete: boolean;
-  setSalesRep: (salesRep: Id<"users">) => void;
   isLocationSectionComplete: boolean;
   isLocationComplete: (index: number) => boolean;
-  jobTypeRate: number | null;
-  jobTypeRateError: string | null;
-  totalMiles: number | null;
-  officeToOrigin: number | null;
-  destinationToOrigin: number | null;
-  roundTripMiles: number | null;
-  roundTripDrive: number | null;
-  totalMilesError: string | null;
-  setJobTypeRate: (jobTypeRate: number) => void;
-  setJobTypeRateError: (error: string | null) => void;
+  isMoveDetailsComplete: boolean;
   companyContact?: CompanyContactSchema;
   segmentDistances: SegmentDistance[];
-  depositMethod: PaymentMethod;
-  setDepositMethod: (depositMethod: PaymentMethod) => void;
+  customer: CustomerFormData;
+  setCustomer: (customer: CustomerFormData) => void;
+  customerErrors: CustomerFormErrors;
+  setCustomerErrors: (errors: CustomerFormErrors) => void;
+  moveFormData: MoveFormData;
+  setMoveFormData: React.Dispatch<React.SetStateAction<MoveFormData>>;
+  moveFormErrors: MoveFormErrors;
+  setMoveFormErrors: (errors: MoveFormErrors) => void;
+  travelFeeOptions?: Doc<"travelFee">;
 }
-const MoveFormContext = createContext<MoveFormData | undefined>(undefined);
+const MoveFormContext = createContext<AddMoveFormData | undefined>(undefined);
 
 export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
   const {
@@ -183,135 +101,160 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
     policy,
     referrals: referralOptions,
     rooms: roomOptions,
-    travelFee,
+    travelFee: travelFeeOptions,
     companyContact,
   } = moveOptions ?? {};
   const { fetchDistance } = useDistanceMatrix();
 
-  const [name, setName] = useState<string>("");
-  const [nameError, setNameError] = useState<string | null>(null);
-  const [email, setEmail] = useState<string>("");
-  const [emailError, setEmailError] = useState<string | null>(null);
-  const [phoneNumber, setPhoneNumber] = useState<string>("");
-  const [phoneNumberError, setPhoneNumberError] = useState<string | null>(null);
-  const [alternatePhoneNumber, setAlternatePhoneNumber] = useState<string>("");
-  const [alternatePhoneNumberError, setAlternatePhoneNumberError] = useState<
-    string | null
-  >(null);
-  const [serviceType, setServiceType] = useState<ServiceType | null>(null);
-  const [serviceTypeError, setServiceTypeError] = useState<string | null>(null);
-  const [moveDate, setMoveDate] = useState<string>("");
-  const [moveDateError, setMoveDateError] = useState<string | null>(null);
-  const [referralSource, setReferralSource] = useState<string | null>(null);
-  const [referralSourceError, setReferralSourceError] = useState<string | null>(
-    null
-  );
+  const [customer, setCustomer] = useState<CustomerFormData>({
+    name: "",
+    email: "",
+    phoneNumber: "",
+    altPhoneNumber: "",
+    referral: "",
+  });
 
-  const [arrivalWindow, setArrivalWindow] = useState<{
-    arrivalWindowStarts: string;
-    arrivalWindowEnds: string;
-  }>({ arrivalWindowStarts: "", arrivalWindowEnds: "" });
+  const [customerErrors, setCustomerErrors] = useState<CustomerFormErrors>({});
 
-  const [arrivalWindowError, setArrivalWindowError] = useState<string | null>(
-    null
-  );
-  const [truckCount, setTruckCount] = useState<number>(1);
-  const [truckCountError, setTruckCountError] = useState<string | null>(null);
-  const [moversCount, setMoversCount] = useState<number>(1);
-  const [moversCountError, setMoversCountError] = useState<string | null>(null);
-  const [startingHour, setStartingHour] = useState<number>(1);
-  const [endingHour, setEndingHour] = useState<number>(1);
-  const [jobType, setJobType] = useState<JobType>("hourly");
-  const [jobTypeError, setJobTypeError] = useState<string | null>(null);
-  const [deposit, setDeposit] = useState<number>(0);
-  const [jobTypeRate, setJobTypeRate] = useState<number | null>(null);
-  const [jobTypeRateError, setJobTypeRateError] = useState<string | null>(null);
-  const [salesRep, setSalesRep] = useState<Id<"users"> | null>(null);
-  const [moveStatus, setMoveStatus] = useState<MoveStatus>("New Lead");
-  const [notes, setNotes] = useState<string>("");
-  const [moveFees, setMoveFees] = useState<MoveFeeInput[]>([]);
-  const [insurancePolicy, setInsurancePolicy] =
-    useState<InsurancePolicySchema | null>(null);
+  const [moveFormData, setMoveFormData] = useState<MoveFormData>({
+    arrivalTimes: {
+      arrivalWindowEnds: "",
+      arrivalWindowStarts: "",
+    },
+    companyId: null,
+    creditCardFee: null,
+    deposit: 0,
+    depositMethod: null,
+    destinationToOrigin: null,
+    endingMoveTime: 1,
+    liabilityCoverage: null,
+    jobType: "hourly",
+    jobTypeRate: null,
+    locations: [
+      {
+        uid: nanoid(),
+        locationRole: "starting",
+        address: null,
+        locationType: null,
+        aptNumber: null,
+        aptName: null,
+        squareFootage: null,
+        accessType: null,
+        moveSize: null,
+        timeDistanceRange: "0-30 sec (less than 100 ft)",
+      },
+      {
+        uid: nanoid(),
+        locationRole: "ending",
+        address: null,
+        locationType: null,
+        aptNumber: null,
+        aptName: null,
+        squareFootage: null,
+        accessType: null,
+        moveSize: null,
+        timeDistanceRange: "0-30 sec (less than 100 ft)",
+      },
+    ],
+    moveCustomerId: null,
+    moveDate: null,
+    moveFees: [],
+    moveItems: [],
+    moveStatus: "New Lead",
+    moveWindow: "morning",
+    movers: 1,
+    notes: "",
+    officeToOrigin: null,
+    roundTripDrive: null,
+    roundTripMiles: null,
+    salesRep: null,
+    segmentDistances: [],
+    serviceType: null,
+    startingMoveTime: 1,
+    totalMiles: null,
+    trucks: 1,
+  });
 
-  const [totalMiles, setTotalMiles] = useState<number | null>(null);
-  const [officeToOrigin, setOfficeToOrigin] = useState<number | null>(null);
-  const [destinationToOrigin, setDestinationToOrigin] = useState<number | null>(
-    null
-  );
-  const [roundTripMiles, setRoundTripMiles] = useState<number | null>(null);
-  const [roundTripDrive, setRoundTripDrive] = useState<number | null>(null);
-  const [totalMilesError, setTotalMilesError] = useState<string | null>(null);
+  const [moveFormErrors, setMoveFormErrors] = useState<MoveFormErrors>({});
 
-  const [moveWindow, setMoveWindow] = useState<MoveTimes>("morning");
-  const [moveItems, setMoveItems] = useState<MoveItemInput[]>([]);
   const [segmentDistances, setSegmentDistances] = useState<
     { label: string; distance: number | null; duration: number | null }[]
   >([]);
-  const [depositMethod, setDepositMethod] =
-    useState<PaymentMethod>("credit_card");
-  const [locations, setLocations] = useState<LocationInput[]>([
-    {
-      uid: nanoid(),
-      locationType: "starting",
-      address: null,
-      moveType: null,
-      aptNumber: null,
-      aptName: null,
-      squareFootage: null,
-      accessType: null,
-      moveSize: null,
-    },
-    {
-      uid: nanoid(),
-      locationType: "ending",
-      address: null,
-      moveType: null,
-      aptNumber: null,
-      aptName: null,
-      squareFootage: null,
-      accessType: null,
-      moveSize: null,
-    },
-  ]);
 
   const origin = companyContact?.address;
-  const startAddress = locations[0]?.address ?? null;
-  const endAddress =
-    locations.length > 1 ? locations[locations.length - 1]?.address : null;
 
   useEffect(() => {
+    if (creditCardFee) {
+      setMoveFormData((prev) => ({
+        ...prev,
+        creditCardFee: creditCardFee.rate,
+      }));
+    }
+  }, [creditCardFee]);
+
+  useEffect(() => {
+    if (!laborRates || moveFormData.jobType !== "hourly") return;
+
+    const calculatedRate = getHourlyRateFromLabor(
+      moveFormData.movers,
+      laborRates
+    );
+
+    if (
+      calculatedRate !== null &&
+      moveFormData.jobTypeRate !== calculatedRate
+    ) {
+      setMoveFormData((prev) => ({
+        ...prev,
+        jobTypeRate: calculatedRate,
+      }));
+    }
+  }, [moveFormData.movers, moveFormData.jobType, laborRates]);
+
+  useEffect(() => {
+    if (companyId) {
+      setMoveFormData((prev) => ({ ...prev, companyId }));
+    }
+
     if (policy?.deposit !== undefined) {
-      setDeposit(policy.deposit);
+      setMoveFormData((prev) => ({ ...prev, deposit: policy.deposit }));
     }
 
     if (currentUser?.user._id) {
-      setSalesRep(currentUser.user._id);
+      setMoveFormData((prev) => ({ ...prev, salesRep: currentUser.user._id }));
     }
 
     if (insurancePolicyOptions) {
       const defaultPolicy = insurancePolicyOptions.find((p) => p.isDefault);
-      setInsurancePolicy(defaultPolicy ?? insurancePolicyOptions[0]);
+      setMoveFormData((prev) => ({
+        ...prev,
+        liabilityCoverage: defaultPolicy ?? insurancePolicyOptions[0],
+      }));
     }
 
     if (
       arrivalWindowOptions &&
-      arrivalWindow.arrivalWindowStarts === "" &&
-      arrivalWindow.arrivalWindowEnds === ""
+      moveFormData.arrivalTimes.arrivalWindowStarts === "" &&
+      moveFormData.arrivalTimes.arrivalWindowEnds === ""
     ) {
-      setArrivalWindow({
-        arrivalWindowStarts: arrivalWindowOptions.morningArrival,
-        arrivalWindowEnds: arrivalWindowOptions.morningEnd,
-      });
-      setMoveWindow("morning");
+      setMoveFormData((prev) => ({
+        ...prev,
+        arrivalTimes: {
+          arrivalWindowStarts: arrivalWindowOptions.morningArrival,
+          arrivalWindowEnds: arrivalWindowOptions.morningEnd,
+        },
+        moveWindow: "morning",
+      }));
     }
 
-    const addresses = locations
+    const addresses = moveFormData.locations
       .map((l) => l.address)
       .filter(Boolean) as string[];
+
     if (!origin || addresses.length < 2) return;
 
     const timeout = setTimeout(async () => {
-      const addresses = locations
+      const addresses = moveFormData.locations
         .map((l) => l.address)
         .filter(Boolean) as string[];
       if (!origin || addresses.length < 2) return;
@@ -393,8 +336,11 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
         0
       );
 
-      setRoundTripMiles(Number(totalMiles.toFixed(2)));
-      setRoundTripDrive(Number(totalDuration.toFixed(2)));
+      setMoveFormData((prev) => ({
+        ...prev,
+        roundTripMiles: Number(totalMiles.toFixed(2)),
+        roundTripDrive: Number(totalDuration.toFixed(2)),
+      }));
     }, 500);
   }, [
     policy?.deposit,
@@ -402,66 +348,145 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
     insurancePolicyOptions,
     arrivalWindowOptions,
     origin,
-    locations,
+    moveFormData.locations,
+    moveFormData.arrivalTimes.arrivalWindowStarts,
+    moveFormData.arrivalTimes.arrivalWindowEnds,
+    moveFormData.moveWindow,
   ]);
+
+  useEffect(() => {
+    if (
+      moveFormData.serviceType === "packing" ||
+      moveFormData.serviceType === "load_only" ||
+      moveFormData.serviceType === "unload_only"
+    ) {
+      setMoveFormData((prev) => ({ ...prev, trucks: 0 }));
+    }
+  }, [moveFormData.serviceType]);
+
+  useEffect(() => {
+    if (moveFormData.travelFeeMethod !== null) return;
+
+    if (travelFeeOptions?.defaultMethod === TravelChargingTypes.FLAT) {
+      setMoveFormData((prev) => ({
+        ...prev,
+        travelFeeMethod: travelFeeOptions.defaultMethod,
+        travelFeeRate: travelFeeOptions.flatRate ?? null,
+      }));
+    } else if (
+      travelFeeOptions?.defaultMethod === TravelChargingTypes.LABOR_HOURS &&
+      moveFormData.jobType === "hourly"
+    ) {
+      setMoveFormData((prev) => ({
+        ...prev,
+        travelFeeMethod: travelFeeOptions.defaultMethod,
+        travelFeeRate: moveFormData.jobTypeRate ?? null,
+      }));
+    } else if (
+      travelFeeOptions?.defaultMethod === TravelChargingTypes.MILEAGE
+    ) {
+      setMoveFormData((prev) => ({
+        ...prev,
+        travelFeeMethod: travelFeeOptions.defaultMethod,
+        travelFeeRate: travelFeeOptions.mileageRate ?? null,
+      }));
+    }
+  }, [travelFeeOptions, moveFormData.jobType]);
+
+  const { jobTypeRate, travelFeeMethod, jobType } = moveFormData;
+
+  useEffect(() => {
+    if (
+      travelFeeMethod === TravelChargingTypes.LABOR_HOURS &&
+      jobType === "hourly"
+    ) {
+      setMoveFormData((prev) => ({
+        ...prev,
+        travelFeeRate: jobTypeRate ?? null,
+      }));
+    }
+  }, [jobTypeRate, travelFeeMethod, jobType]);
 
   const addStopLocation = () => {
     const newStop: LocationInput = {
       uid: nanoid(),
-      locationType: "stop",
+      locationRole: "stop",
       address: null,
-      moveType: null,
+      locationType: null,
       aptNumber: null,
       aptName: null,
       squareFootage: null,
       accessType: null,
       moveSize: null,
-      stopBehavior: undefined,
+      timeDistanceRange: "0-30 sec (less than 100 ft)",
     };
 
-    setLocations((prev) => {
-      const newLocations = [...prev];
-      newLocations.splice(prev.length - 1, 0, newStop); // Insert before ending
-      return newLocations;
-    });
+    setMoveFormData((prev) => ({
+      ...prev,
+      locations: [
+        ...prev.locations.slice(0, -1),
+        newStop,
+        prev.locations[prev.locations.length - 1],
+      ],
+    }));
   };
 
   const updateLocation = (index: number, updated: Partial<LocationInput>) => {
-    setLocations((prev) =>
-      prev.map((loc, i) => (i === index ? { ...loc, ...updated } : loc))
-    );
+    setMoveFormData((prev) => ({
+      ...prev,
+      locations: prev.locations.map((loc, i) =>
+        i === index ? { ...loc, ...updated } : loc
+      ),
+    }));
   };
-
   const removeLocation = (index: number) => {
-    setLocations((prev) => prev.filter((_, i) => i !== index));
+    setMoveFormData((prev) => ({
+      ...prev,
+      locations: prev.locations.filter((_, i) => i !== index),
+    }));
   };
 
   const addMoveFee = (fee: MoveFeeInput) => {
-    setMoveFees((prev) => [...prev, fee]);
+    setMoveFormData((prev) => ({
+      ...prev,
+      moveFees: [...prev.moveFees, fee],
+    }));
   };
-
   const updateMoveFee = (index: number, updated: Partial<MoveFeeInput>) => {
-    setMoveFees((prev) =>
-      prev.map((fee, i) => (i === index ? { ...fee, ...updated } : fee))
-    );
+    setMoveFormData((prev) => ({
+      ...prev,
+      moveFees: prev.moveFees.map((fee, i) =>
+        i === index ? { ...fee, ...updated } : fee
+      ),
+    }));
   };
 
   const deleteMoveFee = (index: number) => {
-    setMoveFees((prev) => prev.filter((_, i) => i !== index));
+    setMoveFormData((prev) => ({
+      ...prev,
+      moveFees: prev.moveFees.filter((_, i) => i !== index),
+    }));
   };
 
   const addMoveItem = (item: MoveItemInput) => {
-    setMoveItems((prev) => [...prev, item]);
+    setMoveFormData((prev) => ({
+      ...prev,
+      moveItems: [...prev.moveItems, item],
+    }));
   };
-
   const updateMoveItem = (index: number, updated: Partial<MoveItemInput>) => {
-    setMoveItems((prev) =>
-      prev.map((item, i) => (i === index ? { ...item, ...updated } : item))
-    );
+    setMoveFormData((prev) => ({
+      ...prev,
+      moveItems: prev.moveItems.map((item, i) =>
+        i === index ? { ...item, ...updated } : item
+      ),
+    }));
   };
-
   const removeMoveItem = (index: number) => {
-    setMoveItems((prev) => prev.filter((_, i) => i !== index));
+    setMoveFormData((prev) => ({
+      ...prev,
+      moveItems: prev.moveItems.filter((_, i) => i !== index),
+    }));
   };
 
   const salesRepOptions =
@@ -480,168 +505,83 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
     });
   }
 
-  const isTruckAndMoverCompleted =
-    truckCount > 0 &&
-    moversCount > 0 &&
-    startingHour > 0 &&
-    endingHour > 0 &&
-    jobTypeRate !== null &&
-    jobTypeRate > 0;
-
-  const isLiabilityCoverageComplete = insurancePolicy != null;
-  const isDepositComplete = deposit >= 0;
-  const isInternalNotesComplete = !!salesRep && !!moveStatus;
-
-  const isCostSectionComplete =
-    isTruckAndMoverCompleted &&
-    isLiabilityCoverageComplete &&
-    isDepositComplete &&
-    isInternalNotesComplete;
-
-  const isInventorySectionComplete = moveItems.length > 0;
   const isInfoSectionComplete =
-    !!name.trim() &&
-    !!email.trim() &&
-    !!phoneNumber.trim() &&
-    !!alternatePhoneNumber.trim() &&
-    !!serviceType &&
-    !!moveDate &&
-    !!referralSource?.trim() &&
-    !!arrivalWindow?.arrivalWindowStarts &&
-    !!arrivalWindow?.arrivalWindowEnds;
-
+    !!customer.email.trim() &&
+    !!customer.phoneNumber.trim() &&
+    (customer.altPhoneNumber ? !!customer.altPhoneNumber.trim() : true) &&
+    !!customer.referral;
   const isLocationComplete = (index: number): boolean => {
-    const location = locations[index];
+    const location = moveFormData.locations[index];
     return (
       !!location?.address &&
       !!location?.squareFootage &&
-      !!location?.moveType &&
+      !!location?.locationType &&
       !!location?.moveSize &&
-      !!location?.accessType
+      !!location?.accessType &&
+      !!location?.timeDistanceRange &&
+      !!location?.locationRole
     );
   };
 
-  const isLocationSectionComplete = locations.every((location) => {
-    return (
-      !!location.address &&
-      !!location.squareFootage &&
-      !!location.moveType &&
-      !!location.moveSize &&
-      !!location.accessType
-    );
-  });
+  const isLocationSectionComplete = moveFormData.locations.every(
+    (location: LocationInput) => {
+      return (
+        !!location.address &&
+        !!location.squareFootage &&
+        !!location.locationType &&
+        !!location.moveSize &&
+        !!location.accessType &&
+        !!location.timeDistanceRange &&
+        !!location.locationRole
+      );
+    }
+  );
+
+  const isMoveDetailsComplete =
+    moveFormData.serviceType !== null &&
+    moveFormData.moveWindow !== null &&
+    moveFormData.arrivalTimes.arrivalWindowStarts !== "" &&
+    moveFormData.arrivalTimes.arrivalWindowEnds !== "";
 
   return (
     <MoveFormContext.Provider
       value={{
         addMoveFee,
         addStopLocation,
-        alternatePhoneNumber,
-        alternatePhoneNumberError,
-        arrivalWindow,
-        arrivalWindowError,
         arrivalWindowOptions,
         categoryOptions,
         companyId,
         deleteMoveFee,
-        deposit,
-        email,
-        emailError,
-        endingHour,
         errorMessage,
-        insurancePolicy,
         insurancePolicyOptions,
         isError,
         isLoading,
         itemOptions,
-        jobType,
-        jobTypeError,
-        locations,
-        moveDate,
-        moveDateError,
         moveFeeOptions,
-        moveFees,
-        salesRep,
         salesRepOptions,
-        moveStatus,
-        moversCount,
-        moversCountError,
-        name,
-        nameError,
-        notes,
-        phoneNumber,
-        phoneNumberError,
         referralOptions,
-        referralSource,
-        referralSourceError,
         removeLocation,
         roomOptions,
-        serviceType,
-        serviceTypeError,
-        setAlternatePhoneNumber,
-        setAlternatePhoneNumberError,
-        setArrivalWindow,
-        setArrivalWindowError,
-        setDeposit,
-        setEmail,
-        setEmailError,
-        setEndingHour,
-        setInsurancePolicy,
-        setJobType,
-        setJobTypeError,
-        setMoveDate,
-        setMoveDateError,
-        setMoveFees,
-        setMoveStatus,
-        setMoversCount,
-        setMoversCountError,
-        setName,
-        setNameError,
-        setNotes,
-        setPhoneNumber,
-        setPhoneNumberError,
-        setReferralSource,
-        setReferralSourceError,
-        setServiceType,
-        setServiceTypeError,
-        setStartingHour,
-        setTruckCount,
-        setTruckCountError,
-        startingHour,
-        truckCount,
-        truckCountError,
         updateLocation,
-        moveWindow,
-        setMoveWindow,
-        moveItems,
         addMoveItem,
         updateMoveItem,
         removeMoveItem,
-        isCostSectionComplete,
-        isTruckAndMoverCompleted,
-        isLiabilityCoverageComplete,
-        isDepositComplete,
-        isInternalNotesComplete,
-        isInventorySectionComplete,
         isInfoSectionComplete,
         isLocationSectionComplete,
         isLocationComplete,
-        jobTypeRate,
-        jobTypeRateError,
-        setSalesRep,
+        isMoveDetailsComplete,
         updateMoveFee,
-        totalMiles,
-        officeToOrigin,
-        destinationToOrigin,
-        roundTripMiles,
-        roundTripDrive,
-        totalMilesError,
-        setJobTypeRate,
-        setJobTypeRateError,
         companyContact,
         segmentDistances,
-        depositMethod,
-        setDepositMethod,
+        customer,
+        setCustomer,
+        customerErrors,
+        setCustomerErrors,
+        moveFormData,
+        setMoveFormData,
+        moveFormErrors,
+        setMoveFormErrors,
+        travelFeeOptions,
       }}
     >
       {children}

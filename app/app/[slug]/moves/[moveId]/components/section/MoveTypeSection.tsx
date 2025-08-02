@@ -3,18 +3,13 @@
 import SectionContainer from "@/app/components/shared/containers/SectionContainer";
 import SectionHeader from "@/app/components/shared/SectionHeader";
 import React, { useState } from "react";
-import { MoveSchema } from "@/types/convex-schemas";
 import FormActions from "@/app/components/shared/FormActions";
-import FieldRadioRow from "@/app/components/shared/field/FieldRadioRow";
 import {
-  MoveTimes,
   SERVICE_TYPE_OPTIONS,
   ServiceType,
   START_WINDOW_OPTIONS,
   StartWindowOption,
 } from "@/types/types";
-import FieldDate from "@/app/components/shared/field/FieldDate";
-import FieldTime from "@/app/components/shared/field/FieldTime";
 import { useUpdateMove } from "../../../hooks/useUpdateMove";
 import { MoveTypeFormData } from "@/types/form-types";
 import { cn } from "@/lib/utils";
@@ -25,12 +20,13 @@ import LabeledTimeInput from "@/app/components/shared/labeled/LabeledTimeInput";
 import TimeSlotSelector from "@/app/components/shared/labeled/TimeSlotSelector";
 import { useCompanyArrivalResult } from "@/app/hooks/queries/useCompanyArrivalResult";
 import { formatTime } from "@/app/frontendUtils/helper";
+import { useMoveContext } from "@/app/contexts/MoveContext";
 
-interface MoveTypeSectionProps {
-  move: MoveSchema;
-}
+interface MoveTypeSectionProps {}
 
-const MoveTypeSection = ({ move }: MoveTypeSectionProps) => {
+const MoveTypeSection = ({}: MoveTypeSectionProps) => {
+  const { moveData } = useMoveContext();
+  const move = moveData.move;
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [startWindowOption, setStartWindowOption] = useState<StartWindowOption>(
     move.moveWindow === "custom" ? "custom" : "available"
@@ -94,7 +90,7 @@ const MoveTypeSection = ({ move }: MoveTypeSectionProps) => {
         isEditing={isEditing}
         onEditClick={handleEditClick}
         onCancelEdit={handleCancel}
-        className="pb-0"
+        className="pb-0 mx-auto"
         isCompleted={isCompleted}
         showCheckmark={true}
       />

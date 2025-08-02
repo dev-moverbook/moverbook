@@ -3,18 +3,20 @@
 import SectionContainer from "@/app/components/shared/containers/SectionContainer";
 import SectionHeader from "@/app/components/shared/SectionHeader";
 import React, { useState } from "react";
-import { MoveSchema } from "@/types/convex-schemas";
 import FieldGroup from "@/app/components/shared/FieldGroup";
 import FormActions from "@/app/components/shared/FormActions";
 import { useUpdateMove } from "../../../hooks/useUpdateMove";
 import { DepositFormData } from "@/types/form-types";
 import LabeledInput from "@/app/components/shared/labeled/LabeledInput";
+import { useMoveContext } from "@/app/contexts/MoveContext";
+import { formatCurrency } from "@/app/frontendUtils/helper";
+import CurrencyInput from "@/app/components/shared/labeled/CurrencyInput";
 
-interface DepositSectionProps {
-  move: MoveSchema;
-}
+interface DepositSectionProps {}
 
-const DepositSection = ({ move }: DepositSectionProps) => {
+const DepositSection = ({}: DepositSectionProps) => {
+  const { moveData } = useMoveContext();
+  const move = moveData.move;
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
   const { updateMove, updateMoveLoading, updateMoveError } = useUpdateMove();
@@ -46,20 +48,17 @@ const DepositSection = ({ move }: DepositSectionProps) => {
         isEditing={isEditing}
         onEditClick={handleEditClick}
         onCancelEdit={handleCancel}
+        className="mx-auto"
       />
       <SectionContainer>
         <FieldGroup>
-          <LabeledInput
+          <CurrencyInput
             label="Deposit"
-            value={formData.deposit?.toString() ?? ""}
-            onChange={(e) =>
-              setFormData((prev) => ({
-                ...prev,
-                deposit: parseFloat(e.target.value),
-              }))
+            value={formData.deposit}
+            onChange={(value) =>
+              setFormData((prev) => ({ ...prev, deposit: value ?? 0 }))
             }
             isEditing={isEditing}
-            type="number"
           />
 
           {isEditing && (

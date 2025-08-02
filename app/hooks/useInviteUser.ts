@@ -6,7 +6,7 @@ import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
 
 export const useInviteUser = () => {
-  const [inviteLoading, setInviteLoading] = useState(false);
+  const [inviteLoading, setInviteLoading] = useState<boolean>(false);
   const [inviteError, setInviteError] = useState<string | null>(null);
 
   const clerkInviteUserToOrganization = useAction(
@@ -17,14 +17,10 @@ export const useInviteUser = () => {
     companyId: Id<"companies">,
     email: string,
     role: ClerkRoles,
-    hourlyRate: string | null
+    hourlyRate: number | null
   ): Promise<boolean> => {
     setInviteLoading(true);
     setInviteError(null);
-    let parsedHourlyRate: number | null = null;
-    if (hourlyRate) {
-      parsedHourlyRate = parseInt(hourlyRate);
-    }
 
     try {
       const response = await clerkInviteUserToOrganization({
@@ -34,7 +30,7 @@ export const useInviteUser = () => {
           | ClerkRoles.MANAGER
           | ClerkRoles.MOVER
           | ClerkRoles.SALES_REP,
-        hourlyRate: parsedHourlyRate,
+        hourlyRate,
       });
 
       if (response.status !== ResponseStatus.SUCCESS) {

@@ -1,9 +1,9 @@
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { MoveSchema } from "@/types/convex-schemas";
 import { ResponseStatus } from "@/types/enums";
 import { MoveStatus, PriceOrder } from "@/types/types";
+import { EnrichedMove } from "@/types/convex-responses";
 
 interface UseMovesForCalendarParams {
   start: string;
@@ -15,7 +15,7 @@ interface UseMovesForCalendarParams {
 }
 
 interface UseMovesForCalendarResult {
-  data: MoveSchema[];
+  data: EnrichedMove[];
   isLoading: boolean;
   isError: boolean;
   errorMessage: string | null;
@@ -39,7 +39,7 @@ export const useMovesForCalendar = ({
   const isLoading = response === undefined;
   const isError = response?.status === ResponseStatus.ERROR;
 
-  const data =
+  const data: EnrichedMove[] =
     response?.status === ResponseStatus.SUCCESS ? response.data.moves : [];
 
   return {

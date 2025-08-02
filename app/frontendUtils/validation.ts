@@ -1,8 +1,12 @@
 import { FrontEndErrorMessages } from "@/types/errors";
 import {
   AddMoveLineItemInput,
+  CustomerFormData,
+  CustomerFormErrors,
   FormMoveItemInput,
   InfoFormData,
+  MoveFormData,
+  MoveFormErrors,
   RoomFormData,
 } from "@/types/form-types";
 import { CreateDiscountInput } from "../app/[slug]/moves/hooks/useCreateDiscount";
@@ -230,4 +234,69 @@ export const validateAdditionalFeeForm = (
     isValid: Object.keys(errors).length === 0,
     errors,
   };
+};
+
+export const validateCustomerForm = (
+  formData: CustomerFormData,
+  allowedReferrals: string[]
+): { isValid: boolean; errors: CustomerFormErrors } => {
+  const errors: CustomerFormErrors = {};
+
+  if (!formData.name.trim()) {
+    errors.name = "Full name is required.";
+  }
+
+  if (!formData.email.trim()) {
+    errors.email = FrontEndErrorMessages.EMAIL_REQUIRED;
+  }
+
+  if (formData.email.trim()) {
+    if (!emailRegex.test(formData.email)) {
+      errors.email = FrontEndErrorMessages.EMAIL_INVALID;
+    }
+  }
+
+  if (formData.phoneNumber.trim() === "") {
+    errors.phoneNumber = FrontEndErrorMessages.PHONE_NUMBER_REQUIRED;
+  }
+
+  const phoneError = validatePhoneNumber(formData.phoneNumber);
+  if (phoneError) {
+    errors.phoneNumber = phoneError;
+  }
+
+  const altPhoneError = validatePhoneNumber(formData.altPhoneNumber);
+  if (altPhoneError) {
+    errors.altPhoneNumber = altPhoneError;
+  }
+
+  if (formData.referral && !allowedReferrals.includes(formData.referral)) {
+    errors.referral = FrontEndErrorMessages.REFERRAL_INVALID;
+  }
+
+  const isValid = Object.values(errors).every((val) => val === null);
+
+  return { isValid, errors };
+};
+
+export const validateMoveFormData = (
+  formData: MoveFormData
+): { isValid: boolean; errors: MoveFormErrors } => {
+  const errors: MoveFormErrors = {};
+
+  if (!formData.companyId) {
+    errors.companyId = "Company is required.";
+  }
+
+  if (!formData.moveCustomerId) {
+    errors.moveCustomerId = "Customer is required.";
+  }
+
+  if (!formData.salesRep) {
+    errors.salesRep = "Sales Rep is required.";
+  }
+
+  const isValid = Object.keys(errors).length === 0;
+
+  return { isValid, errors };
 };

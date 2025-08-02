@@ -3,7 +3,6 @@
 import SectionContainer from "@/app/components/shared/containers/SectionContainer";
 import SectionHeader from "@/app/components/shared/SectionHeader";
 import React, { useState } from "react";
-import { MoveSchema } from "@/types/convex-schemas";
 import FieldGroup from "@/app/components/shared/FieldGroup";
 import FormActions from "@/app/components/shared/FormActions";
 import { MOVE_STATUS_OPTIONS, MoveStatus } from "@/types/types";
@@ -12,12 +11,13 @@ import { useUpdateMove } from "../../../hooks/useUpdateMove";
 import { InternalNotesFormData } from "@/types/form-types";
 import { useGetSalesReps } from "@/app/hooks/queries/useGetSalesReps";
 import LabeledTextarea from "@/app/components/shared/labeled/LabeledTextarea";
+import { useMoveContext } from "@/app/contexts/MoveContext";
 
-interface InternalNotesSectionProps {
-  move: MoveSchema;
-}
+interface InternalNotesSectionProps {}
 
-const InternalNotesSection = ({ move }: InternalNotesSectionProps) => {
+const InternalNotesSection = ({}: InternalNotesSectionProps) => {
+  const { moveData } = useMoveContext();
+  const move = moveData.move;
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
   const { updateMove, updateMoveLoading, updateMoveError } = useUpdateMove();
@@ -25,7 +25,7 @@ const InternalNotesSection = ({ move }: InternalNotesSectionProps) => {
 
   const [formData, setFormData] = useState<InternalNotesFormData>({
     notes: move.notes,
-    status: move.status,
+    moveStatus: move.moveStatus,
     salesRep: move.salesRep,
   });
 
@@ -41,7 +41,7 @@ const InternalNotesSection = ({ move }: InternalNotesSectionProps) => {
   const handleCancel = () => {
     setFormData({
       notes: move.notes,
-      status: move.status,
+      moveStatus: move.moveStatus,
       salesRep: move.salesRep,
     });
     setIsEditing(false);
@@ -54,11 +54,12 @@ const InternalNotesSection = ({ move }: InternalNotesSectionProps) => {
         isEditing={isEditing}
         onEditClick={handleEditClick}
         onCancelEdit={handleCancel}
+        className="mx-auto"
       />
-      <SectionContainer>
+      <SectionContainer showBorder={false} className="">
         <FieldGroup>
           <LabeledTextarea
-            label="Internal Notes"
+            label="Notes"
             value={formData.notes ?? ""}
             onChange={(e) =>
               setFormData((prev) => ({
@@ -67,6 +68,7 @@ const InternalNotesSection = ({ move }: InternalNotesSectionProps) => {
               }))
             }
             isEditing={isEditing}
+            placeholder="Add internal notes here"
           />
 
           <SelectFieldRow
@@ -91,11 +93,14 @@ const InternalNotesSection = ({ move }: InternalNotesSectionProps) => {
           <SelectFieldRow
             label="Move Status"
             name="status"
-            value={formData.status}
+            value={formData.moveStatus}
             options={MOVE_STATUS_OPTIONS.map((opt) => opt.value)}
             isEditing={isEditing}
             onChange={(val) =>
-              setFormData((prev) => ({ ...prev, status: val as MoveStatus }))
+              setFormData((prev) => ({
+                ...prev,
+                moveStatus: val as MoveStatus,
+              }))
             }
           />
 

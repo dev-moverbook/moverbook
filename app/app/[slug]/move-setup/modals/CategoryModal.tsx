@@ -1,15 +1,13 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useMediaQuery } from "react-responsive";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import { Id } from "@/convex/_generated/dataModel";
 import { CategorySchema } from "@/types/convex-schemas";
 import { FrontEndErrorMessages } from "@/types/errors";
 import FieldGroup from "@/app/components/shared/FieldGroup";
 import FieldRow from "@/app/components/shared/FieldRow";
 import FormActions from "@/app/components/shared/FormActions";
+import ResponsiveModal from "@/app/components/shared/modal/ResponsiveModal";
 
 interface CategoryFormData {
   name: string;
@@ -42,7 +40,6 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
   companyId,
   initialData,
 }) => {
-  const isMobile = useMediaQuery({ maxWidth: 768 });
   const [formData, setFormData] = useState<CategoryFormData>({ name: "" });
   const [fieldError, setFieldError] = useState<{ name?: string }>({});
 
@@ -76,6 +73,8 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
     }
   };
 
+  const isDisabled = formData.name.trim() === "";
+
   const formContent = (
     <FieldGroup>
       <FieldRow
@@ -87,32 +86,34 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
         error={fieldError.name}
       />
       <FormActions
-        onSave={handleSubmit}
+        onSave={(e) => {
+          e.preventDefault();
+          handleSubmit();
+        }}
         onCancel={onClose}
         isSaving={loading}
         error={error}
         saveLabel={initialData ? "Save Changes" : "Add Category"}
         cancelLabel="Cancel"
+        disabled={isDisabled}
+        cancelVariant="whiteGhost"
       />
     </FieldGroup>
   );
 
   const title = initialData ? "Edit Category" : "Add Category";
+  const description = initialData
+    ? "Update the category name and save your changes."
+    : "Enter a name for the new category you want to add.";
 
-  return isMobile ? (
-    <Drawer open={isOpen} onOpenChange={onClose}>
-      <DrawerContent>
-        <DrawerTitle>{title}</DrawerTitle>
-        {formContent}
-      </DrawerContent>
-    </Drawer>
-  ) : (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
-        <DialogTitle>{title}</DialogTitle>
-        {formContent}
-      </DialogContent>
-    </Dialog>
+  return (
+    <ResponsiveModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={title}
+      description={description}
+      children={formContent}
+    />
   );
 };
 

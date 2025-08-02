@@ -9,7 +9,7 @@ import {
   query,
 } from "./_generated/server";
 import { UserRoleConvex } from "@/types/convex-enums";
-import { Id } from "./_generated/dataModel";
+import { Doc, Id } from "./_generated/dataModel";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import { ClerkRoles, ResponseStatus } from "@/types/enums";
 import {
@@ -35,9 +35,9 @@ export const getUserByEmailInternal = internalQuery({
   args: {
     email: v.string(),
   },
-  handler: async (ctx, args): Promise<UserSchema | null> => {
+  handler: async (ctx, args): Promise<Doc<"users"> | null> => {
     try {
-      const user: UserSchema | null = await ctx.db
+      const user: Doc<"users"> | null = await ctx.db
         .query("users")
         .withIndex("by_email", (q) => q.eq("email", args.email))
         .first();
@@ -59,7 +59,6 @@ export const getAllUsersByCompanyId = query({
     const { companyId, isActive } = args;
     try {
       const identity = await requireAuthenticatedUser(ctx);
-      console.log("identity", identity);
 
       const company = await ctx.db.get(companyId);
 
@@ -67,7 +66,7 @@ export const getAllUsersByCompanyId = query({
 
       isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
-      const users: UserSchema[] = await ctx.db
+      const users: Doc<"users">[] = await ctx.db
         .query("users")
         .filter((q) => q.eq(q.field("companyId"), validatedCompany._id))
         .filter((q) => q.eq(q.field("isActive"), isActive))
@@ -110,7 +109,7 @@ export const getUserByIdInternal = internalQuery({
   args: {
     userId: v.id("users"),
   },
-  handler: async (ctx, args): Promise<UserSchema | null> => {
+  handler: async (ctx, args): Promise<Doc<"users"> | null> => {
     const { userId } = args;
     try {
       return await ctx.db.get(userId);
@@ -291,14 +290,14 @@ export const updateUserByEmailInternal = internalMutation({
   handler: async (ctx, args): Promise<Id<"users">> => {
     const { email, role, clerkOrganizationId, hourlyRate } = args;
     try {
-      const user: UserSchema | null = await ctx.db
+      const user: Doc<"users"> | null = await ctx.db
         .query("users")
         .withIndex("by_email", (q) => q.eq("email", email))
         .first();
 
       const validatedUser = validateUser(user);
 
-      const company: CompanySchema | null = await ctx.db
+      const company: Doc<"companies"> | null = await ctx.db
         .query("companies")
         .filter((q) =>
           q.eq(q.field("clerkOrganizationId"), clerkOrganizationId)

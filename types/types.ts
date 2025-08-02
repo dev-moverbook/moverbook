@@ -1,16 +1,26 @@
 import { Id } from "@/convex/_generated/dataModel";
+import { TravelChargingTypes } from "./enums";
 
 export interface SelectOption {
   label: string;
   value: string;
 }
 
-export type ServiceType = "moving" | "packing" | "labor";
+export type ServiceType =
+  | "moving"
+  | "packing"
+  | "load_only"
+  | "unload_only"
+  | "moving_and_packing"
+  | "commercial";
 
 export const SERVICE_TYPE_OPTIONS: { label: string; value: ServiceType }[] = [
   { label: "Moving", value: "moving" },
   { label: "Packing", value: "packing" },
-  { label: "Labor Only", value: "labor" },
+  { label: "Load Only", value: "load_only" },
+  { label: "Unload Only", value: "unload_only" },
+  { label: "Moving and Packing", value: "moving_and_packing" },
+  { label: "Commercial", value: "commercial" },
 ];
 
 export type StartWindowOption = "available" | "custom";
@@ -23,14 +33,14 @@ export const START_WINDOW_OPTIONS: {
   { label: "Custom Start Window", value: "custom" },
 ];
 
-export type MoveType =
+export type LocationType =
   | "apartment"
   | "house"
   | "office"
   | "storage unit"
   | "speciality item";
 
-export const MOVE_TYPE_OPTIONS: { label: string; value: MoveType }[] = [
+export const LOCATION_TYPE_OPTIONS: { label: string; value: LocationType }[] = [
   { label: "Apartment", value: "apartment" },
   { label: "House", value: "house" },
   { label: "Office", value: "office" },
@@ -66,7 +76,8 @@ export type MoveSize =
   | "2_bedroom"
   | "3_bedroom"
   | "4_bedroom"
-  | "5_bedroom";
+  | "5_bedroom"
+  | "not_applicable";
 
 export const MOVE_SIZE_OPTIONS: { label: string; value: MoveSize }[] = [
   { label: "Studio", value: "studio" },
@@ -75,6 +86,7 @@ export const MOVE_SIZE_OPTIONS: { label: string; value: MoveSize }[] = [
   { label: "3 Bedroom", value: "3_bedroom" },
   { label: "4 Bedroom", value: "4_bedroom" },
   { label: "5 Bedroom", value: "5_bedroom" },
+  { label: "Not Applicable", value: "not_applicable" },
 ];
 
 export type ManageMode = "edit" | "delete";
@@ -96,11 +108,35 @@ export const MOVE_STATUS_OPTIONS: { label: string; value: MoveStatus }[] = [
   { label: "Completed", value: "Completed" },
 ];
 
+export type TimeDistanceRange =
+  | "0-30 sec (less than 100 ft)"
+  | "30-50 sec (200 ft)"
+  | "50-70 sec (300 ft)"
+  | "70-90 sec (400 ft)";
+
+export const TIME_DISTANCE_OPTIONS: {
+  label: string;
+  value: TimeDistanceRange;
+}[] = [
+  {
+    label: "0-30 sec (less than 100 ft)",
+    value: "0-30 sec (less than 100 ft)",
+  },
+  { label: "30-50 sec (200 ft)", value: "30-50 sec (200 ft)" },
+  { label: "50-70 sec (300 ft)", value: "50-70 sec (300 ft)" },
+  { label: "70-90 sec (400 ft)", value: "70-90 sec (400 ft)" },
+];
+
 export type MoveTimes = "morning" | "afternoon" | "custom";
 
-export type LocationType = "starting" | "ending" | "stop";
+export type LocationRole = "starting" | "ending" | "stop";
 
 export type StopBehavior = "drop_off" | "pick_up";
+
+export const STOP_BEHAVIOR_OPTIONS: { label: string; value: StopBehavior }[] = [
+  { label: "Pickup", value: "pick_up" },
+  { label: "Drop", value: "drop_off" },
+];
 
 export interface SegmentDistance {
   label: string;
@@ -117,6 +153,16 @@ export const PAYMENT_METHOD_OPTIONS: {
   { label: "Credit Card", value: "credit_card" },
   { label: "Check", value: "check" },
   { label: "Cash", value: "cash" },
+];
+
+export const TRAVEL_FEE_METHOD_OPTIONS: {
+  label: string;
+  value: TravelChargingTypes | "None";
+}[] = [
+  { label: "Mileage Rate", value: TravelChargingTypes.MILEAGE },
+  { label: "Flat Rate", value: TravelChargingTypes.FLAT },
+  { label: "Labor Rate", value: TravelChargingTypes.LABOR_HOURS },
+  { label: "None", value: "None" },
 ];
 
 export type PaymentMethod = "credit_card" | "check" | "cash";

@@ -1,16 +1,15 @@
 "use client";
 
-import { MoveSchema } from "@/types/convex-schemas";
 import { useUpdateMove } from "../../../hooks/useUpdateMove";
 import { useCompanyFees } from "@/app/hooks/queries/useCompanyFees";
-import LineItems from "@/app/app/[slug]/add-move/components/sections/LineItems";
 import { MoveFeeInput } from "@/types/form-types";
+import { useMoveContext } from "@/app/contexts/MoveContext";
+import LineItemsSection from "@/app/components/move/sections/LineItemSection";
+import { Id } from "@/convex/_generated/dataModel";
 
-interface LineItemSectionProps {
-  move: MoveSchema;
-}
-
-const LineItemSection = ({ move }: LineItemSectionProps) => {
+const MoveLineItemsSection = ({}) => {
+  const { moveData } = useMoveContext();
+  const move = moveData.move;
   const { updateMove, updateMoveError, updateMoveLoading } = useUpdateMove();
 
   const { data: companyFees } = useCompanyFees(move.companyId);
@@ -34,21 +33,21 @@ const LineItemSection = ({ move }: LineItemSectionProps) => {
   const handleDeleteMoveFee = (index: number) => {
     updateMove({
       moveId: move._id,
-      updates: { moveFees: move.moveFees.filter((_, i) => i !== index) },
+      updates: { moveFees: move.moveFees.filter((f, i) => i !== index) },
     });
   };
 
   return (
-    <LineItems
-      moveFees={move.moveFees}
-      addMoveFee={handleAddMoveFee}
-      updateMoveFee={handleUpdateMoveFee}
-      deleteMoveFee={handleDeleteMoveFee}
-      moveFeeOptions={companyFees?.fees}
+    <LineItemsSection
+      fees={move.moveFees}
+      onAdd={handleAddMoveFee}
+      onUpdate={handleUpdateMoveFee}
+      onDelete={handleDeleteMoveFee}
+      moveFeeOptions={companyFees?.fees ?? []}
       isLoading={updateMoveLoading}
       errorMessage={updateMoveError}
     />
   );
 };
 
-export default LineItemSection;
+export default MoveLineItemsSection;

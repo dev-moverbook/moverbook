@@ -1,18 +1,15 @@
-import GroupedItemsList from "@/app/app/[slug]/add-move/components/lists/GroupedItemList";
 import React, { useState } from "react";
-import { MoveSchema } from "@/types/convex-schemas";
-import SectionContainer from "@/app/components/shared/containers/SectionContainer";
-import CenteredContainer from "@/app/components/shared/CenteredContainer";
 import SectionHeader from "@/app/components/shared/SectionHeader";
 import AddedItems from "@/app/app/[slug]/add-move/components/sections/AddedItems";
 import SelectionInventory from "@/app/app/[slug]/add-move/components/sections/SelectionInventory";
 import { useCompanyInventoryData } from "@/app/hooks/queries/useCompanyInventoryData";
+import { useMoveContext } from "@/app/contexts/MoveContext";
 
-interface InventorySectionProps {
-  move: MoveSchema;
-}
+interface InventorySectionProps {}
 
-const InventorySection = ({ move }: InventorySectionProps) => {
+const InventorySection = ({}: InventorySectionProps) => {
+  const { moveData } = useMoveContext();
+  const move = moveData.move;
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [selectedItemIndices, setSelectedItemIndices] = useState<Set<number>>(
     new Set()
@@ -34,6 +31,7 @@ const InventorySection = ({ move }: InventorySectionProps) => {
         isEditing={isEditing}
         onEditClick={handleEditClick}
         onCancelEdit={() => setIsEditing(false)}
+        className="mx-auto"
       />
       {/* <GroupedItemsList items={move.moveItems} isEditing={isEditing} /> */}
 

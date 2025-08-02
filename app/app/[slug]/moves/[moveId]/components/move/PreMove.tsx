@@ -3,16 +3,15 @@
 import SectionHeader from "@/app/components/shared/SectionHeader";
 import SectionContainer from "@/app/components/shared/containers/SectionContainer";
 import React from "react";
-import { PreMoveDocSchema } from "@/types/convex-schemas";
 import DisplaySignature from "@/app/components/move/shared/DisplaySignature";
 import Signature from "@/app/components/move/shared/Signature";
 import PreMoveTerms from "../copy/PreMoveTerms";
 import FormActions from "@/app/components/shared/FormActions";
 import { useCreateOrUpdatePreMoveDoc } from "../../../hooks/useCreateOrUpdatePreMoveDoc";
-import { Id } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 
 interface PreMoveProps {
-  preMoveDoc: PreMoveDocSchema | null;
+  preMoveDoc: Doc<"preMoveDocs"> | null;
   moveId: Id<"move">;
 }
 
@@ -60,7 +59,7 @@ const PreMove = ({ preMoveDoc, moveId }: PreMoveProps) => {
 
   return (
     <div>
-      <SectionHeader title="Pre Move Doc" />
+      <SectionHeader className="mx-auto" title="Pre Move Doc" />
       <SectionContainer>
         <PreMoveTerms />
         {showRepSignature ? (

@@ -11,6 +11,7 @@ interface ConfirmDeleteModalProps {
   onConfirm: () => void;
   deleteLoading: boolean;
   deleteError: string | null;
+  message?: string;
 }
 
 const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
@@ -19,12 +20,13 @@ const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
   onConfirm,
   deleteLoading,
   deleteError,
+  message = "Are you sure you want to delete this item?",
 }) => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
 
   const content = (
     <div className="space-y-4">
-      <p>Are you sure you want to delete this referral?</p>
+      <p>{message}</p>
 
       <FormActions
         onSave={onConfirm}

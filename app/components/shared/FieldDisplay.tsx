@@ -5,17 +5,24 @@ interface FieldDisplayProps {
   label: string;
   value?: string | null;
   fallback?: string;
+  icon?: React.ReactNode;
+  valueClassName?: string;
 }
 
 const FieldDisplay: React.FC<FieldDisplayProps> = ({
   label,
   value,
   fallback = "N/A",
+  icon,
+  valueClassName = "md:text-sm text-grayCustom2",
 }) => {
   return (
     <div className="space-y-1">
       <Label>{label}</Label>
-      <p className="md:text-sm text-grayCustom2">{value?.trim() || fallback}</p>
+      <div className="flex items-center gap-2">
+        {icon}
+        <p className={valueClassName}>{value?.trim() || fallback}</p>
+      </div>
     </div>
   );
 };

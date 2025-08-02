@@ -1,6 +1,5 @@
 import { Id } from "@/convex/_generated/dataModel";
 import {
-  CategorySize,
   ClerkRoles,
   InvitationStatus,
   PresSetScripts,
@@ -12,11 +11,10 @@ import {
   AccessType,
   HourStatus,
   JobType,
-  LocationType,
+  LocationRole,
   MoveSize,
   MoveStatus,
   MoveTimes,
-  MoveType,
   PaymentMethod,
   QuoteStatus,
   SegmentDistance,
@@ -25,6 +23,8 @@ import {
   MessageStatus,
   CommunicationType,
   MessageSentType,
+  TimeDistanceRange,
+  LocationType,
 } from "./types";
 import { MoveFeeInput } from "./form-types";
 
@@ -302,15 +302,16 @@ export interface MoveFee {
 
 export interface MoveLocation {
   uid: string;
-  locationType: LocationType;
+  locationRole: LocationRole;
   address: string | null;
-  moveType: MoveType | null;
+  locationType: LocationType | null;
   aptNumber: string | null;
   aptName: string | null;
   squareFootage: number | null;
   accessType: AccessType | null;
   moveSize: MoveSize | null;
   stopBehavior?: StopBehavior[];
+  timeDistanceRange: TimeDistanceRange;
 }
 
 export interface MoveInsurancePolicy {
@@ -416,4 +417,15 @@ export interface MessageSchema {
   message: string;
   sid?: string;
   sentType: MessageSentType;
+}
+
+export interface MoveCustomerSchema {
+  _id: Id<"moveCustomers">;
+  _creationTime: number;
+  name: string | null;
+  email: string | null;
+  phoneNumber: string | null;
+  altPhoneNumber: string | null;
+  referral: string | null;
+  companyId: Id<"companies">;
 }

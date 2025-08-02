@@ -8,9 +8,9 @@ import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
 
 interface UpdateTravelFeeData {
-  isDefault?: boolean;
-  chargingMethod?: TravelChargingTypes;
-  rate?: number;
+  mileageRate?: number;
+  flatRate?: number;
+  defaultMethod?: TravelChargingTypes | null;
 }
 
 export const useUpdateTravelFee = () => {

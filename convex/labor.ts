@@ -11,7 +11,7 @@ import {
   validateTravelFee,
 } from "./backendUtils/validate";
 import { isUserInOrg } from "./backendUtils/validate";
-import { shouldExposeError } from "./backendUtils/helper";
+import { handleInternalError, shouldExposeError } from "./backendUtils/helper";
 import {
   CreateLaborResponse,
   GetCompanyRatesResponse,
@@ -22,6 +22,7 @@ import {
   InsurancePolicySchema,
   LaborSchema,
 } from "@/types/convex-schemas";
+import { Doc } from "./_generated/dataModel";
 
 export const createLabor = mutation({
   args: {
@@ -167,7 +168,7 @@ export const getCompanyRates = query({
       const company = validateCompany(await ctx.db.get(companyId));
       isUserInOrg(identity, company.clerkOrganizationId);
 
-      const labor: LaborSchema[] = await ctx.db
+      const labor: Doc<"labor">[] = await ctx.db
         .query("labor")
         .filter((q) =>
           q.and(
@@ -177,7 +178,7 @@ export const getCompanyRates = query({
         )
         .collect();
 
-      const insurancePolicies: InsurancePolicySchema[] = await ctx.db
+      const insurancePolicies: Doc<"insurancePolicies">[] = await ctx.db
         .query("insurancePolicies")
         .filter((q) =>
           q.and(
@@ -201,7 +202,7 @@ export const getCompanyRates = query({
           .first()
       );
 
-      const fees: FeeSchema[] = await ctx.db
+      const fees: Doc<"fees">[] = await ctx.db
         .query("fees")
         .filter((q) =>
           q.and(
@@ -222,17 +223,7 @@ export const getCompanyRates = query({
         },
       };
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
-      console.error("Internal Error:", errorMessage, error);
-
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error: shouldExposeError(errorMessage)
-          ? errorMessage
-          : ErrorMessages.GENERIC_ERROR,
-      };
+      return handleInternalError(error);
     }
   },
 });

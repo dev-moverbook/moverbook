@@ -26,14 +26,6 @@ const RedirectingPage = () => {
 
   useEffect(() => {
     const redirect = async () => {
-      console.log("user", user);
-      console.log("userLoaded", userLoaded);
-      console.log("organizationLoaded", organizationLoaded);
-      console.log("companyResponse", companyResponse);
-      console.log("setActive", setActive);
-      console.log("organization", organization);
-      console.log("hasSetActive", hasSetActive);
-
       if (!userLoaded || !organizationLoaded) return;
 
       if (!user) {

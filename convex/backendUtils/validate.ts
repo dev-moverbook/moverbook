@@ -13,6 +13,7 @@ import {
   ItemSchema,
   LaborSchema,
   MoveAssignmentSchema,
+  MoveCustomerSchema,
   MoveSchema,
   PolicySchema,
   QuoteSchema,
@@ -20,7 +21,6 @@ import {
   RoomSchema,
   ScriptSchema,
   TravelFeeSchema,
-  UserSchema,
   VariableSchema,
   WebIntegrationsSchema,
 } from "@/types/convex-schemas";
@@ -29,14 +29,14 @@ import { CommunicationType } from "@/types/types";
 import { ErrorMessages } from "@/types/errors";
 import { UserIdentity } from "convex/server";
 import { MutationCtx } from "../_generated/server";
-import { Id } from "../_generated/dataModel";
+import { Doc, Id } from "../_generated/dataModel";
 
 export function validateUser(
-  user: UserSchema | null,
+  user: Doc<"users"> | null,
   checkActive: boolean = true,
   checkCompany?: boolean,
   checkCustomer?: boolean
-): UserSchema {
+): Doc<"users"> {
   if (!user) {
     throw new Error(ErrorMessages.USER_NOT_FOUND);
   }
@@ -57,9 +57,9 @@ export function validateUser(
 }
 
 export function validateCompany(
-  company: CompanySchema | null,
+  company: Doc<"companies"> | null,
   checkActive: boolean = true
-): CompanySchema {
+): Doc<"companies"> {
   if (!company) {
     throw new Error(ErrorMessages.COMPANY_NOT_FOUND);
   }
@@ -166,8 +166,8 @@ export function validateScript(
 }
 
 export function validateCompliance(
-  compliance: ComplianceSchema | null
-): ComplianceSchema {
+  compliance: Doc<"compliance"> | null
+): Doc<"compliance"> {
   if (!compliance) {
     throw new Error(ErrorMessages.COMPLIANCE_NOT_FOUND);
   }
@@ -175,8 +175,8 @@ export function validateCompliance(
 }
 
 export function validateWebIntegrations(
-  webIntegrations: WebIntegrationsSchema | null
-): WebIntegrationsSchema {
+  webIntegrations: Doc<"webIntegrations"> | null
+): Doc<"webIntegrations"> {
   if (!webIntegrations) {
     throw new Error(ErrorMessages.WEB_INTEGRATIONS_NOT_FOUND);
   }
@@ -184,8 +184,8 @@ export function validateWebIntegrations(
 }
 
 export function validateCompanyContact(
-  companyContact: CompanyContactSchema | null
-): CompanyContactSchema {
+  companyContact: Doc<"companyContact"> | null
+): Doc<"companyContact"> {
   if (!companyContact) {
     throw new Error(ErrorMessages.COMPANY_CONTACT_NOT_FOUND);
   }
@@ -201,7 +201,9 @@ export function validateArrivalWindow(
   return arrivalWindow;
 }
 
-export function validatePolicy(policy: PolicySchema | null): PolicySchema {
+export function validatePolicy(
+  policy: Doc<"policies"> | null
+): Doc<"policies"> {
   if (!policy) {
     throw new Error(ErrorMessages.POLICY_NOT_FOUND);
   }
@@ -257,8 +259,8 @@ export function validateInsurancePolicy(
 }
 
 export function validateCreditCardFee(
-  creditCardFee: CreditCardFeeSchema | null
-): CreditCardFeeSchema {
+  creditCardFee: Doc<"creditCardFees"> | null
+): Doc<"creditCardFees"> {
   if (!creditCardFee) {
     throw new Error(ErrorMessages.CREDIT_CARD_FEE_NOT_FOUND);
   }
@@ -273,8 +275,8 @@ export function validateFee(fee: FeeSchema | null): FeeSchema {
 }
 
 export function validateTravelFee(
-  travelFee: TravelFeeSchema | null
-): TravelFeeSchema {
+  travelFee: Doc<"travelFee"> | null
+): Doc<"travelFee"> {
   if (!travelFee) {
     throw new Error(ErrorMessages.TRAVEL_FEE_NOT_FOUND);
   }
@@ -333,7 +335,7 @@ export function validateItem(item: ItemSchema | null): ItemSchema {
   return item;
 }
 
-export function validateMove(move: MoveSchema | null): MoveSchema {
+export function validateMove(move: Doc<"move"> | null): Doc<"move"> {
   if (!move) {
     throw new Error(ErrorMessages.MOVE_NOT_FOUND);
   }
@@ -365,4 +367,13 @@ export function validateDiscount(
     throw new Error(ErrorMessages.DISCOUNT_NOT_FOUND);
   }
   return discount;
+}
+
+export function validateMoveCustomer(
+  moveCustomer: Doc<"moveCustomers"> | null
+): Doc<"moveCustomers"> {
+  if (!moveCustomer) {
+    throw new Error(ErrorMessages.MOVE_CUSTOMER_NOT_FOUND);
+  }
+  return moveCustomer;
 }

@@ -19,7 +19,7 @@ import {
   validateUser,
   validateWebIntegrations,
 } from "./backendUtils/validate";
-import { ClerkRoles, ResponseStatus } from "@/types/enums";
+import { ClerkRoles, ResponseStatus, StripeAccountStatus } from "@/types/enums";
 import {
   GetCompanyClerkUserIdResponse,
   GetCompanyDetailsResponse,
@@ -35,7 +35,7 @@ import {
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import { internal } from "./_generated/api";
 import { updateClerkOrgName } from "./backendUtils/clerk";
-import { Id } from "./_generated/dataModel";
+import { Doc, Id } from "./_generated/dataModel";
 
 export const createCompany = internalMutation({
   args: {
@@ -167,10 +167,25 @@ export const getCompanyIdBySlug = query({
 
       const validatedCompany = validateCompany(company);
 
-      const connectedAccount: ConnectedAccountSchema | null = await ctx.db
+      const connectedAccount: Doc<"connectedAccounts"> | null = await ctx.db
         .query("connectedAccounts")
         .filter((q) => q.eq(q.field("customerId"), validatedCompany.customerId))
         .first();
+
+      const companyContact: Doc<"companyContact"> = validateCompanyContact(
+        await ctx.db
+          .query("companyContact")
+          .filter((q) => q.eq(q.field("companyId"), validatedCompany._id))
+          .first()
+      );
+
+      const isCompanyContactComplete =
+        !!companyContact.email &&
+        !!companyContact.phoneNumber &&
+        !!companyContact.address;
+
+      const isStripeComplete =
+        connectedAccount?.status === StripeAccountStatus.VERIFIED;
 
       return {
         status: ResponseStatus.SUCCESS,
@@ -179,17 +194,12 @@ export const getCompanyIdBySlug = query({
           connectedAccountId: connectedAccount?.stripeAccountId || null,
           connectedAccountStatus: connectedAccount?.status || null,
           timeZone: validatedCompany.timeZone,
+          isCompanyContactComplete,
+          isStripeComplete,
         },
       };
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
-      console.error(errorMessage, error);
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error: errorMessage,
-      };
+      return handleInternalError(error);
     }
   },
 });

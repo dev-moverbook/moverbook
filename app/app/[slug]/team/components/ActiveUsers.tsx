@@ -21,7 +21,6 @@ const ActiveUsers = () => {
     companyId ? { companyId, isActive: true } : "skip"
   );
 
-  console.log("usersResponse", usersResponse);
   if (!companyId) {
     return <Skeleton />;
   }

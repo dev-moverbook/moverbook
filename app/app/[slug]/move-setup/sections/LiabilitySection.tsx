@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Id } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import { InsurancePolicySchema } from "@/types/convex-schemas";
 import SectionContainer from "@/app/components/shared/SectionContainer";
 import CenteredContainer from "@/app/components/shared/CenteredContainer";
@@ -14,9 +14,10 @@ import { useCreateInsurancePolicy } from "../hooks/useCreateInsurancePolicy";
 import { useUpdateInsurancePolicy } from "../hooks/useUpdateInsurancePolicy";
 import { useDeleteInsurancePolicy } from "../hooks/useDeleteInsurancePolicy";
 import CardContainer from "@/app/components/shared/CardContainer";
+import AddItemButton from "@/app/components/shared/buttons/AddItemButton";
 
 interface LiabilitySectionProps {
-  policies: InsurancePolicySchema[];
+  policies: Doc<"insurancePolicies">[];
   companyId: Id<"companies">;
 }
 
@@ -92,52 +93,55 @@ const LiabilitySection: React.FC<LiabilitySectionProps> = ({
 
   return (
     <SectionContainer>
-      <SectionHeader
-        className=""
-        title="Liability Coverage"
-        actions={
-          <Button onClick={handleOpenCreateModal}>+ Add Coverage</Button>
-        }
-      />
-      <CardContainer>
-        {policies.map((policy) => (
-          <LiabilityCard
-            policy={policy}
-            onEdit={handleOpenEditModal}
-            onDelete={handleOpenDeleteModal}
-            key={policy._id}
-          />
-        ))}
-      </CardContainer>
+      <CenteredContainer>
+        <SectionHeader
+          className="px-0 pb-4"
+          title="Liability Coverage"
+          actions={
+            <AddItemButton label="Coverage" onClick={handleOpenCreateModal} />
+          }
+        />
 
-      <LiabilityModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onCreate={createInsurancePolicy}
-        onEdit={updateInsurancePolicy}
-        loading={
-          isEditMode
-            ? updateInsurancePolicyLoading
-            : createInsurancePolicyLoading
-        }
-        error={
-          isEditMode ? updateInsurancePolicyError : createInsurancePolicyError
-        }
-        companyId={companyId}
-        initialData={selectedPolicy}
-      />
+        <CardContainer>
+          {policies.map((policy) => (
+            <LiabilityCard
+              policy={policy}
+              onEdit={handleOpenEditModal}
+              onDelete={handleOpenDeleteModal}
+              key={policy._id}
+            />
+          ))}
+        </CardContainer>
 
-      <ConfirmModal
-        isOpen={isDeleteModalOpen}
-        onClose={handleCloseDeleteModal}
-        onConfirm={handleConfirmDelete}
-        deleteLoading={deleteInsurancePolicyLoading}
-        deleteError={deleteInsurancePolicyError}
-        title="Confirm Delete"
-        description="Are you sure you want to delete this policy? This action cannot be undone."
-        confirmButtonText="Delete"
-        cancelButtonText="Cancel"
-      />
+        <LiabilityModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          onCreate={createInsurancePolicy}
+          onEdit={updateInsurancePolicy}
+          loading={
+            isEditMode
+              ? updateInsurancePolicyLoading
+              : createInsurancePolicyLoading
+          }
+          error={
+            isEditMode ? updateInsurancePolicyError : createInsurancePolicyError
+          }
+          companyId={companyId}
+          initialData={selectedPolicy}
+        />
+
+        <ConfirmModal
+          isOpen={isDeleteModalOpen}
+          onClose={handleCloseDeleteModal}
+          onConfirm={handleConfirmDelete}
+          deleteLoading={deleteInsurancePolicyLoading}
+          deleteError={deleteInsurancePolicyError}
+          title="Confirm Delete"
+          description="Are you sure you want to delete this policy? This action cannot be undone."
+          confirmButtonText="Delete"
+          cancelButtonText="Cancel"
+        />
+      </CenteredContainer>
     </SectionContainer>
   );
 };

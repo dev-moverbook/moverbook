@@ -1,178 +1,152 @@
 import CounterInput from "@/app/components/shared/labeled/CounterInput";
-import React from "react";
+import React, { useState } from "react";
 import { useMoveForm } from "@/app/contexts/MoveFormContext";
 import SectionContainer from "@/app/components/shared/containers/SectionContainer";
 import { JobType } from "@/types/types";
 import ToggleButtonGroup from "@/app/components/shared/labeled/ToggleButtonGroup";
-import LabeledInput from "@/app/components/shared/labeled/LabeledInput";
 import Header3 from "@/app/components/shared/heading/Header3";
-
-// const TrucksAndMovers = () => {
-//   const {
-//     truckCount,
-//     setTruckCount,
-//     moversCount,
-//     setMoversCount,
-//     startingHour,
-//     setStartingHour,
-//     endingHour,
-//     setEndingHour,
-//     jobType,
-//     setJobType,
-//     isTruckAndMoverCompleted,
-//     setJobTypeRate,
-//     setJobTypeRateError,
-//     jobTypeRate,
-//     jobTypeRateError,
-//   } = useMoveForm();
-
-//   return (
-//     <SectionContainer>
-//       <Header3 isCompleted={isTruckAndMoverCompleted}>
-//         Trucks and Movers
-//       </Header3>
-//       <div className="grid grid-cols-2 ">
-//         <CounterInput
-//           label="Trucks"
-//           value={truckCount}
-//           onChange={setTruckCount}
-//           min={1}
-//           max={10}
-//         />
-//         <CounterInput
-//           label="Movers"
-//           value={moversCount}
-//           onChange={setMoversCount}
-//           min={1}
-//           max={10}
-//         />
-//       </div>
-//       <div className="grid grid-cols-2 mt-4">
-//         <CounterInput
-//           label="Estimated Starting Hour"
-//           value={startingHour}
-//           onChange={setStartingHour}
-//           min={1}
-//           max={10}
-//         />
-//         <CounterInput
-//           label="Estimated Ending Hour"
-//           value={endingHour}
-//           onChange={setEndingHour}
-//           min={1}
-//           max={10}
-//         />
-//       </div>
-
-//       <ToggleButtonGroup<JobType>
-//         label="Job Type"
-//         value={jobType}
-//         onChange={setJobType}
-//         options={[
-//           { label: "Hourly", value: "hourly" },
-//           { label: "Flat", value: "flat" },
-//         ]}
-//       />
-//       <LabeledInput
-//         label={jobType === "hourly" ? "Hourly Rate ($/hr)" : "Flat Rate ($)"}
-//         value={jobTypeRate?.toString() || ""}
-//         onChange={(e) => {
-//           setJobTypeRate(Math.round(Number(e.target.value) * 100) / 100);
-//           setJobTypeRateError(null);
-//         }}
-//         error={jobTypeRateError}
-//         type="number"
-//         min={0}
-//         step="0.01"
-//       />
-//     </SectionContainer>
-//   );
-// };
-
-// export default TrucksAndMovers;
+import CurrencyInput from "@/app/components/shared/labeled/CurrencyInput";
+import TruckSelector from "@/app/components/move/sections/TruckSelector";
+import TagLabel from "@/app/components/shared/labeled/TagLabel";
+import MoverSelector from "@/app/components/move/sections/MoveSelector";
+import EditableTruckField from "@/app/components/move/sections/EditableTruckField";
 
 interface TrucksAndMoversProps {
-  truckCount: number;
-  moversCount: number;
-  startingHour: number;
-  endingHour: number;
-  jobType: JobType;
-  jobTypeRate: number | null;
-  jobTypeRateError?: string | null;
-  isCompleted?: boolean;
   isEditing?: boolean;
-
-  onChange: {
-    setTruckCount: (value: number) => void;
-    setMoversCount: (value: number) => void;
-    setStartingHour: (value: number) => void;
-    setEndingHour: (value: number) => void;
-    setJobType: (value: JobType) => void;
-    setJobTypeRate: (value: number) => void;
-    setJobTypeRateError: (error: string | null) => void;
-  };
 }
 
 const TrucksAndMovers: React.FC<TrucksAndMoversProps> = ({
-  truckCount,
-  moversCount,
-  startingHour,
-  endingHour,
-  jobType,
-  jobTypeRate,
-  jobTypeRateError,
-  isCompleted,
   isEditing = true,
-  onChange,
 }) => {
+  const { moveFormData, setMoveFormData, moveFormErrors, setMoveFormErrors } =
+    useMoveForm();
+  const [tagTrucksType, setTagTrucksType] = useState<"suggested" | "custom">(
+    "suggested"
+  );
+  const [tagMoversType, setTagMoversType] = useState<"suggested" | "custom">(
+    "suggested"
+  );
+
+  const hourEstimates: Record<number, [number, number]> = {
+    1: [1, 2],
+    2: [2, 3],
+    3: [3, 4],
+    4: [4, 5],
+  };
+
+  const updateMoverAndTimes = (
+    val: number,
+    hourEstimates: Record<number, [number, number]>,
+    prev: typeof moveFormData
+  ) => {
+    const estimate = hourEstimates[val];
+    return {
+      ...prev,
+      movers: val,
+      startingMoveTime: estimate?.[0] ?? prev.startingMoveTime,
+      endingMoveTime: estimate?.[1] ?? prev.endingMoveTime,
+    };
+  };
+
   return (
     <SectionContainer>
-      <Header3 wrapperClassName="px-0" isCompleted={isCompleted}>
-        Trucks and Movers
+      <Header3 wrapperClassName="px-0 pt-0" showCheckmark={false}>
+        Labor
       </Header3>
+      <EditableTruckField
+        value={moveFormData.trucks}
+        onChange={(val) => {
+          setMoveFormData({ ...moveFormData, trucks: val });
+          if (moveFormErrors.trucks) {
+            const { trucks, ...rest } = moveFormErrors;
+            setMoveFormErrors(rest);
+          }
+        }}
+        tagType={tagTrucksType}
+        setTagType={setTagTrucksType}
+        isEditing={isEditing}
+      />
 
-      <div className="grid grid-cols-2">
-        <CounterInput
-          label="Trucks"
-          value={truckCount}
-          onChange={onChange.setTruckCount}
-          min={1}
-          max={10}
-          isEditingProp={isEditing}
+      <TagLabel
+        label="Movers"
+        buttonText={tagMoversType === "suggested" ? "Custom" : "Suggested"}
+        onToggle={() =>
+          setTagMoversType(
+            tagMoversType === "suggested" ? "custom" : "suggested"
+          )
+        }
+      />
+      {tagMoversType === "suggested" ? (
+        <MoverSelector
+          value={moveFormData.movers}
+          onChange={(val) =>
+            setMoveFormData(
+              updateMoverAndTimes(val, hourEstimates, moveFormData)
+            )
+          }
+          recommendedValue={2}
+          warningValue={1}
+          hourEstimates={hourEstimates}
         />
-        <CounterInput
-          label="Movers"
-          value={moversCount}
-          onChange={onChange.setMoversCount}
-          min={1}
-          max={10}
-          isEditingProp={isEditing}
-        />
-      </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-3">
+          <CounterInput
+            label="Starting Hour"
+            value={moveFormData.startingMoveTime}
+            onChange={(value) => {
+              setMoveFormData({ ...moveFormData, startingMoveTime: value });
+              if (moveFormErrors.startingMoveTime) {
+                const { startingMoveTime, ...rest } = moveFormErrors;
+                setMoveFormErrors(rest);
+              }
+            }}
+            min={1}
+            max={10}
+            isEditingProp={isEditing}
+          />
+          <CounterInput
+            label="Ending Hour"
+            value={moveFormData.endingMoveTime}
+            onChange={(value) => {
+              setMoveFormData({ ...moveFormData, endingMoveTime: value });
+              if (moveFormErrors.endingMoveTime) {
+                const { endingMoveTime, ...rest } = moveFormErrors;
+                setMoveFormErrors(rest);
+              }
+            }}
+            min={1}
+            max={10}
+            isEditingProp={isEditing}
+          />
+          <CounterInput
+            label="Number of Movers"
+            value={moveFormData.movers}
+            onChange={(value) => {
+              setMoveFormData({ ...moveFormData, movers: value });
+              if (moveFormErrors.movers) {
+                const { movers, ...rest } = moveFormErrors;
+                setMoveFormErrors(rest);
+              }
+            }}
+            min={1}
+            max={10}
+            isEditingProp={isEditing}
+          />{" "}
+        </div>
+      )}
 
-      <div className="grid grid-cols-2 mt-4">
-        <CounterInput
-          label="Estimated Starting Hour"
-          value={startingHour}
-          onChange={onChange.setStartingHour}
-          min={1}
-          max={10}
-          isEditingProp={isEditing}
-        />
-        <CounterInput
-          label="Estimated Ending Hour"
-          value={endingHour}
-          onChange={onChange.setEndingHour}
-          min={1}
-          max={10}
-          isEditingProp={isEditing}
-        />
-      </div>
+      <div className="grid grid-cols-2 mt-4"></div>
 
       <ToggleButtonGroup<JobType>
         label="Job Type"
-        value={jobType}
-        onChange={onChange.setJobType}
+        value={moveFormData.jobType}
+        onChange={(value) => {
+          setMoveFormData({ ...moveFormData, jobType: value });
+          if (moveFormErrors.jobType) {
+            const { jobType, ...rest } = moveFormErrors;
+            setMoveFormErrors(rest);
+          }
+        }}
         options={[
           { label: "Hourly", value: "hourly" },
           { label: "Flat", value: "flat" },
@@ -180,19 +154,24 @@ const TrucksAndMovers: React.FC<TrucksAndMoversProps> = ({
         isEditing={isEditing}
       />
 
-      <LabeledInput
-        label={jobType === "hourly" ? "Hourly Rate ($/hr)" : "Flat Rate ($)"}
-        value={jobTypeRate?.toString() || ""}
-        onChange={(e) => {
-          onChange.setJobTypeRate(
-            Math.round(Number(e.target.value) * 100) / 100
-          );
-          onChange.setJobTypeRateError(null);
+      <CurrencyInput
+        label={
+          moveFormData.jobType === "hourly"
+            ? "Hourly Rate ($/hr)"
+            : "Flat Rate ($)"
+        }
+        value={moveFormData.jobTypeRate || 0}
+        onChange={(val) => {
+          setMoveFormData((prev) => ({
+            ...prev,
+            jobTypeRate: val ? Math.round(val * 100) / 100 : null,
+          }));
+          if (moveFormErrors.jobTypeRate) {
+            const { jobTypeRate, ...rest } = moveFormErrors;
+            setMoveFormErrors(rest);
+          }
         }}
-        error={jobTypeRateError}
-        type="number"
-        min={0}
-        step="0.01"
+        error={moveFormErrors.jobTypeRate}
         isEditing={isEditing}
       />
     </SectionContainer>

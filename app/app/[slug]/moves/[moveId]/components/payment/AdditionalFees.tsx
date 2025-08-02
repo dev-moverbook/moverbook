@@ -1,12 +1,10 @@
 "use client";
 
-import { Id } from "@/convex/_generated/dataModel";
-
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import CardContainer from "@/app/components/shared/CardContainer";
 import SectionContainer from "@/app/components/shared/containers/SectionContainer";
 import Header3 from "@/app/components/shared/heading/Header3";
 import { Button } from "@/app/components/ui/button";
-import { AdditionalFeeSchema } from "@/types/convex-schemas";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useCreateAdditionalFee } from "../../../hooks/useCreteAdditionalFee";
@@ -18,14 +16,19 @@ import AdditionalFeeModal, {
 } from "../modals/AdditionalFeeModal";
 
 interface AdditionalFeesProps {
-  additionalFees: AdditionalFeeSchema[];
+  additionalFees: Doc<"additionalFees">[];
   moveId: Id<"move">;
+  fees: Doc<"fees">[];
 }
 
-const AdditionalFees = ({ additionalFees, moveId }: AdditionalFeesProps) => {
+const AdditionalFees = ({
+  additionalFees,
+  moveId,
+  fees,
+}: AdditionalFeesProps) => {
   const [showAddLineItemModal, setShowAddLineItemModal] =
     useState<boolean>(false);
-  const [editFee, setEditFee] = useState<AdditionalFeeSchema | null>(null);
+  const [editFee, setEditFee] = useState<Doc<"additionalFees"> | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [feeToDelete, setFeeToDelete] = useState<Id<"additionalFees"> | null>(
     null
@@ -52,14 +55,34 @@ const AdditionalFees = ({ additionalFees, moveId }: AdditionalFeesProps) => {
     setShowAddLineItemModal(true);
   };
 
+  const handleOpenEditModal = (additionalFeeId: Id<"additionalFees">) => {
+    const match: Doc<"additionalFees"> | undefined = additionalFees.find(
+      (f) => f._id === additionalFeeId
+    );
+    if (match) {
+      setEditFee(match);
+      setShowAddLineItemModal(true);
+    }
+  };
+
+  const handleOpenDeleteModal = (additionalFeeId: Id<"additionalFees">) => {
+    if (additionalFeeId) {
+      setFeeToDelete(additionalFeeId);
+      setShowDeleteModal(true);
+    }
+  };
+
   const handleSubmitFee = async (fee: AdditionalFeeFormData) => {
-    const parsedPrice = parseFloat(fee.price);
+    if (!fee.price) {
+      setCreateFeeError("Price is required");
+      return;
+    }
     if (editFee) {
       const response = await updateAdditionalFee({
         additionalFeeId: editFee._id,
         updates: {
           name: fee.name,
-          price: parsedPrice,
+          price: fee.price,
           quantity: fee.quantity,
           feeId: fee?.feeId,
         },
@@ -71,7 +94,7 @@ const AdditionalFees = ({ additionalFees, moveId }: AdditionalFeesProps) => {
       const response = await createAdditionalFee({
         moveId: moveId,
         name: fee.name,
-        price: parsedPrice,
+        price: fee.price,
         quantity: fee.quantity,
         feeId: fee?.feeId,
       });
@@ -86,16 +109,7 @@ const AdditionalFees = ({ additionalFees, moveId }: AdditionalFeesProps) => {
     setShowAddLineItemModal(false);
     setCreateFeeError(null);
     setUpdateFeeError(null);
-  };
-
-  const handleEditFee = (fee: AdditionalFeeSchema) => {
-    setEditFee(fee);
-    setShowAddLineItemModal(true);
-  };
-
-  const handleDeleteFee = (fee: Id<"additionalFees">) => {
-    setShowDeleteModal(true);
-    setFeeToDelete(fee);
+    setEditFee(null);
   };
 
   const handleCloseDeleteModal = () => {
@@ -139,12 +153,12 @@ const AdditionalFees = ({ additionalFees, moveId }: AdditionalFeesProps) => {
 
         {additionalFees.length > 0 ? (
           <CardContainer>
-            {additionalFees.map((fee) => (
+            {additionalFees.map((fee, index) => (
               <AdditionalFeeCard
-                key={fee._id}
+                key={`${fee.name}-${index}`}
                 fee={fee}
-                onEdit={handleEditFee}
-                onDelete={handleDeleteFee}
+                onEdit={handleOpenEditModal}
+                onDelete={handleOpenDeleteModal}
               />
             ))}
           </CardContainer>
@@ -158,7 +172,7 @@ const AdditionalFees = ({ additionalFees, moveId }: AdditionalFeesProps) => {
         onClose={handleCloseAddLineItemModal}
         initialData={editFee ? editFee : null}
         onSubmit={handleSubmitFee}
-        moveFeeOptions={[]}
+        moveFeeOptions={fees}
         isLoading={editFee ? updateFeeLoading : createFeeLoading}
         errorMessage={editFee ? updateFeeError : createFeeError}
       />
@@ -168,6 +182,7 @@ const AdditionalFees = ({ additionalFees, moveId }: AdditionalFeesProps) => {
         onConfirm={handleConfirmDeleteFee}
         deleteLoading={updateFeeLoading}
         deleteError={updateFeeError}
+        message="Are you sure you want to delete this fee?"
       />
     </div>
   );

@@ -71,6 +71,8 @@ const ComplianceSection: React.FC<ComplianceSectionProps> = ({
           title="Compliance"
           isEditing={isEditing}
           onEditClick={handleEditClick}
+          onCancelEdit={handleCancel}
+          className="px-0 pb-4"
         />
 
         <FieldGroup>
@@ -80,6 +82,7 @@ const ComplianceSection: React.FC<ComplianceSectionProps> = ({
             value={formData.statePucPermitNumber}
             isEditing={isEditing}
             onChange={handleChange}
+            placeholder="Enter state PUC permit number"
           />
 
           <FieldRow
@@ -88,6 +91,7 @@ const ComplianceSection: React.FC<ComplianceSectionProps> = ({
             value={formData.dmvNumber}
             isEditing={isEditing}
             onChange={handleChange}
+            placeholder="Enter DMV number"
           />
 
           <FieldRow
@@ -96,11 +100,15 @@ const ComplianceSection: React.FC<ComplianceSectionProps> = ({
             value={formData.usDotNumber}
             isEditing={isEditing}
             onChange={handleChange}
+            placeholder="Enter US DOT number"
           />
 
           {isEditing && (
             <FormActions
-              onSave={handleSave}
+              onSave={(e) => {
+                e.preventDefault();
+                handleSave();
+              }}
               onCancel={handleCancel}
               isSaving={updateLoading}
               error={updateError}

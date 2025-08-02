@@ -1,4 +1,3 @@
-// app/(dashboard)/[moveId]/layout.tsx
 "use client";
 
 import { useParams } from "next/navigation";

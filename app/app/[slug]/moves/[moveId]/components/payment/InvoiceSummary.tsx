@@ -5,19 +5,15 @@ import SectionContainer from "@/app/components/shared/containers/SectionContaine
 import SectionHeader from "@/app/components/shared/SectionHeader";
 import ListRow from "@/app/components/shared/ui/ListRow";
 import { formatCurrency } from "@/app/frontendUtils/helper";
-import {
-  AdditionalFeeSchema,
-  DiscountSchema,
-  MoveSchema,
-} from "@/types/convex-schemas";
 import ReusableCard from "../card/ReusableCard";
 import { cn } from "@/lib/utils";
 import { DisplayRow } from "@/types/types";
+import { Doc } from "@/convex/_generated/dataModel";
 
 interface InvoiceSummaryProps {
-  move: MoveSchema;
-  discounts: DiscountSchema[];
-  additionalFees: AdditionalFeeSchema[];
+  move: Doc<"move">;
+  discounts: Doc<"discounts">[];
+  additionalFees: Doc<"additionalFees">[];
 }
 
 const InvoiceSummary = ({
@@ -35,7 +31,7 @@ const InvoiceSummary = ({
 
   const displayRows: DisplayRow[] = [
     ...moveFees.map((fee) => ({
-      left: `${fee.name} x${fee.quantity}`,
+      left: `${fee.name} (${fee.quantity} @ ${formatCurrency(fee.price)})`,
       right: `$${(fee.price * fee.quantity).toFixed(2)}`,
     })),
     {
@@ -70,7 +66,7 @@ const InvoiceSummary = ({
 
   return (
     <div>
-      <SectionHeader title="Invoice Summary" />
+      <SectionHeader className="mx-auto" title="Invoice Summary" />
       {displayRows.length > 0 && (
         <ListRowContainer>
           {displayRows.map((row, i) => (
@@ -79,7 +75,7 @@ const InvoiceSummary = ({
               left={row.left}
               right={row.right}
               className={cn(
-                i % 2 === 1 ? "bg-background2" : "",
+                i % 2 === 1 ? "" : "bg-background2",
                 row.className // Include custom row styling if provided
               )}
             />

@@ -9,7 +9,7 @@ import CustomCard from "@/app/components/shared/CustomCard";
 import CardDetailsWrapper from "@/app/components/shared/CardDetailsWrapper";
 import CardDetailRow from "@/app/components/shared/CardDetailRow";
 import TitleWithBadge from "@/app/components/shared/TitleWithBadge";
-import { formatMonthDay } from "@/app/frontendUtils/helper";
+import { formatCurrency, formatMonthDay } from "@/app/frontendUtils/helper";
 
 interface LaborCardProps {
   laborItem: LaborSchema;
@@ -52,16 +52,20 @@ const LaborCard: React.FC<LaborCardProps> = ({
       <CardDetailsWrapper>
         <CardDetailRow
           label="2 Movers"
-          value={`$${laborItem.twoMovers}`}
-          className="bg-background2"
+          value={`${formatCurrency(laborItem.twoMovers)}`}
         />
-        <CardDetailRow label="3 Movers" value={`$${laborItem.threeMovers}`} />
         <CardDetailRow
-          className="bg-background2"
-          label="4 Movers"
-          value={`$${laborItem.fourMovers}`}
+          label="3 Movers"
+          value={`${formatCurrency(laborItem.threeMovers)}`}
         />
-        <CardDetailRow label="Extra Mover" value={`$${laborItem.extra}`} />
+        <CardDetailRow
+          label="4 Movers"
+          value={`${formatCurrency(laborItem.fourMovers)}`}
+        />
+        <CardDetailRow
+          label="Extra Mover"
+          value={`${formatCurrency(laborItem.extra)}`}
+        />
         {laborItem.startDate != null && (
           <CardDetailRow
             label="Start Date"
