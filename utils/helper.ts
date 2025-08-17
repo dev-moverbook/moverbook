@@ -1,3 +1,4 @@
+import { Doc } from "@/convex/_generated/dataModel";
 import { MutationCtx } from "@/convex/_generated/server";
 import { InsurancePolicySchema } from "@/types/convex-schemas";
 import { InsurancePolicyInput } from "@/types/form-types";
@@ -65,7 +66,7 @@ export const calculateWeightFromSize = (size: number | null): number | null => {
 };
 
 export const transformInsurancePolicy = (
-  policy: InsurancePolicySchema
+  policy: Doc<"insurancePolicies">
 ): InsurancePolicyInput => ({
   name: policy.name,
   coverageAmount: policy.coverageAmount,
