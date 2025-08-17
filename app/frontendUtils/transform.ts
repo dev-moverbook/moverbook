@@ -43,7 +43,7 @@ export const transformToCreateMoveInput = (
     roundTripDrive: form.roundTripDrive,
     roundTripMiles: form.roundTripMiles,
     salesRep: form.salesRep,
-    segmentDistances: form.segmentDistances,
+    segmentDistances: [],
     serviceType: form.serviceType,
     startingMoveTime: form.startingMoveTime,
     totalMiles: form.totalMiles,

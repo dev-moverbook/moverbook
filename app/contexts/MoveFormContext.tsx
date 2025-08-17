@@ -51,7 +51,6 @@ interface AddMoveFormData {
   isLocationComplete: (index: number) => boolean;
   isMoveDetailsComplete: boolean;
   companyContact?: Doc<"companyContact">;
-  segmentDistances: SegmentDistance[];
   customer: CustomerFormData;
   setCustomer: (customer: CustomerFormData) => void;
   customerErrors: CustomerFormErrors;
@@ -60,6 +59,7 @@ interface AddMoveFormData {
   setMoveFormData: React.Dispatch<React.SetStateAction<MoveFormData>>;
   moveFormErrors: MoveFormErrors;
   setMoveFormErrors: (errors: MoveFormErrors) => void;
+  segmentDistances: SegmentDistance[];
   travelFeeOptions?: Doc<"travelFee">;
 }
 const MoveFormContext = createContext<AddMoveFormData | undefined>(undefined);
@@ -154,7 +154,6 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
     roundTripDrive: null,
     roundTripMiles: null,
     salesRep: null,
-    segmentDistances: [],
     serviceType: null,
     startingMoveTime: 1,
     totalMiles: null,
@@ -487,6 +486,7 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
         companyContact,
         customer,
         setCustomer,
+        segmentDistances: [],
         customerErrors,
         setCustomerErrors,
         moveFormData,
