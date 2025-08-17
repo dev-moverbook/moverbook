@@ -10,7 +10,6 @@ const CostSection = () => {
     liabilityCoverage,
     jobTypeRate,
     jobType,
-    creditCardFee,
     travelFeeRate,
     travelFeeMethod,
   } = move;
@@ -20,7 +19,6 @@ const CostSection = () => {
     jobType,
     jobTypeRate,
     liabilityCoverage,
-    creditCardFee,
     travelFeeRate,
     travelFeeMethod,
   });

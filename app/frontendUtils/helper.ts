@@ -1,4 +1,4 @@
-import { CreatableUserRole } from "@/types/enums";
+import { CreatableUserRole, TravelChargingTypes } from "@/types/enums";
 import {
   AccessType,
   JobType,
@@ -432,16 +432,21 @@ export interface ListRowType {
   right: string | null;
 }
 
+\
 export function getMoveDisplayRows({
   moveFees,
   jobType,
   jobTypeRate,
   liabilityCoverage,
+  travelFeeRate,
+  travelFeeMethod,
 }: {
   moveFees: { name: string; quantity: number; price: number }[];
   jobType: "hourly" | "flat";
   jobTypeRate: number | null;
   liabilityCoverage?: { premium: number } | null;
+  travelFeeRate?: number | null;
+  travelFeeMethod?: TravelChargingTypes | null;
 }): ListRowType[] {
   const jobTypeRateDisplay = jobType === "hourly" ? "Hourly Rate" : "Job Rate";
   const jobRateValue =
@@ -449,7 +454,13 @@ export function getMoveDisplayRows({
       ? `${formatCurrency(jobTypeRate ?? 0)}/hr`
       : `${formatCurrency(jobTypeRate ?? 0)}`;
 
-  return [
+  // Optional Travel Fee row
+  const travelRow =
+    travelFeeMethod != null
+      ? buildTravelRow(travelFeeMethod, travelFeeRate ?? 0)
+      : null;
+
+  const baseRows: ListRowType[] = [
     ...moveFees.map((fee) => ({
       left: `${fee.name} (${fee.quantity} @ ${formatCurrency(fee.price)})`,
       right: `${formatCurrency(fee.price * fee.quantity)}`,
@@ -458,11 +469,36 @@ export function getMoveDisplayRows({
       left: "Liability Coverage",
       right: formatCurrency(liabilityCoverage?.premium ?? 0),
     },
-    {
-      left: jobTypeRateDisplay,
-      right: jobRateValue,
-    },
   ];
+
+  if (travelRow) {
+    // insert travel fee after liability coverage (adjust ordering if you prefer)
+    baseRows.push(travelRow);
+  }
+
+  baseRows.push({
+    left: jobTypeRateDisplay,
+    right: jobRateValue,
+  });
+
+  return baseRows;
+}
+
+function buildTravelRow(
+  method: TravelChargingTypes,
+  rate: number
+): ListRowType {
+  switch (method) {
+    case TravelChargingTypes.LABOR_HOURS:
+      return { left: "Travel (Labor Rate)", right: `${formatCurrency(rate)}/hr` };
+    case TravelChargingTypes.MILEAGE:
+      return { left: "Travel (Mileage)", right: `${formatCurrency(rate)}/mi` };
+    case TravelChargingTypes.FLAT:
+      return { left: "Travel (Flat)", right: `${formatCurrency(rate)}` };
+    default:
+      // Fallback (shouldn't happen if enum is exhaustive)
+      return { left: "Travel Fee", right: formatCurrency(rate) };
+  }
 }
 
 export function getTotalHoursRange(

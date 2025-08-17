@@ -1,6 +1,5 @@
 import { Doc } from "@/convex/_generated/dataModel";
 import { MutationCtx } from "@/convex/_generated/server";
-import { InsurancePolicySchema } from "@/types/convex-schemas";
 import { InsurancePolicyInput } from "@/types/form-types";
 
 export const isValidEmail = (email: string) => {
