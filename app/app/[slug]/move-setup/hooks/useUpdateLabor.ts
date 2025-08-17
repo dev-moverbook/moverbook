@@ -6,7 +6,7 @@ import { api } from "@/convex/_generated/api";
 import { ResponseStatus } from "@/types/enums";
 import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
-import { CreateLaborFormData } from "@/types/form-types";
+import { LaborCreateInput } from "./useCreateLabor";
 
 export const useUpdateLabor = () => {
   const [updateLaborLoading, setUpdateLaborLoading] = useState<boolean>(false);
@@ -16,7 +16,7 @@ export const useUpdateLabor = () => {
 
   const updateLabor = async (
     laborId: Id<"labor">,
-    updates: CreateLaborFormData
+    updates: LaborCreateInput
   ): Promise<boolean> => {
     setUpdateLaborLoading(true);
     setUpdateLaborError(null);
