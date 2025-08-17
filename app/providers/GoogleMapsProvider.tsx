@@ -2,6 +2,8 @@
 
 import { LoadScript } from "@react-google-maps/api";
 import { ErrorMessages } from "@/types/errors";
+import FullLoading from "@/app/components/shared/FullLoading";
+
 interface GoogleMapsProviderProps {
   children: React.ReactNode;
 }
@@ -16,10 +18,12 @@ export const GoogleMapsProvider: React.FC<GoogleMapsProviderProps> = ({
   }
 
   return (
-    <LoadScript googleMapsApiKey={apiKey} libraries={["places"]}>
+    <LoadScript
+      googleMapsApiKey={apiKey}
+      libraries={["places"]}
+      loadingElement={<FullLoading />}
+    >
       {children}
     </LoadScript>
   );
 };
-
-// To be deleted

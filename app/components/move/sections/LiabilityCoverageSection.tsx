@@ -7,15 +7,17 @@ import Header3 from "@/app/components/shared/heading/Header3";
 import IconButton from "@/app/components/shared/IconButton";
 import { Pencil, X } from "lucide-react";
 import FieldErrorMessage from "@/app/components/shared/labeled/FieldErrorMessage";
-import { InsurancePolicySchema } from "@/types/convex-schemas";
 import SelectLiabilityCard from "@/app/app/[slug]/add-move/components/cards/SelectLiabilityCard";
+import { Doc } from "@/convex/_generated/dataModel";
+import FormErrorMessage from "../../shared/error/FormErrorMessage";
 
 interface LiabilityCoverageSectionProps {
-  selectedPolicy: InsurancePolicySchema | null;
-  policies: InsurancePolicySchema[];
-  onSelect: (policy: InsurancePolicySchema) => void;
+  selectedPolicy: Doc<"insurancePolicies"> | null;
+  policies: Doc<"insurancePolicies">[];
+  onSelect: (policy: Doc<"insurancePolicies">) => Promise<boolean> | boolean;
   error?: string | null;
   isAdd?: boolean;
+  isSaving?: boolean; // NEW
 }
 
 const LiabilityCoverageSection: React.FC<LiabilityCoverageSectionProps> = ({
@@ -24,11 +26,17 @@ const LiabilityCoverageSection: React.FC<LiabilityCoverageSectionProps> = ({
   onSelect,
   error,
   isAdd = false,
+  isSaving = false,
 }) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const displayPolicy = policies.find((p) => p.name === selectedPolicy?.name);
-
   const editingMode = isAdd || isEditing;
+
+  const handleChoose = async (policy: Doc<"insurancePolicies">) => {
+    if (isSaving) return; // guard while saving
+    const ok = await Promise.resolve(onSelect(policy));
+    if (ok) setIsEditing(false); // only exit edit AFTER success
+  };
 
   return (
     <div>
@@ -46,9 +54,11 @@ const LiabilityCoverageSection: React.FC<LiabilityCoverageSectionProps> = ({
               }
               onClick={(e) => {
                 e.preventDefault();
-                setIsEditing(!isEditing);
+                if (isSaving) return;
+                setIsEditing((v) => !v);
               }}
               title={isEditing ? "Cancel" : "Edit"}
+              disabled={isSaving}
             >
               {isEditing ? "Cancel" : "Edit"}
             </IconButton>
@@ -59,20 +69,21 @@ const LiabilityCoverageSection: React.FC<LiabilityCoverageSectionProps> = ({
       </Header3>
 
       <SectionContainer>
-        <CardContainer>
+        <CardContainer className="space-y-4">
           {editingMode
             ? policies.map((policy) => (
                 <SelectLiabilityCard
                   key={policy.name}
                   policy={policy}
                   isSelected={policy.name === selectedPolicy?.name}
-                  onSelect={() => onSelect(policy)}
+                  onSelect={() => handleChoose(policy)}
+                  disabled={isSaving} // if your card supports it
                 />
               ))
             : displayPolicy && <SelectLiabilityCard policy={displayPolicy} />}
         </CardContainer>
 
-        <FieldErrorMessage error={error} />
+        <FieldErrorMessage error={error} noPlaceholder={true} />
       </SectionContainer>
     </div>
   );

@@ -9,7 +9,7 @@ import { formatPhoneNumber } from "@/app/frontendUtils/helper";
 
 interface ContactCardProps {
   salesRep: Doc<"users"> | null;
-  companyContact: CompanyContactSchema;
+  companyContact: Doc<"companyContact">;
 }
 
 const ContactCard = ({ salesRep, companyContact }: ContactCardProps) => {

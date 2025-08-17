@@ -6,6 +6,7 @@ import IconButton from "@/app/components/shared/IconButton";
 import { Pencil, Trash2 } from "lucide-react";
 import ListItemRow from "@/app/components/shared/ListItemRow";
 import { MoveFeeInput } from "@/types/form-types";
+import { formatCurrency } from "@/app/frontendUtils/helper";
 
 interface LineItemFeeCardProps {
   fee: MoveFeeInput;
@@ -18,8 +19,8 @@ const LineItemFeeCard: React.FC<LineItemFeeCardProps> = ({
   onEdit,
   onDelete,
 }) => {
-  const unitPrice = `$${fee.price.toFixed(2)}`;
-  const total = `$${(fee.price * fee.quantity).toFixed(2)}`;
+  const unitPrice = `${formatCurrency(fee.price)}`;
+  const total = `${formatCurrency(fee.price * fee.quantity)}`;
 
   return (
     <ListItemRow className="flex-col items-start">
@@ -49,7 +50,7 @@ const LineItemFeeCard: React.FC<LineItemFeeCardProps> = ({
           />
         </IconRow>
       </div>
-      <p className="text-grayCustom2 text-sm">Total: {total}</p>
+      <p className="text-grayCustom2">Total: {total}</p>
     </ListItemRow>
   );
 };

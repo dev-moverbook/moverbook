@@ -1,40 +1,47 @@
 "use client";
 
-import { useParams } from "next/navigation";
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { ResponseStatus } from "@/types/enums";
+import { useParams, useRouter } from "next/navigation";
 import { Id } from "@/convex/_generated/dataModel";
+import SectionContainer from "@/app/components/shared/SectionContainer";
+import CenteredContainer from "@/app/components/shared/CenteredContainer";
+import ErrorMessage from "@/app/components/shared/error/ErrorMessage";
 import UserIdContent from "./UserIdContent";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useUser } from "@clerk/nextjs";
-import { canManageCompany } from "@/app/frontendUtils/permissions";
+import { useUserById } from "@/app/hooks/queries/users/useUserById";
 
 const UserPage: React.FC = () => {
-  const { user } = useUser();
   const { userId } = useParams();
   const id = userId as Id<"users">;
+  const router = useRouter();
 
-  const userResponse = useQuery(api.users.getUserById, { userId: id });
+  const { user, isLoading, isError, errorMessage } = useUserById(id);
 
-  if (!userResponse) {
-    return <Skeleton className="" />;
+  const handleBack = () => {
+    router.back();
+  };
+
+  let content: React.ReactNode;
+
+  switch (true) {
+    case isLoading:
+      content = null;
+      break;
+    case isError:
+      content = (
+        <ErrorMessage message={errorMessage ?? "Failed to load user."} />
+      );
+      break;
+    case !user:
+      content = <ErrorMessage message="User not found." />;
+      break;
+    default:
+      content = <UserIdContent userData={user!} onBack={handleBack} />;
+      break;
   }
-  if (userResponse.status === ResponseStatus.ERROR)
-    return <div>Error: {userResponse.error}</div>;
-
-  const userData = userResponse.data.user;
-  const isCompanyManagerPermission = canManageCompany(
-    user?.publicMetadata.role as string
-  );
 
   return (
-    <main className="min-h-100vh">
-      <UserIdContent
-        userData={userData}
-        isCompanyManagerPermission={isCompanyManagerPermission}
-      />
-    </main>
+    <SectionContainer isLast>
+      <CenteredContainer className="md:px-0">{content}</CenteredContainer>
+    </SectionContainer>
   );
 };
 

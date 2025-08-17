@@ -160,6 +160,7 @@ const LiabilityModal: React.FC<LiabilityModalProps> = ({
           setFormData((prev) => ({ ...prev, coverageType: value ?? null }))
         }
         error={errors.coverageType}
+        suffix="/lb"
       />
 
       <CurrencyInput
@@ -180,6 +181,7 @@ const LiabilityModal: React.FC<LiabilityModalProps> = ({
           setFormData((prev) => ({ ...prev, coverageAmount: value ?? null }))
         }
         error={errors.coverageAmount}
+        suffix="/lb"
       />
 
       <FormActions
@@ -204,6 +206,7 @@ const LiabilityModal: React.FC<LiabilityModalProps> = ({
       title={title}
       description={description}
       children={formContent}
+      heightVh={95}
     />
   );
 };

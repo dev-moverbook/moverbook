@@ -25,6 +25,7 @@ import {
 } from "./backendUtils/stripe";
 import { handleAccountUpdated } from "./backendUtils/connectedAccountWebhook";
 import Stripe from "stripe";
+import { handleInternalError } from "./backendUtils/helper";
 
 export const saveConnectedAccount = internalMutation({
   args: {
@@ -92,17 +93,11 @@ export const getStripeConnection = query({
       return {
         status: ResponseStatus.SUCCESS,
         data: {
-          stripeConnected: account || null,
+          stripeConnected: account,
         },
       };
     } catch (error) {
-      console.error(error);
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error:
-          error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR,
-      };
+      return handleInternalError(error);
     }
   },
 });

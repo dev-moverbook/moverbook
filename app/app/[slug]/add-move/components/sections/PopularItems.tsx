@@ -21,7 +21,7 @@ const PopularItems: React.FC<PopularItemsProps> = ({
   const popularItems = items?.filter((item) => item.isPopular);
 
   return (
-    <SingleCardContainer>
+    <SingleCardContainer className="px-4">
       <SelectableCardContainer
         centerText="ITEM"
         showPlusIcon={true}

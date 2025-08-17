@@ -22,7 +22,7 @@ const buttonVariants = cva(
           "text-greenCustom font-bold hover:underline font-semibold rounded-[20px]",
         whiteGhost:
           "text-white font-bold hover:underline font-semibold rounded-[20px]",
-        link: "text-sm underline font-normal  hover:opacity-80 ",
+        link: " underline font-normal text-white  hover:opacity-80 ",
         plain: "",
         sidebar:
           "w-full hover:bg-gray-700 rounded-md p-1 transition justify-start gap-4",

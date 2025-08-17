@@ -1,15 +1,26 @@
-import { api } from "@/convex/_generated/api";
+// app/hooks/queries/insurance/useCompanyInsurance.ts
+"use client";
+
 import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { ResponseStatus } from "@/types/enums";
+import { QueryStatus, ResponseStatus } from "@/types/enums";
 import { GetInsurancePoliciesData } from "@/types/convex-responses";
 
-interface UseCompanyInsuranceResult {
-  data?: GetInsurancePoliciesData | null;
-  isLoading: boolean;
-  isError: boolean;
-  errorMessage: string | null;
-}
+type UseCompanyInsuranceLoading = { status: QueryStatus.LOADING };
+type UseCompanyInsuranceError = {
+  status: QueryStatus.ERROR;
+  errorMessage: string;
+};
+type UseCompanyInsuranceSuccess = {
+  status: QueryStatus.SUCCESS;
+  data: GetInsurancePoliciesData;
+};
+
+export type UseCompanyInsuranceResult =
+  | UseCompanyInsuranceLoading
+  | UseCompanyInsuranceError
+  | UseCompanyInsuranceSuccess;
 
 export const useCompanyInsurance = (
   companyId: Id<"companies"> | null
@@ -19,16 +30,19 @@ export const useCompanyInsurance = (
     companyId ? { companyId } : "skip"
   );
 
-  const isLoading = response === undefined;
-  const isError = response?.status === ResponseStatus.ERROR;
-  const data = response?.data;
+  if (!companyId || !response) {
+    return { status: QueryStatus.LOADING };
+  }
+
+  if (response.status === ResponseStatus.ERROR) {
+    return {
+      status: QueryStatus.ERROR,
+      errorMessage: response.error ?? "Failed to load insurance policies.",
+    };
+  }
 
   return {
-    data,
-    isLoading,
-    isError,
-    errorMessage: isError
-      ? (response?.error ?? "Failed to load insurance policies.")
-      : null,
+    status: QueryStatus.SUCCESS,
+    data: response.data,
   };
 };

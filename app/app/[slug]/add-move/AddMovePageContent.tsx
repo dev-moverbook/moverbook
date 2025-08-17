@@ -5,7 +5,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import ConfirmModal from "@/app/components/shared/ConfirmModal";
 import Stepper from "@/app/components/shared/Stepper";
 import PageContainer from "@/app/components/shared/containers/PageContainer";
-import { MoveFormProvider, useMoveForm } from "@/app/contexts/MoveFormContext";
+import { useMoveForm } from "@/app/contexts/MoveFormContext";
 import InventoryStep from "./components/steps/InventoryStep";
 import CostStep from "./components/steps/CostStep";
 import { CreateMoveInput, useCreateMove } from "./hooks/createMove";
@@ -17,7 +17,6 @@ import { api } from "@/convex/_generated/api";
 import { useQuery } from "convex/react";
 import { Id } from "@/convex/_generated/dataModel";
 import { ResponseStatus } from "@/types/enums";
-import { useSlugContext } from "@/app/contexts/SlugContext";
 
 const AddMovePageContent = () => {
   const router = useRouter();
@@ -128,7 +127,6 @@ const AddMovePageContent = () => {
 
   const handleBeforeUnload = (e: BeforeUnloadEvent) => {
     e.preventDefault();
-    e.returnValue = "";
   };
 
   useEffect(() => {

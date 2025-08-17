@@ -92,7 +92,7 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
   };
 
   const isDisabled =
-    email.trim() === "" ||
+    !isValidEmail(email) ||
     emailError !== null ||
     (role === ClerkRoles.MOVER &&
       (!hourlyRate || !isValidHourlyRate(hourlyRate)));
@@ -160,8 +160,9 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
       isOpen={isOpen}
       onClose={handleClose}
       title="Invite User"
-      description="Invite a new user to your team."
+      description="Enter in the email of the user you want to invite and select their role."
       children={formContent}
+      heightVh={80}
     />
   );
 };

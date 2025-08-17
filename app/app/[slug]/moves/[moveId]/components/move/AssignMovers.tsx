@@ -14,16 +14,17 @@ import {
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { useInsertMoveAssignment } from "../../../hooks/useInsertMoveAssignment";
 import { useUpdateMoveAssignment } from "../../../hooks/useUpdateMoveAssignment";
+import { useMoveContext } from "@/app/contexts/MoveContext";
 
 const AssignMovers = ({
   assignments,
   allMovers,
-  move,
 }: {
   assignments: Doc<"moveAssignments">[];
   allMovers: Doc<"users">[];
-  move: Doc<"move">;
 }) => {
+  const { moveData } = useMoveContext();
+  const { move } = moveData;
   const moverNumber = move.movers;
 
   const { insertMoveAssignment, assignmentLoading } = useInsertMoveAssignment();

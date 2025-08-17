@@ -1,4 +1,4 @@
-import { mutation } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { QuoteStatusConvex } from "./schema";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
@@ -9,10 +9,9 @@ import {
   validateCompany,
   validateMove,
 } from "./backendUtils/validate";
-import { Id } from "./_generated/dataModel";
+import { Doc, Id } from "./_generated/dataModel";
 import { CreateOrUpdateQuoteResponse } from "@/types/convex-responses";
 import { ErrorMessages } from "@/types/errors";
-import { QuoteSchema } from "@/types/convex-schemas";
 
 export const createOrUpdateQuote = mutation({
   args: {
@@ -51,7 +50,7 @@ export const createOrUpdateQuote = mutation({
         updates.repSignedAt = now;
       }
 
-      const existing: QuoteSchema | null = await ctx.db
+      const existing: Doc<"quotes"> | null = await ctx.db
         .query("quotes")
         .withIndex("by_move", (q) => q.eq("moveId", moveId))
         .unique();

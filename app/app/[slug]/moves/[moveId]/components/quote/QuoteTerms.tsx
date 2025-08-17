@@ -3,14 +3,12 @@
 import React from "react";
 import SectionContainer from "@/app/components/shared/containers/SectionContainer";
 import SectionHeader from "@/app/components/shared/SectionHeader";
-import { Doc } from "@/convex/_generated/dataModel";
 import MoveTermsAndConditions from "./MoveTermsAndConditions";
+import { useMoveContext } from "@/app/contexts/MoveContext";
 
-interface QuoteTermsProps {
-  policy: Doc<"policies">;
-}
-
-const QuoteTerms = ({ policy }: QuoteTermsProps) => {
+const QuoteTerms = () => {
+  const { moveData } = useMoveContext();
+  const { policy } = moveData;
   const additionalTermsAndConditions = policy.additionalTermsAndConditions;
   return (
     <div>

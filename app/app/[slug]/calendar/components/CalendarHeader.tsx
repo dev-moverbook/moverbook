@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { DateTime } from "luxon";
 import { useMoveFilter } from "@/app/contexts/MoveFilterContext";
 import { useSlugContext } from "@/app/contexts/SlugContext";
+import IconButton from "@/app/components/shared/IconButton";
 
 interface CalendarHeaderProps {
   label: string;
@@ -25,19 +26,19 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({ label }) => {
 
   return (
     <div className="flex items-center justify-between w-full max-w-screen-sm mx-auto mb-4 h-[44px]">
-      <button
+      <IconButton
         onClick={() => handleNavigation("prev")}
-        className="px-3 py-2 hover:bg-background2 rounded"
-      >
-        <ChevronLeft className="text-2xl" />
-      </button>
+        className="border-none"
+        icon={<ChevronLeft className="text-2xl" />}
+        title="Previous"
+      />
       <h3 className="text-xl leading-[18px] font-sans">{label}</h3>
-      <button
+      <IconButton
         onClick={() => handleNavigation("next")}
-        className="px-3 py-2 hover:bg-background2 rounded"
-      >
-        <ChevronRight className="text-2xl" />
-      </button>
+        className="border-none"
+        icon={<ChevronRight className="text-2xl" />}
+        title="Next"
+      />
     </div>
   );
 };

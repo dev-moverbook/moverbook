@@ -5,9 +5,6 @@ import { ClerkRoles } from "@/types/enums";
 import { useUpdateUser } from "@/app/hooks/useUpdateUser";
 import { useDeleteUser } from "@/app/hooks/useDeleteUser";
 import { useReactivateUser } from "@/app/hooks/useReactivateUser";
-import SectionContainer from "@/app/components/shared/SectionContainer";
-import CenteredContainer from "@/app/components/shared/CenteredContainer";
-import SectionHeader from "@/app/components/shared/SectionHeader";
 import FormActions from "@/app/components/shared/FormActions";
 import FieldGroup from "@/app/components/shared/FieldGroup";
 import FieldRow from "@/app/components/shared/FieldRow";
@@ -18,10 +15,13 @@ import ConfirmModal from "@/app/components/shared/ConfirmModal";
 import Image from "next/image";
 import CurrencyInput from "@/app/components/shared/labeled/CurrencyInput";
 import { Doc } from "@/convex/_generated/dataModel";
+import BackCenteredHeader from "@/app/components/shared/heading/BackCenteredHeader";
+import { canManageCompany } from "@/app/frontendUtils/permissions";
+import { useSlugContext } from "@/app/contexts/SlugContext";
 
 interface Props {
   userData: Doc<"users">;
-  isCompanyManagerPermission: boolean;
+  onBack: () => void;
 }
 
 type UserFormState = {
@@ -31,10 +31,7 @@ type UserFormState = {
   role: string;
 };
 
-const UserIdContent: React.FC<Props> = ({
-  userData,
-  isCompanyManagerPermission,
-}) => {
+const UserIdContent: React.FC<Props> = ({ userData, onBack }) => {
   const {
     updateUser,
     loading: updateLoading,
@@ -51,6 +48,12 @@ const UserIdContent: React.FC<Props> = ({
     loading: reactivateLoading,
     error: reactivateError,
   } = useReactivateUser();
+
+  const { user } = useSlugContext();
+
+  const isCompanyManagerPermission = canManageCompany(
+    user?.publicMetadata.role as string
+  );
 
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -111,128 +114,127 @@ const UserIdContent: React.FC<Props> = ({
     formData.hourlyRate === null;
 
   return (
-    <SectionContainer isLast={true}>
-      <CenteredContainer>
-        <SectionHeader
-          title="User Info"
-          onEditClick={
-            isCompanyManagerPermission && userData.isActive
-              ? handleEditClick
-              : undefined
-          }
-          onDeleteClick={
-            isCompanyManagerPermission && userData.isActive
-              ? () => setIsDeleteModalOpen(true)
-              : undefined
-          }
-          id={userData._id}
-          actions={
-            !userData.isActive &&
-            isCompanyManagerPermission && (
-              <Button
-                size="sm"
-                onClick={handleReactivate}
-                disabled={reactivateLoading}
-              >
-                Reactivate
-              </Button>
-            )
-          }
-          className="px-0"
-          onCancelEdit={handleCancel}
-          isEditing={isEditing}
+    <>
+      <BackCenteredHeader
+        title="User Info"
+        onBack={onBack}
+        onEditClick={
+          isCompanyManagerPermission && userData.isActive
+            ? handleEditClick
+            : undefined
+        }
+        onDeleteClick={
+          isCompanyManagerPermission && userData.isActive
+            ? () => setIsDeleteModalOpen(true)
+            : undefined
+        }
+        rightExtra={
+          !userData.isActive && isCompanyManagerPermission ? (
+            <Button
+              size="sm"
+              onClick={handleReactivate}
+              disabled={reactivateLoading}
+            >
+              Reactivate
+            </Button>
+          ) : null
+        }
+        isEditing={isEditing}
+        onCancelEdit={handleCancel}
+      />
+
+      {userData.imageUrl && (
+        <div className="w-full flex justify-center my-2">
+          <Image
+            src={userData.imageUrl}
+            alt={userData.name}
+            width={100}
+            height={100}
+            className="rounded-full object-cover"
+          />
+        </div>
+      )}
+
+      <FieldGroup>
+        <FieldRow
+          label="Name"
+          name="name"
+          value={formData.name}
+          onChange={handleChange}
+          placeholder="Enter Name"
+          isEditing={false}
         />
 
-        {userData.imageUrl && (
-          <div className="w-full flex justify-center mb-4">
-            <Image
-              src={userData.imageUrl}
-              alt={userData.name}
-              width={100}
-              height={100}
-              className="rounded-full object-cover"
-            />
-          </div>
-        )}
+        <FieldRow
+          label="Email"
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
+          isEditing={false}
+        />
 
-        <FieldGroup>
-          <FieldRow
-            label="Name"
-            name="name"
-            value={formData.name}
-            isEditing={isEditing}
-            onChange={handleChange}
-          />
-
-          <FieldRow
-            label="Email"
-            name="email"
-            value={formData.email}
-            isEditing={isEditing}
-            onChange={handleChange}
-          />
-
-          {formData.role === ClerkRoles.MOVER && (
-            <CurrencyInput
-              label="Hourly Rate"
-              value={formData.hourlyRate}
-              onChange={(value: number | null) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  hourlyRate: value || null,
-                }))
-              }
-              isEditing={isEditing}
-            />
-          )}
-
-          <RoleSelectField
-            value={formData.role as ClerkRoles}
-            isEditing={isEditing}
-            onChange={(val) =>
-              setFormData((prev) => ({ ...prev, role: val as ClerkRoles }))
+        {formData.role === ClerkRoles.MOVER && (
+          <CurrencyInput
+            label="Hourly Rate"
+            value={formData.hourlyRate}
+            onChange={(value: number | null) =>
+              setFormData((prev) => ({
+                ...prev,
+                hourlyRate: value || null,
+              }))
             }
-          />
-
-          <div>
-            <Label className="block text-sm font-medium mb-1">Status</Label>
-            <p className="text-sm text-grayCustom2">
-              {userData.isActive ? "Active" : "Deleted"}
-            </p>
-          </div>
-
-          {isEditing && isCompanyManagerPermission && (
-            <FormActions
-              onSave={(e) => {
-                e.preventDefault();
-                handleSave();
-              }}
-              onCancel={handleCancel}
-              isSaving={updateLoading}
-              error={updateError}
-            />
-          )}
-
-          {reactivateError && (
-            <p className="text-red-500 text-sm mt-2">{reactivateError}</p>
-          )}
-        </FieldGroup>
-
-        {isCompanyManagerPermission && (
-          <ConfirmModal
-            isOpen={isDeleteModalOpen}
-            onClose={handleCloseDeleteModal}
-            onConfirm={handleConfirmDelete}
-            deleteLoading={deleteLoading}
-            deleteError={deleteError}
-            title="Confirm Delete"
-            description="Are you sure you want to delete this user? This action cannot be undone."
-            confirmButtonText="Delete"
-            cancelButtonText="Cancel"
+            isEditing={isEditing}
+            suffix="/hr"
           />
         )}
-      </CenteredContainer>
-    </SectionContainer>
+
+        <RoleSelectField
+          value={formData.role as ClerkRoles}
+          isEditing={false}
+          onChange={(val) =>
+            setFormData((prev) => ({ ...prev, role: val as ClerkRoles }))
+          }
+        />
+
+        <div>
+          <Label className="block  font-medium mb-1">Status</Label>
+          <p className=" text-grayCustom2">
+            {userData.isActive ? "Active" : "Deleted"}
+          </p>
+        </div>
+
+        {isEditing && isCompanyManagerPermission && (
+          <FormActions
+            onSave={(e) => {
+              e.preventDefault();
+              handleSave();
+            }}
+            onCancel={handleCancel}
+            isSaving={updateLoading}
+            error={updateError}
+            disabled={isDisabled}
+          />
+        )}
+
+        {reactivateError && (
+          <p className="text-red-500 text-sm mt-2">{reactivateError}</p>
+        )}
+      </FieldGroup>
+
+      {isCompanyManagerPermission && (
+        <ConfirmModal
+          isOpen={isDeleteModalOpen}
+          onClose={handleCloseDeleteModal}
+          onConfirm={handleConfirmDelete}
+          deleteLoading={deleteLoading}
+          deleteError={deleteError}
+          title="Confirm Delete"
+          description="Are you sure you want to delete this user? This action cannot be undone."
+          confirmButtonText="Delete"
+          cancelButtonText="Cancel"
+        />
+      )}
+    </>
   );
 };
 

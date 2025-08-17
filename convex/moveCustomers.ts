@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { internalQuery, mutation, query } from "./_generated/server";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import { ClerkRoles, ResponseStatus } from "@/types/enums";
 import { handleInternalError } from "./backendUtils/helper";
@@ -292,6 +292,19 @@ export const getMoveCustomer = query({
       };
     } catch (error) {
       return handleInternalError(error);
+    }
+  },
+});
+
+export const getMoveCustomerByIdInternal = internalQuery({
+  args: { moveCustomerId: v.id("moveCustomers") },
+  handler: async (ctx, args): Promise<Doc<"moveCustomers"> | null> => {
+    const { moveCustomerId } = args;
+    try {
+      return await ctx.db.get(moveCustomerId);
+    } catch (error) {
+      console.error(ErrorMessages.MOVE_CUSTOMER_DB_QUERY_BY_ID, error);
+      throw new Error(ErrorMessages.MOVE_CUSTOMER_DB_QUERY_BY_ID);
     }
   },
 });

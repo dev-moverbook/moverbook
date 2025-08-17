@@ -7,6 +7,7 @@ import { StripeAccountStatus } from "@/types/enums";
 import { useShowOnboardingLink } from "./hooks/useShowOnboardingLink";
 import FieldDisplay from "@/app/components/shared/FieldDisplay";
 import { useStripeDashboardLink } from "./hooks/useStripeDashboardLink";
+import SectionHeaderWithAction from "@/app/components/shared/ SectionHeaderWithAction";
 
 interface StripePageContentProps {
   connectedAccount: ConnectedAccountSchema | null;
@@ -50,9 +51,9 @@ const StripePageContent: React.FC<StripePageContentProps> = ({
 
   return (
     <SectionContainer isLast={true}>
-      <CenteredContainer>
-        <SectionHeader className="px-0" title="Stripe Connection" />
+      <SectionHeaderWithAction title="Stripe Connection" />
 
+      <CenteredContainer className="md:px-0">
         <div className="mt-4">
           <FieldDisplay label="Status" value={statusToDisplay} />
         </div>

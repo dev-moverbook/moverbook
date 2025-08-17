@@ -14,7 +14,7 @@ const FieldDisplay: React.FC<FieldDisplayProps> = ({
   value,
   fallback = "N/A",
   icon,
-  valueClassName = "md:text-sm text-grayCustom2",
+  valueClassName = " text-grayCustom2",
 }) => {
   return (
     <div className="space-y-1">

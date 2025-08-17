@@ -9,21 +9,16 @@ import {
 } from "@/components/ui/sheet";
 import FieldGroup from "@/app/components/shared/FieldGroup";
 import FormActions from "@/app/components/shared/FormActions";
-import { MOVE_STATUS_OPTIONS, MoveStatus, PriceFilter } from "@/types/types";
+import { MOVE_STATUS_OPTIONS, MoveStatus } from "@/types/types";
 import LabeledCheckboxGroup from "@/app/components/shared/labeled/LabeledCheckboxGroup";
 import ButtonRadioGroup from "@/app/components/shared/labeled/ButtonRadioGroup";
-import { PRICE_FILTER_OPTIONS } from "@/types/tsx-types";
-import LabeledSelect from "@/app/components/shared/labeled/LabeledSelect";
-import { useGetSalesReps } from "@/app/hooks/queries/useGetSalesReps";
+import { PRICE_FILTER_OPTIONS, PriceOrder } from "@/types/tsx-types";
 import { useSlugContext } from "@/app/contexts/SlugContext";
 import {
   SalesRepOption,
   useMoveFilter,
 } from "@/app/contexts/MoveFilterContext";
-import {
-  priceFilterToOrder,
-  priceOrderToFilter,
-} from "@/app/frontendUtils/helper";
+import SalesRepSelect from "@/app/components/shared/select/SalesRepSelect";
 
 interface FilterModalProps {
   isOpen: boolean;
@@ -37,35 +32,30 @@ const FilterModal: React.FC<FilterModalProps> = ({ isOpen, onClose }) => {
     setSelectedStatuses,
     setPriceFilter,
     setSalesRep,
-    priceFilter,
-    salesRep,
+    priceFilter, // PriceOrder | null
+    salesRep, // SalesRepOption | null
   } = useMoveFilter();
+
   const [tempStatuses, setTempStatuses] =
     useState<MoveStatus[]>(selectedStatuses);
-  const [tempPriceFilter, setTempPriceFilter] = useState<PriceFilter | null>(
-    null
+  const [tempPriceFilter, setTempPriceFilter] = useState<PriceOrder | null>(
+    priceFilter
   );
-  const [tempSalesRep, setTempSalesRep] = useState<SalesRepOption | null>(null);
-  const { users, isLoading: isLoadingSalesRepOptions } =
-    useGetSalesReps(companyId);
-
-  const salesRepOptions: SalesRepOption[] =
-    users?.map((user) => ({
-      id: user._id,
-      name: user.name,
-    })) ?? [];
+  const [tempSalesRep, setTempSalesRep] = useState<SalesRepOption | null>(
+    salesRep
+  );
 
   useEffect(() => {
     if (isOpen) {
       setTempStatuses(selectedStatuses);
-      setTempPriceFilter(priceOrderToFilter(priceFilter));
+      setTempPriceFilter(priceFilter);
       setTempSalesRep(salesRep);
     }
   }, [isOpen, selectedStatuses, priceFilter, salesRep]);
 
   const handleSubmit = () => {
     setSelectedStatuses(tempStatuses);
-    setPriceFilter(priceFilterToOrder(tempPriceFilter));
+    setPriceFilter(tempPriceFilter);
     setSalesRep(tempSalesRep);
     onClose();
   };
@@ -80,24 +70,16 @@ const FilterModal: React.FC<FilterModalProps> = ({ isOpen, onClose }) => {
           <SheetTitle className="text-lg text-white">Filter Moves</SheetTitle>
         </SheetHeader>
 
-        <div className="mt-4 ">
+        <div className="mt-4">
           <FieldGroup>
-            <LabeledSelect
+            <SalesRepSelect
+              companyId={companyId}
               label="Sales Rep"
-              value={tempSalesRep?.id ?? null}
-              options={salesRepOptions.map((rep) => ({
-                label: rep.name,
-                value: rep.id,
-              }))}
-              onChange={(value) => {
-                const selectedRep = salesRepOptions.find(
-                  (rep) => rep.id === value
-                );
-                if (selectedRep) {
-                  setTempSalesRep(selectedRep);
-                }
-              }}
+              value={tempSalesRep}
+              onChange={setTempSalesRep}
+              placeholder="Select a sales rep"
             />
+
             <LabeledCheckboxGroup
               label="Move Status"
               name="status"
@@ -107,13 +89,14 @@ const FilterModal: React.FC<FilterModalProps> = ({ isOpen, onClose }) => {
                 setTempStatuses(newValues.map((v) => v as MoveStatus))
               }
             />
+
             <ButtonRadioGroup
-              name="priceFilter"
-              value={tempPriceFilter}
-              options={PRICE_FILTER_OPTIONS}
-              onChange={(val) => setTempPriceFilter(val as PriceFilter)}
+              name="priceOrder"
               label="Price Filter"
               layout="vertical"
+              options={PRICE_FILTER_OPTIONS} // "desc" | "asc"
+              value={tempPriceFilter} // "desc" | "asc" | null
+              onChange={(val) => setTempPriceFilter(val as PriceOrder)}
             />
 
             <FormActions

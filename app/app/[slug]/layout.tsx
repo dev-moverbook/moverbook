@@ -1,65 +1,38 @@
 "use client";
 
-import React, { useEffect } from "react";
-import { useParams, usePathname } from "next/navigation";
+import React from "react";
 import { SlugProvider, useSlugContext } from "@/app/contexts/SlugContext";
 import Navbar from "@/app/components/shared/Navbar";
 import Sidebar from "@/app/components/shared/Sidebar";
-import { useUser } from "@clerk/nextjs";
 import { SearchProvider } from "@/app/contexts/SearchContext";
 import MoveSearchDropDown from "@/app/components/shared/nav/MoveSearchDropDown";
-import AdminAlert from "@/app/components/shared/alert/AdminAlert";
+import AdminAlert from "@/app/app/[slug]/ components/AdminAlert";
+import { useIsMobile } from "@/app/hooks/utils/useIsMobile";
+import { usePathname } from "next/navigation";
 
 interface CompanyLayoutProps {
   children: React.ReactNode;
 }
 
 const CompanyLayout: React.FC<CompanyLayoutProps> = ({ children }) => {
-  const { slug } = useParams();
-  const cleanSlug = typeof slug === "string" ? slug.split("?")[0] : "";
-  const { user } = useUser();
+  const isMobile = useIsMobile();
   const pathname = usePathname();
-
-  const {
-    slug: contextSlug,
-    setSlug,
-    isCompanyContactComplete,
-    isStripeComplete,
-    companyId,
-  } = useSlugContext();
-
-  useEffect(() => {
-    if (cleanSlug && cleanSlug !== contextSlug) {
-      setSlug(cleanSlug);
-    }
-  }, [cleanSlug, setSlug, contextSlug]);
-
+  const { slug } = useSlugContext();
+  // Only hide navbar if MOBILE + matches route condition
   const hideNavbar =
-    pathname === `/app/${cleanSlug}/add-move` ||
-    (pathname.includes(`/app/${cleanSlug}/moves/`) &&
-      pathname.endsWith("/messages"));
-
-  const isSetupStatusReady =
-    companyId !== null && // companyId successfully fetched
-    typeof isCompanyContactComplete === "boolean" &&
-    typeof isStripeComplete === "boolean";
+    isMobile &&
+    (pathname === `/app/${slug}/add-move` ||
+      (pathname.includes(`/app/${slug}/moves/`) &&
+        pathname.endsWith("/messages")));
 
   return (
     <div className="flex min-h-screen">
-      <Sidebar slug={cleanSlug} user={user} />
-      <div className={`flex-1  lg:ml-64 ${hideNavbar ? "" : ""} `}>
-        {!hideNavbar && <Navbar slug={cleanSlug} user={user} />}{" "}
+      <Sidebar />
+      <div className="flex-1 lg:ml-64">
+        {!hideNavbar && <Navbar />}
         <MoveSearchDropDown />
-        <main className={`${hideNavbar ? "pt-2" : "pt-14"} `}>
-          {isSetupStatusReady && (
-            <AdminAlert
-              stripeCompleted={isStripeComplete}
-              companySetupCompleted={isCompanyContactComplete}
-              stripeSetupLink={`/app/${cleanSlug}/stripe`}
-              companySetupLink={`/app/${cleanSlug}/company-setup`}
-            />
-          )}
-
+        <main className={`${hideNavbar ? "pt-2" : "pt-14 "}`}>
+          <AdminAlert />
           {children}
         </main>
       </div>

@@ -171,3 +171,15 @@ body {
 .react-calendar__month-view__weekdays abbr {
   text-decoration: none !important;
 }
+
+/* Hide arrows of number input in Chrome/Safari/Edge */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Hide arrows in Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}

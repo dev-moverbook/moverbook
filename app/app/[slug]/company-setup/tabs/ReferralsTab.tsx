@@ -1,10 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { ResponseStatus } from "@/types/enums";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useSlugContext } from "@/app/contexts/SlugContext";
 import { useCreateReferral } from "../hooks/useCreateReferral";
 import CreateReferralModal from "../modals/CreateReferralsModal";
@@ -18,59 +14,25 @@ import { Id } from "@/convex/_generated/dataModel";
 import { useUpdateReferral } from "../hooks/useUpdateReferral";
 import ErrorMessage from "@/app/components/shared/error/ErrorMessage";
 import AddItemButton from "@/app/components/shared/buttons/AddItemButton";
+import { useActiveReferrals } from "@/app/hooks/queries/referrals/useActiveReferrals";
+import { QueryStatus } from "@/types/enums";
 
 const ReferralsTab = () => {
   const { companyId } = useSlugContext();
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const { createReferral, createLoading, createError, setCreateError } =
-    useCreateReferral();
 
-  const referralsResponse = useQuery(
-    api.referrals.getActiveReferralsByCompanyId,
-    companyId ? { companyId } : "skip"
-  );
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingReferral, setEditingReferral] = useState<{
     id: Id<"referrals">;
     name: string;
   } | null>(null);
 
+  const { createReferral, createLoading, createError, setCreateError } =
+    useCreateReferral();
+
   const { updateReferral, updateLoading, updateError, setUpdateError } =
     useUpdateReferral();
 
-  const handleUpdateReferral = async (
-    referralId: Id<"referrals">,
-    newName: string
-  ): Promise<boolean> => {
-    if (!newName.trim()) {
-      setUpdateError(FrontEndErrorMessages.REFERARAL_NAME_REQUIRED);
-      return false;
-    }
-
-    const success = await updateReferral(referralId, { name: newName });
-    if (success) {
-      setEditingReferral(null);
-    }
-    return success;
-  };
-
-  if (!companyId) return <p className="text-gray-500">No company selected.</p>;
-
-  if (!referralsResponse) {
-    return (
-      <div className="space-y-2">
-        <Skeleton className="h-6 w-48" />
-        <Skeleton className="h-6 w-64" />
-        <Skeleton className="h-6 w-40" />
-      </div>
-    );
-  }
-
-  if (referralsResponse.status === ResponseStatus.ERROR) {
-    return <ErrorMessage message={referralsResponse.error} />;
-  }
-
-  const { referrals } = referralsResponse.data;
+  const result = useActiveReferrals(companyId);
 
   const handleCreateReferral = async (name: string): Promise<boolean> => {
     if (!companyId) {
@@ -81,56 +43,91 @@ const ReferralsTab = () => {
     return await createReferral(companyId, name);
   };
 
-  return (
-    <SectionContainer isLast={true}>
-      <CenteredContainer>
-        <SectionHeader
-          title="Referrals"
-          actions={
-            <AddItemButton
-              label="Referral"
-              onClick={() => setIsModalOpen(true)}
+  const handleUpdateReferral = async (
+    referralId: Id<"referrals">,
+    newName: string
+  ): Promise<boolean> => {
+    if (!newName.trim()) {
+      setUpdateError(FrontEndErrorMessages.REFERARAL_NAME_REQUIRED);
+      return false;
+    }
+    const success = await updateReferral(referralId, { name: newName });
+    if (success) {
+      setEditingReferral(null);
+    }
+    return success;
+  };
+
+  switch (true) {
+    case !companyId:
+      return <ErrorMessage message={"Failed to load referrals."} />;
+
+    case result.status === QueryStatus.LOADING:
+      return null;
+
+    case result.status === QueryStatus.ERROR:
+      return <ErrorMessage message={result.errorMessage} />;
+
+    default: {
+      const { referrals } = result;
+
+      return (
+        <SectionContainer isLast>
+          <CenteredContainer>
+            <SectionHeader
+              title="Referrals"
+              actions={
+                <AddItemButton
+                  label="Referral"
+                  onClick={() => setIsModalOpen(true)}
+                />
+              }
+              className="px-0 pb-4"
             />
-          }
-          className="px-0 pb-4"
-        />
-        {referrals.length === 0 ? (
-          <p className="text-gray-500">No active referrals found.</p>
-        ) : (
-          <CardListContainer>
-            {referrals.map((referral) => (
-              <ReferralItem
-                key={referral._id}
-                referralId={referral._id}
-                name={referral.name}
-                onEdit={(id, name) => setEditingReferral({ id, name })}
+
+            {referrals.length === 0 ? (
+              <p className="text-gray-500">No active referrals found.</p>
+            ) : (
+              <CardListContainer>
+                {referrals.map((referral) => (
+                  <ReferralItem
+                    key={referral._id}
+                    referralId={referral._id}
+                    name={referral.name}
+                    onEdit={(id, name) => setEditingReferral({ id, name })}
+                  />
+                ))}
+              </CardListContainer>
+            )}
+
+            {/* Create */}
+            <CreateReferralModal
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+              onSubmit={handleCreateReferral}
+              loading={createLoading}
+              error={createError}
+            />
+
+            {/* Edit (reuses the same modal) */}
+            {editingReferral && (
+              <CreateReferralModal
+                isOpen={!!editingReferral}
+                onClose={() => setEditingReferral(null)}
+                onSubmit={(newName) =>
+                  handleUpdateReferral(editingReferral.id, newName)
+                }
+                initialName={editingReferral.name}
+                loading={updateLoading}
+                error={updateError}
+                mode="edit"
               />
-            ))}
-          </CardListContainer>
-        )}
-        <CreateReferralModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onSubmit={handleCreateReferral}
-          loading={createLoading}
-          error={createError}
-        />
-        {editingReferral && (
-          <CreateReferralModal
-            isOpen={!!editingReferral}
-            onClose={() => setEditingReferral(null)}
-            onSubmit={(newName) =>
-              handleUpdateReferral(editingReferral.id, newName)
-            }
-            initialName={editingReferral.name}
-            loading={updateLoading}
-            error={updateError}
-            mode="edit"
-          />
-        )}
-      </CenteredContainer>
-    </SectionContainer>
-  );
+            )}
+          </CenteredContainer>
+        </SectionContainer>
+      );
+    }
+  }
 };
 
 export default ReferralsTab;

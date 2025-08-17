@@ -2,12 +2,13 @@
 
 import React, { createContext, useContext, useState, useMemo } from "react";
 import { DateTime } from "luxon";
-import { useMovesForCalendar } from "@/app/hooks/queries/useGetMovesForCalendar";
 import { useSlugContext } from "@/app/contexts/SlugContext";
 import { MoveStatus, PriceOrder } from "@/types/types";
 import { Id } from "@/convex/_generated/dataModel";
 import { getCurrentDate } from "../frontendUtils/helper";
 import { EnrichedMove } from "@/types/convex-responses";
+import { QueryStatus } from "@/types/enums";
+import { useMovesForCalendar } from "@/app/hooks/queries/useGetMovesForCalendar";
 
 export type SalesRepOption = { id: Id<"users">; name: string };
 
@@ -65,6 +66,7 @@ export const MoveFilterProvider = ({
   const [selectedDate, setSelectedDate] = useState<Date>(today);
   const [isWeekView, setIsWeekView] = useState<boolean>(true);
 
+  // Month range for calendar view
   const selectedMonth = DateTime.fromJSDate(selectedDate).setZone(timeZone);
   const monthStart = selectedMonth.startOf("month").toISODate()!;
   const monthEnd = selectedMonth.endOf("month").toISODate()!;
@@ -72,12 +74,8 @@ export const MoveFilterProvider = ({
   const queryStart = isList ? filterStartDate : monthStart;
   const queryEnd = isList ? filterEndDate : monthEnd;
 
-  const {
-    data: moves = [],
-    isLoading,
-    isError,
-    errorMessage,
-  } = useMovesForCalendar({
+  // ✅ Use the new union-status hook
+  const movesResult = useMovesForCalendar({
     start: queryStart,
     end: queryEnd,
     companyId,
@@ -85,6 +83,25 @@ export const MoveFilterProvider = ({
     statuses: selectedStatuses,
     priceOrder: priceFilter,
   });
+
+  // Derive legacy booleans + data for consumers
+  let moves: EnrichedMove[] = [];
+  let isLoading = false;
+  let isError = false;
+  let errorMessage: string | null = null;
+
+  switch (movesResult.status) {
+    case QueryStatus.LOADING:
+      isLoading = true;
+      break;
+    case QueryStatus.ERROR:
+      isError = true;
+      errorMessage = movesResult.errorMessage;
+      break;
+    case QueryStatus.SUCCESS:
+      moves = movesResult.data;
+      break;
+  }
 
   const value = useMemo(
     () => ({
@@ -123,7 +140,7 @@ export const MoveFilterProvider = ({
       isList,
       selectedDate,
       today,
-      isWeekView, // ✅ add to dependency array
+      isWeekView,
     ]
   );
 

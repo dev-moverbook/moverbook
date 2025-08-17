@@ -1,18 +1,28 @@
+// app/hooks/queries/moves/useCustomerAndMoves.ts
+"use client";
+
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
-import { ResponseStatus } from "@/types/enums";
-import { Doc } from "@/convex/_generated/dataModel";
+import { Id, Doc } from "@/convex/_generated/dataModel";
+import { QueryStatus, ResponseStatus } from "@/types/enums";
 
-interface UseCustomerAndMovesResult {
-  data?: {
+type UseCustomerAndMovesLoading = { status: QueryStatus.LOADING };
+type UseCustomerAndMovesError = {
+  status: QueryStatus.ERROR;
+  errorMessage: string;
+};
+type UseCustomerAndMovesSuccess = {
+  status: QueryStatus.SUCCESS;
+  data: {
     moveCustomer: Doc<"moveCustomers">;
     moves: Doc<"move">[];
-  } | null;
-  isLoading: boolean;
-  isError: boolean;
-  errorMessage: string | null;
-}
+  };
+};
+
+export type UseCustomerAndMovesResult =
+  | UseCustomerAndMovesLoading
+  | UseCustomerAndMovesError
+  | UseCustomerAndMovesSuccess;
 
 export const useCustomerAndMoves = (
   moveCustomerId: Id<"moveCustomers"> | null
@@ -22,17 +32,22 @@ export const useCustomerAndMoves = (
     moveCustomerId ? { moveCustomerId } : "skip"
   );
 
-  const isLoading = response === undefined;
-  const isError = response?.status === ResponseStatus.ERROR;
-  const data =
-    response?.status === ResponseStatus.SUCCESS ? response.data : null;
+  if (!moveCustomerId || !response) {
+    return { status: QueryStatus.LOADING };
+  }
+
+  if (response.status === ResponseStatus.ERROR) {
+    return {
+      status: QueryStatus.ERROR,
+      errorMessage: response.error ?? "Failed to load customer and moves.",
+    };
+  }
 
   return {
-    data,
-    isLoading,
-    isError,
-    errorMessage: isError
-      ? (response?.error ?? "Failed to load customer and moves.")
-      : null,
+    status: QueryStatus.SUCCESS,
+    data: {
+      moveCustomer: response.data.moveCustomer,
+      moves: response.data.moves,
+    },
   };
 };

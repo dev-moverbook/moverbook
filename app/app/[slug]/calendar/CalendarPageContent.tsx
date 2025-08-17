@@ -10,6 +10,7 @@ import MoveCardContainer from "@/app/components/move/MoveCardContainer";
 import CalendarNav from "./components/CalendarNav";
 import { useMoveFilter } from "@/app/contexts/MoveFilterContext";
 import DateRangeFields from "./components/DateRangerPiker";
+import ErrorComponent from "@/app/components/shared/ErrorComponent";
 
 const CalendarPageContent = () => {
   const { timeZone } = useSlugContext();
@@ -51,14 +52,14 @@ const CalendarPageContent = () => {
       {isList ? (
         <DateRangeFields />
       ) : (
-        <>
+        <div>
           <CalendarSwitcher />
           <ToggleCalendar />
-        </>
+        </div>
       )}
-      {isError && <p className="text-red-500">{errorMessage}</p>}
+      {isError && <ErrorComponent message={errorMessage} />}
       {!isLoading && !isError && isWeekView && (
-        <MoveCardContainer moves={weeklyMoves} />
+        <MoveCardContainer moves={weeklyMoves} isfilterDates={isList} />
       )}
     </PageContainer>
   );

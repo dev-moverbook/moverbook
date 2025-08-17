@@ -1,44 +1,47 @@
 "use client";
 
 import { useSlugContext } from "@/app/contexts/SlugContext";
-import RoomSection from "../sections/RoomSection";
 import VerticalSectionGroup from "@/app/components/shared/VerticalSectionGroup";
+import RoomSection from "../sections/RoomSection";
 import ItemSection from "../sections/ItemSection";
-import { useCompanyInventoryData } from "@/app/hooks/queries/useCompanyInventoryData";
-import DataLoader from "@/app/components/shared/containers/DataLoader";
-import RenderSkeleton from "@/app/components/shared/RenderSkeleton";
 import ResetSection from "../sections/ResetSection";
+import ErrorComponent from "@/app/components/shared/ErrorComponent";
+import { useCompanyInventoryData } from "@/app/hooks/queries/useCompanyInventoryData";
+import { QueryStatus } from "@/types/enums";
 
 const InventoryTab = () => {
   const { companyId } = useSlugContext();
+  const result = useCompanyInventoryData(companyId);
 
-  const { data, isLoading, isError, errorMessage } =
-    useCompanyInventoryData(companyId);
+  let content: React.ReactNode;
 
-  if (!companyId) {
-    return <RenderSkeleton />;
-  }
+  switch (result.status) {
+    case QueryStatus.LOADING:
+      content = null;
+      break;
 
-  return (
-    <DataLoader
-      isLoading={isLoading}
-      isError={isError}
-      errorMessage={errorMessage}
-      data={data}
-    >
-      {({ items, categories, rooms }) => (
-        <VerticalSectionGroup>
-          <RoomSection rooms={rooms} companyId={companyId} />
+    case QueryStatus.ERROR:
+      content = <ErrorComponent message={result.errorMessage} />;
+      break;
+
+    case QueryStatus.SUCCESS: {
+      const { items, categories, rooms } = result.data;
+      content = (
+        <>
+          <RoomSection rooms={rooms} companyId={companyId!} />
           <ItemSection
             items={items}
-            companyId={companyId}
             categories={categories}
+            companyId={companyId!}
           />
-          <ResetSection companyId={companyId} />
-        </VerticalSectionGroup>
-      )}
-    </DataLoader>
-  );
+          <ResetSection companyId={companyId!} />
+        </>
+      );
+      break;
+    }
+  }
+
+  return <VerticalSectionGroup>{content}</VerticalSectionGroup>;
 };
 
 export default InventoryTab;

@@ -7,6 +7,8 @@ import { ConvexClientProvider } from "./providers/ConvexClientProvider";
 import { dark } from "@clerk/themes";
 import { GoogleMapsProvider } from "./providers/GoogleMapsProvider";
 import RouteChangeProgress from "./components/layout/Nprogress";
+import { Suspense } from "react";
+import FullLoading from "./components/shared/FullLoading";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -48,7 +50,7 @@ export default function RootLayout({
           <ConvexClientProvider>
             <GoogleMapsProvider>
               <RouteChangeProgress />
-              {children}
+              <Suspense fallback={<FullLoading />}>{children}</Suspense>
             </GoogleMapsProvider>
           </ConvexClientProvider>
         </ClerkProvider>

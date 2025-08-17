@@ -14,21 +14,29 @@ interface SelectLiabilityCardProps {
   policy?: InsurancePolicySchema;
   isSelected?: boolean;
   onSelect?: (policyId: Id<"insurancePolicies">) => void;
+  disabled?: boolean; // NEW
 }
 
 const SelectLiabilityCard: React.FC<SelectLiabilityCardProps> = ({
   policy,
   isSelected,
   onSelect,
+  disabled = false,
 }) => {
   if (!policy) return null;
+
+  const isClickable = !!onSelect && !disabled;
+
   return (
     <CustomCard
       className={clsx(
-        "  transition p-0 pb-2",
-        isSelected ? "border-greenCustom" : ""
+        "transition p-0 pb-2",
+        isSelected && "border-greenCustom",
+        disabled
+          ? "opacity-60 cursor-not-allowed pointer-events-none"
+          : "cursor-pointer"
       )}
-      onClick={onSelect ? () => onSelect(policy._id) : undefined}
+      onClick={isClickable ? () => onSelect!(policy._id) : undefined}
     >
       <CardHeaderWithActions
         title={

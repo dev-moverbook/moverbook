@@ -26,7 +26,7 @@ const TabSelector: React.FC<TabSelectorProps> = ({
   const activeIndex = tabs.findIndex((tab) => tab === activeTab);
 
   return (
-    <div className="relative border-b border-gray-700">
+    <div className="relative border-b border-grayCustom">
       <div className="relative z-10 max-w-screen-sm mx-auto">
         <div className="flex w-full relative">
           {tabs.map((tab) => (

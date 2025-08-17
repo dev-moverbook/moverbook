@@ -89,6 +89,7 @@ const LaborInputs: React.FC<LaborInputsProps> = ({
         }}
         error={errors?.jobTypeRate}
         isEditing={isEditing}
+        suffix={formData.jobType === "hourly" ? "/hr" : ""}
       />
     </>
   );

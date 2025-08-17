@@ -4,9 +4,7 @@ import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { CopyPlus, Eye } from "lucide-react";
 import {
-  formatAccessType,
   formatDateToLong,
-  formatMoveSize,
   formatLocationType,
   formatPriceRange,
   getMoveCostRange,
@@ -51,49 +49,59 @@ const MoveCard: React.FC<MoveCardProps> = ({
 
   const content = (
     <div
-      className={`bg-black py-2 px-4 text-white shadow-md border-b border-grayCustom ${
+      className={`py-4 px-4 text-white shadow-md border-b  border-grayCustom ${
         !showActions
           ? "hover:bg-background2 transition-colors duration-200"
           : ""
       }`}
     >
       <div className="max-w-screen-sm mx-auto">
-        <p className="text-xs text-grayCustom2">{formatDateToLong(moveDate)}</p>
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-medium">{name ?? "No name"}</h3>
-            <div className="flex items-center gap-1 text-sm">
+        {/* Main row */}
+        <div className="flex items-stretch justify-between gap-4">
+          {/* Left: date + name + status/price */}
+          <div className="flex flex-col min-w-0">
+            <p className="text-grayCustom2">{formatDateToLong(moveDate)}</p>
+            <h3 className="text-lg font-medium truncate">
+              {name ?? "No name"}
+            </h3>
+            <div className="flex items-center gap-2 min-w-0">
               <span style={{ color: getStatusColor(moveStatus) }}>●</span>
-              <span>{moveStatus}</span>
+              <span className="truncate">{moveStatus}</span>
               <span className="text-greenCustom font-medium pl-2">{price}</span>
             </div>
           </div>
-          <div className="flex flex-col items-center">
-            <div className="w-10 h-10 border border-grayCustom rounded-full overflow-hidden flex items-center justify-center bg-background2">
-              {salesRep?.imageUrl ? (
-                <img
-                  src={salesRep.imageUrl}
-                  alt={salesRep?.name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <span className="text-sm text-white font-medium">
-                  {repInitials}
-                </span>
-              )}
+
+          {/* Right: sales rep — bottom aligned */}
+          <div className="flex flex-col items-center self-stretch">
+            <div className="mt-auto flex flex-col items-center">
+              <div className="w-10 h-10 border border-grayCustom rounded-full overflow-hidden flex items-center justify-center bg-background2">
+                {salesRep?.imageUrl ? (
+                  <img
+                    src={salesRep.imageUrl}
+                    alt={salesRep?.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-sm text-white font-medium">
+                    {repInitials}
+                  </span>
+                )}
+              </div>
+              <span className="text-sm text-grayCustom2  text-center max-w-[9rem] truncate">
+                {salesRep?.name}
+              </span>
             </div>
-            <span className="text-[10px] text-gray-400 ">{salesRep?.name}</span>
           </div>
         </div>
 
-        <div className="flex gap-2 flex-wrap mt-1">
+        <div className="flex gap-1 flex-wrap mt-1">
           {tags.map((tag, i) => (
             <Badge key={i}>{tag}</Badge>
           ))}
         </div>
 
         {showActions && (
-          <div className="flex gap-4 mt-1 justify-between sm:justify-start">
+          <div className="flex gap-4 mt-2 justify-between sm:justify-start">
             <Button
               size="auto"
               variant="link"

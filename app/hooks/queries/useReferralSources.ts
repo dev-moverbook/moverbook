@@ -1,15 +1,26 @@
+// app/hooks/queries/referrals/useReferralSources.ts
+"use client";
+
 import { api } from "@/convex/_generated/api";
 import { useQuery } from "convex/react";
 import { Id } from "@/convex/_generated/dataModel";
-import { ResponseStatus } from "@/types/enums";
+import { QueryStatus, ResponseStatus } from "@/types/enums";
 import { SelectOption } from "@/types/types";
 
-interface UseReferralSourcesResult {
+type UseReferralSourcesLoading = { status: QueryStatus.LOADING };
+type UseReferralSourcesError = {
+  status: QueryStatus.ERROR;
+  errorMessage: string;
+};
+type UseReferralSourcesSuccess = {
+  status: QueryStatus.SUCCESS;
   options: SelectOption[];
-  isLoading: boolean;
-  isError: boolean;
-  errorMessage: string | null;
-}
+};
+
+export type UseReferralSourcesResult =
+  | UseReferralSourcesLoading
+  | UseReferralSourcesError
+  | UseReferralSourcesSuccess;
 
 export const useReferralSources = (
   companyId: Id<"companies"> | null
@@ -19,22 +30,26 @@ export const useReferralSources = (
     companyId ? { companyId } : "skip"
   );
 
-  const isLoading = response === undefined;
-  const isError = response?.status === ResponseStatus.ERROR;
-  const options =
-    response?.status === ResponseStatus.SUCCESS
-      ? response.data.referrals.map((ref) => ({
-          label: ref.name,
-          value: ref.name,
-        }))
-      : [];
+  // loading (also covers no companyId yet)
+  if (!companyId || !response) {
+    return { status: QueryStatus.LOADING };
+  }
 
+  // error
+  if (response.status === ResponseStatus.ERROR) {
+    return {
+      status: QueryStatus.ERROR,
+      errorMessage: response.error ?? "Failed to load referrals.",
+    };
+  }
+
+  // success
   return {
-    options,
-    isLoading,
-    isError,
-    errorMessage: isError
-      ? (response?.error ?? "Failed to load referrals.")
-      : null,
+    status: QueryStatus.SUCCESS,
+    options:
+      response.data.referrals?.map((ref) => ({
+        label: ref.name,
+        value: ref.name,
+      })) ?? [],
   };
 };

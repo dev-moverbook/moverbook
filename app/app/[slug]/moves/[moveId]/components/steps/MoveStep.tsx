@@ -2,57 +2,55 @@ import React from "react";
 import AssignMovers from "../move/AssignMovers";
 import { useGetMoveAssignmentsPage } from "@/app/hooks/queries/useGetMoveAssignmentsPage";
 import PreMove from "../move/PreMove";
-import FullLoading from "@/app/components/shared/FullLoading";
-import { Doc } from "@/convex/_generated/dataModel";
+import ErrorComponent from "@/app/components/shared/ErrorComponent";
 import AdditionalLiabilityCoverage from "../move/AdditionalLiabilityCoverage";
 import { getMoveStatus } from "@/app/frontendUtils/tsxHelper";
 import StepStatus from "../shared/StepStatus";
+import { useMoveContext } from "@/app/contexts/MoveContext";
+import { QueryStatus } from "@/types/enums";
 
-interface MoveStepProps {
-  move: Doc<"move">;
-  quote: Doc<"quotes"> | null;
-}
+const MoveStep = () => {
+  const { moveData } = useMoveContext();
+  const { move } = moveData;
 
-const MoveStep = ({ move, quote }: MoveStepProps) => {
-  const { data, isLoading, isError, errorMessage } = useGetMoveAssignmentsPage(
-    move._id
-  );
+  const result = useGetMoveAssignmentsPage(move._id);
 
-  const { assignments, allMovers, preMoveDoc, additionalLiabilityCoverage } =
-    data ?? {
-      assignments: [],
-      allMovers: [],
-      preMoveDoc: null,
-      additionalLiabilityCoverage: null,
-    };
-  const moveStatus = getMoveStatus(move, assignments.length, preMoveDoc);
+  switch (result.status) {
+    case QueryStatus.LOADING:
+      return null;
+    case QueryStatus.ERROR:
+      return <ErrorComponent message={result.errorMessage} />;
+    case QueryStatus.SUCCESS: {
+      const {
+        assignments,
+        allMovers,
+        preMoveDoc,
+        additionalLiabilityCoverage,
+      } = result.data;
+      const moveStatus = getMoveStatus(move, assignments.length, preMoveDoc);
 
-  if (isLoading) {
-    return <FullLoading />;
+      return (
+        <div>
+          <StepStatus
+            items={[
+              {
+                label: "Move Status",
+                value: moveStatus.label,
+                icon: moveStatus.icon,
+              },
+            ]}
+          />
+          <AssignMovers assignments={assignments} allMovers={allMovers} />
+          <PreMove preMoveDoc={preMoveDoc} />
+          <AdditionalLiabilityCoverage
+            additionalLiabilityCoverage={additionalLiabilityCoverage}
+          />
+        </div>
+      );
+    }
+    default:
+      return null;
   }
-  return (
-    <div>
-      <StepStatus
-        items={[
-          {
-            label: "Move Status",
-            value: moveStatus.label,
-            icon: moveStatus.icon,
-          },
-        ]}
-      />
-      <AssignMovers
-        assignments={assignments}
-        allMovers={allMovers}
-        move={move}
-      />
-      <PreMove preMoveDoc={preMoveDoc} moveId={move._id} />
-      <AdditionalLiabilityCoverage
-        additionalLiabilityCoverage={additionalLiabilityCoverage}
-        moveId={move._id}
-      />
-    </div>
-  );
 };
 
 export default MoveStep;

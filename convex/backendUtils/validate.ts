@@ -193,8 +193,8 @@ export function validateCompanyContact(
 }
 
 export function validateArrivalWindow(
-  arrivalWindow: ArrivalWindowSchema | null
-): ArrivalWindowSchema {
+  arrivalWindow: Doc<"arrivalWindow"> | null
+): Doc<"arrivalWindow"> {
   if (!arrivalWindow) {
     throw new Error(ErrorMessages.ARRIVAL_WINDOW_NOT_FOUND);
   }

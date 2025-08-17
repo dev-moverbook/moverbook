@@ -47,7 +47,15 @@ export const formatDecimalNumber = (
   unit: string
 ) => {
   if (value == null || isNaN(value)) return "—";
-  return `${value.toFixed(2)} ${unit}`;
+  return `${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit}`;
+};
+
+export const formatDisplayNumber = (
+  value: number | null | undefined,
+  unit: string
+) => {
+  if (value == null || isNaN(value)) return "—";
+  return `${value.toLocaleString()} ${unit}`;
 };
 
 export function formatDateToLong(dateString: string | null): string | null {
@@ -393,7 +401,7 @@ export const formatTimestamp = (
 ): string => {
   return DateTime.fromMillis(Math.floor(timestamp), {
     zone: timeZone,
-  }).toFormat("MMMM d, h:mm a");
+  }).toFormat("LLL d, h:mm a"); // e.g., "Aug 16, 3:45 PM"
 };
 
 export const getInitials = (name: string): string => {
@@ -450,7 +458,7 @@ export function getMoveDisplayRows({
   return [
     ...moveFees.map((fee) => ({
       left: `${fee.name} (${fee.quantity} @ ${formatCurrency(fee.price)})`,
-      right: `$${(fee.price * fee.quantity).toFixed(2)}`,
+      right: `${formatCurrency(fee.price * fee.quantity)}`,
     })),
     {
       left: "Liability Coverage",
@@ -469,9 +477,9 @@ export function getTotalHoursRange(
   drive: number = 0
 ): string {
   if (typeof start !== "number" || typeof end !== "number") return "-";
-  const totalStart = start + drive;
-  const totalEnd = end + drive;
-  return `${totalStart}-${totalEnd} hours`;
+  const totalStart = formatDisplayNumber(start + drive, "");
+  const totalEnd = formatDisplayNumber(end + drive, "");
+  return `${totalStart} - ${totalEnd} hours`;
 }
 
 export function formatJobTypeRateRow(
@@ -491,4 +499,14 @@ export function formatJobRate(
 
   const amount = formatCurrency(jobTypeRate);
   return jobType === "hourly" ? `${amount}/hr` : `${amount} flat`;
+}
+
+export function formatMonthDayTimestamp(
+  timestamp: number | string,
+  timezone: string = "UTC"
+): string {
+  const millis =
+    typeof timestamp === "number" ? timestamp : new Date(timestamp).getTime();
+
+  return DateTime.fromMillis(millis, { zone: timezone }).toFormat("LLL d");
 }

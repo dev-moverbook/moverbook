@@ -10,7 +10,7 @@ const CardContainer: React.FC<CardContainerProps> = ({
   children,
   className,
 }) => {
-  return <div className={cn("space-y-4", className)}>{children}</div>;
+  return <div className={cn("", className)}>{children}</div>;
 };
 
 export default CardContainer;

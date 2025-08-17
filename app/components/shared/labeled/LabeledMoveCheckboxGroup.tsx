@@ -7,6 +7,7 @@ import { Doc } from "@/convex/_generated/dataModel";
 import FieldDisplay from "../FieldDisplay";
 import FieldErrorMessage from "./FieldErrorMessage";
 import { Repeat } from "lucide-react";
+import { Button } from "../../ui/button";
 
 interface MoveCheckboxOption {
   label: string;
@@ -65,15 +66,15 @@ const LabeledMoveCheckboxGroup: React.FC<LabeledMoveCheckboxGroupProps> = ({
 
   return (
     <div>
-      <Label className="block text-sm font-medium text-white">{label}</Label>
-      <div className="flex flex-col gap-1 mt-1">
+      <Label className="block  font-medium text-white">{label}</Label>
+      <div className="flex flex-col gap-4 mt-1">
         {options.map((option) => {
           const isEndingLocation = option.value === "endingLocation";
 
           return (
             <div
               key={option.value}
-              className="flex items-start justify-between gap-2"
+              className="flex items-start justify-between gap-6"
             >
               <div className="flex items-start space-x-2">
                 <Checkbox
@@ -86,12 +87,12 @@ const LabeledMoveCheckboxGroup: React.FC<LabeledMoveCheckboxGroupProps> = ({
                 <div className="flex flex-col">
                   <Label
                     htmlFor={`${name}-${option.value}`}
-                    className="text-sm text-white"
+                    className=" text-white pb-0"
                   >
                     {option.label}
                   </Label>
                   {option.getValue && (
-                    <div className="text-xs text-gray-400 pl-px">
+                    <div className=" text-grayCustom2 pl-px">
                       {option.getValue(move) ?? "—"}
                     </div>
                   )}
@@ -99,14 +100,15 @@ const LabeledMoveCheckboxGroup: React.FC<LabeledMoveCheckboxGroupProps> = ({
               </div>
 
               {isEndingLocation && (
-                <button
+                <Button
+                  variant="link"
                   onClick={() => onSwap?.()}
                   type="button"
-                  className="text-sm underline mt-1 flex items-center"
+                  className="text-sm underline mt-1 flex flex-row items-center text-white"
                 >
-                  <Repeat className="w-4 h-4 mr-1 rotate-90" />
-                  Swap
-                </button>
+                  <Repeat className="text-white w-4 h-4 mr-1 rotate-90" />
+                  <span className="text-white">Swap</span>
+                </Button>
               )}
             </div>
           );

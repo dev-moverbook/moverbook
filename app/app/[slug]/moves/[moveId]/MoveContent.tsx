@@ -14,9 +14,7 @@ import { Doc } from "@/convex/_generated/dataModel";
 import DuplicateMoveModal from "../../customer/[customerId]/modals/DuplicateMoveModal";
 import { hasRequiredMoveFields } from "@/app/frontendUtils/helper";
 
-interface MoveContentProps {}
-
-const MoveContent = ({}: MoveContentProps) => {
+const MoveContent = () => {
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [activeTab, setActiveTab] = useState<string>("INFO");
 
@@ -28,15 +26,7 @@ const MoveContent = ({}: MoveContentProps) => {
     useState<boolean>(false);
   const [selectedMove, setSelectedMove] = useState<Doc<"move"> | null>(null);
 
-  const {
-    move,
-    quote,
-    company,
-    companyContact,
-    policy,
-    moveCustomer,
-    salesRepUser,
-  } = moveData;
+  const { move, quote, moveCustomer, salesRepUser } = moveData;
 
   const onEditQuote = () => {
     setCurrentStep(1);
@@ -96,21 +86,10 @@ const MoveContent = ({}: MoveContentProps) => {
 
       {currentStep === 1 && activeTab === "INFO" && <LeadStep />}
       {currentStep === 2 && activeTab === "INFO" && (
-        <QuoteStep
-          move={move}
-          moveCustomer={moveCustomer}
-          quote={quote}
-          company={company}
-          salesRep={salesRepUser}
-          companyContact={companyContact}
-          policy={policy}
-          onEditQuote={onEditQuote}
-        />
+        <QuoteStep quote={quote} onEditQuote={onEditQuote} />
       )}
-      {currentStep === 3 && activeTab === "INFO" && (
-        <MoveStep move={move} quote={quote} />
-      )}
-      {currentStep === 4 && activeTab === "INFO" && <PaymentStep move={move} />}
+      {currentStep === 3 && activeTab === "INFO" && <MoveStep />}
+      {currentStep === 4 && activeTab === "INFO" && <PaymentStep />}
       {selectedMove && isDuplicateMoveModalOpen && (
         <DuplicateMoveModal
           isOpen={isDuplicateMoveModalOpen}

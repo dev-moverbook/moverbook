@@ -1,3 +1,4 @@
+// CustomerStep.tsx
 "use client";
 
 import { useState } from "react";
@@ -11,8 +12,10 @@ import { useCreateMoveCustomer } from "../../hooks/createCustomer";
 import { useUpdateMoveCustomer } from "@/app/hooks/mutations/customers/useUpdateMoveCustomer";
 import { validateCustomerForm } from "@/app/frontendUtils/validation";
 import { FrontEndErrorMessages } from "@/types/errors";
-import { MoveCustomerSchema } from "@/types/convex-schemas";
 import CustomerForm from "@/app/components/move/sections/Customer/CustomerForm";
+import ExistingCustomerNotice from "../banner/ExistingCustomerNotice";
+import { Doc } from "@/convex/_generated/dataModel";
+import { isValidEmail, isValidPhoneNumber } from "@/utils/helper";
 
 interface CustomerStepProps {
   onNext: () => void;
@@ -21,8 +24,9 @@ interface CustomerStepProps {
 
 const CustomerStep = ({ onNext, onCancel }: CustomerStepProps) => {
   const { companyId } = useSlugContext();
+
   const [existingCustomer, setExistingCustomer] =
-    useState<MoveCustomerSchema | null>(null);
+    useState<Doc<"moveCustomers"> | null>(null);
 
   const {
     customer,
@@ -55,6 +59,10 @@ const CustomerStep = ({ onNext, onCancel }: CustomerStepProps) => {
     referralOptions?.map((r) => ({ label: r.name, value: r.name })) ?? [];
 
   const handleChange = (key: keyof typeof customer, value: string): void => {
+    // Editing email/phone clears the match → original actions will show again
+    if (existingCustomer && (key === "email" || key === "phoneNumber")) {
+      setExistingCustomer(null);
+    }
     setCustomer({ ...customer, [key]: value });
     if (customerErrors[key]) {
       const { [key]: _, ...rest } = customerErrors;
@@ -62,18 +70,24 @@ const CustomerStep = ({ onNext, onCancel }: CustomerStepProps) => {
     }
   };
 
-  const isDisabled =
+  const baseDisabled =
     !customer.name ||
-    !customer.email ||
-    !customer.phoneNumber ||
+    !isValidEmail(customer.email) ||
+    !isValidPhoneNumber(customer.phoneNumber) ||
+    !isValidPhoneNumber(customer.altPhoneNumber) || // if optional, relax this
     !customer.referral;
+
+  const isDisabled =
+    baseDisabled || createMoveCustomerLoading || updateMoveCustomerLoading;
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
 
+    // If a match exists, user must Select or change inputs
+    if (existingCustomer) return;
+
     const referralValues = referralSelectOptions.map((r) => r.value);
     const { isValid, errors } = validateCustomerForm(customer, referralValues);
-
     if (!isValid) {
       setCustomerErrors(errors);
       return;
@@ -95,13 +109,8 @@ const CustomerStep = ({ onNext, onCancel }: CustomerStepProps) => {
           referral: customer.referral,
         },
       });
-
-      if (response.success) {
-        onNext();
-      } else {
-        setUpdateMoveCustomerError(FrontEndErrorMessages.GENERIC);
-      }
-
+      if (response.success) onNext();
+      else setUpdateMoveCustomerError(FrontEndErrorMessages.GENERIC);
       return;
     }
 
@@ -122,7 +131,7 @@ const CustomerStep = ({ onNext, onCancel }: CustomerStepProps) => {
         });
         onNext();
       } else if (response.existingCustomer) {
-        setExistingCustomer(response.existingCustomer);
+        setExistingCustomer(response.existingCustomer); // swaps action row
       }
     } else {
       setCreateMoveCustomerError(FrontEndErrorMessages.GENERIC);
@@ -144,22 +153,39 @@ const CustomerStep = ({ onNext, onCancel }: CustomerStepProps) => {
         onChange={handleChange}
       />
 
-      <FormActionContainer className="pt-10">
-        <FormActions
-          onSave={(e) => {
-            e.preventDefault();
-            handleSubmit(e);
-          }}
-          onCancel={onCancel}
-          disabled={isDisabled}
-          isSaving={createMoveCustomerLoading || updateMoveCustomerLoading}
-          saveLabel="Next"
-          cancelLabel="Cancel"
-          error={
-            createMoveCustomerError || updateMoveCustomerError || errorMessage
-          }
-        />
-      </FormActionContainer>
+      {existingCustomer ? (
+        // When a match exists: replace default actions with Select/View
+        <div className="pt-6">
+          <ExistingCustomerNotice
+            customer={existingCustomer}
+            onUse={() => {
+              setMoveFormData({
+                ...moveFormData,
+                moveCustomerId: existingCustomer._id,
+              });
+              onNext();
+            }}
+          />
+        </div>
+      ) : (
+        // Normal Cancel/Next
+        <FormActionContainer className="pt-10">
+          <FormActions
+            onSave={(e) => {
+              e.preventDefault();
+              handleSubmit(e);
+            }}
+            onCancel={onCancel}
+            disabled={isDisabled}
+            isSaving={createMoveCustomerLoading || updateMoveCustomerLoading}
+            saveLabel="Next"
+            cancelLabel="Cancel"
+            error={
+              createMoveCustomerError || updateMoveCustomerError || errorMessage
+            }
+          />
+        </FormActionContainer>
+      )}
     </FormContainer>
   );
 };

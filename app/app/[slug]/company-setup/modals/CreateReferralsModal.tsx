@@ -56,7 +56,7 @@ const CreateReferralModal: React.FC<CreateReferralModalProps> = ({
   const modalTitle = isEditMode ? "Edit Referral" : "Create Referral";
   const description = isEditMode
     ? "Update this referral name."
-    : "Add a new referral to your list.";
+    : "Enter the name of the referral you want to add.";
   const saveLabel = isEditMode
     ? loading
       ? "Saving..."
@@ -101,6 +101,7 @@ const CreateReferralModal: React.FC<CreateReferralModalProps> = ({
       title={modalTitle}
       description={description}
       children={formContent}
+      heightVh={80}
     />
   );
 };

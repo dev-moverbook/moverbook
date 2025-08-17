@@ -55,35 +55,37 @@ const MessageInputBarInner = () => {
   }, [input]);
 
   return (
-    <div className="max-w-screen-sm mx-auto bg-black text-white border-t border-grayCustom z-10 w-full">
-      <div className="w-full  px-4 pb-4 pt-2">
-        {method === "email" && <MessageSubject />}
+    <div className=" bg-black text-white border-t border-grayCustom z-10 w-full">
+      <div className="max-w-screen-sm mx-auto">
+        <div className="w-full  px-4 pb-4 pt-2">
+          {method === "email" && <MessageSubject />}
 
-        <MessageActions
-          toggleOptions={toggleOptions}
-          showOptions={showOptions || showScripts || showVariables}
-          textareaRef={textareaRef as React.RefObject<HTMLTextAreaElement>}
-        />
-
-        {showOptions && !showScripts && !showVariables && (
-          <MessageOptions
-            toggleMethod={toggleMethod}
-            showScripts={() => {
-              setShowScripts(true);
-              setShowVariables(false);
-            }}
-            showVariables={(target) => {
-              setVariableTarget(target);
-              setShowVariables(true);
-              setShowScripts(false);
-            }}
+          <MessageActions
+            toggleOptions={toggleOptions}
+            showOptions={showOptions || showScripts || showVariables}
+            textareaRef={textareaRef as React.RefObject<HTMLTextAreaElement>}
           />
-        )}
 
-        {showScripts && <MessageScripts />}
-        {showVariables && (
-          <MessageVariables target={variableTarget ?? "body"} />
-        )}
+          {showOptions && !showScripts && !showVariables && (
+            <MessageOptions
+              toggleMethod={toggleMethod}
+              showScripts={() => {
+                setShowScripts(true);
+                setShowVariables(false);
+              }}
+              showVariables={(target) => {
+                setVariableTarget(target);
+                setShowVariables(true);
+                setShowScripts(false);
+              }}
+            />
+          )}
+
+          {showScripts && <MessageScripts />}
+          {showVariables && (
+            <MessageVariables target={variableTarget ?? "body"} />
+          )}
+        </div>
       </div>
     </div>
   );

@@ -1,29 +1,28 @@
 "use client";
+
 import React from "react";
 import StripePageContent from "./StripePageContent";
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ResponseStatus } from "@/types/enums";
+import { useStripeConnection } from "@/app/hooks/queries/stripe/useStripeConnection";
+import { QueryStatus } from "@/types/enums";
+import ErrorMessage from "@/app/components/shared/error/ErrorMessage";
 
 const StripePage = () => {
-  const stripeConnectionResponse = useQuery(
-    api.connectedAccount.getStripeConnection
-  );
+  const result = useStripeConnection();
 
-  if (stripeConnectionResponse === undefined) {
-    return <Skeleton className="" />;
+  switch (result.status) {
+    case QueryStatus.LOADING:
+      return null;
+
+    case QueryStatus.ERROR:
+      return <ErrorMessage message={result.errorMessage} />;
+
+    case QueryStatus.SUCCESS:
+      return (
+        <main className="min-h-100vh">
+          <StripePageContent connectedAccount={result.connectedAccount} />
+        </main>
+      );
   }
-  if (stripeConnectionResponse.status === ResponseStatus.ERROR)
-    return <div>Error: {stripeConnectionResponse.error}</div>;
-
-  const connectedAccount = stripeConnectionResponse.data.stripeConnected;
-
-  return (
-    <main className="min-h-100vh">
-      <StripePageContent connectedAccount={connectedAccount} />
-    </main>
-  );
 };
 
 export default StripePage;

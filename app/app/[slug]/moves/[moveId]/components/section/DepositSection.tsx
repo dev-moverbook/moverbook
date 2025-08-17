@@ -7,14 +7,10 @@ import FieldGroup from "@/app/components/shared/FieldGroup";
 import FormActions from "@/app/components/shared/FormActions";
 import { useUpdateMove } from "../../../hooks/useUpdateMove";
 import { DepositFormData } from "@/types/form-types";
-import LabeledInput from "@/app/components/shared/labeled/LabeledInput";
 import { useMoveContext } from "@/app/contexts/MoveContext";
-import { formatCurrency } from "@/app/frontendUtils/helper";
 import CurrencyInput from "@/app/components/shared/labeled/CurrencyInput";
 
-interface DepositSectionProps {}
-
-const DepositSection = ({}: DepositSectionProps) => {
+const DepositSection = () => {
   const { moveData } = useMoveContext();
   const move = moveData.move;
   const [isEditing, setIsEditing] = useState<boolean>(false);

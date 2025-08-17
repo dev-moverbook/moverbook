@@ -10,6 +10,7 @@ import { useParams, useRouter } from "next/navigation";
 import MoveOnlyCard from "@/app/components/move/MoveOnlyCard";
 import { useState } from "react";
 import DuplicateMoveModal from "../modals/DuplicateMoveModal";
+import SectionHeaderWithAction from "@/app/components/shared/ SectionHeaderWithAction";
 
 interface CustomerMovesProps {
   moves: Doc<"move">[];
@@ -42,11 +43,10 @@ const CustomerMoves: React.FC<CustomerMovesProps> = ({
   };
 
   return (
-    <SectionContainer className="px-0" showBorder={false}>
-      <Header3
-        wrapperClassName="px-4 py-0"
-        showCheckmark={false}
-        button={
+    <SectionContainer className="px-0 gap-0 pb-20 " showBorder={false}>
+      <SectionHeaderWithAction
+        title="Moves"
+        action={
           <Button variant="outline" onClick={handleAddMove}>
             <div className="flex items-center gap-1">
               <Plus className="w-5 h-5" />
@@ -54,9 +54,8 @@ const CustomerMoves: React.FC<CustomerMovesProps> = ({
             </div>
           </Button>
         }
-      >
-        Moves
-      </Header3>
+        className="font-bold"
+      />
 
       {moves.length > 0 && (
         <CardContainer>

@@ -48,7 +48,10 @@ const PercentageInput: React.FC<PercentageInputProps> = ({
         allowNegative={false}
         placeholder="0.00%"
         disabled={!isEditing}
-        className={`focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring w-full rounded-md border px-2 py-1 text-base bg-transparent text-white ${
+        type="text"
+        inputMode="numeric"
+        pattern="[0-9]*"
+        className={`placeholder:text-grayCustom2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring w-full rounded-md border px-2 py-1 text-base bg-transparent text-white ${
           error
             ? "border-red-500 focus-visible:ring-red-500"
             : "border-grayCustom"

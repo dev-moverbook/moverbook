@@ -1,19 +1,28 @@
+"use client";
+
 import { api } from "@/convex/_generated/api";
 import { useQuery } from "convex/react";
-import { Id } from "@/convex/_generated/dataModel";
-import { ResponseStatus } from "@/types/enums";
-import { ItemSchema, CategorySchema, RoomSchema } from "@/types/convex-schemas";
+import { Doc, Id } from "@/convex/_generated/dataModel";
+import { QueryStatus, ResponseStatus } from "@/types/enums";
 
-interface UseCompanyInventoryDataResult {
+type UseCompanyInventoryDataLoading = { status: QueryStatus.LOADING };
+type UseCompanyInventoryDataError = {
+  status: QueryStatus.ERROR;
+  errorMessage: string;
+};
+type UseCompanyInventoryDataSuccess = {
+  status: QueryStatus.SUCCESS;
   data: {
-    items: ItemSchema[];
-    categories: CategorySchema[];
-    rooms: RoomSchema[];
+    items: Doc<"items">[];
+    categories: Doc<"categories">[];
+    rooms: Doc<"rooms">[];
   };
-  isLoading: boolean;
-  isError: boolean;
-  errorMessage: string | null;
-}
+};
+
+export type UseCompanyInventoryDataResult =
+  | UseCompanyInventoryDataLoading
+  | UseCompanyInventoryDataError
+  | UseCompanyInventoryDataSuccess;
 
 export const useCompanyInventoryData = (
   companyId: Id<"companies"> | null
@@ -25,28 +34,23 @@ export const useCompanyInventoryData = (
     companyId ? { companyId } : "skip"
   );
 
-  const isLoading = response === undefined;
-  const isError = response?.status === ResponseStatus.ERROR;
+  if (!companyId || !response) {
+    return { status: QueryStatus.LOADING };
+  }
 
-  const data =
-    response?.status === ResponseStatus.SUCCESS
-      ? {
-          items: response.data.items,
-          categories: response.data.categories,
-          rooms: response.data.rooms,
-        }
-      : {
-          items: [],
-          categories: [],
-          rooms: [],
-        };
+  if (response.status === ResponseStatus.ERROR) {
+    return {
+      status: QueryStatus.ERROR,
+      errorMessage: response.error ?? "Failed to load inventory data.",
+    };
+  }
 
   return {
-    data,
-    isLoading,
-    isError,
-    errorMessage: isError
-      ? (response?.error ?? "Failed to load inventory data.")
-      : null,
+    status: QueryStatus.SUCCESS,
+    data: {
+      items: response.data.items,
+      categories: response.data.categories,
+      rooms: response.data.rooms,
+    },
   };
 };

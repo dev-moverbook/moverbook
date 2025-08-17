@@ -1,10 +1,10 @@
 import { formatDateToLong } from "@/app/frontendUtils/helper";
-import { MoveSchema } from "@/types/convex-schemas";
+import { Doc } from "@/convex/_generated/dataModel";
 
 export const buildTemplateValues = (
-  move: MoveSchema
+  move: Doc<"move">,
+  customerName: string
 ): Record<string, string> => {
-  const customerName = move.name;
   const moveDate = move.moveDate;
   formatDateToLong(move.moveDate);
 

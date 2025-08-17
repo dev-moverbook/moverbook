@@ -5,7 +5,7 @@ import ListRow from "@/app/components/shared/ui/ListRow";
 import ListRowContainer from "@/app/components/shared/containers/ListRowContainer";
 import clsx from "clsx";
 import SectionHeader from "../../shared/SectionHeader";
-import { ListRowType } from "@/app/frontendUtils/helper";
+import { formatCurrency, ListRowType } from "@/app/frontendUtils/helper";
 
 interface CostTableProps {
   title: string;
@@ -35,7 +35,7 @@ const CostTable: React.FC<CostTableProps> = ({
                 row.right === undefined || row.right === null
                   ? ""
                   : formatCurrencyValues
-                    ? `$${Number(row.right).toFixed(2)}`
+                    ? `${formatCurrency(Number(row.right))}`
                     : row.right
               }
               className={clsx(

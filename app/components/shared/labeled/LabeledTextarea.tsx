@@ -10,6 +10,7 @@ interface LabeledTextareaProps {
   placeholder?: string;
   error?: string | null;
   isEditing?: boolean;
+  noPlaceholderError?: boolean;
 }
 
 const LabeledTextarea: React.FC<LabeledTextareaProps> = ({
@@ -19,6 +20,7 @@ const LabeledTextarea: React.FC<LabeledTextareaProps> = ({
   placeholder = "",
   error,
   isEditing = true,
+  noPlaceholderError = false,
 }) => {
   if (!isEditing) {
     return <FieldDisplay label={label} value={value?.trim()} fallback="—" />;
@@ -26,9 +28,9 @@ const LabeledTextarea: React.FC<LabeledTextareaProps> = ({
 
   return (
     <div>
-      <Label className="block text-sm font-medium mb-1">{label}</Label>
+      <Label className="block  font-medium ">{label}</Label>
       <Textarea value={value} onChange={onChange} placeholder={placeholder} />
-      <FieldErrorMessage error={error} />
+      <FieldErrorMessage error={error} noPlaceholder={noPlaceholderError} />
     </div>
   );
 };

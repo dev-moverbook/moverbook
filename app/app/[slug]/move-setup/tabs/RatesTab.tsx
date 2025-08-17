@@ -1,47 +1,53 @@
 "use client";
 
 import React from "react";
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
 import { useSlugContext } from "@/app/contexts/SlugContext";
-import { ResponseStatus } from "@/types/enums";
-import RenderSkeleton from "@/app/components/shared/RenderSkeleton";
+import VerticalSectionGroup from "@/app/components/shared/VerticalSectionGroup";
 import ErrorComponent from "@/app/components/shared/ErrorComponent";
 import LaborSection from "../sections/LaborSection";
 import LiabilitySection from "../sections/LiabilitySection";
 import TravelFeeSection from "../sections/TravelFeeSection";
 import FeesSection from "../sections/FeesSection";
 import CreditCardFeeSection from "../sections/CreditCardFeeSection";
-import VerticalSectionGroup from "@/app/components/shared/VerticalSectionGroup";
+import { QueryStatus } from "@/types/enums";
+import { useCompanyRates } from "@/app/hooks/queries/labor/useCompanyRates";
 
 const RatesTab = () => {
   const { companyId } = useSlugContext();
+  const result = useCompanyRates(companyId);
 
-  const queryResult = useQuery(
-    api.labor.getCompanyRates,
-    companyId ? { companyId } : "skip"
-  );
+  let content: React.ReactNode;
 
-  if (!queryResult || !companyId) {
-    return <RenderSkeleton />;
+  switch (result.status) {
+    case QueryStatus.LOADING:
+      content = null;
+      break;
+
+    case QueryStatus.ERROR:
+      content = <ErrorComponent message={result.errorMessage} />;
+      break;
+
+    case QueryStatus.SUCCESS: {
+      const { labor, insurancePolicies, travelFee, creditCardFee, fees } =
+        result.data;
+
+      content = (
+        <>
+          <LaborSection labor={labor} companyId={companyId!} />
+          <LiabilitySection
+            policies={insurancePolicies}
+            companyId={companyId!}
+          />
+          <TravelFeeSection travelFee={travelFee} />
+          <CreditCardFeeSection creditCardFee={creditCardFee} />
+          <FeesSection fees={fees} companyId={companyId!} />
+        </>
+      );
+      break;
+    }
   }
 
-  if (queryResult.status === ResponseStatus.ERROR) {
-    return <ErrorComponent message={queryResult.error} />;
-  }
-
-  const { labor, insurancePolicies, travelFee, creditCardFee, fees } =
-    queryResult.data;
-
-  return (
-    <VerticalSectionGroup>
-      <LaborSection labor={labor} companyId={companyId} />
-      <LiabilitySection policies={insurancePolicies} companyId={companyId} />
-      <TravelFeeSection travelFee={travelFee} />
-      <CreditCardFeeSection creditCardFee={creditCardFee} />
-      <FeesSection fees={fees} companyId={companyId} />
-    </VerticalSectionGroup>
-  );
+  return <VerticalSectionGroup>{content}</VerticalSectionGroup>;
 };
 
 export default RatesTab;

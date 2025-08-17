@@ -1,5 +1,6 @@
 import FieldDisplay from "../../shared/FieldDisplay";
 import CounterInput from "../../shared/labeled/CounterInput";
+import FieldErrorMessage from "../../shared/labeled/FieldErrorMessage";
 import TagLabel from "../../shared/labeled/TagLabel";
 import TruckSelector from "./TruckSelector";
 
@@ -21,9 +22,9 @@ const EditableTruckField: React.FC<EditableTruckFieldProps> = ({
   error,
 }) => {
   if (!isEditing) {
-    return (
-      <FieldDisplay label="Trucks" value={value.toString()} fallback="N/A" />
-    );
+    const trucksDisplay = `${value} ${value === 1 ? "Truck" : "Trucks"}`;
+
+    return <FieldDisplay label="Trucks" value={trucksDisplay} fallback="N/A" />;
   }
 
   return (
@@ -52,6 +53,7 @@ const EditableTruckField: React.FC<EditableTruckFieldProps> = ({
           isEditingProp={true}
         />
       )}
+      <FieldErrorMessage error={error} noPlaceholder={true} />
     </>
   );
 };

@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import FieldDisplay from "../FieldDisplay";
 import FieldErrorMessage from "./FieldErrorMessage";
 import { X } from "lucide-react";
+import IconButton from "../IconButton";
 
 interface PlacesAutoCompleteInputProps {
   label?: string;
@@ -61,13 +62,14 @@ const LabeledPlacesAutocomplete: React.FC<PlacesAutoCompleteInputProps> = ({
         className="pr-8" // space for the clear button
       />
       {value && (
-        <button
+        <IconButton
+          icon={<X size={20} />}
           type="button"
           onClick={() => onChange("")}
-          className="absolute right-2 top-[10px] text-gray-400 hover:text-white"
-        >
-          <X size={16} />
-        </button>
+          aria-label="Clear"
+          title="Clear"
+          className="border-none absolute right-1 -top-[1px] text-grayCustom hover:text-white hover:bg-transparent"
+        />
       )}
       <FieldErrorMessage error={error} />
     </div>

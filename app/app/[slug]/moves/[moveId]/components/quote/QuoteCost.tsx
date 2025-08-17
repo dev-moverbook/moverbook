@@ -7,14 +7,12 @@ import {
   formatPaymentMethod,
   getMoveDisplayRows,
 } from "@/app/frontendUtils/helper";
-import { Doc } from "@/convex/_generated/dataModel";
 import CostTable from "@/app/components/move/sections/CostTable";
+import { useMoveContext } from "@/app/contexts/MoveContext";
 
-interface QuoteCostProps {
-  move: Doc<"move">;
-}
-
-const QuoteCost = ({ move }: QuoteCostProps) => {
+const QuoteCost = () => {
+  const { moveData } = useMoveContext();
+  const { move } = moveData;
   const {
     moveFees,
     liabilityCoverage,

@@ -1,15 +1,21 @@
-import { useQuery } from "convex/react";
-import { Id } from "@/convex/_generated/dataModel";
-import { ResponseStatus } from "@/types/enums";
-import { UserSchema } from "@/types/convex-schemas";
-import { api } from "@/convex/_generated/api";
+"use client";
 
-interface UseGetSalesRepsResult {
-  users: UserSchema[] | null;
-  isLoading: boolean;
-  isError: boolean;
-  errorMessage: string | null;
-}
+import { api } from "@/convex/_generated/api";
+import { useQuery } from "convex/react";
+import { Doc, Id } from "@/convex/_generated/dataModel";
+import { QueryStatus, ResponseStatus } from "@/types/enums";
+
+type UseGetSalesRepsLoading = { status: QueryStatus.LOADING };
+type UseGetSalesRepsError = { status: QueryStatus.ERROR; errorMessage: string };
+type UseGetSalesRepsSuccess = {
+  status: QueryStatus.SUCCESS;
+  data: Doc<"users">[];
+};
+
+export type UseGetSalesRepsResult =
+  | UseGetSalesRepsLoading
+  | UseGetSalesRepsError
+  | UseGetSalesRepsSuccess;
 
 export const useGetSalesReps = (
   companyId: Id<"companies"> | null
@@ -19,16 +25,19 @@ export const useGetSalesReps = (
     companyId ? { companyId } : "skip"
   );
 
-  const isLoading = response === undefined;
-  const isError = response?.status === ResponseStatus.ERROR;
+  if (!companyId || !response) {
+    return { status: QueryStatus.LOADING };
+  }
+
+  if (response.status === ResponseStatus.ERROR) {
+    return {
+      status: QueryStatus.ERROR,
+      errorMessage: response.error ?? "Failed to load sales reps.",
+    };
+  }
 
   return {
-    users:
-      response?.status === ResponseStatus.SUCCESS ? response.data.users : null,
-    isLoading,
-    isError,
-    errorMessage: isError
-      ? (response.error ?? "Failed to load sales reps.")
-      : null,
+    status: QueryStatus.SUCCESS,
+    data: response.data.users,
   };
 };

@@ -82,6 +82,7 @@ const TravelFeeSection: React.FC<TravelFeeSectionProps> = ({ travelFee }) => {
                 mileageRate: value === null ? undefined : value,
               }));
             }}
+            suffix="/mile"
           />
           <CurrencyInput
             label="Flat Rate"

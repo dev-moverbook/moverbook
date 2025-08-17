@@ -1,9 +1,27 @@
+// app/hooks/queries/move/useMovesForCalendar.ts
+"use client";
+
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { ResponseStatus } from "@/types/enums";
+import { QueryStatus, ResponseStatus } from "@/types/enums";
 import { MoveStatus, PriceOrder } from "@/types/types";
 import { EnrichedMove } from "@/types/convex-responses";
+
+type UseMovesForCalendarLoading = { status: QueryStatus.LOADING };
+type UseMovesForCalendarError = {
+  status: QueryStatus.ERROR;
+  errorMessage: string;
+};
+type UseMovesForCalendarSuccess = {
+  status: QueryStatus.SUCCESS;
+  data: EnrichedMove[];
+};
+
+export type UseMovesForCalendarResult =
+  | UseMovesForCalendarLoading
+  | UseMovesForCalendarError
+  | UseMovesForCalendarSuccess;
 
 interface UseMovesForCalendarParams {
   start: string;
@@ -12,13 +30,6 @@ interface UseMovesForCalendarParams {
   statuses?: MoveStatus[];
   salesRepId?: Id<"users"> | null;
   priceOrder?: PriceOrder | null;
-}
-
-interface UseMovesForCalendarResult {
-  data: EnrichedMove[];
-  isLoading: boolean;
-  isError: boolean;
-  errorMessage: string | null;
 }
 
 export const useMovesForCalendar = ({
@@ -36,16 +47,19 @@ export const useMovesForCalendar = ({
       : "skip"
   );
 
-  const isLoading = response === undefined;
-  const isError = response?.status === ResponseStatus.ERROR;
+  if (!companyId || !response) {
+    return { status: QueryStatus.LOADING };
+  }
 
-  const data: EnrichedMove[] =
-    response?.status === ResponseStatus.SUCCESS ? response.data.moves : [];
+  if (response.status === ResponseStatus.ERROR) {
+    return {
+      status: QueryStatus.ERROR,
+      errorMessage: response.error ?? "Failed to load moves.",
+    };
+  }
 
   return {
-    data,
-    isLoading,
-    isError,
-    errorMessage: isError ? (response?.error ?? "Failed to load moves.") : null,
+    status: QueryStatus.SUCCESS,
+    data: response.data.moves,
   };
 };

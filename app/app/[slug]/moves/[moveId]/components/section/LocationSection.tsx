@@ -1,26 +1,23 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import { LocationInput } from "@/types/form-types";
 import MoveAddress from "@/app/app/[slug]/add-move/components/sections/MoveAddress";
 import LocationSummary from "@/app/app/[slug]/add-move/components/sections/LocationSummary";
 import StopSection from "@/app/app/[slug]/add-move/components/sections/StopSection";
-import ConfirmDeleteModal from "@/app/app/[slug]/company-setup/modals/ConfirmDeleteModal";
 import { useUpdateMove } from "../../../hooks/useUpdateMove";
 import { useCompanyContact } from "@/app/hooks/queries/useCompanyContact";
 import { nanoid } from "nanoid";
 import { useMoveContext } from "@/app/contexts/MoveContext";
-import ConfirmModal from "@/app/components/shared/ConfirmModal";
 
-interface LocationSectionProps {}
-
-const LocationSection = ({}: LocationSectionProps) => {
+const LocationSection = () => {
   const { moveData } = useMoveContext();
   const move = moveData.move;
+
   const [addingStopIndex, setAddingStopIndex] = useState<number | null>(null);
   const [editedLocations, setEditedLocations] = useState<LocationInput[]>(
     move.locations
   );
-  const [confirmDeleteModal, setConfirmDeleteModal] = useState<boolean>(false);
-  const [deleteIndex, setDeleteIndex] = useState<number | null>(null);
   const [showBanner, setShowBanner] = useState<boolean>(false);
 
   const { data: companyContact } = useCompanyContact(move.companyId);
@@ -32,22 +29,41 @@ const LocationSection = ({}: LocationSectionProps) => {
     }
   }, [move.locations]);
 
-  const updateLocation = (index: number, partial: Partial<LocationInput>) => {
-    const updated = editedLocations.map((loc, i) =>
-      i === index ? { ...loc, ...partial } : loc
-    );
-    setEditedLocations(updated);
-
-    updateMove({
+  const persistLocations = async (next: LocationInput[]) => {
+    await updateMove({
       moveId: move._id,
-      updates: {
-        locations: updated,
-      },
+      updates: { locations: next },
     });
   };
 
-  const removeLocation = (index: number) => {
-    setEditedLocations((prev) => prev.filter((_, i) => i !== index));
+  const updateLocation = (index: number, partial: Partial<LocationInput>) => {
+    const next = editedLocations.map((loc, i) =>
+      i === index ? { ...loc, ...partial } : loc
+    );
+    setEditedLocations(next);
+    // persist changes
+    void persistLocations(next);
+  };
+
+  const removeLocation = async (index: number) => {
+    // optimistic update
+    const prev = editedLocations;
+    const next = prev.filter((_, i) => i !== index);
+    setEditedLocations(next);
+
+    if (addingStopIndex !== null && index === addingStopIndex) {
+      setAddingStopIndex(null);
+    }
+
+    const { success } = await updateMove({
+      moveId: move._id,
+      updates: { locations: next },
+    });
+
+    // rollback if failed
+    if (!success) {
+      setEditedLocations(prev);
+    }
   };
 
   const addStopLocation = () => {
@@ -64,36 +80,21 @@ const LocationSection = ({}: LocationSectionProps) => {
       timeDistanceRange: "0-30 sec (less than 100 ft)",
     };
 
+    // insert before the ending location
     const insertIndex = editedLocations.length - 1;
-
-    setEditedLocations((prev) => [
-      ...prev.slice(0, insertIndex),
+    const next = [
+      ...editedLocations.slice(0, insertIndex),
       newStop,
-      ...prev.slice(insertIndex),
-    ]);
+      ...editedLocations.slice(insertIndex),
+    ];
 
+    setEditedLocations(next);
     setAddingStopIndex(insertIndex);
-  };
-
-  const handleAddStop = () => {
-    addStopLocation();
     setShowBanner(true);
     setTimeout(() => setShowBanner(false), 2000);
-  };
 
-  const handleRemoveStop = (index: number) => {
-    setDeleteIndex(index);
-    setConfirmDeleteModal(true);
-  };
-
-  const handleConfirmDelete = () => {
-    if (deleteIndex !== null) {
-      removeLocation(deleteIndex);
-      setConfirmDeleteModal(false);
-      if (addingStopIndex === deleteIndex) {
-        setAddingStopIndex(null);
-      }
-    }
+    // persist new stop
+    void persistLocations(next);
   };
 
   const handleSavedStop = () => {
@@ -116,14 +117,15 @@ const LocationSection = ({}: LocationSectionProps) => {
 
       <StopSection
         locations={editedLocations}
-        addStopLocation={handleAddStop}
-        removeLocation={handleRemoveStop}
+        addStopLocation={addStopLocation}
+        removeLocation={removeLocation} // <-- persists + optimistic UI
         updateLocation={updateLocation}
         showEditButton={true}
         isAddingIndex={addingStopIndex}
         onSaved={handleSavedStop}
         isLoading={updateMoveLoading}
         error={updateMoveError}
+        showBannerFromParent={showBanner}
       />
 
       {editedLocations.length > 1 &&
@@ -136,6 +138,7 @@ const LocationSection = ({}: LocationSectionProps) => {
             showEditButton={true}
             isLoading={updateMoveLoading}
             error={updateMoveError}
+            isAdding={false}
           />
         )}
 
@@ -146,19 +149,6 @@ const LocationSection = ({}: LocationSectionProps) => {
         roundTripMiles={move.roundTripMiles}
         roundTripDrive={move.roundTripDrive}
         showBorder={true}
-      />
-
-      <ConfirmModal
-        isOpen={confirmDeleteModal}
-        onClose={() => {
-          setConfirmDeleteModal(false);
-          setDeleteIndex(null);
-        }}
-        onConfirm={handleConfirmDelete}
-        deleteLoading={updateMoveLoading}
-        deleteError={updateMoveError}
-        title="Remove Stop"
-        description="Are you sure you want to remove this stop?"
       />
     </div>
   );

@@ -1,64 +1,73 @@
+"use client";
+
 import AdditionalFees from "../payment/AdditionalFees";
 import Discounts from "../payment/Discounts";
 import InvoiceSummary from "../payment/InvoiceSummary";
 import InvoiceSignature from "../payment/InvoiceSignature";
 import InternalReview from "../payment/InternalReview";
 import ExternalReview from "../payment/ExternalReview";
-import { useGetPaymentPage } from "@/app/hooks/queries/useGetPaymentPage";
-import FullLoading from "@/app/components/shared/FullLoading";
 import ErrorComponent from "@/app/components/shared/ErrorComponent";
-import { Doc } from "@/convex/_generated/dataModel";
-import { getInvoiceStatus } from "@/app/frontendUtils/tsxHelper";
 import StepStatus from "../shared/StepStatus";
+import { getInvoiceStatus } from "@/app/frontendUtils/tsxHelper";
+import { useMoveContext } from "@/app/contexts/MoveContext";
+import { QueryStatus } from "@/types/enums";
+import { useGetPaymentPage } from "@/app/hooks/queries/useGetPaymentPage";
 
-interface PaymentStepProps {
-  move: Doc<"move">;
-}
-
-const PaymentStep = ({ move }: PaymentStepProps) => {
+const PaymentStep = () => {
+  const { moveData } = useMoveContext();
+  const { move } = moveData;
   const { _id: moveId } = move;
-  const { data, isLoading, isError, errorMessage } = useGetPaymentPage(moveId);
 
-  const { additionalFees, discounts, invoice, internalReview, fees } = data ?? {
-    additionalFees: [],
-    discounts: [],
-    invoice: null,
-    internalReview: null,
-    fees: [],
-  };
+  const result = useGetPaymentPage(moveId);
 
-  const invoiceStatus = getInvoiceStatus(invoice);
+  switch (result.status) {
+    case QueryStatus.LOADING:
+      return null;
 
-  if (isLoading) return <FullLoading />;
-  if (isError) return <ErrorComponent message={errorMessage} />;
+    case QueryStatus.ERROR:
+      return <ErrorComponent message={result.errorMessage} />;
 
-  return (
-    <div>
-      <StepStatus
-        items={[
-          {
-            label: "Invoice Status",
-            value: invoiceStatus.label,
-            icon: invoiceStatus.icon,
-          },
-        ]}
-      />
-      <AdditionalFees
-        additionalFees={additionalFees}
-        moveId={moveId}
-        fees={fees}
-      />
-      <Discounts discounts={discounts} moveId={moveId} />
-      <InvoiceSummary
-        move={move}
-        discounts={discounts}
-        additionalFees={additionalFees}
-      />
-      <InvoiceSignature invoice={invoice} move={move} />
-      <InternalReview internalReview={internalReview} move={move} />
-      <ExternalReview move={move} />
-    </div>
-  );
+    case QueryStatus.SUCCESS: {
+      const {
+        additionalFees = [],
+        discounts = [],
+        invoice = null,
+        internalReview = null,
+        fees = [],
+      } = result.data ?? {};
+
+      const invoiceStatus = getInvoiceStatus(invoice);
+
+      return (
+        <div>
+          <StepStatus
+            items={[
+              {
+                label: "Invoice Status",
+                value: invoiceStatus.label,
+                icon: invoiceStatus.icon,
+              },
+            ]}
+          />
+
+          <AdditionalFees
+            additionalFees={additionalFees}
+            moveId={moveId}
+            fees={fees}
+          />
+          <Discounts discounts={discounts} moveId={moveId} />
+          <InvoiceSummary
+            move={move}
+            discounts={discounts}
+            additionalFees={additionalFees}
+          />
+          <InvoiceSignature invoice={invoice} move={move} />
+          <InternalReview internalReview={internalReview} move={move} />
+          <ExternalReview move={move} />
+        </div>
+      );
+    }
+  }
 };
 
 export default PaymentStep;

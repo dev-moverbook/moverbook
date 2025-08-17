@@ -6,7 +6,7 @@ interface MessageContainerProps {
 
 const MessageContainer: React.FC<MessageContainerProps> = ({ children }) => {
   return (
-    <div className="flex flex-col gap-3 px-4 flex-1 overflow-y-auto py-16">
+    <div className="flex flex-col gap-3 px-4 flex-1 overflow-y-auto ">
       {children}
     </div>
   );

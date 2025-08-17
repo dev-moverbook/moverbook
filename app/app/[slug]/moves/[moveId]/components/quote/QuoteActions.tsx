@@ -1,28 +1,24 @@
 import React, { FormEvent, useState } from "react";
 import TripleFormAction from "@/app/components/shared/buttons/TripleFormAction";
 import { useCreateOrUpdateQuote } from "../../../hooks/useCreateOrUpdateQuote";
-import { Doc } from "@/convex/_generated/dataModel";
 import FormActionContainer from "@/app/components/shared/containers/FormActionContainer";
 import { useUpdateMove } from "../../../hooks/useUpdateMove";
+import { useMoveContext } from "@/app/contexts/MoveContext";
 
 interface QuoteActionsProps {
   onEditQuote: () => void;
   signatureDataUrl: string | null;
-  quote: Doc<"quotes"> | null;
-  move: Doc<"move">;
 }
 
-const QuoteActions = ({
-  onEditQuote,
-  signatureDataUrl,
-  quote,
-  move,
-}: QuoteActionsProps) => {
+const QuoteActions = ({ onEditQuote, signatureDataUrl }: QuoteActionsProps) => {
   const [activeLoading, setActiveLoading] = useState<
     "send" | "complete" | null
   >(null);
   const { createOrUpdateQuote, quoteUpdateError } = useCreateOrUpdateQuote();
   const { updateMove, updateMoveError } = useUpdateMove();
+
+  const { moveData } = useMoveContext();
+  const { move, quote } = moveData;
   const { _id: moveId, moveStatus } = move;
 
   const handleUpdateMoveStatusToQuoted = async () => {

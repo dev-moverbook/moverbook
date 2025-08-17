@@ -35,9 +35,10 @@ const EditableMoverField: React.FC<EditableMoverFieldProps> = ({
   isEditing,
 }) => {
   if (!isEditing) {
+    const moversDisplay = `${movers} ${movers === 1 ? "Mover" : "Movers"}`;
     return (
       <>
-        <FieldDisplay label="Movers" value={movers.toString()} fallback="N/A" />
+        <FieldDisplay label="Movers" value={moversDisplay} fallback="N/A" />
         <FieldDisplay
           label="Labor Time"
           value={`${startingMoveTime?.toString()}-${endingMoveTime?.toString()} hours`}

@@ -1,15 +1,26 @@
-import { useQuery } from "convex/react";
-import { ResponseStatus } from "@/types/enums";
-import { api } from "@/convex/_generated/api";
-import { GetPaymentPageData } from "@/types/convex-responses";
-import { Id } from "@/convex/_generated/dataModel";
+// app/hooks/queries/payments/useGetPaymentPage.ts
+"use client";
 
-interface UseGetPaymentPageResult {
-  data: GetPaymentPageData | null;
-  isLoading: boolean;
-  isError: boolean;
-  errorMessage: string | null;
-}
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
+import { QueryStatus, ResponseStatus } from "@/types/enums";
+import { GetPaymentPageData } from "@/types/convex-responses";
+
+type UseGetPaymentPageLoading = { status: QueryStatus.LOADING };
+type UseGetPaymentPageError = {
+  status: QueryStatus.ERROR;
+  errorMessage: string;
+};
+type UseGetPaymentPageSuccess = {
+  status: QueryStatus.SUCCESS;
+  data: GetPaymentPageData;
+};
+
+export type UseGetPaymentPageResult =
+  | UseGetPaymentPageLoading
+  | UseGetPaymentPageError
+  | UseGetPaymentPageSuccess;
 
 export const useGetPaymentPage = (
   moveId: Id<"move">
@@ -19,15 +30,19 @@ export const useGetPaymentPage = (
     { moveId }
   );
 
-  const isLoading = response === undefined;
-  const isError = response?.status === ResponseStatus.ERROR;
+  if (!response) {
+    return { status: QueryStatus.LOADING };
+  }
+
+  if (response.status === ResponseStatus.ERROR) {
+    return {
+      status: QueryStatus.ERROR,
+      errorMessage: response.error ?? "Failed to load payment page data.",
+    };
+  }
 
   return {
-    data: response?.status === ResponseStatus.SUCCESS ? response.data : null,
-    isLoading,
-    isError,
-    errorMessage: isError
-      ? (response.error ?? "Failed to load payment page data.")
-      : null,
+    status: QueryStatus.SUCCESS,
+    data: response.data,
   };
 };

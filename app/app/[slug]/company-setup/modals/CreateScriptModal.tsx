@@ -11,6 +11,7 @@ import LabeledTextarea from "@/app/components/shared/labeled/LabeledTextarea";
 import VariableInsertButtons from "@/app/components/shared/VariableInsertButtons";
 import FieldGroup from "@/app/components/shared/FieldGroup";
 import ResponsiveModal from "@/app/components/shared/modal/ResponsiveModal";
+import FormActionContainer from "@/app/components/shared/containers/FormActionContainer";
 
 interface CreateScriptModalProps {
   isOpen: boolean;
@@ -45,7 +46,7 @@ const CreateScriptModal: React.FC<CreateScriptModalProps> = ({
   editingScript,
 }) => {
   const [title, setTitle] = useState<string>("");
-  const [type, setType] = useState<CommunicationType>("email");
+  const [type, setType] = useState<CommunicationType>("sms");
   const [message, setMessage] = useState<string>("");
   const [emailTitle, setEmailTitle] = useState<string>("");
   const [titleError, setTitleError] = useState<string | null>(null);
@@ -70,7 +71,7 @@ const CreateScriptModal: React.FC<CreateScriptModalProps> = ({
 
   const resetState = () => {
     setTitle("");
-    setType("email");
+    setType("sms");
     setMessage("");
     setEmailTitle("");
     setTitleError(null);
@@ -129,6 +130,7 @@ const CreateScriptModal: React.FC<CreateScriptModalProps> = ({
         }}
         placeholder="Enter script title"
         error={titleError}
+        noPlaceholderError={true}
       />
 
       <ToggleTabs
@@ -139,13 +141,13 @@ const CreateScriptModal: React.FC<CreateScriptModalProps> = ({
           if (val !== "email") setEmailTitle("");
         }}
         options={[
-          { label: "Email", value: "email" },
           { label: "SMS", value: "sms" },
+          { label: "Email", value: "email" },
         ]}
       />
 
       {type === "email" && (
-        <div>
+        <div className="space-y-2">
           <LabeledInput
             label="Email Subject"
             value={emailTitle}
@@ -155,6 +157,7 @@ const CreateScriptModal: React.FC<CreateScriptModalProps> = ({
             }}
             placeholder="Enter email subject"
             error={emailTitleError}
+            noPlaceholderError={true}
           />
           <VariableInsertButtons
             variables={variables}
@@ -163,7 +166,7 @@ const CreateScriptModal: React.FC<CreateScriptModalProps> = ({
         </div>
       )}
 
-      <div>
+      <div className="space-y-2">
         <LabeledTextarea
           label="Message"
           value={message}
@@ -173,24 +176,26 @@ const CreateScriptModal: React.FC<CreateScriptModalProps> = ({
           }}
           placeholder="Enter script message"
           error={messageError}
+          noPlaceholderError={true}
         />
         <VariableInsertButtons
           variables={variables}
           onInsert={(name) => insertVariable(name, "message")}
         />
       </div>
-
-      <FormActions
-        onSave={(e) => {
-          e.preventDefault();
-          handleSubmit();
-        }}
-        onCancel={handleClose}
-        isSaving={createLoading}
-        error={createError}
-        saveLabel={editingScript ? "Save Changes" : "Create Script"}
-        disabled={isDisabled}
-      />
+      <FormActionContainer className="mt-10">
+        <FormActions
+          onSave={(e) => {
+            e.preventDefault();
+            handleSubmit();
+          }}
+          onCancel={handleClose}
+          isSaving={createLoading}
+          error={createError}
+          saveLabel={editingScript ? "Save Changes" : "Create Script"}
+          disabled={isDisabled}
+        />
+      </FormActionContainer>
     </FieldGroup>
   );
 
@@ -206,6 +211,7 @@ const CreateScriptModal: React.FC<CreateScriptModalProps> = ({
       title={titleText}
       description={description}
       children={formContent}
+      heightVh={80}
     />
   );
 };

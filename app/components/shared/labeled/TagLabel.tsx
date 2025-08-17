@@ -1,5 +1,6 @@
 import React from "react";
 import clsx from "clsx";
+import { Button } from "../../ui/button";
 
 interface TagLabelProps {
   label: string;
@@ -16,19 +17,17 @@ const TagLabel: React.FC<TagLabelProps> = ({
 }) => {
   return (
     <div
-      className={clsx(
-        "flex items-center md:text-sm justify-between w-full",
-        className
-      )}
+      className={clsx("flex items-center justify-between w-full", className)}
     >
       <span className="text-white font-medium">{label}</span>
-      <button
+      <Button
+        variant="link"
         type="button"
         onClick={onToggle}
-        className="md:text-sm  underline hover:opacity-80 transition"
+        // className="text-white underline hover:opacity-80 transition"
       >
         {buttonText}
-      </button>
+      </Button>
     </div>
   );
 };

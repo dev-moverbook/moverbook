@@ -18,13 +18,12 @@ import LabeledDateInput from "@/app/components/shared/labeled/LabeledDateInput";
 import LabeledRadio from "@/app/components/shared/labeled/LabeledRadio";
 import LabeledTimeInput from "@/app/components/shared/labeled/LabeledTimeInput";
 import TimeSlotSelector from "@/app/components/shared/labeled/TimeSlotSelector";
-import { useCompanyArrivalResult } from "@/app/hooks/queries/useCompanyArrivalResult";
 import { formatTime } from "@/app/frontendUtils/helper";
 import { useMoveContext } from "@/app/contexts/MoveContext";
+import { useCompanyArrival } from "@/app/hooks/queries/useCompanyArrivalResult";
+import { QueryStatus } from "@/types/enums";
 
-interface MoveTypeSectionProps {}
-
-const MoveTypeSection = ({}: MoveTypeSectionProps) => {
+const MoveTypeSection = () => {
   const { moveData } = useMoveContext();
   const move = moveData.move;
   const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -32,8 +31,9 @@ const MoveTypeSection = ({}: MoveTypeSectionProps) => {
     move.moveWindow === "custom" ? "custom" : "available"
   );
 
-  const { arrivalWindow, isLoading, isError, errorMessage } =
-    useCompanyArrivalResult(move.companyId);
+  const result = useCompanyArrival(move.companyId);
+  const arrivalWindow =
+    result.status === QueryStatus.SUCCESS ? result.arrivalWindow : null;
   const { updateMove, updateMoveLoading, updateMoveError } = useUpdateMove();
 
   const [formData, setFormData] = useState<MoveTypeFormData>({
@@ -221,9 +221,11 @@ const MoveTypeSection = ({}: MoveTypeSectionProps) => {
                 : null
             }
             isEditing={isEditing}
-            isLoading={isLoading}
-            isError={isError}
-            fetchErrorMessage={errorMessage}
+            isLoading={result.status === QueryStatus.LOADING}
+            isError={result.status === QueryStatus.ERROR}
+            fetchErrorMessage={
+              result.status === QueryStatus.ERROR ? result.errorMessage : null
+            }
           />
         )}
 

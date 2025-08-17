@@ -17,7 +17,6 @@ import {
   ItemSchema,
   ReferralSchema,
   RoomSchema,
-  TravelFeeSchema,
 } from "@/types/convex-schemas";
 import {
   CustomerFormData,
@@ -431,14 +430,22 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
     }));
   };
 
+  // inside MoveFormProvider
+
   const updateLocation = (index: number, updated: Partial<LocationInput>) => {
+    // strip undefined so we don't overwrite existing fields
+    const cleaned = Object.fromEntries(
+      Object.entries(updated).filter(([, v]) => v !== undefined)
+    ) as Partial<LocationInput>;
+
     setMoveFormData((prev) => ({
       ...prev,
       locations: prev.locations.map((loc, i) =>
-        i === index ? { ...loc, ...updated } : loc
+        i === index ? { ...loc, ...cleaned } : loc
       ),
     }));
   };
+
   const removeLocation = (index: number) => {
     setMoveFormData((prev) => ({
       ...prev,

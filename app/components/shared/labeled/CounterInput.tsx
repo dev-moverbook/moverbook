@@ -14,7 +14,7 @@ interface CounterInputProps {
   max?: number;
   className?: string;
   error?: string | null;
-  isEditingProp?: boolean;
+  isEditingProp?: boolean; // if true, show input on load
 }
 
 const CounterInput: React.FC<CounterInputProps> = ({
@@ -28,20 +28,29 @@ const CounterInput: React.FC<CounterInputProps> = ({
   isEditingProp = true,
 }) => {
   const [isEditing, setIsEditing] = useState(isEditingProp);
-  const [inputValue, setInputValue] = useState<string>("");
+  const [inputValue, setInputValue] = useState<string>(
+    value !== null ? String(value) : ""
+  );
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Focus and select input when entering edit mode
+  // ✅ Sync local inputValue with latest prop value
   useEffect(() => {
-    if (isEditing && inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, [isEditing]);
+    setInputValue(value !== null ? String(value) : "");
+  }, [value]);
+
+  const selectAll = () => {
+    requestAnimationFrame(() => {
+      inputRef.current?.select();
+    });
+  };
 
   const handleEdit = () => {
     setIsEditing(true);
-    setInputValue(""); // Show empty field on edit
+    setInputValue(value !== null ? String(value) : "");
+    requestAnimationFrame(() => {
+      inputRef.current?.focus();
+      inputRef.current?.select();
+    });
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,7 +64,7 @@ const CounterInput: React.FC<CounterInputProps> = ({
 
   const handleBlur = () => {
     setIsEditing(false);
-    setInputValue("");
+    setInputValue(value !== null ? String(value) : "");
   };
 
   const decrement = () => {
@@ -89,12 +98,14 @@ const CounterInput: React.FC<CounterInputProps> = ({
       </div>
     );
   }
+
   return (
     <div className={clsx("flex flex-col gap-2", className)}>
       {label && (
         <Label className="text-white text-sm font-medium">{label}</Label>
       )}
       <div className="flex items-center gap-4">
+        {/* Minus button */}
         <button
           type="button"
           onClick={decrement}
@@ -102,6 +113,8 @@ const CounterInput: React.FC<CounterInputProps> = ({
         >
           <Minus className="w-4 h-4" />
         </button>
+
+        {/* Editable number */}
         {isEditing ? (
           <input
             ref={inputRef}
@@ -109,11 +122,13 @@ const CounterInput: React.FC<CounterInputProps> = ({
             value={inputValue}
             onChange={handleInputChange}
             onBlur={handleBlur}
+            onFocus={selectAll}
+            onClick={selectAll}
             min={min}
             max={max}
             className="min-w-[60px] w-[70px] px-2 py-1 text-center text-white border border-grayCustom rounded-xl text-lg bg-transparent focus:outline-none focus:ring-1 focus:ring-greenCustom"
             inputMode="numeric"
-            placeholder="" // No placeholder, field is empty on edit
+            pattern="[0-9]*"
             autoComplete="off"
           />
         ) : (
@@ -129,6 +144,8 @@ const CounterInput: React.FC<CounterInputProps> = ({
             {value === null ? "-" : value}
           </div>
         )}
+
+        {/* Plus button */}
         <button
           type="button"
           onClick={increment}

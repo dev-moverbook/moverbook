@@ -4,10 +4,11 @@ import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useSlugContext } from "@/app/contexts/SlugContext";
 import { useSearchContext } from "@/app/contexts/SearchContext";
-import { useSearchMoveCustomersAndJobId } from "@/app/hooks/queries/useSearchMoveCustomersAndJobId";
 import MoveCustomerCard from "../../customer/CustomerCard";
 import MoveOnlyCard from "../../move/MoveOnlyCard";
 import { Id } from "@/convex/_generated/dataModel";
+import { QueryStatus } from "@/types/enums";
+import { useSearchMoveCustomersAndJobId } from "@/app/hooks/queries/useSearchMoveCustomersAndJobId";
 
 const MoveSearchDropdown = () => {
   const { query, visible, setVisible, setQuery } = useSearchContext();
@@ -15,7 +16,8 @@ const MoveSearchDropdown = () => {
   const router = useRouter();
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
-  const { data, isLoading } = useSearchMoveCustomersAndJobId(companyId, query);
+  const trimmed = query.trim();
+  const result = useSearchMoveCustomersAndJobId(companyId, trimmed);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -42,52 +44,69 @@ const MoveSearchDropdown = () => {
     router.push(`/app/${slug}/moves/${moveId}`);
   };
 
-  if (!visible || query.trim() === "") return null;
+  // Hidden when not visible or empty query
+  if (!visible || trimmed === "") return null;
+
+  let content: React.ReactNode;
+
+  switch (result.status) {
+    case QueryStatus.LOADING:
+      content = <p className="p-4 text-grayCustom2 text-sm">Loading...</p>;
+      break;
+
+    case QueryStatus.ERROR:
+      content = (
+        <div className="p-4 text-red-400 text-sm">
+          {result.errorMessage ?? "Failed to search customers."}
+        </div>
+      );
+      break;
+
+    case QueryStatus.SUCCESS: {
+      const { moveCustomers, moves } = result.data;
+      const hasAny =
+        (moveCustomers?.length ?? 0) > 0 || (moves?.length ?? 0) > 0;
+
+      content = hasAny ? (
+        <ul className="max-h-80 overflow-auto">
+          {moveCustomers.length > 0 &&
+            moveCustomers.map((customer) => (
+              <MoveCustomerCard
+                key={customer._id}
+                moveCustomer={customer}
+                onClick={() => handleSelectCustomer(customer._id)}
+              />
+            ))}
+
+          {moves.length > 0 &&
+            moves.map((move) => (
+              <MoveOnlyCard
+                key={move._id}
+                move={move}
+                onClick={() => handleSelectMove(move._id)}
+                showOnlyJobIdTag
+              />
+            ))}
+        </ul>
+      ) : (
+        <div className="p-4 text-grayCustom2 text-sm">No matches found.</div>
+      );
+      break;
+    }
+  }
 
   return (
     <div
       ref={dropdownRef}
       className={`
-        z-50
-        bg-black border rounded border-grayCustom shadow-xl shadow-white/10
-        max-h-80 overflow-auto
-        text-sm
+        z-50 bg-black border rounded border-grayCustom shadow-xl shadow-white/10
+        max-h-80 overflow-auto text-sm
         lg:ml-28
-        fixed top-14 left-0 w-full  
-        sm:absolute sm:top-[52px] sm:left-1/2 sm:-translate-x-1/2 sm:w-[640px] 
+        fixed top-14 left-0 w-full
+        sm:absolute sm:top-[52px] sm:left-1/2 sm:-translate-x-1/2 sm:w-[640px]
       `}
     >
-      {isLoading ? (
-        <p className="p-4 text-gray-400 text-sm">Loading...</p>
-      ) : data?.moveCustomers.length || data?.moves.length ? (
-        <ul className="max-h-80 overflow-auto">
-          {data.moveCustomers.length > 0 && (
-            <>
-              {data.moveCustomers.map((customer) => (
-                <MoveCustomerCard
-                  key={customer._id}
-                  moveCustomer={customer}
-                  onClick={() => handleSelectCustomer(customer._id)}
-                />
-              ))}
-            </>
-          )}
-
-          {data.moves.length > 0 && (
-            <>
-              {data.moves.map((move) => (
-                <MoveOnlyCard
-                  key={move._id}
-                  move={move}
-                  onClick={() => handleSelectMove(move._id)}
-                />
-              ))}
-            </>
-          )}
-        </ul>
-      ) : (
-        <div className="p-4 text-gray-400 text-sm">No matches found.</div>
-      )}
+      {content}
     </div>
   );
 };

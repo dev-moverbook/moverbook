@@ -20,6 +20,8 @@ interface MoveCardProps {
   showActions?: boolean;
   onDuplicate?: (move: Doc<"move">) => void;
   onClick?: (moveId: Id<"move">) => void;
+  /** If true, only render the Job ID tag (when available). */
+  showOnlyJobIdTag?: boolean;
 }
 
 const MoveOnlyCard: React.FC<MoveCardProps> = ({
@@ -27,17 +29,21 @@ const MoveOnlyCard: React.FC<MoveCardProps> = ({
   showActions = false,
   onDuplicate,
   onClick,
+  showOnlyJobIdTag = false,
 }) => {
   const { moveDate, moveStatus, _id } = move;
   const { slug } = useSlugContext();
   const router = useRouter();
 
-  const tags = [
+  const allTags = [
     move.jobId ? `Job ID: ${move.jobId}` : null,
     formatMoveSize(move.locations[0].moveSize),
     formatAccessType(move.locations[0].accessType),
     formatLocationType(move.locations[0].locationType),
   ].filter(Boolean) as string[];
+
+  const jobIdTag = move.jobId ? [`Job ID: ${move.jobId}`] : [];
+  const tags = showOnlyJobIdTag ? jobIdTag : allTags;
 
   const [low, high] = getMoveCostRange(move);
   const price = formatPriceRange(low, high);
@@ -49,34 +55,32 @@ const MoveOnlyCard: React.FC<MoveCardProps> = ({
     >
       <div
         className={`
-          bg-black py-2 px-4 text-white transition-colors duration-200
+          bg-black py-4 px-4 md:px-0 text-white transition-colors duration-200
           ${onClick ? "hover:bg-background2 cursor-pointer" : ""}
         `}
       >
         <div className="max-w-screen-sm mx-auto">
-          <p className="text-xs text-grayCustom2">
-            {formatDateToLong(moveDate)}
-          </p>
+          <p className="text-grayCustom2">{formatDateToLong(moveDate)}</p>
+
           <div className="flex items-center justify-between">
-            <div>
-              <div className="flex items-center gap-1 text-sm">
-                <span style={{ color: getStatusColor(moveStatus) }}>●</span>{" "}
-                <span>{moveStatus}</span>
-                <span className="text-greenCustom font-medium pl-2">
-                  {price}
-                </span>
-              </div>
+            <div className="flex items-center gap-1">
+              <span style={{ color: getStatusColor(moveStatus) }}>●</span>
+              <span>{moveStatus}</span>
+              <span className="text-greenCustom font-medium pl-2">{price}</span>
             </div>
           </div>
-          <div className="flex gap-2 flex-wrap mt-1">
-            {tags.map((tag, i) => (
-              <Badge key={i}>{tag}</Badge>
-            ))}
-          </div>
+
+          {tags.length > 0 && (
+            <div className="flex gap-1 flex-wrap mt-1">
+              {tags.map((tag, i) => (
+                <Badge key={i}>{tag}</Badge>
+              ))}
+            </div>
+          )}
         </div>
 
         {showActions && (
-          <div className="flex gap-4 mt-1 justify-between sm:justify-start">
+          <div className="flex gap-4 mt-2 justify-between sm:justify-start">
             <Button
               size="auto"
               variant="link"
@@ -90,6 +94,7 @@ const MoveOnlyCard: React.FC<MoveCardProps> = ({
                 <span>View</span>
               </div>
             </Button>
+
             <Button
               size="auto"
               variant="link"

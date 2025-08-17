@@ -1,11 +1,9 @@
+"use client";
+
 import React, { useState } from "react";
 import ScriptsSection from "../sections/ScriptsSection";
 import VariablesSection from "../sections/VariablesSection";
 import { useSlugContext } from "@/app/contexts/SlugContext";
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ResponseStatus } from "@/types/enums";
 import { CommunicationType } from "@/types/types";
 import { FrontEndErrorMessages } from "@/types/errors";
 import { useCreateScript } from "../hooks/useCreateScript";
@@ -16,13 +14,16 @@ import ConfirmDeleteModal from "../modals/ConfirmDeleteModal";
 import { ScriptSchema } from "@/types/convex-schemas";
 import { useUpdateScript } from "../hooks/useUpdateScript";
 import ErrorMessage from "@/app/components/shared/error/ErrorMessage";
+import { useScriptsAndVariables } from "@/app/hooks/queries/scripts/useScriptsAndVariables";
+import { QueryStatus } from "@/types/enums";
+import VerticalSectionGroup from "@/app/components/shared/VerticalSectionGroup";
 
-interface UpdateScriptData {
+type UpdateScriptData = {
   title?: string;
   type?: CommunicationType;
   message?: string;
   emailTitle?: string;
-}
+};
 
 const ScriptsTab = () => {
   const { companyId } = useSlugContext();
@@ -39,19 +40,15 @@ const ScriptsTab = () => {
 
   const { deleteScript, deleteLoading, deleteError, setDeleteError } =
     useDeleteScript();
+
   const [deleteScriptId, setDeleteScriptId] = useState<Id<"scripts"> | null>(
     null
   );
-
-  const [isScriptModalOpen, setIsScriptModalOpen] = useState<boolean>(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
-
+  const [isScriptModalOpen, setIsScriptModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [editingScript, setEditingScript] = useState<ScriptSchema | null>(null);
 
-  const scriptsAndVariablesResponse = useQuery(
-    api.scripts.getActiveScriptsAndVariablesByCompanyId,
-    companyId ? { companyId } : "skip"
-  );
+  const result = useScriptsAndVariables(companyId ?? null);
 
   const handleCreateScript = async (
     title: string,
@@ -78,9 +75,7 @@ const ScriptsTab = () => {
       return;
     }
     const success = await deleteScript(deleteScriptId);
-    if (success) {
-      setIsDeleteModalOpen(false);
-    }
+    if (success) setIsDeleteModalOpen(false);
   };
 
   const handleDeleteModalClose = () => {
@@ -98,13 +93,7 @@ const ScriptsTab = () => {
   ): Promise<boolean> => {
     if (!scriptId) return false;
 
-    const updates: UpdateScriptData = {
-      title,
-      type,
-      message,
-      emailTitle,
-    };
-
+    const updates: UpdateScriptData = { title, type, message, emailTitle };
     const success = await updateScript(scriptId, updates);
     if (success) {
       setIsScriptModalOpen(false);
@@ -113,61 +102,59 @@ const ScriptsTab = () => {
     return success;
   };
 
-  const handleEditScriptClick = (script: ScriptSchema) => {
-    setEditingScript(script);
-    setIsScriptModalOpen(true);
-  };
+  let content: React.ReactNode;
 
-  if (!companyId) return <p className="text-gray-500">No company selected.</p>;
+  switch (result.status) {
+    case QueryStatus.LOADING:
+      content = null;
+      break;
 
-  if (!scriptsAndVariablesResponse) {
-    return (
-      <div className="space-y-2">
-        <Skeleton className="h-6 w-48" />
-        <Skeleton className="h-6 w-64" />
-        <Skeleton className="h-6 w-40" />
-      </div>
-    );
+    case QueryStatus.ERROR:
+      content = <ErrorMessage message={result.errorMessage} />;
+      break;
+
+    case QueryStatus.SUCCESS: {
+      const { scripts, variables } = result;
+
+      content = (
+        <>
+          <ScriptsSection
+            scripts={scripts}
+            setIsScriptModalOpen={setIsScriptModalOpen}
+            onDeleteClick={handleDeleteClick}
+            onEdit={setEditingScript}
+          />
+
+          <VariablesSection variables={variables} />
+
+          <CreateScriptModal
+            isOpen={isScriptModalOpen}
+            onClose={() => {
+              setIsScriptModalOpen(false);
+              setEditingScript(null);
+            }}
+            onCreate={handleCreateScript}
+            onEdit={handleEditScript}
+            createLoading={editingScript ? updateScriptLoading : createLoading}
+            createError={editingScript ? updateErrorLoading : createError}
+            variables={variables}
+            editingScript={editingScript}
+          />
+
+          <ConfirmDeleteModal
+            isOpen={isDeleteModalOpen}
+            onClose={handleDeleteModalClose}
+            onConfirm={handleConfirmDelete}
+            deleteLoading={deleteLoading}
+            deleteError={deleteError}
+          />
+        </>
+      );
+      break;
+    }
   }
-  if (scriptsAndVariablesResponse.status === ResponseStatus.ERROR) {
-    return <ErrorMessage message={scriptsAndVariablesResponse.error} />;
-  }
 
-  const { scripts, variables } = scriptsAndVariablesResponse.data;
-
-  return (
-    <div>
-      <ScriptsSection
-        scripts={scripts}
-        setIsScriptModalOpen={setIsScriptModalOpen}
-        onDeleteClick={handleDeleteClick}
-        onEdit={handleEditScriptClick}
-      />
-      <VariablesSection variables={variables} />
-
-      <CreateScriptModal
-        isOpen={isScriptModalOpen}
-        onClose={() => {
-          setIsScriptModalOpen(false);
-          setEditingScript(null);
-        }}
-        onCreate={handleCreateScript}
-        onEdit={handleEditScript}
-        createLoading={editingScript ? updateScriptLoading : createLoading}
-        createError={editingScript ? updateErrorLoading : createError}
-        variables={variables}
-        editingScript={editingScript}
-      />
-
-      <ConfirmDeleteModal
-        isOpen={isDeleteModalOpen}
-        onClose={handleDeleteModalClose}
-        onConfirm={handleConfirmDelete}
-        deleteLoading={deleteLoading}
-        deleteError={deleteError}
-      />
-    </div>
-  );
+  return <VerticalSectionGroup>{content}</VerticalSectionGroup>;
 };
 
 export default ScriptsTab;

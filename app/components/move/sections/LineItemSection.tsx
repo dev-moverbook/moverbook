@@ -8,7 +8,6 @@ import { MoveFeeInput } from "@/types/form-types";
 import AddLineModal from "@/app/app/[slug]/add-move/components/modals/AddLineModal";
 import LineItemFeeCard from "@/app/app/[slug]/add-move/components/cards/LineItemFeeCard";
 import ConfirmModal from "../../shared/ConfirmModal";
-import { Doc, Id } from "@/convex/_generated/dataModel";
 
 interface LineItemsSectionProps {
   fees: MoveFeeInput[];

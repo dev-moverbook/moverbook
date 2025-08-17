@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { FiPlusCircle } from "react-icons/fi";
 import { Menu, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 import {
   Sheet,
   SheetContent,
@@ -13,22 +14,16 @@ import {
 import SidebarContent from "./SidebarContent";
 import IconButton from "./IconButton";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import type { UserResource } from "@clerk/types";
 import Link from "next/link";
 import SearchInput from "./SearchInput";
 import { useSlugContext } from "@/app/contexts/SlugContext";
-import { useRouter } from "next/navigation";
 
-type NavbarProps = {
-  slug: string;
-  user?: UserResource | null;
-};
-
-const Navbar = ({ slug, user }: NavbarProps) => {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const { isCompanyContactComplete, isStripeComplete } = useSlugContext();
-  const isAddMoveDisabled = !isCompanyContactComplete || !isStripeComplete;
+const Navbar = () => {
+  const { slug, isCompanyContactComplete, isStripeComplete } = useSlugContext();
+  const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
+
+  const isAddMoveDisabled = !isCompanyContactComplete || !isStripeComplete;
 
   const handleAddMove = () => {
     if (!isAddMoveDisabled) {
@@ -37,8 +32,8 @@ const Navbar = ({ slug, user }: NavbarProps) => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 w-full h-14 bg-black flex items-center px-2 z-40 shadow-md  border-grayCustom">
-      {/* Hamburger only on mobile */}
+    <nav className="fixed top-0 left-0 w-full h-14 bg-black flex items-center px-2 z-40 shadow-md border-grayCustom">
+      {/* Mobile Hamburger */}
       <div className="lg:hidden">
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
           <SheetTrigger asChild>
@@ -48,7 +43,6 @@ const Navbar = ({ slug, user }: NavbarProps) => {
               iconClassName="text-white"
             />
           </SheetTrigger>
-
           <SheetContent
             side="left"
             className="border-none h-screen w-full max-w-full p-0 bg-background2 text-white overflow-y-auto z-[999]"
@@ -58,22 +52,19 @@ const Navbar = ({ slug, user }: NavbarProps) => {
                 <SheetTitle>Sidebar Navigation</SheetTitle>
               </VisuallyHidden>
             </SheetHeader>
-            <SidebarContent
-              user={user}
-              slug={slug}
-              onNavigate={() => setIsOpen(false)}
-            />
+            <SidebarContent onNavigate={() => setIsOpen(false)} />
           </SheetContent>
         </Sheet>
       </div>
 
-      {/* Centered Search + Plus Button */}
+      {/* Search */}
       <div className="flex-1 lg:ml-64">
-        <div className="flex items-center justify-between   px-1">
+        <div className="flex items-center justify-between px-1">
           <SearchInput />
         </div>
       </div>
 
+      {/* Add Move */}
       <IconButton
         icon={<FiPlusCircle className="text-2xl" />}
         asChild
@@ -81,6 +72,7 @@ const Navbar = ({ slug, user }: NavbarProps) => {
         title="Add Move"
         disabled={isAddMoveDisabled}
         onClick={handleAddMove}
+        className="cursor-pointer"
       >
         <Link href={`/app/${slug}/add-move`} />
       </IconButton>

@@ -9,29 +9,25 @@ import { MOVE_STATUS_OPTIONS, MoveStatus } from "@/types/types";
 import SelectFieldRow from "@/app/components/shared/SelectFieldRow";
 import { useUpdateMove } from "../../../hooks/useUpdateMove";
 import { InternalNotesFormData } from "@/types/form-types";
-import { useGetSalesReps } from "@/app/hooks/queries/useGetSalesReps";
 import LabeledTextarea from "@/app/components/shared/labeled/LabeledTextarea";
 import { useMoveContext } from "@/app/contexts/MoveContext";
+import SalesRepSelect from "@/app/components/shared/select/SalesRepSelect";
+import { Id } from "@/convex/_generated/dataModel";
 
-interface InternalNotesSectionProps {}
-
-const InternalNotesSection = ({}: InternalNotesSectionProps) => {
+const InternalNotesSection = () => {
   const { moveData } = useMoveContext();
   const move = moveData.move;
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
   const { updateMove, updateMoveLoading, updateMoveError } = useUpdateMove();
-  const { users: salesReps } = useGetSalesReps(move.companyId);
 
   const [formData, setFormData] = useState<InternalNotesFormData>({
     notes: move.notes,
     moveStatus: move.moveStatus,
-    salesRep: move.salesRep,
+    salesRep: move.salesRep, // stores user id
   });
 
-  const handleEditClick = () => {
-    setIsEditing(true);
-  };
+  const handleEditClick = () => setIsEditing(true);
 
   const handleSave = async () => {
     await updateMove({ moveId: move._id, updates: formData });
@@ -56,40 +52,33 @@ const InternalNotesSection = ({}: InternalNotesSectionProps) => {
         onCancelEdit={handleCancel}
         className="mx-auto"
       />
-      <SectionContainer showBorder={false} className="">
+
+      <SectionContainer showBorder={false}>
         <FieldGroup>
           <LabeledTextarea
             label="Notes"
             value={formData.notes ?? ""}
             onChange={(e) =>
-              setFormData((prev) => ({
-                ...prev,
-                notes: e.target.value,
-              }))
+              setFormData((prev) => ({ ...prev, notes: e.target.value }))
             }
             isEditing={isEditing}
             placeholder="Add internal notes here"
           />
 
-          <SelectFieldRow
+          {/* Sales Rep (fetches internally) */}
+          <SalesRepSelect
+            companyId={move.companyId}
             label="Sales Rep"
-            name="salesRep"
-            value={
-              salesReps?.find((rep) => rep._id === formData.salesRep)?.name ??
-              formData.salesRep
-            }
-            options={salesReps?.map((rep) => rep.name) ?? []}
+            valueId={formData.salesRep}
+            onChangeId={(id) => {
+              if (!id) return; // salesRep is non-nullable; ignore clear
+              setFormData((prev) => ({ ...prev, salesRep: id as Id<"users"> }));
+            }}
             isEditing={isEditing}
-            onChange={(val) =>
-              setFormData((prev) => ({
-                ...prev,
-                salesRep:
-                  salesReps?.find((rep) => rep.name === val)?._id ??
-                  move.salesRep,
-              }))
-            }
+            placeholder="Select a sales rep"
           />
 
+          {/* Move Status */}
           <SelectFieldRow
             label="Move Status"
             name="status"

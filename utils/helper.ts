@@ -15,6 +15,12 @@ export const generateSlug = (name: string): string => {
     .replace(/^-+|-+$/g, "");
 };
 
+export const isValidPhoneNumber = (phone: string | null | undefined) => {
+  if (!phone) return false;
+  const digits = phone.replace(/\D/g, ""); // remove all non-digit characters
+  return digits.length === 10;
+};
+
 export const getBaseUrl = (): string => {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL;
   if (appUrl) {

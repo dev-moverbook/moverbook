@@ -2,28 +2,27 @@
 
 import React from "react";
 import ErrorComponent from "@/app/components/shared/ErrorComponent";
-import FullLoading from "@/app/components/shared/FullLoading";
 import { useCustomerAndMoves } from "@/app/hooks/queries/useCustomerAndMoves";
 import CustomerPageContent from "./CustomerPageContent";
 import { Id } from "@/convex/_generated/dataModel";
+import { QueryStatus } from "@/types/enums";
 
 interface Props {
   customerId: Id<"moveCustomers">;
 }
 
 const CustomerPageClient: React.FC<Props> = ({ customerId }) => {
-  const { data, isLoading, isError, errorMessage } =
-    useCustomerAndMoves(customerId);
+  const result = useCustomerAndMoves(customerId);
 
-  if (isLoading) return <FullLoading />;
-  if (isError) return <ErrorComponent message={errorMessage} />;
-  if (!data?.moveCustomer || !data?.moves) {
-    return <ErrorComponent message="Customer data not found" />;
+  switch (result.status) {
+    case QueryStatus.LOADING:
+      return null;
+    case QueryStatus.ERROR:
+      return <ErrorComponent message={result.errorMessage} />;
+    case QueryStatus.SUCCESS:
+      const { moveCustomer, moves } = result.data;
+      return <CustomerPageContent moveCustomer={moveCustomer} moves={moves} />;
   }
-
-  return (
-    <CustomerPageContent moveCustomer={data.moveCustomer} moves={data.moves} />
-  );
 };
 
 export default CustomerPageClient;

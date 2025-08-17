@@ -3,36 +3,27 @@
 import React from "react";
 import Image from "next/image";
 import {
-  formatCurrency,
   formatDateToLong,
+  formatDisplayNumber,
   formatMoveSize,
   formatTime,
   getTotalWeightAndSize,
 } from "@/app/frontendUtils/helper";
-import { Doc } from "@/convex/_generated/dataModel";
+import { useMoveContext } from "@/app/contexts/MoveContext";
 
-interface QuoteSummaryProps {
-  move: Doc<"move">;
-  company: Doc<"companies">;
-}
+const QuoteSummary = () => {
+  const { moveData } = useMoveContext();
+  const { move, company } = moveData;
 
-const QuoteSummary = ({ move, company }: QuoteSummaryProps) => {
   const {
     moveDate,
     arrivalTimes,
-    jobTypeRate,
     locations,
     trucks,
     movers,
-    startingMoveTime,
     moveItems,
     jobId,
   } = move;
-
-  const minHours = 2;
-  const hourlyRate = jobTypeRate || 0;
-  const estimateMin = hourlyRate * minHours;
-  const estimateMax = estimateMin + 300;
 
   const { weight, size } = getTotalWeightAndSize(moveItems);
 
@@ -51,12 +42,7 @@ const QuoteSummary = ({ move, company }: QuoteSummaryProps) => {
         )}
       </div>
       <h2 className="">Job ID: {jobId}</h2>
-      <h2 className="font-bold text-xl">{company.name}</h2>
-
-      {/* Price Estimate */}
-      <div className="text-2xl font-bold">
-        {formatCurrency(estimateMin)} - {formatCurrency(estimateMax)}
-      </div>
+      <h2 className="font-bold text-xl">Move Estimate</h2>
 
       {/* Date & Arrival */}
       <div className="text-sm">
@@ -69,8 +55,7 @@ const QuoteSummary = ({ move, company }: QuoteSummaryProps) => {
       {/* Rate & Summary */}
       <div className="text-white text-sm">
         <p>{formatMoveSize(locations?.[0]?.moveSize)} </p>
-        <p>{`${size} ft³ / ${weight} lbs`}</p>
-        <p>{startingMoveTime} hour minimum</p>
+        <p>{`${formatDisplayNumber(size, "ft³")} / ${formatDisplayNumber(weight, "lbs")}`}</p>
         <p>
           Estimated: {trucks} truck{trucks !== 1 ? "s" : ""} & {movers} crew
         </p>

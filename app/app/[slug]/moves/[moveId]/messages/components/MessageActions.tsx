@@ -77,6 +77,7 @@ const MessageActions = ({ toggleOptions, showOptions, textareaRef }: Props) => {
           icon={showOptions ? <X /> : <Plus />}
           variant="ghost"
           className="w-8 h-8"
+          title="Toggle Options"
         />
 
         <Textarea
@@ -100,6 +101,7 @@ const MessageActions = ({ toggleOptions, showOptions, textareaRef }: Props) => {
             variant="green"
             className="w-8 h-8 p-4"
             loading={createMessageLoading}
+            title="Send"
           />
         ) : (
           <IconButton
@@ -113,6 +115,7 @@ const MessageActions = ({ toggleOptions, showOptions, textareaRef }: Props) => {
             }
             variant="ghost"
             className="w-8 h-8"
+            title="Toggle Method"
           />
         )}
       </div>

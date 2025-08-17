@@ -1,6 +1,6 @@
 "use client";
 
-import { UserButton } from "@clerk/nextjs";
+import { UserButton, useUser } from "@clerk/nextjs";
 import {
   Newspaper,
   Calendar,
@@ -13,22 +13,21 @@ import {
 } from "lucide-react";
 import { ClerkRoles } from "@/types/enums";
 import NavLink from "./buttons/NavLink";
-import type { UserResource } from "@clerk/types";
 import { isCompanyAdminRole } from "@/app/frontendUtils/permissions";
 import { useSlugContext } from "@/app/contexts/SlugContext";
 
 type SidebarContentProps = {
   onNavigate?: () => void;
-  slug: string;
-  user?: UserResource | null;
 };
 
-const SidebarContent = ({ onNavigate, user, slug }: SidebarContentProps) => {
+const SidebarContent = ({ onNavigate }: SidebarContentProps) => {
+  const { user } = useUser();
+  const { isCompanyContactComplete, isStripeComplete, slug } = useSlugContext();
+
   if (!user) return null;
   const role = user.publicMetadata.role as ClerkRoles;
   const canSeeAdmin = isCompanyAdminRole(role);
   const roleLabel = role ?? "Unknown";
-  const { isCompanyContactComplete, isStripeComplete } = useSlugContext();
   const isAddMoveDisabled = !isCompanyContactComplete || !isStripeComplete;
 
   return (

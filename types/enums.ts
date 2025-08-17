@@ -145,3 +145,9 @@ export const stripeConnectionStatusDisplay = {
     icon: "🟢",
   },
 };
+
+export enum QueryStatus {
+  LOADING = "loading",
+  ERROR = "error",
+  SUCCESS = "success",
+}

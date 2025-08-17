@@ -18,6 +18,7 @@ interface EditableIconFieldProps {
   type?: string;
   fallback?: string;
   inputRef?: React.Ref<HTMLInputElement>;
+  suffix?: string;
 }
 
 const EditableIconField: React.FC<EditableIconFieldProps> = ({
@@ -33,6 +34,7 @@ const EditableIconField: React.FC<EditableIconFieldProps> = ({
   type = "text",
   fallback = "—",
   inputRef,
+  suffix,
 }) => {
   if (!isEditing) {
     const displayValue = isPhoneNumber
@@ -41,7 +43,7 @@ const EditableIconField: React.FC<EditableIconFieldProps> = ({
 
     return (
       <FieldDisplay
-        value={displayValue}
+        value={displayValue ? `${displayValue}${suffix ? suffix : ""}` : ""}
         icon={icon}
         fallback={fallback}
         label=""

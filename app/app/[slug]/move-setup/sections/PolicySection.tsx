@@ -13,6 +13,7 @@ import FieldTextAreaRow from "@/app/components/shared/FieldTextAreaRow";
 import { validatePrice } from "@/app/frontendUtils/validation";
 import CurrencyInput from "@/app/components/shared/labeled/CurrencyInput";
 import { Doc } from "@/convex/_generated/dataModel";
+import NumberInput from "@/app/components/shared/labeled/NumberInput";
 
 interface PolicySectionProps {
   policy: Doc<"policies">;
@@ -117,24 +118,26 @@ const PolicySection: React.FC<PolicySectionProps> = ({ policy }) => {
         />
 
         <FieldGroup>
-          <FieldRow
+          <NumberInput
             label="Weekday Hour Minimum"
-            name="weekdayHourMinimum"
-            value={formData.weekdayHourMinimum.toString()}
-            isEditing={isEditing}
-            onChange={handleChange}
+            value={formData.weekdayHourMinimum}
+            onChange={(value) =>
+              handleChange({ target: { name: "weekdayHourMinimum", value } })
+            }
             error={errors.weekdayHourMinimum}
-            type="number"
+            unit="hrs"
+            isEditing={isEditing}
           />
 
-          <FieldRow
+          <NumberInput
             label="Weekend Hour Minimum"
-            name="weekendHourMinimum"
-            value={formData.weekendHourMinimum.toString()}
-            isEditing={isEditing}
-            onChange={handleChange}
+            value={formData.weekendHourMinimum}
+            onChange={(value) =>
+              handleChange({ target: { name: "weekendHourMinimum", value } })
+            }
             error={errors.weekendHourMinimum}
-            type="number"
+            unit="hrs"
+            isEditing={isEditing}
           />
 
           <CurrencyInput
@@ -156,12 +159,17 @@ const PolicySection: React.FC<PolicySectionProps> = ({ policy }) => {
             error={errors.cancellationFee}
           />
 
-          <FieldRow
+          <NumberInput
             label="Cancellation Cutoff Hour"
-            name="cancellationCutoffHour"
-            value={formData.cancellationCutoffHour.toString()}
+            value={formData.cancellationCutoffHour}
             isEditing={isEditing}
-            onChange={handleChange}
+            onChange={(value) =>
+              handleChange({
+                target: { name: "cancellationCutoffHour", value },
+              })
+            }
+            error={errors.cancellationCutoffHour}
+            unit="hrs"
           />
 
           <FieldTextAreaRow

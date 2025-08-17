@@ -21,6 +21,7 @@ import { FrontEndErrorMessages } from "@/types/errors";
 import FieldGroup from "@/app/components/shared/FieldGroup";
 import FieldRow from "@/app/components/shared/FieldRow";
 import FormActions from "@/app/components/shared/FormActions";
+import ResponsiveModal from "@/app/components/shared/modal/ResponsiveModal";
 
 interface RoomModalProps {
   isOpen: boolean;
@@ -112,22 +113,15 @@ const RoomModal: React.FC<RoomModalProps> = ({
     ? "Edit the name of the room you want to update."
     : "Enter a name for the room you want to add.";
 
-  return isMobile ? (
-    <Drawer open={isOpen} onOpenChange={onClose}>
-      <DrawerContent>
-        <DrawerTitle>{title}</DrawerTitle>
-        <DrawerDescription>{description}</DrawerDescription>
-        {formContent}
-      </DrawerContent>
-    </Drawer>
-  ) : (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
-        <DialogTitle>{title}</DialogTitle>
-        <DialogDescription>{description}</DialogDescription>
-        {formContent}
-      </DialogContent>
-    </Dialog>
+  return (
+    <ResponsiveModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={title}
+      description={description}
+      children={formContent}
+      heightVh={80}
+    />
   );
 };
 

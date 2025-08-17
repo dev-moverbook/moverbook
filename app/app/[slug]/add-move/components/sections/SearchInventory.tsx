@@ -5,6 +5,7 @@ import SelectableCardContainer from "@/app/components/shared/containers/Selectab
 import SearchInput from "@/app/components/shared/ui/SearchInput";
 import AddItemModal from "../modals/AddItemModal";
 import { MoveItemInput } from "@/types/form-types";
+import { formatDisplayNumber } from "@/app/frontendUtils/helper";
 
 interface SearchInventoryProps {
   items?: ItemSchema[];
@@ -26,14 +27,14 @@ const SearchInventory: React.FC<SearchInventoryProps> = ({
   );
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 px-4 min-h-[80vh]">
       <SearchInput
         value={searchQuery}
         onChange={setSearchQuery}
         placeholder="Search items..."
         className=""
       />
-      <SingleCardContainer>
+      <SingleCardContainer className="px-0">
         <SelectableCardContainer
           centerText="Item"
           showPlusIcon={true}
@@ -43,7 +44,7 @@ const SearchInventory: React.FC<SearchInventoryProps> = ({
           <SelectableCardContainer
             key={item._id}
             centerText={item.name}
-            bottomCenterText={`${item.size}ft³`}
+            bottomCenterText={formatDisplayNumber(item.size, "ft³")}
             onClick={() => handleAddMoveItem(item)}
           />
         ))}

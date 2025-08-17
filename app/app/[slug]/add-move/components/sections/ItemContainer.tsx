@@ -4,7 +4,6 @@ import TabSelector from "@/app/components/shared/TabSelector";
 import PopularItems from "./PopularItems";
 import CategoryInventory from "./CategoryInventory";
 import SearchInventory from "./SearchInventory";
-import { useMoveForm } from "@/app/contexts/MoveFormContext";
 import { CategorySchema, ItemSchema } from "@/types/convex-schemas";
 import { MoveItemInput } from "@/types/form-types";
 
@@ -49,7 +48,7 @@ const ItemContainer: React.FC<ItemContainerProps> = ({
     }
   };
   return (
-    <SectionContainer showBorder={false}>
+    <SectionContainer showBorder={false} className="px-0">
       <TabSelector
         tabs={["POPULAR", "CATEGORIES", "SEARCH"]}
         activeTab={activeTab}

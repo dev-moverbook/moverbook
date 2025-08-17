@@ -1,26 +1,19 @@
 "use client";
 
 import React, { useState } from "react";
-import {
-  Mail,
-  Phone,
-  Pencil,
-  PhoneForwarded,
-  X,
-  UserIcon,
-  CircleCheckBig,
-} from "lucide-react";
+import { Mail, Phone, PhoneForwarded, UserIcon, Contact } from "lucide-react";
 import { Doc } from "@/convex/_generated/dataModel";
-import IconButton from "../shared/IconButton";
 import EditableIconField from "../shared/labeled/EditableIconField";
 import { CustomerFormData, CustomerFormErrors } from "@/types/form-types";
 import { validateCustomerForm } from "@/app/frontendUtils/validation";
 import { useReferralSources } from "@/app/hooks/queries/useReferralSources";
 import FormActions from "../shared/FormActions";
-import LabeledInput from "../shared/labeled/LabeledInput";
 import { useUpdateMoveCustomer } from "@/app/hooks/mutations/customers/useUpdateMoveCustomer";
 import EditableIconSelectField from "../shared/labeled/EditableIconSelectField";
 import { cn } from "@/lib/utils";
+import SectionHeader from "../shared/SectionHeader";
+import { isValidEmail, isValidPhoneNumber } from "@/utils/helper";
+import { QueryStatus } from "@/types/enums";
 
 interface CustomerInfoProps {
   moveCustomer: Doc<"moveCustomers">;
@@ -36,11 +29,11 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
   const { name, phoneNumber, altPhoneNumber, email, referral } = moveCustomer;
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
-  const { options: referralOptions } = useReferralSources(
-    moveCustomer.companyId
-  );
+  const result = useReferralSources(moveCustomer.companyId);
   const referralSelectOptions =
-    referralOptions?.map((r) => ({ label: r.label, value: r.value })) ?? [];
+    result.status === QueryStatus.SUCCESS
+      ? result.options.map((r) => ({ label: r.label, value: r.value }))
+      : [];
 
   const {
     updateMoveCustomer,
@@ -86,12 +79,14 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
     setIsEditing(false);
   };
 
-  const isDisabled = formData.name.trim() === "";
   const isCompleted =
     !!formData.name?.trim() &&
-    !!formData.email?.trim() &&
-    !!formData.phoneNumber?.trim() &&
+    isValidEmail(formData.email) &&
+    isValidPhoneNumber(formData.phoneNumber) &&
+    isValidPhoneNumber(formData.altPhoneNumber) &&
     !!formData.referral?.trim();
+
+  const isDisabled = !isCompleted;
 
   return (
     <div
@@ -102,45 +97,29 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
           "cursor-pointer hover:bg-background2 transition-colors duration-200"
       )}
     >
-      {/* Edit / Cancel icon top-right */}
-      <div className="absolute top-5 right-2">
-        <IconButton
-          icon={isEditing ? <X /> : <Pencil />}
-          onClick={() => setIsEditing(!isEditing)}
-        />
-      </div>
-
       {/* Main Content */}
       <div className="flex flex-col gap-2 w-full">
         {/* Name field */}
-        {isEditing ? (
-          <LabeledInput
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            isEditing
-            label="Name"
-            valueClassName="text-2xl font-semibold text-white"
-          />
-        ) : (
-          <div className="flex items-center gap-1.5">
-            <LabeledInput
-              value={formData.name}
-              onChange={() => {}}
-              isEditing={false}
-              valueClassName="text-2xl font-bold text-white"
-            />
-            {showCheckmark && (
-              <CircleCheckBig
-                className={cn(
-                  "w-5 h-5 mt-2",
-                  isCompleted ? "text-greenCustom" : "text-grayCustom2"
-                )}
-              />
-            )}
-          </div>
-        )}
+        <SectionHeader
+          title="Customer Info"
+          isEditing={isEditing}
+          onEditClick={() => setIsEditing(true)}
+          onCancelEdit={() => setIsEditing(false)}
+          className="px-0 pt-0"
+          showCheckmark={showCheckmark}
+          isCompleted={isCompleted}
+        />
 
         {/* Contact fields */}
+        <EditableIconField
+          icon={<Contact className="w-4 h-4" />}
+          value={formData.name}
+          onChange={(val) => setFormData({ ...formData, name: val })}
+          isEditing={isEditing}
+          label="Name"
+          placeholder="Enter name"
+        />
+
         <EditableIconField
           icon={<Phone className="w-4 h-4" />}
           value={formData.phoneNumber}
@@ -168,6 +147,7 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
           label="Alternative Phone Number"
           placeholder="Enter alternative phone number"
           isPhoneNumber
+          suffix="  (alt)"
         />
 
         <EditableIconSelectField

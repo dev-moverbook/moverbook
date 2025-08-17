@@ -11,6 +11,7 @@ import { InsurancePolicySchema } from "@/types/convex-schemas";
 import LaborSection from "@/app/components/move/sections/LaborSection";
 import AddTravelFee from "../sections/AddTravelFee";
 import AddCreditCardFee from "../sections/AddCreditCardFee";
+import FormActionContainer from "@/app/components/shared/containers/FormActionContainer";
 
 interface CostStepProps {
   onNext: () => void;
@@ -42,13 +43,17 @@ const CostStep = ({ onNext, onBack, isSaving, saveError }: CostStepProps) => {
         }
         errors={moveFormErrors}
         setErrors={setMoveFormErrors}
+        isEditing={true}
       />
       <AddTravelFee />
       <LineItems />
       <LiabilityCoverageSection
         selectedPolicy={moveFormData.liabilityCoverage}
         policies={insurancePolicyOptions ?? []}
-        onSelect={handleSelectPolicy}
+        onSelect={(policy) => {
+          handleSelectPolicy(policy);
+          return true;
+        }}
         error={moveFormErrors.liabilityCoverage}
         isAdd={true}
       />
@@ -58,15 +63,16 @@ const CostStep = ({ onNext, onBack, isSaving, saveError }: CostStepProps) => {
 
       <CostSummary />
       <InternalNotes />
-
-      <FormActions
-        onSave={onNext}
-        onCancel={onBack}
-        isSaving={isSaving}
-        saveLabel="Complete"
-        cancelLabel="Back"
-        error={saveError}
-      />
+      <FormActionContainer className="">
+        <FormActions
+          onSave={onNext}
+          onCancel={onBack}
+          isSaving={isSaving}
+          saveLabel="Complete"
+          cancelLabel="Back"
+          error={saveError}
+        />
+      </FormActionContainer>
     </FormContainer>
   );
 };

@@ -118,7 +118,7 @@ export interface GetActiveInvitationsByCompanyIdSuccess {
 }
 
 export interface GetActiveInvitationsByCompanyIdData {
-  invitations: InvitationSchema[];
+  invitations: Doc<"invitations">[];
 }
 
 export type RevokeInviteUserResponse = RevokeInviteUserSuccess | ErrorResponse;
@@ -153,7 +153,7 @@ export interface GetActiveReferralsByCompanyIdSuccess {
 }
 
 export interface GetActiveReferralsByCompanyIdData {
-  referrals: ReferralSchema[];
+  referrals: Doc<"referrals">[];
 }
 
 export type CreateReferralResponse = CreateReferralSuccess | ErrorResponse;
@@ -379,8 +379,8 @@ export interface GetCompanyArrivalAndPoliciesSuccess {
 }
 
 export interface GetCompanyArrivalAndPoliciesData {
-  arrivalWindow: ArrivalWindowSchema;
-  policy: PolicySchema;
+  arrivalWindow: Doc<"arrivalWindow">;
+  policy: Doc<"policies">;
 }
 
 export type UpdateArrivalWindowResponse =
@@ -476,7 +476,7 @@ export interface GetInsurancePoliciesSuccess {
 }
 
 export interface GetInsurancePoliciesData {
-  insurancePolicies: InsurancePolicySchema[];
+  insurancePolicies: Doc<"insurancePolicies">[];
 }
 
 export type UpdateCreditCardFeeResponse =
@@ -670,7 +670,7 @@ export interface GetStripeConnectionSuccess {
 }
 
 export interface GetStripeConnectionData {
-  stripeConnected: ConnectedAccountSchema | null;
+  stripeConnected: Doc<"connectedAccounts"> | null;
 }
 
 export type CreateStripeOnboardingLinkResponse =
@@ -749,7 +749,7 @@ export interface GetCompanyArrivalSuccess {
 }
 
 export interface GetCompanyArrivalData {
-  arrivalWindow: ArrivalWindowSchema;
+  arrivalWindow: Doc<"arrivalWindow">;
 }
 
 export type GetItemsByCompanyResponse =
@@ -775,9 +775,9 @@ export interface GetItemsAndCategoriesAndRoomsByCompanySuccess {
 }
 
 export interface GetItemsAndCategoriesAndRoomsByCompanyData {
-  items: ItemSchema[];
-  categories: CategorySchema[];
-  rooms: RoomSchema[];
+  items: Doc<"items">[];
+  categories: Doc<"categories">[];
+  rooms: Doc<"rooms">[];
 }
 
 export type GetSalesRepsByCompanyIdResponse =
@@ -790,7 +790,7 @@ export interface GetSalesRepsByCompanyIdSuccess {
 }
 
 export interface GetSalesRepsByCompanyIdData {
-  users: UserSchema[];
+  users: Doc<"users">[];
 }
 
 export type GetMoveOptionsResponse = GetMoveOptionsSuccess | ErrorResponse;
@@ -1090,7 +1090,7 @@ export interface GetMessagesByMoveIdSuccess {
 }
 
 export interface GetMessagesByMoveIdData {
-  messages: MessageSchema[];
+  messages: Doc<"messages">[];
 }
 
 export type GetRecentMessagesByCompanyIdResponse =

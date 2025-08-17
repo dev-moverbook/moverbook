@@ -9,16 +9,19 @@ import FormActions from "@/app/components/shared/FormActions";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { useCreateOrUpdateAdditionalLiabilityCoverage } from "../../../hooks/useCreateOrUpdateAdditionalLiabilityCoverage";
 import AdditionalLiabilityTerms from "../copy/AdditionalLiabilityTerms";
+import { useMoveContext } from "@/app/contexts/MoveContext";
 
 interface AdditionalLiabilityCoverageProps {
   additionalLiabilityCoverage: Doc<"additionalLiabilityCoverage"> | null;
-  moveId: Id<"move">;
 }
 
 const AdditionalLiabilityCoverage = ({
   additionalLiabilityCoverage,
-  moveId,
 }: AdditionalLiabilityCoverageProps) => {
+  const { moveData } = useMoveContext();
+  const { move } = moveData;
+  const { _id: moveId } = move;
+
   const { customerSignature, repSignature, customerSignedAt, repSignedAt } =
     additionalLiabilityCoverage ?? {};
 

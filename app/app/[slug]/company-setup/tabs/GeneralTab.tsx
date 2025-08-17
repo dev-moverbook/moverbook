@@ -1,10 +1,6 @@
 "use client";
 
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
 import { useSlugContext } from "@/app/contexts/SlugContext";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ResponseStatus } from "@/types/enums";
 import { useUpdateCompany } from "../hooks/useUpdateCompany";
 import { useUpdateCompliance } from "../hooks/useUpdateCompliance";
 import { useUpdateWebIntegrations } from "../hooks/useUpdateWebIntegrations";
@@ -16,17 +12,14 @@ import CompanyContactSection from "../sections/CompanyContactSection";
 import { useUpdateOrganizationLogo } from "../hooks/useUpdateOrganizationLogo";
 import VerticalSectionGroup from "@/app/components/shared/VerticalSectionGroup";
 import ErrorMessage from "@/app/components/shared/error/ErrorMessage";
+import { useGetCompanyDetails } from "@/app/hooks/queries/companies/useGetCompanyDetails";
+import { QueryStatus } from "@/types/enums";
 
 const GeneralTab = () => {
   const { companyId } = useSlugContext();
 
-  // Fetch company details
-  const companyDetailsResponse = useQuery(
-    api.companies.getCompanyDetails,
-    companyId ? { companyId } : "skip"
-  );
+  const result = useGetCompanyDetails(companyId);
 
-  // Hooks for updating sections
   const {
     updateCompany,
     updateCompanyLoading,
@@ -58,61 +51,61 @@ const GeneralTab = () => {
   const { uploadOrganizationLogo, uploadLoading, uploadError } =
     useUpdateOrganizationLogo();
 
-  if (!companyId) return <p className="text-gray-500">No company selected.</p>;
+  let content: React.ReactNode;
 
-  if (!companyDetailsResponse || !companyId) {
-    return (
-      <div className="space-y-4">
-        <Skeleton className="h-6 w-48" />
-        <Skeleton className="h-6 w-64" />
-        <Skeleton className="h-6 w-40" />
-      </div>
-    );
+  switch (result.status) {
+    case QueryStatus.LOADING:
+      content = null;
+      break;
+
+    case QueryStatus.ERROR:
+      content = <ErrorMessage message={result.errorMessage} />;
+      break;
+
+    case QueryStatus.SUCCESS: {
+      const { company, compliance, webIntegrations, companyContact } =
+        result.data;
+
+      content = (
+        <>
+          <CompanySection
+            company={company}
+            updateCompany={updateCompany}
+            updateLoading={updateCompanyLoading}
+            updateError={updateCompanyError}
+            setUpdateError={setUpdateCompanyError}
+            uploadOrganizationLogo={uploadOrganizationLogo}
+            uploadLoading={uploadLoading}
+            uploadError={uploadError}
+          />
+          <CompanyContactSection
+            companyContact={companyContact}
+            updateCompanyContact={updateCompanyContact}
+            updateLoading={updateCompanyContactLoading}
+            updateError={updateCompanyContactError}
+            setUpdateError={setUpdateCompanyContactError}
+          />
+          <ComplianceSection
+            compliance={compliance}
+            updateCompliance={updateCompliance}
+            updateLoading={updateComplianceLoading}
+            updateError={updateComplianceError}
+            setUpdateError={setUpdateComplianceError}
+          />
+          <WebIntegrationsSection
+            webIntegrations={webIntegrations}
+            updateWebIntegrations={updateWebIntegrations}
+            updateLoading={updateWebIntegrationsLoading}
+            updateError={updateWebIntegrationsError}
+            setUpdateError={setUpdateWebIntegrationsError}
+          />
+        </>
+      );
+      break;
+    }
   }
 
-  if (companyDetailsResponse.status === ResponseStatus.ERROR) {
-    return <ErrorMessage message={companyDetailsResponse.error} />;
-  }
-
-  const { company, compliance, webIntegrations, companyContact } =
-    companyDetailsResponse.data;
-
-  return (
-    <VerticalSectionGroup>
-      {" "}
-      <CompanySection
-        company={company}
-        updateCompany={updateCompany}
-        updateLoading={updateCompanyLoading}
-        updateError={updateCompanyError}
-        setUpdateError={setUpdateCompanyError}
-        uploadOrganizationLogo={uploadOrganizationLogo}
-        uploadLoading={uploadLoading}
-        uploadError={uploadError}
-      />
-      <CompanyContactSection
-        companyContact={companyContact}
-        updateCompanyContact={updateCompanyContact}
-        updateLoading={updateCompanyContactLoading}
-        updateError={updateCompanyContactError}
-        setUpdateError={setUpdateCompanyContactError}
-      />
-      <ComplianceSection
-        compliance={compliance}
-        updateCompliance={updateCompliance}
-        updateLoading={updateComplianceLoading}
-        updateError={updateComplianceError}
-        setUpdateError={setUpdateComplianceError}
-      />
-      <WebIntegrationsSection
-        webIntegrations={webIntegrations}
-        updateWebIntegrations={updateWebIntegrations}
-        updateLoading={updateWebIntegrationsLoading}
-        updateError={updateWebIntegrationsError}
-        setUpdateError={setUpdateWebIntegrationsError}
-      />
-    </VerticalSectionGroup>
-  );
+  return <VerticalSectionGroup>{content}</VerticalSectionGroup>;
 };
 
 export default GeneralTab;

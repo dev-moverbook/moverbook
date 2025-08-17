@@ -21,6 +21,7 @@ interface LabeledInputProps {
   valueClassName?: string; // NEW
   isCurrency?: boolean;
   name?: string;
+  noPlaceholderError?: boolean;
 }
 
 const LabeledInput: React.FC<LabeledInputProps> = ({
@@ -36,9 +37,10 @@ const LabeledInput: React.FC<LabeledInputProps> = ({
   step,
   isEditing = true,
   isPhoneNumber = false,
-  valueClassName = "md:text-sm text-grayCustom2",
+  valueClassName = "text-grayCustom2",
   isCurrency = false,
   name,
+  noPlaceholderError = false,
 }) => {
   if (!isEditing) {
     const displayValue = isPhoneNumber
@@ -71,7 +73,7 @@ const LabeledInput: React.FC<LabeledInputProps> = ({
         step={step}
         name={name}
       />
-      <FieldErrorMessage error={error} />
+      <FieldErrorMessage noPlaceholder={noPlaceholderError} error={error} />
     </div>
   );
 };

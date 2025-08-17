@@ -29,7 +29,7 @@ const RoleSelectField: React.FC<RoleSelectFieldProps> = ({
       <Label className="block font-medium mb-1">{label}</Label>
 
       {!isEditing || isAdmin ? (
-        <p className="text-sm text-grayCustom2">{displayRole}</p>
+        <p className=" text-grayCustom2">{displayRole}</p>
       ) : (
         <Select value={value} onValueChange={onChange}>
           <SelectTrigger>

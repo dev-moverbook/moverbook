@@ -1,18 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import { useMediaQuery } from "react-responsive";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import { RoomFormData } from "@/types/form-types";
 import FieldGroup from "@/app/components/shared/FieldGroup";
 import FieldRow from "@/app/components/shared/FieldRow";
 import FormActions from "@/app/components/shared/FormActions";
-import { MOBILE_BREAKPOINT } from "@/types/const";
 import {
   RoomValidationErrors,
   validateRoomForm,
 } from "@/app/frontendUtils/validation";
+import ResponsiveModal from "@/app/components/shared/modal/ResponsiveModal";
 
 interface AddRoomModalProps {
   isOpen: boolean;
@@ -25,7 +22,6 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({
   onClose,
   onCreatedRoom,
 }) => {
-  const isMobile = useMediaQuery({ maxWidth: MOBILE_BREAKPOINT });
   const [formData, setFormData] = useState<RoomFormData>({ name: "" });
   const [errors, setErrors] = useState<RoomValidationErrors>({});
 
@@ -83,21 +79,16 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({
   );
 
   const title = "Add Room";
+  const description = "Enter a name for the room.";
 
-  return isMobile ? (
-    <Drawer open={isOpen} onOpenChange={handleClose}>
-      <DrawerContent>
-        <DrawerTitle>{title}</DrawerTitle>
-        {formContent}
-      </DrawerContent>
-    </Drawer>
-  ) : (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent>
-        <DialogTitle>{title}</DialogTitle>
-        {formContent}
-      </DialogContent>
-    </Dialog>
+  return (
+    <ResponsiveModal
+      title={title}
+      description={description}
+      isOpen={isOpen}
+      onClose={handleClose}
+      children={formContent}
+    />
   );
 };
 

@@ -2,14 +2,21 @@
 
 import React from "react";
 import { useSlugContext } from "@/app/contexts/SlugContext";
+import SectionHeaderWithAction from "@/app/components/shared/ SectionHeaderWithAction";
+import MessagesPage from "./MessagesPage";
 
-const MessagesPage = () => {
+const Page = () => {
   const { isCompanyContactComplete, isStripeComplete } = useSlugContext();
   const isAddMoveDisabled = !isCompanyContactComplete || !isStripeComplete;
 
   if (isAddMoveDisabled) return null;
 
-  return <div>Messages Page</div>;
+  return (
+    <main>
+      <SectionHeaderWithAction title="Messages" />
+      <MessagesPage />
+    </main>
+  );
 };
 
-export default MessagesPage;
+export default Page;

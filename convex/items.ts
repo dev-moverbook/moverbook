@@ -15,7 +15,6 @@ import {
 } from "@/types/convex-responses";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import { handleInternalError } from "./backendUtils/helper";
-import { CategorySizeConvex } from "@/types/convex-enums";
 
 export const getItemsByCategory = query({
   args: { companyId: v.id("companies"), categoryId: v.id("categories") },
@@ -58,7 +57,7 @@ export const updateItem = mutation({
     updates: v.object({
       name: v.optional(v.string()),
       isActive: v.optional(v.boolean()),
-      size: v.optional(v.union(v.number(), CategorySizeConvex)),
+      size: v.optional(v.union(v.number())),
       isPopular: v.optional(v.boolean()),
       weight: v.optional(v.number()),
     }),
@@ -95,7 +94,7 @@ export const createItem = mutation({
     companyId: v.id("companies"),
     categoryId: v.optional(v.id("categories")),
     name: v.string(),
-    size: v.union(v.number(), CategorySizeConvex),
+    size: v.number(),
     isPopular: v.optional(v.boolean()),
     weight: v.number(),
   },

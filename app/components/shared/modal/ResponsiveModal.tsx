@@ -22,6 +22,8 @@ interface ResponsiveModalProps {
   title: string;
   description?: string;
   children: React.ReactNode;
+  /** Height in vh for the DrawerContent (mobile) */
+  heightVh?: number;
 }
 
 const ResponsiveModal: React.FC<ResponsiveModalProps> = ({
@@ -30,12 +32,13 @@ const ResponsiveModal: React.FC<ResponsiveModalProps> = ({
   title,
   description,
   children,
+  heightVh = 80,
 }) => {
   const isMobile = useMediaQuery({ maxWidth: MOBILE_BREAKPOINT });
 
   return isMobile ? (
     <Drawer open={isOpen} onOpenChange={onClose}>
-      <DrawerContent>
+      <DrawerContent {...(heightVh ? { heightVh } : {})}>
         <DrawerTitle>{title}</DrawerTitle>
         {description && <DrawerDescription>{description}</DrawerDescription>}
         {children}

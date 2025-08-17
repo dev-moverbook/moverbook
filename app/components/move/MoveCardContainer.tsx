@@ -4,15 +4,22 @@ import { EnrichedMove } from "@/types/convex-responses";
 
 interface MoveCardContainerProps {
   moves: EnrichedMove[];
+  isfilterDates: boolean;
 }
 
-const MoveCardContainer: React.FC<MoveCardContainerProps> = ({ moves }) => {
+const MoveCardContainer: React.FC<MoveCardContainerProps> = ({
+  moves,
+  isfilterDates,
+}) => {
+  const emptyMessage = isfilterDates
+    ? "No moves for custom date range."
+    : "No moves this week.";
   return (
     <div className="mt-2">
       {moves.length === 0 ? (
-        <p className="text-sm p-4 text-grayCustom2">No moves this week.</p>
+        <p className=" pl-4 md:pl-0 text-grayCustom2">{emptyMessage}</p>
       ) : (
-        <div className="border-t border-grayCustom mt-2">
+        <div className="border-t border-grayCustom ">
           {moves.map((move) => (
             <MoveCard
               key={move._id}

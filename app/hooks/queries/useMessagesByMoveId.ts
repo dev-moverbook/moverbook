@@ -1,15 +1,25 @@
-import { api } from "@/convex/_generated/api";
-import { useQuery } from "convex/react";
-import { Id } from "@/convex/_generated/dataModel";
-import { ResponseStatus } from "@/types/enums";
-import { MessageSchema } from "@/types/convex-schemas";
+// app/hooks/queries/messages/useMessagesByMoveId.ts
+"use client";
 
-interface UseMessagesByMoveIdResult {
-  messages: MessageSchema[];
-  isLoading: boolean;
-  isError: boolean;
-  errorMessage: string | null;
-}
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { Doc, Id } from "@/convex/_generated/dataModel";
+import { QueryStatus, ResponseStatus } from "@/types/enums";
+
+type UseMessagesByMoveIdLoading = { status: QueryStatus.LOADING };
+type UseMessagesByMoveIdError = {
+  status: QueryStatus.ERROR;
+  errorMessage: string;
+};
+type UseMessagesByMoveIdSuccess = {
+  status: QueryStatus.SUCCESS;
+  messages: Doc<"messages">[];
+};
+
+export type UseMessagesByMoveIdResult =
+  | UseMessagesByMoveIdLoading
+  | UseMessagesByMoveIdError
+  | UseMessagesByMoveIdSuccess;
 
 export const useMessagesByMoveId = (
   moveId: Id<"move"> | null
@@ -19,16 +29,22 @@ export const useMessagesByMoveId = (
     moveId ? { moveId } : "skip"
   );
 
-  const isLoading = response === undefined;
-  const isError = response?.status === ResponseStatus.ERROR;
+  // Loading (covers missing moveId or first render)
+  if (!moveId || !response) {
+    return { status: QueryStatus.LOADING };
+  }
 
+  // Error from Convex
+  if (response.status === ResponseStatus.ERROR) {
+    return {
+      status: QueryStatus.ERROR,
+      errorMessage: response.error ?? "Failed to load messages.",
+    };
+  }
+
+  // Success
   return {
-    messages:
-      response?.status === ResponseStatus.SUCCESS ? response.data.messages : [],
-    isLoading,
-    isError,
-    errorMessage: isError
-      ? (response.error ?? "Failed to load messages.")
-      : null,
+    status: QueryStatus.SUCCESS,
+    messages: response.data.messages,
   };
 };

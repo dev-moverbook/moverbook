@@ -25,6 +25,7 @@ import CheckboxField from "@/app/components/shared/CheckboxField";
 import SizeSelector from "@/app/components/shared/labeled/SizeSelector";
 import { calculateWeightFromSize } from "@/utils/helper";
 import FieldRow from "@/app/components/shared/FieldRow";
+import NumberInput from "@/app/components/shared/labeled/NumberInput";
 
 interface ItemModalProps {
   isOpen: boolean;
@@ -150,23 +151,20 @@ const ItemModal: React.FC<ItemModalProps> = ({
         onChange={handleSizeSelect}
         label="Click a preset size or enter a custom size"
       />
-
-      <LabeledInput
+      <NumberInput
         label="Item Size (ft³)"
-        placeholder="Enter Custom Size (ft³)"
-        value={formData.size?.toString() || ""}
-        onChange={(e) => handleSizeSelect(Number(e.target.value))}
-        type="number"
-        min={1}
+        value={formData.size}
+        onChange={(value) => handleSizeSelect(value ?? 0)}
+        error={validationError}
+        unit="ft³"
       />
 
-      <LabeledInput
+      <NumberInput
         label="Item Weight (lbs)"
-        value={formData.weight?.toString() || ""}
-        onChange={(e) => handleWeightChange(Number(e.target.value))}
-        placeholder="Enter item weight (lbs)"
-        type="number"
-        min={1}
+        value={formData.weight}
+        onChange={(value) => handleWeightChange(value ?? 0)}
+        error={validationError}
+        unit="lbs"
       />
 
       {/* Popular Checkbox */}

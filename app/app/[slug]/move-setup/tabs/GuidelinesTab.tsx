@@ -1,39 +1,42 @@
+// app/(whatever)/GuidelinesTab.tsx
 "use client";
 
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { useSlugContext } from "@/app/contexts/SlugContext";
-import { ResponseStatus } from "@/types/enums";
+import VerticalSectionGroup from "@/app/components/shared/VerticalSectionGroup";
+import ErrorComponent from "@/app/components/shared/ErrorComponent";
 import ArrivalWindowSection from "../sections/ArrivalWindowSection";
 import PolicySection from "../sections/PolicySection";
-import RenderSkeleton from "@/app/components/shared/RenderSkeleton";
-import ErrorComponent from "@/app/components/shared/ErrorComponent";
-import VerticalSectionGroup from "@/app/components/shared/VerticalSectionGroup";
+import { useSlugContext } from "@/app/contexts/SlugContext";
+import { QueryStatus } from "@/types/enums";
+import { useCompanyArrivalAndPolicies } from "@/app/hooks/queries/arrivalWindow/UseCompanyArrivalAndPolicies";
 
 const GuidelinesTab = () => {
   const { companyId } = useSlugContext();
+  const result = useCompanyArrivalAndPolicies(companyId);
 
-  const queryResult = useQuery(
-    api.arrivalWindow.getCompanyArrivalAndPolicies,
-    companyId ? { companyId } : "skip"
-  );
+  let content: React.ReactNode;
 
-  if (!queryResult || !companyId) {
-    return <RenderSkeleton />;
+  switch (result.status) {
+    case QueryStatus.LOADING:
+      content = null;
+      break;
+
+    case QueryStatus.ERROR:
+      content = <ErrorComponent message={result.errorMessage} />;
+      break;
+
+    case QueryStatus.SUCCESS: {
+      const { arrivalWindow, policy } = result.data;
+      content = (
+        <>
+          <ArrivalWindowSection arrivalWindow={arrivalWindow} />
+          <PolicySection policy={policy} />
+        </>
+      );
+      break;
+    }
   }
 
-  if (queryResult.status === ResponseStatus.ERROR) {
-    return <ErrorComponent message={queryResult.error} />;
-  }
-
-  const { arrivalWindow, policy } = queryResult.data;
-
-  return (
-    <VerticalSectionGroup>
-      <ArrivalWindowSection arrivalWindow={arrivalWindow} />
-      <PolicySection policy={policy} />
-    </VerticalSectionGroup>
-  );
+  return <VerticalSectionGroup>{content}</VerticalSectionGroup>;
 };
 
 export default GuidelinesTab;

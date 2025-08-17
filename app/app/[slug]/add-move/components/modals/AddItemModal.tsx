@@ -1,18 +1,16 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useMediaQuery } from "react-responsive";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import { FormMoveItemInput, MoveItemInput } from "@/types/form-types";
 import FieldGroup from "@/app/components/shared/FieldGroup";
-import LabeledInput from "@/app/components/shared/labeled/LabeledInput";
 import FormActions from "@/app/components/shared/FormActions";
 import SizeSelector from "@/app/components/shared/labeled/SizeSelector";
 import { calculateWeightFromSize } from "@/utils/helper";
-import { MOBILE_BREAKPOINT } from "@/types/const";
 import { validateMoveItemForm } from "@/app/frontendUtils/validation";
 import FieldRow from "@/app/components/shared/FieldRow";
+import CounterInput from "@/app/components/shared/labeled/CounterInput";
+import ResponsiveModal from "@/app/components/shared/modal/ResponsiveModal";
+import NumberInput from "@/app/components/shared/labeled/NumberInput";
 
 interface AddItemModalProps {
   isOpen: boolean;
@@ -27,8 +25,6 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
   selectedRoom,
   addMoveItem,
 }) => {
-  const isMobile = useMediaQuery({ maxWidth: MOBILE_BREAKPOINT });
-
   const [formData, setFormData] = useState<FormMoveItemInput>({
     item: "",
     room: selectedRoom || "Unassigned",
@@ -124,36 +120,34 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
       <SizeSelector
         value={formData.size || 0}
         onChange={handleSizeSelect}
-        label="Click a preset size or enter a custom size"
+        label="Item Preset Size"
       />
 
-      <LabeledInput
+      <NumberInput
         label="Item Size (ft³)"
-        placeholder="Enter Custom Size (ft³)"
-        value={formData.size?.toString() || ""}
-        onChange={(e) => handleSizeSelect(Number(e.target.value))}
-        type="number"
-        min={1}
+        placeholder="Enter Item Size (ft³)"
+        value={formData.size || null}
+        onChange={(value) => handleSizeSelect(value || 0)}
         error={errors.size}
+        unit="ft³"
       />
-
-      <LabeledInput
+      <NumberInput
         label="Item Weight (lbs)"
-        value={formData.weight?.toString() || ""}
-        onChange={(e) => handleWeightChange(Number(e.target.value))}
-        placeholder="Enter item weight (lbs)"
-        type="number"
-        min={1}
+        placeholder="Enter Item Weight (lbs)"
+        value={formData.weight || null}
+        onChange={(value) => handleWeightChange(value || 0)}
         error={errors.weight}
+        unit="lbs"
       />
 
-      <LabeledInput
+      <CounterInput
         label="Quantity"
-        value={formData.quantity?.toString() || ""}
-        onChange={(e) => handleQuantityChange(Number(e.target.value))}
-        placeholder="Enter quantity"
-        type="number"
+        value={formData.quantity}
+        onChange={(value) => {
+          handleQuantityChange(value);
+        }}
         min={1}
+        max={10}
         error={errors.quantity}
       />
 
@@ -170,20 +164,18 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
     </FieldGroup>
   );
 
-  return isMobile ? (
-    <Drawer open={isOpen} onOpenChange={handleClose}>
-      <DrawerContent>
-        <DrawerTitle>Add Item</DrawerTitle>
-        {formContent}
-      </DrawerContent>
-    </Drawer>
-  ) : (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent>
-        <DialogTitle>Add Item</DialogTitle>
-        {formContent}
-      </DialogContent>
-    </Dialog>
+  const title = "Add Item";
+  const description =
+    "Add an item to this move. Pick a preset size to auto-calc weight, or enter custom size and weight. Adjust quantity as needed.";
+
+  return (
+    <ResponsiveModal
+      isOpen={isOpen}
+      onClose={handleClose}
+      title={title}
+      description={description}
+      children={formContent}
+    />
   );
 };
 

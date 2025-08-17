@@ -1,3 +1,4 @@
+import IconButton from "@/app/components/shared/IconButton";
 import { formatLongDate, getStatusColor } from "@/app/frontendUtils/helper";
 import { Doc } from "@/convex/_generated/dataModel";
 import { ChevronLeft, Phone, Truck } from "lucide-react";
@@ -23,12 +24,12 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
     <div className="bg-black border-b border-grayCustom w-full">
       <div className="max-w-screen-sm mx-auto flex flex-col w-full text-white pb-3 px-1 md:px-0">
         <div className="flex justify-between items-center h-10">
-          <button
+          <IconButton
             onClick={onBack}
-            className="flex items-center justify-center h-10 w-10 hover:bg-background2 rounded"
-          >
-            <ChevronLeft className="text-white " />
-          </button>
+            className="flex items-center justify-center border-none hover:bg-background2 rounded"
+            icon={<ChevronLeft className="text-white " />}
+            title="Back"
+          ></IconButton>
           <div className="flex flex-col items-center">
             <div className="flex items-center gap-1 text-lg font-medium">
               {name}
@@ -37,17 +38,17 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
                 style={{ backgroundColor: dotColor }}
               />
             </div>
-            <div className=" flex items-center justify-center text-sm text-gray-400">
+            <div className=" flex items-center justify-center text-sm text-grayCustom2">
               <Truck className="w-4 h-4 mr-1" />
               {formatLongDate(new Date(moveDate ?? ""))}
             </div>
           </div>
-          <button
+          <IconButton
             onClick={onCall}
-            className="flex items-center justify-center h-10  w-10 hover:bg-background2 rounded"
-          >
-            <Phone className="text-white" />
-          </button>
+            className="flex items-center justify-center border-none hover:bg-background2 rounded"
+            icon={<Phone className="text-white " />}
+            title="Call"
+          ></IconButton>
         </div>
       </div>
     </div>

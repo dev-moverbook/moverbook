@@ -6,6 +6,7 @@ import IconButton from "@/app/components/shared/IconButton";
 import { Pencil, Trash2 } from "lucide-react";
 import ListItemRow from "@/app/components/shared/ListItemRow";
 import { Doc, Id } from "@/convex/_generated/dataModel";
+import { formatCurrency } from "@/app/frontendUtils/helper";
 
 interface AdditionalFeeCardProps {
   fee: Doc<"additionalFees">;
@@ -19,8 +20,8 @@ const AdditionalFeeCard: React.FC<AdditionalFeeCardProps> = ({
   onDelete,
 }) => {
   const { quantity, name, price, _id } = fee;
-  const unitPrice = `$${price.toFixed(2)}`;
-  const total = `$${(price * quantity).toFixed(2)}`;
+  const unitPrice = formatCurrency(price);
+  const total = formatCurrency(price * quantity);
 
   return (
     <ListItemRow className="flex-col items-start">

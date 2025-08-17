@@ -8,14 +8,17 @@ import Signature from "@/app/components/move/shared/Signature";
 import PreMoveTerms from "../copy/PreMoveTerms";
 import FormActions from "@/app/components/shared/FormActions";
 import { useCreateOrUpdatePreMoveDoc } from "../../../hooks/useCreateOrUpdatePreMoveDoc";
-import { Doc, Id } from "@/convex/_generated/dataModel";
+import { Doc } from "@/convex/_generated/dataModel";
+import { useMoveContext } from "@/app/contexts/MoveContext";
 
 interface PreMoveProps {
   preMoveDoc: Doc<"preMoveDocs"> | null;
-  moveId: Id<"move">;
 }
 
-const PreMove = ({ preMoveDoc, moveId }: PreMoveProps) => {
+const PreMove = ({ preMoveDoc }: PreMoveProps) => {
+  const { moveData } = useMoveContext();
+  const { move } = moveData;
+  const { _id: moveId } = move;
   const { customerSignature, repSignature, customerSignedAt, repSignedAt } =
     preMoveDoc ?? {};
 

@@ -17,6 +17,7 @@ interface AddedItemsProps {
   removeMoveItem: (index: number) => void;
   addMoveItem: (item: MoveItemInput) => void;
   isEditing?: boolean;
+  hideTitle?: boolean;
 }
 
 const AddedItems = ({
@@ -28,6 +29,7 @@ const AddedItems = ({
   removeMoveItem,
   addMoveItem,
   isEditing,
+  hideTitle,
 }: AddedItemsProps) => {
   const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false);
   const [editModalOpen, setEditModalOpen] = useState<boolean>(false);
@@ -60,10 +62,10 @@ const AddedItems = ({
   };
 
   return (
-    <SectionContainer>
+    <div>
       {isEditing && (
         <Header3
-          wrapperClassName="px-0"
+          wrapperClassName="px-4 pt-0"
           button={
             <Button
               variant="outline"
@@ -77,42 +79,44 @@ const AddedItems = ({
               Quick Add
             </Button>
           }
+          hideTitle={hideTitle}
           showCheckmark={false}
         >
-          Added Items
+          Inventory
         </Header3>
       )}
+      <SectionContainer>
+        <GroupedItemsList
+          items={moveItems}
+          selectedItemIndices={selectedItemIndices}
+          onToggle={handleToggle}
+          isEditing={isEditing}
+        />
 
-      <GroupedItemsList
-        items={moveItems}
-        selectedItemIndices={selectedItemIndices}
-        onToggle={handleToggle}
-        isEditing={isEditing}
-      />
+        <ConfirmModal
+          title="Are you sure you want to delete these items?"
+          description="This action cannot be undone."
+          onClose={() => setDeleteModalOpen(false)}
+          isOpen={deleteModalOpen}
+          onConfirm={handleDeleteConfirm}
+          deleteLoading={false}
+          deleteError={null}
+        />
 
-      <ConfirmModal
-        title="Are you sure you want to delete these items?"
-        description="This action cannot be undone."
-        onClose={() => setDeleteModalOpen(false)}
-        isOpen={deleteModalOpen}
-        onConfirm={handleDeleteConfirm}
-        deleteLoading={false}
-        deleteError={null}
-      />
+        <EditItemsModal
+          isOpen={editModalOpen}
+          onClose={() => setEditModalOpen(false)}
+          onSubmit={handleEditSubmit}
+        />
 
-      <EditItemsModal
-        isOpen={editModalOpen}
-        onClose={() => setEditModalOpen(false)}
-        onSubmit={handleEditSubmit}
-      />
-
-      <AddItemModal
-        isOpen={quickAddModalOpen}
-        onClose={() => setQuickAddModalOpen(false)}
-        selectedRoom={selectedRoom}
-        addMoveItem={addMoveItem}
-      />
-    </SectionContainer>
+        <AddItemModal
+          isOpen={quickAddModalOpen}
+          onClose={() => setQuickAddModalOpen(false)}
+          selectedRoom={selectedRoom}
+          addMoveItem={addMoveItem}
+        />
+      </SectionContainer>
+    </div>
   );
 };
 

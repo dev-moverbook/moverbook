@@ -15,7 +15,6 @@ import {
   GetMoveAssignmentsPageResponse,
   UpdateMoveAssignmentResponse,
 } from "@/types/convex-responses";
-import { MoveAssignmentSchema, PreMoveDocSchema } from "@/types/convex-schemas";
 import { Doc } from "./_generated/dataModel";
 
 export const updateMoveAssignment = mutation({

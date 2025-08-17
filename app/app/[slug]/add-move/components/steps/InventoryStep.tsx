@@ -2,7 +2,6 @@ import FormActions from "@/app/components/shared/FormActions";
 import React, { useState } from "react";
 import SelectionInventory from "../sections/SelectionInventory";
 import { useMoveForm } from "@/app/contexts/MoveFormContext";
-import Header2 from "@/app/components/shared/heading/Header2";
 import AddedItems from "../sections/AddedItems";
 import FormContainer from "@/app/components/shared/containers/FormContainer";
 import FormActionContainer from "@/app/components/shared/containers/FormActionContainer";
@@ -29,7 +28,6 @@ const InventoryStep = ({ onNext, onBack }: InventoryStepProps) => {
 
   return (
     <FormContainer>
-      <Header2 showCheck={false}>Inventory</Header2>
       <AddedItems
         moveItems={moveFormData.moveItems}
         updateMoveItem={updateMoveItem}
@@ -38,6 +36,7 @@ const InventoryStep = ({ onNext, onBack }: InventoryStepProps) => {
         selectedItemIndices={selectedItemIndices}
         setSelectedItemIndices={setSelectedItemIndices}
         selectedRoom={selectedRoom}
+        isEditing={true}
       />
       <SelectionInventory
         selectedItemIndices={selectedItemIndices}

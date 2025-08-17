@@ -22,12 +22,12 @@ const Header2: React.FC<Header2Props> = ({
   return (
     <div
       className={cn(
-        "flex justify-between gap-1.5 px-4 md:px-0 border-b border-grayCustom sm:border-none pb-1 md:pb-4",
+        "flex justify-between gap-1.5 px-4 md:px-0 pb-1 md:pb-4",
         wrapperClassName
       )}
     >
       <div className="flex items-center gap-1.5">
-        <h2 className={cn("text-xl font-bold", className)}>{children}</h2>
+        <h2 className={cn("text-2xl font-bold", className)}>{children}</h2>
         {showCheck && (
           <CircleCheckBig
             className={cn(

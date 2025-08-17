@@ -1,3 +1,4 @@
+// app/app/[slug]/moves/components/nav/CalendarNav.tsx
 "use client";
 
 import IconButton from "@/app/components/shared/IconButton";
@@ -8,8 +9,7 @@ import RemovableTag from "@/app/components/shared/ui/RemovableTag";
 import { getStatusColor } from "@/app/frontendUtils/helper";
 import { cn } from "@/lib/utils";
 import { useMoveFilter } from "@/app/contexts/MoveFilterContext";
-import { PRICE_FILTER_TAG_LABEL_MAP } from "@/types/tsx-types";
-
+import { PRICE_ORDER_TAG_LABEL_MAP, PriceOrder } from "@/types/tsx-types";
 const CalendarNav = () => {
   const {
     selectedStatuses,
@@ -35,6 +35,7 @@ const CalendarNav = () => {
             title="Filter"
             className="w-8 h-8 border border-grayCustom rounded-full flex items-center justify-center"
           />
+
           {selectedStatuses.map((status) => (
             <RemovableTag
               key={status}
@@ -45,12 +46,14 @@ const CalendarNav = () => {
               }
             />
           ))}
+
           {priceFilter && (
             <RemovableTag
-              label={PRICE_FILTER_TAG_LABEL_MAP[priceFilter] || ""}
+              label={PRICE_ORDER_TAG_LABEL_MAP[priceFilter as PriceOrder]}
               onRemove={() => setPriceFilter(null)}
             />
           )}
+
           {salesRep && (
             <RemovableTag
               label={salesRep.name}

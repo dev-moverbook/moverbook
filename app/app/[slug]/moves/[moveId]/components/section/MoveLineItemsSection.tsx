@@ -5,9 +5,8 @@ import { useCompanyFees } from "@/app/hooks/queries/useCompanyFees";
 import { MoveFeeInput } from "@/types/form-types";
 import { useMoveContext } from "@/app/contexts/MoveContext";
 import LineItemsSection from "@/app/components/move/sections/LineItemSection";
-import { Id } from "@/convex/_generated/dataModel";
 
-const MoveLineItemsSection = ({}) => {
+const MoveLineItemsSection = () => {
   const { moveData } = useMoveContext();
   const move = moveData.move;
   const { updateMove, updateMoveError, updateMoveLoading } = useUpdateMove();

@@ -3,7 +3,10 @@
 import React from "react";
 import ListRowContainer from "@/app/components/shared/containers/ListRowContainer";
 import ListRow from "@/app/components/shared/ui/ListRow";
-import { getTotalHoursRange } from "@/app/frontendUtils/helper";
+import {
+  formatDisplayNumber,
+  getTotalHoursRange,
+} from "@/app/frontendUtils/helper";
 import { LaborFormData } from "../LaborSection";
 
 type LaborSummaryProps = {
@@ -24,7 +27,9 @@ const LaborSummary: React.FC<LaborSummaryProps> = ({
       />
       <ListRow
         left="Drive Time"
-        right={roundTripDrive ? `${roundTripDrive} hours` : ""}
+        right={
+          roundTripDrive ? `${formatDisplayNumber(roundTripDrive, "hrs")}` : ""
+        }
         className=""
       />
       <ListRow

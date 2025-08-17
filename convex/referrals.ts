@@ -13,6 +13,7 @@ import {
   GetActiveReferralsByCompanyIdResponse,
   UpdateReferralResponse,
 } from "@/types/convex-responses";
+import { handleInternalError } from "./backendUtils/helper";
 
 export const getActiveReferralsByCompanyId = query({
   args: { companyId: v.id("companies") },
@@ -49,14 +50,7 @@ export const getActiveReferralsByCompanyId = query({
         data: { referrals },
       };
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
-      console.error(errorMessage, error);
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error: errorMessage,
-      };
+      return handleInternalError(error);
     }
   },
 });

@@ -101,6 +101,13 @@ const MoveTravelFeeSection: React.FC<MoveTravelFeeProps> = ({
             onChange={handleTravelFeeRateChange}
             isEditing={editingMode}
             error={updateError}
+            suffix={
+              travelFeeMethod === TravelChargingTypes.MILEAGE
+                ? "/mile"
+                : travelFeeMethod === TravelChargingTypes.FLAT
+                  ? ""
+                  : "/hr"
+            }
           />
         )}
 

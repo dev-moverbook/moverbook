@@ -24,6 +24,8 @@ import LabeledPlacesAutocomplete from "@/app/components/shared/labeled/LabeledPl
 import FormActions from "@/app/components/shared/FormActions";
 import IconRow from "@/app/components/shared/IconRow";
 import { cn } from "@/lib/utils";
+import NumberInput from "@/app/components/shared/labeled/NumberInput";
+import { Button } from "@/app/components/ui/button";
 
 interface MoveAddressProps {
   title: string;
@@ -52,7 +54,7 @@ const MoveAddress = ({
   onSaved,
 }: MoveAddressProps) => {
   const [isManualAddress, setIsManualAddress] = useState<boolean>(false);
-  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [isEditing, setIsEditing] = useState<boolean>(isAdding);
   const [formData, setFormData] = useState<LocationInput>(location);
 
   useEffect(() => {
@@ -62,24 +64,29 @@ const MoveAddress = ({
   }, [isEditing, location, isAdding]);
 
   const handleChange = (partial: Partial<LocationInput>) => {
+    // Always keep local UI in sync
+    setFormData((prev) => ({ ...prev, ...partial }));
+
     if (isAdding) {
-      // Live update for new address
-      const updated = { ...formData, ...partial };
-      setFormData(updated);
-      updateLocation?.(index, updated); // immediately push to context
-    } else if (showEditButton) {
-      // Manual update for existing address
-      setFormData((prev) => ({ ...prev, ...partial }));
-    } else {
-      // No edit button – update directly
+      // Live update while "adding" – push only the partial
       updateLocation?.(index, partial);
+      return;
     }
+
+    if (showEditButton) {
+      // Local-only while editing; we'll push the FULL formData on Save
+      return;
+    }
+
+    // No edit button => immediate push (partial only)
+    updateLocation?.(index, partial);
   };
 
   const handleSave = () => {
+    // On save, we can send the whole object
     updateLocation?.(index, formData);
     setIsEditing(false);
-    onSaved?.(); // <-- clear isAdding from parent
+    onSaved?.();
   };
 
   const handleCancel = () => {
@@ -99,53 +106,52 @@ const MoveAddress = ({
     <div>
       <div className="flex justify-between items-center">
         <Header3
+          wrapperClassName="pt-4 "
           isCompleted={isComplete}
           button={
-            showEditButton &&
-            (isEditing ? (
-              <IconButton
-                icon={<X size={16} />}
-                aria-label="Cancel Edit"
-                onClick={handleCancel}
-              />
-            ) : (
-              <IconRow>
+            showEditButton ? (
+              isEditing ? (
                 <IconButton
-                  icon={<Pencil size={16} />}
-                  aria-label="Edit"
-                  onClick={() => setIsEditing(true)}
+                  icon={<X size={16} />}
+                  aria-label="Cancel Edit"
+                  onClick={handleCancel}
                 />
-                {location.locationRole === "stop" && (
+              ) : (
+                <IconRow>
                   <IconButton
-                    icon={<Trash size={16} />}
-                    aria-label="Delete"
-                    variant="outline"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      removeLocation?.(index);
-                    }}
+                    icon={<Pencil size={16} />}
+                    aria-label="Edit"
+                    onClick={() => setIsEditing(true)}
                   />
-                )}
-              </IconRow>
-            ))
+                  {location.locationRole === "stop" && (
+                    <IconButton
+                      icon={<Trash size={16} />}
+                      aria-label="Delete"
+                      variant="outline"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        removeLocation?.(index);
+                      }}
+                    />
+                  )}
+                </IconRow>
+              )
+            ) : (
+              removeLocation && (
+                <IconButton
+                  icon={<Trash size={16} />}
+                  aria-label="Delete"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    removeLocation(index);
+                  }}
+                />
+              )
+            )
           }
         >
           {title}
         </Header3>
-
-        {!showEditButton &&
-          removeLocation &&
-          index !== 0 &&
-          index !== undefined && (
-            <IconButton
-              icon={<Trash size={16} />}
-              aria-label="Delete"
-              onClick={(e) => {
-                e.preventDefault();
-                removeLocation(index);
-              }}
-            />
-          )}
       </div>
 
       <SectionContainer className={cn("", isEditing && "gap-0")}>
@@ -159,19 +165,20 @@ const MoveAddress = ({
           options={LOCATION_TYPE_OPTIONS}
           isEditing={showEditInput}
         />
-
         {isEditing && (
           <div className="flex justify-between items-center mb-1">
             <label className="text-sm font-medium">Address</label>
-            <p
+            <Button
+              variant="link"
+              size="auto"
               className="text-sm underline cursor-pointer"
+              type="button"
               onClick={() => setIsManualAddress((prev) => !prev)}
             >
               {isManualAddress ? "Use AutoComplete" : "Enter Manually"}
-            </p>
+            </Button>
           </div>
         )}
-
         {showEditInput ? (
           isManualAddress ? (
             <LabeledInput
@@ -190,7 +197,6 @@ const MoveAddress = ({
         ) : (
           <FieldDisplay label="Address" value={formData.address} fallback="—" />
         )}
-
         <LabeledInput
           label="Apt/Unit/Suite"
           value={formData.aptNumber || ""}
@@ -198,7 +204,6 @@ const MoveAddress = ({
           onChange={(e) => handleChange({ aptNumber: e.target.value })}
           isEditing={showEditInput}
         />
-
         <LabeledInput
           label="Apartment / Building Name"
           value={formData.aptName || ""}
@@ -206,19 +211,14 @@ const MoveAddress = ({
           onChange={(e) => handleChange({ aptName: e.target.value })}
           isEditing={showEditInput}
         />
-
-        <LabeledInput
+        <NumberInput
           label="Square Footage"
-          value={formData.squareFootage?.toString() || ""}
-          placeholder="Square Footage"
-          onChange={(e) =>
-            handleChange({ squareFootage: Number(e.target.value) })
-          }
-          type="number"
-          min={0}
+          value={formData.squareFootage || null}
+          onChange={(value) => handleChange({ squareFootage: value })}
           isEditing={showEditInput}
+          placeholder="Square Footage"
+          unit="sq ft"
         />
-
         {formData.locationRole !== "ending" && (
           <LabeledRadio
             label="Move Size"
@@ -229,7 +229,6 @@ const MoveAddress = ({
             isEditing={showEditInput}
           />
         )}
-
         <LabeledRadio
           label="Access"
           name={`access-${index}`}
@@ -240,7 +239,6 @@ const MoveAddress = ({
           options={ACCESS_TYPE_OPTIONS}
           isEditing={showEditInput}
         />
-
         {formData.locationRole === "stop" && (
           <LabeledCheckboxGroup
             label="Stop Behavior"
@@ -266,13 +264,9 @@ const MoveAddress = ({
           options={TIME_DISTANCE_OPTIONS}
           isEditing={showEditInput}
           onChange={(val) =>
-            setFormData((prev) => ({
-              ...prev,
-              timeDistanceRange: val as TimeDistanceRange,
-            }))
+            handleChange({ timeDistanceRange: val as TimeDistanceRange })
           }
         />
-
         {showEditButton && isEditing && (
           <FormActions
             onSave={handleSave}

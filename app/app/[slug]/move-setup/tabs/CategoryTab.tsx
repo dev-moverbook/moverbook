@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Id } from "@/convex/_generated/dataModel";
-import { CategorySchema, ItemSchema } from "@/types/convex-schemas";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import ConfirmModal from "@/app/components/shared/ConfirmModal";
 import { useCreateCategory } from "../hooks/useCreateCategory";
 import { useUpdateCategory } from "../hooks/useUpdateCategory";
@@ -16,11 +15,11 @@ import SingleCardContainer from "@/app/components/shared/SingleCardContainer";
 import SelectableCardContainer from "@/app/components/shared/containers/SelectableCardContainer";
 
 interface CategoryTabProps {
-  categories: CategorySchema[];
+  categories: Doc<"categories">[];
   companyId: Id<"companies">;
-  items: ItemSchema[];
+  items: Doc<"items">[];
   isEditMode: boolean;
-  handleEditItem: (item: ItemSchema) => void;
+  handleEditItem: (item: Doc<"items">) => void;
   handleDeleteItem: (itemId: Id<"items">) => void;
   isDeleteMode: boolean;
 }
@@ -37,7 +36,7 @@ const CategoryTab: React.FC<CategoryTabProps> = ({
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const [selectedCategory, setSelectedCategory] =
-    useState<CategorySchema | null>(null);
+    useState<Doc<"categories"> | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
   const [categoryToDelete, setCategoryToDelete] =
     useState<Id<"categories"> | null>(null);
@@ -88,7 +87,7 @@ const CategoryTab: React.FC<CategoryTabProps> = ({
     setCreateCategoryError(null);
   };
 
-  const handleOpenEditModal = (category: CategorySchema) => {
+  const handleOpenEditModal = (category: Doc<"categories">) => {
     setSelectedCategory(category);
     setIsModalOpen(true);
     setUpdateCategoryError(null);

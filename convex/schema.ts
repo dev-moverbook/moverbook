@@ -324,6 +324,7 @@ export default defineSchema({
     segmentDistances: v.array(SegmentDistanceConvex),
   })
     .index("by_moveDate", ["moveDate"])
+    .index("by_companyId", ["companyId"])
     .index("by_moveCustomerId", ["moveCustomerId"]),
   quotes: defineTable({
     moveId: v.id("move"),

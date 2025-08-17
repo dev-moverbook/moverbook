@@ -3,13 +3,13 @@
 import React, { useState } from "react";
 import SectionContainer from "@/app/components/shared/containers/SectionContainer";
 import Header3 from "@/app/components/shared/heading/Header3";
-import { MoveFormData, MoveFormErrors } from "@/types/form-types";
-
+import { MoveFormErrors } from "@/types/form-types";
 import LaborInputs from "./Labor/LaborInputs";
 import LaborSummary from "./Labor/LaborSummary";
 import EditToggleButton from "../../shared/buttons/EditToggleButton";
 import FormActions from "../../shared/FormActions";
 import { JobType } from "@/types/types";
+import FormActionContainer from "../../shared/containers/FormActionContainer";
 
 export interface LaborFormData {
   trucks: number;
@@ -33,6 +33,9 @@ interface LaborSectionProps {
   updateError?: string | null;
   onSave?: () => void;
   roundTripDrive?: number | null;
+  isEditing: boolean;
+  onCancel?: () => void;
+  setIsEditing?: (value: boolean) => void;
 }
 
 const LaborSection: React.FC<LaborSectionProps> = ({
@@ -45,8 +48,10 @@ const LaborSection: React.FC<LaborSectionProps> = ({
   updateError,
   onSave,
   roundTripDrive = null,
+  isEditing,
+  setIsEditing,
+  onCancel,
 }) => {
-  const [isEditing, setIsEditing] = useState<boolean>(isAdd);
   const [tagTrucksType, setTagTrucksType] = useState<"suggested" | "custom">(
     "suggested"
   );
@@ -73,19 +78,12 @@ const LaborSection: React.FC<LaborSectionProps> = ({
       formData.startingMoveTime,
       formData.endingMoveTime,
     ];
-    onChange("movers", val);
-    onChange("startingMoveTime", start);
-    onChange("endingMoveTime", end);
-  };
-
-  const handleCancel = () => {
-    setIsEditing(false);
   };
 
   const handleSave = () => {
     const result = onSave?.();
     if (result) {
-      setIsEditing(false);
+      setIsEditing?.(false);
     }
   };
 
@@ -93,22 +91,27 @@ const LaborSection: React.FC<LaborSectionProps> = ({
 
   return (
     <div>
+      <Header3
+        wrapperClassName=" pt-0"
+        showCheckmark={false}
+        button={
+          !isAdd && (
+            <EditToggleButton
+              isEditing={isEditing}
+              onToggle={
+                isEditing
+                  ? (onCancel ?? (() => {}))
+                  : setIsEditing
+                    ? () => setIsEditing(true)
+                    : () => {}
+              }
+            />
+          )
+        }
+      >
+        Labor
+      </Header3>
       <SectionContainer showBorder={false} className="pb-0">
-        <Header3
-          wrapperClassName="px-0 pt-0"
-          showCheckmark={false}
-          button={
-            !isAdd && (
-              <EditToggleButton
-                isEditing={isEditing}
-                onToggle={() => setIsEditing(!isEditing)}
-              />
-            )
-          }
-        >
-          Labor
-        </Header3>
-
         <LaborInputs
           formData={formData}
           onChange={onChange}
@@ -122,19 +125,21 @@ const LaborSection: React.FC<LaborSectionProps> = ({
           handleMoverChangeWithEstimate={handleMoverChangeWithEstimate}
           errors={errors}
         />
+        <LaborSummary formData={formData} roundTripDrive={roundTripDrive} />
+        {editingMode && onCancel && setIsEditing && (
+          <FormActionContainer className="mt-4">
+            <FormActions
+              onSave={(e) => {
+                e.preventDefault();
+                handleSave();
+              }}
+              onCancel={onCancel}
+              isSaving={isSaving}
+              error={updateError}
+            />
+          </FormActionContainer>
+        )}
       </SectionContainer>
-      <LaborSummary formData={formData} roundTripDrive={roundTripDrive} />
-      {editingMode && (
-        <FormActions
-          onSave={(e) => {
-            e.preventDefault();
-            handleSave();
-          }}
-          onCancel={handleCancel}
-          isSaving={isSaving}
-          error={updateError}
-        />
-      )}
     </div>
   );
 };

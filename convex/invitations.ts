@@ -22,6 +22,7 @@ import {
 } from "@/types/convex-responses";
 import { internal } from "./_generated/api";
 import { revokeOrganizationInvitation } from "./backendUtils/clerk";
+import { handleInternalError } from "./backendUtils/helper";
 
 export const createInvitationInternal = internalMutation({
   args: {
@@ -134,14 +135,7 @@ export const getActiveInvitationsByCompanyId = query({
         data: { invitations },
       };
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
-      console.error(errorMessage, error);
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error: errorMessage,
-      };
+      return handleInternalError(error);
     }
   },
 });

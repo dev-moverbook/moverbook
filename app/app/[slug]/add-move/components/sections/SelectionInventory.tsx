@@ -4,7 +4,6 @@ import SelectableCardContainer from "@/app/components/shared/containers/Selectab
 import ItemContainer from "./ItemContainer";
 import SectionHeaderWithTag from "@/app/components/shared/heading/SectionHeaderWithTag";
 import SectionContainer from "@/app/components/shared/containers/SectionContainer";
-import { useMoveForm } from "@/app/contexts/MoveFormContext";
 import Header3 from "@/app/components/shared/heading/Header3";
 import AddRoomModal from "../modals/AddRoomModal";
 import IconButton from "@/app/components/shared/IconButton";
@@ -13,21 +12,21 @@ import CounterInput from "@/app/components/shared/labeled/CounterInput";
 import Header4 from "@/app/components/shared/heading/Header4";
 import IconRow from "@/app/components/shared/IconRow";
 import ConfirmModal from "@/app/components/shared/ConfirmModal";
-import { RoomSchema, ItemSchema, CategorySchema } from "@/types/convex-schemas";
 import { MoveItemInput } from "@/types/form-types";
+import { Doc } from "@/convex/_generated/dataModel";
 
 interface SelectionInventoryProps {
   selectedItemIndices: Set<number>;
   setSelectedItemIndices: React.Dispatch<React.SetStateAction<Set<number>>>;
   selectedRoom: string | null;
   setSelectedRoom: React.Dispatch<React.SetStateAction<string | null>>;
-  roomOptions?: RoomSchema[];
-  itemOptions?: ItemSchema[];
+  roomOptions?: Doc<"rooms">[];
+  itemOptions?: Doc<"items">[];
   updateMoveItem: (index: number, updates: Partial<MoveItemInput>) => void;
   removeMoveItem: (index: number) => void;
   addMoveItem: (item: MoveItemInput) => void;
   moveItems: MoveItemInput[];
-  categoryOptions?: CategorySchema[];
+  categoryOptions?: Doc<"categories">[];
 }
 
 const SelectionInventory = ({
@@ -43,8 +42,6 @@ const SelectionInventory = ({
   moveItems,
   categoryOptions,
 }: SelectionInventoryProps) => {
-  const [isCreateItemModal, setIsCreateItemModal] = useState(false);
-
   const [addRoomModalOpen, setAddRoomModalOpen] = useState<boolean>(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false);
   const [quantity, setQuantity] = useState<null | number>(null);
@@ -64,10 +61,6 @@ const SelectionInventory = ({
 
   const handleDeleteSelected = () => {
     setDeleteModalOpen(true);
-  };
-
-  const handleOpenCreateModal = () => {
-    setIsCreateItemModal(true);
   };
 
   const handleDeleteConfirm = () => {
@@ -111,6 +104,7 @@ const SelectionInventory = ({
         <div>
           <SectionContainer>
             <Header3
+              wrapperClassName="px-0"
               showCheckmark={false}
               button={
                 <IconRow>

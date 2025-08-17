@@ -5,18 +5,14 @@ import SectionContainer from "@/app/components/shared/containers/SectionContaine
 import SectionHeader from "@/app/components/shared/SectionHeader";
 import Signature from "@/app/components/move/shared/Signature";
 import DisplaySignature from "@/app/components/move/shared/DisplaySignature";
-import { Doc } from "@/convex/_generated/dataModel";
+import { useMoveContext } from "@/app/contexts/MoveContext";
 interface QuoteSignatureProps {
-  move: Doc<"move">;
   setSignatureDataUrl: (dataUrl: string | null) => void;
-  quote: Doc<"quotes"> | null;
 }
 
-const QuoteSignature = ({
-  move,
-  setSignatureDataUrl,
-  quote,
-}: QuoteSignatureProps) => {
+const QuoteSignature = ({ setSignatureDataUrl }: QuoteSignatureProps) => {
+  const { moveData } = useMoveContext();
+  const { quote } = moveData;
   const showRepSignature =
     (!!quote?.repSignature && quote?.status === "pending") ||
     quote?.status === "completed";

@@ -1,9 +1,4 @@
 import React from "react";
-import {
-  CompanyContactSchema,
-  CompanySchema,
-  PolicySchema,
-} from "@/types/convex-schemas";
 import { formatServiceTypeLabel } from "@/app/frontendUtils/helper";
 import QuoteSummary from "../quote/QuoteSummary";
 import QuoteContact from "../quote/QuoteContact";
@@ -16,28 +11,16 @@ import QuoteActions from "../quote/QuoteActions";
 import { Doc } from "@/convex/_generated/dataModel";
 import StepStatus from "../shared/StepStatus";
 import { getQuoteStatusInfo } from "@/app/frontendUtils/tsxHelper";
+import { useMoveContext } from "@/app/contexts/MoveContext";
 
 interface QuoteStepProps {
   quote: Doc<"quotes"> | null;
-  move: Doc<"move">;
-  company: Doc<"companies">;
-  salesRep: Doc<"users"> | null;
-  companyContact: Doc<"companyContact">;
   onEditQuote: () => void;
-  policy: Doc<"policies">;
-  moveCustomer: Doc<"moveCustomers">;
 }
 
-const QuoteStep = ({
-  quote,
-  move,
-  company,
-  salesRep,
-  companyContact,
-  onEditQuote,
-  policy,
-  moveCustomer,
-}: QuoteStepProps) => {
+const QuoteStep = ({ quote, onEditQuote }: QuoteStepProps) => {
+  const { moveData } = useMoveContext();
+  const { move } = moveData;
   const title = formatServiceTypeLabel(move.serviceType);
   const [signatureDataUrl, setSignatureDataUrl] = React.useState<string | null>(
     null
@@ -58,29 +41,18 @@ const QuoteStep = ({
         ]}
       />
       <>
-        <QuoteSummary move={move} company={company} />
-        <QuoteContact
-          moveCustomer={moveCustomer}
-          salesRep={salesRep}
-          companyContact={companyContact}
-        />
-        <QuoteLocation move={move} />
-        <QuoteInventory move={move} />
-        <QuoteCost move={move} />
-        <QuoteTerms policy={policy} />
-        <QuoteSignature
-          move={move}
-          setSignatureDataUrl={setSignatureDataUrl}
-          quote={quote}
-        />
+        <QuoteSummary />
+        <QuoteContact />
+        <QuoteLocation />
+        <QuoteInventory />
+        <QuoteCost />
+        <QuoteTerms />
+        <QuoteSignature setSignatureDataUrl={setSignatureDataUrl} />
         <QuoteActions
           onEditQuote={onEditQuote}
           signatureDataUrl={signatureDataUrl}
-          quote={quote}
-          move={move}
         />
       </>
-      {/* )} */}
     </div>
   );
 };

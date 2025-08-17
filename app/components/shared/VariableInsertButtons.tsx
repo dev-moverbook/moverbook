@@ -1,5 +1,6 @@
 import { Button } from "@/app/components/ui/button";
 import { VariableSchema } from "@/types/convex-schemas";
+import { BadgeButton } from "./buttons/BadgeButton";
 
 interface VariableInsertButtonsProps {
   variables: VariableSchema[];
@@ -13,16 +14,11 @@ const VariableInsertButtons: React.FC<VariableInsertButtonsProps> = ({
   className = "",
 }) => {
   return (
-    <div className={`flex flex-wrap gap-2 mt-2 ${className}`}>
+    <div className={`flex flex-wrap gap-2  ${className}`}>
       {variables.map((variable) => (
-        <Button
-          key={variable._id}
-          variant="outline"
-          size="sm"
-          onClick={() => onInsert(variable.name)}
-        >
+        <BadgeButton key={variable._id} onClick={() => onInsert(variable.name)}>
           {variable.name}
-        </Button>
+        </BadgeButton>
       ))}
     </div>
   );

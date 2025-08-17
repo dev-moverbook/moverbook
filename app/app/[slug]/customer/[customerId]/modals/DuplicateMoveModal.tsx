@@ -121,7 +121,7 @@ const DuplicateMoveModal: React.FC<DuplicateMoveModalProps> = ({
   const formContent = (
     <FieldGroup>
       <LabeledMoveCheckboxGroup
-        label="Duplicate Move Details"
+        label="Move Details"
         name="duplicateSections"
         values={selectedSections}
         options={sectionOptions.map((option) => ({

@@ -3,25 +3,25 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
 import Link from "next/link";
-import { Button } from "../../ui/button";
+import { Button } from "../../../components/ui/button";
+import { useSlugContext } from "@/app/contexts/SlugContext";
 
-interface AdminAlertProps {
-  stripeCompleted: boolean;
-  companySetupCompleted: boolean;
-  stripeSetupLink: string;
-  companySetupLink: string;
-}
+const AdminAlert: React.FC = () => {
+  const { slug, isCompanyContactComplete, isStripeComplete, companyId } =
+    useSlugContext();
 
-const AdminAlert: React.FC<AdminAlertProps> = ({
-  stripeCompleted,
-  companySetupCompleted,
-  stripeSetupLink,
-  companySetupLink,
-}) => {
-  const needsStripe = !stripeCompleted;
-  const needsCompanySetup = !companySetupCompleted;
+  const isSetupStatusReady =
+    companyId !== null && // companyId successfully fetched
+    typeof isCompanyContactComplete === "boolean" &&
+    typeof isStripeComplete === "boolean";
 
-  if (!needsStripe && !needsCompanySetup) return null;
+  const needsStripe = !isStripeComplete;
+  const needsCompanySetup = !isCompanyContactComplete;
+
+  const stripeSetupLink = `/app/${slug}/stripe`;
+  const companySetupLink = `/app/${slug}/company-setup`;
+
+  if ((!needsStripe && !needsCompanySetup) || !isSetupStatusReady) return null;
 
   let alertText = "";
 

@@ -1,12 +1,13 @@
 // "use node";
-import { action, internalMutation, mutation, query } from "./_generated/server";
+import { action, internalMutation, query } from "./_generated/server";
 import { v } from "convex/values";
-import { ClerkRoles, CommunicationType, ResponseStatus } from "@/types/enums";
+import { ClerkRoles, ResponseStatus } from "@/types/enums";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import {
   isUserInOrg,
   validateCompany,
   validateMove,
+  validateMoveCustomer,
 } from "./backendUtils/validate";
 import { MessageSchema } from "@/types/convex-schemas";
 import { handleInternalError } from "./backendUtils/helper";
@@ -24,8 +25,6 @@ import {
 import { Id } from "./_generated/dataModel";
 import { ErrorMessages } from "@/types/errors";
 import { internal } from "./_generated/api";
-import { sendTwilioSms } from "./backendUtils/twilio";
-import { sendSendGridEmail } from "./backendUtils/sendGrid";
 import {
   buildTemplateValues,
   injectTemplateValues,
@@ -60,11 +59,7 @@ export const getMessagesByMoveId = query({
       const messages: MessageSchema[] = await q.collect();
 
       // Optional: sort newest to oldest if `createdAt` exists
-      messages.sort(
-        (a, b) =>
-          new Date(b._creationTime).getTime() -
-          new Date(a._creationTime).getTime()
-      );
+      messages.sort((a, b) => a._creationTime - b._creationTime);
 
       return {
         status: ResponseStatus.SUCCESS,
@@ -77,9 +72,7 @@ export const getMessagesByMoveId = query({
 });
 
 export const getRecentMessagesByCompanyId = query({
-  args: {
-    companyId: v.id("companies"),
-  },
+  args: { companyId: v.id("companies") },
   handler: async (ctx, args): Promise<GetRecentMessagesByCompanyIdResponse> => {
     const { companyId } = args;
 
@@ -95,43 +88,45 @@ export const getRecentMessagesByCompanyId = query({
       const company = validateCompany(await ctx.db.get(companyId));
       isUserInOrg(identity, company.clerkOrganizationId);
 
-      // Get all moves for this company
+      // 1) Fetch moves for the company
       const moves = await ctx.db
         .query("move")
-        .withIndex("by_company_name", (q) => q.eq("companyId", companyId))
+        .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
         .collect();
 
-      // Get latest message for each move
-      const moveSummaries = await Promise.all(
+      // 2) For each move, get latest message + the moveCustomer name
+      const summaries = await Promise.all(
         moves.map(async (move) => {
-          const messages = await ctx.db
+          const latest = await ctx.db
             .query("messages")
             .withIndex("by_moveId", (q) => q.eq("moveId", move._id))
             .order("desc")
             .take(1);
 
-          const latestMessage = messages[0];
+          const latestMessage = latest[0];
+          if (!latestMessage) return null;
 
-          return latestMessage
-            ? {
-                moveId: move._id,
-                customerName: move.name,
-                lastMessage:
-                  latestMessage.resolvedMessage || latestMessage.message,
-                timestamp: latestMessage._creationTime,
-                status: move.status,
-              }
-            : null;
+          // fetch the customer for this move
+          const moveCustomer = await ctx.db.get(move.moveCustomerId);
+
+          return {
+            moveId: move._id,
+            customerName: moveCustomer?.name ?? "(No name)",
+            lastMessage: latestMessage.resolvedMessage || latestMessage.message,
+            timestamp: latestMessage._creationTime,
+            status: move.moveStatus, // note: your schema uses moveStatus
+          } satisfies RecentMoveMessageSummary;
         })
       );
 
+      // 3) Filter nulls and sort by most recent timestamp
+      const messages = (
+        summaries.filter(Boolean) as RecentMoveMessageSummary[]
+      ).sort((a, b) => b.timestamp - a.timestamp);
+
       return {
         status: ResponseStatus.SUCCESS,
-        data: {
-          messages: moveSummaries.filter(
-            (msg): msg is RecentMoveMessageSummary => msg !== null
-          ),
-        },
+        data: { messages },
       };
     } catch (error) {
       return handleInternalError(error);
@@ -168,9 +163,15 @@ export const createMessage = action({
         })
       );
 
+      const moveCustomer = validateMoveCustomer(
+        await ctx.runQuery(internal.moveCustomers.getMoveCustomerByIdInternal, {
+          moveCustomerId: move.moveCustomerId,
+        })
+      );
+
       isUserInOrg(identity, company.clerkOrganizationId);
 
-      const templateValues = buildTemplateValues(move);
+      const templateValues = buildTemplateValues(move, moveCustomer.name);
 
       const resolvedMessage = injectTemplateValues(message, templateValues);
       const resolvedSubject = subject

@@ -15,12 +15,14 @@ const PageHeader: React.FC<HeaderProps> = ({ title, onBack, onClose }) => {
         variant="ghost"
         icon={<ArrowLeft className="w-5 h-5" />}
         onClick={onBack}
+        title="Back"
       />
       <h1 className="text-xl font-medium">{title}</h1>
       <IconButton
         variant="ghost"
         icon={<X className="w-5 h-5" />}
         onClick={onClose}
+        title="Cancel"
       />
     </div>
   );

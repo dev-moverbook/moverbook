@@ -1,17 +1,27 @@
-import { api } from "@/convex/_generated/api";
+// app/hooks/queries/arrival/useCompanyArrival.ts
+"use client";
+
 import { useQuery } from "convex/react";
-import { Id } from "@/convex/_generated/dataModel";
-import { ResponseStatus } from "@/types/enums";
-import { ArrivalWindowSchema } from "@/types/convex-schemas";
+import { api } from "@/convex/_generated/api";
+import { Doc, Id } from "@/convex/_generated/dataModel";
+import { QueryStatus, ResponseStatus } from "@/types/enums";
 
-interface UseCompanyArrivalResult {
-  arrivalWindow: ArrivalWindowSchema | null;
-  isLoading: boolean;
-  isError: boolean;
-  errorMessage: string | null;
-}
+type UseCompanyArrivalLoading = { status: QueryStatus.LOADING };
+type UseCompanyArrivalError = {
+  status: QueryStatus.ERROR;
+  errorMessage: string;
+};
+type UseCompanyArrivalSuccess = {
+  status: QueryStatus.SUCCESS;
+  arrivalWindow: Doc<"arrivalWindow">;
+};
 
-export const useCompanyArrivalResult = (
+export type UseCompanyArrivalResult =
+  | UseCompanyArrivalLoading
+  | UseCompanyArrivalError
+  | UseCompanyArrivalSuccess;
+
+export const useCompanyArrival = (
   companyId: Id<"companies"> | null
 ): UseCompanyArrivalResult => {
   const response = useQuery<typeof api.arrivalWindow.getCompanyArrival>(
@@ -19,18 +29,20 @@ export const useCompanyArrivalResult = (
     companyId ? { companyId } : "skip"
   );
 
-  const isLoading = response === undefined;
-  const isError = response?.status === ResponseStatus.ERROR;
+  if (!companyId || !response) {
+    return { status: QueryStatus.LOADING };
+  }
 
+  if (response.status === ResponseStatus.ERROR) {
+    return {
+      status: QueryStatus.ERROR,
+      errorMessage: response.error ?? "Failed to load company arrival window.",
+    };
+  }
+
+  // Success
   return {
-    arrivalWindow:
-      response?.status === ResponseStatus.SUCCESS
-        ? response.data.arrivalWindow
-        : null,
-    isLoading,
-    isError,
-    errorMessage: isError
-      ? (response?.error ?? "Failed to load company arrival window.")
-      : null,
+    status: QueryStatus.SUCCESS,
+    arrivalWindow: response.data.arrivalWindow,
   };
 };

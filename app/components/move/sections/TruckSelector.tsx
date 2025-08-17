@@ -3,7 +3,6 @@
 import { Check, AlertTriangle, Truck } from "lucide-react";
 import clsx from "clsx";
 import React from "react";
-import FieldDisplay from "../../shared/FieldDisplay";
 
 interface TruckOption {
   value: number | "custom";
