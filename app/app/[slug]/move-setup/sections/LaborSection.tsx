@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Id } from "@/convex/_generated/dataModel";
-import { LaborSchema } from "@/types/convex-schemas";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import SectionContainer from "@/app/components/shared/SectionContainer";
 import CenteredContainer from "@/app/components/shared/CenteredContainer";
 import SectionHeader from "@/app/components/shared/SectionHeader";
@@ -16,15 +15,15 @@ import CardContainer from "@/app/components/shared/CardContainer";
 import AddItemButton from "@/app/components/shared/buttons/AddItemButton";
 
 interface LaborSectionProps {
-  labor: LaborSchema[];
+  labor: Doc<"labor">[];
   companyId: Id<"companies">;
 }
 
 const LaborSection: React.FC<LaborSectionProps> = ({ labor, companyId }) => {
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [isEditMode, setIsEditMode] = useState<boolean>(false);
-  const [selectedLabor, setSelectedLabor] = useState<LaborSchema | null>(null);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [selectedLabor, setSelectedLabor] = useState<Doc<"labor"> | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [laborToDelete, setLaborToDelete] = useState<Id<"labor"> | null>(null);
 
   const {
@@ -33,12 +32,14 @@ const LaborSection: React.FC<LaborSectionProps> = ({ labor, companyId }) => {
     createLaborError,
     setCreateLaborError,
   } = useCreateLabor();
+
   const {
     updateLabor,
     updateLaborLoading,
     updateLaborError,
     setUpdateLaborError,
   } = useUpdateLabor();
+
   const {
     deleteLabor,
     deleteLaborLoading,
@@ -46,43 +47,40 @@ const LaborSection: React.FC<LaborSectionProps> = ({ labor, companyId }) => {
     setDeleteLaborError,
   } = useDeleteLabor();
 
-  const handleOpenCreateModal = (): void => {
+  const handleOpenCreateModal = () => {
     setIsEditMode(false);
     setSelectedLabor(null);
     setIsModalOpen(true);
     setCreateLaborError(null);
   };
 
-  const handleOpenEditModal = (laborItem: LaborSchema): void => {
+  const handleOpenEditModal = (laborItem: Doc<"labor">) => {
     setIsEditMode(true);
     setSelectedLabor(laborItem);
     setIsModalOpen(true);
     setUpdateLaborError(null);
   };
 
-  const handleCloseModal = (): void => {
+  const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedLabor(null);
   };
 
-  const handleOpenDeleteModal = (laborId: Id<"labor">): void => {
+  const handleOpenDeleteModal = (laborId: Id<"labor">) => {
     setIsDeleteModalOpen(true);
     setLaborToDelete(laborId);
     setDeleteLaborError(null);
   };
 
-  const handleCloseDeleteModal = (): void => {
+  const handleCloseDeleteModal = () => {
     setIsDeleteModalOpen(false);
     setLaborToDelete(null);
   };
 
-  const handleConfirmDelete = async (): Promise<void> => {
+  const handleConfirmDelete = async () => {
     if (!laborToDelete) return;
-
     const success = await deleteLabor(laborToDelete);
-    if (success) {
-      handleCloseDeleteModal();
-    }
+    if (success) handleCloseDeleteModal();
   };
 
   return (
@@ -95,6 +93,7 @@ const LaborSection: React.FC<LaborSectionProps> = ({ labor, companyId }) => {
           }
           className="px-0 pb-4"
         />
+
         <CardContainer>
           {labor.map((laborItem) => (
             <LaborCard
@@ -105,6 +104,7 @@ const LaborSection: React.FC<LaborSectionProps> = ({ labor, companyId }) => {
             />
           ))}
         </CardContainer>
+
         <LaborModal
           isOpen={isModalOpen}
           onClose={handleCloseModal}

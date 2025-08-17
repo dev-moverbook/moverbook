@@ -105,8 +105,7 @@ const DiscountModal = ({
             price: val ? Math.round(val * 100) / 100 : null,
           }));
           if (errors.price) {
-            const { price: _unused, ...rest } = errors;
-            setErrors(rest);
+            setErrors({ ...errors, price: undefined });
           }
         }}
         error={errors.price}

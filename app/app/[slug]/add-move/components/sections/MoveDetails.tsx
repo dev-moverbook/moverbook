@@ -58,8 +58,10 @@ const MoveDetails = () => {
               serviceType: value as ServiceType,
             }));
             if (moveFormErrors.serviceType) {
-              const { serviceType: _removed, ...rest } = moveFormErrors;
-              setMoveFormErrors(rest);
+              setMoveFormErrors({
+                ...moveFormErrors,
+                serviceType: undefined,
+              });
             }
           }}
           options={SERVICE_TYPE_OPTIONS}
@@ -75,8 +77,10 @@ const MoveDetails = () => {
               moveDate: e.target.value,
             }));
             if (moveFormErrors.moveDate) {
-              const { moveDate: _removed, ...rest } = moveFormErrors;
-              setMoveFormErrors(rest);
+              setMoveFormErrors({
+                ...moveFormErrors,
+                moveDate: undefined,
+              });
             }
           }}
           error={moveFormErrors.moveDate}
@@ -104,9 +108,10 @@ const MoveDetails = () => {
                   },
                 }));
                 if (moveFormErrors.arrivalWindowStarts) {
-                  const { arrivalWindowStarts: _removed, ...rest } =
-                    moveFormErrors;
-                  setMoveFormErrors(rest);
+                  setMoveFormErrors({
+                    ...moveFormErrors,
+                    arrivalWindowStarts: undefined,
+                  });
                 }
               }}
               error={moveFormErrors.arrivalWindowStarts}
@@ -123,9 +128,10 @@ const MoveDetails = () => {
                   },
                 }));
                 if (moveFormErrors.arrivalWindowEnds) {
-                  const { arrivalWindowEnds: _removed, ...rest } =
-                    moveFormErrors;
-                  setMoveFormErrors(rest);
+                  setMoveFormErrors({
+                    ...moveFormErrors,
+                    arrivalWindowEnds: undefined,
+                  });
                 }
               }}
               error={moveFormErrors.arrivalWindowEnds}

@@ -64,10 +64,11 @@ const CustomerStep = ({ onNext, onCancel }: CustomerStepProps) => {
     }
     setCustomer({ ...customer, [key]: value });
     if (customerErrors[key]) {
-      const { [key]: _, ...rest } = customerErrors;
-      setCustomerErrors(rest);
+      // set the specific error key to undefined instead of removing via destructure
+      setCustomerErrors({ ...customerErrors, [key]: undefined });
     }
   };
+
   const baseDisabled =
     !customer.name ||
     !isValidEmail(customer.email) ||
@@ -81,7 +82,6 @@ const CustomerStep = ({ onNext, onCancel }: CustomerStepProps) => {
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
 
-    // If a match exists, user must Select or change inputs
     if (existingCustomer) return;
 
     const referralValues = referralSelectOptions.map((r) => r.value);
@@ -129,7 +129,7 @@ const CustomerStep = ({ onNext, onCancel }: CustomerStepProps) => {
         });
         onNext();
       } else if (response.existingCustomer) {
-        setExistingCustomer(response.existingCustomer); // swaps action row
+        setExistingCustomer(response.existingCustomer);
       }
     } else {
       setCreateMoveCustomerError(FrontEndErrorMessages.GENERIC);
@@ -152,7 +152,6 @@ const CustomerStep = ({ onNext, onCancel }: CustomerStepProps) => {
       />
 
       {existingCustomer ? (
-        // When a match exists: replace default actions with Select/View
         <div className="pt-6">
           <ExistingCustomerNotice
             customer={existingCustomer}
@@ -166,7 +165,6 @@ const CustomerStep = ({ onNext, onCancel }: CustomerStepProps) => {
           />
         </div>
       ) : (
-        // Normal Cancel/Next
         <FormActionContainer className="pt-10">
           <FormActions
             onSave={(e) => {
