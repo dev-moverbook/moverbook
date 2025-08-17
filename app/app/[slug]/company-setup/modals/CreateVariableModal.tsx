@@ -1,18 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import { useMediaQuery } from "react-responsive";
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import { FrontEndErrorMessages } from "@/types/errors";
 import LabeledInput from "@/app/components/shared/labeled/LabeledInput";
 import FieldGroup from "@/app/components/shared/FieldGroup";
 import FormActions from "@/app/components/shared/FormActions";
+import ResponsiveModal from "@/app/components/shared/modal/ResponsiveModal";
 
 interface CreateVariableModalProps {
   isOpen: boolean;
@@ -29,8 +22,6 @@ const CreateVariableModal: React.FC<CreateVariableModalProps> = ({
   createLoading,
   createError,
 }) => {
-  const isMobile = useMediaQuery({ maxWidth: 768 });
-
   const [name, setName] = useState<string>("");
   const [defaultValue, setDefaultValue] = useState<string>("");
   const [nameError, setNameError] = useState<string | null>(null);
@@ -94,9 +85,11 @@ const CreateVariableModal: React.FC<CreateVariableModalProps> = ({
         placeholder="Enter default value"
         error={defaultValueError}
       />
-
       <FormActions
-        onSave={handleCreate}
+        onSave={(e) => {
+          e.preventDefault();
+          handleCreate();
+        }}
         onCancel={handleClose}
         isSaving={createLoading}
         saveLabel="Create Variable"
@@ -105,23 +98,15 @@ const CreateVariableModal: React.FC<CreateVariableModalProps> = ({
     </FieldGroup>
   );
 
-  return isMobile ? (
-    <Drawer open={isOpen} onOpenChange={handleClose}>
-      <DrawerContent>
-        <DrawerTitle>Create Variable</DrawerTitle>
-        {formContent}
-      </DrawerContent>
-    </Drawer>
-  ) : (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent>
-        <DialogTitle>Create Variable</DialogTitle>
-        <DialogDescription>
-          Define a variable and its default value
-        </DialogDescription>
-        {formContent}
-      </DialogContent>
-    </Dialog>
+  return (
+    <ResponsiveModal
+      isOpen={isOpen}
+      onClose={handleClose}
+      title="Create Variable"
+      description="Define a variable and its default value"
+    >
+      {formContent}
+    </ResponsiveModal>
   );
 };
 
