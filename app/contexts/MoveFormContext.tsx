@@ -9,16 +9,6 @@ import React, {
 } from "react";
 import { useMoveOptions } from "../hooks/queries/useMoveOptions";
 import {
-  ArrivalWindowSchema,
-  CategorySchema,
-  CompanyContactSchema,
-  FeeSchema,
-  InsurancePolicySchema,
-  ItemSchema,
-  ReferralSchema,
-  RoomSchema,
-} from "@/types/convex-schemas";
-import {
   CustomerFormData,
   CustomerFormErrors,
   LocationInput,
