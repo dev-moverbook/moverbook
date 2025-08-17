@@ -10,16 +10,14 @@ import { Pencil, X } from "lucide-react";
 import FieldErrorMessage from "@/app/components/shared/labeled/FieldErrorMessage";
 import { useMoveForm } from "@/app/contexts/MoveFormContext";
 
-interface LiabilityCoverageProps {}
-
-const LiabilityCoverage: React.FC<LiabilityCoverageProps> = ({}) => {
+const LiabilityCoverage: React.FC = () => {
   const {
     moveFormData,
     setMoveFormData,
     moveFormErrors,
     insurancePolicyOptions,
   } = useMoveForm();
-  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const selectedPolicy = insurancePolicyOptions?.find(
     (p) => p.name === moveFormData.liabilityCoverage?.name
@@ -50,6 +48,7 @@ const LiabilityCoverage: React.FC<LiabilityCoverageProps> = ({}) => {
       >
         Liability Coverage
       </Header3>
+
       <SectionContainer>
         <CardContainer>
           {isEditing
@@ -61,10 +60,10 @@ const LiabilityCoverage: React.FC<LiabilityCoverageProps> = ({}) => {
                     moveFormData.liabilityCoverage?.name === policy.name
                   }
                   onSelect={() => {
-                    setMoveFormData({
-                      ...moveFormData,
+                    setMoveFormData((prev) => ({
+                      ...prev,
                       liabilityCoverage: policy,
-                    });
+                    }));
                     setIsEditing(false);
                   }}
                 />
@@ -73,6 +72,7 @@ const LiabilityCoverage: React.FC<LiabilityCoverageProps> = ({}) => {
                 <SelectLiabilityCard policy={selectedPolicy} />
               )}
         </CardContainer>
+
         <FieldErrorMessage error={moveFormErrors.liabilityCoverage} />
       </SectionContainer>
     </div>

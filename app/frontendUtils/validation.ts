@@ -9,7 +9,6 @@ import {
   MoveFormErrors,
   RoomFormData,
 } from "@/types/form-types";
-import { CreateDiscountInput } from "../app/[slug]/moves/hooks/useCreateDiscount";
 import { DiscountFormData } from "../app/[slug]/moves/[moveId]/components/modals/DiscountModal";
 import { AdditionalFeeFormData } from "../app/[slug]/moves/[moveId]/components/modals/AdditionalFeeModal";
 

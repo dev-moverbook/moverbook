@@ -9,7 +9,6 @@ import { Pencil, X } from "lucide-react";
 import FieldErrorMessage from "@/app/components/shared/labeled/FieldErrorMessage";
 import SelectLiabilityCard from "@/app/app/[slug]/add-move/components/cards/SelectLiabilityCard";
 import { Doc } from "@/convex/_generated/dataModel";
-import FormErrorMessage from "../../shared/error/FormErrorMessage";
 
 interface LiabilityCoverageSectionProps {
   selectedPolicy: Doc<"insurancePolicies"> | null;
@@ -17,7 +16,7 @@ interface LiabilityCoverageSectionProps {
   onSelect: (policy: Doc<"insurancePolicies">) => Promise<boolean> | boolean;
   error?: string | null;
   isAdd?: boolean;
-  isSaving?: boolean; // NEW
+  isSaving?: boolean;
 }
 
 const LiabilityCoverageSection: React.FC<LiabilityCoverageSectionProps> = ({

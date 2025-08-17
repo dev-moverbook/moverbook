@@ -1,12 +1,12 @@
 import SelectableCardContainer from "@/app/components/shared/containers/SelectableCardContainer";
 import SingleCardContainer from "@/app/components/shared/SingleCardContainer";
-import { ItemSchema } from "@/types/convex-schemas";
 import React, { useState } from "react";
 import AddItemModal from "../modals/AddItemModal";
 import { MoveItemInput } from "@/types/form-types";
+import { Doc } from "@/convex/_generated/dataModel";
 interface PopularItemsProps {
-  items?: ItemSchema[];
-  handleAddMoveItem: (item: ItemSchema) => void;
+  items?: Doc<"items">[];
+  handleAddMoveItem: (item: Doc<"items">) => void;
   selectedRoom: string | null;
   addMoveItem: (item: MoveItemInput) => void;
 }

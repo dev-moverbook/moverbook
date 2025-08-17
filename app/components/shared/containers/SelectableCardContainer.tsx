@@ -2,7 +2,6 @@ import React from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/app/components/ui/button";
 import { Pencil, X, PlusCircle } from "lucide-react";
-import { Id } from "@/convex/_generated/dataModel";
 
 interface SelectableCardContainerProps {
   topLeftText?: string;
@@ -13,9 +12,9 @@ interface SelectableCardContainerProps {
   onDelete?: () => void;
   showEditIcon?: boolean;
   className?: string;
-  id?: Id<"rooms"> | Id<"categories">;
   showPlusIcon?: boolean;
   showDeleteIcon?: boolean;
+  id?: string;
 }
 
 const SelectableCardContainer: React.FC<SelectableCardContainerProps> = ({
@@ -28,8 +27,8 @@ const SelectableCardContainer: React.FC<SelectableCardContainerProps> = ({
   showEditIcon = false,
   showDeleteIcon = false,
   className = "",
-  id,
   showPlusIcon = false,
+  id,
 }) => {
   const handleIconClick = (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
@@ -55,13 +54,16 @@ const SelectableCardContainer: React.FC<SelectableCardContainerProps> = ({
 
   return (
     <div
+      id={id}
       role="button"
       tabIndex={0}
       onClick={handleClick}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
-          handleClick(e as any);
+          handleClick(
+            e as unknown as React.MouseEvent<HTMLDivElement, MouseEvent>
+          );
         }
       }}
       className={cn(

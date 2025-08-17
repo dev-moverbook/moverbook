@@ -44,7 +44,7 @@ const LabeledPlacesAutocomplete: React.FC<PlacesAutoCompleteInputProps> = ({
       }
       if (onPlaceSelected) onPlaceSelected?.(place);
     });
-  }, [isEditing]);
+  }, [isEditing, onChange, onPlaceSelected]);
 
   if (!isEditing) {
     return <FieldDisplay label={label} value={value} fallback="—" />;

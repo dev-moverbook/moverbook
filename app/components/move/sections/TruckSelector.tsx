@@ -18,7 +18,6 @@ interface TruckSelectorProps {
   recommendedValue?: number;
   warningValue?: number;
   max?: number;
-  isEditing?: boolean;
 }
 
 const TruckSelector: React.FC<TruckSelectorProps> = ({
@@ -27,7 +26,6 @@ const TruckSelector: React.FC<TruckSelectorProps> = ({
   recommendedValue,
   warningValue,
   max = 3,
-  isEditing = true,
 }) => {
   const options: TruckOption[] = [];
 

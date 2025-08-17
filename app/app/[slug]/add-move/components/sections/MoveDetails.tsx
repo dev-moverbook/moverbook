@@ -39,7 +39,7 @@ const MoveDetails = () => {
         moveWindow: "custom",
       }));
     }
-  }, [startWindowOption]);
+  }, [startWindowOption, setMoveFormData]);
 
   return (
     <>

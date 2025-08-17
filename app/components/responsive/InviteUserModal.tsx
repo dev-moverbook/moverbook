@@ -1,17 +1,4 @@
 import React, { useState } from "react";
-import { useMediaQuery } from "react-responsive";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerTitle,
-} from "@/components/ui/drawer";
 import { FrontEndErrorMessages } from "@/types/errors";
 import { isValidEmail } from "@/utils/helper";
 import { ClerkRoles } from "@/types/enums";
@@ -44,12 +31,11 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
   inviteLoading,
   setInviteError,
 }) => {
-  const isMobile = useMediaQuery({ maxWidth: 768 });
   const [email, setEmail] = useState<string>("");
   const [emailError, setEmailError] = useState<string | null>(null);
   const [hourlyRate, setHourlyRate] = useState<number | null>(null);
-  const [hourlyRateError, setHourlyRateError] = useState<string | null>(null);
   const [role, setRole] = useState<ClerkRoles>(ClerkRoles.SALES_REP);
+  const [hourlyRateError, setHourlyRateError] = useState<string | null>(null);
 
   const resetState = () => {
     setEmail("");
@@ -136,6 +122,7 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
             setHourlyRate(value);
             setHourlyRateError(null);
           }}
+          error={hourlyRateError}
         />
       )}
 
@@ -161,9 +148,9 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
       onClose={handleClose}
       title="Invite User"
       description="Enter in the email of the user you want to invite and select their role."
-      children={formContent}
-      heightVh={80}
-    />
+    >
+      {formContent}
+    </ResponsiveModal>
   );
 };
 

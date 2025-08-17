@@ -174,8 +174,9 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
       onClose={handleClose}
       title={title}
       description={description}
-      children={formContent}
-    />
+    >
+      {formContent}
+    </ResponsiveModal>
   );
 };
 

@@ -2,7 +2,7 @@
 
 import SectionContainer from "@/app/components/shared/containers/SectionContainer";
 import SectionHeader from "@/app/components/shared/SectionHeader";
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import FormActions from "@/app/components/shared/FormActions";
 import SelectFieldRow from "@/app/components/shared/SelectFieldRow";
 import { useReferralSources } from "@/app/hooks/queries/useReferralSources";
@@ -12,19 +12,24 @@ import { cn } from "@/lib/utils";
 import { validateCustomerForm } from "@/app/frontendUtils/validation";
 import { useMoveContext } from "@/app/contexts/MoveContext";
 import { useUpdateMoveCustomer } from "@/app/hooks/mutations/customers/useUpdateMoveCustomer";
-import PhoneNumberInput from "@/app/components/shared/labeled/PhoneNumberInput";
+import { QueryStatus } from "@/types/enums";
 
-interface CustomerSectionProps {}
-
-const CustomerSection = ({}: CustomerSectionProps) => {
+const CustomerSection: React.FC = () => {
   const { moveData } = useMoveContext();
   const moveCustomer = moveData.moveCustomer;
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const { options: referralOptions } = useReferralSources(
-    moveCustomer.companyId
-  );
-  const referralSelectOptions =
-    referralOptions?.map((r) => ({ label: r.label, value: r.value })) ?? [];
+
+  const referralResult = useReferralSources(moveCustomer.companyId);
+
+  const referralSelectOptions = useMemo(() => {
+    if (referralResult.status === QueryStatus.SUCCESS) {
+      return referralResult.options.map((r) => ({
+        label: r.label,
+        value: r.value,
+      }));
+    }
+    return [];
+  }, [referralResult]);
 
   const {
     updateMoveCustomer,
@@ -43,6 +48,13 @@ const CustomerSection = ({}: CustomerSectionProps) => {
 
   const [errors, setErrors] = useState<CustomerFormErrors>({});
 
+  const removeError = (key: keyof CustomerFormErrors) =>
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
+
   const handleEditClick = () => {
     setIsEditing(true);
   };
@@ -50,13 +62,11 @@ const CustomerSection = ({}: CustomerSectionProps) => {
   const handleSave = async () => {
     setUpdateMoveCustomerError(null);
     const referralValues = referralSelectOptions.map((r) => r.value);
-
     const { isValid, errors } = validateCustomerForm(formData, referralValues);
     if (!isValid) {
       setErrors(errors);
       return;
     }
-
     await updateMoveCustomer({
       moveCustomerId: moveCustomer._id,
       updates: formData,
@@ -94,16 +104,12 @@ const CustomerSection = ({}: CustomerSectionProps) => {
         showCheckmark={true}
       />
       <SectionContainer className={cn("", isEditing && "gap-0")}>
-        {/* <FieldGroup> */}
         <LabeledInput
           label="Full Name"
           value={formData.name}
           onChange={(e) => {
             setFormData((prev) => ({ ...prev, name: e.target.value }));
-            if (errors.name) {
-              const { name, ...rest } = errors;
-              setErrors(rest);
-            }
+            if (errors.name) removeError("name");
           }}
           isEditing={isEditing}
           placeholder="Enter full name"
@@ -115,10 +121,7 @@ const CustomerSection = ({}: CustomerSectionProps) => {
           value={formData.email ?? ""}
           onChange={(e) => {
             setFormData((prev) => ({ ...prev, email: e.target.value }));
-            if (errors.email) {
-              const { email, ...rest } = errors;
-              setErrors(rest);
-            }
+            if (errors.email) removeError("email");
           }}
           isEditing={isEditing}
           placeholder="Enter email"
@@ -130,10 +133,7 @@ const CustomerSection = ({}: CustomerSectionProps) => {
           value={formData.phoneNumber ?? ""}
           onChange={(e) => {
             setFormData((prev) => ({ ...prev, phoneNumber: e.target.value }));
-            if (errors.phoneNumber) {
-              const { phoneNumber, ...rest } = errors;
-              setErrors(rest);
-            }
+            if (errors.phoneNumber) removeError("phoneNumber");
           }}
           isEditing={isEditing}
           placeholder="Enter phone number"
@@ -149,10 +149,7 @@ const CustomerSection = ({}: CustomerSectionProps) => {
               ...prev,
               altPhoneNumber: e.target.value,
             }));
-            if (errors.altPhoneNumber) {
-              const { altPhoneNumber, ...rest } = errors;
-              setErrors(rest);
-            }
+            if (errors.altPhoneNumber) removeError("altPhoneNumber");
           }}
           isEditing={isEditing}
           placeholder="Enter alternative phone number"
@@ -168,10 +165,7 @@ const CustomerSection = ({}: CustomerSectionProps) => {
           isEditing={isEditing}
           onChange={(val) => {
             setFormData((prev) => ({ ...prev, referral: val }));
-            if (errors.referral) {
-              const { referral, ...rest } = errors;
-              setErrors(rest);
-            }
+            if (errors.referral) removeError("referral");
           }}
           error={errors.referral}
         />

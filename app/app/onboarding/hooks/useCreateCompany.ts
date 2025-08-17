@@ -14,7 +14,10 @@ export const useCreateCompany = () => {
 
   const createCompany = async (
     name: string
-  ): Promise<{ success: boolean; data?: any }> => {
+  ): Promise<{
+    success: boolean;
+    data?: { slug: string; clerkOrganizationId: string };
+  }> => {
     setCreateCompanyLoading(true);
     setCreateCompanyError(null);
 

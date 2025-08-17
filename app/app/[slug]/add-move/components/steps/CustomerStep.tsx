@@ -65,7 +65,7 @@ const CustomerStep = ({ onNext, onCancel }: CustomerStepProps) => {
     }
     setCustomer({ ...customer, [key]: value });
     if (customerErrors[key]) {
-      const { [key]: _, ...rest } = customerErrors;
+      const { [key]: _removed, ...rest } = customerErrors;
       setCustomerErrors(rest);
     }
   };

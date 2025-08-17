@@ -10,10 +10,7 @@ import { TravelChargingTypes } from "@/types/enums";
 import { useUpdateTravelFee } from "../hooks/useUpdateTravelFee";
 import CurrencyInput from "@/app/components/shared/labeled/CurrencyInput";
 import { Doc } from "@/convex/_generated/dataModel";
-import {
-  PAYMENT_METHOD_OPTIONS,
-  TRAVEL_FEE_METHOD_OPTIONS,
-} from "@/types/types";
+import { TRAVEL_FEE_METHOD_OPTIONS } from "@/types/types";
 import ButtonRadioGroup from "@/app/components/shared/labeled/ButtonRadioGroup";
 
 interface TravelFeeSectionProps {

@@ -1,23 +1,14 @@
 import SelectableCardContainer from "@/app/components/shared/containers/SelectableCardContainer";
 import SingleCardContainer from "@/app/components/shared/SingleCardContainer";
-import { ItemSchema } from "@/types/convex-schemas";
-import { CategorySchema } from "@/types/convex-schemas";
-import { MoveItemInput } from "@/types/form-types";
-import React, { useState } from "react";
+import { Doc } from "@/convex/_generated/dataModel";
 
 interface CategoryInventoryProps {
-  categories?: CategorySchema[];
-  items?: ItemSchema[];
-  handleAddMoveItem: (item: ItemSchema) => void;
+  categories?: Doc<"categories">[];
 }
 
 const CategoryInventory: React.FC<CategoryInventoryProps> = ({
   categories,
-  items,
-  handleAddMoveItem,
 }) => {
-  const [selectedCategory, setSelectedCategory] =
-    useState<CategorySchema | null>(null);
   return (
     <SingleCardContainer className="px-4">
       {categories?.map((category) => (
@@ -25,7 +16,6 @@ const CategoryInventory: React.FC<CategoryInventoryProps> = ({
           key={category._id}
           id={category._id}
           centerText={category.name}
-          onClick={() => setSelectedCategory(category)}
         />
       ))}
     </SingleCardContainer>

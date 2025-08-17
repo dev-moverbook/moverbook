@@ -1,19 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useMediaQuery } from "react-responsive";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerTitle,
-} from "@/components/ui/drawer";
+
 import { Id } from "@/convex/_generated/dataModel";
 import { RoomSchema } from "@/types/convex-schemas";
 import { RoomFormData } from "@/types/form-types";
@@ -47,7 +35,6 @@ const RoomModal: React.FC<RoomModalProps> = ({
   companyId,
   initialData,
 }) => {
-  const isMobile = useMediaQuery({ maxWidth: 768 });
   const [formData, setFormData] = useState<RoomFormData>({ name: "" });
   const [fieldError, setFieldError] = useState<{ name?: string }>({});
 
@@ -119,9 +106,10 @@ const RoomModal: React.FC<RoomModalProps> = ({
       onClose={onClose}
       title={title}
       description={description}
-      children={formContent}
       heightVh={80}
-    />
+    >
+      {formContent}
+    </ResponsiveModal>
   );
 };
 

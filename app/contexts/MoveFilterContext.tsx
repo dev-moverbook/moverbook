@@ -85,7 +85,6 @@ export const MoveFilterProvider = ({
   });
 
   // Derive legacy booleans + data for consumers
-  let moves: EnrichedMove[] = [];
   let isLoading = false;
   let isError = false;
   let errorMessage: string | null = null;
@@ -99,9 +98,15 @@ export const MoveFilterProvider = ({
       errorMessage = movesResult.errorMessage;
       break;
     case QueryStatus.SUCCESS:
-      moves = movesResult.data;
+      // handled via memoizedMoves
       break;
   }
+
+  // ✅ Stabilize the moves array reference so useMemo deps don't thrash
+  const memoizedMoves = useMemo<EnrichedMove[]>(
+    () => (movesResult.status === QueryStatus.SUCCESS ? movesResult.data : []),
+    [movesResult.status, movesResult.data]
+  );
 
   const value = useMemo(
     () => ({
@@ -115,7 +120,7 @@ export const MoveFilterProvider = ({
       setPriceFilter,
       salesRep,
       setSalesRep,
-      moves,
+      moves: memoizedMoves,
       isLoading,
       isError,
       errorMessage,
@@ -133,7 +138,7 @@ export const MoveFilterProvider = ({
       filterEndDate,
       priceFilter,
       salesRep,
-      moves,
+      memoizedMoves,
       isLoading,
       isError,
       errorMessage,

@@ -3,9 +3,7 @@
 import FieldDate from "@/app/components/shared/field/FieldDate";
 import { useMoveFilter } from "@/app/contexts/MoveFilterContext";
 
-interface DateRangeFieldsProps {}
-
-const DateRangeFields: React.FC<DateRangeFieldsProps> = ({}) => {
+const DateRangeFields = () => {
   const {
     setFilterStartDate,
     setFilterEndDate,

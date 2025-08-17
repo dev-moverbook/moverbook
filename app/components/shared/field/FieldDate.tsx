@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -28,8 +27,6 @@ const FieldDate: React.FC<FieldDateProps> = ({
   min,
   max,
 }) => {
-  const [focused, setFocused] = useState(false);
-
   if (!isEditing) {
     return (
       <FieldDisplay
@@ -45,20 +42,11 @@ const FieldDate: React.FC<FieldDateProps> = ({
       <Label htmlFor={name} className="block text-sm font-medium">
         {label}
       </Label>
-
-      {/* {!value && !focused && (
-        <span className="absolute left-3 top-[30px] text-white pointer-events-none text-sm md:hidden">
-          Select Date
-        </span>
-      )} */}
-
       <Input
         id={name}
         type="date"
         value={value ?? ""}
         onChange={onChange}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
         min={min}
         max={max}
         className={cn(

@@ -1,15 +1,15 @@
 import React, { useState } from "react";
-import { ItemSchema } from "@/types/convex-schemas";
 import SingleCardContainer from "@/app/components/shared/SingleCardContainer";
 import SelectableCardContainer from "@/app/components/shared/containers/SelectableCardContainer";
 import SearchInput from "@/app/components/shared/ui/SearchInput";
 import AddItemModal from "../modals/AddItemModal";
 import { MoveItemInput } from "@/types/form-types";
 import { formatDisplayNumber } from "@/app/frontendUtils/helper";
+import { Doc } from "@/convex/_generated/dataModel";
 
 interface SearchInventoryProps {
-  items?: ItemSchema[];
-  handleAddMoveItem: (item: ItemSchema) => void;
+  items?: Doc<"items">[];
+  handleAddMoveItem: (item: Doc<"items">) => void;
   selectedRoom: string | null;
   addMoveItem: (item: MoveItemInput) => void;
 }

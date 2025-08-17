@@ -23,7 +23,10 @@ const ViewLaborFee = () => {
     endingMoveTime: m.endingMoveTime ?? null,
   });
 
-  const initialLaborData = useMemo(() => pickLaborData(move), [move]);
+  const initialLaborData = useMemo(
+    () => pickLaborData(move),
+    [move, pickLaborData]
+  );
 
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [laborData, setLaborData] = useState<LaborFormData>(initialLaborData);

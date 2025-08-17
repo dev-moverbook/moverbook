@@ -42,7 +42,6 @@ const EditableTruckField: React.FC<EditableTruckFieldProps> = ({
           onChange={(val: number | "custom") => onChange(val as number)}
           recommendedValue={2}
           warningValue={1}
-          isEditing={true}
         />
       ) : (
         <CounterInput

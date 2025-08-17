@@ -437,17 +437,11 @@ export function getMoveDisplayRows({
   jobType,
   jobTypeRate,
   liabilityCoverage,
-  creditCardFee,
-  travelFeeRate,
-  travelFeeMethod,
 }: {
   moveFees: { name: string; quantity: number; price: number }[];
   jobType: "hourly" | "flat";
   jobTypeRate: number | null;
   liabilityCoverage?: { premium: number } | null;
-  creditCardFee?: number | null;
-  travelFeeRate?: number | null;
-  travelFeeMethod?: TravelChargingTypes | null;
 }): ListRowType[] {
   const jobTypeRateDisplay = jobType === "hourly" ? "Hourly Rate" : "Job Rate";
   const jobRateValue =

@@ -1,11 +1,10 @@
 import React from "react";
 import { cn } from "@/lib/utils";
-import { CircleCheckBig } from "lucide-react";
 
 interface ListHeaderProps {
   children: React.ReactNode;
-  className?: string; // class for h2
-  wrapperClassName?: string; // new: class for outer div
+  className?: string;
+  wrapperClassName?: string;
   button?: React.ReactNode;
 }
 

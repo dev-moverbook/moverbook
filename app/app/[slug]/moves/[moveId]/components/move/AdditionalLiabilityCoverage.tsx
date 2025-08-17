@@ -6,7 +6,7 @@ import React from "react";
 import DisplaySignature from "@/app/components/move/shared/DisplaySignature";
 import Signature from "@/app/components/move/shared/Signature";
 import FormActions from "@/app/components/shared/FormActions";
-import { Doc, Id } from "@/convex/_generated/dataModel";
+import { Doc } from "@/convex/_generated/dataModel";
 import { useCreateOrUpdateAdditionalLiabilityCoverage } from "../../../hooks/useCreateOrUpdateAdditionalLiabilityCoverage";
 import AdditionalLiabilityTerms from "../copy/AdditionalLiabilityTerms";
 import { useMoveContext } from "@/app/contexts/MoveContext";
@@ -31,12 +31,8 @@ const AdditionalLiabilityCoverage = ({
   const [isSendingSMS, setIsSendingSMS] = React.useState(false);
   const [isSendingEmail, setIsSendingEmail] = React.useState(false);
 
-  const {
-    createOrUpdateAdditionalLiabilityCoverage,
-    error,
-    setError,
-    isLoading,
-  } = useCreateOrUpdateAdditionalLiabilityCoverage();
+  const { createOrUpdateAdditionalLiabilityCoverage, error, setError } =
+    useCreateOrUpdateAdditionalLiabilityCoverage();
 
   const showRepSignature = !!repSignature && repSignedAt;
   const showCustomerSignature = !!customerSignature && customerSignedAt;

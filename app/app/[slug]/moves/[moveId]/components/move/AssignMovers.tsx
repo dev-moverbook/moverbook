@@ -27,9 +27,8 @@ const AssignMovers = ({
   const { move } = moveData;
   const moverNumber = move.movers;
 
-  const { insertMoveAssignment, assignmentLoading } = useInsertMoveAssignment();
-  const { updateMoveAssignment, assignmentUpdateLoading } =
-    useUpdateMoveAssignment();
+  const { insertMoveAssignment } = useInsertMoveAssignment();
+  const { updateMoveAssignment } = useUpdateMoveAssignment();
 
   // Build display slots
   const slots = Array.from({ length: moverNumber }, (_, i) => {

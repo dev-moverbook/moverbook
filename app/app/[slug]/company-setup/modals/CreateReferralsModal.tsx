@@ -100,9 +100,10 @@ const CreateReferralModal: React.FC<CreateReferralModalProps> = ({
       onClose={handleClose}
       title={modalTitle}
       description={description}
-      children={formContent}
       heightVh={80}
-    />
+    >
+      {formContent}
+    </ResponsiveModal>
   );
 };
 

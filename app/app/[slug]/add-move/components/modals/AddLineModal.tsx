@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { AddMoveLineItemInput, MoveFeeInput } from "@/types/form-types";
 import FieldGroup from "@/app/components/shared/FieldGroup";
 import FieldRow from "@/app/components/shared/FieldRow";
@@ -41,11 +41,13 @@ const AddLineModal = ({
   const [errors, setErrors] = useState<AddLineValidationErrors>({});
   const [isCustomFee, setIsCustomFee] = useState<boolean>(false);
 
-  const feeOptions =
-    moveFeeOptions?.map((fee) => ({
-      label: fee.name,
-      value: fee.name,
-    })) ?? [];
+  // Memoize to stabilize dependency identity
+  const feeOptions = useMemo(
+    () =>
+      moveFeeOptions?.map((fee) => ({ label: fee.name, value: fee.name })) ??
+      [],
+    [moveFeeOptions]
+  );
 
   useEffect(() => {
     if (initialData) {
@@ -147,18 +149,23 @@ const AddLineModal = ({
           />
         )}
       </div>
+
       <CurrencyInput
         label="Price"
         value={formData.price}
         onChange={(val) => {
           setFormData((prev) => ({
             ...prev,
-            price: val ? Math.round(val * 100) / 100 : null,
+            // keep two decimals; allow clearing to null
+            price: val != null ? Math.round(val * 100) / 100 : null,
           }));
-          if (errors.price) {
-            const { price, ...rest } = errors;
-            setErrors(rest);
-          }
+          // ✅ remove price error without unused var warning
+          setErrors((prev) => {
+            if (!prev.price) return prev;
+            const next = { ...prev };
+            delete next.price;
+            return next;
+          });
         }}
         error={errors.price}
         isEditing={true}
@@ -169,10 +176,7 @@ const AddLineModal = ({
         value={formData.quantity}
         onChange={(value) => {
           if (value !== null) {
-            setFormData((prev) => ({
-              ...prev,
-              quantity: value,
-            }));
+            setFormData((prev) => ({ ...prev, quantity: value }));
           }
         }}
         min={1}

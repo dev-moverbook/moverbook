@@ -112,8 +112,10 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
       onClose={onClose}
       title={title}
       description={description}
-      children={formContent}
-    />
+      heightVh={95}
+    >
+      {formContent}
+    </ResponsiveModal>
   );
 };
 

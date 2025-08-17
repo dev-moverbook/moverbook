@@ -1,9 +1,8 @@
-import { Button } from "@/app/components/ui/button";
-import { VariableSchema } from "@/types/convex-schemas";
 import { BadgeButton } from "./buttons/BadgeButton";
+import { Doc } from "@/convex/_generated/dataModel";
 
 interface VariableInsertButtonsProps {
-  variables: VariableSchema[];
+  variables: Doc<"variables">[];
   onInsert: (variableName: string) => void;
   className?: string;
 }

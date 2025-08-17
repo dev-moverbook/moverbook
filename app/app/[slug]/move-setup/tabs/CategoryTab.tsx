@@ -17,20 +17,14 @@ import SelectableCardContainer from "@/app/components/shared/containers/Selectab
 interface CategoryTabProps {
   categories: Doc<"categories">[];
   companyId: Id<"companies">;
-  items: Doc<"items">[];
   isEditMode: boolean;
-  handleEditItem: (item: Doc<"items">) => void;
-  handleDeleteItem: (itemId: Id<"items">) => void;
   isDeleteMode: boolean;
 }
 
 const CategoryTab: React.FC<CategoryTabProps> = ({
   categories,
   companyId,
-  items,
   isEditMode,
-  handleEditItem,
-  handleDeleteItem,
   isDeleteMode,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);

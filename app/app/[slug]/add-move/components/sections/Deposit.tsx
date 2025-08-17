@@ -10,9 +10,6 @@ const Deposit = () => {
   const { moveFormData, setMoveFormData, moveFormErrors, setMoveFormErrors } =
     useMoveForm();
 
-  const deposit = moveFormData.deposit;
-  const depositMethod = moveFormData.depositMethod;
-
   const handleDepositMethodChange = (val: PaymentMethod) => {
     setMoveFormData((prev) => ({
       ...prev,
@@ -28,15 +25,18 @@ const Deposit = () => {
 
       <CurrencyInput
         label="Deposit"
-        value={deposit}
+        value={moveFormData.deposit}
         onChange={(value) => {
           setMoveFormData((prev) => ({
             ...prev,
-            deposit: value ? Math.round(value * 100) / 100 : 0,
+            deposit: value != null ? Math.round(value * 100) / 100 : 0,
           }));
+
+          // Remove the deposit error (no functional updater; avoids TS errors)
           if (moveFormErrors.deposit) {
-            const { deposit, ...rest } = moveFormErrors;
-            setMoveFormErrors(rest);
+            const nextErrors = { ...moveFormErrors };
+            delete nextErrors.deposit;
+            setMoveFormErrors(nextErrors);
           }
         }}
         isEditing={true}
@@ -45,7 +45,7 @@ const Deposit = () => {
 
       <ButtonRadioGroup
         name="depositMethod"
-        value={depositMethod}
+        value={moveFormData.depositMethod}
         options={PAYMENT_METHOD_OPTIONS}
         onChange={(val) => handleDepositMethodChange(val as PaymentMethod)}
         label="Deposit Method"

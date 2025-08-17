@@ -1,19 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useMediaQuery } from "react-responsive";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerTitle,
-} from "@/components/ui/drawer";
 import { FrontEndErrorMessages } from "@/types/errors";
 import { CreateLaborFormData } from "@/types/form-types";
 import { Id } from "@/convex/_generated/dataModel";
@@ -53,7 +40,6 @@ const LaborModal: React.FC<LaborModalProps> = ({
   companyId,
   initialData,
 }) => {
-  const isMobile = useMediaQuery({ maxWidth: 768 });
   const [labor, setLabor] = useState<CreateLaborFormData>({
     name: "",
     twoMovers: null,
@@ -347,8 +333,10 @@ const LaborModal: React.FC<LaborModalProps> = ({
       onClose={handleClose}
       title={title}
       description={description}
-      children={formContent}
-    />
+      heightVh={95}
+    >
+      {formContent}
+    </ResponsiveModal>
   );
 };
 

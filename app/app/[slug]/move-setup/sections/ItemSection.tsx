@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Id } from "@/convex/_generated/dataModel";
-import { CategorySchema, ItemSchema } from "@/types/convex-schemas";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import ConfirmModal from "@/app/components/shared/ConfirmModal";
 import ItemModal from "../modals/ItemModal";
 import { useCreateItem } from "../hooks/useCreateItem";
@@ -22,9 +21,9 @@ import CenteredContainer from "@/app/components/shared/CenteredContainer";
 
 interface ItemSectionProps {
   companyId: Id<"companies">;
-  categories: CategorySchema[];
+  categories: Doc<"categories">[];
   // categoryId: Id<"categories">;
-  items: ItemSchema[];
+  items: Doc<"items">[];
 }
 
 const ItemSection: React.FC<ItemSectionProps> = ({
@@ -48,7 +47,7 @@ const ItemSection: React.FC<ItemSectionProps> = ({
 
   // State for item modal
   const [isItemModalOpen, setIsItemModalOpen] = useState<boolean>(false);
-  const [selectedItem, setSelectedItem] = useState<ItemSchema | null>(null);
+  const [selectedItem, setSelectedItem] = useState<Doc<"items"> | null>(null);
 
   // State for delete modal
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
@@ -66,7 +65,7 @@ const ItemSection: React.FC<ItemSectionProps> = ({
     setIsEditMode(false);
   };
 
-  const handleEditItem = (item: ItemSchema) => {
+  const handleEditItem = (item: Doc<"items">) => {
     setSelectedItem(item);
     setIsEditMode(true);
     setIsItemModalOpen(true);
@@ -162,10 +161,7 @@ const ItemSection: React.FC<ItemSectionProps> = ({
           <CategoryTab
             companyId={companyId}
             categories={categories}
-            items={items}
             isEditMode={isEditMode}
-            handleEditItem={handleEditItem}
-            handleDeleteItem={handleOpenDeleteModal}
             isDeleteMode={isDeleteMode}
           />
         )}

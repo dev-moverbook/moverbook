@@ -2,8 +2,7 @@ import SectionContainer from "@/app/components/shared/containers/SectionContaine
 import FieldDisplay from "@/app/components/shared/FieldDisplay";
 import React from "react";
 
-interface PaymentHeadingProps {}
-const PaymentHeading = ({}: PaymentHeadingProps) => {
+const PaymentHeading = () => {
   return (
     <SectionContainer>
       <FieldDisplay label="Payment Status" value={"Pending"} fallback="—" />

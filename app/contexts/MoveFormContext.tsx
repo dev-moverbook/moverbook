@@ -94,7 +94,6 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
     fees: moveFeeOptions,
     insurancePolicies: insurancePolicyOptions,
     items: itemOptions,
-    labor: laborOptions,
     laborRates,
     salesReps,
     policy,
@@ -103,7 +102,6 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
     travelFee: travelFeeOptions,
     companyContact,
   } = moveOptions ?? {};
-  const { fetchDistance } = useDistanceMatrix();
 
   const [customer, setCustomer] = useState<CustomerFormData>({
     name: "",
@@ -251,96 +249,6 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
       .filter(Boolean) as string[];
 
     if (!origin || addresses.length < 2) return;
-
-    const timeout = setTimeout(async () => {
-      const addresses = moveFormData.locations
-        .map((l) => l.address)
-        .filter(Boolean) as string[];
-      if (!origin || addresses.length < 2) return;
-
-      const segments: { from: string; to: string; label: string }[] = [];
-
-      // Office to Origin
-      segments.push({
-        from: origin,
-        to: addresses[0],
-        label: "Office to Origin",
-      });
-
-      // Origin to Stop 1 (if there's at least one stop)
-      if (addresses.length >= 3) {
-        segments.push({
-          from: addresses[0],
-          to: addresses[1],
-          label: "Origin to Stop 1",
-        });
-
-        // Stop i to Stop i+1
-        for (let i = 1; i < addresses.length - 2; i++) {
-          segments.push({
-            from: addresses[i],
-            to: addresses[i + 1],
-            label: `Stop ${i} to Stop ${i + 1}`,
-          });
-        }
-
-        // Last stop to destination
-        segments.push({
-          from: addresses[addresses.length - 2],
-          to: addresses[addresses.length - 1],
-          label: `Stop ${addresses.length - 2} to Destination`,
-        });
-      }
-
-      // No stops, just origin and destination
-      if (addresses.length === 2) {
-        segments.push({
-          from: addresses[0],
-          to: addresses[1],
-          label: "Origin to Destination",
-        });
-      }
-
-      // Destination to Office
-      segments.push({
-        from: addresses[addresses.length - 1],
-        to: origin,
-        label: "Destination to Office",
-      });
-
-      const results = await Promise.all(
-        segments.map(({ from, to }) =>
-          fetchDistance({ origin: from, destination: to })
-        )
-      );
-
-      const detailedSegments = segments.map((seg, i) => ({
-        label: seg.label,
-        distance: results[i].success
-          ? (results[i].distanceMiles ?? null)
-          : null,
-        duration: results[i].success
-          ? (results[i].durationMinutes ?? null)
-          : null,
-      }));
-
-      setSegmentDistances(detailedSegments);
-
-      const totalMiles = detailedSegments.reduce(
-        (acc, seg) => acc + (seg.distance ?? 0),
-        0
-      );
-      const totalDuration = detailedSegments.reduce(
-        (acc, seg) => acc + (seg.duration ?? 0),
-        0
-      );
-
-      setMoveFormData((prev) => ({
-        ...prev,
-        roundTripMiles: Number(totalMiles.toFixed(2)),
-        roundTripDrive: Number(totalDuration.toFixed(2)),
-      }));
-    }, 500);
   }, [
     policy?.deposit,
     currentUser?.user._id,
@@ -351,6 +259,9 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
     moveFormData.arrivalTimes.arrivalWindowStarts,
     moveFormData.arrivalTimes.arrivalWindowEnds,
     moveFormData.moveWindow,
+    moveFormData.jobType,
+    moveFormData.jobTypeRate,
+    companyId,
   ]);
 
   useEffect(() => {
@@ -390,7 +301,7 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
         travelFeeRate: travelFeeOptions.mileageRate ?? null,
       }));
     }
-  }, [travelFeeOptions, moveFormData.jobType]);
+  }, [travelFeeOptions, moveFormData.jobType, moveFormData.jobTypeRate]);
 
   const { jobTypeRate, travelFeeMethod, jobType } = moveFormData;
 

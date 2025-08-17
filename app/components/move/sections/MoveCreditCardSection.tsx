@@ -5,7 +5,6 @@ import SectionContainer from "@/app/components/shared/containers/SectionContaine
 import Header3 from "@/app/components/shared/heading/Header3";
 import EditToggleButton from "../../shared/buttons/EditToggleButton";
 import FormActions from "../../shared/FormActions";
-import CurrencyInput from "../../shared/labeled/CurrencyInput";
 import PercentageInput from "../../shared/labeled/PercentageInput";
 
 interface MoveCreditCardFeeProps {

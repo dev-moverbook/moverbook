@@ -3,9 +3,7 @@
 import { Button } from "@/app/components/ui/button";
 import { useMoveFilter } from "@/app/contexts/MoveFilterContext";
 
-interface ToggleCalendarProps {}
-
-const ToggleCalendar: React.FC<ToggleCalendarProps> = ({}) => {
+const ToggleCalendar = () => {
   const { isWeekView, setIsWeekView } = useMoveFilter();
 
   const buttonText = isWeekView ? "Expand" : "Collapse";

@@ -9,8 +9,6 @@ import CalendarContainer from "./CalendarContainer";
 import { useSlugContext } from "@/app/contexts/SlugContext";
 import { useMoveFilter } from "@/app/contexts/MoveFilterContext";
 
-interface MonthViewProps {}
-
 const getMonthGrid = (viewDate: Date, timeZone: string) => {
   const month = DateTime.fromJSDate(viewDate).setZone(timeZone).month;
   const start = DateTime.fromJSDate(viewDate)
@@ -37,7 +35,7 @@ const getMonthGrid = (viewDate: Date, timeZone: string) => {
   return trimmedWeeks.flat();
 };
 
-const MonthView: React.FC<MonthViewProps> = ({}) => {
+const MonthView = () => {
   const { timeZone } = useSlugContext();
   const { today, selectedDate } = useMoveFilter();
   const monthDates = getMonthGrid(selectedDate, timeZone);

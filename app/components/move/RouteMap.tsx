@@ -10,8 +10,9 @@ const GOOGLE_MAPS_API_KEY = process.env
 function decodePolyline(encoded: string): LatLng[] {
   let index = 0,
     lat = 0,
-    lng = 0,
-    coordinates: LatLng[] = [];
+    lng = 0;
+  const coordinates: LatLng[] = []; // ✅ use const
+
   while (index < encoded.length) {
     let b,
       shift = 0,
@@ -48,7 +49,6 @@ const Polyline: React.FC<{ path: LatLng[]; map: google.maps.Map | null }> = ({
   useEffect(() => {
     if (!map || !path.length) return;
 
-    // Remove previous polyline
     if (polylineRef.current) {
       polylineRef.current.setMap(null);
     }
@@ -63,12 +63,10 @@ const Polyline: React.FC<{ path: LatLng[]; map: google.maps.Map | null }> = ({
     polyline.setMap(map);
     polylineRef.current = polyline;
 
-    // Fit map to polyline
     const bounds = new window.google.maps.LatLngBounds();
     path.forEach((p) => bounds.extend(p));
     map.fitBounds(bounds);
 
-    // Cleanup on unmount
     return () => {
       if (polylineRef.current) {
         polylineRef.current.setMap(null);
@@ -86,7 +84,6 @@ const RouteMap: React.FC = () => {
   const [polyline, setPolyline] = useState<LatLng[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  // Initialize Google Map once
   useEffect(() => {
     if (window.google && mapDivRef.current && !mapRef.current) {
       mapRef.current = new window.google.maps.Map(mapDivRef.current, {
@@ -96,7 +93,6 @@ const RouteMap: React.FC = () => {
     }
   }, []);
 
-  // Update route when addresses change
   useEffect(() => {
     const fetchRoute = async () => {
       setError(null);
@@ -106,7 +102,6 @@ const RouteMap: React.FC = () => {
         return;
       }
       try {
-        // Geocode addresses and convert to { latitude, longitude }
         const geocode = async (address: string) => {
           const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
             address
@@ -118,6 +113,7 @@ const RouteMap: React.FC = () => {
           const { lat, lng } = data.results[0].geometry.location;
           return { latitude: lat, longitude: lng };
         };
+
         const [origin, ...rest] = addresses;
         const destination = rest.pop()!;
         const waypoints = rest;
@@ -125,7 +121,6 @@ const RouteMap: React.FC = () => {
         const destinationLoc = await geocode(destination);
         const waypointsLoc = await Promise.all(waypoints.map(geocode));
 
-        // Build request for Routes API using { latitude, longitude }
         const body = {
           origin: { location: { latLng: originLoc } },
           destination: { location: { latLng: destinationLoc } },
@@ -152,8 +147,13 @@ const RouteMap: React.FC = () => {
         const encoded = dataRoute.routes?.[0]?.polyline?.encodedPolyline;
         if (!encoded) throw new Error("No route found.");
         setPolyline(decodePolyline(encoded));
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err: unknown) {
+        // ✅ use unknown instead of any
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("An unexpected error occurred.");
+        }
       }
     };
     fetchRoute();

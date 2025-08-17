@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { CopyPlus, Eye } from "lucide-react";
 import {
@@ -49,7 +50,7 @@ const MoveCard: React.FC<MoveCardProps> = ({
 
   const content = (
     <div
-      className={`py-4 px-4 text-white shadow-md border-b  border-grayCustom ${
+      className={`py-4 px-4 text-white shadow-md border-b border-grayCustom ${
         !showActions
           ? "hover:bg-background2 transition-colors duration-200"
           : ""
@@ -76,10 +77,12 @@ const MoveCard: React.FC<MoveCardProps> = ({
             <div className="mt-auto flex flex-col items-center">
               <div className="w-10 h-10 border border-grayCustom rounded-full overflow-hidden flex items-center justify-center bg-background2">
                 {salesRep?.imageUrl ? (
-                  <img
+                  <Image
                     src={salesRep.imageUrl}
-                    alt={salesRep?.name}
-                    className="w-full h-full object-cover"
+                    alt={salesRep?.name ?? "Sales rep"}
+                    width={40}
+                    height={40}
+                    className="rounded-full object-cover w-10 h-10"
                   />
                 ) : (
                   <span className="text-sm text-white font-medium">
@@ -87,7 +90,7 @@ const MoveCard: React.FC<MoveCardProps> = ({
                   </span>
                 )}
               </div>
-              <span className="text-sm text-grayCustom2  text-center max-w-[9rem] truncate">
+              <span className="text-sm text-grayCustom2 text-center max-w-[9rem] truncate">
                 {salesRep?.name}
               </span>
             </div>

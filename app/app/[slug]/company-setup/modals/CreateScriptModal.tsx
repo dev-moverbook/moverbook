@@ -210,9 +210,10 @@ const CreateScriptModal: React.FC<CreateScriptModalProps> = ({
       onClose={handleClose}
       title={titleText}
       description={description}
-      children={formContent}
       heightVh={80}
-    />
+    >
+      {formContent}
+    </ResponsiveModal>
   );
 };
 

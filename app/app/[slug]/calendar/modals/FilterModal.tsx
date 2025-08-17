@@ -32,8 +32,8 @@ const FilterModal: React.FC<FilterModalProps> = ({ isOpen, onClose }) => {
     setSelectedStatuses,
     setPriceFilter,
     setSalesRep,
-    priceFilter, // PriceOrder | null
-    salesRep, // SalesRepOption | null
+    priceFilter,
+    salesRep,
   } = useMoveFilter();
 
   const [tempStatuses, setTempStatuses] =

@@ -1,5 +1,6 @@
+// app/app/[slug]/add-move/AddMovePageContent.tsx
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import PageHeader from "@/app/components/shared/heading/NavigationHeader";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import ConfirmModal from "@/app/components/shared/ConfirmModal";
@@ -34,7 +35,15 @@ const AddMovePageContent = () => {
 
   const duplicateFromId = search.get("duplicateFrom");
   const fieldsParam = search.get("fields");
-  const fieldsToDuplicate = fieldsParam?.split(",") ?? [];
+
+  const fieldsToDuplicate = useMemo(
+    () => (fieldsParam ? fieldsParam.split(",") : []),
+    [fieldsParam]
+  );
+  const fieldsSet = useMemo(
+    () => new Set(fieldsToDuplicate),
+    [fieldsToDuplicate]
+  );
 
   const moveToDuplicateResponse = useQuery(
     api.move.getMove,
@@ -44,56 +53,56 @@ const AddMovePageContent = () => {
   useEffect(() => {
     if (
       moveToDuplicateResponse?.status === ResponseStatus.SUCCESS &&
-      fieldsToDuplicate.length > 0
+      fieldsSet.size > 0
     ) {
       const move = moveToDuplicateResponse.data.move;
 
       setMoveFormData((prev) => {
         const updated = { ...prev };
 
-        if (fieldsToDuplicate.includes("serviceType")) {
+        if (fieldsSet.has("serviceType")) {
           updated.serviceType = move.serviceType;
         }
-        if (fieldsToDuplicate.includes("startingLocation")) {
+        if (fieldsSet.has("startingLocation")) {
           updated.locations[0] = {
             ...updated.locations[0],
             ...move.locations.find((l) => l.locationRole === "starting"),
           };
         }
-        if (fieldsToDuplicate.includes("endingLocation")) {
+        if (fieldsSet.has("endingLocation")) {
           updated.locations[1] = {
             ...updated.locations[1],
             ...move.locations.find((l) => l.locationRole === "ending"),
           };
         }
-        if (fieldsToDuplicate.includes("stops")) {
+        if (fieldsSet.has("stops")) {
           const stops = move.locations.filter((l) => l.locationRole === "stop");
           updated.locations = [...updated.locations, ...stops];
         }
-        if (fieldsToDuplicate.includes("inventory")) {
+        if (fieldsSet.has("inventory")) {
           updated.moveItems = move.moveItems;
         }
-        if (fieldsToDuplicate.includes("movers")) {
+        if (fieldsSet.has("movers")) {
           updated.movers = move.movers;
         }
-        if (fieldsToDuplicate.includes("trucks")) {
+        if (fieldsSet.has("trucks")) {
           updated.trucks = move.trucks;
         }
-        if (fieldsToDuplicate.includes("rate")) {
+        if (fieldsSet.has("rate")) {
           updated.jobType = move.jobType;
           updated.jobTypeRate = move.jobTypeRate;
         }
-        if (fieldsToDuplicate.includes("addOns")) {
+        if (fieldsSet.has("addOns")) {
           updated.moveFees = move.moveFees;
         }
-        if (fieldsToDuplicate.includes("liabilityCoverage")) {
+        if (fieldsSet.has("liabilityCoverage")) {
           updated.liabilityCoverage = move.liabilityCoverage;
         }
 
         return updated;
       });
     }
-  }, [moveToDuplicateResponse, fieldsToDuplicate, setMoveFormData]);
+  }, [moveToDuplicateResponse, fieldsSet, setMoveFormData]);
 
   const customerResponse = useQuery(
     api.moveCustomers.getMoveCustomer,

@@ -87,8 +87,9 @@ const AddRoomModal: React.FC<AddRoomModalProps> = ({
       description={description}
       isOpen={isOpen}
       onClose={handleClose}
-      children={formContent}
-    />
+    >
+      {formContent}
+    </ResponsiveModal>
   );
 };
 

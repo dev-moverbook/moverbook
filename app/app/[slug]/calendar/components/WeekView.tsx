@@ -7,9 +7,7 @@ import CalendarContainer from "./CalendarContainer";
 import { useSlugContext } from "@/app/contexts/SlugContext";
 import { useMoveFilter } from "@/app/contexts/MoveFilterContext";
 
-interface WeekViewProps {}
-
-const WeekView: React.FC<WeekViewProps> = ({}) => {
+const WeekView = () => {
   const { timeZone } = useSlugContext();
   const { today, selectedDate } = useMoveFilter();
 

@@ -1,6 +1,5 @@
 import React from "react";
 import CustomCard from "@/app/components/shared/CustomCard";
-import { CompanyContactSchema } from "@/types/convex-schemas";
 import { Phone, Mail } from "lucide-react";
 import Image from "next/image";
 import CardHeaderWithActions from "@/app/components/shared/CardHeaderWithActions";

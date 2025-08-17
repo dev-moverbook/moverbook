@@ -2,7 +2,6 @@
 
 import React, { useRef } from "react";
 import SignatureCanvas from "react-signature-canvas";
-import FormActions from "../../shared/FormActions";
 import IconButton from "../../shared/IconButton";
 import { X } from "lucide-react";
 
@@ -16,21 +15,6 @@ const SignaturePad = ({ onChange }: SignaturePadProps) => {
   const clearSignature = () => {
     sigCanvasRef.current?.clear();
     onChange(null);
-  };
-
-  const saveSignature = () => {
-    if (sigCanvasRef.current?.isEmpty()) {
-      alert("Please provide a signature first.");
-      return;
-    }
-    if (!sigCanvasRef.current) {
-      return;
-    }
-    const dataUrl = sigCanvasRef.current
-      .getTrimmedCanvas()
-      .toDataURL("image/png");
-    console.log("Saved signature:", dataUrl);
-    // You can also upload `dataUrl` to your backend or display it
   };
 
   const handleEnd = () => {

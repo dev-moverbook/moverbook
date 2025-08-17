@@ -1,8 +1,6 @@
 import MoveTravelFeeSection from "@/app/components/move/sections/MoveTravelFeeSection";
-import AddTravelFeeSection from "@/app/components/move/sections/MoveTravelFeeSection";
 import { useMoveForm } from "@/app/contexts/MoveFormContext";
 import { TravelChargingTypes } from "@/types/enums";
-import React from "react";
 
 const AddTravelFee = () => {
   const { moveFormData, setMoveFormData, travelFeeOptions } = useMoveForm();

@@ -25,8 +25,10 @@ const OnboardingPage = () => {
     const response = await createCompany(companyName);
 
     if (response.success) {
-      await setActive?.({ organization: response.data.clerkOrganizationId });
-      const slug = response.data.slug;
+      await setActive?.({
+        organization: response.data?.clerkOrganizationId,
+      });
+      const slug = response.data?.slug;
       router.replace(`/app/${slug}`);
     }
   };

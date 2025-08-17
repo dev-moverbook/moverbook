@@ -13,7 +13,6 @@ import {
 import { useUpdateMove } from "../../../hooks/useUpdateMove";
 import { MoveTypeFormData } from "@/types/form-types";
 import { cn } from "@/lib/utils";
-import { ContactValidationErrors } from "@/app/frontendUtils/validation";
 import LabeledDateInput from "@/app/components/shared/labeled/LabeledDateInput";
 import LabeledRadio from "@/app/components/shared/labeled/LabeledRadio";
 import LabeledTimeInput from "@/app/components/shared/labeled/LabeledTimeInput";
@@ -45,8 +44,6 @@ const MoveTypeSection = () => {
       arrivalWindowEnds: move.arrivalTimes.arrivalWindowEnds,
     },
   });
-
-  const [errors, setErrors] = useState<ContactValidationErrors>({});
 
   const handleEditClick = () => {
     setIsEditing(true);
@@ -188,7 +185,6 @@ const MoveTypeSection = () => {
                         ? "afternoon"
                         : "custom",
                 }));
-                setErrors((prev) => ({ ...prev, arrivalWindow: null }));
               } catch {
                 setFormData((prev) => ({
                   ...prev,

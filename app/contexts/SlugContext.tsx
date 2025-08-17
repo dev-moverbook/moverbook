@@ -38,7 +38,7 @@ export const SlugProvider = ({ children }: { children: React.ReactNode }) => {
     if (cleanSlug && cleanSlug !== slug) {
       setSlug(cleanSlug);
     }
-  }, [cleanSlug]);
+  }, [cleanSlug, slug]);
 
   // Fetch companyId when slug changes
   const companyIdQuery = useQuery(

@@ -2,7 +2,6 @@
 import React from "react";
 import ErrorMessage from "@/app/components/shared/error/ErrorMessage";
 import EmptyList from "@/app/components/shared/message/EmptyList";
-import UserCardSkeleton from "@/app/components/shared/skeleton/UserCardSkeleton";
 import ContainerUserCard from "@/app/components/shared/ContainerUserCard";
 import { Doc } from "@/convex/_generated/dataModel";
 import UserCard from "./UserCard";

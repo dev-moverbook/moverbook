@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { CompanySchema } from "@/types/convex-schemas";
 import { UpdateCompanyData } from "@/types/form-types";

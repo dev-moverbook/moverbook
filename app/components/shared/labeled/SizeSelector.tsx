@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { Label } from "@/components/ui/label";
 import SelectableCardContainer from "../containers/SelectableCardContainer";
@@ -19,7 +21,7 @@ const SizeSelector: React.FC<SizeSelectorProps> = ({
     <div>
       <Label className="block text-sm font-medium">{label}</Label>
       <div className="flex flex-wrap gap-4 mt-1">
-        {Object.entries(CategorySizeLabels).map(([_, categorySize]) => {
+        {Object.entries(CategorySizeLabels).map(([, categorySize]) => {
           const numericSize = parseInt(categorySize.size);
           const isSelected = value === numericSize;
 

@@ -105,13 +105,14 @@ const DiscountModal = ({
             price: val ? Math.round(val * 100) / 100 : null,
           }));
           if (errors.price) {
-            const { price, ...rest } = errors;
+            const { price: _unused, ...rest } = errors;
             setErrors(rest);
           }
         }}
         error={errors.price}
         isEditing={true}
       />
+
       <FormActions
         onSave={handleSubmit}
         onCancel={handleClose}

@@ -151,8 +151,10 @@ const FeeModal: React.FC<FeeModalProps> = ({
       onClose={onClose}
       title={title}
       description={description}
-      children={formContent}
-    />
+      heightVh={95}
+    >
+      {formContent}
+    </ResponsiveModal>
   );
 };
 

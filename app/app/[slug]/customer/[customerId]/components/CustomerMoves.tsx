@@ -3,7 +3,6 @@
 import SectionContainer from "@/app/components/shared/containers/SectionContainer";
 import { Button } from "@/app/components/ui/button";
 import CardContainer from "@/app/components/shared/CardContainer";
-import Header3 from "@/app/components/shared/heading/Header3";
 import { Plus } from "lucide-react";
 import { Doc } from "@/convex/_generated/dataModel";
 import { useParams, useRouter } from "next/navigation";

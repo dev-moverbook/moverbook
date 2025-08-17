@@ -74,10 +74,7 @@ const LaborSection: React.FC<LaborSectionProps> = ({
   };
 
   const handleMoverChangeWithEstimate = (val: number) => {
-    const [start, end] = hourEstimates[val] || [
-      formData.startingMoveTime,
-      formData.endingMoveTime,
-    ];
+    // TODO: implement
   };
 
   const handleSave = () => {

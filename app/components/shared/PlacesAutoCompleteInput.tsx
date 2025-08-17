@@ -31,7 +31,7 @@ export const PlacesAutoCompleteInput: React.FC<
       }
       if (onPlaceSelected) onPlaceSelected(place);
     });
-  }, []);
+  }, [onChange, onPlaceSelected]);
 
   return (
     <div className="">

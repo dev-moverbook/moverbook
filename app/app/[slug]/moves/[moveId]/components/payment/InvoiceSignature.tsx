@@ -22,7 +22,7 @@ const InvoiceSignature = ({ invoice, move }: InvoiceSignatureProps) => {
   const [isTexting, setIsTexting] = useState(false);
   const [isMarkingAsComplete, setIsMarkingAsComplete] = useState(false);
 
-  const { createOrUpdateInvoice, invoiceUpdateLoading, invoiceUpdateError } =
+  const { createOrUpdateInvoice, invoiceUpdateError } =
     useCreateOrUpdateInvoice();
   const { updateMove, updateMoveError } = useUpdateMove();
 

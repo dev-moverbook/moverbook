@@ -1,19 +1,5 @@
 "use client";
 
-import { useMediaQuery } from "react-responsive";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerTitle,
-} from "@/components/ui/drawer";
-import { MOBILE_BREAKPOINT } from "@/types/const";
 import FormActions from "./FormActions";
 import ResponsiveModal from "./modal/ResponsiveModal";
 
@@ -23,7 +9,6 @@ interface ConfirmModalProps {
   onConfirm: () => void;
   deleteLoading: boolean;
   deleteError: string | null;
-  // Customizable texts
   title?: string;
   description?: string;
   confirmButtonText?: string;
@@ -36,15 +21,11 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   onConfirm,
   deleteLoading,
   deleteError,
-
-  // Default texts for reusability
   title = "Confirm Action",
   description = "Are you sure you want to proceed with this action?",
   confirmButtonText = "Confirm",
   cancelButtonText = "Cancel",
 }) => {
-  const isMobile = useMediaQuery({ maxWidth: MOBILE_BREAKPOINT });
-
   const content = (
     <div className="space-y-4 ">
       <FormActions
@@ -66,8 +47,9 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
       onClose={onClose}
       title={title}
       description={description}
-      children={content}
-    />
+    >
+      {content}
+    </ResponsiveModal>
   );
 };
 

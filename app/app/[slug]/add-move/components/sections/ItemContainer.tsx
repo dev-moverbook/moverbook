@@ -4,13 +4,13 @@ import TabSelector from "@/app/components/shared/TabSelector";
 import PopularItems from "./PopularItems";
 import CategoryInventory from "./CategoryInventory";
 import SearchInventory from "./SearchInventory";
-import { CategorySchema, ItemSchema } from "@/types/convex-schemas";
 import { MoveItemInput } from "@/types/form-types";
+import { Doc } from "@/convex/_generated/dataModel";
 
 interface ItemContainerProps {
   roomName: string;
-  categoryOptions: CategorySchema[];
-  itemOptions: ItemSchema[];
+  categoryOptions: Doc<"categories">[];
+  itemOptions: Doc<"items">[];
   addMoveItem: (item: MoveItemInput) => void;
   updateMoveItem: (index: number, updates: Partial<MoveItemInput>) => void;
   moveItems: MoveItemInput[];
@@ -26,7 +26,7 @@ const ItemContainer: React.FC<ItemContainerProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<string>("POPULAR");
 
-  const handleAddItem = (item: ItemSchema) => {
+  const handleAddItem = (item: Doc<"items">) => {
     const existingIndex = moveItems.findIndex(
       (i) => i.item === item.name && i.room === roomName
     );
@@ -63,11 +63,7 @@ const ItemContainer: React.FC<ItemContainerProps> = ({
         />
       )}
       {activeTab === "CATEGORIES" && (
-        <CategoryInventory
-          categories={categoryOptions}
-          items={itemOptions}
-          handleAddMoveItem={handleAddItem}
-        />
+        <CategoryInventory categories={categoryOptions} />
       )}
       {activeTab === "SEARCH" && (
         <SearchInventory

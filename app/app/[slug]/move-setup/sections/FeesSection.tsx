@@ -12,7 +12,6 @@ import FeeCard from "../cards/FeeCard";
 import CenteredContainer from "@/app/components/shared/CenteredContainer";
 import SectionContainer from "@/app/components/shared/SectionContainer";
 import SectionHeader from "@/app/components/shared/SectionHeader";
-import { Button } from "@/app/components/ui/button";
 import CardContainer from "@/app/components/shared/CardContainer";
 import AddItemButton from "@/app/components/shared/buttons/AddItemButton";
 

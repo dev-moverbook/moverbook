@@ -1,31 +1,18 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useMediaQuery } from "react-responsive";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerTitle,
-} from "@/components/ui/drawer";
 import { Id } from "@/convex/_generated/dataModel";
 import { ItemSchema } from "@/types/convex-schemas";
 import { ItemFormData } from "@/types/form-types";
 import { FrontEndErrorMessages } from "@/types/errors";
 import FieldGroup from "@/app/components/shared/FieldGroup";
-import LabeledInput from "@/app/components/shared/labeled/LabeledInput";
 import FormActions from "@/app/components/shared/FormActions";
 import CheckboxField from "@/app/components/shared/CheckboxField";
 import SizeSelector from "@/app/components/shared/labeled/SizeSelector";
 import { calculateWeightFromSize } from "@/utils/helper";
 import FieldRow from "@/app/components/shared/FieldRow";
 import NumberInput from "@/app/components/shared/labeled/NumberInput";
+import ResponsiveModal from "@/app/components/shared/modal/ResponsiveModal";
 
 interface ItemModalProps {
   isOpen: boolean;
@@ -54,7 +41,6 @@ const ItemModal: React.FC<ItemModalProps> = ({
   categoryId,
   initialData,
 }) => {
-  const isMobile = useMediaQuery({ maxWidth: 768 });
   const [formData, setFormData] = useState<ItemFormData>({
     name: "",
     size: null,
@@ -194,22 +180,16 @@ const ItemModal: React.FC<ItemModalProps> = ({
     ? "Update the item name, size, and weight. You can also mark it as popular."
     : "Enter the item name, select or enter a custom size and weight. Optionally, mark the item as popular.";
 
-  return isMobile ? (
-    <Drawer open={isOpen} onOpenChange={onClose}>
-      <DrawerContent>
-        <DrawerTitle>{title}</DrawerTitle>
-        <DrawerDescription>{description}</DrawerDescription>
-        {formContent}
-      </DrawerContent>
-    </Drawer>
-  ) : (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
-        <DialogTitle>{title}</DialogTitle>
-        <DialogDescription>{description}</DialogDescription>
-        {formContent}
-      </DialogContent>
-    </Dialog>
+  return (
+    <ResponsiveModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={title}
+      description={description}
+      heightVh={95}
+    >
+      {formContent}
+    </ResponsiveModal>
   );
 };
 

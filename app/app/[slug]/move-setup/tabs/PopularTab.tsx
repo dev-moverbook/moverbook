@@ -1,13 +1,12 @@
-import { ItemSchema } from "@/types/convex-schemas";
 import SelectableCardContainer from "@/app/components/shared/containers/SelectableCardContainer";
 import SingleCardContainer from "@/app/components/shared/SingleCardContainer";
-import { Id } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import SectionContainer from "@/app/components/shared/SectionContainer";
 
 interface PopularTabProps {
-  items: ItemSchema[];
+  items: Doc<"items">[];
   isEditMode: boolean;
-  handleEditItem: (item: ItemSchema) => void;
+  handleEditItem: (item: Doc<"items">) => void;
   handleOpenDeleteModal: (itemId: Id<"items">) => void;
   isDeleteMode: boolean;
   handleOpenItemModal: () => void;

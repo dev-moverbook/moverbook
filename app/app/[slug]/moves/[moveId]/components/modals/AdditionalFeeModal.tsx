@@ -174,8 +174,11 @@ const AdditionalFeeModal = ({
             price: val ? Math.round(val * 100) / 100 : null,
           }));
           if (errors.price) {
-            const { price, ...rest } = errors;
-            setErrors(rest);
+            setErrors((prev) => ({
+              ...prev,
+              name: undefined,
+              price: undefined,
+            }));
           }
         }}
         error={errors.price}
@@ -214,8 +217,9 @@ const AdditionalFeeModal = ({
       onClose={handleClose}
       title={title}
       description={description}
-      children={formContent}
-    />
+    >
+      {formContent}
+    </ResponsiveModal>
   );
 };
 

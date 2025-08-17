@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  Plus,
-  X,
-  MessageSquare,
-  Mail,
-  Send,
-  SendHorizontal,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Plus, X, MessageSquare, Mail, SendHorizontal } from "lucide-react";
 import { RefObject } from "react";
 import { useMessageContext } from "@/app/contexts/MessageContext";
 import IconButton from "@/app/components/shared/IconButton";

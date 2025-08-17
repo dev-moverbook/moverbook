@@ -1,23 +1,10 @@
 import FormActions from "@/app/components/shared/FormActions";
 import MoveAddress from "../sections/MoveAddress";
 import { useMoveForm } from "@/app/contexts/MoveFormContext";
-import Header2 from "@/app/components/shared/heading/Header2";
 import FormContainer from "@/app/components/shared/containers/FormContainer";
 import FormActionContainer from "@/app/components/shared/containers/FormActionContainer";
 import StopSection from "../sections/StopSection";
 import LocationSummary from "../sections/LocationSummary";
-import LabeledDateInput from "@/app/components/shared/labeled/LabeledDateInput";
-import LabeledRadio from "@/app/components/shared/labeled/LabeledRadio";
-import {
-  SERVICE_TYPE_OPTIONS,
-  ServiceType,
-  START_WINDOW_OPTIONS,
-  StartWindowOption,
-} from "@/types/types";
-import TimeSlotSelector from "@/app/components/shared/labeled/TimeSlotSelector";
-import LabeledTimeInput from "@/app/components/shared/labeled/LabeledTimeInput";
-import { useEffect, useState } from "react";
-import { formatTime } from "@/app/frontendUtils/helper";
 import MoveDetails from "../sections/MoveDetails";
 
 interface MoveStepProps {
@@ -29,30 +16,11 @@ const MoveStep = ({ onNext, onBack }: MoveStepProps) => {
   const {
     updateLocation,
     removeLocation,
-    isLocationSectionComplete,
     addStopLocation,
     companyContact,
     segmentDistances,
-    arrivalWindowOptions,
-    isLoading,
-    isError,
-    errorMessage,
     moveFormData,
-    setMoveFormData,
-    moveFormErrors,
-    setMoveFormErrors,
   } = useMoveForm();
-  const [startWindowOption, setStartWindowOption] =
-    useState<StartWindowOption>("available");
-
-  useEffect(() => {
-    if (startWindowOption === "custom") {
-      setMoveFormData({
-        ...moveFormData,
-        moveWindow: "custom",
-      });
-    }
-  }, [startWindowOption]);
 
   return (
     <FormContainer>

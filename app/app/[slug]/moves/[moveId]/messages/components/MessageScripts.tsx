@@ -7,9 +7,7 @@ import { useSlugContext } from "@/app/contexts/SlugContext";
 import { useScriptsByCompanyId } from "@/app/hooks/queries/useScriptsByCompanyId";
 import { ScriptSchema } from "@/types/convex-schemas";
 
-interface MessageScriptsProps {}
-
-const MessageScripts = ({}: MessageScriptsProps) => {
+const MessageScripts = () => {
   const { companyId } = useSlugContext();
   const { method, setInput, setShowOptions, setShowScripts, setSubject } =
     useMessageContext();

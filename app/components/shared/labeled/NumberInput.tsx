@@ -58,7 +58,7 @@ const NumberInput: React.FC<NumberInputProps> = ({
       )}
 
       <NumericFormat
-        customInput={Input as any}
+        customInput={Input}
         value={hasValue ? value : ""}
         onValueChange={(vals) => {
           if (vals.value === "") onChange(null);

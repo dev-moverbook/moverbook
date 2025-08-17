@@ -7,7 +7,6 @@ import { Doc } from "@/convex/_generated/dataModel";
 import { useParams, useRouter } from "next/navigation";
 import LabeledMoveCheckboxGroup from "@/app/components/shared/labeled/LabeledMoveCheckboxGroup";
 import {
-  formatCurrency,
   formatJobRate,
   formatServiceTypeName,
 } from "@/app/frontendUtils/helper";
@@ -157,8 +156,10 @@ const DuplicateMoveModal: React.FC<DuplicateMoveModalProps> = ({
       onClose={handleClose}
       title="Duplicate Move"
       description={description}
-      children={formContent}
-    />
+      heightVh={95}
+    >
+      {formContent}
+    </ResponsiveModal>
   );
 };
 

@@ -1,8 +1,6 @@
 import CustomCard from "../shared/CustomCard";
 import CardDetailRow from "../shared/CardDetailRow";
 import CardDetailsWrapper from "../shared/CardDetailsWrapper";
-import { useMoveForm } from "@/app/contexts/MoveFormContext";
-import { formatDecimalNumber } from "@/app/frontendUtils/helper";
 
 const CostCard = () => {
   return (

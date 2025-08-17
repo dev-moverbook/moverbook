@@ -4,7 +4,7 @@ import React from "react";
 import ToggleButtonGroup from "@/app/components/shared/labeled/ToggleButtonGroup";
 import CurrencyInput from "@/app/components/shared/labeled/CurrencyInput";
 import { JobType } from "@/types/types";
-import { MoveFormData, MoveFormErrors } from "@/types/form-types";
+import { MoveFormErrors } from "@/types/form-types";
 import { LaborFormData } from "../LaborSection";
 import EditableTruckField from "../EditableTruckField";
 import EditableMoverField from "../EditableMoverField";

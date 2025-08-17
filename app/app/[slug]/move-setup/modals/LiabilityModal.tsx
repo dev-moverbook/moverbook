@@ -205,9 +205,10 @@ const LiabilityModal: React.FC<LiabilityModalProps> = ({
       onClose={handleClose}
       title={title}
       description={description}
-      children={formContent}
       heightVh={95}
-    />
+    >
+      {formContent}
+    </ResponsiveModal>
   );
 };
 

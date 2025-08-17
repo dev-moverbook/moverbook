@@ -1,6 +1,5 @@
 import CenteredContainer from "@/app/components/shared/CenteredContainer";
 import SectionContainer from "@/app/components/shared/SectionContainer";
-import SectionHeader from "@/app/components/shared/SectionHeader";
 import { Button } from "@/app/components/ui/button";
 import { ConnectedAccountSchema } from "@/types/convex-schemas";
 import { StripeAccountStatus } from "@/types/enums";

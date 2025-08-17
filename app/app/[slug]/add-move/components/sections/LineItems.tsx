@@ -2,20 +2,16 @@
 
 import React, { useState } from "react";
 import SectionContainer from "@/app/components/shared/containers/SectionContainer";
-import { Button } from "@/app/components/ui/button";
 import CardContainer from "@/app/components/shared/CardContainer";
 import AddLineModal from "../modals/AddLineModal";
 import LineItemFeeCard from "../cards/LineItemFeeCard";
 import Header3 from "@/app/components/shared/heading/Header3";
-import { Plus } from "lucide-react";
 import { MoveFeeInput } from "@/types/form-types";
 import { useMoveForm } from "@/app/contexts/MoveFormContext";
 import ConfirmModal from "@/app/components/shared/ConfirmModal";
 import AddItemButton from "@/app/components/shared/buttons/AddItemButton";
 
-interface LineItemsProps {}
-
-const LineItems: React.FC<LineItemsProps> = ({}) => {
+const LineItems: React.FC = () => {
   const {
     moveFormData,
     moveFeeOptions,

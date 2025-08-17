@@ -1,8 +1,6 @@
 import React from "react";
 import MoveCustomerCard from "@/app/components/customer/CustomerCard";
 import { Doc } from "@/convex/_generated/dataModel";
-import { Button } from "@/app/components/ui/button";
-import { Eye, UserCheck } from "lucide-react";
 import { useSlugContext } from "@/app/contexts/SlugContext";
 import FormActionContainer from "@/app/components/shared/containers/FormActionContainer";
 import FormActions from "@/app/components/shared/FormActions";
@@ -10,7 +8,7 @@ import { useRouter } from "next/navigation";
 
 interface Props {
   customer: Doc<"moveCustomers">;
-  onUse: () => void; // link + proceed
+  onUse: () => void;
   className?: string;
 }
 
