@@ -20,7 +20,6 @@ import {
   DEFAULT_PREMIUM,
   DEFAULT_CREDIT_CARD_FEE_RATE,
   DEFAULT_TRAVEL_CHARGING_METHOD,
-  DEFAULT_TRAVEL_RATE,
   DEFAULT_ROOMS,
   DEFAULT_ADDITIONAL_TERMS_AND_CONDITIONS,
   STARTER_ITEMS,
@@ -104,6 +103,7 @@ export const createCompanyRecords = async (
 
     await ctx.db.insert("travelFee", {
       companyId,
+      defaultMethod: DEFAULT_TRAVEL_CHARGING_METHOD,
     });
 
     // Create Default Variables
