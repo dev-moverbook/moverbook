@@ -1,6 +1,7 @@
-import { MoveFormData } from "@/types/form-types";
+import { ItemFormData, MoveFormData } from "@/types/form-types";
 
 import { CreateMoveInput } from "../app/[slug]/add-move/hooks/createMove";
+import { ItemCreateInput } from "../app/[slug]/move-setup/hooks/useCreateItem";
 
 export const transformToCreateMoveInput = (
   form: MoveFormData
@@ -45,4 +46,13 @@ export const transformToCreateMoveInput = (
     travelFeeMethod: form.travelFeeMethod,
     trucks: form.trucks,
   };
+};
+
+type Result<T> = { ok: true; value: T } | { ok: false; error: string };
+
+export const toItemCreateInput = (d: ItemFormData): Result<ItemCreateInput> => {
+  if (d.size == null) return { ok: false, error: "Size is required" };
+  if (d.weight == null) return { ok: false, error: "Weight is required" };
+
+  return { ok: true, value: { ...d, size: d.size, weight: d.weight } };
 };

@@ -139,7 +139,6 @@ const MoveTypeSection = () => {
                     arrivalWindowEnds: prev.arrivalTimes.arrivalWindowEnds,
                   },
                 }));
-                setErrors((prev) => ({ ...prev, arrivalWindow: null }));
               }}
               isEditing={isEditing}
             />
@@ -155,7 +154,6 @@ const MoveTypeSection = () => {
                     arrivalWindowEnds: e.target.value,
                   },
                 }));
-                setErrors((prev) => ({ ...prev, arrivalWindow: null }));
               }}
               isEditing={isEditing}
             />

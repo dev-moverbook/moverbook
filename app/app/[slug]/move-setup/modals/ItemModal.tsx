@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Id } from "@/convex/_generated/dataModel";
-import { ItemSchema } from "@/types/convex-schemas";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import { ItemFormData } from "@/types/form-types";
 import { FrontEndErrorMessages } from "@/types/errors";
 import FieldGroup from "@/app/components/shared/FieldGroup";
@@ -13,21 +12,23 @@ import { calculateWeightFromSize } from "@/utils/helper";
 import FieldRow from "@/app/components/shared/FieldRow";
 import NumberInput from "@/app/components/shared/labeled/NumberInput";
 import ResponsiveModal from "@/app/components/shared/modal/ResponsiveModal";
+import { ItemCreateInput } from "../hooks/useCreateItem";
+import { toItemCreateInput } from "@/app/frontendUtils/transform";
 
 interface ItemModalProps {
   isOpen: boolean;
   onClose: () => void;
   onCreate: (
     companyId: Id<"companies">,
-    itemData: ItemFormData,
+    itemData: ItemCreateInput,
     categoryId?: Id<"categories">
   ) => Promise<boolean>;
-  onEdit: (itemId: Id<"items">, itemData: ItemFormData) => Promise<boolean>;
+  onEdit: (itemId: Id<"items">, itemData: ItemCreateInput) => Promise<boolean>;
   loading: boolean;
   error: string | null;
   companyId: Id<"companies">;
   categoryId?: Id<"categories">;
-  initialData?: ItemSchema | null;
+  initialData?: Doc<"items"> | null;
 }
 
 const ItemModal: React.FC<ItemModalProps> = ({
@@ -108,10 +109,17 @@ const ItemModal: React.FC<ItemModalProps> = ({
   const handleSubmit = async () => {
     if (!validateForm()) return;
 
+    const res = toItemCreateInput(formData);
+    if (!res.ok) {
+      setValidationError(res.error);
+      return;
+    }
+    const itemData = res.value;
+
     if (initialData) {
-      await onEdit(initialData._id, formData);
+      await onEdit(initialData._id, itemData);
     } else {
-      await onCreate(companyId, formData, categoryId);
+      await onCreate(companyId, itemData, categoryId);
     }
 
     onClose();

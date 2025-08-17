@@ -8,15 +8,20 @@ import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
 import { ItemFormData } from "@/types/form-types";
 
+export type ItemCreateInput = Omit<ItemFormData, "size" | "weight"> & {
+  size: number;
+  weight: number;
+};
+
 export const useCreateItem = () => {
-  const [createItemLoading, setCreateItemLoading] = useState<boolean>(false);
+  const [createItemLoading, setCreateItemLoading] = useState(false);
   const [createItemError, setCreateItemError] = useState<string | null>(null);
 
   const createItemMutation = useMutation(api.items.createItem);
 
   const createItem = async (
     companyId: Id<"companies">,
-    itemData: ItemFormData,
+    itemData: ItemCreateInput,
     categoryId?: Id<"categories">
   ): Promise<boolean> => {
     setCreateItemLoading(true);
@@ -29,9 +34,7 @@ export const useCreateItem = () => {
         categoryId,
       });
 
-      if (response.status === ResponseStatus.SUCCESS) {
-        return true;
-      }
+      if (response.status === ResponseStatus.SUCCESS) return true;
 
       console.error(response.error);
       setCreateItemError(response.error);
