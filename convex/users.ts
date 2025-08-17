@@ -24,6 +24,7 @@ import {
   GetSalesRepsByCompanyIdResponse,
   GetUserByClerkIdResponse,
   GetUserByIdResponse,
+  UpdateUserActiveStatusResponse,
 } from "@/types/convex-responses";
 import {
   updateOrganizationMembershipHelper,
@@ -195,7 +196,7 @@ export const updateUserActiveStatus = mutation({
     userId: v.id("users"),
     isActive: v.boolean(),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<UpdateUserActiveStatusResponse> => {
     const { userId, isActive } = args;
     try {
       await requireAuthenticatedUser(ctx, [
