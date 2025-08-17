@@ -62,7 +62,7 @@ export const toItemCreateInput = (d: ItemFormData): Result<ItemCreateInput> => {
   return { ok: true, value: { ...d, size: d.size, weight: d.weight } };
 };
 
-const mustNumber = (v: number | null, label: string): number =>
+const mustNumber = (v: number | null): number =>
   typeof v === "number" && !Number.isNaN(v) ? v : NaN;
 
 export const buildLaborCreateInput = (
@@ -70,12 +70,12 @@ export const buildLaborCreateInput = (
 ): Result<LaborCreateInput> => {
   if (!d.name.trim()) return { ok: false, error: "Labor name is required" };
 
-  const startDate = mustNumber(d.startDate, "Start date");
-  const endDate = mustNumber(d.endDate, "End date");
-  const two = mustNumber(d.twoMovers, "Two movers rate");
-  const three = mustNumber(d.threeMovers, "Three movers rate");
-  const four = mustNumber(d.fourMovers, "Four movers rate");
-  const extra = mustNumber(d.extra, "Extra rate");
+  const startDate = mustNumber(d.startDate);
+  const endDate = mustNumber(d.endDate);
+  const two = mustNumber(d.twoMovers);
+  const three = mustNumber(d.threeMovers);
+  const four = mustNumber(d.fourMovers);
+  const extra = mustNumber(d.extra);
 
   if (Number.isNaN(startDate))
     return { ok: false, error: "Start date is required" };

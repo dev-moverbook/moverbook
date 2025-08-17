@@ -116,57 +116,6 @@ const LaborModal: React.FC<LaborModalProps> = ({
     onClose();
   };
 
-  const validateLaborForm = (formData: CreateLaborFormData) => {
-    const errors: {
-      name?: string;
-      twoMovers?: string;
-      threeMovers?: string;
-      fourMovers?: string;
-      extra?: string;
-      startDate?: string;
-      endDate?: string;
-    } = {};
-
-    if (!formData.name.trim()) {
-      errors.name = FrontEndErrorMessages.LABOR_NAME_REQUIRED;
-    }
-
-    const rateFields = [
-      "twoMovers",
-      "threeMovers",
-      "fourMovers",
-      "extra",
-    ] as const;
-    for (const key of rateFields) {
-      const error = validatePrice(formData[key]);
-      if (error) errors[key] = error;
-    }
-
-    if (initialData) {
-      if (startMonth === "none" || startDay === "none") {
-        errors.startDate = FrontEndErrorMessages.START_DATE_REQUIRED;
-      }
-      if (endMonth === "none" || endDay === "none") {
-        errors.endDate = FrontEndErrorMessages.END_DATE_REQUIRED;
-      }
-
-      if (
-        startMonth !== "none" &&
-        startDay !== "none" &&
-        endMonth !== "none" &&
-        endDay !== "none"
-      ) {
-        const computedStart = parseInt(startMonth) * 100 + parseInt(startDay);
-        const computedEnd = parseInt(endMonth) * 100 + parseInt(endDay);
-        if (computedStart > computedEnd) {
-          errors.startDate = FrontEndErrorMessages.START_DATE_AFTER_END_DATE;
-        }
-      }
-    }
-
-    return errors;
-  };
-
   const handleSubmit = async () => {
     const computedStartDate =
       startMonth !== "none" && startDay !== "none"
