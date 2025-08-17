@@ -25,6 +25,7 @@ import {
   GetUserByClerkIdResponse,
   GetUserByIdResponse,
   UpdateUserActiveStatusResponse,
+  UpdateUserResponse,
 } from "@/types/convex-responses";
 import {
   updateOrganizationMembershipHelper,
@@ -232,7 +233,7 @@ export const updateUser = action({
       role: v.optional(UserRoleConvex),
     }),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<UpdateUserResponse> => {
     const { userId, updates } = args;
     try {
       const identity = await requireAuthenticatedUser(ctx, [

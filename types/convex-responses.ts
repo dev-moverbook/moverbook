@@ -82,6 +82,17 @@ export interface UpdateUserActiveStatusData {
   userId: Id<"users">;
 }
 
+export type UpdateUserResponse = UpdateUserSuccess | ErrorResponse;
+
+export interface UpdateUserSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: UpdateUserData;
+}
+
+export interface UpdateUserData {
+  userId: Id<"users">;
+}
+
 export type ClerkInviteUserToOrganizationResponse =
   | ClerkInviteUserToOrganizationSuccess
   | ErrorResponse;
