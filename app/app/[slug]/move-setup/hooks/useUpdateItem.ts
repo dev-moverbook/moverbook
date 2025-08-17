@@ -6,7 +6,7 @@ import { api } from "@/convex/_generated/api";
 import { ResponseStatus } from "@/types/enums";
 import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
-import { ItemFormData } from "@/types/form-types";
+import { ItemCreateInput } from "./useCreateItem";
 
 export const useUpdateItem = () => {
   const [updateItemLoading, setUpdateItemLoading] = useState<boolean>(false);
@@ -16,7 +16,7 @@ export const useUpdateItem = () => {
 
   const updateItem = async (
     itemId: Id<"items">,
-    updates: ItemFormData
+    updates: ItemCreateInput
   ): Promise<boolean> => {
     setUpdateItemLoading(true);
     setUpdateItemError(null);
