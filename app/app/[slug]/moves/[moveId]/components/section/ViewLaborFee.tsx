@@ -14,18 +14,23 @@ const ViewLaborFee = () => {
 
   const { updateMove, updateMoveLoading, updateMoveError } = useUpdateMove();
 
-  const pickLaborData = (m: typeof move): LaborFormData => ({
-    jobType: m.jobType,
-    jobTypeRate: m.jobTypeRate,
-    trucks: m.trucks,
-    movers: m.movers ?? null,
-    startingMoveTime: m.startingMoveTime ?? null,
-    endingMoveTime: m.endingMoveTime ?? null,
-  });
-
-  const initialLaborData = useMemo(
-    () => pickLaborData(move),
-    [move, pickLaborData]
+  const initialLaborData = useMemo<LaborFormData>(
+    () => ({
+      jobType: move.jobType,
+      jobTypeRate: move.jobTypeRate,
+      trucks: move.trucks,
+      movers: move.movers ?? null,
+      startingMoveTime: move.startingMoveTime ?? null,
+      endingMoveTime: move.endingMoveTime ?? null,
+    }),
+    [
+      move.jobType,
+      move.jobTypeRate,
+      move.trucks,
+      move.movers,
+      move.startingMoveTime,
+      move.endingMoveTime,
+    ]
   );
 
   const [isEditing, setIsEditing] = useState<boolean>(false);

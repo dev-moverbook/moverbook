@@ -59,17 +59,15 @@ const CustomerStep = ({ onNext, onCancel }: CustomerStepProps) => {
     referralOptions?.map((r) => ({ label: r.name, value: r.name })) ?? [];
 
   const handleChange = (key: keyof typeof customer, value: string): void => {
-    // Editing email/phone clears the match → original actions will show again
     if (existingCustomer && (key === "email" || key === "phoneNumber")) {
       setExistingCustomer(null);
     }
     setCustomer({ ...customer, [key]: value });
     if (customerErrors[key]) {
-      const { [key]: _removed, ...rest } = customerErrors;
+      const { [key]: _, ...rest } = customerErrors;
       setCustomerErrors(rest);
     }
   };
-
   const baseDisabled =
     !customer.name ||
     !isValidEmail(customer.email) ||

@@ -30,7 +30,6 @@ import {
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { useCurrentUser } from "../hooks/queries/useCurrentUser";
 import { useSlugContext } from "./SlugContext";
-import { useDistanceMatrix } from "../app/[slug]/add-move/hooks/useDistanceMatrix";
 import { nanoid } from "nanoid";
 import { getHourlyRateFromLabor } from "../frontendUtils/helper";
 import { TravelChargingTypes } from "@/types/enums";
@@ -174,10 +173,6 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
 
   const [moveFormErrors, setMoveFormErrors] = useState<MoveFormErrors>({});
 
-  const [segmentDistances, setSegmentDistances] = useState<
-    { label: string; distance: number | null; duration: number | null }[]
-  >([]);
-
   const origin = companyContact?.address;
 
   useEffect(() => {
@@ -206,7 +201,12 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
         jobTypeRate: calculatedRate,
       }));
     }
-  }, [moveFormData.movers, moveFormData.jobType, laborRates]);
+  }, [
+    moveFormData.movers,
+    moveFormData.jobType,
+    laborRates,
+    moveFormData.jobTypeRate,
+  ]);
 
   useEffect(() => {
     if (companyId) {
@@ -301,7 +301,12 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
         travelFeeRate: travelFeeOptions.mileageRate ?? null,
       }));
     }
-  }, [travelFeeOptions, moveFormData.jobType, moveFormData.jobTypeRate]);
+  }, [
+    travelFeeOptions,
+    moveFormData.jobType,
+    moveFormData.jobTypeRate,
+    moveFormData.travelFeeMethod,
+  ]);
 
   const { jobTypeRate, travelFeeMethod, jobType } = moveFormData;
 
@@ -490,7 +495,6 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
         isMoveDetailsComplete,
         updateMoveFee,
         companyContact,
-        segmentDistances,
         customer,
         setCustomer,
         customerErrors,

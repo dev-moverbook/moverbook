@@ -7,7 +7,6 @@ import SectionContainer from "@/app/components/shared/SectionContainer";
 import CenteredContainer from "@/app/components/shared/CenteredContainer";
 import SectionHeader from "@/app/components/shared/SectionHeader";
 import ConfirmModal from "@/app/components/shared/ConfirmModal";
-import { Button } from "@/app/components/ui/button";
 import LaborCard from "../cards/LaborCard";
 import LaborModal from "../modals/LaborModal";
 import { useCreateLabor } from "../hooks/useCreateLabor";

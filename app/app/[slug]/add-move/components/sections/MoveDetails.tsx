@@ -1,3 +1,6 @@
+// app/app/[slug]/add-move/components/sections/MoveDetails.tsx
+"use client";
+
 import { useEffect, useState } from "react";
 import LabeledDateInput from "@/app/components/shared/labeled/LabeledDateInput";
 import LabeledRadio from "@/app/components/shared/labeled/LabeledRadio";
@@ -55,7 +58,7 @@ const MoveDetails = () => {
               serviceType: value as ServiceType,
             }));
             if (moveFormErrors.serviceType) {
-              const { serviceType, ...rest } = moveFormErrors;
+              const { serviceType: _removed, ...rest } = moveFormErrors;
               setMoveFormErrors(rest);
             }
           }}
@@ -72,7 +75,7 @@ const MoveDetails = () => {
               moveDate: e.target.value,
             }));
             if (moveFormErrors.moveDate) {
-              const { moveDate, ...rest } = moveFormErrors;
+              const { moveDate: _removed, ...rest } = moveFormErrors;
               setMoveFormErrors(rest);
             }
           }}
@@ -101,7 +104,8 @@ const MoveDetails = () => {
                   },
                 }));
                 if (moveFormErrors.arrivalWindowStarts) {
-                  const { arrivalWindowStarts, ...rest } = moveFormErrors;
+                  const { arrivalWindowStarts: _removed, ...rest } =
+                    moveFormErrors;
                   setMoveFormErrors(rest);
                 }
               }}
@@ -119,7 +123,8 @@ const MoveDetails = () => {
                   },
                 }));
                 if (moveFormErrors.arrivalWindowEnds) {
-                  const { arrivalWindowEnds, ...rest } = moveFormErrors;
+                  const { arrivalWindowEnds: _removed, ...rest } =
+                    moveFormErrors;
                   setMoveFormErrors(rest);
                 }
               }}
@@ -186,7 +191,9 @@ const MoveDetails = () => {
               arrivalWindowOptions
                 ? [
                     {
-                      label: `${formatTime(arrivalWindowOptions.morningArrival)} - ${formatTime(arrivalWindowOptions.morningEnd)}`,
+                      label: `${formatTime(
+                        arrivalWindowOptions.morningArrival
+                      )} - ${formatTime(arrivalWindowOptions.morningEnd)}`,
                       value: JSON.stringify({
                         arrivalWindowStarts:
                           arrivalWindowOptions.morningArrival,
@@ -194,7 +201,9 @@ const MoveDetails = () => {
                       }),
                     },
                     {
-                      label: `${formatTime(arrivalWindowOptions.afternoonArrival)} - ${formatTime(arrivalWindowOptions.afternoonEnd)}`,
+                      label: `${formatTime(
+                        arrivalWindowOptions.afternoonArrival
+                      )} - ${formatTime(arrivalWindowOptions.afternoonEnd)}`,
                       value: JSON.stringify({
                         arrivalWindowStarts:
                           arrivalWindowOptions.afternoonArrival,

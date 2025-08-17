@@ -1,4 +1,4 @@
-import { CreatableUserRole, TravelChargingTypes } from "@/types/enums";
+import { CreatableUserRole } from "@/types/enums";
 import {
   AccessType,
   JobType,

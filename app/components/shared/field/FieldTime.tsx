@@ -1,6 +1,6 @@
 "use client";
 
-import React,  from "react";
+import React from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -10,7 +10,7 @@ import FieldErrorMessage from "../labeled/FieldErrorMessage";
 interface FieldTimeProps {
   label: string;
   name: string;
-  value?: string | null; 
+  value?: string | null;
   isEditing?: boolean;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   error?: string;
@@ -30,7 +30,6 @@ const FieldTime: React.FC<FieldTimeProps> = ({
   min,
   max,
 }) => {
-
   if (!isEditing) {
     return <FieldDisplay label={label} value={value} fallback={fallback} />;
   }
