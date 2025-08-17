@@ -1,7 +1,12 @@
-import { ItemFormData, MoveFormData } from "@/types/form-types";
+import {
+  CreateLaborFormData,
+  ItemFormData,
+  MoveFormData,
+} from "@/types/form-types";
 
 import { CreateMoveInput } from "../app/[slug]/add-move/hooks/createMove";
 import { ItemCreateInput } from "../app/[slug]/move-setup/hooks/useCreateItem";
+import { LaborCreateInput } from "../app/[slug]/move-setup/hooks/useCreateLabor";
 
 export const transformToCreateMoveInput = (
   form: MoveFormData
@@ -55,4 +60,50 @@ export const toItemCreateInput = (d: ItemFormData): Result<ItemCreateInput> => {
   if (d.weight == null) return { ok: false, error: "Weight is required" };
 
   return { ok: true, value: { ...d, size: d.size, weight: d.weight } };
+};
+
+const mustNumber = (v: number | null, label: string): number =>
+  typeof v === "number" && !Number.isNaN(v) ? v : NaN;
+
+export const buildLaborCreateInput = (
+  d: CreateLaborFormData
+): Result<LaborCreateInput> => {
+  if (!d.name.trim()) return { ok: false, error: "Labor name is required" };
+
+  const startDate = mustNumber(d.startDate, "Start date");
+  const endDate = mustNumber(d.endDate, "End date");
+  const two = mustNumber(d.twoMovers, "Two movers rate");
+  const three = mustNumber(d.threeMovers, "Three movers rate");
+  const four = mustNumber(d.fourMovers, "Four movers rate");
+  const extra = mustNumber(d.extra, "Extra rate");
+
+  if (Number.isNaN(startDate))
+    return { ok: false, error: "Start date is required" };
+  if (Number.isNaN(endDate))
+    return { ok: false, error: "End date is required" };
+  if (Number.isNaN(two))
+    return { ok: false, error: "Two movers rate is required" };
+  if (Number.isNaN(three))
+    return { ok: false, error: "Three movers rate is required" };
+  if (Number.isNaN(four))
+    return { ok: false, error: "Four movers rate is required" };
+  if (Number.isNaN(extra))
+    return { ok: false, error: "Extra rate is required" };
+
+  if (startDate > endDate) {
+    return { ok: false, error: "Start date cannot be after end date" };
+  }
+
+  return {
+    ok: true,
+    value: {
+      name: d.name.trim(),
+      startDate,
+      endDate,
+      twoMovers: two,
+      threeMovers: three,
+      fourMovers: four,
+      extra,
+    },
+  };
 };

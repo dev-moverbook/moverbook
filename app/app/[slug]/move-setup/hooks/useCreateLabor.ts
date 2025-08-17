@@ -6,7 +6,17 @@ import { api } from "@/convex/_generated/api";
 import { ResponseStatus } from "@/types/enums";
 import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
-import { CreateLaborFormData } from "@/types/form-types";
+
+export type LaborCreateInput = {
+  name: string;
+  startDate: number;
+  endDate: number;
+  twoMovers: number;
+  threeMovers: number;
+  fourMovers: number;
+  extra: number;
+  isDefault?: boolean;
+};
 
 export const useCreateLabor = () => {
   const [createLaborLoading, setCreateLaborLoading] = useState<boolean>(false);
@@ -16,7 +26,7 @@ export const useCreateLabor = () => {
 
   const createLabor = async (
     companyId: Id<"companies">,
-    laborData: CreateLaborFormData
+    laborData: LaborCreateInput
   ): Promise<boolean> => {
     setCreateLaborLoading(true);
     setCreateLaborError(null);

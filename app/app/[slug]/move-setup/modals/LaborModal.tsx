@@ -12,18 +12,17 @@ import FieldRow from "@/app/components/shared/FieldRow";
 import MonthDayPicker from "@/app/components/shared/MonthDayPicker";
 import CurrencyInput from "@/app/components/shared/labeled/CurrencyInput";
 import ResponsiveModal from "@/app/components/shared/modal/ResponsiveModal";
+import { LaborCreateInput } from "../hooks/useCreateLabor";
+import { buildLaborCreateInput } from "@/app/frontendUtils/transform";
 
 interface LaborModalProps {
   isOpen: boolean;
   onClose: () => void;
   onCreate: (
     companyId: Id<"companies">,
-    labor: CreateLaborFormData
+    labor: LaborCreateInput
   ) => Promise<boolean>;
-  onEdit: (
-    laborId: Id<"labor">,
-    labor: CreateLaborFormData
-  ) => Promise<boolean>;
+  onEdit: (laborId: Id<"labor">, labor: LaborCreateInput) => Promise<boolean>;
   loading: boolean;
   error: string | null;
   companyId: Id<"companies">;
@@ -185,18 +184,31 @@ const LaborModal: React.FC<LaborModalProps> = ({
       endDate: computedEndDate,
     };
 
-    const validationErrors = validateLaborForm(updatedLabor);
+    setErrors({});
 
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
+    const res = buildLaborCreateInput(updatedLabor);
+    if (!res.ok) {
+      const msg = res.error;
+      const nextErrors: typeof errors = {};
+
+      if (/labor name/i.test(msg)) nextErrors.name = msg;
+      else if (/start date/i.test(msg)) nextErrors.startDate = msg;
+      else if (/end date/i.test(msg)) nextErrors.endDate = msg;
+      else if (/two movers/i.test(msg)) nextErrors.twoMovers = msg;
+      else if (/three movers/i.test(msg)) nextErrors.threeMovers = msg;
+      else if (/four movers/i.test(msg)) nextErrors.fourMovers = msg;
+      else if (/extra rate/i.test(msg)) nextErrors.extra = msg;
+      else nextErrors.name = msg; // fallback
+
+      setErrors(nextErrors);
       return;
     }
 
-    setErrors({});
+    const payload: LaborCreateInput = res.value;
 
     const success = initialData
-      ? await onEdit(initialData._id, updatedLabor)
-      : await onCreate(companyId, updatedLabor);
+      ? await onEdit(initialData._id, payload)
+      : await onCreate(companyId, payload);
 
     if (success) handleClose();
   };
