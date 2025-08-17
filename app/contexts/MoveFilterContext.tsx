@@ -102,11 +102,12 @@ export const MoveFilterProvider = ({
       break;
   }
 
-  // ✅ Stabilize the moves array reference so useMemo deps don't thrash
-  const memoizedMoves = useMemo<EnrichedMove[]>(
-    () => (movesResult.status === QueryStatus.SUCCESS ? movesResult.data : []),
-    [movesResult.status, movesResult.data]
-  );
+  const memoizedMoves = useMemo<EnrichedMove[]>(() => {
+    if (movesResult.status === QueryStatus.SUCCESS) {
+      return movesResult.data;
+    }
+    return [];
+  }, [movesResult]);
 
   const value = useMemo(
     () => ({
