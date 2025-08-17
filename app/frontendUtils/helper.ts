@@ -432,7 +432,6 @@ export interface ListRowType {
   right: string | null;
 }
 
-\
 export function getMoveDisplayRows({
   moveFees,
   jobType,
@@ -490,7 +489,10 @@ function buildTravelRow(
 ): ListRowType {
   switch (method) {
     case TravelChargingTypes.LABOR_HOURS:
-      return { left: "Travel (Labor Rate)", right: `${formatCurrency(rate)}/hr` };
+      return {
+        left: "Travel (Labor Rate)",
+        right: `${formatCurrency(rate)}/hr`,
+      };
     case TravelChargingTypes.MILEAGE:
       return { left: "Travel (Mileage)", right: `${formatCurrency(rate)}/mi` };
     case TravelChargingTypes.FLAT:
