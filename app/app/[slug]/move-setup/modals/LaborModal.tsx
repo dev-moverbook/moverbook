@@ -1,13 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { FrontEndErrorMessages } from "@/types/errors";
 import { CreateLaborFormData } from "@/types/form-types";
 import { Id } from "@/convex/_generated/dataModel";
 import { LaborSchema } from "@/types/convex-schemas";
 import FieldGroup from "@/app/components/shared/FieldGroup";
 import FormActions from "@/app/components/shared/FormActions";
-import { validatePrice } from "@/app/frontendUtils/validation";
 import FieldRow from "@/app/components/shared/FieldRow";
 import MonthDayPicker from "@/app/components/shared/MonthDayPicker";
 import CurrencyInput from "@/app/components/shared/labeled/CurrencyInput";
