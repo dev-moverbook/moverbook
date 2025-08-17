@@ -18,6 +18,7 @@ const MoveStep = ({ onNext, onBack }: MoveStepProps) => {
     removeLocation,
     addStopLocation,
     companyContact,
+    segmentDistances,
     moveFormData,
   } = useMoveForm();
 
