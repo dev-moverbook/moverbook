@@ -188,9 +188,9 @@ export const createMove = mutation({
   args: {
     arrivalTimes: ArrivalTimesConvex,
     companyId: v.id("companies"),
-    creditCardFee: v.optional(v.union(v.null(), v.number())),
+    creditCardFee: v.number(),
     deposit: v.number(),
-    depositMethod: v.union(v.null(), PaymentMethodConvex),
+    paymentMethod: PaymentMethodConvex,
     destinationToOrigin: v.union(v.null(), v.number()),
     endingMoveTime: v.union(v.null(), v.number()),
     jobType: JobTypeConvex,
@@ -312,9 +312,9 @@ export const getMove = query({
 
 export const UpdateMoveFields = v.object({
   arrivalTimes: v.optional(ArrivalTimesConvex),
-  creditCardFee: v.optional(v.union(v.null(), v.number())),
+  creditCardFee: v.optional(v.number()),
   deposit: v.optional(v.number()),
-  depositMethod: v.optional(v.union(PaymentMethodConvex, v.null())),
+  paymentMethod: v.optional(PaymentMethodConvex),
   destinationToOrigin: v.optional(v.union(v.number(), v.null())),
   endingMoveTime: v.optional(v.union(v.number(), v.null())),
   jobType: v.optional(JobTypeConvex),

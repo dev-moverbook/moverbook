@@ -45,7 +45,7 @@ const QuoteSummary = () => {
       <h2 className="font-bold text-xl">Move Estimate</h2>
 
       {/* Date & Arrival */}
-      <div className="text-sm">
+      <div>
         Starting on <strong>{formatDateToLong(moveDate)}</strong>
         <br />
         Arrival {formatTime(arrivalTimes?.arrivalWindowStarts)} –{" "}
@@ -53,15 +53,13 @@ const QuoteSummary = () => {
       </div>
 
       {/* Rate & Summary */}
-      <div className="text-white text-sm">
+      <div className="text-white ">
         <p>{formatMoveSize(locations?.[0]?.moveSize)} </p>
         <p>{`${formatDisplayNumber(size, "ft³")} / ${formatDisplayNumber(weight, "lbs")}`}</p>
         <p>
           Estimated: {trucks} truck{trucks !== 1 ? "s" : ""} & {movers} crew
         </p>
-        <p className="italic text-xs mt-2 text-gray-400">
-          Non-binding estimate
-        </p>
+        <p className="italic  mt-2 text-gray-400">Non-binding estimate</p>
       </div>
     </div>
   );

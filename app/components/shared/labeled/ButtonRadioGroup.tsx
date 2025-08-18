@@ -49,7 +49,7 @@ const ButtonRadioGroup: React.FC<ButtonRadioGroupProps> = ({
     <div>
       {label && (
         <Label
-          className="text-white text-sm font-medium mb-2 block"
+          className="text-white  font-medium mb-1 block"
           id={`${name}-label`}
         >
           {label}

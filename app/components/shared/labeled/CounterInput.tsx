@@ -33,7 +33,6 @@ const CounterInput: React.FC<CounterInputProps> = ({
   );
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // ✅ Sync local inputValue with latest prop value
   useEffect(() => {
     setInputValue(value !== null ? String(value) : "");
   }, [value]);

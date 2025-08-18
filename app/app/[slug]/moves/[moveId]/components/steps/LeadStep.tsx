@@ -11,6 +11,7 @@ import ViewLaborFee from "../section/ViewLaborFee";
 import ViewCustomer from "../section/ViewCustomer";
 import ViewLiabilityFee from "../section/ViewLiabilityFee";
 import ViewLeadStep from "../section/ViewLeadStep";
+import ViewPaymentType from "../section/ViewPaymentType";
 
 const LeadStep = () => {
   return (
@@ -26,6 +27,7 @@ const LeadStep = () => {
       <ViewLiabilityFee />
       <LineItemSection />
       <DepositSection />
+      <ViewPaymentType />
       <CostSection />
       <InternalNotesSection />
     </div>

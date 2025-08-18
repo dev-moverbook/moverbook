@@ -15,6 +15,7 @@ const EditToggleButton: React.FC<EditToggleButtonProps> = ({
 }) => {
   return (
     <IconButton
+      className={`${isEditing ? " border-grayCustom " : ""}`}
       icon={
         isEditing ? <X className="w-4 h-4" /> : <Pencil className="w-4 h-4" />
       }

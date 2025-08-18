@@ -2,11 +2,12 @@
 
 import React, { useState } from "react";
 import { useMoveContext } from "@/app/contexts/MoveContext";
-import { MoveCreditCardFeeFormData } from "@/types/form-types";
+import { MovePaymentTypeFormData } from "@/types/form-types";
 import { useUpdateMove } from "../../../hooks/useUpdateMove";
-import MoveCreditCardFeeSection from "@/app/components/move/sections/MoveCreditCardSection";
+import PaymentTypeSection from "@/app/components/move/sections/Payment/PaymentTypeSection";
+import { PaymentMethod } from "@/types/types";
 
-const ViewCreditCardFee = () => {
+const ViewPaymentType = () => {
   const { moveData } = useMoveContext();
   const move = moveData.move;
 
@@ -14,18 +15,18 @@ const ViewCreditCardFee = () => {
 
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
-  const initialFormData: MoveCreditCardFeeFormData = {
-    creditCardFeeRate: move.creditCardFee,
+  const initialFormData: MovePaymentTypeFormData = {
+    paymentMethod: move.paymentMethod,
   };
 
   const [formData, setFormData] =
-    useState<MoveCreditCardFeeFormData>(initialFormData);
+    useState<MovePaymentTypeFormData>(initialFormData);
 
   const handleSave = async () => {
     const { success } = await updateMove({
       moveId: move._id,
       updates: {
-        creditCardFee: formData.creditCardFeeRate,
+        paymentMethod: formData.paymentMethod,
       },
     });
     return success;
@@ -36,18 +37,18 @@ const ViewCreditCardFee = () => {
     setIsEditing(false);
   };
 
-  const handleCreditCardFeeRateChange = (val: number) => {
+  const handlePaymentMethodChange = (val: PaymentMethod) => {
     setFormData({
       ...formData,
-      creditCardFeeRate: val,
+      paymentMethod: val,
     });
   };
 
   return (
-    <MoveCreditCardFeeSection
+    <PaymentTypeSection
       isAdd={false}
-      creditCardFeeRate={formData.creditCardFeeRate}
-      handleCreditCardFeeRateChange={handleCreditCardFeeRateChange}
+      paymentMethod={formData.paymentMethod}
+      onChange={handlePaymentMethodChange}
       onSave={handleSave}
       onCancel={handleCancel}
       isSaving={updateMoveLoading}
@@ -58,4 +59,4 @@ const ViewCreditCardFee = () => {
   );
 };
 
-export default ViewCreditCardFee;
+export default ViewPaymentType;

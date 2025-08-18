@@ -148,7 +148,7 @@ const LocationSection = () => {
         segmentDistances={move.segmentDistances}
         roundTripMiles={move.roundTripMiles}
         roundTripDrive={move.roundTripDrive}
-        showBorder={true}
+        showBorder={false}
       />
     </div>
   );

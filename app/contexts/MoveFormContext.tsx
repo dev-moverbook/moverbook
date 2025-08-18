@@ -61,6 +61,7 @@ interface AddMoveFormData {
   setMoveFormErrors: (errors: MoveFormErrors) => void;
   segmentDistances: SegmentDistance[];
   travelFeeOptions?: Doc<"travelFee">;
+  isAllSectionsComplete: boolean;
 }
 const MoveFormContext = createContext<AddMoveFormData | undefined>(undefined);
 
@@ -108,9 +109,9 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
       arrivalWindowStarts: "",
     },
     companyId: null,
-    creditCardFee: null,
+    creditCardFee: 0,
     deposit: 0,
-    depositMethod: null,
+    paymentMethod: { kind: "credit_card" },
     destinationToOrigin: null,
     endingMoveTime: 1,
     liabilityCoverage: null,
@@ -426,25 +427,29 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
     const location = moveFormData.locations[index];
     return (
       !!location?.address &&
-      !!location?.squareFootage &&
       !!location?.locationType &&
-      !!location?.moveSize &&
       !!location?.accessType &&
       !!location?.timeDistanceRange &&
-      !!location?.locationRole
+      !!location?.locationRole &&
+      location?.squareFootage !== null &&
+      location?.squareFootage !== undefined &&
+      (location?.locationRole === "ending" ||
+        (location?.moveSize !== null && location?.moveSize !== undefined))
     );
   };
 
   const isLocationSectionComplete = moveFormData.locations.every(
     (location: LocationInput) => {
       return (
-        !!location.address &&
-        !!location.squareFootage &&
-        !!location.locationType &&
-        !!location.moveSize &&
-        !!location.accessType &&
-        !!location.timeDistanceRange &&
-        !!location.locationRole
+        !!location?.address &&
+        !!location?.locationType &&
+        !!location?.accessType &&
+        !!location?.timeDistanceRange &&
+        !!location?.locationRole &&
+        location?.squareFootage !== null &&
+        location?.squareFootage !== undefined &&
+        (location?.locationRole === "ending" ||
+          (location?.moveSize !== null && location?.moveSize !== undefined))
       );
     }
   );
@@ -452,8 +457,12 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
   const isMoveDetailsComplete =
     moveFormData.serviceType !== null &&
     moveFormData.moveWindow !== null &&
-    moveFormData.arrivalTimes.arrivalWindowStarts !== "" &&
-    moveFormData.arrivalTimes.arrivalWindowEnds !== "";
+    !!moveFormData.moveDate &&
+    !!moveFormData.arrivalTimes.arrivalWindowStarts &&
+    !!moveFormData.arrivalTimes.arrivalWindowEnds;
+
+  const isAllSectionsComplete =
+    isInfoSectionComplete && isLocationSectionComplete && isMoveDetailsComplete;
 
   return (
     <MoveFormContext.Provider
@@ -478,6 +487,7 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
         addMoveItem,
         updateMoveItem,
         removeMoveItem,
+        isAllSectionsComplete,
         isInfoSectionComplete,
         isLocationSectionComplete,
         isLocationComplete,

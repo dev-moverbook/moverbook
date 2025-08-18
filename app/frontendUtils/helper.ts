@@ -149,24 +149,54 @@ export const getMoveStatusType = (
     : "Missing Information";
 };
 
-// Need to update
 export const hasRequiredMoveFields = (
   move: Doc<"move">,
   moveCustomer: Doc<"moveCustomers">
 ): boolean => {
-  const hasContactInfo =
-    moveCustomer.name?.trim() &&
-    moveCustomer.email?.trim() &&
-    moveCustomer.phoneNumber?.trim() &&
-    moveCustomer.altPhoneNumber?.trim() &&
-    moveCustomer.referral?.trim();
+  // Info section: email + phone required; altPhone optional; referral required
+  const hasInfoSection =
+    !!moveCustomer.email?.trim() &&
+    !!moveCustomer.phoneNumber?.trim() &&
+    (!!moveCustomer.altPhoneNumber
+      ? !!moveCustomer.altPhoneNumber.trim()
+      : true) &&
+    !!moveCustomer.referral?.trim();
 
-  const hasLocations =
+  // Single-location completeness (matches MoveFormProvider logic)
+  const isLocationComplete = (loc: any): boolean => {
+    if (!loc) return false;
+    const baseOk =
+      !!loc.address?.trim() &&
+      loc.locationType != null &&
+      loc.accessType != null &&
+      !!loc.timeDistanceRange &&
+      !!loc.locationRole &&
+      loc.squareFootage !== null &&
+      loc.squareFootage !== undefined;
+
+    const sizeOk =
+      loc.locationRole === "ending"
+        ? true
+        : loc.moveSize !== null && loc.moveSize !== undefined;
+
+    return baseOk && sizeOk;
+  };
+
+  // Locations section: at least two locations and all complete
+  const hasLocationSection =
     Array.isArray(move.locations) &&
     move.locations.length >= 2 &&
-    move.locations.every((loc) => loc?.address?.trim());
+    move.locations.every(isLocationComplete);
 
-  return Boolean(hasContactInfo && hasLocations);
+  // Move details section: serviceType + moveWindow + moveDate + arrival window
+  const hasMoveDetailsSection =
+    move.serviceType !== null &&
+    move.moveWindow !== null &&
+    !!move.moveDate &&
+    !!move.arrivalTimes?.arrivalWindowStarts &&
+    !!move.arrivalTimes?.arrivalWindowEnds;
+
+  return hasInfoSection && hasLocationSection && hasMoveDetailsSection;
 };
 
 export function formatServiceTypeLabel(
@@ -258,19 +288,19 @@ export function groupItemsByRoom(
   );
 }
 
-export function formatPaymentMethod(
-  method?: PaymentMethod | null
-): string | null {
-  if (!method) return "";
+// export function formatPaymentMethod(
+//   method?: PaymentMethod | null
+// ): string | null {
+//   if (!method) return "";
 
-  const map: Record<PaymentMethod, string> = {
-    credit_card: "Credit Card",
-    check: "Check",
-    cash: "Cash",
-  };
+//   const map: Record<PaymentMethod, string> = {
+//     credit_card: "Credit Card",
+//     check: "Check",
+//     cash: "Cash",
+//   };
 
-  return map[method];
-}
+//   return map[method];
+// }
 
 export const formatNarrowWeekday = (
   locale: string | undefined,
@@ -290,9 +320,13 @@ export const formatShortDate = (date: Date): string => {
   return dt.toLocaleString({ month: "short", day: "numeric", year: "numeric" });
 };
 
-export const formatLongDate = (date: Date): string => {
-  const dt = DateTime.fromJSDate(date);
-  return dt.toLocaleString({ month: "long", day: "numeric", year: "numeric" });
+export const formatLongDate = (date: Date | null | undefined): string => {
+  if (!date || Number.isNaN(date.getTime())) return "Missing Date";
+  return DateTime.fromJSDate(date).toLocaleString({
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
 };
 
 export const getCurrentDate = (timeZone: string): Date => {
@@ -432,6 +466,150 @@ export interface ListRowType {
   right: string | null;
 }
 
+// ---- types you already have somewhere ----
+// import { PaymentMethod } from "@/types/types";
+// import { TravelChargingTypes } from "@/types/enums";
+// import { formatCurrency, ListRowType } from "@/app/frontendUtils/helper";
+
+type LineFee = { name: string; quantity: number; price: number };
+
+type ComputeTotalParams = {
+  moveFees: LineFee[];
+  jobType: "hourly" | "flat";
+  jobTypeRate: number | null;
+
+  liabilityCoverage?: { premium: number } | null;
+
+  travelFeeRate?: number | null;
+  travelFeeMethod?: TravelChargingTypes | null;
+  travelHours?: number;
+  travelMiles?: number;
+
+  paymentMethod: PaymentMethod;
+  creditCardFee: number; // 2.5 or 0.025 both supported
+
+  startingMoveTime?: number; // min labor hours (for hourly)
+  endingMoveTime?: number; // max labor hours (for hourly)
+};
+
+const pctToUnit = (p: number) => (p <= 1 ? p : p / 100);
+
+const calcTravelCost = (
+  method?: TravelChargingTypes | null,
+  rate?: number | null,
+  hours = 0,
+  miles = 0
+) => {
+  switch (method) {
+    case TravelChargingTypes.LABOR_HOURS:
+      return (rate ?? 0) * hours;
+    case TravelChargingTypes.MILEAGE:
+      return (rate ?? 0) * miles;
+    case TravelChargingTypes.FLAT:
+      return rate ?? 0;
+    default:
+      return 0;
+  }
+};
+
+/**
+ * Returns { minTotal, maxTotal } (they’re equal for flat jobs).
+ */
+export function computeMoveTotal({
+  moveFees,
+  jobType,
+  jobTypeRate,
+  liabilityCoverage,
+  travelFeeRate,
+  travelFeeMethod,
+  travelHours = 0,
+  travelMiles = 0,
+  paymentMethod,
+  creditCardFee,
+  startingMoveTime,
+  endingMoveTime,
+}: ComputeTotalParams): { minTotal: number; maxTotal: number } {
+  const feesSubtotal = moveFees.reduce(
+    (sum, f) => sum + f.price * f.quantity,
+    0
+  );
+  const liabilityCost = liabilityCoverage?.premium ?? 0;
+
+  const travelCost = calcTravelCost(
+    travelFeeMethod,
+    travelFeeRate ?? 0,
+    travelHours,
+    travelMiles
+  );
+
+  const ccRate =
+    paymentMethod?.kind === "credit_card" ? pctToUnit(creditCardFee) : 0;
+
+  if (jobType === "hourly") {
+    const minH = typeof startingMoveTime === "number" ? startingMoveTime : 0;
+    const maxH =
+      typeof endingMoveTime === "number"
+        ? Math.max(endingMoveTime, minH)
+        : minH;
+
+    const rate = jobTypeRate ?? 0;
+    const jobMin = rate * minH;
+    const jobMax = rate * maxH;
+
+    const preMin = feesSubtotal + liabilityCost + travelCost + jobMin;
+    const preMax = feesSubtotal + liabilityCost + travelCost + jobMax;
+
+    return {
+      minTotal: preMin + preMin * ccRate,
+      maxTotal: preMax + preMax * ccRate,
+    };
+  }
+
+  // flat job
+  const job = jobTypeRate ?? 0;
+  const pre = feesSubtotal + liabilityCost + travelCost + job;
+  const total = pre + pre * ccRate;
+  return { minTotal: total, maxTotal: total };
+}
+
+// --------------------------------------------------------------------
+// Your existing rows builder, now calling computeMoveTotal when needed.
+// --------------------------------------------------------------------
+const fmt2 = (n: number) => (Number.isFinite(n) ? n.toFixed(2) : "0.00");
+
+const fmtSmart = (n: number) =>
+  Number.isInteger(n) ? String(n) : n.toFixed(2);
+
+const buildHourlySuffix = (minH?: number, maxH?: number) => {
+  const hasMin = typeof minH === "number";
+  const hasMax = typeof maxH === "number";
+
+  if (hasMin && hasMax) {
+    const a = Math.max(0, minH!);
+    const b = Math.max(a, maxH!);
+    return a === b
+      ? ` (${fmtSmart(a)} hrs)`
+      : ` (${fmtSmart(a)} - ${fmtSmart(b)} hrs)`;
+  }
+  if (hasMin) return ` (${fmtSmart(Math.max(0, minH!))} hrs)`;
+  return "";
+};
+
+const buildTravelSuffix = (
+  method?: TravelChargingTypes | null,
+  hours = 0,
+  miles = 0
+) => {
+  switch (method) {
+    case TravelChargingTypes.LABOR_HOURS:
+      return ` (${fmt2(Math.max(0, hours))} hrs)`;
+    case TravelChargingTypes.MILEAGE:
+      return ` (${fmt2(Math.max(0, miles))} mi)`;
+    default:
+      return "";
+  }
+};
+
 export function getMoveDisplayRows({
   moveFees,
   jobType,
@@ -439,27 +617,44 @@ export function getMoveDisplayRows({
   liabilityCoverage,
   travelFeeRate,
   travelFeeMethod,
+  paymentMethod,
+  creditCardFee,
+  getTotal = false,
+  startingMoveTime,
+  endingMoveTime,
+  travelHours = 0,
+  travelMiles = 0,
 }: {
   moveFees: { name: string; quantity: number; price: number }[];
   jobType: "hourly" | "flat";
   jobTypeRate: number | null;
+  paymentMethod: PaymentMethod;
+  creditCardFee: number;
   liabilityCoverage?: { premium: number } | null;
   travelFeeRate?: number | null;
   travelFeeMethod?: TravelChargingTypes | null;
+  getTotal?: boolean;
+  startingMoveTime?: number;
+  endingMoveTime?: number;
+  travelHours?: number;
+  travelMiles?: number;
 }): ListRowType[] {
-  const jobTypeRateDisplay = jobType === "hourly" ? "Hourly Rate" : "Job Rate";
+  const jobTypeRateDisplayBase =
+    jobType === "hourly" ? "Hourly Rate" : "Job Rate";
+
   const jobRateValue =
     jobType === "hourly"
       ? `${formatCurrency(jobTypeRate ?? 0)}/hr`
       : `${formatCurrency(jobTypeRate ?? 0)}`;
 
-  // Optional Travel Fee row
-  const travelRow =
+  // keep right-hand formatting via your existing helper,
+  // but we'll override the left label to remove "(Labor Rate)/(Mileage)"
+  const travelRowBase =
     travelFeeMethod != null
       ? buildTravelRow(travelFeeMethod, travelFeeRate ?? 0)
       : null;
 
-  const baseRows: ListRowType[] = [
+  const rows: ListRowType[] = [
     ...moveFees.map((fee) => ({
       left: `${fee.name} (${fee.quantity} @ ${formatCurrency(fee.price)})`,
       right: `${formatCurrency(fee.price * fee.quantity)}`,
@@ -470,17 +665,59 @@ export function getMoveDisplayRows({
     },
   ];
 
-  if (travelRow) {
-    // insert travel fee after liability coverage (adjust ordering if you prefer)
-    baseRows.push(travelRow);
+  if (travelRowBase) {
+    const travelSuffix = getTotal
+      ? buildTravelSuffix(travelFeeMethod, travelHours, travelMiles)
+      : "";
+    rows.push({
+      left: `Travel Fee${travelSuffix}`, // stripped method label
+      right: travelRowBase.right, // keep unit on the right (/hr, /mi, or flat)
+    });
   }
 
-  baseRows.push({
-    left: jobTypeRateDisplay,
+  // Job rate row (before credit-card fee)
+  const jobSuffix =
+    getTotal && jobType === "hourly"
+      ? buildHourlySuffix(startingMoveTime, endingMoveTime)
+      : "";
+  rows.push({
+    left: `${jobTypeRateDisplayBase}${jobSuffix}`,
     right: jobRateValue,
   });
 
-  return baseRows;
+  // Credit card fee now AFTER the job rate row
+  if (paymentMethod?.kind === "credit_card") {
+    const pct = creditCardFee <= 1 ? creditCardFee * 100 : creditCardFee;
+    rows.push({ left: "Credit Card Fee", right: `${pct.toFixed(2)}%` });
+  }
+
+  if (!getTotal) return rows;
+
+  // Totals (unchanged)
+  const { minTotal, maxTotal } = computeMoveTotal({
+    moveFees,
+    jobType,
+    jobTypeRate,
+    liabilityCoverage,
+    travelFeeRate,
+    travelFeeMethod,
+    travelHours,
+    travelMiles,
+    paymentMethod,
+    creditCardFee,
+    startingMoveTime,
+    endingMoveTime,
+  });
+
+  rows.push({
+    left: "Total",
+    right:
+      minTotal === maxTotal
+        ? formatCurrency(minTotal)
+        : `${formatCurrency(minTotal)} - ${formatCurrency(maxTotal)}`,
+  });
+
+  return rows;
 }
 
 function buildTravelRow(

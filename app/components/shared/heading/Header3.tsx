@@ -5,13 +5,13 @@ import { cn } from "@/lib/utils";
 import { CircleCheckBig } from "lucide-react";
 
 interface Header3Props {
-  children?: React.ReactNode; // was required → optional
+  children?: React.ReactNode;
   className?: string;
   wrapperClassName?: string;
   isCompleted?: boolean;
   showCheckmark?: boolean;
   button?: React.ReactNode;
-  hideTitle?: boolean; // NEW
+  hideTitle?: boolean;
 }
 
 const Header3: React.FC<Header3Props> = ({
@@ -21,17 +21,17 @@ const Header3: React.FC<Header3Props> = ({
   isCompleted = false,
   showCheckmark = true,
   button,
-  hideTitle = false, // NEW
+  hideTitle = false,
 }) => {
   return (
     <div
       className={cn(
         "flex items-center w-full pt-6 px-4 md:px-0 max-w-screen-sm mx-auto",
-        hideTitle ? "justify-end" : "justify-between", // NEW
+        hideTitle ? "justify-start" : "justify-between",
         wrapperClassName
       )}
     >
-      {!hideTitle /* NEW */ && (
+      {!hideTitle && (
         <div className="flex items-center gap-1.5">
           <h3 className={cn("text-2xl font-bold", className)}>{children}</h3>
           {showCheckmark && (

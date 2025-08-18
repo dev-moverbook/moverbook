@@ -17,7 +17,7 @@ const GroupedItemsList: React.FC<GroupedItemsListProps> = ({
   isEditing = false,
 }) => {
   if (items.length === 0) {
-    return <p className="text-grayCustom italic">No items have been added.</p>;
+    return <p className="text-grayCustom ">No items have been added.</p>;
   }
 
   const grouped = items.reduce<Record<string, MoveItemInput[]>>((acc, item) => {

@@ -23,8 +23,8 @@ const InternalReview = ({ internalReview, move }: InternalReviewProps) => {
           onSave={() => {}}
           isSaving={false}
           error={null}
-          saveLabel="Text"
-          cancelLabel="Email"
+          saveLabel="Email"
+          cancelLabel="Text"
           disabled={isDisabled}
           cancelDisabled={isDisabled}
         />

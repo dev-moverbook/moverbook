@@ -5,7 +5,7 @@ import FieldDisplay from "../FieldDisplay";
 interface PercentageInputProps {
   label?: string;
   value: number | null;
-  onChange: (value: number | null) => void;
+  onChange: (value: number) => void;
   isEditing?: boolean;
   error?: string | null;
 }
@@ -35,12 +35,8 @@ const PercentageInput: React.FC<PercentageInputProps> = ({
       <NumericFormat
         value={value === null ? "" : value}
         onValueChange={(values) => {
-          if (values.value === "") {
-            onChange(null);
-          } else {
-            const numericValue = values.floatValue ?? 0;
-            onChange(numericValue);
-          }
+          const numericValue = values.floatValue ?? 0;
+          onChange(numericValue);
         }}
         suffix="%"
         decimalScale={2}

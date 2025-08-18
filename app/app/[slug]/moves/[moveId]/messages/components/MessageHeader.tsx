@@ -40,7 +40,7 @@ const MessageHeader: React.FC<MessageHeaderProps> = ({
             </div>
             <div className=" flex items-center justify-center text-sm text-grayCustom2">
               <Truck className="w-4 h-4 mr-1" />
-              {formatLongDate(new Date(moveDate ?? ""))}
+              {formatLongDate(moveDate ? new Date(moveDate) : null)}{" "}
             </div>
           </div>
           <IconButton

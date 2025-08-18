@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import { useSlugContext } from "@/app/contexts/SlugContext";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { Button } from "../ui/button";
+import { cn } from "@/lib/utils";
 
 interface MoveCardProps {
   move: Doc<"move">;
@@ -22,6 +23,8 @@ interface MoveCardProps {
   onClick?: (moveId: Id<"move">) => void;
   /** If true, only render the Job ID tag (when available). */
   showOnlyJobIdTag?: boolean;
+  /** Extra classes for the OUTER wrapper div */
+  className?: string;
 }
 
 const MoveOnlyCard: React.FC<MoveCardProps> = ({
@@ -30,6 +33,7 @@ const MoveOnlyCard: React.FC<MoveCardProps> = ({
   onDuplicate,
   onClick,
   showOnlyJobIdTag = false,
+  className,
 }) => {
   const { moveDate, moveStatus, _id } = move;
   const { slug } = useSlugContext();
@@ -51,13 +55,13 @@ const MoveOnlyCard: React.FC<MoveCardProps> = ({
   return (
     <div
       onClick={() => onClick?.(move._id)}
-      className="border-b border-grayCustom sm:border-none"
+      className={cn("border-b border-grayCustom", className)}
     >
       <div
-        className={`
-          bg-black py-4 px-4 md:px-0 text-white transition-colors duration-200
-          ${onClick ? "hover:bg-background2 cursor-pointer" : ""}
-        `}
+        className={cn(
+          "bg-black py-4 px-4  text-white transition-colors duration-200",
+          onClick ? "hover:bg-background2 cursor-pointer" : ""
+        )}
       >
         <div className="max-w-screen-sm mx-auto">
           <p className="text-grayCustom2">{formatDateToLong(moveDate)}</p>

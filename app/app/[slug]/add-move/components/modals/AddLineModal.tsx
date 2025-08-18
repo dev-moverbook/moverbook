@@ -156,10 +156,8 @@ const AddLineModal = ({
         onChange={(val) => {
           setFormData((prev) => ({
             ...prev,
-            // keep two decimals; allow clearing to null
             price: val != null ? Math.round(val * 100) / 100 : null,
           }));
-          // ✅ remove price error without unused var warning
           setErrors((prev) => {
             if (!prev.price) return prev;
             const next = { ...prev };

@@ -81,15 +81,14 @@ const LaborInputs: React.FC<LaborInputsProps> = ({
         label={
           formData.jobType === "hourly" ? "Hourly Rate ($/hr)" : "Flat Rate ($)"
         }
-        value={formData.jobTypeRate ?? 0}
+        value={formData.jobTypeRate}
         onChange={(val) => {
-          const rounded = val ? Math.round(val * 100) / 100 : null;
-          onChange("jobTypeRate", rounded);
+          onChange("jobTypeRate", val);
           clearError("jobTypeRate");
         }}
         error={errors?.jobTypeRate}
         isEditing={isEditing}
-        suffix={formData.jobType === "hourly" ? "/hr" : ""}
+        suffix={formData.jobType === "hourly" ? "/hr" : undefined}
       />
     </>
   );

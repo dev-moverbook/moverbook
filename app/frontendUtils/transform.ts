@@ -18,9 +18,9 @@ export const transformToCreateMoveInput = (
   return {
     arrivalTimes: form.arrivalTimes,
     companyId: form.companyId,
-    creditCardFee: form.creditCardFee ?? null,
+    creditCardFee: form.creditCardFee,
     deposit: form.deposit,
-    depositMethod: form.deposit > 0 ? form.depositMethod! : null,
+    paymentMethod: form.paymentMethod,
     destinationToOrigin: form.destinationToOrigin,
     endingMoveTime: form.endingMoveTime,
     jobType: form.jobType,

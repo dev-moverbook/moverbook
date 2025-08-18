@@ -4,16 +4,34 @@ import CostTable from "@/app/components/move/sections/CostTable";
 
 const CostSummary = () => {
   const { moveFormData } = useMoveForm();
-  const { moveFees, liabilityCoverage, jobTypeRate, jobType } = moveFormData;
+  const {
+    moveFees,
+    liabilityCoverage,
+    jobTypeRate,
+    jobType,
+    paymentMethod,
+    creditCardFee,
+    travelFeeRate,
+    travelFeeMethod,
+    startingMoveTime,
+    endingMoveTime,
+  } = moveFormData;
 
   const displayRows = getMoveDisplayRows({
     moveFees,
     jobType,
     jobTypeRate,
     liabilityCoverage,
+    paymentMethod,
+    creditCardFee,
+    travelFeeRate,
+    travelFeeMethod,
+    getTotal: true,
+    startingMoveTime: startingMoveTime ?? 0,
+    endingMoveTime: endingMoveTime ?? 0,
   });
 
-  return <CostTable title="Cost" rows={displayRows} />;
+  return <CostTable title="Cost" rows={displayRows} boldLastRow={true} />;
 };
 
 export default CostSummary;

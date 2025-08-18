@@ -1,3 +1,4 @@
+// StopSection.tsx
 "use client";
 
 import React, { useState } from "react";
@@ -71,7 +72,7 @@ const StopSection = ({
       />
 
       {stops.map((stop, i) => {
-        const actualIndex = i + 1; // compensate for starting location
+        const actualIndex = i + 1;
         return (
           <MoveAddress
             key={stop.uid}
@@ -79,7 +80,7 @@ const StopSection = ({
             index={actualIndex}
             location={stop}
             updateLocation={updateLocation}
-            removeLocation={() => handleOpenDeleteModal(actualIndex)} // open confirm
+            removeLocation={() => handleOpenDeleteModal(actualIndex)}
             showEditButton={showEditButton}
             isAdding={isAddingIndex === actualIndex}
             onSaved={onSaved}

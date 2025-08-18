@@ -13,8 +13,8 @@ interface MoveCreditCardFeeProps {
   updateError?: string | null;
   onSave?: () => Promise<boolean>;
   onCancel?: () => void;
-  creditCardFeeRate: number | null;
-  handleCreditCardFeeRateChange: (value: number | null) => void;
+  creditCardFeeRate: number;
+  handleCreditCardFeeRateChange: (value: number) => void;
   isEditing?: boolean;
   setIsEditing?: (value: boolean) => void;
 }

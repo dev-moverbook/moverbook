@@ -91,7 +91,7 @@ const LaborSection: React.FC<LaborSectionProps> = ({
   return (
     <div>
       <Header3
-        wrapperClassName=" pt-0"
+        wrapperClassName={`${isAdd ? "" : "pt-4"}`}
         showCheckmark={false}
         button={
           !isAdd && (
@@ -124,21 +124,21 @@ const LaborSection: React.FC<LaborSectionProps> = ({
           handleMoverChangeWithEstimate={handleMoverChangeWithEstimate}
           errors={errors}
         />
-        <LaborSummary formData={formData} roundTripDrive={roundTripDrive} />
-        {editingMode && onCancel && setIsEditing && (
-          <FormActionContainer className="mt-4">
-            <FormActions
-              onSave={(e) => {
-                e.preventDefault();
-                handleSave();
-              }}
-              onCancel={onCancel}
-              isSaving={isSaving}
-              error={updateError}
-            />
-          </FormActionContainer>
-        )}
       </SectionContainer>
+      <LaborSummary formData={formData} roundTripDrive={roundTripDrive} />
+      {editingMode && onCancel && setIsEditing && (
+        <FormActionContainer className="mt-8 max-w-screen-sm w-full mx-auto ">
+          <FormActions
+            onSave={(e) => {
+              e.preventDefault();
+              handleSave();
+            }}
+            onCancel={onCancel}
+            isSaving={isSaving}
+            error={updateError}
+          />
+        </FormActionContainer>
+      )}
     </div>
   );
 };

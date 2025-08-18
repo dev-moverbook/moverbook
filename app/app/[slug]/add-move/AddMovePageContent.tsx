@@ -24,7 +24,15 @@ const AddMovePageContent = () => {
   const search = useSearchParams();
   const moveCustomerId = search.get("moveCustomerId");
 
-  const { setCustomer, setMoveFormData, moveFormData } = useMoveForm();
+  const {
+    setCustomer,
+    setMoveFormData,
+    moveFormData,
+    isAllSectionsComplete,
+    isInfoSectionComplete,
+    isLocationSectionComplete,
+    isMoveDetailsComplete,
+  } = useMoveForm();
 
   const [showModal, setShowModal] = useState<boolean>(false);
   const [currentStep, setCurrentStep] = useState<number>(1);
@@ -165,7 +173,6 @@ const AddMovePageContent = () => {
       setCreateMoveError(null);
 
       let createMoveInput: CreateMoveInput;
-
       try {
         createMoveInput = transformToCreateMoveInput(moveFormData);
       } catch (err) {
@@ -180,7 +187,11 @@ const AddMovePageContent = () => {
 
       if (success) {
         window.removeEventListener("beforeunload", handleBeforeUnload);
-        router.push(`/app/${slug}/moves/${moveId}`);
+
+        const basePath = `/app/${slug}/moves/${moveId}`;
+        const target = isAllSectionsComplete ? `${basePath}?step=2` : basePath;
+
+        router.push(target);
       }
     }
   };
@@ -201,7 +212,6 @@ const AddMovePageContent = () => {
           { label: "Costs" },
         ]}
         onStepClick={(step) => setCurrentStep(step)}
-        disabledSteps={!moveFormData.moveCustomerId ? [2, 3, 4] : []}
       />
 
       {currentStep === 1 && (

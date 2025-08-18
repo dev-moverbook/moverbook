@@ -104,7 +104,7 @@ const SelectionInventory = ({
         <div>
           <SectionContainer>
             <Header3
-              wrapperClassName="px-0"
+              wrapperClassName="px-0 pt-0"
               showCheckmark={false}
               button={
                 <IconRow>

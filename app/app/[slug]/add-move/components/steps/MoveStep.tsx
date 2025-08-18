@@ -51,6 +51,7 @@ const MoveStep = ({ onNext, onBack }: MoveStepProps) => {
         segmentDistances={segmentDistances}
         roundTripMiles={moveFormData.roundTripMiles}
         roundTripDrive={moveFormData.roundTripDrive}
+        showBorder={false}
       />
 
       <FormActionContainer className="mt-6">

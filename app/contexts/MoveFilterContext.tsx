@@ -57,6 +57,7 @@ export const MoveFilterProvider = ({
   const [selectedStatuses, setSelectedStatuses] = useState<MoveStatus[]>([
     "New Lead",
     "Booked",
+    "Quoted",
   ]);
   const [filterStartDate, setFilterStartDate] = useState<string>(todayISO);
   const [filterEndDate, setFilterEndDate] = useState<string>(weekLaterISO);
@@ -66,7 +67,6 @@ export const MoveFilterProvider = ({
   const [selectedDate, setSelectedDate] = useState<Date>(today);
   const [isWeekView, setIsWeekView] = useState<boolean>(true);
 
-  // Month range for calendar view
   const selectedMonth = DateTime.fromJSDate(selectedDate).setZone(timeZone);
   const monthStart = selectedMonth.startOf("month").toISODate()!;
   const monthEnd = selectedMonth.endOf("month").toISODate()!;
@@ -74,7 +74,6 @@ export const MoveFilterProvider = ({
   const queryStart = isList ? filterStartDate : monthStart;
   const queryEnd = isList ? filterEndDate : monthEnd;
 
-  // ✅ Use the new union-status hook
   const movesResult = useMovesForCalendar({
     start: queryStart,
     end: queryEnd,
@@ -84,7 +83,6 @@ export const MoveFilterProvider = ({
     priceOrder: priceFilter,
   });
 
-  // Derive legacy booleans + data for consumers
   let isLoading = false;
   let isError = false;
   let errorMessage: string | null = null;

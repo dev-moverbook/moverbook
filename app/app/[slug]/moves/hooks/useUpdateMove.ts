@@ -7,14 +7,20 @@ import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
 import { api } from "@/convex/_generated/api";
 import { LocationInput, MoveFeeInput, MoveItemInput } from "@/types/form-types";
-import { MoveStatus, MoveTimes, ServiceType, JobType } from "@/types/types";
+import {
+  MoveStatus,
+  MoveTimes,
+  ServiceType,
+  JobType,
+  PaymentMethod,
+} from "@/types/types";
 import { ArrivalTimes, InsurancePolicySchema } from "@/types/convex-schemas";
 
 export interface UpdateMoveInput {
   moveId: Id<"move">;
   updates: {
     arrivalTimes?: ArrivalTimes;
-    creditCardFee?: number | null;
+    creditCardFee?: number;
     deposit?: number;
     destinationToOrigin?: number | null;
     endingMoveTime?: number | null;
@@ -30,6 +36,7 @@ export interface UpdateMoveInput {
     movers?: number;
     notes?: string | null;
     officeToOrigin?: number | null;
+    paymentMethod?: PaymentMethod;
     roundTripDrive?: number | null;
     roundTripMiles?: number | null;
     salesRep?: Id<"users">;

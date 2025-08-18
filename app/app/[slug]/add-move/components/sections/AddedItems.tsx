@@ -69,7 +69,7 @@ const AddedItems = ({
     <div>
       {isEditing && (
         <Header3
-          wrapperClassName="px-4 pt-0"
+          wrapperClassName={`px-4 pt-0 ${hideTitle ? "mt-2" : ""}`}
           button={
             <Button
               variant="outline"

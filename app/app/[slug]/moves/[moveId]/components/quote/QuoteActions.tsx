@@ -79,8 +79,8 @@ const QuoteActions = ({ onEditQuote, signatureDataUrl }: QuoteActionsProps) => {
   return (
     <FormActionContainer>
       <TripleFormAction
-        primaryLabel="Text Quote"
-        secondaryLabel="Email Quote"
+        primaryLabel="Email Quote"
+        secondaryLabel="Text Quote"
         tertiaryLabel="Mark as Booked"
         secondaryVariant="outline"
         tertiaryVariant="outline"

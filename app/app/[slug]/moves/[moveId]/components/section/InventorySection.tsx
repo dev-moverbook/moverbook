@@ -117,7 +117,7 @@ const InventorySection = ({
         />
 
         {isEditing && (
-          <SectionContainer>
+          <SectionContainer className="px-0">
             <SelectionInventory
               selectedItemIndices={selectedItemIndices}
               setSelectedItemIndices={setSelectedItemIndices}

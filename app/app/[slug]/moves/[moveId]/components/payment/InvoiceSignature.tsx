@@ -107,8 +107,8 @@ const InvoiceSignature = ({ invoice, move }: InvoiceSignatureProps) => {
             tertiaryDisabled={isComplete}
             secondaryVariant="outline"
             tertiaryVariant="outline"
-            primaryLabel="Text"
-            secondaryLabel="Email"
+            primaryLabel="Email"
+            secondaryLabel="Text"
             tertiaryLabel="Mark as Complete"
           />
         </FormActionContainer>

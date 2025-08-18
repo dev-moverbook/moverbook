@@ -19,7 +19,7 @@ const ReusableCard = ({
   return (
     <CustomCard className="flex flex-col justify-between gap-4 p-4">
       <CardHeaderWithActions title={title} className="p-0" />
-      <div className="flex flex-col gap-1 text-grayCustom2">
+      <div className="flex flex-col gap-1 ">
         {texts.map(([label, value, bold], index) => (
           <div
             key={index}

@@ -12,6 +12,8 @@ const CostSection = () => {
     jobType,
     travelFeeRate,
     travelFeeMethod,
+    paymentMethod,
+    creditCardFee,
   } = move;
 
   const displayRows = getMoveDisplayRows({
@@ -21,9 +23,12 @@ const CostSection = () => {
     liabilityCoverage,
     travelFeeRate,
     travelFeeMethod,
+    paymentMethod,
+    creditCardFee,
+    getTotal: true,
   });
 
-  return <CostTable title="Cost" rows={displayRows} />;
+  return <CostTable title="Cost" rows={displayRows} boldLastRow={true} />;
 };
 
 export default CostSection;

@@ -13,12 +13,7 @@ const CalendarContainer: React.FC<CalendarContainerProps> = ({
   className,
 }) => {
   return (
-    <div
-      className={cn(
-        "border-b border-grayCustom overflow-x-hidden w-full max-w-full",
-        className
-      )}
-    >
+    <div className={cn("overflow-x-hidden w-full max-w-full", className)}>
       {children}
     </div>
   );

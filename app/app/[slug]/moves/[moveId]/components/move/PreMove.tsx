@@ -90,8 +90,8 @@ const PreMove = ({ preMoveDoc }: PreMoveProps) => {
             handleSMS();
           }}
           onCancel={handleEmail}
-          saveLabel="Send SMS"
-          cancelLabel="Send Email"
+          saveLabel="Email"
+          cancelLabel="Text"
           isSaving={isSendingSMS}
           isCanceling={isSendingEmail}
           error={createOrUpdatePreMoveDocError}

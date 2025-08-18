@@ -1,4 +1,4 @@
-import { Id } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import { TravelChargingTypes } from "./enums";
 import {
   AccessType,
@@ -14,7 +14,7 @@ import {
   StopBehavior,
   TimeDistanceRange,
 } from "./types";
-import { ArrivalTimes, InsurancePolicySchema } from "./convex-schemas";
+import { ArrivalTimes } from "./convex-schemas";
 
 export interface ComplianceFormData {
   statePucPermitNumber: string;
@@ -206,7 +206,11 @@ export interface MoveTravelFeeFormData {
 }
 
 export interface MoveCreditCardFeeFormData {
-  creditCardFeeRate: number | null;
+  creditCardFeeRate: number;
+}
+
+export interface MovePaymentTypeFormData {
+  paymentMethod: PaymentMethod;
 }
 
 export interface CustomerFormData {
@@ -228,12 +232,11 @@ export interface CustomerFormErrors {
 export interface MoveFormData {
   arrivalTimes: ArrivalTimes;
   companyId: Id<"companies"> | null;
-  creditCardFee: number | null;
+  creditCardFee: number;
   deposit: number;
-  depositMethod: PaymentMethod | null;
   destinationToOrigin: number | null;
   endingMoveTime: number | null;
-  liabilityCoverage: InsurancePolicySchema | null;
+  liabilityCoverage: Doc<"insurancePolicies"> | null;
   jobType: JobType;
   jobTypeRate: number | null;
   locations: LocationInput[];
@@ -246,6 +249,7 @@ export interface MoveFormData {
   movers: number;
   notes: string | null;
   officeToOrigin: number | null;
+  paymentMethod: PaymentMethod;
   roundTripDrive: number | null;
   roundTripMiles: number | null;
   salesRep: Id<"users"> | null;

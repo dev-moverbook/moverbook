@@ -146,15 +146,6 @@ export interface SegmentDistance {
 
 export type QuoteStatus = "pending" | "completed" | "customer_change";
 
-export const PAYMENT_METHOD_OPTIONS: {
-  label: string;
-  value: PaymentMethod;
-}[] = [
-  { label: "Credit Card", value: "credit_card" },
-  { label: "Check", value: "check" },
-  { label: "Cash", value: "cash" },
-];
-
 export const TRAVEL_FEE_METHOD_OPTIONS: {
   label: string;
   value: TravelChargingTypes | "None";
@@ -165,7 +156,15 @@ export const TRAVEL_FEE_METHOD_OPTIONS: {
   { label: "None", value: "None" },
 ];
 
-export type PaymentMethod = "credit_card" | "check" | "cash";
+// types/types.ts
+export type PaymentMethod =
+  | { kind: "credit_card" }
+  | { kind: "other"; label: string };
+
+export const PAYMENT_METHOD_OPTIONS = [
+  { label: "Credit Card", value: "credit_card" },
+  { label: "Other", value: "other" },
+];
 
 export const QUOTE_STATUS_LABELS: Record<QuoteStatus, string> = {
   pending: "Pending",
@@ -193,8 +192,8 @@ export interface RecentMoveMessageSummary {
   moveId: Id<"move">;
   customerName: string;
   lastMessage: string;
-  timestamp: number; // _creationTime
-  status: MoveStatus; // from your MoveStatusConvex union
+  timestamp: number;
+  status: MoveStatus;
 }
 
 export type CommunicationType = "email" | "sms";

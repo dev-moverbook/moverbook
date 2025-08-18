@@ -1,3 +1,4 @@
+// MoveAddress.tsx
 import React, { useEffect, useState } from "react";
 import SectionContainer from "@/app/components/shared/containers/SectionContainer";
 import LabeledInput from "@/app/components/shared/labeled/LabeledInput";
@@ -58,32 +59,28 @@ const MoveAddress = ({
   const [formData, setFormData] = useState<LocationInput>(location);
 
   useEffect(() => {
+    if (isAdding) setIsEditing(true);
+  }, [isAdding]);
+
+  useEffect(() => {
     if (!isEditing) {
       setFormData(location);
     }
-  }, [isEditing, location, isAdding]);
+  }, [isEditing, location]);
 
   const handleChange = (partial: Partial<LocationInput>) => {
-    // Always keep local UI in sync
     setFormData((prev) => ({ ...prev, ...partial }));
-
     if (isAdding) {
-      // Live update while "adding" – push only the partial
       updateLocation?.(index, partial);
       return;
     }
-
     if (showEditButton) {
-      // Local-only while editing; we'll push the FULL formData on Save
       return;
     }
-
-    // No edit button => immediate push (partial only)
     updateLocation?.(index, partial);
   };
 
   const handleSave = () => {
-    // On save, we can send the whole object
     updateLocation?.(index, formData);
     setIsEditing(false);
     onSaved?.();
@@ -115,6 +112,7 @@ const MoveAddress = ({
                   icon={<X size={16} />}
                   aria-label="Cancel Edit"
                   onClick={handleCancel}
+                  className="border border-grayCustom"
                 />
               ) : (
                 <IconRow>
@@ -165,38 +163,43 @@ const MoveAddress = ({
           options={LOCATION_TYPE_OPTIONS}
           isEditing={showEditInput}
         />
-        {isEditing && (
-          <div className="flex justify-between items-center mb-1">
-            <label className="text-sm font-medium">Address</label>
-            <Button
-              variant="link"
-              size="auto"
-              className="text-sm underline cursor-pointer"
-              type="button"
-              onClick={() => setIsManualAddress((prev) => !prev)}
-            >
-              {isManualAddress ? "Use AutoComplete" : "Enter Manually"}
-            </Button>
+
+        {showEditInput && (
+          <div className="">
+            <div className="flex justify-between items-center">
+              <label className="font-medium">Address</label>
+              <Button
+                variant="link"
+                size="auto"
+                className="text-sm underline cursor-pointer"
+                type="button"
+                onClick={() => setIsManualAddress((prev) => !prev)}
+              >
+                {isManualAddress ? "Use AutoComplete" : "Enter Manually"}
+              </Button>
+            </div>
+
+            {isManualAddress ? (
+              <LabeledInput
+                value={formData.address || ""}
+                placeholder="eg. 123 Main St"
+                onChange={(e) => handleChange({ address: e.target.value })}
+              />
+            ) : (
+              <LabeledPlacesAutocomplete
+                value={formData.address || ""}
+                onChange={(value) => handleChange({ address: value })}
+                isEditing={true}
+                showLabel={false}
+              />
+            )}
           </div>
         )}
-        {showEditInput ? (
-          isManualAddress ? (
-            <LabeledInput
-              value={formData.address || ""}
-              placeholder="eg. 123 Main St"
-              onChange={(e) => handleChange({ address: e.target.value })}
-            />
-          ) : (
-            <LabeledPlacesAutocomplete
-              value={formData.address || ""}
-              onChange={(value) => handleChange({ address: value })}
-              isEditing={true}
-              showLabel={false}
-            />
-          )
-        ) : (
+
+        {!showEditInput && (
           <FieldDisplay label="Address" value={formData.address} fallback="—" />
         )}
+
         <LabeledInput
           label="Apt/Unit/Suite"
           value={formData.aptNumber || ""}

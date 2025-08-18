@@ -44,9 +44,10 @@ const LiabilityCoverageSection: React.FC<LiabilityCoverageSectionProps> = ({
         button={
           !isAdd && (
             <IconButton
+              className={`${isEditing ? "border border-grayCustom" : ""}`}
               icon={
                 isEditing ? (
-                  <X className="w-4 h-4" />
+                  <X className="w-4 h-4 " />
                 ) : (
                   <Pencil className="w-4 h-4" />
                 )

@@ -3,10 +3,7 @@
 import React from "react";
 import SectionContainer from "@/app/components/shared/containers/SectionContainer";
 import ReusableCard from "../card/ReusableCard";
-import {
-  formatPaymentMethod,
-  getMoveDisplayRows,
-} from "@/app/frontendUtils/helper";
+import { getMoveDisplayRows } from "@/app/frontendUtils/helper";
 import CostTable from "@/app/components/move/sections/CostTable";
 import { useMoveContext } from "@/app/contexts/MoveContext";
 
@@ -19,7 +16,8 @@ const QuoteCost = () => {
     deposit,
     jobTypeRate,
     jobType,
-    depositMethod,
+    paymentMethod,
+    creditCardFee,
   } = move;
 
   const displayRows = getMoveDisplayRows({
@@ -27,15 +25,13 @@ const QuoteCost = () => {
     jobType,
     jobTypeRate,
     liabilityCoverage,
+    paymentMethod,
+    creditCardFee,
   });
 
   const texts: [string, number | string | null, boolean?][] = [
     ["Deposit", deposit ?? 0, true],
   ];
-
-  if (depositMethod) {
-    texts.push([`(${formatPaymentMethod(depositMethod)})`, null]);
-  }
 
   return (
     <div>

@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import React, { useEffect, useMemo, useState } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import MoveCard from "@/app/components/move/MoveCard";
 import Stepper from "@/app/components/shared/Stepper";
 import TabSelector from "@/app/components/shared/TabSelector";
@@ -15,15 +15,29 @@ import DuplicateMoveModal from "../../customer/[customerId]/modals/DuplicateMove
 import { hasRequiredMoveFields } from "@/app/frontendUtils/helper";
 
 const MoveContent = () => {
-  const [currentStep, setCurrentStep] = useState<number>(1);
-  const [activeTab, setActiveTab] = useState<string>("INFO");
-
   const router = useRouter();
   const pathname = usePathname();
-  const { moveData } = useMoveContext();
+  const searchParams = useSearchParams();
 
+  // read step from query (?step=1..4), default 1, clamp to [1,4]
+  const stepFromQuery = useMemo(() => {
+    const raw = searchParams.get("step");
+    const n = raw ? parseInt(raw, 10) : NaN;
+    if (!Number.isFinite(n)) return 1;
+    return Math.min(Math.max(n, 1), 4);
+  }, [searchParams]);
+
+  const [currentStep, setCurrentStep] = useState<number>(stepFromQuery);
+  const [activeTab, setActiveTab] = useState<string>("INFO");
+
+  // keep state in sync if the URL changes externally
+  useEffect(() => {
+    setCurrentStep(stepFromQuery);
+  }, [stepFromQuery]);
+
+  const { moveData } = useMoveContext();
   const [isDuplicateMoveModalOpen, setIsDuplicateMoveModalOpen] =
-    useState<boolean>(false);
+    useState(false);
   const [selectedMove, setSelectedMove] = useState<Doc<"move"> | null>(null);
 
   const { move, quote, moveCustomer, salesRepUser } = moveData;
@@ -53,6 +67,14 @@ const MoveContent = () => {
   const isLeadStepComplete = hasRequiredMoveFields(move, moveCustomer);
   const isQuoteStepComplete = quote?.status === "completed";
 
+  // when user clicks a step, update both state and the URL query
+  const handleStepClick = (step: number) => {
+    setCurrentStep(step);
+    const params = new URLSearchParams(searchParams);
+    params.set("step", String(step));
+    router.replace(`${pathname}?${params.toString()}`);
+  };
+
   return (
     <main>
       <MoveCard
@@ -62,6 +84,7 @@ const MoveContent = () => {
         onDuplicate={handleDuplicateMove}
         salesRep={salesRepUser}
       />
+
       <Stepper
         currentStep={currentStep}
         steps={[
@@ -70,7 +93,7 @@ const MoveContent = () => {
           { label: "Move" },
           { label: "Payment" },
         ]}
-        onStepClick={(step) => setCurrentStep(step)}
+        onStepClick={handleStepClick}
         className="mt-4"
         disabledSteps={[
           ...(!isLeadStepComplete ? [2, 3, 4] : []),
@@ -90,6 +113,7 @@ const MoveContent = () => {
       )}
       {currentStep === 3 && activeTab === "INFO" && <MoveStep />}
       {currentStep === 4 && activeTab === "INFO" && <PaymentStep />}
+
       {selectedMove && isDuplicateMoveModalOpen && (
         <DuplicateMoveModal
           isOpen={isDuplicateMoveModalOpen}

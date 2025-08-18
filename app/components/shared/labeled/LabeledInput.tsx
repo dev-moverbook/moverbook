@@ -18,10 +18,11 @@ interface LabeledInputProps {
   step?: string;
   isEditing?: boolean;
   isPhoneNumber?: boolean;
-  valueClassName?: string; // NEW
+  valueClassName?: string;
   isCurrency?: boolean;
   name?: string;
   noPlaceholderError?: boolean;
+  className?: string;
 }
 
 const LabeledInput: React.FC<LabeledInputProps> = ({
@@ -41,6 +42,7 @@ const LabeledInput: React.FC<LabeledInputProps> = ({
   isCurrency = false,
   name,
   noPlaceholderError = false,
+  className,
 }) => {
   if (!isEditing) {
     const displayValue = isPhoneNumber
@@ -59,8 +61,8 @@ const LabeledInput: React.FC<LabeledInputProps> = ({
   }
 
   return (
-    <div>
-      {label && <Label className="block text-sm font-medium">{label}</Label>}
+    <div className={className}>
+      {label && <Label className="block font-medium">{label}</Label>}
       <Input
         ref={inputRef}
         type={type}

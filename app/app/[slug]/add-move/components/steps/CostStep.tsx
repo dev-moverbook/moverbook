@@ -7,11 +7,12 @@ import LineItems from "../sections/LineItems";
 import { useMoveForm } from "@/app/contexts/MoveFormContext";
 import CostSummary from "../sections/CostSummary";
 import LiabilityCoverageSection from "@/app/components/move/sections/LiabilityCoverageSection";
-import { InsurancePolicySchema } from "@/types/convex-schemas";
 import LaborSection from "@/app/components/move/sections/LaborSection";
 import AddTravelFee from "../sections/AddTravelFee";
 import AddCreditCardFee from "../sections/AddCreditCardFee";
 import FormActionContainer from "@/app/components/shared/containers/FormActionContainer";
+import AddPaymentType from "../sections/AddPaymentType";
+import { Doc } from "@/convex/_generated/dataModel";
 
 interface CostStepProps {
   onNext: () => void;
@@ -29,7 +30,11 @@ const CostStep = ({ onNext, onBack, isSaving, saveError }: CostStepProps) => {
     setMoveFormErrors,
   } = useMoveForm();
 
-  const handleSelectPolicy = (policy: InsurancePolicySchema) => {
+  const customerMissingError = !moveFormData.moveCustomerId
+    ? "Save customer on first step before proceeding"
+    : null;
+
+  const handleSelectPolicy = (policy: Doc<"insurancePolicies">) => {
     setMoveFormData({ ...moveFormData, liabilityCoverage: policy });
   };
 
@@ -45,8 +50,10 @@ const CostStep = ({ onNext, onBack, isSaving, saveError }: CostStepProps) => {
         setErrors={setMoveFormErrors}
         isEditing={true}
       />
+
       <AddTravelFee />
       <LineItems />
+
       <LiabilityCoverageSection
         selectedPolicy={moveFormData.liabilityCoverage}
         policies={insurancePolicyOptions ?? []}
@@ -57,20 +64,22 @@ const CostStep = ({ onNext, onBack, isSaving, saveError }: CostStepProps) => {
         error={moveFormErrors.liabilityCoverage}
         isAdd={true}
       />
+
       <AddCreditCardFee />
-
       <Deposit />
-
+      <AddPaymentType />
       <CostSummary />
       <InternalNotes />
-      <FormActionContainer className="">
+
+      <FormActionContainer>
         <FormActions
           onSave={onNext}
           onCancel={onBack}
           isSaving={isSaving}
           saveLabel="Complete"
           cancelLabel="Back"
-          error={saveError}
+          error={saveError ?? customerMissingError}
+          disabled={Boolean(customerMissingError)}
         />
       </FormActionContainer>
     </FormContainer>

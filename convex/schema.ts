@@ -85,9 +85,8 @@ export const ArrivalTimesConvex = v.object({
 });
 
 export const PaymentMethodConvex = v.union(
-  v.literal("credit_card"),
-  v.literal("check"),
-  v.literal("cash")
+  v.object({ kind: v.literal("credit_card") }),
+  v.object({ kind: v.literal("other"), label: v.string() })
 );
 
 export const QuoteStatusConvex = v.union(
@@ -293,9 +292,8 @@ export default defineSchema({
   move: defineTable({
     arrivalTimes: ArrivalTimesConvex,
     companyId: v.id("companies"),
-    creditCardFee: v.optional(v.union(v.null(), v.number())),
+    creditCardFee: v.number(),
     deposit: v.number(),
-    depositMethod: v.union(v.null(), PaymentMethodConvex),
     destinationToOrigin: v.union(v.null(), v.number()),
     endingMoveTime: v.union(v.null(), v.number()),
     jobId: v.string(),
@@ -312,6 +310,7 @@ export default defineSchema({
     movers: v.number(),
     notes: v.union(v.null(), v.string()),
     officeToOrigin: v.union(v.null(), v.number()),
+    paymentMethod: PaymentMethodConvex,
     roundTripDrive: v.union(v.null(), v.number()),
     roundTripMiles: v.union(v.null(), v.number()),
     salesRep: v.id("users"),

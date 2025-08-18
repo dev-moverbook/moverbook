@@ -19,8 +19,8 @@ const ExternalReview = ({ move }: ExternalReviewProps) => {
           onSave={() => {}}
           isSaving={false}
           error={null}
-          saveLabel="Text"
-          cancelLabel="Email"
+          saveLabel="Email"
+          cancelLabel="Text"
           disabled={isDisabled}
           cancelDisabled={isDisabled}
         />

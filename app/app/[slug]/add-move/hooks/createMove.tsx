@@ -20,9 +20,8 @@ import { ArrivalTimes, InsurancePolicySchema } from "@/types/convex-schemas";
 export interface CreateMoveInput {
   arrivalTimes: ArrivalTimes;
   companyId: Id<"companies">;
-  creditCardFee: number | null;
+  creditCardFee: number;
   deposit: number;
-  depositMethod: PaymentMethod | null;
   destinationToOrigin: number | null;
   endingMoveTime: number | null;
   jobType: JobType;
@@ -38,6 +37,7 @@ export interface CreateMoveInput {
   movers: number;
   notes: string | null;
   officeToOrigin: number | null;
+  paymentMethod: PaymentMethod;
   roundTripDrive: number | null;
   roundTripMiles: number | null;
   salesRep: Id<"users">;

@@ -32,23 +32,22 @@ const LocationSummary = ({
   const addresses = [office, ...moveAddresses, office] as string[];
 
   return (
-    <SectionContainer showBorder={showBorder}>
-      <Header3 wrapperClassName="px-0 pt-0" showCheckmark={false}>
-        Location Summary
-      </Header3>
+    <>
+      <SectionContainer showBorder={showBorder}>
+        <Header3 wrapperClassName="px-0 pt-0" showCheckmark={false}>
+          Location Summary
+        </Header3>
 
-      <AddressProvider addresses={addresses}>
-        <RouteMap />
-      </AddressProvider>
-
-      <CardContainer>
-        <LocationCard
-          segmentDistances={segmentDistances}
-          roundTripMiles={roundTripMiles}
-          roundTripDrive={roundTripDrive}
-        />
-      </CardContainer>
-    </SectionContainer>
+        <AddressProvider addresses={addresses}>
+          <RouteMap />
+        </AddressProvider>
+      </SectionContainer>
+      <LocationCard
+        segmentDistances={segmentDistances}
+        roundTripMiles={roundTripMiles}
+        roundTripDrive={roundTripDrive}
+      />
+    </>
   );
 };
 

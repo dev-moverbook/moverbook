@@ -61,7 +61,7 @@ const SectionHeader: React.FC<SectionHeaderProps> = ({
             icon={<X size={16} />}
             aria-label="Cancel"
             onClick={onCancelEdit}
-            variant="ghost"
+            className="border border-grayCustom"
           />
         ) : (
           <>

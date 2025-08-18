@@ -1,9 +1,8 @@
 import React from "react";
-import CustomCard from "../shared/CustomCard";
-import CardDetailRow from "../shared/CardDetailRow";
-import CardDetailsWrapper from "../shared/CardDetailsWrapper";
 import { formatDecimalNumber } from "@/app/frontendUtils/helper";
 import { SegmentDistance } from "@/types/types";
+import ListRowContainer from "../shared/containers/ListRowContainer";
+import ListRow from "../shared/ui/ListRow";
 
 interface LocationCardProps {
   segmentDistances: SegmentDistance[];
@@ -35,20 +34,16 @@ const LocationCard = ({
   ];
 
   return (
-    <CustomCard className="p-0">
-      <CardDetailsWrapper className="mt-0">
-        {rows.map((row, i) => {
-          return (
-            <CardDetailRow
-              key={i}
-              label={row.label}
-              value={row.value}
-              className={` ${row.bold ? "font-bold" : ""}`}
-            />
-          );
-        })}
-      </CardDetailsWrapper>
-    </CustomCard>
+    <ListRowContainer className="border-t border-grayCustom ">
+      {rows.map((row, i) => (
+        <ListRow
+          key={i}
+          left={row.label}
+          right={row.value}
+          className={`${i % 2 === 0 ? "bg-background2" : ""} ${row.bold ? "font-bold" : ""}`}
+        />
+      ))}
+    </ListRowContainer>
   );
 };
 

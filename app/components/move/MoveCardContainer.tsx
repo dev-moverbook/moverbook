@@ -19,7 +19,7 @@ const MoveCardContainer: React.FC<MoveCardContainerProps> = ({
       {moves.length === 0 ? (
         <p className=" pl-4 md:pl-0 text-grayCustom2">{emptyMessage}</p>
       ) : (
-        <div className="border-t border-grayCustom ">
+        <div className="">
           {moves.map((move) => (
             <MoveCard
               key={move._id}

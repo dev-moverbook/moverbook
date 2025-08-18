@@ -29,6 +29,7 @@ const LiabilityCoverage: React.FC = () => {
         showCheckmark={false}
         button={
           <IconButton
+            className={`${isEditing ? "border border-grayCustom" : ""}`}
             icon={
               isEditing ? (
                 <X className="w-4 h-4" />
