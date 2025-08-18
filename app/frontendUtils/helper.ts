@@ -16,6 +16,7 @@ import { DateTime, DateTimeOptions } from "luxon";
 import { MoveItem } from "@/types/convex-schemas";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { Doc } from "@/convex/_generated/dataModel";
+import { LocationInput } from "@/types/form-types";
 
 export const isValidEmail = (email: string) => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -163,7 +164,7 @@ export const hasRequiredMoveFields = (
     !!moveCustomer.referral?.trim();
 
   // Single-location completeness (matches MoveFormProvider logic)
-  const isLocationComplete = (loc: any): boolean => {
+  const isLocationComplete = (loc: LocationInput): boolean => {
     if (!loc) return false;
     const baseOk =
       !!loc.address?.trim() &&
@@ -287,20 +288,6 @@ export function groupItemsByRoom(
     {} as Record<string, MoveItem[]>
   );
 }
-
-// export function formatPaymentMethod(
-//   method?: PaymentMethod | null
-// ): string | null {
-//   if (!method) return "";
-
-//   const map: Record<PaymentMethod, string> = {
-//     credit_card: "Credit Card",
-//     check: "Check",
-//     cash: "Cash",
-//   };
-
-//   return map[method];
-// }
 
 export const formatNarrowWeekday = (
   locale: string | undefined,

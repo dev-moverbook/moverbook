@@ -1,15 +1,15 @@
-import CardContainer from "@/app/components/shared/CardContainer";
 import SectionContainer from "@/app/components/shared/containers/SectionContainer";
 import Header3 from "@/app/components/shared/heading/Header3";
 import React from "react";
 import LocationCard from "@/app/components/move/LocationCard";
 import { AddressProvider } from "@/app/components/move/AddressContext";
 import RouteMap from "@/app/components/move/RouteMap";
-import { CompanyContactSchema } from "@/types/convex-schemas";
 import { LocationInput } from "@/types/form-types";
 import { SegmentDistance } from "@/types/types";
+import { Doc } from "@/convex/_generated/dataModel";
+
 interface LocationSummaryProps {
-  companyContact?: CompanyContactSchema;
+  companyContact?: Doc<"companyContact">;
   locations: LocationInput[];
   segmentDistances: SegmentDistance[];
   roundTripMiles: number | null;

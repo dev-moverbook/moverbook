@@ -24,15 +24,8 @@ const AddMovePageContent = () => {
   const search = useSearchParams();
   const moveCustomerId = search.get("moveCustomerId");
 
-  const {
-    setCustomer,
-    setMoveFormData,
-    moveFormData,
-    isAllSectionsComplete,
-    isInfoSectionComplete,
-    isLocationSectionComplete,
-    isMoveDetailsComplete,
-  } = useMoveForm();
+  const { setCustomer, setMoveFormData, moveFormData, isAllSectionsComplete } =
+    useMoveForm();
 
   const [showModal, setShowModal] = useState<boolean>(false);
   const [currentStep, setCurrentStep] = useState<number>(1);
