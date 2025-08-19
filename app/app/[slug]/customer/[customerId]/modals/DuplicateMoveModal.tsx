@@ -35,10 +35,12 @@ const DuplicateMoveModal: React.FC<DuplicateMoveModalProps> = ({
   const handleSubmit = () => {
     const params = new URLSearchParams();
 
-    params.set("moveCustomerId", move.moveCustomerId);
+    if (move.moveCustomerId) {
+      params.set("moveCustomerId", String(move.moveCustomerId));
+    }
 
     if (selectedSections.length > 0) {
-      params.set("duplicateFrom", move._id);
+      params.set("duplicateFrom", String(move._id));
       params.set("fields", selectedSections.join(","));
     }
 
@@ -50,15 +52,27 @@ const DuplicateMoveModal: React.FC<DuplicateMoveModalProps> = ({
     setIsSwapped((prev) => !prev);
   };
 
-  const getStartAddress = (m: Doc<"move">) =>
-    !isSwapped
-      ? (m.locations[0]?.address ?? "—")
-      : (m.locations[m.locations.length - 1]?.address ?? "—");
+  const fmtAddr = (addr: Doc<"move">["locations"][number]["address"]) =>
+    addr?.formattedAddress ?? "—";
 
-  const getEndAddress = (m: Doc<"move">) =>
-    !isSwapped
-      ? (m.locations[m.locations.length - 1]?.address ?? "—")
-      : (m.locations[0]?.address ?? "—");
+  const getStartAddress = (m: Doc<"move">) => {
+    if (!m.locations?.length) return "—";
+    const start = !isSwapped
+      ? m.locations[0]?.address
+      : m.locations[m.locations.length - 1]?.address;
+    return fmtAddr(start ?? null);
+  };
+
+  const getEndAddress = (m: Doc<"move">) => {
+    if (!m.locations?.length) return "—";
+    const end = !isSwapped
+      ? m.locations[m.locations.length - 1]?.address
+      : m.locations[0]?.address;
+    return fmtAddr(end ?? null);
+  };
+
+  const stopsCount = (m: Doc<"move">) =>
+    Math.max(0, (m.locations?.length ?? 0) - 2);
 
   const sectionOptions = [
     {
@@ -81,7 +95,7 @@ const DuplicateMoveModal: React.FC<DuplicateMoveModalProps> = ({
       label: "Stops",
       value: "stops",
       getValue: (m: Doc<"move">) =>
-        m.locations.length > 2 ? `${m.locations.length - 2} stops` : "None",
+        stopsCount(m) > 0 ? `${stopsCount(m)} stops` : "None",
     },
     {
       label: "Inventory",
@@ -125,10 +139,7 @@ const DuplicateMoveModal: React.FC<DuplicateMoveModalProps> = ({
         values={selectedSections}
         options={sectionOptions.map((option) => ({
           ...option,
-          getValue: (m: Doc<"move">) => {
-            const value = option.getValue(m);
-            return value;
-          },
+          getValue: (m: Doc<"move">) => option.getValue(m),
         }))}
         move={move}
         onChange={setSelectedSections}
