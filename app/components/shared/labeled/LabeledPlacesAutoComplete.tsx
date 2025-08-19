@@ -29,6 +29,34 @@ interface PlacesAutoCompleteInputProps {
 
 const DEBOUNCE_MS = 250;
 
+/** --- Types for Google Places Autocomplete v1 --- */
+type StructuredText = { text: string };
+type StructuredFormat = {
+  mainText?: StructuredText;
+  secondaryText?: StructuredText;
+};
+
+type PlacePrediction = {
+  placeId: string;
+  structuredFormat?: StructuredFormat;
+};
+
+type AutocompleteSuggestion = {
+  placePrediction: PlacePrediction;
+};
+
+type AutocompleteResponse = {
+  suggestions?: AutocompleteSuggestion[];
+};
+
+type PlaceDetailsResponse = {
+  id?: string;
+  formattedAddress?: string;
+  displayName?: { text?: string };
+  location?: { latitude?: number; longitude?: number };
+};
+/** ---------------------------------------------- */
+
 function useDebounced<T>(value: T, ms: number) {
   const [v, setV] = useState(value);
   useEffect(() => {
@@ -128,18 +156,21 @@ const LabeledPlacesAutocomplete: React.FC<PlacesAutoCompleteInputProps> = ({
           }
         );
 
-        const data = await resp.json();
+        const data = (await resp.json()) as AutocompleteResponse;
+
         const items =
-          (data?.suggestions ?? [])
-            .map((s: any) => s.placePrediction)
-            .filter(Boolean)
-            .map((p: any) => ({
-              placeId: p.placeId as string,
+          data?.suggestions
+            ?.map((s) => s.placePrediction)
+            .filter((p): p is PlacePrediction => Boolean(p))
+            .map((p) => ({
+              placeId: p.placeId,
               mainText: p.structuredFormat?.mainText?.text ?? "",
               secondaryText: p.structuredFormat?.secondaryText?.text ?? "",
             })) ?? [];
 
         setSuggestions(items);
+        // Open list if results exist
+        if (items.length > 0) setOpen(true);
       } catch {
         closeList();
       } finally {
@@ -170,7 +201,7 @@ const LabeledPlacesAutocomplete: React.FC<PlacesAutoCompleteInputProps> = ({
       return;
     }
 
-    const details = await resp.json();
+    const details = (await resp.json()) as PlaceDetailsResponse;
 
     const lat = details?.location?.latitude ?? null;
     const lng = details?.location?.longitude ?? null;
@@ -206,7 +237,6 @@ const LabeledPlacesAutocomplete: React.FC<PlacesAutoCompleteInputProps> = ({
         ref={inputRef}
         value={value}
         onFocus={() => {
-          // open only if there are suggestions already (optional)
           if (suggestions.length > 0) setOpen(true);
         }}
         onChange={(e) => {
@@ -220,10 +250,14 @@ const LabeledPlacesAutocomplete: React.FC<PlacesAutoCompleteInputProps> = ({
         autoComplete="off"
         spellCheck={false}
         onBlur={() => {
-          // Small delay if you want to allow clicking with onClick instead of onMouseDown
+          // If you prefer to allow click without onMouseDown, you could delay:
           // setTimeout(closeList, 100);
           closeList();
         }}
+        role="combobox"
+        aria-autocomplete="list"
+        aria-expanded={open}
+        aria-controls="places-listbox"
       />
 
       {value && (
@@ -244,6 +278,7 @@ const LabeledPlacesAutocomplete: React.FC<PlacesAutoCompleteInputProps> = ({
 
       {open && suggestions.length > 0 && (
         <div
+          id="places-listbox"
           className="absolute z-50 mt-1 w-full rounded-xl border border-grayCustom bg-background2 text-zinc-100 shadow-2xl ring-1 ring-black/5 overflow-hidden"
           role="listbox"
         >
@@ -255,6 +290,7 @@ const LabeledPlacesAutocomplete: React.FC<PlacesAutoCompleteInputProps> = ({
               onMouseDown={() => handleSelect(s.placeId)}
               className="w-full text-left px-3 py-2 hover:bg-zinc-800/80 focus:bg-zinc-800/80 outline-none"
               role="option"
+              aria-selected={false} // required by a11y rule; set true if you track active item
             >
               <div className="text-sm">{s.mainText}</div>
               {s.secondaryText && (

@@ -1,60 +1,24 @@
-// import { Input } from "@/components/ui/input";
-// import { Label } from "@/components/ui/label";
-// import { useRef, useEffect } from "react";
-// import FieldErrorMessage from "./labeled/FieldErrorMessage";
-
-// interface PlacesAutoCompleteInputProps {
-//   value: string;
-//   onChange: (value: string) => void;
-//   onPlaceSelected?: (place: google.maps.places.PlaceResult) => void;
-//   showLabel?: boolean;
-//   error?: string | null;
-// }
-
-// export const PlacesAutoCompleteInput: React.FC<
-//   PlacesAutoCompleteInputProps
-// > = ({ value, onChange, onPlaceSelected, showLabel = true, error }) => {
-//   const inputRef = useRef<HTMLInputElement>(null);
-
-//   useEffect(() => {
-//     if (!inputRef.current) return;
-
-//     const autocomplete = new google.maps.places.Autocomplete(inputRef.current, {
-//       types: ["address"],
-//       fields: ["formatted_address", "geometry", "name"],
-//     });
-
-//     autocomplete.addListener("place_changed", () => {
-//       const place = autocomplete.getPlace();
-//       if (place.formatted_address) {
-//         onChange(place.formatted_address);
-//       }
-//       if (onPlaceSelected) onPlaceSelected(place);
-//     });
-//   }, [onChange, onPlaceSelected]);
-
-//   return (
-//     <div className="">
-//       {showLabel && <Label>Address</Label>}
-//       <Input
-//         ref={inputRef}
-//         value={value}
-//         onChange={(e) => onChange(e.target.value)}
-//         placeholder="Start typing address..."
-//         // className="w-full rounded-md border border-grayCustom bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-//         type="text"
-//       />
-//       <FieldErrorMessage error={error} />
-//     </div>
-//   );
-// };
-
-// PlacesAutoCompleteInput.tsx
 "use client";
 
 import { useEffect, useRef } from "react";
 import { Label } from "@/components/ui/label";
 import FieldErrorMessage from "./labeled/FieldErrorMessage";
+
+/** Minimal runtime shape returned by Google's web component */
+type AutocompletePlace = {
+  formattedAddress?: string;
+  location?: google.maps.LatLng | { lat: number; lng: number };
+  id?: string;
+  displayName?: string | { text: string };
+  fetchFields: (opts: { fields: string[] }) => Promise<AutocompletePlace>;
+};
+
+/** Typed interface for the Places Web Component.
+ *  NOTE: Don’t redeclare addEventListener signatures — use the DOM defaults. */
+interface PlaceAutocompleteElement extends HTMLElement {
+  value: string;
+  placeholder?: string;
+}
 
 interface PlacesAutoCompleteInputProps {
   value: string;
@@ -68,47 +32,68 @@ export const PlacesAutoCompleteInput: React.FC<
   PlacesAutoCompleteInputProps
 > = ({ value, onChange, onPlaceSelected, showLabel = true, error }) => {
   const hostRef = useRef<HTMLDivElement | null>(null);
-  const elRef = useRef<any>(null); // PlaceAutocompleteElement instance
+  const elRef = useRef<PlaceAutocompleteElement | null>(null);
+
+  // keep latest callbacks without re-running the create-once effect
+  const onChangeRef = useRef(onChange);
+  const onPlaceSelectedRef = useRef(onPlaceSelected);
+  useEffect(() => {
+    onChangeRef.current = onChange;
+    onPlaceSelectedRef.current = onPlaceSelected;
+  }, [onChange, onPlaceSelected]);
 
   // Create the PlaceAutocompleteElement once
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     let cleanup = () => {};
     (async () => {
       // Ensure the Places library is loaded (v=weekly or later)
-      // @ts-ignore
       await google.maps.importLibrary?.("places");
 
       if (!hostRef.current) return;
 
-      const el = new (google.maps.places as any).PlaceAutocompleteElement();
+      const PlaceAutocompleteCtor = (
+        google.maps.places as unknown as {
+          PlaceAutocompleteElement: new () => PlaceAutocompleteElement;
+        }
+      ).PlaceAutocompleteElement;
+
+      const el = new PlaceAutocompleteCtor();
       elRef.current = el;
 
-      // Optional: set a placeholder
       el.placeholder = "Start typing address...";
 
-      // Keep your component controlled
-      el.addEventListener("input", (e: any) => {
-        onChange(e?.target?.value ?? "");
-      });
+      // Input listener (use DOM's EventListener typing, refine inside)
+      const onInput: EventListener = (e) => {
+        const target = e.currentTarget as PlaceAutocompleteElement | null;
+        const next = target?.value ?? "";
+        onChangeRef.current(next);
+      };
 
-      // Fired when a prediction is selected
-      el.addEventListener("gmp-placeselect", async (e: any) => {
-        const place = e.detail.place;
-        // Fetch the fields you need
+      // Place select listener (cast Event -> CustomEvent at point of use)
+      const onPlaceSelect: EventListener = async (e) => {
+        const ce = e as unknown as CustomEvent<{ place: AutocompletePlace }>;
+        const place = ce.detail.place;
         const full = await place.fetchFields({
           fields: ["formattedAddress", "location", "id", "displayName"],
         });
-        if (full.formattedAddress) onChange(full.formattedAddress);
-        onPlaceSelected?.(full);
-      });
+        if (full.formattedAddress) onChangeRef.current(full.formattedAddress);
+        onPlaceSelectedRef.current?.(
+          full as unknown as google.maps.places.PlaceResult
+        );
+      };
+
+      el.addEventListener("input", onInput);
+      el.addEventListener("gmp-placeselect", onPlaceSelect);
 
       hostRef.current.appendChild(el);
 
-      // Initialize with current value
       if (value) el.value = value;
 
       cleanup = () => {
-        el.remove(); // detach listeners + element
+        el.removeEventListener("input", onInput);
+        el.removeEventListener("gmp-placeselect", onPlaceSelect);
+        el.remove();
       };
     })();
 
@@ -131,3 +116,5 @@ export const PlacesAutoCompleteInput: React.FC<
     </div>
   );
 };
+
+export default PlacesAutoCompleteInput;

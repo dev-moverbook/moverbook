@@ -179,24 +179,17 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
     buildDefaultSegments()
   );
 
+  /** ---------- Stable keys for hook deps ---------- */
+  const locationsKey = moveFormData.locations
+    .map((l) => l.address?.placeId ?? "")
+    .join("|");
+  const originKey = companyContact?.address?.placeId ?? "";
+  /** ---------------------------------------------- */
+
+  /** If you still want the placeIds array, memoize it off the string key */
   const locationPlaceIds = useMemo(
     () => moveFormData.locations.map((l) => l.address?.placeId ?? null),
-    [moveFormData.locations]
-  );
-  const locationPlaceIdsKey = useMemo(
-    () => locationPlaceIds.map((id) => id ?? "").join("|"),
-    [locationPlaceIds]
-  );
-  const originRef = useMemo(
-    () => toDistanceRef(companyContact?.address) ?? null,
-    [companyContact?.address?.placeId]
-  );
-  const distanceRefs = useMemo(
-    () =>
-      moveFormData.locations
-        .map((l) => toDistanceRef(l.address))
-        .filter(Boolean) as string[],
-    [locationPlaceIdsKey]
+    [locationsKey]
   );
 
   useEffect(() => {
@@ -288,11 +281,8 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
     return () => {
       cancelled = true;
     };
-  }, [
-    companyContact?.address?.placeId,
-    moveFormData.locations.map((l) => l.address?.placeId ?? "").join("|"),
-    fetchDistance,
-  ]);
+    // ✅ Clean, simple deps: strings + function ref
+  }, [originKey, locationsKey, fetchDistance, companyContact?.address]);
 
   useEffect(() => {
     if (creditCardFee) {
