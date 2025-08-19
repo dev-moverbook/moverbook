@@ -1,5 +1,4 @@
 import { ClerkRoles, ResponseStatus } from "@/types/enums";
-import { ErrorMessages } from "@/types/errors";
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
@@ -8,10 +7,6 @@ import {
   validateInsurancePolicy,
 } from "./backendUtils/validate";
 import { isUserInOrg } from "./backendUtils/validate";
-import {
-  shouldExposeError,
-  unsetOtherDefaultPolicies,
-} from "./backendUtils/helper";
 import {
   CreateInsurancePolicyResponse,
   GetInsurancePoliciesResponse,
