@@ -6,7 +6,6 @@ import React, {
   useState,
   ReactNode,
   useEffect,
-  useMemo,
 } from "react";
 import { useMoveOptions } from "../hooks/queries/useMoveOptions";
 import {
@@ -186,12 +185,6 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
   const originKey = companyContact?.address?.placeId ?? "";
   /** ---------------------------------------------- */
 
-  /** If you still want the placeIds array, memoize it off the string key */
-  const locationPlaceIds = useMemo(
-    () => moveFormData.locations.map((l) => l.address?.placeId ?? null),
-    [locationsKey]
-  );
-
   useEffect(() => {
     const originRef = toDistanceRef(companyContact?.address);
     if (!originRef) {
@@ -281,8 +274,13 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
     return () => {
       cancelled = true;
     };
-    // ✅ Clean, simple deps: strings + function ref
-  }, [originKey, locationsKey, fetchDistance, companyContact?.address]);
+  }, [
+    originKey,
+    locationsKey,
+    fetchDistance,
+    companyContact?.address,
+    moveFormData.locations,
+  ]);
 
   useEffect(() => {
     if (creditCardFee) {
