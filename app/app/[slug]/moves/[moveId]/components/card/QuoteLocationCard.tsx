@@ -44,7 +44,7 @@ const QuoteLocationCard = ({
     <CustomCard className="flex flex-col justify-between gap-4 p-4">
       <CardHeaderWithActions title={title} className="p-0" />
       <div>
-        <p>{address}</p>
+        <p>{address?.formattedAddress}</p>
         {locationTags.length > 0 && (
           <div className="flex gap-2 flex-wrap mt-3">
             {locationTags.map((tag, i) => (

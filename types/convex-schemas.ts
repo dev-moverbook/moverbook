@@ -26,7 +26,7 @@ import {
   TimeDistanceRange,
   LocationType,
 } from "./types";
-import { MoveFeeInput } from "./form-types";
+import { AddressInput, MoveFeeInput } from "./form-types";
 
 export interface CompanySchema {
   _id: Id<"companies">;
@@ -303,7 +303,7 @@ export interface MoveFee {
 export interface MoveLocation {
   uid: string;
   locationRole: LocationRole;
-  address: string | null;
+  address: AddressInput | null;
   locationType: LocationType | null;
   aptNumber: string | null;
   aptName: string | null;
