@@ -4,11 +4,12 @@ import { api } from "@/convex/_generated/api";
 import { ResponseStatus } from "@/types/enums";
 import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
+import { AddressInput } from "@/types/form-types";
 
 interface UpdateCompanyContactData {
   email?: string;
   phoneNumber?: string;
-  address?: string;
+  address?: AddressInput;
   website?: string;
 }
 

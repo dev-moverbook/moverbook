@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useMutation } from "convex/react";
 import { ResponseStatus, TravelChargingTypes } from "@/types/enums";
 import { FrontEndErrorMessages } from "@/types/errors";
-import { Id } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import { LocationInput, MoveFeeInput, MoveItemInput } from "@/types/form-types"; // <-- Define these based on your form shape
 import { api } from "@/convex/_generated/api";
 import {
@@ -15,7 +15,7 @@ import {
   SegmentDistance,
   ServiceType,
 } from "@/types/types";
-import { ArrivalTimes, InsurancePolicySchema } from "@/types/convex-schemas";
+import { ArrivalTimes } from "@/types/convex-schemas";
 
 export interface CreateMoveInput {
   arrivalTimes: ArrivalTimes;
@@ -26,7 +26,7 @@ export interface CreateMoveInput {
   endingMoveTime: number | null;
   jobType: JobType;
   jobTypeRate: number | null;
-  liabilityCoverage: InsurancePolicySchema | null;
+  liabilityCoverage: Doc<"insurancePolicies"> | null;
   locations: LocationInput[];
   moveCustomerId: Id<"moveCustomers">;
   moveDate: string | null;

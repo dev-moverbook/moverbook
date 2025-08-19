@@ -1,6 +1,7 @@
-// RouteMap.tsx
+"use client";
+
 import React, { useEffect, useRef, useState } from "react";
-import { useAddresses } from "./AddressContext";
+import { usePlaceIds } from "./AddressContext";
 
 type LatLng = { lat: number; lng: number };
 
@@ -11,10 +12,9 @@ function decodePolyline(encoded: string): LatLng[] {
   let index = 0,
     lat = 0,
     lng = 0;
-  const coordinates: LatLng[] = []; // ✅ use const
-
+  const coords: LatLng[] = [];
   while (index < encoded.length) {
-    let b,
+    let b = 0,
       shift = 0,
       result = 0;
     do {
@@ -35,23 +35,17 @@ function decodePolyline(encoded: string): LatLng[] {
     const dlng = result & 1 ? ~(result >> 1) : result >> 1;
     lng += dlng;
 
-    coordinates.push({ lat: lat / 1e5, lng: lng / 1e5 });
+    coords.push({ lat: lat / 1e5, lng: lng / 1e5 });
   }
-  return coordinates;
+  return coords;
 }
 
 const Polyline: React.FC<{ path: LatLng[]; map: google.maps.Map | null }> = ({
   path,
   map,
 }) => {
-  const polylineRef = useRef<google.maps.Polyline | null>(null);
-
   useEffect(() => {
     if (!map || !path.length) return;
-
-    if (polylineRef.current) {
-      polylineRef.current.setMap(null);
-    }
 
     const polyline = new window.google.maps.Polyline({
       path,
@@ -61,24 +55,19 @@ const Polyline: React.FC<{ path: LatLng[]; map: google.maps.Map | null }> = ({
       strokeWeight: 6,
     });
     polyline.setMap(map);
-    polylineRef.current = polyline;
 
     const bounds = new window.google.maps.LatLngBounds();
     path.forEach((p) => bounds.extend(p));
     map.fitBounds(bounds);
 
-    return () => {
-      if (polylineRef.current) {
-        polylineRef.current.setMap(null);
-      }
-    };
+    return () => polyline.setMap(null);
   }, [path, map]);
 
   return null;
 };
 
 const RouteMap: React.FC = () => {
-  const { addresses } = useAddresses();
+  const { placeIds } = usePlaceIds(); // [origin, ...stops, destination]
   const mapRef = useRef<google.maps.Map | null>(null);
   const mapDivRef = useRef<HTMLDivElement | null>(null);
   const [polyline, setPolyline] = useState<LatLng[]>([]);
@@ -94,70 +83,83 @@ const RouteMap: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    if (!mapRef.current || !placeIds) return;
+
+    if (placeIds.length === 1) {
+      if (!window.google?.maps?.places) return;
+      const service = new window.google.maps.places.PlacesService(
+        mapRef.current
+      );
+      service.getDetails({ placeId: placeIds[0] }, (place, status) => {
+        if (
+          status === window.google.maps.places.PlacesServiceStatus.OK &&
+          place?.geometry?.location
+        ) {
+          mapRef.current!.setCenter(place.geometry.location);
+          mapRef.current!.setZoom(12);
+        }
+      });
+    }
+  }, [placeIds]);
+
+  useEffect(() => {
     const fetchRoute = async () => {
       setError(null);
       setPolyline([]);
-      if (!addresses || addresses.length < 2) {
-        setError("At least two addresses required.");
-        return;
-      }
+
+      if (!placeIds || placeIds.length < 2) return;
+
+      const clean = placeIds.filter(
+        (p): p is string => !!p && typeof p === "string"
+      );
+      if (clean.length < 2) return;
+
+      const originId = clean[0];
+      const destinationId = clean[clean.length - 1];
+      const waypoints = clean.slice(1, -1);
+
+      const body = {
+        origin: { placeId: originId },
+        destination: { placeId: destinationId },
+        intermediates: waypoints.map((pid) => ({ placeId: pid })),
+        travelMode: "DRIVE",
+        polylineQuality: "OVERVIEW",
+        polylineEncoding: "ENCODED_POLYLINE",
+        routingPreference: "TRAFFIC_AWARE",
+      };
+
       try {
-        const geocode = async (address: string) => {
-          const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
-            address
-          )}&key=${GOOGLE_MAPS_API_KEY}`;
-          const res = await fetch(url);
-          const data = await res.json();
-          if (!data.results[0])
-            throw new Error("Geocode failed for " + address);
-          const { lat, lng } = data.results[0].geometry.location;
-          return { latitude: lat, longitude: lng };
-        };
-
-        const [origin, ...rest] = addresses;
-        const destination = rest.pop()!;
-        const waypoints = rest;
-        const originLoc = await geocode(origin);
-        const destinationLoc = await geocode(destination);
-        const waypointsLoc = await Promise.all(waypoints.map(geocode));
-
-        const body = {
-          origin: { location: { latLng: originLoc } },
-          destination: { location: { latLng: destinationLoc } },
-          intermediates: waypointsLoc.map((loc) => ({
-            location: { latLng: loc },
-          })),
-          travelMode: "DRIVE",
-          polylineQuality: "OVERVIEW",
-        };
-
-        const resRoute = await fetch(
+        const res = await fetch(
           "https://routes.googleapis.com/directions/v2:computeRoutes",
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
               "X-Goog-Api-Key": GOOGLE_MAPS_API_KEY,
-              "X-Goog-FieldMask": "routes.polyline",
+              "X-Goog-FieldMask": "routes.polyline.encodedPolyline",
             },
             body: JSON.stringify(body),
           }
         );
-        const dataRoute = await resRoute.json();
-        const encoded = dataRoute.routes?.[0]?.polyline?.encodedPolyline;
-        if (!encoded) throw new Error("No route found.");
-        setPolyline(decodePolyline(encoded));
-      } catch (err: unknown) {
-        // ✅ use unknown instead of any
-        if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError("An unexpected error occurred.");
+
+        if (!res.ok) {
+          const errJson = await res.json().catch(() => ({}));
+          throw new Error(
+            errJson?.error?.message || `Routes API HTTP ${res.status}`
+          );
         }
+
+        const data = await res.json();
+        const encoded = data?.routes?.[0]?.polyline?.encodedPolyline;
+        if (!encoded) throw new Error("No route found");
+        setPolyline(decodePolyline(encoded));
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Unexpected error");
       }
     };
+
     fetchRoute();
-  }, [addresses]);
+  }, [placeIds]);
 
   return (
     <div className="flex flex-col items-center">
@@ -166,7 +168,6 @@ const RouteMap: React.FC = () => {
         ref={mapDivRef}
         className="w-[99%] h-[350px] rounded overflow-hidden"
       />
-
       {polyline.length > 0 && <Polyline path={polyline} map={mapRef.current} />}
     </div>
   );

@@ -11,12 +11,12 @@ import { LaborFormData } from "../LaborSection";
 
 type LaborSummaryProps = {
   formData: LaborFormData;
-  roundTripDrive?: number | null;
+  totalDriveTime: number | null;
 };
 
 const LaborSummary: React.FC<LaborSummaryProps> = ({
   formData,
-  roundTripDrive,
+  totalDriveTime,
 }) => {
   return (
     <ListRowContainer className="mb-4">
@@ -28,7 +28,7 @@ const LaborSummary: React.FC<LaborSummaryProps> = ({
       <ListRow
         left="Drive Time"
         right={
-          roundTripDrive ? `${formatDisplayNumber(roundTripDrive, "hrs")}` : ""
+          totalDriveTime ? `${formatDisplayNumber(totalDriveTime, "hrs")}` : ""
         }
         className=""
       />
@@ -37,7 +37,7 @@ const LaborSummary: React.FC<LaborSummaryProps> = ({
         right={getTotalHoursRange(
           formData.startingMoveTime ?? 0,
           formData.endingMoveTime ?? 0,
-          roundTripDrive ?? 0
+          totalDriveTime ?? 0
         )}
         className="bg-background2  border-grayCustom"
         bold

@@ -58,6 +58,34 @@ const MoveAddress = ({
   const [isEditing, setIsEditing] = useState<boolean>(isAdding);
   const [formData, setFormData] = useState<LocationInput>(location);
 
+  // ---- helpers for safe address merges ----
+  type AddressObj = {
+    formattedAddress: string;
+    placeId: string | null;
+    location: { lat: number | null; lng: number | null };
+  };
+
+  const EMPTY_ADDR: AddressObj = {
+    formattedAddress: "",
+    placeId: null,
+    location: { lat: null, lng: null },
+  };
+
+  const mergeAddress = (patch: Partial<AddressObj>) => {
+    const current: AddressObj = (formData.address as AddressObj) ?? EMPTY_ADDR;
+    const next: AddressObj = {
+      ...current,
+      ...patch,
+      // ensure nested location is also merged (not replaced)
+      location: {
+        ...current.location,
+        ...(patch.location ?? {}),
+      },
+    };
+    handleChange({ address: next });
+  };
+  // -----------------------------------------
+
   useEffect(() => {
     if (isAdding) setIsEditing(true);
   }, [isAdding]);
@@ -75,6 +103,7 @@ const MoveAddress = ({
       return;
     }
     if (showEditButton) {
+      // defer commit until Save
       return;
     }
     updateLocation?.(index, partial);
@@ -181,14 +210,44 @@ const MoveAddress = ({
 
             {isManualAddress ? (
               <LabeledInput
-                value={formData.address || ""}
+                value={
+                  (formData.address as AddressObj | undefined)
+                    ?.formattedAddress || ""
+                }
                 placeholder="eg. 123 Main St"
-                onChange={(e) => handleChange({ address: e.target.value })}
+                onChange={(e) =>
+                  mergeAddress({
+                    formattedAddress: e.target.value,
+                    // keep placeId/coords intact while typing
+                  })
+                }
               />
             ) : (
               <LabeledPlacesAutocomplete
-                value={formData.address || ""}
-                onChange={(value) => handleChange({ address: value })}
+                value={
+                  (formData.address as AddressObj | undefined)
+                    ?.formattedAddress || ""
+                }
+                // Keep input controlled as the user types
+                onChange={(text) => mergeAddress({ formattedAddress: text })}
+                // On pick: fill placeId + coords (+ final formatted address)
+                onPlaceSelected={(place) => {
+                  console.log("place", place);
+                  mergeAddress({
+                    formattedAddress:
+                      place.formatted_address ||
+                      (formData.address as AddressObj | undefined)
+                        ?.formattedAddress ||
+                      "",
+                    placeId: place.place_id ?? null,
+                    location: place.geometry?.location
+                      ? {
+                          lat: place.geometry.location.lat(),
+                          lng: place.geometry.location.lng(),
+                        }
+                      : { lat: null, lng: null },
+                  });
+                }}
                 isEditing={true}
                 showLabel={false}
               />
@@ -197,7 +256,13 @@ const MoveAddress = ({
         )}
 
         {!showEditInput && (
-          <FieldDisplay label="Address" value={formData.address} fallback="—" />
+          <FieldDisplay
+            label="Address"
+            value={
+              (formData.address as AddressObj | undefined)?.formattedAddress
+            }
+            fallback="—"
+          />
         )}
 
         <LabeledInput

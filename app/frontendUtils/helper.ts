@@ -9,6 +9,7 @@ import {
   PriceFilter,
   PriceOrder,
   QUOTE_STATUS_LABELS,
+  SegmentDistance,
   ServiceType,
   StopBehavior,
 } from "@/types/types";
@@ -16,7 +17,7 @@ import { DateTime, DateTimeOptions } from "luxon";
 import { MoveItem } from "@/types/convex-schemas";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { Doc } from "@/convex/_generated/dataModel";
-import { LocationInput } from "@/types/form-types";
+import { AddressInput, LocationInput } from "@/types/form-types";
 
 export const isValidEmail = (email: string) => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -167,7 +168,7 @@ export const hasRequiredMoveFields = (
   const isLocationComplete = (loc: LocationInput): boolean => {
     if (!loc) return false;
     const baseOk =
-      !!loc.address?.trim() &&
+      !!loc.address?.formattedAddress &&
       loc.locationType != null &&
       loc.accessType != null &&
       !!loc.timeDistanceRange &&
@@ -466,27 +467,32 @@ type ComputeTotalParams = {
   jobTypeRate: number | null;
 
   liabilityCoverage?: { premium: number } | null;
-
-  travelFeeRate?: number | null;
-  travelFeeMethod?: TravelChargingTypes | null;
-  travelHours?: number;
-  travelMiles?: number;
+  segmentDistances: SegmentDistance[];
+  travelFeeRate: number | null;
+  travelFeeMethod: TravelChargingTypes | null;
 
   paymentMethod: PaymentMethod;
   creditCardFee: number; // 2.5 or 0.025 both supported
 
-  startingMoveTime?: number; // min labor hours (for hourly)
-  endingMoveTime?: number; // max labor hours (for hourly)
+  startingMoveTime?: number | null; // min labor hours (for hourly)
+  endingMoveTime?: number | null; // max labor hours (for hourly)
 };
 
 const pctToUnit = (p: number) => (p <= 1 ? p : p / 100);
 
+// replace your calcTravelCost with this
 const calcTravelCost = (
-  method?: TravelChargingTypes | null,
-  rate?: number | null,
-  hours = 0,
-  miles = 0
+  method: TravelChargingTypes | null,
+  rate: number | null,
+  segmentDistances?: SegmentDistance[] | null
 ) => {
+  const segs = Array.isArray(segmentDistances) ? segmentDistances : [];
+  if (!segs.length || !rate) return 0;
+
+  const first = segs[0];
+  const miles = first.distance ?? 0;
+  const hours = first.duration ? first.duration / 60 : 0;
+
   switch (method) {
     case TravelChargingTypes.LABOR_HOURS:
       return (rate ?? 0) * hours;
@@ -509,8 +515,7 @@ export function computeMoveTotal({
   liabilityCoverage,
   travelFeeRate,
   travelFeeMethod,
-  travelHours = 0,
-  travelMiles = 0,
+  segmentDistances,
   paymentMethod,
   creditCardFee,
   startingMoveTime,
@@ -524,9 +529,8 @@ export function computeMoveTotal({
 
   const travelCost = calcTravelCost(
     travelFeeMethod,
-    travelFeeRate ?? 0,
-    travelHours,
-    travelMiles
+    travelFeeRate,
+    segmentDistances
   );
 
   const ccRate =
@@ -567,7 +571,7 @@ const fmt2 = (n: number) => (Number.isFinite(n) ? n.toFixed(2) : "0.00");
 const fmtSmart = (n: number) =>
   Number.isInteger(n) ? String(n) : n.toFixed(2);
 
-const buildHourlySuffix = (minH?: number, maxH?: number) => {
+const buildHourlySuffix = (minH?: number | null, maxH?: number | null) => {
   const hasMin = typeof minH === "number";
   const hasMax = typeof maxH === "number";
 
@@ -583,10 +587,15 @@ const buildHourlySuffix = (minH?: number, maxH?: number) => {
 };
 
 const buildTravelSuffix = (
-  method?: TravelChargingTypes | null,
-  hours = 0,
-  miles = 0
+  method: TravelChargingTypes | null,
+  segmentDistances: SegmentDistance[]
 ) => {
+  if (!segmentDistances.length) return "";
+
+  const first = segmentDistances[0];
+  const miles = first.distance ?? 0;
+  const hours = first.duration ? first.duration / 60 : 0;
+
   switch (method) {
     case TravelChargingTypes.LABOR_HOURS:
       return ` (${fmt2(Math.max(0, hours))} hrs)`;
@@ -609,8 +618,7 @@ export function getMoveDisplayRows({
   getTotal = false,
   startingMoveTime,
   endingMoveTime,
-  travelHours = 0,
-  travelMiles = 0,
+  segmentDistances,
 }: {
   moveFees: { name: string; quantity: number; price: number }[];
   jobType: "hourly" | "flat";
@@ -619,12 +627,11 @@ export function getMoveDisplayRows({
   creditCardFee: number;
   liabilityCoverage?: { premium: number } | null;
   travelFeeRate?: number | null;
-  travelFeeMethod?: TravelChargingTypes | null;
+  travelFeeMethod: TravelChargingTypes | null;
   getTotal?: boolean;
-  startingMoveTime?: number;
-  endingMoveTime?: number;
-  travelHours?: number;
-  travelMiles?: number;
+  startingMoveTime?: number | null;
+  endingMoveTime?: number | null;
+  segmentDistances: SegmentDistance[];
 }): ListRowType[] {
   const jobTypeRateDisplayBase =
     jobType === "hourly" ? "Hourly Rate" : "Job Rate";
@@ -654,7 +661,7 @@ export function getMoveDisplayRows({
 
   if (travelRowBase) {
     const travelSuffix = getTotal
-      ? buildTravelSuffix(travelFeeMethod, travelHours, travelMiles)
+      ? buildTravelSuffix(travelFeeMethod, segmentDistances)
       : "";
     rows.push({
       left: `Travel Fee${travelSuffix}`, // stripped method label
@@ -686,10 +693,9 @@ export function getMoveDisplayRows({
     jobType,
     jobTypeRate,
     liabilityCoverage,
-    travelFeeRate,
+    travelFeeRate: travelFeeRate ?? null,
     travelFeeMethod,
-    travelHours,
-    travelMiles,
+    segmentDistances,
     paymentMethod,
     creditCardFee,
     startingMoveTime,
@@ -766,3 +772,147 @@ export function formatMonthDayTimestamp(
 
   return DateTime.fromMillis(millis, { zone: timezone }).toFormat("LLL d");
 }
+
+export const placeIdToRef = (pid: string | null) =>
+  pid ? `place_id:${pid}` : null;
+
+/** Shallow, order-sensitive comparison for SegmentDistance arrays. */
+export const isLikelyPlaceId = (id?: string | null) =>
+  !!id && !/[ ,]/.test(id) && id.length >= 10;
+
+/** Build a single string ref for the distance API:
+ *  - placeId (raw, no "place_id:" prefix)
+ *  - or "lat,lng"
+ *  - or formatted address
+ */
+export const toDistanceRef = (addr?: AddressInput | null): string | null => {
+  if (!addr) return null;
+
+  // 1) prefer real placeId (raw)
+  if (isLikelyPlaceId(addr.placeId)) {
+    return addr.placeId!;
+  }
+
+  // 2) lat/lng fallback
+  const lat = addr.location?.lat ?? null;
+  const lng = addr.location?.lng ?? null;
+  if (
+    typeof lat === "number" &&
+    typeof lng === "number" &&
+    !Number.isNaN(lat) &&
+    !Number.isNaN(lng)
+  ) {
+    return `${lat},${lng}`;
+  }
+
+  // 3) formatted address
+  const fa = addr.formattedAddress?.trim();
+  return fa && fa.length > 0 ? fa : null;
+};
+
+/** Shallow, order-sensitive comparison for SegmentDistance arrays. */
+export const segmentsEqual = (a: SegmentDistance[], b: SegmentDistance[]) => {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    const x = a[i];
+    const y = b[i];
+    if (
+      x.label !== y.label ||
+      x.distance !== y.distance ||
+      x.duration !== y.duration
+    ) {
+      return false;
+    }
+  }
+  return true;
+};
+
+export const buildOrderedRefs = (
+  originRef: string | null,
+  distanceRefs: string[]
+): string[] => {
+  if (!originRef) return [];
+  // keep only truthy legs
+  const middles = distanceRefs.filter(Boolean);
+  return [originRef, ...middles, originRef];
+};
+
+// Human-friendly label for each leg
+export const legLabel = (index: number, totalMiddles: number): string => {
+  if (index === 0) return "Office → Starting";
+  if (index === totalMiddles) return "Ending → Office";
+  return `Stop ${index} → Stop ${index + 1}`;
+};
+
+export const formatNumber = (
+  value: number | null | undefined,
+  decimals = 2
+): string => {
+  if (value == null) return "—";
+  return value.toLocaleString(undefined, {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
+};
+
+export const formatMiles = (miles: number | null | undefined): string => {
+  if (miles == null) return "—";
+  return `${formatNumber(miles)} miles`;
+};
+
+export const minutesFromHours = (
+  hours: number | null | undefined
+): number | null => {
+  if (hours == null) return null;
+  return Math.round(hours * 60);
+};
+
+export const formatDurationFromMinutes = (
+  minutes: number | null | undefined
+): string => {
+  if (minutes == null) return "—";
+  const m = Math.max(0, Math.round(minutes));
+  const h = Math.floor(m / 60);
+  const r = m % 60;
+  if (h === 0) return `${m.toLocaleString()} min${m === 1 ? "" : "s"}`;
+  if (r === 0) return `${h.toLocaleString()} hr${h === 1 ? "" : "s"}`;
+  return `${h.toLocaleString()} hr${h === 1 ? "" : "s"} ${r.toLocaleString()} min${r === 1 ? "" : "s"}`;
+};
+
+export const formatMilesAndTime = (
+  miles: number | null | undefined,
+  hours: number | null | undefined
+): string => {
+  const milesPart = formatMiles(miles);
+  const mins = minutesFromHours(hours);
+  const timePart = mins == null ? null : formatDurationFromMinutes(mins);
+  return timePart ? `${milesPart} (${timePart})` : milesPart;
+};
+
+export const sumSegments = (
+  segments: {
+    distance: number | null | undefined;
+    duration: number | null | undefined;
+  }[]
+): { totalMiles: number | null; totalMinutes: number | null } => {
+  let miles = 0;
+  let mins = 0;
+  let anyMiles = false;
+  let anyTime = false;
+
+  for (const s of segments) {
+    if (s.distance != null) {
+      miles += s.distance;
+      anyMiles = true;
+    }
+    if (s.duration != null) {
+      mins += Math.round(s.duration * 60);
+      anyTime = true;
+    }
+  }
+
+  return {
+    totalMiles: anyMiles ? miles : null,
+    totalMinutes: anyTime ? mins : null,
+  };
+};

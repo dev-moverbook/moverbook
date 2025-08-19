@@ -6,11 +6,13 @@ import { useUpdateMove } from "../../../hooks/useUpdateMove";
 import LaborSection, {
   LaborFormData,
 } from "@/app/components/move/sections/LaborSection";
+import { sumSegments } from "@/app/frontendUtils/helper";
 
 const ViewLaborFee = () => {
   const { moveData } = useMoveContext();
   const move = moveData.move;
-  const roundTripDrive = move.roundTripDrive;
+  const segmentDistances = move.segmentDistances;
+  const { totalMinutes } = sumSegments(segmentDistances);
 
   const { updateMove, updateMoveLoading, updateMoveError } = useUpdateMove();
 
@@ -76,7 +78,7 @@ const ViewLaborFee = () => {
       isSaving={updateMoveLoading}
       updateError={updateMoveError}
       onSave={handleSave}
-      roundTripDrive={roundTripDrive}
+      totalDriveTime={totalMinutes}
       isEditing={isEditing}
       setIsEditing={setIsEditing}
       onCancel={handleCancel}

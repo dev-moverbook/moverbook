@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { Doc, Id } from "@/convex/_generated/dataModel";
-import { InsurancePolicySchema } from "@/types/convex-schemas";
 import SectionContainer from "@/app/components/shared/SectionContainer";
 import CenteredContainer from "@/app/components/shared/CenteredContainer";
 import SectionHeader from "@/app/components/shared/SectionHeader";
@@ -27,7 +26,7 @@ const LiabilitySection: React.FC<LiabilitySectionProps> = ({
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [selectedPolicy, setSelectedPolicy] =
-    useState<InsurancePolicySchema | null>(null);
+    useState<Doc<"insurancePolicies"> | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
   const [policyToDelete, setPolicyToDelete] =
     useState<Id<"insurancePolicies"> | null>(null);
@@ -58,7 +57,7 @@ const LiabilitySection: React.FC<LiabilitySectionProps> = ({
     setCreateInsurancePolicyError(null);
   };
 
-  const handleOpenEditModal = (policy: InsurancePolicySchema): void => {
+  const handleOpenEditModal = (policy: Doc<"insurancePolicies">): void => {
     setIsEditMode(true);
     setSelectedPolicy(policy);
     setIsModalOpen(true);
@@ -101,7 +100,7 @@ const LiabilitySection: React.FC<LiabilitySectionProps> = ({
           }
         />
 
-        <CardContainer>
+        <CardContainer className="flex flex-col gap-4">
           {policies.map((policy) => (
             <LiabilityCard
               policy={policy}

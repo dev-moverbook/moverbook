@@ -1,34 +1,42 @@
 import React from "react";
-import { formatDecimalNumber } from "@/app/frontendUtils/helper";
 import { SegmentDistance } from "@/types/types";
 import ListRowContainer from "../shared/containers/ListRowContainer";
 import ListRow from "../shared/ui/ListRow";
+import {
+  sumSegments,
+  formatMilesAndTime,
+  formatMiles,
+  formatDurationFromMinutes,
+} from "@/app/frontendUtils/helper";
 
 interface LocationCardProps {
   segmentDistances: SegmentDistance[];
   roundTripMiles: number | null;
-  roundTripDrive: number | null;
+  roundTripDrive: number | null; // minutes or hours? We ignore props and compute from segments.
 }
 
-const LocationCard = ({
-  segmentDistances,
-  roundTripMiles,
-  roundTripDrive,
-}: LocationCardProps) => {
+const LocationCard = ({ segmentDistances }: LocationCardProps) => {
+  const { totalMiles, totalMinutes } = sumSegments(
+    segmentDistances.map((s) => ({
+      distance: s.distance ?? null,
+      duration: s.duration ?? null,
+    }))
+  );
+
   const rows = [
     ...segmentDistances.map((seg) => ({
       label: seg.label,
-      value: formatDecimalNumber(seg.distance, "miles"),
+      value: formatMilesAndTime(seg.distance ?? null, seg.duration ?? null),
       bold: false,
     })),
     {
-      label: "Total Miles",
-      value: formatDecimalNumber(roundTripMiles, "miles"),
-      bold: true,
-    },
-    {
-      label: "Total Drive Time",
-      value: formatDecimalNumber(roundTripDrive, "hours"),
+      label: "Total",
+      value: (() => {
+        const milesPart = formatMiles(totalMiles);
+        const timePart =
+          totalMinutes == null ? null : formatDurationFromMinutes(totalMinutes);
+        return timePart ? `${milesPart} (${timePart})` : milesPart;
+      })(),
       bold: true,
     },
   ];

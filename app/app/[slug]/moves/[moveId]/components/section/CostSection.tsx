@@ -14,6 +14,8 @@ const CostSection = () => {
     travelFeeMethod,
     paymentMethod,
     creditCardFee,
+    startingMoveTime,
+    endingMoveTime,
   } = move;
 
   const displayRows = getMoveDisplayRows({
@@ -25,6 +27,8 @@ const CostSection = () => {
     travelFeeMethod,
     paymentMethod,
     creditCardFee,
+    startingMoveTime: startingMoveTime,
+    endingMoveTime: endingMoveTime,
     getTotal: true,
   });
 

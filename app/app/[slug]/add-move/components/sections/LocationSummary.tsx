@@ -25,11 +25,15 @@ const LocationSummary = ({
   roundTripDrive,
   showBorder = false,
 }: LocationSummaryProps) => {
-  const moveAddresses = locations.map((loc) => loc.address).filter(Boolean);
-  const office = companyContact?.address;
+  const moveAddresses = locations
+    .map((loc) => loc.address?.placeId)
+    .filter(Boolean);
+  const office = companyContact?.address?.placeId ?? null;
 
   // Route: office ➝ origin ➝ stops ➝ destination ➝ office
-  const addresses = [office, ...moveAddresses, office] as string[];
+  const placeIds = [office, ...moveAddresses, office] as string[];
+
+  console.log("placeIds", placeIds);
 
   return (
     <>
@@ -38,7 +42,7 @@ const LocationSummary = ({
           Location Summary
         </Header3>
 
-        <AddressProvider addresses={addresses}>
+        <AddressProvider placeIds={placeIds}>
           <RouteMap />
         </AddressProvider>
       </SectionContainer>

@@ -8,9 +8,9 @@ import {
   formatDateToLong,
   formatLocationType,
   formatPriceRange,
-  getMoveCostRange,
   getStatusColor,
   getInitials,
+  computeMoveTotal,
 } from "@/app/frontendUtils/helper";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -43,8 +43,20 @@ const MoveCard: React.FC<MoveCardProps> = ({
     formatLocationType(move.locations[0].locationType),
   ].filter(Boolean) as string[];
 
-  const [low, high] = getMoveCostRange(move);
-  const price = formatPriceRange(low, high);
+  const { minTotal, maxTotal } = computeMoveTotal({
+    moveFees: move.moveFees,
+    jobType: move.jobType,
+    jobTypeRate: move.jobTypeRate,
+    paymentMethod: move.paymentMethod,
+    creditCardFee: move.creditCardFee,
+    startingMoveTime: move.startingMoveTime,
+    endingMoveTime: move.endingMoveTime,
+    liabilityCoverage: move.liabilityCoverage,
+    travelFeeRate: move.travelFeeRate ?? null,
+    travelFeeMethod: move.travelFeeMethod ?? null,
+    segmentDistances: move.segmentDistances,
+  });
+  const price = formatPriceRange(minTotal, maxTotal);
 
   const repInitials = getInitials(salesRep?.name || "Rep");
 
@@ -68,7 +80,9 @@ const MoveCard: React.FC<MoveCardProps> = ({
             <div className="flex items-center gap-2 min-w-0">
               <span style={{ color: getStatusColor(moveStatus) }}>●</span>
               <span className="truncate">{moveStatus}</span>
-              <span className="text-greenCustom font-medium pl-2">{price}</span>
+              <span className="text-greenCustom font-semibold pl-1">
+                {price}
+              </span>
             </div>
           </div>
 

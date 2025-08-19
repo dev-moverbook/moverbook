@@ -13,6 +13,7 @@ import AddCreditCardFee from "../sections/AddCreditCardFee";
 import FormActionContainer from "@/app/components/shared/containers/FormActionContainer";
 import AddPaymentType from "../sections/AddPaymentType";
 import { Doc } from "@/convex/_generated/dataModel";
+import { sumSegments } from "@/app/frontendUtils/helper";
 
 interface CostStepProps {
   onNext: () => void;
@@ -28,7 +29,10 @@ const CostStep = ({ onNext, onBack, isSaving, saveError }: CostStepProps) => {
     moveFormErrors,
     insurancePolicyOptions,
     setMoveFormErrors,
+    segmentDistances,
   } = useMoveForm();
+
+  const { totalMinutes } = sumSegments(segmentDistances);
 
   const customerMissingError = !moveFormData.moveCustomerId
     ? "Save customer on first step before proceeding"
@@ -49,6 +53,7 @@ const CostStep = ({ onNext, onBack, isSaving, saveError }: CostStepProps) => {
         errors={moveFormErrors}
         setErrors={setMoveFormErrors}
         isEditing={true}
+        totalDriveTime={totalMinutes}
       />
 
       <AddTravelFee />

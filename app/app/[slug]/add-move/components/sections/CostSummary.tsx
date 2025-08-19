@@ -3,7 +3,7 @@ import { getMoveDisplayRows } from "@/app/frontendUtils/helper";
 import CostTable from "@/app/components/move/sections/CostTable";
 
 const CostSummary = () => {
-  const { moveFormData } = useMoveForm();
+  const { moveFormData, segmentDistances } = useMoveForm();
   const {
     moveFees,
     liabilityCoverage,
@@ -25,10 +25,11 @@ const CostSummary = () => {
     paymentMethod,
     creditCardFee,
     travelFeeRate,
-    travelFeeMethod,
+    travelFeeMethod: travelFeeMethod ?? null,
     getTotal: true,
     startingMoveTime: startingMoveTime ?? 0,
     endingMoveTime: endingMoveTime ?? 0,
+    segmentDistances,
   });
 
   return <CostTable title="Cost" rows={displayRows} boldLastRow={true} />;

@@ -32,7 +32,7 @@ interface LaborSectionProps {
   isSaving?: boolean;
   updateError?: string | null;
   onSave?: () => void;
-  roundTripDrive?: number | null;
+  totalDriveTime: number | null;
   isEditing: boolean;
   onCancel?: () => void;
   setIsEditing?: (value: boolean) => void;
@@ -47,7 +47,7 @@ const LaborSection: React.FC<LaborSectionProps> = ({
   isSaving = false,
   updateError,
   onSave,
-  roundTripDrive = null,
+  totalDriveTime = null,
   isEditing,
   setIsEditing,
   onCancel,
@@ -125,7 +125,7 @@ const LaborSection: React.FC<LaborSectionProps> = ({
           errors={errors}
         />
       </SectionContainer>
-      <LaborSummary formData={formData} roundTripDrive={roundTripDrive} />
+      <LaborSummary formData={formData} totalDriveTime={totalDriveTime} />
       {editingMode && onCancel && setIsEditing && (
         <FormActionContainer className="mt-8 max-w-screen-sm w-full mx-auto ">
           <FormActions

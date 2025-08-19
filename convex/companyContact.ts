@@ -8,7 +8,7 @@ import {
   query,
 } from "./_generated/server";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
-import { handleInternalError, shouldExposeError } from "./backendUtils/helper";
+import { handleInternalError } from "./backendUtils/helper";
 import {
   validateCompany,
   isUserInOrg,
@@ -18,7 +18,8 @@ import {
   GetCompanyContactResponse,
   UpdateCompanyContactResponse,
 } from "@/types/convex-responses";
-import { CompanyContactSchema } from "@/types/convex-schemas";
+import { AddressConvex } from "./schema";
+import { Doc } from "./_generated/dataModel";
 
 export const updateCompanyContact = mutation({
   args: {
@@ -26,7 +27,7 @@ export const updateCompanyContact = mutation({
     updates: v.object({
       email: v.optional(v.string()),
       phoneNumber: v.optional(v.string()),
-      address: v.optional(v.string()),
+      address: v.optional(AddressConvex),
       website: v.optional(v.string()),
     }),
   },
@@ -72,17 +73,7 @@ export const updateCompanyContact = mutation({
         data: { companyContactId: companyContact._id },
       };
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
-      console.error(ErrorMessages.INTERNAL_ERROR, errorMessage, error);
-
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error: shouldExposeError(errorMessage)
-          ? errorMessage
-          : ErrorMessages.GENERIC_ERROR,
-      };
+      return handleInternalError(error);
     }
   },
 });
@@ -110,7 +101,10 @@ export const getCompanyContactInternal = internalQuery({
   args: {
     companyContactId: v.id("companyContact"),
   },
-  handler: async (ctx, { companyContactId }): Promise<CompanyContactSchema> => {
+  handler: async (
+    ctx,
+    { companyContactId }
+  ): Promise<Doc<"companyContact">> => {
     try {
       const companyContact = validateCompanyContact(
         await ctx.db.get(companyContactId)

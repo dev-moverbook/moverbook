@@ -31,7 +31,7 @@ export interface WebIntegrationsFormData {
 export interface CompanyContactFormData {
   email?: string;
   phoneNumber?: string;
-  address?: string;
+  address?: AddressInput;
   website?: string;
 }
 
@@ -154,7 +154,7 @@ export interface FormMoveItemInput {
 export interface LocationInput {
   uid: string;
   locationRole: LocationRole;
-  address: string | null;
+  address: AddressInput | null;
   locationType: LocationType | null;
   aptNumber: string | null;
   aptName: string | null;
@@ -163,6 +163,15 @@ export interface LocationInput {
   moveSize: MoveSize | null;
   stopBehavior?: StopBehavior[];
   timeDistanceRange: TimeDistanceRange;
+}
+
+export interface AddressInput {
+  formattedAddress: string;
+  placeId: string | null;
+  location: {
+    lat: number | null;
+    lng: number | null;
+  };
 }
 
 export interface InsurancePolicyInput {

@@ -51,7 +51,7 @@ export const createCompanyRecords = async (
       companyId,
       email: "",
       phoneNumber: "",
-      address: "",
+      address: null,
       website: "",
     });
 

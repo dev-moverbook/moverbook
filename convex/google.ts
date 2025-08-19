@@ -4,20 +4,56 @@ import { GetDistanceMatrixResponse } from "@/types/convex-responses";
 import { ResponseStatus } from "@/types/enums";
 import { handleInternalError } from "./backendUtils/helper";
 
+// Ensure we pass raw placeId strings to the API
+const normalizePlaceId = (pid: string) =>
+  pid.startsWith("place_id:") ? pid.slice("place_id:".length) : pid;
+
+// "3600s" or "PT20M34S" -> minutes
+function parseDurationToMinutes(
+  duration: string | number | undefined
+): number | null {
+  if (!duration) return null;
+  if (typeof duration === "number") return duration / 60;
+  const secsMatch = duration.match(/^(\d+)s$/);
+  if (secsMatch) return Number(secsMatch[1]) / 60;
+  const r = /^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/.exec(duration);
+  if (r) {
+    const h = Number(r[1] ?? 0),
+      m = Number(r[2] ?? 0),
+      s = Number(r[3] ?? 0);
+    return (h * 3600 + m * 60 + s) / 60;
+  }
+  return null;
+}
+
 export const getDistanceMatrix = action({
   args: {
+    // raw place IDs only (e.g., "ChIJ6ysb4ttyZ0gRNZnIqkRht_I")
     origin: v.string(),
     destination: v.string(),
   },
   handler: async (
-    ctx,
+    _ctx,
     { origin, destination }
   ): Promise<GetDistanceMatrixResponse> => {
     try {
-      const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-      if (!apiKey) throw new Error("Missing Google Maps API key");
+      // Use a server-side key with Google Maps Routes API enabled
+      const apiKey =
+        process.env.GOOGLE_ROUTES_API_KEY ??
+        process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+      if (!apiKey) throw new Error("Missing Google Routes API key");
 
-      const url = `https://routes.googleapis.com/directions/v2:computeRoutes`;
+      const url = "https://routes.googleapis.com/directions/v2:computeRoutes";
+
+      const originPlaceId = normalizePlaceId(origin);
+      const destinationPlaceId = normalizePlaceId(destination);
+
+      const body = {
+        origin: { placeId: originPlaceId },
+        destination: { placeId: destinationPlaceId },
+        travelMode: "DRIVE",
+        routingPreference: "TRAFFIC_AWARE",
+      };
 
       const response = await fetch(url, {
         method: "POST",
@@ -26,27 +62,22 @@ export const getDistanceMatrix = action({
           "X-Goog-Api-Key": apiKey,
           "X-Goog-FieldMask": "routes.duration,routes.distanceMeters",
         },
-        body: JSON.stringify({
-          origin: {
-            address: origin,
-          },
-          destination: {
-            address: destination,
-          },
-          travelMode: "DRIVE",
-          routingPreference: "TRAFFIC_AWARE",
-        }),
+        body: JSON.stringify(body),
       });
 
+      console.log("response", response);
+
       if (!response.ok) {
-        console.error("Routes API HTTP error", response.status);
-        throw new Error(`Google Routes API error: ${response.status}`);
+        const errText = await response.text();
+        console.error("Routes API HTTP error", response.status, errText);
+        throw new Error(
+          `Google Routes API error: ${response.status} :: ${errText}`
+        );
       }
 
       const data = await response.json();
-
       const route = data?.routes?.[0];
-      if (!route || !route.distanceMeters || !route.duration) {
+      if (!route?.distanceMeters || !route?.duration) {
         return {
           status: ResponseStatus.ERROR,
           data: null,
@@ -56,14 +87,11 @@ export const getDistanceMatrix = action({
 
       const distanceMiles = route.distanceMeters / 1609.34;
       const durationMinutes =
-        parseDuration(route.duration) ?? route.duration / 60;
+        parseDurationToMinutes(route.duration) ?? Number(route.duration) / 60;
 
       return {
         status: ResponseStatus.SUCCESS,
-        data: {
-          distanceMiles,
-          durationMinutes,
-        },
+        data: { distanceMiles, durationMinutes },
       };
     } catch (error) {
       console.error("Routes API error", error);
@@ -71,10 +99,3 @@ export const getDistanceMatrix = action({
     }
   },
 });
-
-// Helper to parse ISO 8601 duration like "3600s" or "PT20M34S"
-function parseDuration(duration: string | undefined): number | null {
-  if (!duration) return null;
-  const match = duration.match(/(\d+)s/);
-  return match ? parseInt(match[1], 10) / 60 : null;
-}

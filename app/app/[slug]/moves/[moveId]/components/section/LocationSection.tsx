@@ -70,7 +70,7 @@ const LocationSection = () => {
     const newStop: LocationInput = {
       uid: nanoid(),
       locationRole: "stop",
-      address: "",
+      address: null,
       locationType: null,
       aptNumber: null,
       aptName: null,

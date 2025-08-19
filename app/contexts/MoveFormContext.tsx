@@ -6,6 +6,7 @@ import React, {
   useState,
   ReactNode,
   useEffect,
+  useMemo,
 } from "react";
 import { useMoveOptions } from "../hooks/queries/useMoveOptions";
 import {
@@ -21,8 +22,13 @@ import { Doc, Id } from "@/convex/_generated/dataModel";
 import { useCurrentUser } from "../hooks/queries/useCurrentUser";
 import { useSlugContext } from "./SlugContext";
 import { nanoid } from "nanoid";
-import { getHourlyRateFromLabor } from "../frontendUtils/helper";
+import {
+  getHourlyRateFromLabor,
+  segmentsEqual,
+  toDistanceRef,
+} from "../frontendUtils/helper";
 import { TravelChargingTypes } from "@/types/enums";
+import { useDistanceMatrix } from "../app/[slug]/add-move/hooks/useDistanceMatrix";
 
 interface AddMoveFormData {
   addMoveFee: (fee: MoveFeeInput) => void;
@@ -65,6 +71,12 @@ interface AddMoveFormData {
 }
 const MoveFormContext = createContext<AddMoveFormData | undefined>(undefined);
 
+const buildDefaultSegments = (): SegmentDistance[] => [
+  { label: "Office → Starting", distance: null, duration: null },
+  { label: "Starting → Ending", distance: null, duration: null },
+  { label: "Ending → Office", distance: null, duration: null },
+];
+
 export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
   const {
     data: moveOptions,
@@ -74,7 +86,6 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
   } = useMoveOptions();
 
   const { data: currentUser } = useCurrentUser();
-
   const { companyId } = useSlugContext();
 
   const {
@@ -163,7 +174,125 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
 
   const [moveFormErrors, setMoveFormErrors] = useState<MoveFormErrors>({});
 
-  const origin = companyContact?.address;
+  const { fetchDistance } = useDistanceMatrix();
+  const [segmentDistances, setSegmentDistances] = useState<SegmentDistance[]>(
+    buildDefaultSegments()
+  );
+
+  const locationPlaceIds = useMemo(
+    () => moveFormData.locations.map((l) => l.address?.placeId ?? null),
+    [moveFormData.locations]
+  );
+  const locationPlaceIdsKey = useMemo(
+    () => locationPlaceIds.map((id) => id ?? "").join("|"),
+    [locationPlaceIds]
+  );
+  const originRef = useMemo(
+    () => toDistanceRef(companyContact?.address) ?? null,
+    [companyContact?.address?.placeId]
+  );
+  const distanceRefs = useMemo(
+    () =>
+      moveFormData.locations
+        .map((l) => toDistanceRef(l.address))
+        .filter(Boolean) as string[],
+    [locationPlaceIdsKey]
+  );
+
+  useEffect(() => {
+    const originRef = toDistanceRef(companyContact?.address);
+    if (!originRef) {
+      const target: SegmentDistance[] = [
+        { label: "Office → Pickup", distance: null, duration: null },
+        { label: "Pickup → Dropoff", distance: null, duration: null },
+        { label: "Dropoff → Office", distance: null, duration: null },
+      ];
+      setSegmentDistances((prev) =>
+        segmentsEqual(prev, target) ? prev : target
+      );
+      return;
+    }
+
+    const middles = moveFormData.locations
+      .map((l) => toDistanceRef(l.address))
+      .filter(Boolean) as string[];
+
+    if (middles.length === 0) {
+      const target: SegmentDistance[] = [
+        { label: "Office → Starting", distance: null, duration: null },
+        { label: "Starting → Ending", distance: null, duration: null },
+        { label: "Ending → Office", distance: null, duration: null },
+      ];
+      setSegmentDistances((prev) =>
+        segmentsEqual(prev, target) ? prev : target
+      );
+      return;
+    }
+
+    let cancelled = false;
+
+    (async () => {
+      const legs: SegmentDistance[] = [];
+
+      const rStart = await fetchDistance({
+        origin: originRef,
+        destination: middles[0],
+      });
+      if (cancelled) return;
+      legs.push({
+        label: "Office → Pickup",
+        distance: rStart.distanceMiles ?? null,
+        duration:
+          rStart.durationMinutes != null ? rStart.durationMinutes / 60 : null,
+      });
+
+      const count = middles.length; // starting, [stops...], ending (if filled)
+      for (let i = 0; i < count - 1; i++) {
+        const r = await fetchDistance({
+          origin: middles[i],
+          destination: middles[i + 1],
+        });
+        if (cancelled) return;
+
+        let label: string;
+        if (i === 0) {
+          label = count === 2 ? "Pickup → Dropoff" : "Pickup → Stop 1";
+        } else if (i === count - 2) {
+          label = `Stop ${i} → Dropoff`;
+        } else {
+          label = `Stop ${i} → Stop ${i + 1}`;
+        }
+
+        legs.push({
+          label,
+          distance: r.distanceMiles ?? null,
+          duration: r.durationMinutes != null ? r.durationMinutes / 60 : null,
+        });
+      }
+
+      const rEnd = await fetchDistance({
+        origin: middles[count - 1],
+        destination: originRef,
+      });
+      if (cancelled) return;
+      legs.push({
+        label: "Dropoff → Office",
+        distance: rEnd.distanceMiles ?? null,
+        duration:
+          rEnd.durationMinutes != null ? rEnd.durationMinutes / 60 : null,
+      });
+
+      setSegmentDistances((prev) => (segmentsEqual(prev, legs) ? prev : legs));
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    companyContact?.address?.placeId,
+    moveFormData.locations.map((l) => l.address?.placeId ?? "").join("|"),
+    fetchDistance,
+  ]);
 
   useEffect(() => {
     if (creditCardFee) {
@@ -176,12 +305,10 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (!laborRates || moveFormData.jobType !== "hourly") return;
-
     const calculatedRate = getHourlyRateFromLabor(
       moveFormData.movers,
       laborRates
     );
-
     if (
       calculatedRate !== null &&
       moveFormData.jobTypeRate !== calculatedRate
@@ -202,15 +329,12 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
     if (companyId) {
       setMoveFormData((prev) => ({ ...prev, companyId }));
     }
-
     if (policy?.deposit !== undefined) {
       setMoveFormData((prev) => ({ ...prev, deposit: policy.deposit }));
     }
-
     if (currentUser?.user._id) {
       setMoveFormData((prev) => ({ ...prev, salesRep: currentUser.user._id }));
     }
-
     if (insurancePolicyOptions) {
       const defaultPolicy = insurancePolicyOptions.find((p) => p.isDefault);
       setMoveFormData((prev) => ({
@@ -218,7 +342,6 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
         liabilityCoverage: defaultPolicy ?? insurancePolicyOptions[0],
       }));
     }
-
     if (
       arrivalWindowOptions &&
       moveFormData.arrivalTimes.arrivalWindowStarts === "" &&
@@ -233,25 +356,14 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
         moveWindow: "morning",
       }));
     }
-
-    const addresses = moveFormData.locations
-      .map((l) => l.address)
-      .filter(Boolean) as string[];
-
-    if (!origin || addresses.length < 2) return;
   }, [
     policy?.deposit,
     currentUser?.user._id,
     insurancePolicyOptions,
     arrivalWindowOptions,
-    origin,
-    moveFormData.locations,
+    companyId,
     moveFormData.arrivalTimes.arrivalWindowStarts,
     moveFormData.arrivalTimes.arrivalWindowEnds,
-    moveFormData.moveWindow,
-    moveFormData.jobType,
-    moveFormData.jobTypeRate,
-    companyId,
   ]);
 
   useEffect(() => {
@@ -266,7 +378,6 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (moveFormData.travelFeeMethod !== null) return;
-
     if (travelFeeOptions?.defaultMethod === TravelChargingTypes.FLAT) {
       setMoveFormData((prev) => ({
         ...prev,
@@ -325,7 +436,6 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
       moveSize: null,
       timeDistanceRange: "0-30 sec (less than 100 ft)",
     };
-
     setMoveFormData((prev) => ({
       ...prev,
       locations: [
@@ -336,14 +446,10 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
     }));
   };
 
-  // inside MoveFormProvider
-
   const updateLocation = (index: number, updated: Partial<LocationInput>) => {
-    // strip undefined so we don't overwrite existing fields
     const cleaned = Object.fromEntries(
       Object.entries(updated).filter(([, v]) => v !== undefined)
     ) as Partial<LocationInput>;
-
     setMoveFormData((prev) => ({
       ...prev,
       locations: prev.locations.map((loc, i) =>
@@ -423,10 +529,11 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
     !!customer.phoneNumber.trim() &&
     (customer.altPhoneNumber ? !!customer.altPhoneNumber.trim() : true) &&
     !!customer.referral;
+
   const isLocationComplete = (index: number): boolean => {
     const location = moveFormData.locations[index];
     return (
-      !!location?.address &&
+      !!location?.address?.formattedAddress &&
       !!location?.locationType &&
       !!location?.accessType &&
       !!location?.timeDistanceRange &&
@@ -441,7 +548,7 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
   const isLocationSectionComplete = moveFormData.locations.every(
     (location: LocationInput) => {
       return (
-        !!location?.address &&
+        !!location?.address?.formattedAddress &&
         !!location?.locationType &&
         !!location?.accessType &&
         !!location?.timeDistanceRange &&
@@ -496,7 +603,7 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
         companyContact,
         customer,
         setCustomer,
-        segmentDistances: [],
+        segmentDistances,
         customerErrors,
         setCustomerErrors,
         moveFormData,

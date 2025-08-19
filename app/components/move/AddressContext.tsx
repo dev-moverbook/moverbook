@@ -2,18 +2,18 @@
 import React, { createContext, useContext } from "react";
 
 export type AddressContextType = {
-  addresses: string[];
+  placeIds: string[]; // first = origin, last = destination, middle = stops
 };
 
-const AddressContext = createContext<AddressContextType>({ addresses: [] });
+const AddressContext = createContext<AddressContextType>({ placeIds: [] });
 
-export const useAddresses = () => useContext(AddressContext);
+export const usePlaceIds = () => useContext(AddressContext);
 
 export const AddressProvider: React.FC<{
-  addresses: string[];
+  placeIds: string[];
   children: React.ReactNode;
-}> = ({ addresses, children }) => (
-  <AddressContext.Provider value={{ addresses }}>
+}> = ({ placeIds, children }) => (
+  <AddressContext.Provider value={{ placeIds }}>
     {children}
   </AddressContext.Provider>
 );

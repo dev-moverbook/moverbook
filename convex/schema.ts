@@ -46,10 +46,19 @@ export const TimeDistanceRangeConvex = v.union(
   v.literal("70-90 sec (400 ft)")
 );
 
+export const AddressConvex = v.object({
+  formattedAddress: v.string(),
+  placeId: v.union(v.string(), v.null()),
+  location: v.object({
+    lat: v.union(v.number(), v.null()),
+    lng: v.union(v.number(), v.null()),
+  }),
+});
+
 export const LocationConvex = v.object({
   uid: v.string(),
   locationRole: LocationRoleConvex,
-  address: v.union(v.string(), v.null()),
+  address: v.union(AddressConvex, v.null()),
   locationType: v.union(LocationTypeConvex, v.null()),
   aptNumber: v.union(v.string(), v.null()),
   aptName: v.union(v.string(), v.null()),
@@ -196,7 +205,7 @@ export default defineSchema({
     companyId: v.id("companies"),
     email: v.string(),
     phoneNumber: v.string(),
-    address: v.string(),
+    address: v.union(AddressConvex, v.null()),
     website: v.string(),
     sendgridSenderId: v.optional(v.string()),
     sendgridVerified: v.optional(v.boolean()),

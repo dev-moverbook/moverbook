@@ -94,7 +94,7 @@ const LaborSection: React.FC<LaborSectionProps> = ({ labor, companyId }) => {
           className="px-0 pb-4"
         />
 
-        <CardContainer>
+        <CardContainer className="flex flex-col gap-4">
           {labor.map((laborItem) => (
             <LaborCard
               key={laborItem._id}

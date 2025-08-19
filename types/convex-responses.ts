@@ -902,7 +902,7 @@ export interface GetCompanyContactSuccess {
 }
 
 export interface GetCompanyContactData {
-  companyContact: CompanyContactSchema;
+  companyContact: Doc<"companyContact">;
 }
 
 export type CreateOrUpdateQuoteResponse =

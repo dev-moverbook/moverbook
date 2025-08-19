@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { CompanyContactSchema } from "@/types/convex-schemas";
-import { CompanyContactFormData } from "@/types/form-types";
-import { Id } from "@/convex/_generated/dataModel";
+import { AddressInput, CompanyContactFormData } from "@/types/form-types";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import SectionContainer from "@/app/components/shared/SectionContainer";
 import CenteredContainer from "@/app/components/shared/CenteredContainer";
 import SectionHeader from "@/app/components/shared/SectionHeader";
@@ -14,11 +13,11 @@ import { Button } from "@/app/components/ui/button";
 import { CheckCircle, XCircle, Loader2, Mail } from "lucide-react";
 import { useCreateSender } from "../hooks/useCreateSender";
 import { useCheckSenderVerified } from "../hooks/useCheckSenderVerified";
-import { PlacesAutoCompleteInput } from "@/app/components/shared/PlacesAutoCompleteInput";
 import PhoneNumberInput from "@/app/components/shared/labeled/PhoneNumberInput";
+import LabeledPlacesAutocomplete from "@/app/components/shared/labeled/LabeledPlacesAutoComplete";
 
 interface CompanyContactSectionProps {
-  companyContact: CompanyContactSchema;
+  companyContact: Doc<"companyContact">;
   updateCompanyContact: (
     companyContactId: Id<"companyContact">,
     updates: CompanyContactFormData
@@ -37,11 +36,12 @@ const CompanyContactSection: React.FC<CompanyContactSectionProps> = ({
   updateError,
   setUpdateError,
 }) => {
-  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [isEditing, setIsEditing] = useState(false);
+
   const [formData, setFormData] = useState<CompanyContactFormData>({
     email: companyContact.email || "",
     phoneNumber: companyContact.phoneNumber || "",
-    address: companyContact.address || "",
+    address: (companyContact.address as AddressInput) || null,
     website: companyContact.website || "",
   });
 
@@ -52,7 +52,6 @@ const CompanyContactSection: React.FC<CompanyContactSectionProps> = ({
     website: "",
   });
 
-  // Email verification hooks
   const {
     createSender,
     isLoading: isCreatingSender,
@@ -64,7 +63,6 @@ const CompanyContactSection: React.FC<CompanyContactSectionProps> = ({
     error: checkVerificationError,
   } = useCheckSenderVerified();
 
-  // Determine the verification status based on companyContact data
   const [verificationStatus, setVerificationStatus] = useState<
     "unverified" | "pending" | "verifying" | "verified" | "error"
   >(() => {
@@ -74,21 +72,52 @@ const CompanyContactSection: React.FC<CompanyContactSectionProps> = ({
     return "unverified";
   });
 
-  // Track specific error messages for each verification step
   const [verificationError, setVerificationError] = useState<string | null>(
     null
   );
 
-  const handleEditClick = () => {
-    setIsEditing(true);
+  // Address merge helper (no `unknown` casts, assumes AddressInput.lat/lng are number | null)
+  const mergeAddress = (patch: Partial<AddressInput>) => {
+    setFormData((prev) => {
+      const prevAddr: AddressInput = (prev.address as AddressInput) ?? {
+        formattedAddress: "",
+        placeId: null,
+        location: { lat: null, lng: null },
+      };
+
+      const next: AddressInput = {
+        formattedAddress:
+          patch.formattedAddress ?? prevAddr.formattedAddress ?? "",
+        placeId: patch.placeId ?? prevAddr.placeId ?? null,
+        location:
+          patch.location !== undefined
+            ? {
+                lat:
+                  (patch.location as AddressInput["location"]).lat ??
+                  prevAddr.location?.lat ??
+                  null,
+                lng:
+                  (patch.location as AddressInput["location"]).lng ??
+                  prevAddr.location?.lng ??
+                  null,
+              }
+            : (prevAddr.location ?? { lat: null, lng: null }),
+      };
+
+      return { ...prev, address: next };
+    });
+
+    setFieldErrors((prev) => ({ ...prev, address: "" }));
   };
+
+  const handleEditClick = () => setIsEditing(true);
 
   const handleCancel = () => {
     setIsEditing(false);
     setFormData({
       email: companyContact.email || "",
       phoneNumber: companyContact.phoneNumber || "",
-      address: companyContact.address || "",
+      address: (companyContact.address as AddressInput) || null,
       website: companyContact.website || "",
     });
     setUpdateError(null);
@@ -106,14 +135,20 @@ const CompanyContactSection: React.FC<CompanyContactSectionProps> = ({
     setFieldErrors((prev) => ({ ...prev, [name as FieldKey]: "" }));
   };
 
+  // Disable save unless we have the full Google address payload
   const isDisabled =
     !formData.email ||
     !formData.phoneNumber ||
-    !formData.address ||
-    !formData.website;
+    !formData.website ||
+    !formData.address?.formattedAddress ||
+    !formData.address?.placeId ||
+    formData.address?.location?.lat == null ||
+    formData.address?.location?.lng == null;
 
   const isComplete =
-    !!formData.email && !!formData.phoneNumber && !!formData.address;
+    !!formData.email &&
+    !!formData.phoneNumber &&
+    !!formData.address?.formattedAddress;
 
   const handleSave = async () => {
     const errors: Record<FieldKey, string> = {
@@ -125,23 +160,28 @@ const CompanyContactSection: React.FC<CompanyContactSectionProps> = ({
 
     if (!formData.email) errors.email = "Email is required.";
     if (!formData.phoneNumber) errors.phoneNumber = "Phone number is required.";
-    if (!formData.address) errors.address = "Address is required.";
     if (!formData.website) errors.website = "Website is required.";
 
-    const hasErrors = Object.values(errors).some((msg) => msg !== "");
+    if (
+      !formData.address?.formattedAddress ||
+      !formData.address?.placeId ||
+      formData.address?.location?.lat == null ||
+      formData.address?.location?.lng == null
+    ) {
+      errors.address =
+        "Please choose a valid address from the suggestions so we get place ID and coordinates.";
+    }
 
+    const hasErrors = Object.values(errors).some((msg) => msg !== "");
     if (hasErrors) {
       setFieldErrors(errors);
       return;
     }
 
     const success = await updateCompanyContact(companyContact._id, formData);
-    if (success) {
-      setIsEditing(false);
-    }
+    if (success) setIsEditing(false);
   };
 
-  // Step 1: Create a sender (if it doesn't exist)
   const handleCreateSender = async () => {
     try {
       setVerificationError(null);
@@ -165,7 +205,6 @@ const CompanyContactSection: React.FC<CompanyContactSectionProps> = ({
     }
   };
 
-  // Step 2: Check if the sender is verified
   const handleCheckVerification = async () => {
     try {
       setVerificationError(null);
@@ -189,7 +228,6 @@ const CompanyContactSection: React.FC<CompanyContactSectionProps> = ({
     }
   };
 
-  // Render the appropriate button based on verification status
   const renderVerificationButton = () => {
     if (verificationStatus === "verified") {
       return (
@@ -241,7 +279,6 @@ const CompanyContactSection: React.FC<CompanyContactSectionProps> = ({
       );
     }
 
-    // Default: unverified state
     return (
       <Button
         variant="outline"
@@ -301,6 +338,7 @@ const CompanyContactSection: React.FC<CompanyContactSectionProps> = ({
               </div>
             )}
           </div>
+
           <PhoneNumberInput
             label="Phone Number"
             value={formData.phoneNumber ?? ""}
@@ -313,17 +351,35 @@ const CompanyContactSection: React.FC<CompanyContactSectionProps> = ({
           />
 
           {isEditing ? (
-            <PlacesAutoCompleteInput
-              value={formData.address || ""}
-              onChange={(val) =>
-                setFormData((prev) => ({ ...prev, address: val }))
+            <LabeledPlacesAutocomplete
+              value={
+                (formData.address as AddressInput | undefined)
+                  ?.formattedAddress || ""
               }
+              onChange={(text) => mergeAddress({ formattedAddress: text })}
+              onPlaceSelected={(place) => {
+                mergeAddress({
+                  formattedAddress: place.formatted_address ?? "",
+                  placeId: place.place_id ?? null,
+                  location: place.geometry?.location
+                    ? {
+                        lat: place.geometry.location.lat(),
+                        lng: place.geometry.location.lng(),
+                      }
+                    : { lat: null, lng: null },
+                });
+              }}
+              isEditing={true}
+              showLabel={true}
             />
           ) : (
             <FieldRow
               label="Address"
               name="address"
-              value={formData.address}
+              value={
+                (formData.address as AddressInput | null)?.formattedAddress ??
+                ""
+              }
               isEditing={false}
               onChange={handleChange}
               error={fieldErrors.address}
