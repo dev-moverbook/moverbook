@@ -34,7 +34,9 @@ export const createSender = action({
       const sendgridSenderId = await createSingleSender({
         fromEmail: companyContact.email,
         fromName: "Support",
-        address: parseFullAddressToSendgridFormat(companyContact.address),
+        address: parseFullAddressToSendgridFormat(
+          companyContact.address?.formattedAddress ?? ""
+        ),
       });
 
       await ctx.runMutation(internal.companyContact.updateSendgridInfo, {
