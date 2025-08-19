@@ -18,6 +18,11 @@ const QuoteCost = () => {
     jobType,
     paymentMethod,
     creditCardFee,
+    segmentDistances,
+    travelFeeMethod,
+    travelFeeRate,
+    startingMoveTime,
+    endingMoveTime,
   } = move;
 
   const displayRows = getMoveDisplayRows({
@@ -27,6 +32,11 @@ const QuoteCost = () => {
     liabilityCoverage,
     paymentMethod,
     creditCardFee,
+    segmentDistances,
+    travelFeeMethod: travelFeeMethod ?? null,
+    travelFeeRate: travelFeeRate ?? null,
+    startingMoveTime,
+    endingMoveTime,
   });
 
   const texts: [string, number | string | null, boolean?][] = [
