@@ -12,8 +12,6 @@ interface LocationSummaryProps {
   companyContact?: Doc<"companyContact">;
   locations: LocationInput[];
   segmentDistances: SegmentDistance[];
-  roundTripMiles: number | null;
-  roundTripDrive: number | null;
   showBorder?: boolean;
 }
 
@@ -21,10 +19,10 @@ const LocationSummary = ({
   companyContact,
   locations,
   segmentDistances,
-  roundTripMiles,
-  roundTripDrive,
   showBorder = false,
 }: LocationSummaryProps) => {
+  console.log("segmentDistances", segmentDistances);
+
   const moveAddresses = locations
     .map((loc) => loc.address?.placeId)
     .filter(Boolean);
@@ -32,8 +30,6 @@ const LocationSummary = ({
 
   // Route: office ➝ origin ➝ stops ➝ destination ➝ office
   const placeIds = [office, ...moveAddresses, office] as string[];
-
-  console.log("placeIds", placeIds);
 
   return (
     <>
@@ -46,11 +42,7 @@ const LocationSummary = ({
           <RouteMap />
         </AddressProvider>
       </SectionContainer>
-      <LocationCard
-        segmentDistances={segmentDistances}
-        roundTripMiles={roundTripMiles}
-        roundTripDrive={roundTripDrive}
-      />
+      <LocationCard segmentDistances={segmentDistances} />
     </>
   );
 };

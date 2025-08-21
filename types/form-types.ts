@@ -263,6 +263,7 @@ export interface MoveFormData {
   roundTripMiles: number | null;
   salesRep: Id<"users"> | null;
   serviceType: ServiceType | null;
+  segmentDistances: SegmentDistance[];
   startingMoveTime: number | null;
   totalMiles: number | null;
   travelFeeRate?: number | null;

@@ -11,8 +11,6 @@ import {
 
 interface LocationCardProps {
   segmentDistances: SegmentDistance[];
-  roundTripMiles: number | null;
-  roundTripDrive: number | null; // minutes or hours? We ignore props and compute from segments.
 }
 
 const LocationCard = ({ segmentDistances }: LocationCardProps) => {

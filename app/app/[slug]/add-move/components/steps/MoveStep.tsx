@@ -49,8 +49,6 @@ const MoveStep = ({ onNext, onBack }: MoveStepProps) => {
         companyContact={companyContact}
         locations={moveFormData.locations}
         segmentDistances={segmentDistances}
-        roundTripMiles={moveFormData.roundTripMiles}
-        roundTripDrive={moveFormData.roundTripDrive}
         showBorder={false}
       />
 

@@ -146,8 +146,6 @@ const LocationSection = () => {
         companyContact={companyContact?.companyContact}
         locations={editedLocations}
         segmentDistances={move.segmentDistances}
-        roundTripMiles={move.roundTripMiles}
-        roundTripDrive={move.roundTripDrive}
         showBorder={false}
       />
     </div>

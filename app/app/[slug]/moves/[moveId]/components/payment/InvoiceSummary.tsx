@@ -1,17 +1,28 @@
+// components/InvoiceSummary.tsx
 "use client";
 
 import ListRowContainer from "@/app/components/shared/containers/ListRowContainer";
 import SectionContainer from "@/app/components/shared/containers/SectionContainer";
 import SectionHeader from "@/app/components/shared/SectionHeader";
 import ListRow from "@/app/components/shared/ui/ListRow";
-import { formatCurrency } from "@/app/frontendUtils/helper";
 import ReusableCard from "../card/ReusableCard";
 import { cn } from "@/lib/utils";
-import { DisplayRow } from "@/types/types";
+import { DisplayRow, SegmentDistance } from "@/types/types";
 import { Doc } from "@/convex/_generated/dataModel";
+import {
+  computeInvoiceTotals,
+  getMoveDisplayRows,
+  ListRowType,
+} from "@/app/frontendUtils/helper";
 
 interface InvoiceSummaryProps {
-  move: Doc<"move">;
+  move: Doc<"move"> & {
+    segmentDistances: SegmentDistance[];
+    paymentMethod: any;
+    creditCardFee: number;
+    travelFeeRate?: number | null;
+    travelFeeMethod: any;
+  };
   discounts: Doc<"discounts">[];
   additionalFees: Doc<"additionalFees">[];
 }
@@ -21,52 +32,80 @@ const InvoiceSummary = ({
   discounts,
   additionalFees,
 }: InvoiceSummaryProps) => {
-  const { liabilityCoverage, moveFees, deposit, jobTypeRate, jobType } = move;
+  const {
+    liabilityCoverage,
+    moveFees,
+    deposit,
+    jobTypeRate,
+    jobType,
+    startingMoveTime,
+    endingMoveTime,
+    segmentDistances,
+    travelFeeMethod,
+    travelFeeRate,
+    paymentMethod,
+    creditCardFee,
+  } = move;
 
-  const jobTypeRateDisplay = jobType === "hourly" ? `Hourly Rate` : `Job Rate`;
-  const jobRateValue =
-    jobType === "hourly"
-      ? `${formatCurrency(jobTypeRate ?? 0)}/hr`
-      : `${formatCurrency(jobTypeRate ?? 0)}`;
+  const rows: ListRowType[] = getMoveDisplayRows({
+    moveFees,
+    jobType,
+    jobTypeRate,
+    liabilityCoverage,
+    travelFeeRate: travelFeeRate ?? null,
+    travelFeeMethod,
+    paymentMethod,
+    creditCardFee,
+    startingMoveTime,
+    endingMoveTime,
+    segmentDistances,
+    additionalFees,
+    discounts,
+    deposit: deposit ?? 0,
+    getTotal: true,
+    includeInvoiceRow: true,
+  });
 
-  const displayRows: DisplayRow[] = [
-    ...moveFees.map((fee) => ({
-      left: `${fee.name} (${fee.quantity} @ ${formatCurrency(fee.price)})`,
-      right: `$${(fee.price * fee.quantity).toFixed(2)}`,
-    })),
-    {
-      left: "Liability Coverage",
-      right: formatCurrency(liabilityCoverage?.premium ?? 0),
-    },
-    {
-      left: jobTypeRateDisplay,
-      right: jobRateValue,
-    },
+  const displayRows: DisplayRow[] = rows.map((r) => {
+    const rightText = r.right ?? "";
+    const isNegative = rightText.trim().startsWith("-");
+    return {
+      left: r.left,
+      right: rightText,
+      className: cn(isNegative ? "text-green-500" : undefined),
+    };
+  });
 
-    ...additionalFees.map((fee) => ({
-      left: fee.name,
-      right: `${formatCurrency(fee.price)}`,
-    })),
-    ...(deposit && deposit > 0
-      ? [
-          {
-            left: "Deposit",
-            right: `-${formatCurrency(deposit)}`,
-            className: "text-green-500",
-          },
-        ]
-      : []),
+  const { invoiceMin, invoiceMax } = (() => {
+    const totalRow = rows.find((r) => r.left === "Total");
+    if (!totalRow) return { invoiceMin: 0, invoiceMax: 0 };
+    const text = (totalRow.right ?? "").replace(/[\$,]/g, "");
+    let baseMin = 0;
+    let baseMax = 0;
+    if (text.includes("-")) {
+      const [a, b] = text.split("-").map((s) => parseFloat(s.trim()));
+      baseMin = isNaN(a) ? 0 : a;
+      baseMax = isNaN(b) ? baseMin : b;
+    } else {
+      const v = parseFloat(text);
+      baseMin = isNaN(v) ? 0 : v;
+      baseMax = baseMin;
+    }
+    return computeInvoiceTotals({
+      baseMin,
+      baseMax,
+      additionalFees,
+      discounts,
+      deposit: deposit ?? 0,
+    });
+  })();
 
-    ...discounts.map((discount) => ({
-      left: `${discount.name} (discount)`,
-      right: `-${formatCurrency(discount.price)}`,
-      className: "text-green-500", // Add className here
-    })),
-  ];
+  const dueToday = invoiceMin === invoiceMax ? invoiceMin : invoiceMax;
 
   return (
     <div>
       <SectionHeader className="mx-auto" title="Invoice Summary" />
+
       {displayRows.length > 0 && (
         <ListRowContainer>
           {displayRows.map((row, i) => (
@@ -74,18 +113,16 @@ const InvoiceSummary = ({
               key={i}
               left={row.left}
               right={row.right}
-              className={cn(
-                i % 2 === 1 ? "" : "bg-background2",
-                row.className // Include custom row styling if provided
-              )}
+              className={cn(i % 2 === 1 ? "" : "bg-background2", row.className)}
             />
           ))}
         </ListRowContainer>
       )}
+
       <SectionContainer>
         <ReusableCard
           title="Due Today"
-          texts={[["Total", deposit ?? 0, true]]}
+          texts={[["Total", dueToday, true]]}
           isCurrency
         />
       </SectionContainer>

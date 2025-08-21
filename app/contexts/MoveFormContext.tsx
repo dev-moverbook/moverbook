@@ -166,6 +166,7 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
     roundTripMiles: null,
     salesRep: null,
     serviceType: null,
+    segmentDistances: [],
     startingMoveTime: 1,
     totalMiles: null,
     trucks: 1,

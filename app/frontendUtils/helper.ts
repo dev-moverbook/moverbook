@@ -606,6 +606,27 @@ const buildTravelSuffix = (
   }
 };
 
+export function computeInvoiceTotals({
+  baseMin,
+  baseMax,
+  additionalFees = [],
+  discounts = [],
+  deposit = 0,
+}: {
+  baseMin: number;
+  baseMax: number;
+  additionalFees?: { price: number }[];
+  discounts?: { price: number }[];
+  deposit?: number | null;
+}) {
+  const addl = additionalFees.reduce((s, f) => s + (f.price || 0), 0);
+  const disc = discounts.reduce((s, d) => s + (d.price || 0), 0);
+  const dep = deposit ?? 0;
+  const invoiceMin = Math.max(0, baseMin + addl - disc - dep);
+  const invoiceMax = Math.max(0, baseMax + addl - disc - dep);
+  return { invoiceMin, invoiceMax };
+}
+
 export function getMoveDisplayRows({
   moveFees,
   jobType,
@@ -619,6 +640,10 @@ export function getMoveDisplayRows({
   startingMoveTime,
   endingMoveTime,
   segmentDistances,
+  additionalFees = [],
+  discounts = [],
+  deposit = 0,
+  includeInvoiceRow = false,
 }: {
   moveFees: { name: string; quantity: number; price: number }[];
   jobType: "hourly" | "flat";
@@ -632,17 +657,17 @@ export function getMoveDisplayRows({
   startingMoveTime?: number | null;
   endingMoveTime?: number | null;
   segmentDistances: SegmentDistance[];
+  additionalFees?: { name: string; price: number }[];
+  discounts?: { name: string; price: number }[];
+  deposit?: number | null;
+  includeInvoiceRow?: boolean;
 }): ListRowType[] {
   const jobTypeRateDisplayBase =
     jobType === "hourly" ? "Hourly Rate" : "Job Rate";
-
   const jobRateValue =
     jobType === "hourly"
       ? `${formatCurrency(jobTypeRate ?? 0)}/hr`
       : `${formatCurrency(jobTypeRate ?? 0)}`;
-
-  // keep right-hand formatting via your existing helper,
-  // but we'll override the left label to remove "(Labor Rate)/(Mileage)"
   const travelRowBase =
     travelFeeMethod != null
       ? buildTravelRow(travelFeeMethod, travelFeeRate ?? 0)
@@ -661,15 +686,14 @@ export function getMoveDisplayRows({
 
   if (travelRowBase) {
     const travelSuffix = getTotal
-      ? buildTravelSuffix(travelFeeMethod, segmentDistances)
+      ? buildTravelSuffix(travelFeeMethod!, segmentDistances)
       : "";
     rows.push({
-      left: `Travel Fee${travelSuffix}`, // stripped method label
-      right: travelRowBase.right, // keep unit on the right (/hr, /mi, or flat)
+      left: `Travel Fee${travelSuffix}`,
+      right: travelRowBase.right,
     });
   }
 
-  // Job rate row (before credit-card fee)
   const jobSuffix =
     getTotal && jobType === "hourly"
       ? buildHourlySuffix(startingMoveTime, endingMoveTime)
@@ -679,15 +703,17 @@ export function getMoveDisplayRows({
     right: jobRateValue,
   });
 
-  // Credit card fee now AFTER the job rate row
   if (paymentMethod?.kind === "credit_card") {
     const pct = creditCardFee <= 1 ? creditCardFee * 100 : creditCardFee;
     rows.push({ left: "Credit Card Fee", right: `${pct.toFixed(2)}%` });
   }
 
+  for (const fee of additionalFees) {
+    rows.push({ left: fee.name, right: formatCurrency(fee.price) });
+  }
+
   if (!getTotal) return rows;
 
-  // Totals (unchanged)
   const { minTotal, maxTotal } = computeMoveTotal({
     moveFees,
     jobType,
@@ -709,6 +735,34 @@ export function getMoveDisplayRows({
         ? formatCurrency(minTotal)
         : `${formatCurrency(minTotal)} - ${formatCurrency(maxTotal)}`,
   });
+
+  for (const d of discounts) {
+    rows.push({
+      left: `${d.name} (discount)`,
+      right: `-${formatCurrency(d.price)}`,
+    });
+  }
+
+  if (deposit && deposit > 0) {
+    rows.push({ left: "Deposit", right: `-${formatCurrency(deposit)}` });
+  }
+
+  if (includeInvoiceRow) {
+    const { invoiceMin, invoiceMax } = computeInvoiceTotals({
+      baseMin: minTotal,
+      baseMax: maxTotal,
+      additionalFees,
+      discounts,
+      deposit: deposit ?? 0,
+    });
+    rows.push({
+      left: "Invoice Total",
+      right:
+        invoiceMin === invoiceMax
+          ? formatCurrency(invoiceMin)
+          : `${formatCurrency(invoiceMin)} - ${formatCurrency(invoiceMax)}`,
+    });
+  }
 
   return rows;
 }
