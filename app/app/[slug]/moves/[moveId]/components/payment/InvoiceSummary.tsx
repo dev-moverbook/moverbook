@@ -7,23 +7,16 @@ import SectionHeader from "@/app/components/shared/SectionHeader";
 import ListRow from "@/app/components/shared/ui/ListRow";
 import ReusableCard from "../card/ReusableCard";
 import { cn } from "@/lib/utils";
-import { DisplayRow, PaymentMethod, SegmentDistance } from "@/types/types";
+import { DisplayRow } from "@/types/types";
 import { Doc } from "@/convex/_generated/dataModel";
 import {
   computeInvoiceTotals,
   getMoveDisplayRows,
   ListRowType,
 } from "@/app/frontendUtils/helper";
-import { TravelChargingTypes } from "@/types/enums";
 
 interface InvoiceSummaryProps {
-  move: Doc<"move"> & {
-    segmentDistances: SegmentDistance[];
-    paymentMethod: PaymentMethod;
-    creditCardFee: number;
-    travelFeeRate?: number | null;
-    travelFeeMethod: TravelChargingTypes;
-  };
+  move: Doc<"move">;
   discounts: Doc<"discounts">[];
   additionalFees: Doc<"additionalFees">[];
 }
@@ -54,7 +47,7 @@ const InvoiceSummary = ({
     jobTypeRate,
     liabilityCoverage,
     travelFeeRate: travelFeeRate ?? null,
-    travelFeeMethod,
+    travelFeeMethod: travelFeeMethod ?? null,
     paymentMethod,
     creditCardFee,
     startingMoveTime,
