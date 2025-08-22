@@ -9,6 +9,8 @@ import {
   getMoveCostRange,
   formatCurrencyCompact,
 } from "@/app/frontendUtils/helper";
+import { isMover } from "@/app/frontendUtils/permissions";
+import { ClerkRoles } from "@/types/enums";
 
 interface CalendarMonthGridProps {
   dates: Date[];
@@ -22,7 +24,9 @@ const CalendarMonthGrid: React.FC<CalendarMonthGridProps> = ({
   shouldDimDate,
 }) => {
   const { isWeekView, setSelectedDate, setIsWeekView, moves } = useMoveFilter();
-  const { timeZone } = useSlugContext();
+  const { timeZone, user } = useSlugContext();
+
+  const isMoverUser = isMover(user.publicMetadata.role as ClerkRoles);
 
   const handleDateClick = (date: Date) => {
     if (!isWeekView) {
@@ -47,7 +51,13 @@ const CalendarMonthGrid: React.FC<CalendarMonthGridProps> = ({
         });
 
         const moveStatuses = movesOnDate.map((move) =>
-          getStatusColor(move.moveStatus)
+          getStatusColor(
+            isMoverUser
+              ? move.moveStatus === "Completed"
+                ? move.moveStatus
+                : move.moveWindow
+              : move.moveStatus
+          )
         );
 
         const totalLow = movesOnDate.reduce((sum, move) => {

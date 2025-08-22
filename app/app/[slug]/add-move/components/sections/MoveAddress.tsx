@@ -40,6 +40,8 @@ interface MoveAddressProps {
   isAdding?: boolean;
   onSaved?: () => void;
   onCancelAdd?: () => void;
+  /** NEW: when false, component is read-only and hides all edit/delete controls */
+  canEdit?: boolean; // default true
 }
 
 const MoveAddress = ({
@@ -53,9 +55,10 @@ const MoveAddress = ({
   error,
   isAdding = false,
   onSaved,
+  canEdit = true,
 }: MoveAddressProps) => {
   const [isManualAddress, setIsManualAddress] = useState<boolean>(false);
-  const [isEditing, setIsEditing] = useState<boolean>(isAdding);
+  const [isEditing, setIsEditing] = useState<boolean>(canEdit && isAdding);
   const [formData, setFormData] = useState<LocationInput>(location);
 
   // ---- helpers for safe address merges ----
@@ -76,7 +79,6 @@ const MoveAddress = ({
     const next: AddressObj = {
       ...current,
       ...patch,
-      // ensure nested location is also merged (not replaced)
       location: {
         ...current.location,
         ...(patch.location ?? {}),
@@ -87,8 +89,9 @@ const MoveAddress = ({
   // -----------------------------------------
 
   useEffect(() => {
-    if (isAdding) setIsEditing(true);
-  }, [isAdding]);
+    // if add-mode toggles while read-only, stay read-only
+    setIsEditing(canEdit && isAdding);
+  }, [isAdding, canEdit]);
 
   useEffect(() => {
     if (!isEditing) {
@@ -97,7 +100,9 @@ const MoveAddress = ({
   }, [isEditing, location]);
 
   const handleChange = (partial: Partial<LocationInput>) => {
+    if (!canEdit) return; // block edits in read-only mode
     setFormData((prev) => ({ ...prev, ...partial }));
+
     if (isAdding) {
       updateLocation?.(index, partial);
       return;
@@ -110,6 +115,7 @@ const MoveAddress = ({
   };
 
   const handleSave = () => {
+    if (!canEdit) return;
     updateLocation?.(index, formData);
     setIsEditing(false);
     onSaved?.();
@@ -119,7 +125,8 @@ const MoveAddress = ({
     setIsEditing(false);
   };
 
-  const showEditInput = isEditing || !showEditButton;
+  // read-only if cannot edit OR (has explicit edit button and not actively editing)
+  const showEditInput = canEdit && (isEditing || !showEditButton);
 
   const isComplete =
     !!location.address &&
@@ -128,54 +135,56 @@ const MoveAddress = ({
     location.squareFootage !== null &&
     (location.locationRole !== "starting" || location.moveSize !== null);
 
+  // build header action buttons (hidden entirely when cannot edit)
+  const headerButtons = !canEdit ? undefined : showEditButton ? (
+    isEditing ? (
+      <IconButton
+        icon={<X size={16} />}
+        aria-label="Cancel Edit"
+        onClick={handleCancel}
+        className="border border-grayCustom"
+      />
+    ) : (
+      <IconRow>
+        <IconButton
+          icon={<Pencil size={16} />}
+          aria-label="Edit"
+          onClick={() => setIsEditing(true)}
+        />
+        {location.locationRole === "stop" && removeLocation && (
+          <IconButton
+            icon={<Trash size={16} />}
+            aria-label="Delete"
+            variant="outline"
+            onClick={(e) => {
+              e.preventDefault();
+              removeLocation(index);
+            }}
+          />
+        )}
+      </IconRow>
+    )
+  ) : (
+    removeLocation && (
+      <IconButton
+        icon={<Trash size={16} />}
+        aria-label="Delete"
+        onClick={(e) => {
+          e.preventDefault();
+          if (!canEdit) return;
+          removeLocation(index);
+        }}
+      />
+    )
+  );
+
   return (
     <div>
       <div className="flex justify-between items-center">
         <Header3
           wrapperClassName="pt-4 "
           isCompleted={isComplete}
-          button={
-            showEditButton ? (
-              isEditing ? (
-                <IconButton
-                  icon={<X size={16} />}
-                  aria-label="Cancel Edit"
-                  onClick={handleCancel}
-                  className="border border-grayCustom"
-                />
-              ) : (
-                <IconRow>
-                  <IconButton
-                    icon={<Pencil size={16} />}
-                    aria-label="Edit"
-                    onClick={() => setIsEditing(true)}
-                  />
-                  {location.locationRole === "stop" && (
-                    <IconButton
-                      icon={<Trash size={16} />}
-                      aria-label="Delete"
-                      variant="outline"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        removeLocation?.(index);
-                      }}
-                    />
-                  )}
-                </IconRow>
-              )
-            ) : (
-              removeLocation && (
-                <IconButton
-                  icon={<Trash size={16} />}
-                  aria-label="Delete"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    removeLocation(index);
-                  }}
-                />
-              )
-            )
-          }
+          button={headerButtons}
         >
           {title}
         </Header3>
@@ -194,18 +203,20 @@ const MoveAddress = ({
         />
 
         {showEditInput && (
-          <div className="">
+          <div>
             <div className="flex justify-between items-center">
               <label className="font-medium">Address</label>
-              <Button
-                variant="link"
-                size="auto"
-                className="text-sm underline cursor-pointer"
-                type="button"
-                onClick={() => setIsManualAddress((prev) => !prev)}
-              >
-                {isManualAddress ? "Use AutoComplete" : "Enter Manually"}
-              </Button>
+              {canEdit && (
+                <Button
+                  variant="link"
+                  size="auto"
+                  className="text-sm underline cursor-pointer"
+                  type="button"
+                  onClick={() => setIsManualAddress((prev) => !prev)}
+                >
+                  {isManualAddress ? "Use AutoComplete" : "Enter Manually"}
+                </Button>
+              )}
             </div>
 
             {isManualAddress ? (
@@ -218,7 +229,6 @@ const MoveAddress = ({
                 onChange={(e) =>
                   mergeAddress({
                     formattedAddress: e.target.value,
-                    // keep placeId/coords intact while typing
                   })
                 }
               />
@@ -228,11 +238,8 @@ const MoveAddress = ({
                   (formData.address as AddressObj | undefined)
                     ?.formattedAddress || ""
                 }
-                // Keep input controlled as the user types
                 onChange={(text) => mergeAddress({ formattedAddress: text })}
-                // On pick: fill placeId + coords (+ final formatted address)
                 onPlaceSelected={(place) => {
-                  console.log("place", place);
                   mergeAddress({
                     formattedAddress:
                       place.formatted_address ||
@@ -335,7 +342,8 @@ const MoveAddress = ({
             handleChange({ timeDistanceRange: val as TimeDistanceRange })
           }
         />
-        {showEditButton && isEditing && (
+
+        {showEditButton && isEditing && canEdit && (
           <FormActions
             onSave={handleSave}
             onCancel={handleCancel}

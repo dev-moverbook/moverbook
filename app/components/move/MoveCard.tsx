@@ -24,6 +24,7 @@ interface MoveCardProps {
   showActions?: boolean;
   onDuplicate?: (move: Doc<"move">) => void;
   salesRep: Doc<"users"> | null;
+  asCustomerLink?: boolean;
 }
 
 const MoveCard: React.FC<MoveCardProps> = ({
@@ -32,6 +33,7 @@ const MoveCard: React.FC<MoveCardProps> = ({
   showActions = false,
   onDuplicate,
   salesRep,
+  asCustomerLink = false,
 }) => {
   const { moveDate, moveStatus, _id } = move;
   const name = moveCustomer?.name;
@@ -59,6 +61,10 @@ const MoveCard: React.FC<MoveCardProps> = ({
   const price = formatPriceRange(minTotal, maxTotal);
 
   const repInitials = getInitials(salesRep?.name || "Rep");
+
+  const hrefLink = asCustomerLink
+    ? `/app/${slug}/customer/${moveCustomer?._id}`
+    : `/app/${slug}/moves/${_id}`;
 
   const content = (
     <div
@@ -147,11 +153,7 @@ const MoveCard: React.FC<MoveCardProps> = ({
     </div>
   );
 
-  return showActions ? (
-    content
-  ) : (
-    <Link href={`/app/${slug}/moves/${_id}`}>{content}</Link>
-  );
+  return showActions ? content : <Link href={hrefLink}>{content}</Link>;
 };
 
 export default MoveCard;

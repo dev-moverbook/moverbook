@@ -234,6 +234,7 @@ export const getCustomerAndMoves = query({
         ClerkRoles.APP_MODERATOR,
         ClerkRoles.MANAGER,
         ClerkRoles.SALES_REP,
+        ClerkRoles.MOVER,
       ]);
 
       const moveCustomer = validateMoveCustomer(

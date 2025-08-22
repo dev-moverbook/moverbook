@@ -80,12 +80,7 @@ const MoveSearchDropdown = () => {
 
           {moves.length > 0 &&
             moves.map((move) => (
-              <MoveOnlyCard
-                key={move._id}
-                move={move}
-                onClick={() => handleSelectMove(move._id)}
-                showOnlyJobIdTag
-              />
+              <MoveOnlyCard key={move._id} move={move} showOnlyJobIdTag />
             ))}
         </ul>
       ) : (

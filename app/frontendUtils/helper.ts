@@ -5,6 +5,7 @@ import {
   LocationType,
   MoveSize,
   MoveStatus,
+  MoveTimes,
   PaymentMethod,
   PriceFilter,
   PriceOrder,
@@ -336,7 +337,7 @@ export const formatMonthYear = (date: Date, timeZone: string): string => {
   return DateTime.fromJSDate(date).setZone(timeZone).toFormat("LLLL yyyy");
 };
 
-export const getStatusColor = (status: MoveStatus): string => {
+export const getStatusColor = (status: MoveStatus | MoveTimes): string => {
   switch (status) {
     case "New Lead":
       return "#108A01";
@@ -350,6 +351,30 @@ export const getStatusColor = (status: MoveStatus): string => {
       return "#FF5252";
     case "Cancelled":
       return "#9E9E9E";
+    case "morning":
+      return "#60a5fa";
+    case "afternoon":
+      return "#f59e0b";
+    case "custom":
+      return "#a78bfa";
+
+    default:
+      return "#FFC107";
+  }
+};
+
+export const getMoverStatusColor = (
+  status: MoveTimes | "completed"
+): string => {
+  switch (status) {
+    case "morning":
+      return "#60a5fa";
+    case "afternoon":
+      return "#f59e0b";
+    case "custom":
+      return "#a78bfa";
+    case "completed":
+      return "#F57EF1";
     default:
       return "#FFC107";
   }

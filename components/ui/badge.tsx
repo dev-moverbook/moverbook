@@ -1,19 +1,29 @@
+"use client";
+
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
-
 import { cn } from "@/lib/utils";
 
+export interface BadgeProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof badgeVariants> {
+  active?: boolean;
+  onClick?: () => void;
+}
+
 const badgeVariants = cva(
-  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+  // removed `font-medium` from base
+  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-sm transition-colors cursor-pointer select-none " +
+    "focus:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-white focus-visible:ring-offset-0",
   {
     variants: {
       variant: {
-        default: "text-grayCustom2 border-grayCustom shadow ",
-        secondary:
-          "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        destructive:
-          "border-transparent bg-destructive text-destructive-foreground shadow hover:bg-destructive/80",
-        outline: "text-white bg-transparent border-grayCustom",
+        // put weights in variants
+        default:
+          "font-medium text-grayCustom2 border-grayCustom shadow bg-transparent",
+        outline: "font-medium text-white bg-transparent border-grayCustom",
+        active:
+          "font-semibold text-white  border-greenCustom shadow hover:bg-greenCustom/80",
       },
     },
     defaultVariants: {
@@ -22,13 +32,26 @@ const badgeVariants = cva(
   }
 );
 
-export interface BadgeProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof badgeVariants> {}
-
-function Badge({ className, variant, ...props }: BadgeProps) {
+function Badge({
+  className,
+  variant,
+  active = false,
+  onClick,
+  ...props
+}: BadgeProps) {
   return (
-    <div className={cn(badgeVariants({ variant }), className)} {...props} />
+    <div
+      role="button"
+      tabIndex={0}
+      aria-pressed={active}
+      onClick={onClick}
+      onKeyDown={(e) => e.key === "Enter" && onClick?.()}
+      className={cn(
+        badgeVariants({ variant: active ? "active" : variant }),
+        className // note: if className includes a `font-*`, it will override
+      )}
+      {...props}
+    />
   );
 }
 

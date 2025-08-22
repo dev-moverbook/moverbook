@@ -57,7 +57,7 @@ const LabeledCheckboxGroup: React.FC<LabeledCheckboxGroupProps> = ({
 
   return (
     <div>
-      <Label className="block text-sm font-medium text-white">{label}</Label>
+      <Label className="block  font-medium text-white">{label}</Label>
       <div className="flex flex-col gap-1 mt-1">
         {options.map((option) => (
           <div key={option.value} className="flex items-center space-x-2">

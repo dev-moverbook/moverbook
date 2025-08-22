@@ -13,6 +13,9 @@ import { useMoveContext } from "@/app/contexts/MoveContext";
 import { Doc } from "@/convex/_generated/dataModel";
 import DuplicateMoveModal from "../../customer/[customerId]/modals/DuplicateMoveModal";
 import { hasRequiredMoveFields } from "@/app/frontendUtils/helper";
+import { useSlugContext } from "@/app/contexts/SlugContext";
+import { isMover } from "@/app/frontendUtils/permissions";
+import { ClerkRoles } from "@/types/enums";
 
 const MoveContent = () => {
   const router = useRouter();
@@ -30,7 +33,6 @@ const MoveContent = () => {
   const [currentStep, setCurrentStep] = useState<number>(stepFromQuery);
   const [activeTab, setActiveTab] = useState<string>("INFO");
 
-  // keep state in sync if the URL changes externally
   useEffect(() => {
     setCurrentStep(stepFromQuery);
   }, [stepFromQuery]);
@@ -42,6 +44,18 @@ const MoveContent = () => {
 
   const { move, quote, moveCustomer, salesRepUser } = moveData;
 
+  const { user } = useSlugContext();
+  const isMoverUser = isMover(user.publicMetadata.role as ClerkRoles);
+
+  // 👇 Role-aware tabs: movers see "MOVE" instead of "MESSAGES"
+  const tabs = useMemo<string[]>(
+    () =>
+      isMoverUser
+        ? ["INFO", "ACTIVITES", "MOVE"]
+        : ["INFO", "ACTIVITES", "MESSAGES"],
+    [isMoverUser]
+  );
+
   const onEditQuote = () => {
     setCurrentStep(1);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -49,13 +63,14 @@ const MoveContent = () => {
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
-    if (tab === "MESSAGES" && !pathname.endsWith("/messages")) {
+    // Only non-movers navigate to /messages when selecting the Messages tab
+    if (!isMoverUser && tab === "MESSAGES" && !pathname.endsWith("/messages")) {
       router.push(`${pathname}/messages`);
     }
   };
 
-  const handleDuplicateMove = (move: Doc<"move">) => {
-    setSelectedMove(move);
+  const handleDuplicateMove = (m: Doc<"move">) => {
+    setSelectedMove(m);
     setIsDuplicateMoveModalOpen(true);
   };
 
@@ -67,7 +82,6 @@ const MoveContent = () => {
   const isLeadStepComplete = hasRequiredMoveFields(move, moveCustomer);
   const isQuoteStepComplete = quote?.status === "completed";
 
-  // when user clicks a step, update both state and the URL query
   const handleStepClick = (step: number) => {
     setCurrentStep(step);
     const params = new URLSearchParams(searchParams);
@@ -80,29 +94,32 @@ const MoveContent = () => {
       <MoveCard
         move={move}
         moveCustomer={moveCustomer}
-        showActions={true}
+        showActions={!isMoverUser}
+        asCustomerLink={isMoverUser}
         onDuplicate={handleDuplicateMove}
         salesRep={salesRepUser}
       />
 
-      <Stepper
-        currentStep={currentStep}
-        steps={[
-          { label: "Lead" },
-          { label: "Quote" },
-          { label: "Move" },
-          { label: "Payment" },
-        ]}
-        onStepClick={handleStepClick}
-        className="mt-4"
-        disabledSteps={[
-          ...(!isLeadStepComplete ? [2, 3, 4] : []),
-          ...(isLeadStepComplete && !isQuoteStepComplete ? [3, 4] : []),
-        ]}
-      />
+      {!isMoverUser && (
+        <Stepper
+          currentStep={currentStep}
+          steps={[
+            { label: "Lead" },
+            { label: "Quote" },
+            { label: "Move" },
+            { label: "Payment" },
+          ]}
+          onStepClick={handleStepClick}
+          className="mt-4"
+          disabledSteps={[
+            ...(!isLeadStepComplete ? [2, 3, 4] : []),
+            ...(isLeadStepComplete && !isQuoteStepComplete ? [3, 4] : []),
+          ]}
+        />
+      )}
 
       <TabSelector
-        tabs={["INFO", "ACTIVITES", "MESSAGES"]}
+        tabs={tabs}
         activeTab={activeTab}
         onTabChange={handleTabChange}
       />

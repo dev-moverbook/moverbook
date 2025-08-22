@@ -13,7 +13,9 @@ import EditableIconSelectField from "../shared/labeled/EditableIconSelectField";
 import { cn } from "@/lib/utils";
 import SectionHeader from "../shared/SectionHeader";
 import { isValidEmail, isValidPhoneNumber } from "@/utils/helper";
-import { QueryStatus } from "@/types/enums";
+import { ClerkRoles, QueryStatus } from "@/types/enums";
+import { useSlugContext } from "@/app/contexts/SlugContext";
+import { canCreateMove, isMover } from "@/app/frontendUtils/permissions";
 
 interface CustomerInfoProps {
   moveCustomer: Doc<"moveCustomers">;
@@ -26,6 +28,10 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
   onClick,
   showCheckmark,
 }) => {
+  const { user } = useSlugContext();
+  const canCreateMoveUser = canCreateMove(
+    user.publicMetadata.role as ClerkRoles
+  );
   const { name, phoneNumber, altPhoneNumber, email, referral } = moveCustomer;
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
@@ -108,8 +114,8 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
           className="px-0 pt-0"
           showCheckmark={showCheckmark}
           isCompleted={isCompleted}
+          canEdit={canCreateMoveUser}
         />
-
         {/* Contact fields */}
         <EditableIconField
           icon={<Contact className="w-4 h-4" />}
@@ -119,7 +125,6 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
           label="Name"
           placeholder="Enter name"
         />
-
         <EditableIconField
           icon={<Phone className="w-4 h-4" />}
           value={formData.phoneNumber}
@@ -129,7 +134,6 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
           placeholder="Enter phone number"
           isPhoneNumber
         />
-
         <EditableIconField
           icon={<Mail className="w-4 h-4" />}
           value={formData.email}
@@ -138,7 +142,6 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
           label="Email"
           placeholder="Enter email"
         />
-
         <EditableIconField
           icon={<PhoneForwarded className="w-4 h-4" />}
           value={formData.altPhoneNumber || ""}
@@ -149,7 +152,6 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
           isPhoneNumber
           suffix="  (alt)"
         />
-
         <EditableIconSelectField
           icon={<UserIcon className="w-4 h-4" />}
           value={formData.referral}
@@ -159,7 +161,6 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
           error={errors.referral}
           label="Referral"
         />
-
         {/* Actions */}
         {isEditing && (
           <FormActions

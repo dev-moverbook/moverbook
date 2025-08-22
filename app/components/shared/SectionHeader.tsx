@@ -1,3 +1,4 @@
+// SectionHeader.tsx
 import { Pencil, Trash2, X, CircleCheckBig, AlertTriangle } from "lucide-react";
 import IconButton from "@/app/components/shared/IconButton";
 import { ReactNode } from "react";
@@ -16,6 +17,7 @@ interface SectionHeaderProps {
   isCompleted?: boolean;
   showCheckmark?: boolean;
   showAlert?: boolean;
+  canEdit?: boolean;
 }
 
 const SectionHeader: React.FC<SectionHeaderProps> = ({
@@ -30,6 +32,7 @@ const SectionHeader: React.FC<SectionHeaderProps> = ({
   isCompleted,
   showCheckmark,
   showAlert,
+  canEdit = true,
 }) => {
   return (
     <div
@@ -56,7 +59,7 @@ const SectionHeader: React.FC<SectionHeaderProps> = ({
       <div className="flex items-center gap-2">
         {actions ? (
           actions
-        ) : isEditing && onCancelEdit ? (
+        ) : isEditing && onCancelEdit && canEdit ? (
           <IconButton
             icon={<X size={16} />}
             aria-label="Cancel"
@@ -65,7 +68,7 @@ const SectionHeader: React.FC<SectionHeaderProps> = ({
           />
         ) : (
           <>
-            {onEditClick && (
+            {onEditClick && canEdit && (
               <IconButton
                 icon={<Pencil size={16} />}
                 aria-label="Edit"

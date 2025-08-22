@@ -5,7 +5,7 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { QueryStatus, ResponseStatus } from "@/types/enums";
-import { MoveStatus, PriceOrder } from "@/types/types";
+import { MoveStatus, MoveTimes, PriceOrder } from "@/types/types";
 import { EnrichedMove } from "@/types/convex-responses";
 
 type UseMovesForCalendarLoading = { status: QueryStatus.LOADING };
@@ -27,6 +27,7 @@ interface UseMovesForCalendarParams {
   start: string;
   end: string;
   companyId: Id<"companies"> | null;
+  moveTimeFilter: MoveTimes[];
   statuses?: MoveStatus[];
   salesRepId?: Id<"users"> | null;
   priceOrder?: PriceOrder | null;
@@ -36,6 +37,7 @@ export const useMovesForCalendar = ({
   start,
   end,
   companyId,
+  moveTimeFilter,
   statuses,
   salesRepId,
   priceOrder,
@@ -43,7 +45,15 @@ export const useMovesForCalendar = ({
   const response = useQuery<typeof api.move.getMovesForCalendar>(
     api.move.getMovesForCalendar,
     companyId
-      ? { start, end, companyId, statuses, salesRepId, priceOrder }
+      ? {
+          start,
+          end,
+          companyId,
+          statuses,
+          salesRepId,
+          priceOrder,
+          moveTimeFilter,
+        }
       : "skip"
   );
 

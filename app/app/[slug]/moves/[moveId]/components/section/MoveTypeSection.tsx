@@ -20,11 +20,19 @@ import TimeSlotSelector from "@/app/components/shared/labeled/TimeSlotSelector";
 import { formatTime } from "@/app/frontendUtils/helper";
 import { useMoveContext } from "@/app/contexts/MoveContext";
 import { useCompanyArrival } from "@/app/hooks/queries/useCompanyArrivalResult";
-import { QueryStatus } from "@/types/enums";
+import { ClerkRoles, QueryStatus } from "@/types/enums";
+import { isMover } from "@/app/frontendUtils/permissions";
+import { useSlugContext } from "@/app/contexts/SlugContext";
+
+// To be deleted
 
 const MoveTypeSection = () => {
   const { moveData } = useMoveContext();
   const move = moveData.move;
+
+  const { user } = useSlugContext();
+  const isMoverUser = isMover(user.publicMetadata.role as ClerkRoles);
+
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [startWindowOption, setStartWindowOption] = useState<StartWindowOption>(
     move.moveWindow === "custom" ? "custom" : "available"
@@ -90,6 +98,7 @@ const MoveTypeSection = () => {
         className="pb-0 mx-auto"
         isCompleted={isCompleted}
         showCheckmark={true}
+        canEdit={!isMoverUser}
       />
       <SectionContainer className={cn("", isEditing && "gap-0")}>
         <LabeledRadio

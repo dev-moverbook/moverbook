@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useMemo } from "react";
 import { DateTime } from "luxon";
 import { useSlugContext } from "@/app/contexts/SlugContext";
-import { MoveStatus, PriceOrder } from "@/types/types";
+import { MoveStatus, MoveTimes, PriceOrder } from "@/types/types";
 import { Id } from "@/convex/_generated/dataModel";
 import { getCurrentDate } from "../frontendUtils/helper";
 import { EnrichedMove } from "@/types/convex-responses";
@@ -34,6 +34,8 @@ interface MoveFilterContextProps {
   today: Date;
   isWeekView: boolean;
   setIsWeekView: React.Dispatch<React.SetStateAction<boolean>>;
+  moveTimeFilter: MoveTimes[];
+  setMoveTimeFilter: React.Dispatch<React.SetStateAction<MoveTimes[]>>;
 }
 
 const MoveFilterContext = createContext<MoveFilterContextProps | undefined>(
@@ -66,7 +68,11 @@ export const MoveFilterProvider = ({
   const [isList, setIsList] = useState<boolean>(false);
   const [selectedDate, setSelectedDate] = useState<Date>(today);
   const [isWeekView, setIsWeekView] = useState<boolean>(true);
-
+  const [moveTimeFilter, setMoveTimeFilter] = useState<MoveTimes[]>([
+    "morning",
+    "afternoon",
+    "custom",
+  ]);
   const selectedMonth = DateTime.fromJSDate(selectedDate).setZone(timeZone);
   const monthStart = selectedMonth.startOf("month").toISODate()!;
   const monthEnd = selectedMonth.endOf("month").toISODate()!;
@@ -81,6 +87,7 @@ export const MoveFilterProvider = ({
     salesRepId: salesRep?.id ?? null,
     statuses: selectedStatuses,
     priceOrder: priceFilter,
+    moveTimeFilter,
   });
 
   let isLoading = false;
@@ -130,6 +137,8 @@ export const MoveFilterProvider = ({
       today,
       isWeekView,
       setIsWeekView,
+      moveTimeFilter,
+      setMoveTimeFilter,
     }),
     [
       selectedStatuses,
@@ -145,6 +154,7 @@ export const MoveFilterProvider = ({
       selectedDate,
       today,
       isWeekView,
+      moveTimeFilter,
     ]
   );
 

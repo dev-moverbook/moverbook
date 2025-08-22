@@ -2,7 +2,6 @@ import { v } from "convex/values";
 import {
   CategorySize,
   ClerkRoles,
-  CommunicationType,
   InvitationStatus,
   PresSetScripts,
   StripeAccountStatus,

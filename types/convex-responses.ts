@@ -1085,6 +1085,10 @@ export interface GetMovesByNameSuccess {
 export interface EnrichedMove extends Doc<"move"> {
   moveCustomer: Doc<"moveCustomers"> | null;
   salesRepUser: Doc<"users"> | null;
+  estimatedWage?: {
+    min: number;
+    max: number;
+  };
 }
 
 export interface GetMovesByNameData {

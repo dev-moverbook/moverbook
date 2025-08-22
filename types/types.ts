@@ -108,6 +108,9 @@ export const MOVE_STATUS_OPTIONS: { label: string; value: MoveStatus }[] = [
   { label: "Completed", value: "Completed" },
 ];
 
+export const MOVER_MOVE_STATUS_OPTIONS: { label: string; value: MoveStatus }[] =
+  [{ label: "Completed", value: "Completed" }];
+
 export type TimeDistanceRange =
   | "0-30 sec (less than 100 ft)"
   | "30-50 sec (200 ft)"

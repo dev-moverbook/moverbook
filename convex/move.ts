@@ -44,6 +44,7 @@ import { MoveSchema, QuoteSchema } from "@/types/convex-schemas";
 import { getMoveCostRange } from "@/app/frontendUtils/helper";
 import { Doc } from "./_generated/dataModel";
 import { generateJobId } from "./backendUtils/nano";
+import { MoveTimes } from "@/types/types";
 
 export const getMoveOptions = query({
   args: { companyId: v.id("companies") },
@@ -376,6 +377,7 @@ export const getMovesForCalendar = query({
     start: v.string(),
     end: v.string(),
     companyId: v.id("companies"),
+    moveTimeFilter: v.array(MoveTimesConvex),
     statuses: v.optional(v.array(v.string())),
     salesRepId: v.optional(v.union(v.id("users"), v.null())),
     priceOrder: v.optional(
@@ -383,7 +385,15 @@ export const getMovesForCalendar = query({
     ),
   },
   handler: async (ctx, args): Promise<GetMovesForCalendarResponse> => {
-    const { start, end, companyId, statuses, salesRepId, priceOrder } = args;
+    const {
+      start,
+      end,
+      companyId,
+      statuses,
+      salesRepId,
+      priceOrder,
+      moveTimeFilter,
+    } = args;
 
     try {
       const identity = await requireAuthenticatedUser(ctx, [
@@ -394,78 +404,175 @@ export const getMovesForCalendar = query({
         ClerkRoles.MOVER,
       ]);
 
+      const isMover = identity.role === ClerkRoles.MOVER;
+
       const company = validateCompany(await ctx.db.get(companyId));
       isUserInOrg(identity, company.clerkOrganizationId);
 
-      let q = ctx.db
+      let moveQuery = ctx.db
         .query("move")
         .withIndex("by_moveDate")
-        .filter((q) =>
-          q.and(
-            q.eq(q.field("companyId"), companyId),
-            q.gte(q.field("moveDate"), start),
-            q.lte(q.field("moveDate"), end)
+        .filter((filter) =>
+          filter.and(
+            filter.eq(filter.field("companyId"), companyId),
+            filter.gte(filter.field("moveDate"), start),
+            filter.lte(filter.field("moveDate"), end)
           )
         );
 
       if (statuses?.length) {
-        q = q.filter((q) =>
-          q.or(...statuses.map((status) => q.eq(q.field("moveStatus"), status)))
+        moveQuery = moveQuery.filter((filter) =>
+          filter.or(
+            ...statuses.map((status) =>
+              filter.eq(filter.field("moveStatus"), status)
+            )
+          )
         );
       }
 
       if (salesRepId) {
-        q = q.filter((q) => q.eq(q.field("salesRep"), salesRepId));
+        moveQuery = moveQuery.filter((filter) =>
+          filter.eq(filter.field("salesRep"), salesRepId)
+        );
       }
 
-      let moves = await q.collect();
+      let moves = await moveQuery.collect();
 
-      // Sort by price if needed
+      let estimatedWageByMoveId = new Map<string, number>();
+
+      if (isMover) {
+        const currentUser =
+          (await ctx.db
+            .query("users")
+            .withIndex("by_clerkUserId", (filter) =>
+              filter.eq("clerkUserId", identity.id as string)
+            )
+            .first()) || null;
+
+        if (!currentUser) {
+          return {
+            status: ResponseStatus.SUCCESS,
+            data: { moves: [] },
+          };
+        }
+
+        const moveIds = moves.map((move) => move._id);
+        const assignmentsForUser = await ctx.db
+          .query("moveAssignments")
+          .filter((filter) =>
+            filter.and(
+              filter.eq(filter.field("moverId"), currentUser._id),
+              filter.or(
+                ...moveIds.map((id) => filter.eq(filter.field("moveId"), id))
+              )
+            )
+          )
+          .collect();
+
+        const assignedMoveIds = new Set(
+          assignmentsForUser.map((assignment) => assignment.moveId)
+        );
+        moves = moves.filter((move) => assignedMoveIds.has(move._id));
+
+        const assignmentMap = new Map<string, Doc<"moveAssignments">>();
+        for (const assignment of assignmentsForUser) {
+          if (!assignmentMap.has(assignment.moveId)) {
+            assignmentMap.set(assignment.moveId, assignment);
+          }
+        }
+
+        const hourlyRate =
+          typeof currentUser.hourlyRate === "number" && currentUser.hourlyRate
+            ? currentUser.hourlyRate
+            : 0;
+
+        for (const move of moves) {
+          const assignment = assignmentMap.get(move._id);
+          const startTime =
+            assignment?.startTime ?? move.startingMoveTime ?? null;
+          const endTime = assignment?.endTime ?? move.endingMoveTime ?? null;
+
+          let workedHours = 0;
+          if (
+            typeof startTime === "number" &&
+            typeof endTime === "number" &&
+            endTime > startTime
+          ) {
+            const netMs = Math.max(0, endTime - startTime);
+            workedHours = netMs / (1000 * 60 * 60);
+          }
+
+          estimatedWageByMoveId.set(
+            move._id,
+            Number((workedHours * hourlyRate).toFixed(2))
+          );
+        }
+      }
+
       if (priceOrder) {
-        moves.sort((a, b) => {
-          const [aLow] = getMoveCostRange(a);
-          const [bLow] = getMoveCostRange(b);
-          return priceOrder === "asc" ? aLow - bLow : bLow - aLow;
+        moves.sort((moveA, moveB) => {
+          const [lowEstimateA] = getMoveCostRange(moveA);
+          const [lowEstimateB] = getMoveCostRange(moveB);
+          return priceOrder === "asc"
+            ? lowEstimateA - lowEstimateB
+            : lowEstimateB - lowEstimateA;
         });
       }
 
-      // Fetch associated moveCustomers
-      const moveCustomerIds = moves.map((m) => m.moveCustomerId);
+      if (moveTimeFilter && moveTimeFilter.length > 0) {
+        moves = moves.filter((move) =>
+          moveTimeFilter.includes(move.moveWindow)
+        );
+      }
+
+      const moveCustomerIds = moves.map((move) => move.moveCustomerId);
       const moveCustomers = await ctx.db
         .query("moveCustomers")
-        .filter((q) =>
-          q.or(...moveCustomerIds.map((id) => q.eq(q.field("_id"), id)))
+        .filter((filter) =>
+          filter.or(
+            ...moveCustomerIds.map((id) => filter.eq(filter.field("_id"), id))
+          )
         )
         .collect();
 
       const moveCustomerMap = Object.fromEntries(
-        moveCustomers.map((mc) => [mc._id, mc])
+        moveCustomers.map((customer) => [customer._id, customer])
       );
 
-      // Fetch associated sales reps
       const salesRepIds = Array.from(
-        new Set(moves.map((m) => m.salesRep).filter(Boolean))
+        new Set(moves.map((move) => move.salesRep).filter(Boolean))
       );
 
-      const salesReps: Doc<"users">[] = await ctx.db
-        .query("users")
-        .filter((q) =>
-          q.or(...salesRepIds.map((id) => q.eq(q.field("_id"), id)))
-        )
-        .collect();
+      const salesReps: Doc<"users">[] = salesRepIds.length
+        ? await ctx.db
+            .query("users")
+            .filter((filter) =>
+              filter.or(
+                ...salesRepIds.map((id) => filter.eq(filter.field("_id"), id))
+              )
+            )
+            .collect()
+        : [];
 
       const salesRepMap = Object.fromEntries(
         salesReps.map((user) => [user._id, user])
       );
 
-      // Enrich each move with moveCustomer and salesRepUser
       const enrichedMoves: EnrichedMove[] = moves.map((move) => ({
         ...move,
         moveCustomer: moveCustomerMap[move.moveCustomerId] ?? null,
         salesRepUser: move.salesRep
           ? (salesRepMap[move.salesRep] ?? null)
           : null,
+        estimatedWage: estimatedWageByMoveId.get(move._id)
+          ? {
+              min: estimatedWageByMoveId.get(move._id)!,
+              max: estimatedWageByMoveId.get(move._id)!,
+            }
+          : undefined,
       }));
+
+      console.log("enrichedMoves", enrichedMoves);
 
       return {
         status: ResponseStatus.SUCCESS,

@@ -9,10 +9,18 @@ import { useUpdateMove } from "../../../hooks/useUpdateMove";
 import { useCompanyContact } from "@/app/hooks/queries/useCompanyContact";
 import { nanoid } from "nanoid";
 import { useMoveContext } from "@/app/contexts/MoveContext";
+import { ClerkRoles } from "@/types/enums";
+import { canCreateMove } from "@/app/frontendUtils/permissions";
+import { useSlugContext } from "@/app/contexts/SlugContext";
 
 const LocationSection = () => {
   const { moveData } = useMoveContext();
   const move = moveData.move;
+
+  const { user } = useSlugContext();
+  const canCreateMoveUser = canCreateMove(
+    user.publicMetadata.role as ClerkRoles
+  );
 
   const [addingStopIndex, setAddingStopIndex] = useState<number | null>(null);
   const [editedLocations, setEditedLocations] = useState<LocationInput[]>(
@@ -112,21 +120,23 @@ const LocationSection = () => {
           showEditButton={true}
           isLoading={updateMoveLoading}
           error={updateMoveError}
+          canEdit={canCreateMoveUser}
         />
       )}
-
-      <StopSection
-        locations={editedLocations}
-        addStopLocation={addStopLocation}
-        removeLocation={removeLocation} // <-- persists + optimistic UI
-        updateLocation={updateLocation}
-        showEditButton={true}
-        isAddingIndex={addingStopIndex}
-        onSaved={handleSavedStop}
-        isLoading={updateMoveLoading}
-        error={updateMoveError}
-        showBannerFromParent={showBanner}
-      />
+      {canCreateMoveUser && (
+        <StopSection
+          locations={editedLocations}
+          addStopLocation={addStopLocation}
+          removeLocation={removeLocation}
+          updateLocation={updateLocation}
+          showEditButton={true}
+          isAddingIndex={addingStopIndex}
+          onSaved={handleSavedStop}
+          isLoading={updateMoveLoading}
+          error={updateMoveError}
+          showBannerFromParent={showBanner}
+        />
+      )}
 
       {editedLocations.length > 1 &&
         editedLocations[editedLocations.length - 1] && (
@@ -139,6 +149,7 @@ const LocationSection = () => {
             isLoading={updateMoveLoading}
             error={updateMoveError}
             isAdding={false}
+            canEdit={canCreateMoveUser}
           />
         )}
 

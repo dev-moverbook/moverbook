@@ -13,7 +13,11 @@ import {
 } from "lucide-react";
 import { ClerkRoles } from "@/types/enums";
 import NavLink from "./buttons/NavLink";
-import { isCompanyAdminRole } from "@/app/frontendUtils/permissions";
+import {
+  canCreateMove,
+  canManageCompany,
+  isCompanyAdminRole,
+} from "@/app/frontendUtils/permissions";
 import { useSlugContext } from "@/app/contexts/SlugContext";
 
 type SidebarContentProps = {
@@ -27,6 +31,8 @@ const SidebarContent = ({ onNavigate }: SidebarContentProps) => {
   if (!user) return null;
   const role = user.publicMetadata.role as ClerkRoles;
   const canSeeAdmin = isCompanyAdminRole(role);
+  const canSeeMovePages = canCreateMove(role);
+  const canSeeCompanySetup = canManageCompany(role);
   const roleLabel = role ?? "Unknown";
   const isAddMoveDisabled = !isCompanyContactComplete || !isStripeComplete;
 
@@ -58,14 +64,16 @@ const SidebarContent = ({ onNavigate }: SidebarContentProps) => {
         <Calendar size={24} />
         Calendar
       </NavLink>
-      <NavLink
-        href={`/app/${slug}/messages`}
-        onNavigate={onNavigate}
-        disabled={isAddMoveDisabled}
-      >
-        <MessageSquare size={24} />
-        Messages
-      </NavLink>
+      {canSeeMovePages && (
+        <NavLink
+          href={`/app/${slug}/messages`}
+          onNavigate={onNavigate}
+          disabled={isAddMoveDisabled}
+        >
+          <MessageSquare size={24} />
+          Messages
+        </NavLink>
+      )}
 
       <NavLink
         href={`/app/${slug}/analytics`}
@@ -83,15 +91,19 @@ const SidebarContent = ({ onNavigate }: SidebarContentProps) => {
 
       {/* Routed buttons */}
 
-      <NavLink href={`/app/${slug}/company-setup`} onNavigate={onNavigate}>
-        <Briefcase size={24} />
-        Company Setup
-      </NavLink>
+      {canSeeCompanySetup && (
+        <>
+          <NavLink href={`/app/${slug}/company-setup`} onNavigate={onNavigate}>
+            <Briefcase size={24} />
+            Company Setup
+          </NavLink>
 
-      <NavLink href={`/app/${slug}/move-setup`} onNavigate={onNavigate}>
-        <Truck size={24} />
-        Move Setup
-      </NavLink>
+          <NavLink href={`/app/${slug}/move-setup`} onNavigate={onNavigate}>
+            <Truck size={24} />
+            Move Setup
+          </NavLink>
+        </>
+      )}
 
       {canSeeAdmin && (
         <NavLink href={`/app/${slug}/stripe`} onNavigate={onNavigate}>

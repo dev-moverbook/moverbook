@@ -9,6 +9,9 @@ import { useParams, useRouter } from "next/navigation";
 import MoveOnlyCard from "@/app/components/move/MoveOnlyCard";
 import { useState } from "react";
 import DuplicateMoveModal from "../modals/DuplicateMoveModal";
+import { useSlugContext } from "@/app/contexts/SlugContext";
+import { isMover } from "@/app/frontendUtils/permissions";
+import { ClerkRoles } from "@/types/enums";
 import SectionHeaderWithAction from "@/app/components/shared/ SectionHeaderWithAction";
 
 interface CustomerMovesProps {
@@ -22,6 +25,10 @@ const CustomerMoves: React.FC<CustomerMovesProps> = ({
 }) => {
   const router = useRouter();
   const { slug } = useParams();
+
+  // NEW: get user role and check mover
+  const { user } = useSlugContext();
+  const isMoverUser = isMover(user.publicMetadata.role as ClerkRoles);
 
   const [isDuplicateMoveModalOpen, setIsDuplicateMoveModalOpen] =
     useState<boolean>(false);
@@ -41,18 +48,21 @@ const CustomerMoves: React.FC<CustomerMovesProps> = ({
     setSelectedMove(null);
   };
 
+  // NEW: only show Add Move button if NOT a mover
+  const actionNode = isMoverUser ? null : (
+    <Button variant="outline" onClick={handleAddMove}>
+      <div className="flex items-center gap-1">
+        <Plus className="w-5 h-5" />
+        Move
+      </div>
+    </Button>
+  );
+
   return (
     <SectionContainer className="px-0 gap-0 pb-20 " showBorder={false}>
       <SectionHeaderWithAction
         title="Moves"
-        action={
-          <Button variant="outline" onClick={handleAddMove}>
-            <div className="flex items-center gap-1">
-              <Plus className="w-5 h-5" />
-              Move
-            </div>
-          </Button>
-        }
+        action={actionNode}
         className="font-bold"
       />
 
@@ -62,12 +72,13 @@ const CustomerMoves: React.FC<CustomerMovesProps> = ({
             <MoveOnlyCard
               key={`${move.jobId}-${index}`}
               move={move}
-              showActions={true}
+              showActions={!isMoverUser}
               onDuplicate={handleDuplicateMove}
             />
           ))}
         </CardContainer>
       )}
+
       {selectedMove && isDuplicateMoveModalOpen && (
         <DuplicateMoveModal
           isOpen={isDuplicateMoveModalOpen}
