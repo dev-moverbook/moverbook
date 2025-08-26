@@ -11,6 +11,7 @@ import { DisplayRow } from "@/types/types";
 import { Doc } from "@/convex/_generated/dataModel";
 import {
   computeInvoiceTotals,
+  computeMoveTotal,
   getMoveDisplayRows,
   ListRowType,
 } from "@/app/frontendUtils/helper";
@@ -39,6 +40,9 @@ const InvoiceSummary = ({
     travelFeeRate,
     paymentMethod,
     creditCardFee,
+    actualBreakTime,
+    actualStartTime,
+    actualEndTime,
   } = move;
 
   const rows: ListRowType[] = getMoveDisplayRows({
@@ -52,6 +56,9 @@ const InvoiceSummary = ({
     creditCardFee,
     startingMoveTime,
     endingMoveTime,
+    actualStartTime,
+    actualEndTime,
+    actualBreakTime,
     segmentDistances,
     additionalFees,
     discounts,
@@ -60,41 +67,45 @@ const InvoiceSummary = ({
     includeInvoiceRow: true,
   });
 
-  const displayRows: DisplayRow[] = rows.map((r) => {
+  const displayRows: DisplayRow[] = rows.map((r, i) => {
     const rightText = r.right ?? "";
     const isNegative = rightText.trim().startsWith("-");
     return {
       left: r.left,
       right: rightText,
-      className: cn(isNegative ? "text-green-500" : undefined),
+      className: cn(
+        i % 2 === 1 ? "" : "bg-background2",
+        isNegative ? "text-green-500" : undefined
+      ),
     };
   });
 
-  const { invoiceMin, invoiceMax } = (() => {
-    const totalRow = rows.find((r) => r.left === "Total");
-    if (!totalRow) return { invoiceMin: 0, invoiceMax: 0 };
-    const text = (totalRow.right ?? "").replace(/[\$,]/g, "");
-    let baseMin = 0;
-    let baseMax = 0;
-    if (text.includes("-")) {
-      const [a, b] = text.split("-").map((s) => parseFloat(s.trim()));
-      baseMin = isNaN(a) ? 0 : a;
-      baseMax = isNaN(b) ? baseMin : b;
-    } else {
-      const v = parseFloat(text);
-      baseMin = isNaN(v) ? 0 : v;
-      baseMax = baseMin;
-    }
-    return computeInvoiceTotals({
-      baseMin,
-      baseMax,
-      additionalFees,
-      discounts,
-      deposit: deposit ?? 0,
-    });
-  })();
+  const { minTotal, maxTotal } = computeMoveTotal({
+    moveFees,
+    jobType,
+    jobTypeRate,
+    liabilityCoverage,
+    travelFeeRate: travelFeeRate ?? null,
+    travelFeeMethod: travelFeeMethod ?? null,
+    segmentDistances,
+    paymentMethod,
+    creditCardFee,
+    startingMoveTime,
+    endingMoveTime,
+    actualStartTime,
+    actualEndTime,
+    actualBreakTime,
+  });
 
-  const dueToday = invoiceMin === invoiceMax ? invoiceMin : invoiceMax;
+  const { invoiceMin, invoiceMax } = computeInvoiceTotals({
+    baseMin: minTotal,
+    baseMax: maxTotal,
+    additionalFees,
+    discounts,
+    deposit: deposit ?? 0,
+  });
+
+  const dueToday = invoiceMax;
 
   return (
     <div>
@@ -107,7 +118,7 @@ const InvoiceSummary = ({
               key={i}
               left={row.left}
               right={row.right}
-              className={cn(i % 2 === 1 ? "" : "bg-background2", row.className)}
+              className={row.className}
             />
           ))}
         </ListRowContainer>
@@ -116,8 +127,7 @@ const InvoiceSummary = ({
       <SectionContainer>
         <ReusableCard
           title="Due Today"
-          texts={[["Total", dueToday, true]]}
-          isCurrency
+          texts={[["Total", dueToday, { isCurrency: true, isBold: true }]]}
         />
       </SectionContainer>
     </div>

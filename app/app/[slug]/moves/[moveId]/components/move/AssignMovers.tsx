@@ -73,7 +73,7 @@ const AssignMovers = ({
 
   return (
     <div>
-      <SectionHeader className="mx-auto" title="Movers" />
+      <SectionHeader className="mx-auto" title="Assigned Movers" />
       <SectionContainer>
         <div className="flex flex-col gap-4">
           {slots.map(({ slot, label, assignment, isLead }) => (

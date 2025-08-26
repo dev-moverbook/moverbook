@@ -8,12 +8,14 @@ type TabSelectorProps = {
   tabs: string[];
   activeTab: string;
   onTabChange: (tab: string) => void;
+  className?: string;
 };
 
 const TabSelector: React.FC<TabSelectorProps> = ({
   tabs,
   activeTab,
   onTabChange,
+  className,
 }) => {
   const [tabWidth, setTabWidth] = useState(0);
 
@@ -26,7 +28,7 @@ const TabSelector: React.FC<TabSelectorProps> = ({
   const activeIndex = tabs.findIndex((tab) => tab === activeTab);
 
   return (
-    <div className="relative border-b border-grayCustom">
+    <div className={cn("relative border-b border-grayCustom", className)}>
       <div className="relative z-10 max-w-screen-sm mx-auto">
         <div className="flex w-full relative">
           {tabs.map((tab) => (

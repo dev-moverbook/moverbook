@@ -116,6 +116,39 @@ export const InvoiceStatusConvex = v.union(
 );
 
 export default defineSchema({
+  additionalFees: defineTable({
+    feeId: v.optional(v.id("fees")),
+    isActive: v.boolean(),
+    moveId: v.id("move"),
+    name: v.string(),
+    price: v.number(),
+    quantity: v.number(),
+  }).index("by_move", ["moveId"]),
+
+  additionalLiabilityCoverage: defineTable({
+    customerSignature: v.optional(v.string()),
+    customerSignedAt: v.optional(v.number()),
+    moveId: v.id("move"),
+    repSignature: v.optional(v.string()),
+    repSignedAt: v.optional(v.number()),
+  }).index("by_move", ["moveId"]),
+
+  arrivalWindow: defineTable({
+    afternoonArrival: v.string(),
+    afternoonEnd: v.string(),
+    companyId: v.id("companies"),
+    morningArrival: v.string(),
+    morningEnd: v.string(),
+  }).index("by_company", ["companyId"]),
+
+  categories: defineTable({
+    companyId: v.id("companies"),
+    isActive: v.boolean(),
+    isStarter: v.boolean(),
+    name: v.string(),
+    parentCategory: v.optional(v.id("categories")),
+  }).index("by_companyId", ["companyId"]),
+
   companies: defineTable({
     clerkOrganizationId: v.string(),
     customerId: v.id("customers"),
@@ -125,6 +158,41 @@ export default defineSchema({
     slug: v.string(),
     timeZone: v.string(),
   }).index("by_slug", ["slug"]),
+
+  companyContact: defineTable({
+    address: v.union(AddressConvex, v.null()),
+    companyId: v.id("companies"),
+    email: v.string(),
+    phoneNumber: v.string(),
+    sendgridName: v.optional(v.string()),
+    sendgridSenderId: v.optional(v.string()),
+    sendgridVerified: v.optional(v.boolean()),
+    website: v.string(),
+  }).index("by_companyId", ["companyId"]),
+
+  compliance: defineTable({
+    companyId: v.id("companies"),
+    dmvNumber: v.string(),
+    statePucPermitNumber: v.string(),
+    usDotNumber: v.string(),
+  }),
+
+  connectedAccounts: defineTable({
+    chargesEnabled: v.optional(v.boolean()),
+    customerId: v.id("customers"),
+    lastStripeUpdate: v.optional(v.number()),
+    payoutsEnabled: v.optional(v.boolean()),
+    status: StripeAccountStatusConvex,
+    stripeAccountId: v.string(),
+  })
+    .index("by_customerId", ["customerId"])
+    .index("by_stripeAccountId", ["stripeAccountId"]),
+
+  creditCardFees: defineTable({
+    companyId: v.id("companies"),
+    rate: v.number(),
+  }),
+
   customers: defineTable({
     email: v.string(),
     isActive: v.boolean(),
@@ -133,172 +201,100 @@ export default defineSchema({
     stripeCustomerId: v.optional(v.string()),
     subscriptionStatus: v.optional(SubscriptionStatusConvex),
   }).index("by_email", ["email"]),
-  users: defineTable({
-    clerkUserId: v.string(),
-    companyId: v.optional(v.id("companies")),
-    customerId: v.optional(v.id("customers")),
-    email: v.string(),
-    hourlyRate: v.optional(v.union(v.number(), v.null())),
-    imageUrl: v.string(),
-    name: v.string(),
-    role: v.optional(UserRoleConvex),
-    isActive: v.boolean(),
-  })
-    .index("by_email", ["email"])
-    .index("by_clerkUserId", ["clerkUserId"])
-    .index("by_companyId", ["companyId"]),
-  invitations: defineTable({
-    clerkInvitationId: v.string(),
-    status: InvitationStatusConvex,
-    clerkOrganizationId: v.string(),
-    role: UserRoleConvex,
-    email: v.string(),
-    hourlyRate: v.union(v.number(), v.null()),
-  })
-    .index("by_email", ["email"])
-    .index("status", ["status"])
-    .index("by_clerkInvitationId", ["clerkInvitationId"])
-    .index("by_clerkOrganizationId", ["clerkOrganizationId"]),
-  connectedAccounts: defineTable({
-    customerId: v.id("customers"),
-    status: StripeAccountStatusConvex,
-    chargesEnabled: v.optional(v.boolean()),
-    payoutsEnabled: v.optional(v.boolean()),
-    lastStripeUpdate: v.optional(v.number()),
-    stripeAccountId: v.string(),
-  })
-    .index("by_customerId", ["customerId"])
-    .index("by_stripeAccountId", ["stripeAccountId"]),
-  referrals: defineTable({
-    companyId: v.id("companies"),
-    name: v.string(),
-    isActive: v.boolean(),
-  }).index("by_companyId", ["companyId"]),
 
-  variables: defineTable({
-    companyId: v.id("companies"),
-    name: v.string(),
-    defaultValue: v.string(),
-  }),
-  scripts: defineTable({
-    companyId: v.id("companies"),
-    title: v.string(),
-    type: CommunicationTypeConvex,
-    message: v.string(),
-    preSetTypes: v.optional(PresSetScriptsConvex),
+  discounts: defineTable({
     isActive: v.boolean(),
-    emailTitle: v.optional(v.string()),
-  }),
-  compliance: defineTable({
-    companyId: v.id("companies"),
-    statePucPermitNumber: v.string(),
-    dmvNumber: v.string(),
-    usDotNumber: v.string(),
-  }),
-  webIntegrations: defineTable({
-    companyId: v.id("companies"),
-    externalReviewUrl: v.string(),
-    webform: v.string(),
-    webformEmbeddedCode: v.string(),
-  }),
-  companyContact: defineTable({
-    companyId: v.id("companies"),
-    email: v.string(),
-    phoneNumber: v.string(),
-    address: v.union(AddressConvex, v.null()),
-    website: v.string(),
-    sendgridSenderId: v.optional(v.string()),
-    sendgridVerified: v.optional(v.boolean()),
-    sendgridName: v.optional(v.string()),
-  }).index("by_companyId", ["companyId"]),
-  arrivalWindow: defineTable({
-    companyId: v.id("companies"),
-    morningArrival: v.string(),
-    morningEnd: v.string(),
-    afternoonArrival: v.string(),
-    afternoonEnd: v.string(),
-  }).index("by_company", ["companyId"]),
-  policies: defineTable({
-    companyId: v.id("companies"),
-    weekdayHourMinimum: v.number(),
-    weekendHourMinimum: v.number(),
-    deposit: v.number(),
-    cancellationFee: v.number(),
-    cancellationCutoffHour: v.number(),
-    additionalTermsAndConditions: v.optional(v.string()),
-  }).index("by_companyId", ["companyId"]),
-  labor: defineTable({
-    companyId: v.id("companies"),
+    moveId: v.id("move"),
     name: v.string(),
-    isDefault: v.boolean(),
-    startDate: v.union(v.number(), v.null()),
-    endDate: v.union(v.number(), v.null()),
-    twoMovers: v.number(),
-    threeMovers: v.number(),
-    fourMovers: v.number(),
-    extra: v.number(),
+    price: v.number(),
+  }).index("by_move", ["moveId"]),
+
+  fees: defineTable({
+    companyId: v.id("companies"),
     isActive: v.boolean(),
-  }).index("by_companyId", ["companyId"]),
+    name: v.string(),
+    price: v.number(),
+  }).index("byCompanyId", ["companyId"]),
+
   insurancePolicies: defineTable({
     companyId: v.id("companies"),
-    coverageType: v.number(),
     coverageAmount: v.number(),
+    coverageType: v.number(),
     isActive: v.boolean(),
     isDefault: v.boolean(),
     name: v.string(),
     premium: v.number(),
   }).index("by_companyId", ["companyId"]),
-  creditCardFees: defineTable({
-    companyId: v.id("companies"),
-    rate: v.number(),
-  }),
-  fees: defineTable({
-    companyId: v.id("companies"),
-    name: v.string(),
-    price: v.number(),
-    isActive: v.boolean(),
-  }).index("byCompanyId", ["companyId"]),
-  travelFee: defineTable({
-    companyId: v.id("companies"),
-    mileageRate: v.optional(v.number()),
-    flatRate: v.optional(v.number()),
-    defaultMethod: v.union(v.null(), TravelChargingTypesConvex),
-  }),
-  rooms: defineTable({
-    companyId: v.id("companies"),
-    name: v.string(),
-    isActive: v.boolean(),
-    isStarter: v.boolean(),
-  }).index("by_companyId", ["companyId"]),
-  categories: defineTable({
-    companyId: v.id("companies"),
-    name: v.string(),
-    parentCategory: v.optional(v.id("categories")),
-    isActive: v.boolean(),
-    isStarter: v.boolean(),
-  }).index("by_companyId", ["companyId"]),
+
+  invitations: defineTable({
+    clerkInvitationId: v.string(),
+    clerkOrganizationId: v.string(),
+    email: v.string(),
+    hourlyRate: v.union(v.number(), v.null()),
+    role: UserRoleConvex,
+    status: InvitationStatusConvex,
+  })
+    .index("by_email", ["email"])
+    .index("status", ["status"])
+    .index("by_clerkInvitationId", ["clerkInvitationId"])
+    .index("by_clerkOrganizationId", ["clerkOrganizationId"]),
+
+  invoices: defineTable({
+    customerSignature: v.optional(v.string()),
+    customerSignedAt: v.optional(v.number()),
+    moveId: v.id("move"),
+    repSignature: v.optional(v.string()),
+    repSignedAt: v.optional(v.number()),
+    status: InvoiceStatusConvex,
+  }).index("by_move", ["moveId"]),
+
+  internalReview: defineTable({
+    moveId: v.id("move"),
+    rating: v.number(),
+  }).index("by_move", ["moveId"]),
+
   items: defineTable({
-    companyId: v.id("companies"),
     categoryId: v.optional(v.id("categories")),
-    name: v.string(),
-    size: v.number(),
+    companyId: v.id("companies"),
     isActive: v.boolean(),
     isPopular: v.optional(v.boolean()),
     isStarter: v.boolean(),
+    name: v.string(),
+    size: v.number(),
     weight: v.number(),
   }).index("by_companyId", ["companyId"]),
-  moveCustomers: defineTable({
-    altPhoneNumber: v.union(v.null(), v.string()),
-    email: v.string(),
-    name: v.string(),
-    phoneNumber: v.string(),
-    referral: v.union(v.null(), v.string()),
+
+  labor: defineTable({
     companyId: v.id("companies"),
-  })
-    .index("by_email", ["email"])
-    .index("by_phone", ["phoneNumber"])
-    .index("by_name", ["name"]),
+    endDate: v.union(v.number(), v.null()),
+    extra: v.number(),
+    fourMovers: v.number(),
+    isActive: v.boolean(),
+    isDefault: v.boolean(),
+    name: v.string(),
+    startDate: v.union(v.number(), v.null()),
+    threeMovers: v.number(),
+    twoMovers: v.number(),
+  }).index("by_companyId", ["companyId"]),
+
+  messages: defineTable({
+    companyId: v.id("companies"),
+    message: v.string(),
+    method: CommunicationTypeConvex,
+    moveId: v.id("move"),
+    resolvedMessage: v.string(),
+    resolvedSubject: v.optional(v.union(v.string(), v.null())),
+    sentType: MessageSentTypeConvex,
+    sid: v.optional(v.string()),
+    status: MessageStatusConvex,
+    subject: v.optional(v.union(v.string(), v.null())),
+  }).index("by_moveId", ["moveId"]),
+
   move: defineTable({
+    actualArrivalTime: v.optional(v.number()),
+    actualBreakTime: v.optional(v.number()),
+    actualStartTime: v.optional(v.number()),
+    actualEndTime: v.optional(v.number()),
     arrivalTimes: ArrivalTimesConvex,
     companyId: v.id("companies"),
     creditCardFee: v.number(),
@@ -310,11 +306,11 @@ export default defineSchema({
     jobTypeRate: v.union(v.null(), v.number()),
     liabilityCoverage: v.union(v.null(), InsurancePolicyConvex),
     locations: v.array(LocationConvex),
+    moveCustomerId: v.id("moveCustomers"),
     moveDate: v.union(v.null(), v.string()),
     moveFees: v.array(MoveFeeConvex),
     moveItems: v.array(MoveItemConvex),
     moveStatus: MoveStatusConvex,
-    moveCustomerId: v.id("moveCustomers"),
     moveWindow: MoveTimesConvex,
     movers: v.number(),
     notes: v.union(v.null(), v.string()),
@@ -323,85 +319,123 @@ export default defineSchema({
     roundTripDrive: v.union(v.null(), v.number()),
     roundTripMiles: v.union(v.null(), v.number()),
     salesRep: v.id("users"),
+    segmentDistances: v.array(SegmentDistanceConvex),
     serviceType: v.union(v.null(), ServiceTypesConvex),
     startingMoveTime: v.union(v.null(), v.number()),
     totalMiles: v.union(v.null(), v.number()),
-    travelFeeRate: v.optional(v.union(v.null(), v.number())),
     travelFeeMethod: v.optional(v.union(v.null(), TravelChargingTypesConvex)),
+    travelFeeRate: v.optional(v.union(v.null(), v.number())),
     trucks: v.number(),
-    segmentDistances: v.array(SegmentDistanceConvex),
   })
     .index("by_moveDate", ["moveDate"])
     .index("by_companyId", ["companyId"])
     .index("by_moveCustomerId", ["moveCustomerId"]),
-  quotes: defineTable({
+
+  moveAssignments: defineTable({
+    breakAmount: v.optional(v.number()),
+    endTime: v.optional(v.number()),
+    hourStatus: v.optional(HourStatusConvex),
+    isLead: v.boolean(),
+    managerNotes: v.optional(v.string()),
     moveId: v.id("move"),
+    moverId: v.id("users"),
+    startTime: v.optional(v.number()),
+  }).index("by_move", ["moveId"]),
+
+  moveCustomers: defineTable({
+    altPhoneNumber: v.union(v.null(), v.string()),
+    companyId: v.id("companies"),
+    email: v.string(),
+    name: v.string(),
+    phoneNumber: v.string(),
+    referral: v.union(v.null(), v.string()),
+  })
+    .index("by_email", ["email"])
+    .index("by_phone", ["phoneNumber"])
+    .index("by_name", ["name"]),
+
+  policies: defineTable({
+    additionalTermsAndConditions: v.optional(v.string()),
+    cancellationCutoffHour: v.number(),
+    cancellationFee: v.number(),
+    companyId: v.id("companies"),
+    deposit: v.number(),
+    weekdayHourMinimum: v.number(),
+    weekendHourMinimum: v.number(),
+  }).index("by_companyId", ["companyId"]),
+
+  preMoveDocs: defineTable({
     customerSignature: v.optional(v.string()),
     customerSignedAt: v.optional(v.number()),
+    moveId: v.id("move"),
+    repSignature: v.optional(v.string()),
+    repSignedAt: v.optional(v.number()),
+  }).index("by_move", ["moveId"]),
+
+  quotes: defineTable({
+    customerSignature: v.optional(v.string()),
+    customerSignedAt: v.optional(v.number()),
+    moveId: v.id("move"),
     repSignature: v.optional(v.string()),
     repSignedAt: v.optional(v.number()),
     status: QuoteStatusConvex,
   }).index("by_move", ["moveId"]),
-  moveAssignments: defineTable({
-    moveId: v.id("move"),
-    moverId: v.id("users"),
-    isLead: v.boolean(),
-    startTime: v.optional(v.number()),
-    endTime: v.optional(v.number()),
-    breakAmount: v.optional(v.number()),
-    hourStatus: v.optional(HourStatusConvex),
-    managerNotes: v.optional(v.string()),
-  }).index("by_move", ["moveId"]),
-  preMoveDocs: defineTable({
-    moveId: v.id("move"),
-    customerSignature: v.optional(v.string()),
-    customerSignedAt: v.optional(v.number()),
-    repSignature: v.optional(v.string()),
-    repSignedAt: v.optional(v.number()),
-  }).index("by_move", ["moveId"]),
-  additionalLiabilityCoverage: defineTable({
-    moveId: v.id("move"),
-    customerSignature: v.optional(v.string()),
-    customerSignedAt: v.optional(v.number()),
-    repSignature: v.optional(v.string()),
-    repSignedAt: v.optional(v.number()),
-  }).index("by_move", ["moveId"]),
-  additionalFees: defineTable({
-    moveId: v.id("move"),
-    name: v.string(),
-    price: v.number(),
-    quantity: v.number(),
-    feeId: v.optional(v.id("fees")),
-    isActive: v.boolean(),
-  }).index("by_move", ["moveId"]),
-  discounts: defineTable({
-    moveId: v.id("move"),
-    name: v.string(),
-    price: v.number(),
-    isActive: v.boolean(),
-  }).index("by_move", ["moveId"]),
-  invoices: defineTable({
-    moveId: v.id("move"),
-    customerSignature: v.optional(v.string()),
-    customerSignedAt: v.optional(v.number()),
-    repSignature: v.optional(v.string()),
-    repSignedAt: v.optional(v.number()),
-    status: InvoiceStatusConvex,
-  }).index("by_move", ["moveId"]),
-  internalReview: defineTable({
-    moveId: v.id("move"),
-    rating: v.number(),
-  }).index("by_move", ["moveId"]),
-  messages: defineTable({
-    moveId: v.id("move"),
+
+  referrals: defineTable({
     companyId: v.id("companies"),
-    method: CommunicationTypeConvex,
-    status: MessageStatusConvex,
-    resolvedMessage: v.string(),
+    isActive: v.boolean(),
+    name: v.string(),
+  }).index("by_companyId", ["companyId"]),
+
+  rooms: defineTable({
+    companyId: v.id("companies"),
+    isActive: v.boolean(),
+    isStarter: v.boolean(),
+    name: v.string(),
+  }).index("by_companyId", ["companyId"]),
+
+  scripts: defineTable({
+    companyId: v.id("companies"),
+    emailTitle: v.optional(v.string()),
+    isActive: v.boolean(),
     message: v.string(),
-    sid: v.optional(v.string()),
-    subject: v.optional(v.union(v.string(), v.null())),
-    sentType: MessageSentTypeConvex,
-    resolvedSubject: v.optional(v.union(v.string(), v.null())),
-  }).index("by_moveId", ["moveId"]),
+    preSetTypes: v.optional(PresSetScriptsConvex),
+    title: v.string(),
+    type: CommunicationTypeConvex,
+  }),
+
+  travelFee: defineTable({
+    companyId: v.id("companies"),
+    defaultMethod: v.union(v.null(), TravelChargingTypesConvex),
+    flatRate: v.optional(v.number()),
+    mileageRate: v.optional(v.number()),
+  }),
+
+  users: defineTable({
+    clerkUserId: v.string(),
+    companyId: v.optional(v.id("companies")),
+    customerId: v.optional(v.id("customers")),
+    email: v.string(),
+    hourlyRate: v.optional(v.union(v.number(), v.null())),
+    imageUrl: v.string(),
+    isActive: v.boolean(),
+    name: v.string(),
+    role: v.optional(UserRoleConvex),
+  })
+    .index("by_email", ["email"])
+    .index("by_clerkUserId", ["clerkUserId"])
+    .index("by_companyId", ["companyId"]),
+
+  variables: defineTable({
+    companyId: v.id("companies"),
+    defaultValue: v.string(),
+    name: v.string(),
+  }),
+
+  webIntegrations: defineTable({
+    companyId: v.id("companies"),
+    externalReviewUrl: v.string(),
+    webform: v.string(),
+    webformEmbeddedCode: v.string(),
+  }),
 });

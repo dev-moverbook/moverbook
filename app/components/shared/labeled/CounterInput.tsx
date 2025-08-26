@@ -85,9 +85,7 @@ const CounterInput: React.FC<CounterInputProps> = ({
   if (!isEditingProp) {
     return (
       <div className={clsx("flex flex-col gap-2", className)}>
-        {label && (
-          <Label className="text-white text-sm font-medium">{label}</Label>
-        )}
+        {label && <Label className="text-white  font-medium">{label}</Label>}
         <div className="flex items-center gap-4">
           <div className="min-w-[60px] px-4 py-1 text-center text-white border border-grayCustom rounded-xl text-lg bg-transparent">
             {value ?? "-"}
@@ -100,9 +98,7 @@ const CounterInput: React.FC<CounterInputProps> = ({
 
   return (
     <div className={clsx("flex flex-col gap-2", className)}>
-      {label && (
-        <Label className="text-white text-sm font-medium">{label}</Label>
-      )}
+      {label && <Label className="text-white  font-medium">{label}</Label>}
       <div className="flex items-center gap-4">
         {/* Minus button */}
         <button

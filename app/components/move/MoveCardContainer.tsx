@@ -1,6 +1,10 @@
 import React from "react";
 import MoveCard from "./MoveCard";
 import { EnrichedMove } from "@/types/convex-responses";
+import PayOutSummary from "@/app/app/[slug]/calendar/components/PayOutSummary";
+import { useSlugContext } from "@/app/contexts/SlugContext";
+import { isMover } from "@/app/frontendUtils/permissions";
+import { ClerkRoles } from "@/types/enums";
 
 interface MoveCardContainerProps {
   moves: EnrichedMove[];
@@ -11,6 +15,9 @@ const MoveCardContainer: React.FC<MoveCardContainerProps> = ({
   moves,
   isfilterDates,
 }) => {
+  const { user } = useSlugContext();
+  const isMoverUser = isMover(user.publicMetadata.role as ClerkRoles);
+
   const emptyMessage = isfilterDates
     ? "No moves for custom date range."
     : "No moves this week.";
@@ -30,6 +37,7 @@ const MoveCardContainer: React.FC<MoveCardContainerProps> = ({
           ))}
         </div>
       )}
+      {isMoverUser && <PayOutSummary />}
     </div>
   );
 };

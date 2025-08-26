@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { FiPlusCircle } from "react-icons/fi";
-import { Menu, X } from "lucide-react";
+import { Calendar, Menu, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
   Sheet,
@@ -17,11 +17,18 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import Link from "next/link";
 import SearchInput from "./SearchInput";
 import { useSlugContext } from "@/app/contexts/SlugContext";
+import { canCreateMove, isMover } from "@/app/frontendUtils/permissions";
+import { ClerkRoles } from "@/types/enums";
 
 const Navbar = () => {
-  const { slug, isCompanyContactComplete, isStripeComplete } = useSlugContext();
+  const { slug, isCompanyContactComplete, isStripeComplete, user } =
+    useSlugContext();
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
+
+  const userRole = user.publicMetadata.role as ClerkRoles;
+  const canCreateMoveUser = canCreateMove(userRole);
+  const moverUser = isMover(userRole);
 
   const isAddMoveDisabled = !isCompanyContactComplete || !isStripeComplete;
 
@@ -29,6 +36,10 @@ const Navbar = () => {
     if (!isAddMoveDisabled) {
       router.push(`/app/${slug}/add-move`);
     }
+  };
+
+  const handleViewCalendar = () => {
+    router.push(`/app/${slug}/calendar`);
   };
 
   return (
@@ -64,18 +75,24 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Add Move */}
-      <IconButton
-        icon={<FiPlusCircle className="text-2xl" />}
-        asChild
-        variant="ghost"
-        title="Add Move"
-        disabled={isAddMoveDisabled}
-        onClick={handleAddMove}
-        className="cursor-pointer"
-      >
-        <Link href={`/app/${slug}/add-move`} />
-      </IconButton>
+      {canCreateMoveUser ? (
+        <IconButton
+          icon={<FiPlusCircle className="text-2xl" />}
+          variant="ghost"
+          title="Add Move"
+          disabled={isAddMoveDisabled}
+          onClick={handleAddMove}
+          className="cursor-pointer"
+        />
+      ) : moverUser ? (
+        <IconButton
+          icon={<Calendar className="text-2xl" />}
+          variant="ghost"
+          title="View Calendar"
+          onClick={handleViewCalendar}
+          className="cursor-pointer"
+        />
+      ) : null}
     </nav>
   );
 };

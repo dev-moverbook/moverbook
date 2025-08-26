@@ -39,16 +39,18 @@ const QuoteCost = () => {
     endingMoveTime,
   });
 
-  const texts: [string, number | string | null, boolean?][] = [
-    ["Deposit", deposit ?? 0, true],
-  ];
+  const texts: [
+    string,
+    number | string | null,
+    { isCurrency?: boolean; isBold?: boolean }?,
+  ][] = [["Deposit", deposit ?? 0, { isCurrency: true, isBold: true }]];
 
   return (
     <div>
       <CostTable title="Cost" rows={displayRows} />
 
       <SectionContainer>
-        <ReusableCard title="Due Today" texts={texts} isCurrency />
+        <ReusableCard title="Due Today" texts={texts} />
       </SectionContainer>
     </div>
   );

@@ -19,6 +19,10 @@ import { ArrivalTimes, InsurancePolicySchema } from "@/types/convex-schemas";
 export interface UpdateMoveInput {
   moveId: Id<"move">;
   updates: {
+    actualArrivalTime?: number;
+    actualBreakTime?: number;
+    actualStartTime?: number;
+    actualEndTime?: number;
     arrivalTimes?: ArrivalTimes;
     creditCardFee?: number;
     deposit?: number;

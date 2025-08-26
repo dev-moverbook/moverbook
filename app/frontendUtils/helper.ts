@@ -357,7 +357,6 @@ export const getStatusColor = (status: MoveStatus | MoveTimes): string => {
       return "#f59e0b";
     case "custom":
       return "#a78bfa";
-
     default:
       return "#FFC107";
   }
@@ -501,6 +500,9 @@ type ComputeTotalParams = {
 
   startingMoveTime?: number | null; // min labor hours (for hourly)
   endingMoveTime?: number | null; // max labor hours (for hourly)
+  actualStartTime?: number | null;
+  actualEndTime?: number | null;
+  actualBreakTime?: number | null;
 };
 
 const pctToUnit = (p: number) => (p <= 1 ? p : p / 100);
@@ -533,6 +535,7 @@ const calcTravelCost = (
 /**
  * Returns { minTotal, maxTotal } (they’re equal for flat jobs).
  */
+// --- update computeMoveTotal to prefer actuals if present ---
 export function computeMoveTotal({
   moveFees,
   jobType,
@@ -545,6 +548,9 @@ export function computeMoveTotal({
   creditCardFee,
   startingMoveTime,
   endingMoveTime,
+  actualStartTime,
+  actualEndTime,
+  actualBreakTime,
 }: ComputeTotalParams): { minTotal: number; maxTotal: number } {
   const feesSubtotal = moveFees.reduce(
     (sum, f) => sum + f.price * f.quantity,
@@ -562,18 +568,34 @@ export function computeMoveTotal({
     paymentMethod?.kind === "credit_card" ? pctToUnit(creditCardFee) : 0;
 
   if (jobType === "hourly") {
-    const minH = typeof startingMoveTime === "number" ? startingMoveTime : 0;
+    // prefer actuals when both start & end exist
+    const haveActuals =
+      typeof actualStartTime === "number" && typeof actualEndTime === "number";
+    if (haveActuals) {
+      const breakMin = normalizeBreakMinutes(actualBreakTime);
+      const workedHrs = Math.max(
+        0,
+        hoursBetweenMs(actualStartTime!, actualEndTime!) - breakMin / 60
+      );
+      const rate = jobTypeRate ?? 0;
+
+      const base = feesSubtotal + liabilityCost + travelCost + workedHrs * rate;
+      const total = base + base * ccRate;
+
+      return { minTotal: total, maxTotal: total }; // exact
+    }
+
+    // fallback to estimate range
+    const minH =
+      typeof startingMoveTime === "number" ? Math.max(0, startingMoveTime) : 0;
     const maxH =
       typeof endingMoveTime === "number"
-        ? Math.max(endingMoveTime, minH)
+        ? Math.max(minH, endingMoveTime)
         : minH;
 
     const rate = jobTypeRate ?? 0;
-    const jobMin = rate * minH;
-    const jobMax = rate * maxH;
-
-    const preMin = feesSubtotal + liabilityCost + travelCost + jobMin;
-    const preMax = feesSubtotal + liabilityCost + travelCost + jobMax;
+    const preMin = feesSubtotal + liabilityCost + travelCost + rate * minH;
+    const preMax = feesSubtotal + liabilityCost + travelCost + rate * maxH;
 
     return {
       minTotal: preMin + preMin * ccRate,
@@ -652,6 +674,7 @@ export function computeInvoiceTotals({
   return { invoiceMin, invoiceMax };
 }
 
+// --- update getMoveDisplayRows signature and usage ---
 export function getMoveDisplayRows({
   moveFees,
   jobType,
@@ -664,6 +687,9 @@ export function getMoveDisplayRows({
   getTotal = false,
   startingMoveTime,
   endingMoveTime,
+  actualStartTime,
+  actualEndTime,
+  actualBreakTime,
   segmentDistances,
   additionalFees = [],
   discounts = [],
@@ -681,6 +707,9 @@ export function getMoveDisplayRows({
   getTotal?: boolean;
   startingMoveTime?: number | null;
   endingMoveTime?: number | null;
+  actualStartTime?: number | null;
+  actualEndTime?: number | null;
+  actualBreakTime?: number | null;
   segmentDistances: SegmentDistance[];
   additionalFees?: { name: string; price: number }[];
   discounts?: { name: string; price: number }[];
@@ -693,10 +722,6 @@ export function getMoveDisplayRows({
     jobType === "hourly"
       ? `${formatCurrency(jobTypeRate ?? 0)}/hr`
       : `${formatCurrency(jobTypeRate ?? 0)}`;
-  const travelRowBase =
-    travelFeeMethod != null
-      ? buildTravelRow(travelFeeMethod, travelFeeRate ?? 0)
-      : null;
 
   const rows: ListRowType[] = [
     ...moveFees.map((fee) => ({
@@ -709,20 +734,33 @@ export function getMoveDisplayRows({
     },
   ];
 
-  if (travelRowBase) {
+  if (travelFeeMethod != null) {
     const travelSuffix = getTotal
-      ? buildTravelSuffix(travelFeeMethod!, segmentDistances)
+      ? buildTravelSuffix(travelFeeMethod, segmentDistances)
       : "";
     rows.push({
       left: `Travel Fee${travelSuffix}`,
-      right: travelRowBase.right,
+      right: buildTravelRow(travelFeeMethod, travelFeeRate ?? 0).right,
     });
   }
 
-  const jobSuffix =
-    getTotal && jobType === "hourly"
-      ? buildHourlySuffix(startingMoveTime, endingMoveTime)
-      : "";
+  // job line (show actual hours when present)
+  let jobSuffix = "";
+  if (getTotal && jobType === "hourly") {
+    const haveActuals =
+      typeof actualStartTime === "number" && typeof actualEndTime === "number";
+    if (haveActuals) {
+      const breakMin = normalizeBreakMinutes(actualBreakTime);
+      const workedHrs = Math.max(
+        0,
+        hoursBetweenMs(actualStartTime!, actualEndTime!) - breakMin / 60
+      );
+      jobSuffix = ` (${fmtSmart(workedHrs)} hrs actual)`;
+    } else {
+      jobSuffix = buildHourlySuffix(startingMoveTime, endingMoveTime);
+    }
+  }
+
   rows.push({
     left: `${jobTypeRateDisplayBase}${jobSuffix}`,
     right: jobRateValue,
@@ -751,6 +789,9 @@ export function getMoveDisplayRows({
     creditCardFee,
     startingMoveTime,
     endingMoveTime,
+    actualStartTime,
+    actualEndTime,
+    actualBreakTime,
   });
 
   rows.push({
@@ -995,3 +1036,128 @@ export const sumSegments = (
     totalMinutes: anyTime ? mins : null,
   };
 };
+
+export const toHHmmInZone = (
+  ms: number | null | undefined,
+  timeZone: string,
+  fallback = ""
+): string => {
+  if (ms == null || !Number.isFinite(ms)) return fallback;
+  const dt = DateTime.fromMillis(ms, { zone: timeZone });
+  return dt.isValid ? dt.toFormat("HH:mm") : fallback;
+};
+
+export const withHHmmInZone = (
+  baseMs: number,
+  hhmm: string,
+  timeZone: string
+): number => {
+  const [h, m] = hhmm.split(":").map(Number);
+  if (!Number.isFinite(h) || !Number.isFinite(m)) return baseMs;
+  const dt = DateTime.fromMillis(baseMs, { zone: timeZone }).set({
+    hour: h,
+    minute: m,
+    second: 0,
+    millisecond: 0,
+  });
+  return dt.toMillis();
+};
+
+export const formatDateTimeLocal = (val: string) => {
+  if (!val || !val.includes("T")) return "";
+  const [datePart, timePart] = val.split("T");
+  if (!datePart || !timePart) return "";
+  return `${formatDateToLong(datePart)} ${formatTime(timePart)}`;
+};
+
+export const toLocalDT = (ms: number, zone: string) =>
+  DateTime.fromMillis(ms, { zone }).toFormat("yyyy-LL-dd'T'HH:mm");
+
+export const fromLocalDT = (val: string, zone: string) =>
+  DateTime.fromISO(val, { zone }).toMillis();
+
+export const normalizeBreakMinutes = (
+  actualBreakTime?: number | null
+): number => {
+  if (actualBreakTime == null || Number.isNaN(actualBreakTime)) return 0;
+
+  return actualBreakTime <= 10
+    ? Math.round(actualBreakTime * 60)
+    : Math.round(actualBreakTime);
+};
+
+const hoursBetweenMs = (start?: number | null, end?: number | null): number => {
+  if (typeof start !== "number" || typeof end !== "number") return 0;
+  return Math.max(0, (end - start) / (1000 * 60 * 60));
+};
+
+export const getWeekDates = (currentDate: Date, timeZone: string) => {
+  const startOfWeek = DateTime.fromJSDate(currentDate)
+    .setZone(timeZone)
+    .startOf("week");
+
+  return Array.from({ length: 7 }, (_, i) =>
+    startOfWeek.plus({ days: i }).toJSDate()
+  );
+};
+
+export const getMonthGrid = (viewDate: Date, timeZone: string) => {
+  const month = DateTime.fromJSDate(viewDate).setZone(timeZone).month;
+  const start = DateTime.fromJSDate(viewDate)
+    .setZone(timeZone)
+    .startOf("month")
+    .startOf("week");
+
+  const allDates = Array.from({ length: 42 }, (_, i) =>
+    start.plus({ days: i }).toJSDate()
+  );
+
+  // Chunk into weeks
+  const weeks = Array.from({ length: 6 }, (_, i) =>
+    allDates.slice(i * 7, i * 7 + 7)
+  );
+
+  // Trim trailing weeks where all dates are outside the target month
+  const trimmedWeeks = weeks.filter((week) =>
+    week.some(
+      (date) => DateTime.fromJSDate(date).setZone(timeZone).month === month
+    )
+  );
+
+  return trimmedWeeks.flat();
+};
+
+export function getWeekdays(selectedDate: Date, timeZone: string): Date[] {
+  const dt = DateTime.fromJSDate(selectedDate).setZone(timeZone);
+
+  const sunday = dt.minus({ days: dt.weekday % 7 });
+
+  return Array.from({ length: 7 }, (_, i) =>
+    sunday.plus({ days: i }).toJSDate()
+  );
+}
+
+export const shouldDimDateForMonth = (
+  day: Date,
+  reference: Date,
+  timeZone: string
+): boolean => {
+  const dayDT = DateTime.fromJSDate(day).setZone(timeZone);
+  const refDT = DateTime.fromJSDate(reference).setZone(timeZone);
+
+  return dayDT.month !== refDT.month || dayDT.year !== refDT.year;
+};
+
+export function formatLongDateInZone(
+  value: number | string | Date,
+  timeZone: string
+): string {
+  let dt =
+    typeof value === "number"
+      ? DateTime.fromMillis(value, { zone: timeZone })
+      : typeof value === "string"
+        ? DateTime.fromISO(value, { zone: timeZone })
+        : DateTime.fromJSDate(value, { zone: timeZone });
+
+  return dt.isValid ? dt.toFormat("MMMM d, yyyy") : "Missing Date";
+}

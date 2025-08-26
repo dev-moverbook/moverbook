@@ -60,9 +60,16 @@ const PreMove = ({ preMoveDoc }: PreMoveProps) => {
     }
   };
 
+  const isCompleted = !!repSignature && !!customerSignature;
+
   return (
     <div>
-      <SectionHeader className="mx-auto" title="Pre Move Doc" />
+      <SectionHeader
+        isCompleted={isCompleted}
+        className="mx-auto"
+        title="Pre Move Doc"
+        showCheckmark={true}
+      />
       <SectionContainer>
         <PreMoveTerms />
         {showRepSignature ? (

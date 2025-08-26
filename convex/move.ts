@@ -42,7 +42,7 @@ import {
 import { ErrorMessages } from "@/types/errors";
 import { MoveSchema, QuoteSchema } from "@/types/convex-schemas";
 import { getMoveCostRange } from "@/app/frontendUtils/helper";
-import { Doc } from "./_generated/dataModel";
+import { Doc, Id } from "./_generated/dataModel";
 import { generateJobId } from "./backendUtils/nano";
 import { MoveTimes } from "@/types/types";
 
@@ -312,6 +312,10 @@ export const getMove = query({
 });
 
 export const UpdateMoveFields = v.object({
+  actualArrivalTime: v.optional(v.number()),
+  actualBreakTime: v.optional(v.number()),
+  actualStartTime: v.optional(v.number()),
+  actualEndTime: v.optional(v.number()),
   arrivalTimes: v.optional(ArrivalTimesConvex),
   creditCardFee: v.optional(v.number()),
   deposit: v.optional(v.number()),
@@ -355,6 +359,7 @@ export const updateMove = mutation({
         ClerkRoles.APP_MODERATOR,
         ClerkRoles.MANAGER,
         ClerkRoles.SALES_REP,
+        ClerkRoles.MOVER,
       ]);
       const move = validateMove(await ctx.db.get(moveId));
       const company = validateCompany(await ctx.db.get(move.companyId));
@@ -383,6 +388,7 @@ export const getMovesForCalendar = query({
     priceOrder: v.optional(
       v.union(v.literal("asc"), v.literal("desc"), v.null())
     ),
+    moverId: v.optional(v.union(v.id("users"), v.null())),
   },
   handler: async (ctx, args): Promise<GetMovesForCalendarResponse> => {
     const {
@@ -393,8 +399,8 @@ export const getMovesForCalendar = query({
       salesRepId,
       priceOrder,
       moveTimeFilter,
+      moverId,
     } = args;
-
     try {
       const identity = await requireAuthenticatedUser(ctx, [
         ClerkRoles.ADMIN,
@@ -404,10 +410,27 @@ export const getMovesForCalendar = query({
         ClerkRoles.MOVER,
       ]);
 
-      const isMover = identity.role === ClerkRoles.MOVER;
-
       const company = validateCompany(await ctx.db.get(companyId));
       isUserInOrg(identity, company.clerkOrganizationId);
+
+      const isMover = identity.role === ClerkRoles.MOVER;
+
+      let effectiveMoverId: Id<"users"> | null = null;
+      if (isMover) {
+        const currentUser =
+          (await ctx.db
+            .query("users")
+            .withIndex("by_clerkUserId", (filter) =>
+              filter.eq("clerkUserId", identity.id as string)
+            )
+            .first()) || null;
+        if (!currentUser) {
+          return { status: ResponseStatus.SUCCESS, data: { moves: [] } };
+        }
+        effectiveMoverId = currentUser._id;
+      } else {
+        effectiveMoverId = moverId ?? null;
+      }
 
       let moveQuery = ctx.db
         .query("move")
@@ -440,28 +463,13 @@ export const getMovesForCalendar = query({
 
       let estimatedWageByMoveId = new Map<string, number>();
 
-      if (isMover) {
-        const currentUser =
-          (await ctx.db
-            .query("users")
-            .withIndex("by_clerkUserId", (filter) =>
-              filter.eq("clerkUserId", identity.id as string)
-            )
-            .first()) || null;
-
-        if (!currentUser) {
-          return {
-            status: ResponseStatus.SUCCESS,
-            data: { moves: [] },
-          };
-        }
-
+      if (effectiveMoverId) {
         const moveIds = moves.map((move) => move._id);
-        const assignmentsForUser = await ctx.db
+        const assignmentsForMover = await ctx.db
           .query("moveAssignments")
           .filter((filter) =>
             filter.and(
-              filter.eq(filter.field("moverId"), currentUser._id),
+              filter.eq(filter.field("moverId"), effectiveMoverId),
               filter.or(
                 ...moveIds.map((id) => filter.eq(filter.field("moveId"), id))
               )
@@ -470,28 +478,45 @@ export const getMovesForCalendar = query({
           .collect();
 
         const assignedMoveIds = new Set(
-          assignmentsForUser.map((assignment) => assignment.moveId)
+          assignmentsForMover.map((a) => a.moveId)
         );
         moves = moves.filter((move) => assignedMoveIds.has(move._id));
 
         const assignmentMap = new Map<string, Doc<"moveAssignments">>();
-        for (const assignment of assignmentsForUser) {
+        for (const assignment of assignmentsForMover) {
           if (!assignmentMap.has(assignment.moveId)) {
             assignmentMap.set(assignment.moveId, assignment);
           }
         }
 
-        const hourlyRate =
-          typeof currentUser.hourlyRate === "number" && currentUser.hourlyRate
-            ? currentUser.hourlyRate
-            : 0;
+        let hourlyRate = 0;
+        if (isMover) {
+          const me =
+            (await ctx.db
+              .query("users")
+              .withIndex("by_clerkUserId", (filter) =>
+                filter.eq("clerkUserId", identity.id as string)
+              )
+              .first()) || null;
+          hourlyRate =
+            typeof me?.hourlyRate === "number" && me.hourlyRate
+              ? me.hourlyRate
+              : 0;
+        } else if (effectiveMoverId) {
+          const moverUser = await ctx.db.get(effectiveMoverId);
+          hourlyRate =
+            moverUser &&
+            "hourlyRate" in moverUser &&
+            typeof moverUser.hourlyRate === "number"
+              ? moverUser.hourlyRate
+              : 0;
+        }
 
         for (const move of moves) {
           const assignment = assignmentMap.get(move._id);
           const startTime =
             assignment?.startTime ?? move.startingMoveTime ?? null;
           const endTime = assignment?.endTime ?? move.endingMoveTime ?? null;
-
           let workedHours = 0;
           if (
             typeof startTime === "number" &&
@@ -501,7 +526,6 @@ export const getMovesForCalendar = query({
             const netMs = Math.max(0, endTime - startTime);
             workedHours = netMs / (1000 * 60 * 60);
           }
-
           estimatedWageByMoveId.set(
             move._id,
             Number((workedHours * hourlyRate).toFixed(2))
@@ -572,12 +596,7 @@ export const getMovesForCalendar = query({
           : undefined,
       }));
 
-      console.log("enrichedMoves", enrichedMoves);
-
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { moves: enrichedMoves },
-      };
+      return { status: ResponseStatus.SUCCESS, data: { moves: enrichedMoves } };
     } catch (error) {
       console.error("Error in getMovesForCalendar:", error);
       return handleInternalError(error);

@@ -16,6 +16,7 @@ import { hasRequiredMoveFields } from "@/app/frontendUtils/helper";
 import { useSlugContext } from "@/app/contexts/SlugContext";
 import { isMover } from "@/app/frontendUtils/permissions";
 import { ClerkRoles } from "@/types/enums";
+import MoverStep from "./components/steps/MoverStep";
 
 const MoveContent = () => {
   const router = useRouter();
@@ -122,6 +123,7 @@ const MoveContent = () => {
         tabs={tabs}
         activeTab={activeTab}
         onTabChange={handleTabChange}
+        className="mt-4"
       />
 
       {currentStep === 1 && activeTab === "INFO" && <LeadStep />}
@@ -130,6 +132,7 @@ const MoveContent = () => {
       )}
       {currentStep === 3 && activeTab === "INFO" && <MoveStep />}
       {currentStep === 4 && activeTab === "INFO" && <PaymentStep />}
+      {activeTab === "MOVE" && <MoverStep />}
 
       {selectedMove && isDuplicateMoveModalOpen && (
         <DuplicateMoveModal

@@ -8,10 +8,11 @@ import { getMoveStatus } from "@/app/frontendUtils/tsxHelper";
 import StepStatus from "../shared/StepStatus";
 import { useMoveContext } from "@/app/contexts/MoveContext";
 import { QueryStatus } from "@/types/enums";
+import MoverScheduleCalendar from "../move/MoverScheduleCalendar";
 
 const MoveStep = () => {
   const { moveData } = useMoveContext();
-  const { move } = moveData;
+  const { move, company } = moveData;
 
   const result = useGetMoveAssignmentsPage(move._id);
 
@@ -40,6 +41,7 @@ const MoveStep = () => {
               },
             ]}
           />
+          <MoverScheduleCalendar allMovers={allMovers} />
           <AssignMovers assignments={assignments} allMovers={allMovers} />
           <PreMove preMoveDoc={preMoveDoc} />
           <AdditionalLiabilityCoverage

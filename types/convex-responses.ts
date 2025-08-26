@@ -1210,3 +1210,34 @@ export interface CreateOrUpdateAdditionalLiabilityCoverageSuccess {
 export interface CreateOrUpdateAdditionalLiabilityCoverageData {
   additionalLiabilityCoverageId: Id<"additionalLiabilityCoverage">;
 }
+
+export type GetMovePageForMoverResponse =
+  | GetMovePageForMoverLeadSuccess
+  | GetMovePageForMoverMemberSuccess
+  | ErrorResponse;
+
+export interface GetMovePageForMoverLeadSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetMovePageForMoverLeadData;
+}
+
+export interface GetMovePageForMoverMemberSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetMovePageForMoverMemberData;
+}
+
+export interface GetMovePageForMoverLeadData {
+  isLead: true;
+  assignment: Doc<"moveAssignments">;
+  preMoveDoc: Doc<"preMoveDocs"> | null;
+  discounts: Doc<"discounts">[];
+  additionalFees: Doc<"additionalFees">[];
+  invoice: Doc<"invoices"> | null;
+  additionalLiabilityCoverage: Doc<"additionalLiabilityCoverage"> | null;
+  fees: Doc<"fees">[];
+}
+
+export interface GetMovePageForMoverMemberData {
+  isLead: false;
+  assignment: Doc<"moveAssignments">;
+}
