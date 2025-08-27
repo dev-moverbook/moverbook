@@ -91,7 +91,8 @@ const MoverSection: React.FC<MoverSectionProps> = ({
 
   const handleEditSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    const promises: Promise<any>[] = [];
+    // Update unknown type
+    const promises: Promise<unknown>[] = [];
     if (hasStartTime) {
       const newStart = fromLocalDT(startLocal, timeZone);
       if (newStart !== startTime)

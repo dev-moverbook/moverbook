@@ -1,7 +1,7 @@
 "use client";
 
 import SectionHeader from "@/app/components/shared/SectionHeader";
-import { Doc, Id } from "@/convex/_generated/dataModel";
+import { Doc } from "@/convex/_generated/dataModel";
 import { MoverCalendarProvider } from "@/app/contexts/MoverCalendarContext";
 import MoverScheduleContent from "./MoverScheduleContent";
 

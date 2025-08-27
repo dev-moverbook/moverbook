@@ -10,7 +10,7 @@ import StartMoveSection from "@/app/components/move/movers/StartMoveSection";
 import { useMoveContext } from "@/app/contexts/MoveContext";
 import ArriveOriginSection from "@/app/components/move/movers/ArriveOriginSection";
 import EndMoveSection from "@/app/components/move/movers/EndMoveSectiont";
-import BreakMoveSection from "@/app/components/move/movers/BreakMoveSection";
+// import BreakMoveSection from "@/app/components/move/movers/BreakMoveSection";
 import { Doc } from "@/convex/_generated/dataModel";
 import PreMove from "../move/PreMove";
 import AdditionalLiabilityCoverage from "../move/AdditionalLiabilityCoverage";
@@ -139,13 +139,13 @@ const ViewMoverSection: React.FC<ViewMoverSectionProps> = ({ data }) => {
             timeZone={timeZone}
             endMoveTime={actualEndTime}
           />
-          <BreakMoveSection
+          {/* <BreakMoveSection
             isSaving={updateMoveLoading}
             updateError={updateMoveError}
             handleChangeBreakTime={handleChangeBreakTime}
             breakMoveTime={actualBreakTime}
             onSave={handleSaveBreakTime}
-          />
+          /> */}
           <PreMove preMoveDoc={preMoveDoc} />
           <AdditionalLiabilityCoverage
             additionalLiabilityCoverage={additionalLiabilityCoverage}

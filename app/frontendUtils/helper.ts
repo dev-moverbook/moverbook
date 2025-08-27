@@ -481,7 +481,6 @@ export interface ListRowType {
 // ---- types you already have somewhere ----
 // import { PaymentMethod } from "@/types/types";
 // import { TravelChargingTypes } from "@/types/enums";
-// import { formatCurrency, ListRowType } from "@/app/frontendUtils/helper";
 
 type LineFee = { name: string; quantity: number; price: number };
 
@@ -1152,7 +1151,7 @@ export function formatLongDateInZone(
   value: number | string | Date,
   timeZone: string
 ): string {
-  let dt =
+  const dt =
     typeof value === "number"
       ? DateTime.fromMillis(value, { zone: timeZone })
       : typeof value === "string"

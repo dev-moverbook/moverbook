@@ -15,7 +15,7 @@ import SectionHeader from "../shared/SectionHeader";
 import { isValidEmail, isValidPhoneNumber } from "@/utils/helper";
 import { ClerkRoles, QueryStatus } from "@/types/enums";
 import { useSlugContext } from "@/app/contexts/SlugContext";
-import { canCreateMove, isMover } from "@/app/frontendUtils/permissions";
+import { canCreateMove } from "@/app/frontendUtils/permissions";
 
 interface CustomerInfoProps {
   moveCustomer: Doc<"moveCustomers">;

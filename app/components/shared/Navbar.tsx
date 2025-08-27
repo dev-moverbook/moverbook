@@ -14,7 +14,6 @@ import {
 import SidebarContent from "./SidebarContent";
 import IconButton from "./IconButton";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import Link from "next/link";
 import SearchInput from "./SearchInput";
 import { useSlugContext } from "@/app/contexts/SlugContext";
 import { canCreateMove, isMover } from "@/app/frontendUtils/permissions";

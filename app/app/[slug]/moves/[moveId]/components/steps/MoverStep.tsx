@@ -23,5 +23,5 @@ const MoverStep = () => {
       return null;
   }
 };
-1;
+
 export default MoverStep;

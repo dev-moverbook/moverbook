@@ -38,13 +38,6 @@ const MoveSearchDropdown = () => {
     setVisible(false);
   };
 
-  const handleSelectMove = (moveId: Id<"move">) => {
-    setQuery("");
-    setVisible(false);
-    router.push(`/app/${slug}/moves/${moveId}`);
-  };
-
-  // Hidden when not visible or empty query
   if (!visible || trimmed === "") return null;
 
   let content: React.ReactNode;

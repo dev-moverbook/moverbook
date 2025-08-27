@@ -97,7 +97,7 @@ const InvoiceSummary = ({
     actualBreakTime,
   });
 
-  const { invoiceMin, invoiceMax } = computeInvoiceTotals({
+  const { invoiceMax } = computeInvoiceTotals({
     baseMin: minTotal,
     baseMax: maxTotal,
     additionalFees,

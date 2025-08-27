@@ -16,8 +16,8 @@ const PayOutSummary = () => {
           "Date Range",
           `${formatLongDateInZone(filterStartDate, timeZone)} - ${formatLongDateInZone(filterEndDate, timeZone)}`,
         ],
-        ["Pending", 2, { isCurrency: true }],
-        ["Approved", 2, { isCurrency: true, isBold: true }],
+        ["Pending", 130, { isCurrency: true }],
+        ["Approved", 300, { isCurrency: true, isBold: true }],
       ]}
       className="mt-8"
     />

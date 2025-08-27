@@ -12,7 +12,7 @@ import MoverScheduleCalendar from "../move/MoverScheduleCalendar";
 
 const MoveStep = () => {
   const { moveData } = useMoveContext();
-  const { move, company } = moveData;
+  const { move } = moveData;
 
   const result = useGetMoveAssignmentsPage(move._id);
 
