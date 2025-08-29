@@ -1,6 +1,7 @@
 import { CreatableUserRole, TravelChargingTypes } from "@/types/enums";
 import {
   AccessType,
+  HourStatus,
   JobType,
   LocationType,
   MoveSize,
@@ -19,6 +20,8 @@ import { MoveItem } from "@/types/convex-schemas";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { Doc } from "@/convex/_generated/dataModel";
 import { AddressInput, LocationInput } from "@/types/form-types";
+import { EnrichedMove } from "@/types/convex-responses";
+import { WageRange } from "@/convex/backendUtils/queryHelpers";
 
 export const isValidEmail = (email: string) => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -1111,12 +1114,10 @@ export const getMonthGrid = (viewDate: Date, timeZone: string) => {
     start.plus({ days: i }).toJSDate()
   );
 
-  // Chunk into weeks
   const weeks = Array.from({ length: 6 }, (_, i) =>
     allDates.slice(i * 7, i * 7 + 7)
   );
 
-  // Trim trailing weeks where all dates are outside the target month
   const trimmedWeeks = weeks.filter((week) =>
     week.some(
       (date) => DateTime.fromJSDate(date).setZone(timeZone).month === month
@@ -1158,5 +1159,110 @@ export function formatLongDateInZone(
         ? DateTime.fromISO(value, { zone: timeZone })
         : DateTime.fromJSDate(value, { zone: timeZone });
 
-  return dt.isValid ? dt.toFormat("MMMM d, yyyy") : "Missing Date";
+  return dt.isValid ? dt.toFormat("MMM d, yyyy") : "Missing Date";
+}
+
+export function formatWeekRange(
+  value: number | string | Date,
+  timeZone: string
+): string {
+  const dt =
+    typeof value === "number"
+      ? DateTime.fromMillis(value, { zone: timeZone })
+      : typeof value === "string"
+        ? DateTime.fromISO(value, { zone: timeZone })
+        : DateTime.fromJSDate(value, { zone: timeZone });
+
+  if (!dt.isValid) return "Missing Date";
+
+  // Sunday of the week (Luxon: weekday 1=Mon ... 7=Sun)
+  const weekStart = dt.minus({ days: dt.weekday % 7 }).startOf("day");
+  const weekEnd = weekStart.plus({ days: 6 }).endOf("day");
+
+  return `${weekStart.toFormat("MMM d, yyyy")} - ${weekEnd.toFormat("MMM d,  yyyy")}`;
+}
+
+export const getMovePayoutAmount = (move: EnrichedMove): number => {
+  const wage = move.estimatedWage;
+  if (!wage) {
+    return 0;
+  }
+  return typeof wage.min === "number" && typeof wage.max === "number"
+    ? Math.abs(wage.max - wage.min) < 1e-6
+      ? wage.max
+      : wage.max
+    : 0;
+};
+
+export const getMajorityMonth = (weekDates: Date[], timeZone: string): Date => {
+  const monthCount: Record<number, number> = {};
+  for (const date of weekDates) {
+    const month = DateTime.fromJSDate(date).setZone(timeZone).month;
+    monthCount[month] = (monthCount[month] || 0) + 1;
+  }
+
+  const sortedMonths = Object.entries(monthCount).sort((a, b) => b[1] - a[1]);
+  const majorityMonth = Number(sortedMonths[0][0]);
+  const majorityDate = weekDates.find(
+    (d) => DateTime.fromJSDate(d).setZone(timeZone).month === majorityMonth
+  );
+  return majorityDate ?? weekDates[0];
+};
+
+type MoveForCost = Parameters<typeof getMoveCostRange>[0];
+
+export type CalendarMove = MoveForCost & {
+  moveDate?: string | null;
+  moveStatus: string;
+  moveWindow: string;
+  estimatedWage?: WageRange;
+};
+
+export function toISODateInZone(date: Date, timeZone: string): string {
+  return DateTime.fromJSDate(date).setZone(timeZone).toISODate() ?? "";
+}
+
+export function movesOnISODate(
+  moves: CalendarMove[],
+  isoDate: string,
+  timeZone: string
+): CalendarMove[] {
+  return moves.filter((move) => {
+    const moveDate = DateTime.fromISO(move.moveDate ?? "")
+      .setZone(timeZone)
+      .toISODate();
+    return moveDate === isoDate;
+  });
+}
+
+export function computeMoveStatusesForDay(
+  movesOnDate: CalendarMove[],
+  isMoverUser: boolean
+): string[] {
+  return movesOnDate.map((move) =>
+    getStatusColor(
+      isMoverUser
+        ? move.moveStatus === "Completed"
+          ? move.moveStatus
+          : move.moveWindow
+        : move.moveStatus
+    )
+  );
+}
+
+export function computeDailyTotal(
+  movesOnDate: CalendarMove[],
+  isMoverUser: boolean
+): number {
+  if (isMoverUser) {
+    return movesOnDate.reduce((sum, move) => {
+      const wage = move.estimatedWage;
+      const amount = wage && typeof wage.min === "number" ? wage.min : 0;
+      return sum + amount;
+    }, 0);
+  }
+  return movesOnDate.reduce((sum, move) => {
+    const [low] = getMoveCostRange(move);
+    return sum + (low || 0);
+  }, 0);
 }

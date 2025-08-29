@@ -1,18 +1,11 @@
-// app/app/[slug]/moves/components/nav/MoverTags.tsx
 "use client";
 
+import React from "react";
 import { useMoveFilter } from "@/app/contexts/MoveFilterContext";
 import { Badge } from "@/components/ui/badge";
-import { MoveTimes, MoveStatus } from "@/types/types";
-import React from "react";
+import { MoveTimes, MoveStatus, WINDOW_LABEL } from "@/types/types";
 import { cn } from "@/lib/utils";
 import { getStatusColor } from "@/app/frontendUtils/helper";
-
-const LABELS: Record<MoveTimes, string> = {
-  morning: "Morning",
-  afternoon: "Afternoon",
-  custom: "Custom",
-};
 
 const MoverTags: React.FC = () => {
   const {
@@ -24,41 +17,49 @@ const MoverTags: React.FC = () => {
 
   const defaultStatuses: MoveStatus[] = ["New Lead", "Booked", "Quoted"];
 
-  const handleMoveTimeToggle = (time: MoveTimes) => {
-    setMoveTimeFilter((prev: MoveTimes[]) =>
-      prev.includes(time) ? prev.filter((t) => t !== time) : [...prev, time]
-    );
-  };
-
-  const isCompletedActive =
-    selectedStatuses.length === 1 && selectedStatuses[0] === "Completed";
+  const isCompletedActive = selectedStatuses.includes("Completed");
 
   const handleCompletedToggle = () => {
     if (isCompletedActive) {
       setSelectedStatuses(defaultStatuses);
     } else {
+      setMoveTimeFilter([]);
       setSelectedStatuses(["Completed"]);
     }
   };
 
+  const handleMoveTimeToggle = (time: MoveTimes) => {
+    if (isCompletedActive) {
+      setSelectedStatuses(defaultStatuses);
+      setMoveTimeFilter([time]);
+      return;
+    }
+    setMoveTimeFilter((prev: MoveTimes[]) =>
+      prev.includes(time) ? prev.filter((t) => t !== time) : [...prev, time]
+    );
+  };
+
   return (
     <div className="flex flex-wrap gap-1 min-w-0 max-w-full">
-      {(Object.keys(LABELS) as MoveTimes[]).map((time) => {
-        const isActive = moveTimeFilter.includes(time);
+      {(Object.keys(WINDOW_LABEL) as MoveTimes[]).map((time) => {
+        const isActive = moveTimeFilter.includes(time) && !isCompletedActive;
         return (
           <Badge
             key={time}
             active={isActive}
-            variant={isActive ? "default" : "outline"}
+            variant={isActive ? "active" : "outline"}
             onClick={() => handleMoveTimeToggle(time)}
-            className={cn("px-4 hover:bg-background2")}
+            className={cn(
+              "px-4 hover:bg-background2",
+              isCompletedActive && "opacity-60"
+            )}
           >
             <span className="inline-flex items-center">
               <span
                 className="w-1.5 h-1.5 rounded-full mr-1"
                 style={{ backgroundColor: getStatusColor(time) }}
               />
-              {LABELS[time]}
+              {WINDOW_LABEL[time]}
             </span>
           </Badge>
         );
@@ -66,7 +67,7 @@ const MoverTags: React.FC = () => {
 
       <Badge
         active={isCompletedActive}
-        variant={isCompletedActive ? "default" : "outline"}
+        variant={isCompletedActive ? "active" : "outline"}
         onClick={handleCompletedToggle}
         className={cn("px-4 hover:bg-background2")}
       >

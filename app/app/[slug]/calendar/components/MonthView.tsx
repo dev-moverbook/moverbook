@@ -1,9 +1,9 @@
 "use client";
 
-import { DateTime } from "luxon";
 import {
   formatMonthYear,
   getMonthGrid,
+  getWeekdays,
   shouldDimDateForMonth,
 } from "@/app/frontendUtils/helper";
 import CalendarHeader from "./CalendarHeader";
@@ -17,14 +17,7 @@ const MonthView = () => {
   const { timeZone } = useSlugContext();
   const { today, selectedDate } = useMoveFilter();
   const monthDates = getMonthGrid(selectedDate, timeZone);
-
-  // Get weekday headers, starting from the first day of the week in current locale/timezone
-  const weekStart = DateTime.fromJSDate(selectedDate)
-    .setZone(timeZone)
-    .startOf("week");
-  const weekdays = Array.from({ length: 7 }, (_, i) =>
-    weekStart.plus({ days: i }).toJSDate()
-  );
+  const weekdays = getWeekdays(selectedDate, timeZone);
 
   return (
     <CalendarContainer>

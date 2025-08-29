@@ -45,6 +45,22 @@ import { getMoveCostRange } from "@/app/frontendUtils/helper";
 import { Doc, Id } from "./_generated/dataModel";
 import { generateJobId } from "./backendUtils/nano";
 import { MoveTimes } from "@/types/types";
+import {
+  applyMoverScopeAndEstimateWages,
+  buildEstimatedWageAndStatusMaps,
+  buildEstimatedWageRangeMap,
+  enrichMoves,
+  filterByMoveWindow,
+  getCompanyMoves,
+  getMoveCustomersMap,
+  getUsersMapByIds,
+  HourStatusMap,
+  resolveMoverContext,
+  scopeMovesToMover,
+  sortByPriceOrder,
+  WageRange,
+  WageRangeMap,
+} from "./backendUtils/queryHelpers";
 
 export const getMoveOptions = query({
   args: { companyId: v.id("companies") },
@@ -399,8 +415,8 @@ export const getMovesForCalendar = query({
       salesRepId,
       priceOrder,
       moveTimeFilter,
-      moverId,
     } = args;
+
     try {
       const identity = await requireAuthenticatedUser(ctx, [
         ClerkRoles.ADMIN,
@@ -413,188 +429,59 @@ export const getMovesForCalendar = query({
       const company = validateCompany(await ctx.db.get(companyId));
       isUserInOrg(identity, company.clerkOrganizationId);
 
-      const isMover = identity.role === ClerkRoles.MOVER;
+      const {
+        isMover,
+        moverId: selfMoverId,
+        hourlyRate: selfHourlyRate,
+      } = await resolveMoverContext(ctx, identity);
 
-      let effectiveMoverId: Id<"users"> | null = null;
+      let moves = await getCompanyMoves(ctx, {
+        companyId,
+        start,
+        end,
+        statuses,
+        salesRepId,
+      });
+
+      let estimatedWageByMoveId: WageRangeMap = new Map();
+      let hourStatusMap: HourStatusMap = new Map();
+
       if (isMover) {
-        const currentUser =
-          (await ctx.db
-            .query("users")
-            .withIndex("by_clerkUserId", (filter) =>
-              filter.eq("clerkUserId", identity.id as string)
-            )
-            .first()) || null;
-        if (!currentUser) {
-          return { status: ResponseStatus.SUCCESS, data: { moves: [] } };
-        }
-        effectiveMoverId = currentUser._id;
-      } else {
-        effectiveMoverId = moverId ?? null;
-      }
-
-      let moveQuery = ctx.db
-        .query("move")
-        .withIndex("by_moveDate")
-        .filter((filter) =>
-          filter.and(
-            filter.eq(filter.field("companyId"), companyId),
-            filter.gte(filter.field("moveDate"), start),
-            filter.lte(filter.field("moveDate"), end)
-          )
+        const { moves: scopedMoves, assignmentMap } = await scopeMovesToMover(
+          ctx,
+          moves,
+          selfMoverId
         );
+        moves = scopedMoves;
 
-      if (statuses?.length) {
-        moveQuery = moveQuery.filter((filter) =>
-          filter.or(
-            ...statuses.map((status) =>
-              filter.eq(filter.field("moveStatus"), status)
-            )
-          )
+        const maps = buildEstimatedWageAndStatusMaps(
+          moves,
+          assignmentMap,
+          selfHourlyRate
         );
+        estimatedWageByMoveId = maps.wageMap;
+        hourStatusMap = maps.hourStatusMap;
       }
 
-      if (salesRepId) {
-        moveQuery = moveQuery.filter((filter) =>
-          filter.eq(filter.field("salesRep"), salesRepId)
-        );
-      }
+      moves = filterByMoveWindow(moves, moveTimeFilter);
+      moves = sortByPriceOrder(moves, priceOrder);
 
-      let moves = await moveQuery.collect();
-
-      let estimatedWageByMoveId = new Map<string, number>();
-
-      if (effectiveMoverId) {
-        const moveIds = moves.map((move) => move._id);
-        const assignmentsForMover = await ctx.db
-          .query("moveAssignments")
-          .filter((filter) =>
-            filter.and(
-              filter.eq(filter.field("moverId"), effectiveMoverId),
-              filter.or(
-                ...moveIds.map((id) => filter.eq(filter.field("moveId"), id))
-              )
-            )
-          )
-          .collect();
-
-        const assignedMoveIds = new Set(
-          assignmentsForMover.map((a) => a.moveId)
-        );
-        moves = moves.filter((move) => assignedMoveIds.has(move._id));
-
-        const assignmentMap = new Map<string, Doc<"moveAssignments">>();
-        for (const assignment of assignmentsForMover) {
-          if (!assignmentMap.has(assignment.moveId)) {
-            assignmentMap.set(assignment.moveId, assignment);
-          }
-        }
-
-        let hourlyRate = 0;
-        if (isMover) {
-          const me =
-            (await ctx.db
-              .query("users")
-              .withIndex("by_clerkUserId", (filter) =>
-                filter.eq("clerkUserId", identity.id as string)
-              )
-              .first()) || null;
-          hourlyRate =
-            typeof me?.hourlyRate === "number" && me.hourlyRate
-              ? me.hourlyRate
-              : 0;
-        } else if (effectiveMoverId) {
-          const moverUser = await ctx.db.get(effectiveMoverId);
-          hourlyRate =
-            moverUser &&
-            "hourlyRate" in moverUser &&
-            typeof moverUser.hourlyRate === "number"
-              ? moverUser.hourlyRate
-              : 0;
-        }
-
-        for (const move of moves) {
-          const assignment = assignmentMap.get(move._id);
-          const startTime =
-            assignment?.startTime ?? move.startingMoveTime ?? null;
-          const endTime = assignment?.endTime ?? move.endingMoveTime ?? null;
-          let workedHours = 0;
-          if (
-            typeof startTime === "number" &&
-            typeof endTime === "number" &&
-            endTime > startTime
-          ) {
-            const netMs = Math.max(0, endTime - startTime);
-            workedHours = netMs / (1000 * 60 * 60);
-          }
-          estimatedWageByMoveId.set(
-            move._id,
-            Number((workedHours * hourlyRate).toFixed(2))
-          );
-        }
-      }
-
-      if (priceOrder) {
-        moves.sort((moveA, moveB) => {
-          const [lowEstimateA] = getMoveCostRange(moveA);
-          const [lowEstimateB] = getMoveCostRange(moveB);
-          return priceOrder === "asc"
-            ? lowEstimateA - lowEstimateB
-            : lowEstimateB - lowEstimateA;
-        });
-      }
-
-      if (moveTimeFilter && moveTimeFilter.length > 0) {
-        moves = moves.filter((move) =>
-          moveTimeFilter.includes(move.moveWindow)
-        );
-      }
-
-      const moveCustomerIds = moves.map((move) => move.moveCustomerId);
-      const moveCustomers = await ctx.db
-        .query("moveCustomers")
-        .filter((filter) =>
-          filter.or(
-            ...moveCustomerIds.map((id) => filter.eq(filter.field("_id"), id))
-          )
-        )
-        .collect();
-
-      const moveCustomerMap = Object.fromEntries(
-        moveCustomers.map((customer) => [customer._id, customer])
-      );
+      const moveCustomerIds = moves.map((m) => m.moveCustomerId);
+      const moveCustomerMap = await getMoveCustomersMap(ctx, moveCustomerIds);
 
       const salesRepIds = Array.from(
-        new Set(moves.map((move) => move.salesRep).filter(Boolean))
-      );
+        new Set(moves.map((m) => m.salesRep).filter(Boolean))
+      ) as Id<"users">[];
+      const salesRepMap = await getUsersMapByIds(ctx, salesRepIds);
 
-      const salesReps: Doc<"users">[] = salesRepIds.length
-        ? await ctx.db
-            .query("users")
-            .filter((filter) =>
-              filter.or(
-                ...salesRepIds.map((id) => filter.eq(filter.field("_id"), id))
-              )
-            )
-            .collect()
-        : [];
+      const enrichedMoves: EnrichedMove[] = enrichMoves(moves, {
+        moveCustomerMap,
+        salesRepMap,
+        estimatedWageByMoveId,
+        hourStatusMap: isMover ? hourStatusMap : undefined, // only populate for movers
+      });
 
-      const salesRepMap = Object.fromEntries(
-        salesReps.map((user) => [user._id, user])
-      );
-
-      const enrichedMoves: EnrichedMove[] = moves.map((move) => ({
-        ...move,
-        moveCustomer: moveCustomerMap[move.moveCustomerId] ?? null,
-        salesRepUser: move.salesRep
-          ? (salesRepMap[move.salesRep] ?? null)
-          : null,
-        estimatedWage: estimatedWageByMoveId.get(move._id)
-          ? {
-              min: estimatedWageByMoveId.get(move._id)!,
-              max: estimatedWageByMoveId.get(move._id)!,
-            }
-          : undefined,
-      }));
+      console.log("enrichedMoves", enrichedMoves);
 
       return { status: ResponseStatus.SUCCESS, data: { moves: enrichedMoves } };
     } catch (error) {
@@ -603,7 +490,6 @@ export const getMovesForCalendar = query({
     }
   },
 });
-
 export const getMoveByIdInternal = internalQuery({
   args: {
     id: v.id("move"),

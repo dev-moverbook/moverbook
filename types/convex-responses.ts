@@ -33,7 +33,8 @@ import {
   VariableSchema,
   WebIntegrationsSchema,
 } from "./convex-schemas";
-import { RecentMoveMessageSummary } from "./types";
+import { HourStatus, RecentMoveMessageSummary } from "./types";
+import { WageRange } from "@/convex/backendUtils/queryHelpers";
 
 export interface ErrorResponse {
   status: ResponseStatus.ERROR;
@@ -1085,10 +1086,8 @@ export interface GetMovesByNameSuccess {
 export interface EnrichedMove extends Doc<"move"> {
   moveCustomer: Doc<"moveCustomers"> | null;
   salesRepUser: Doc<"users"> | null;
-  estimatedWage?: {
-    min: number;
-    max: number;
-  };
+  estimatedWage?: WageRange;
+  hourStatus?: HourStatus;
 }
 
 export interface GetMovesByNameData {

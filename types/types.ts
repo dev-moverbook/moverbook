@@ -132,6 +132,12 @@ export const TIME_DISTANCE_OPTIONS: {
 
 export type MoveTimes = "morning" | "afternoon" | "custom";
 
+export const WINDOW_LABEL: Record<MoveTimes, string> = {
+  morning: "Morning",
+  afternoon: "Afternoon",
+  custom: "Custom",
+};
+
 export type LocationRole = "starting" | "ending" | "stop";
 
 export type StopBehavior = "drop_off" | "pick_up";

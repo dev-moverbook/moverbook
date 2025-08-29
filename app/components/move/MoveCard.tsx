@@ -14,9 +14,10 @@ import {
 } from "@/app/frontendUtils/helper";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useSlugContext } from "@/app/contexts/SlugContext";
 import { Doc } from "@/convex/_generated/dataModel";
 import { Button } from "../ui/button";
+import { HourStatus, WageRange } from "@/convex/backendUtils/queryHelpers";
+import { WINDOW_LABEL } from "@/types/types";
 
 interface MoveCardProps {
   move: Doc<"move">;
@@ -25,6 +26,10 @@ interface MoveCardProps {
   onDuplicate?: (move: Doc<"move">) => void;
   salesRep: Doc<"users"> | null;
   asCustomerLink?: boolean;
+  estimatedWage?: WageRange;
+  isMover?: boolean;
+  hourStatus?: HourStatus;
+  slug: string;
 }
 
 const MoveCard: React.FC<MoveCardProps> = ({
@@ -34,10 +39,13 @@ const MoveCard: React.FC<MoveCardProps> = ({
   onDuplicate,
   salesRep,
   asCustomerLink = false,
+  estimatedWage,
+  isMover,
+  hourStatus,
+  slug,
 }) => {
   const { moveDate, moveStatus, _id } = move;
   const name = moveCustomer?.name;
-  const { slug } = useSlugContext();
   const router = useRouter();
 
   const tags = [
@@ -58,7 +66,10 @@ const MoveCard: React.FC<MoveCardProps> = ({
     travelFeeMethod: move.travelFeeMethod ?? null,
     segmentDistances: move.segmentDistances,
   });
-  const price = formatPriceRange(minTotal, maxTotal);
+
+  const price = isMover
+    ? formatPriceRange(estimatedWage?.min || 0, estimatedWage?.max || 0)
+    : formatPriceRange(minTotal, maxTotal);
 
   const repInitials = getInitials(salesRep?.name || "Rep");
 
@@ -66,33 +77,53 @@ const MoveCard: React.FC<MoveCardProps> = ({
     ? `/app/${slug}/customer/${moveCustomer?._id}`
     : `/app/${slug}/moves/${_id}`;
 
+  const showHourStatus =
+    !!isMover && (hourStatus === "pending" || hourStatus === "rejected");
+
+  const hourStatusClass =
+    hourStatus === "pending"
+      ? "text-grayCustom2"
+      : hourStatus === "rejected"
+        ? "text-red-400"
+        : "";
+
+  const isCompleted = moveStatus === "Completed";
+  const displayStatus =
+    isMover && !isCompleted ? WINDOW_LABEL[move.moveWindow] : moveStatus;
+  const statusDotColor =
+    isMover && !isCompleted
+      ? getStatusColor(move.moveWindow)
+      : getStatusColor(moveStatus);
+
   const content = (
     <div
-      className={`py-4 px-4 text-white shadow-md  ${
+      className={`py-4 px-4 text-white shadow-md ${
         !showActions
           ? "hover:bg-background2 transition-colors duration-200"
           : ""
       }`}
     >
       <div className="max-w-screen-sm mx-auto">
-        {/* Main row */}
         <div className="flex items-stretch justify-between gap-4">
-          {/* Left: date + name + status/price */}
           <div className="flex flex-col min-w-0">
             <p className="text-grayCustom2">{formatDateToLong(moveDate)}</p>
             <h3 className="text-lg font-medium truncate">
               {name ?? "No name"}
             </h3>
             <div className="flex items-center gap-2 min-w-0">
-              <span style={{ color: getStatusColor(moveStatus) }}>●</span>
-              <span className="truncate">{moveStatus}</span>
+              <span style={{ color: statusDotColor }}>●</span>
+              <span className="truncate">{displayStatus}</span>
               <span className="text-greenCustom font-semibold pl-1">
                 {price}
               </span>
+              {showHourStatus && (
+                <span className={`${hourStatusClass} italic`}>
+                  ({hourStatus})
+                </span>
+              )}
             </div>
           </div>
 
-          {/* Right: sales rep — bottom aligned */}
           <div className="flex flex-col items-center self-stretch">
             <div className="mt-auto flex flex-col items-center">
               <div className="w-10 h-10 border border-grayCustom rounded-full overflow-hidden flex items-center justify-center bg-background2">

@@ -65,24 +65,25 @@ const SidebarContent = ({ onNavigate }: SidebarContentProps) => {
         Calendar
       </NavLink>
       {canSeeMovePages && (
-        <NavLink
-          href={`/app/${slug}/messages`}
-          onNavigate={onNavigate}
-          disabled={isAddMoveDisabled}
-        >
-          <MessageSquare size={24} />
-          Messages
-        </NavLink>
+        <>
+          <NavLink
+            href={`/app/${slug}/messages`}
+            onNavigate={onNavigate}
+            disabled={isAddMoveDisabled}
+          >
+            <MessageSquare size={24} />
+            Messages
+          </NavLink>
+          <NavLink
+            href={`/app/${slug}/analytics`}
+            onNavigate={onNavigate}
+            disabled={isAddMoveDisabled}
+          >
+            <BarChart2 size={24} />
+            Analytics
+          </NavLink>
+        </>
       )}
-
-      <NavLink
-        href={`/app/${slug}/analytics`}
-        onNavigate={onNavigate}
-        disabled={isAddMoveDisabled}
-      >
-        <BarChart2 size={24} />
-        Analytics
-      </NavLink>
 
       <NavLink href={`/app/${slug}/team`} onNavigate={onNavigate}>
         <Users size={24} />

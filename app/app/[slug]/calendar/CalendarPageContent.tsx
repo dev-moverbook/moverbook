@@ -59,7 +59,12 @@ const CalendarPageContent = () => {
       )}
       {isError && <ErrorComponent message={errorMessage} />}
       {!isLoading && !isError && isWeekView && (
-        <MoveCardContainer moves={weeklyMoves} isfilterDates={isList} />
+        <MoveCardContainer
+          moves={weeklyMoves}
+          isfilterDates={isList}
+          weekStart={weekStart}
+          weekEnd={weekEnd}
+        />
       )}
     </PageContainer>
   );

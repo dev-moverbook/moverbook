@@ -22,6 +22,7 @@ const MoveContent = () => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { slug } = useSlugContext();
 
   // read step from query (?step=1..4), default 1, clamp to [1,4]
   const stepFromQuery = useMemo(() => {
@@ -99,6 +100,7 @@ const MoveContent = () => {
         asCustomerLink={isMoverUser}
         onDuplicate={handleDuplicateMove}
         salesRep={salesRepUser}
+        slug={slug ?? ""}
       />
 
       {!isMoverUser && (

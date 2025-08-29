@@ -22,6 +22,7 @@ import type * as backendUtils_clerk from "../backendUtils/clerk.js";
 import type * as backendUtils_connectedAccountWebhook from "../backendUtils/connectedAccountWebhook.js";
 import type * as backendUtils_helper from "../backendUtils/helper.js";
 import type * as backendUtils_nano from "../backendUtils/nano.js";
+import type * as backendUtils_queryHelpers from "../backendUtils/queryHelpers.js";
 import type * as backendUtils_sendGrid from "../backendUtils/sendGrid.js";
 import type * as backendUtils_stripe from "../backendUtils/stripe.js";
 import type * as backendUtils_template from "../backendUtils/template.js";
@@ -81,6 +82,7 @@ declare const fullApi: ApiFromModules<{
   "backendUtils/connectedAccountWebhook": typeof backendUtils_connectedAccountWebhook;
   "backendUtils/helper": typeof backendUtils_helper;
   "backendUtils/nano": typeof backendUtils_nano;
+  "backendUtils/queryHelpers": typeof backendUtils_queryHelpers;
   "backendUtils/sendGrid": typeof backendUtils_sendGrid;
   "backendUtils/stripe": typeof backendUtils_stripe;
   "backendUtils/template": typeof backendUtils_template;
