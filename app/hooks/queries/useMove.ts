@@ -2,7 +2,6 @@ import { api } from "@/convex/_generated/api";
 import { useQuery } from "convex/react";
 import { Id } from "@/convex/_generated/dataModel";
 import { ResponseStatus } from "@/types/enums";
-
 import { GetMoveData } from "@/types/convex-responses";
 
 interface UseMoveResult {
@@ -18,7 +17,7 @@ export const useMove = (moveId: Id<"move"> | null): UseMoveResult => {
     moveId ? { moveId } : "skip"
   );
 
-  const isLoading = response === undefined;
+  const isLoading = !response;
   const isError = response?.status === ResponseStatus.ERROR;
 
   return {

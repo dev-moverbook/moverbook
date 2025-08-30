@@ -385,12 +385,10 @@ export const getMoverStatusColor = (
 export function getMoveCostRange(move: Doc<"move">): [number, number?] {
   let base = 0;
 
-  // Flat rate
   if (move.jobType === "flat") {
     base = move.jobTypeRate ?? 0;
   }
 
-  // Hourly rate (use starting and ending time)
   if (move.jobType === "hourly" && move.startingMoveTime) {
     const start = move.startingMoveTime;
     const end = move.endingMoveTime ?? start;
@@ -398,10 +396,9 @@ export function getMoveCostRange(move: Doc<"move">): [number, number?] {
     const highHours = (end - start) / (1000 * 60 * 60);
     const rate = move.jobTypeRate ?? 0;
 
-    const low = base; // starting at base 0 for hourly
+    const low = base;
     const high = highHours * rate;
 
-    // Add insurance and fees to both
     const extras =
       (move.liabilityCoverage?.premium ?? 0) +
       move.moveFees.reduce(
@@ -412,21 +409,20 @@ export function getMoveCostRange(move: Doc<"move">): [number, number?] {
     return [low + extras, high + extras];
   }
 
-  // Add extras for flat jobs
   base += move.liabilityCoverage?.premium ?? 0;
   base += move.moveFees.reduce(
     (sum, fee) => sum + (fee.price ?? 0) * (fee.quantity ?? 1),
     0
   );
 
-  return [base]; // only one value for flat jobs
+  return [base];
 }
 
 export const formatPriceRange = (low: number, high?: number): string => {
   if (!high || low === high) {
     return formatCurrency(low);
   }
-  return `${formatCurrency(low)} – ${formatCurrency(high)}`;
+  return `${formatCurrency(low)} \u2013 ${formatCurrency(high)}`;
 };
 
 export const priceFilterToOrder = (

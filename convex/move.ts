@@ -49,6 +49,7 @@ import {
   applyMoverScopeAndEstimateWages,
   buildEstimatedWageAndStatusMaps,
   buildEstimatedWageRangeMap,
+  buildWageAndStatusForMove,
   enrichMoves,
   filterByMoveWindow,
   getCompanyMoves,
@@ -58,6 +59,7 @@ import {
   resolveMoverContext,
   scopeMovesToMover,
   sortByPriceOrder,
+  toMyWage,
   WageRange,
   WageRangeMap,
 } from "./backendUtils/queryHelpers";
@@ -270,26 +272,28 @@ export const getMove = query({
 
     try {
       const normalizedId = ctx.db.normalizeId("move", moveId);
-      if (!normalizedId) {
-        throw new Error(ErrorMessages.INVALID_MOVE_ID);
-      }
+      if (!normalizedId) throw new Error(ErrorMessages.INVALID_MOVE_ID);
 
       const identity = await requireAuthenticatedUser(ctx);
 
       const move = validateMove(await ctx.db.get(normalizedId));
       const company = validateCompany(await ctx.db.get(move.companyId));
-      const quote: QuoteSchema | null = await ctx.db
+      isUserInOrg(identity, company.clerkOrganizationId);
+
+      const quote = await ctx.db
         .query("quotes")
         .withIndex("by_move", (q) => q.eq("moveId", normalizedId))
         .first();
-      isUserInOrg(identity, company.clerkOrganizationId);
+
       const salesRepUser = validateUser(await ctx.db.get(move.salesRep));
+
       const companyContact = validateCompanyContact(
         await ctx.db
           .query("companyContact")
           .withIndex("by_companyId", (q) => q.eq("companyId", move.companyId))
           .first()
       );
+
       const policy = validatePolicy(
         await ctx.db
           .query("policies")
@@ -308,6 +312,37 @@ export const getMove = query({
           .first()
       );
 
+      const {
+        isMover,
+        moverId: selfMoverId,
+        hourlyRate: selfHourlyRate,
+      } = await resolveMoverContext(ctx, identity);
+
+      let myAssignment: Doc<"moveAssignments"> | null = null;
+      let myWage: { estimated: number | null; final: number | null } | null =
+        null;
+
+      if (isMover && selfMoverId) {
+        myAssignment = await ctx.db
+          .query("moveAssignments")
+          .withIndex("by_move_mover", (q) =>
+            q.eq("moveId", normalizedId).eq("moverId", selfMoverId)
+          )
+          .first();
+
+        if (!myAssignment) {
+          throw new Error(ErrorMessages.MOVE_ASSIGNMENT_NOT_FOUND);
+        }
+
+        const { wage } = buildWageAndStatusForMove(
+          move,
+          myAssignment,
+          selfHourlyRate
+        );
+
+        myWage = toMyWage(move.moveStatus, wage);
+      }
+
       return {
         status: ResponseStatus.SUCCESS,
         data: {
@@ -319,6 +354,8 @@ export const getMove = query({
           policy,
           moveCustomer,
           travelFee,
+          myAssignment,
+          myWage,
         },
       };
     } catch (error) {
@@ -481,8 +518,6 @@ export const getMovesForCalendar = query({
         hourStatusMap: isMover ? hourStatusMap : undefined, // only populate for movers
       });
 
-      console.log("enrichedMoves", enrichedMoves);
-
       return { status: ResponseStatus.SUCCESS, data: { moves: enrichedMoves } };
     } catch (error) {
       console.error("Error in getMovesForCalendar:", error);
@@ -490,6 +525,7 @@ export const getMovesForCalendar = query({
     }
   },
 });
+
 export const getMoveByIdInternal = internalQuery({
   args: {
     id: v.id("move"),

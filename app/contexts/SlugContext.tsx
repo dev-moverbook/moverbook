@@ -12,6 +12,7 @@ import ErrorMessage from "../components/shared/error/ErrorMessage";
 import { UserResource } from "@clerk/types";
 
 interface SlugContextType {
+  cleanSlug: string;
   slug: string | null;
   setSlug: (slug: string) => void;
   companyId: Id<"companies"> | null;
@@ -77,6 +78,7 @@ export const SlugProvider = ({ children }: { children: React.ReactNode }) => {
         isCompanyContactComplete,
         isStripeComplete,
         user,
+        cleanSlug,
       }}
     >
       {children}

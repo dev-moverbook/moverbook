@@ -34,7 +34,7 @@ import {
   WebIntegrationsSchema,
 } from "./convex-schemas";
 import { HourStatus, RecentMoveMessageSummary } from "./types";
-import { WageRange } from "@/convex/backendUtils/queryHelpers";
+import { MyWage, WageRange } from "@/convex/backendUtils/queryHelpers";
 
 export interface ErrorResponse {
   status: ResponseStatus.ERROR;
@@ -866,6 +866,8 @@ export interface GetMoveData {
   moveCustomer: Doc<"moveCustomers">;
   salesRepUser: Doc<"users"> | null;
   travelFee: Doc<"travelFee">;
+  myAssignment: Doc<"moveAssignments"> | null;
+  myWage: MyWage | null;
 }
 
 export type UpdateMoveResponse = UpdateMoveSuccess | ErrorResponse;

@@ -87,7 +87,6 @@ export const SegmentDistanceConvex = v.object({
   duration: v.union(v.number(), v.null()),
 });
 
-// schema.ts or similar
 export const ArrivalTimesConvex = v.object({
   arrivalWindowStarts: v.union(v.string(), v.null()),
   arrivalWindowEnds: v.union(v.string(), v.null()),
@@ -340,7 +339,9 @@ export default defineSchema({
     moveId: v.id("move"),
     moverId: v.id("users"),
     startTime: v.optional(v.number()),
-  }).index("by_move", ["moveId"]),
+  })
+    .index("by_move", ["moveId"])
+    .index("by_move_mover", ["moveId", "moverId"]),
 
   moveCustomers: defineTable({
     altPhoneNumber: v.union(v.null(), v.string()),

@@ -26,10 +26,11 @@ interface MoveCardProps {
   onDuplicate?: (move: Doc<"move">) => void;
   salesRep: Doc<"users"> | null;
   asCustomerLink?: boolean;
-  estimatedWage?: WageRange;
   isMover?: boolean;
+  estimatedWage?: WageRange | null;
   hourStatus?: HourStatus;
   slug: string;
+  completedWage?: number | null;
 }
 
 const MoveCard: React.FC<MoveCardProps> = ({
@@ -39,10 +40,11 @@ const MoveCard: React.FC<MoveCardProps> = ({
   onDuplicate,
   salesRep,
   asCustomerLink = false,
-  estimatedWage,
   isMover,
   hourStatus,
   slug,
+  estimatedWage,
+  completedWage,
 }) => {
   const { moveDate, moveStatus, _id } = move;
   const name = moveCustomer?.name;
@@ -67,9 +69,13 @@ const MoveCard: React.FC<MoveCardProps> = ({
     segmentDistances: move.segmentDistances,
   });
 
-  const price = isMover
+  let price = isMover
     ? formatPriceRange(estimatedWage?.min || 0, estimatedWage?.max || 0)
     : formatPriceRange(minTotal, maxTotal);
+
+  if (completedWage) {
+    price = formatPriceRange(completedWage);
+  }
 
   const repInitials = getInitials(salesRep?.name || "Rep");
 

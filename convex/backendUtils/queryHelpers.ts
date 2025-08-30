@@ -236,7 +236,6 @@ export async function scopeMovesToMover(
     )
     .collect();
 
-  console.log("assignmentsForMover", assignmentsForMover);
   const assignedMoveIds = new Set(
     assignmentsForMover.map((assignment) => assignment.moveId)
   );
@@ -278,13 +277,17 @@ export function buildEstimatedWageRangeMap(
   const wageMap: WageRangeMap = new Map();
   const rate = hourlyRate ?? 0;
 
+  const fix2 = (n: number) => Number(n.toFixed(2));
+  const hoursNonNeg = (n: number) => Math.max(0, n);
+
   for (const move of moves) {
-    const travelHours = getTravelHours(move);
+    const assignment = assignmentMap.get(move._id);
+    const travelHours = hoursNonNeg(getTravelHours(move));
 
     if (move.jobType === "flat") {
-      const flatBase = Number((move.jobTypeRate ?? 0).toFixed(2));
-      const travelPay = Number((travelHours * rate).toFixed(2));
-      const total = Number((flatBase + travelPay).toFixed(2));
+      const flatBase = fix2(move.jobTypeRate ?? 0);
+      const travelPay = fix2(travelHours * rate);
+      const total = fix2(flatBase + travelPay);
       wageMap.set(move._id, { min: total, max: total });
       continue;
     }
@@ -292,24 +295,39 @@ export function buildEstimatedWageRangeMap(
     if (move.jobType === "hourly") {
       if (move.moveStatus === "Completed") {
         let workedHours = 0;
+
         if (
+          typeof assignment?.startTime === "number" &&
+          typeof assignment?.endTime === "number" &&
+          assignment.endTime > assignment.startTime
+        ) {
+          const breakHrs = hoursNonNeg(assignment.breakAmount ?? 0);
+          workedHours = hoursNonNeg(
+            assignment.endTime - assignment.startTime - breakHrs
+          );
+        } else if (
           typeof move.actualStartTime === "number" &&
           typeof move.actualEndTime === "number" &&
           move.actualEndTime > move.actualStartTime
         ) {
-          workedHours = move.actualEndTime - move.actualStartTime; // hours
+          // Fallback to move actuals if assignment missing
+          workedHours = hoursNonNeg(move.actualEndTime - move.actualStartTime);
+        } else {
+          workedHours = 0;
         }
-        const totalHours = Math.max(0, workedHours) + Math.max(0, travelHours);
-        const total = Number((totalHours * rate).toFixed(2));
+
+        const totalHours = hoursNonNeg(workedHours) + travelHours;
+        const total = fix2(totalHours * rate);
         wageMap.set(move._id, { min: total, max: total });
         continue;
       }
 
-      const assignment = assignmentMap.get(move._id);
+      // ⏳ Not completed: estimate range using assignment start/end if provided, else move’s window
       const startHours =
         (typeof assignment?.startTime === "number"
           ? assignment.startTime
           : move.startingMoveTime) ?? null;
+
       const endHours =
         (typeof assignment?.endTime === "number"
           ? assignment.endTime
@@ -317,23 +335,25 @@ export function buildEstimatedWageRangeMap(
 
       let minHours = 0;
       let maxHours = 0;
-      if (typeof startHours === "number") minHours = Math.max(0, startHours);
-      if (typeof endHours === "number") maxHours = Math.max(0, endHours);
+      if (typeof startHours === "number") minHours = hoursNonNeg(startHours);
+      if (typeof endHours === "number") maxHours = hoursNonNeg(endHours);
       if (maxHours < minHours) {
         const tmp = minHours;
         minHours = maxHours;
         maxHours = tmp;
       }
 
-      const estMinTotalHours = minHours + Math.max(0, travelHours);
-      const estMaxTotalHours = maxHours + Math.max(0, travelHours);
+      // For estimates, we don’t subtract break since end may be unknown; keep it simple/optimistic.
+      const estMinTotalHours = minHours + travelHours;
+      const estMaxTotalHours = maxHours + travelHours;
 
-      const minWage = Number((estMinTotalHours * rate).toFixed(2));
-      const maxWage = Number((estMaxTotalHours * rate).toFixed(2));
+      const minWage = fix2(estMinTotalHours * rate);
+      const maxWage = fix2(estMaxTotalHours * rate);
       wageMap.set(move._id, { min: minWage, max: maxWage });
       continue;
     }
 
+    // Fallback for unknown jobType
     wageMap.set(move._id, { min: 0, max: 0 });
   }
 
@@ -342,6 +362,10 @@ export function buildEstimatedWageRangeMap(
 
 export type HourStatus = "pending" | "approved" | "rejected";
 export type HourStatusMap = Map<string, HourStatus | undefined>;
+export type MyWage = {
+  estimated: number | null;
+  final: number | null;
+};
 
 function msToHours(valueMs: number): number {
   return valueMs / (1000 * 60 * 60);
@@ -484,4 +508,53 @@ export function buildEstimatedWageAndStatusMaps(
   }
 
   return { wageMap, hourStatusMap };
+}
+
+export function buildWageAndStatusForMove(
+  move: Doc<"move">,
+  assignment: Doc<"moveAssignments">,
+  hourlyRateInput: number | null
+): { wage: WageRange; hourStatus?: HourStatus } {
+  const rate = hourlyRateInput ?? 0;
+
+  if (move.jobType === "flat") {
+    const total = computeFlatTotal(move, rate);
+    return {
+      wage: { min: total, max: total },
+      hourStatus: assignment?.hourStatus as HourStatus | undefined,
+    };
+  }
+
+  if (move.jobType === "hourly") {
+    if (move.moveStatus === "Completed") {
+      const total = computeHourlyCompletedTotal(assignment, rate);
+      return {
+        wage: { min: total, max: total },
+        hourStatus: assignment?.hourStatus as HourStatus | undefined,
+      };
+    }
+
+    const range = computeHourlyRangeEstimated(move, assignment, rate);
+    return {
+      wage: range,
+      hourStatus: assignment?.hourStatus as HourStatus | undefined,
+    };
+  }
+
+  return {
+    wage: { min: 0, max: 0 },
+    hourStatus: assignment?.hourStatus as HourStatus | undefined,
+  };
+}
+
+export function toMyWage(
+  moveStatus: Doc<"move">["moveStatus"],
+  wage: WageRange
+): MyWage {
+  const isFinal = moveStatus === "Completed";
+  if (isFinal) {
+    return { estimated: null, final: wage.max };
+  }
+  const estimated = wage.max;
+  return { estimated, final: null };
 }
