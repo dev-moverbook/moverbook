@@ -6,7 +6,6 @@ import { useSlugContext } from "@/app/contexts/SlugContext";
 import { useSearchContext } from "@/app/contexts/SearchContext";
 import MoveCustomerCard from "../../customer/CustomerCard";
 import MoveOnlyCard from "../../move/MoveOnlyCard";
-import { Id } from "@/convex/_generated/dataModel";
 import { QueryStatus } from "@/types/enums";
 import { useSearchMoveCustomersAndJobId } from "@/app/hooks/queries/useSearchMoveCustomersAndJobId";
 

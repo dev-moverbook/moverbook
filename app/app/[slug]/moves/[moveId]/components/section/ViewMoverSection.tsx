@@ -46,8 +46,7 @@ const ViewMoverSection: React.FC<ViewMoverSectionProps> = ({ data }) => {
   const { timeZone } = useSlugContext();
   const { moveData } = useMoveContext();
   const { move } = moveData;
-  const { actualStartTime, actualArrivalTime, actualEndTime, actualBreakTime } =
-    move;
+  const { actualStartTime, actualArrivalTime, actualEndTime } = move;
   const {
     updateMoveAssignmentHours,
     assignmentUpdateLoading,
@@ -98,12 +97,12 @@ const ViewMoverSection: React.FC<ViewMoverSectionProps> = ({ data }) => {
     });
   };
 
-  const handleSaveBreakTime = async () => {
-    await updateMove({
-      moveId: assignment.moveId,
-      updates: { actualBreakTime: Date.now() },
-    });
-  };
+  //   const handleSaveBreakTime = async () => {
+  //     await updateMove({
+  //       moveId: assignment.moveId,
+  //       updates: { actualBreakTime: Date.now() },
+  //     });
+  //   };
 
   return (
     <>

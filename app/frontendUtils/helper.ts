@@ -1,7 +1,6 @@
 import { CreatableUserRole, TravelChargingTypes } from "@/types/enums";
 import {
   AccessType,
-  HourStatus,
   JobType,
   LocationType,
   MoveSize,
