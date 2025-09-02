@@ -9,6 +9,7 @@ import StepStatus from "../shared/StepStatus";
 import { useMoveContext } from "@/app/contexts/MoveContext";
 import { QueryStatus } from "@/types/enums";
 import MoverScheduleCalendar from "../move/MoverScheduleCalendar";
+import ViewMoverSectionAsRep from "../move/ViewMoverSectionAsRep";
 
 const MoveStep = () => {
   const { moveData } = useMoveContext();
@@ -47,6 +48,7 @@ const MoveStep = () => {
           <AdditionalLiabilityCoverage
             additionalLiabilityCoverage={additionalLiabilityCoverage}
           />
+          <ViewMoverSectionAsRep />
         </div>
       );
     }

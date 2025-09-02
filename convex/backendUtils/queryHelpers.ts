@@ -197,22 +197,23 @@ export function enrichMoves(
   opts: {
     moveCustomerMap: Record<string, Doc<"moveCustomers">>;
     salesRepMap: Record<string, Doc<"users">>;
-    estimatedWageByMoveId: WageRangeMap;
-    hourStatusMap?: HourStatusMap; // optional; undefined for non-movers
+    // accept the new map (optional for non-mover views)
+    moverWageForMove?: Map<string, MoverWageForMove>;
+    hourStatusMap?: HourStatusMap;
   }
 ): EnrichedMove[] {
-  const { moveCustomerMap, salesRepMap, estimatedWageByMoveId, hourStatusMap } =
+  const { moveCustomerMap, salesRepMap, moverWageForMove, hourStatusMap } =
     opts;
 
   return moves.map((move) => ({
     ...move,
     moveCustomer: moveCustomerMap[move.moveCustomerId] ?? null,
     salesRepUser: move.salesRep ? (salesRepMap[move.salesRep] ?? null) : null,
-    estimatedWage: estimatedWageByMoveId.get(move._id),
+    // attach per-move wage object if provided
+    moverWageForMove: moverWageForMove?.get(move._id),
     hourStatus: hourStatusMap?.get(move._id),
   }));
 }
-
 export async function scopeMovesToMover(
   ctx: QueryCtx,
   moves: Doc<"move">[],
@@ -517,6 +518,8 @@ export function buildWageAndStatusForMove(
 ): { wage: WageRange; hourStatus?: HourStatus } {
   const rate = hourlyRateInput ?? 0;
 
+  const isCompleted = move.moveStatus === "Completed";
+
   if (move.jobType === "flat") {
     const total = computeFlatTotal(move, rate);
     return {
@@ -557,4 +560,114 @@ export function toMyWage(
   }
   const estimated = wage.max;
   return { estimated, final: null };
+}
+
+// types you gave
+export type MoverWageForMove = {
+  estimatedMin: number | null;
+  estimatedMax: number | null;
+  pendingPayout: number | null;
+  pendingHours: number | null;
+  approvedPayout: number | null;
+  approvedHours: number | null;
+};
+
+// --- tiny utils ---
+const round2 = (n: number) => Number(n.toFixed(2));
+const hoursBetweenMs = (start?: number | null, end?: number | null) =>
+  typeof start === "number" && typeof end === "number"
+    ? Math.max(0, (end - start) / (1000 * 60 * 60))
+    : 0;
+
+const workedHoursFromAssignment = (a: {
+  startTime?: number | null;
+  endTime?: number | null;
+  breakAmount?: number | null;
+}) => {
+  const raw = hoursBetweenMs(a.startTime ?? null, a.endTime ?? null);
+  const breakHrs = Math.max(0, a.breakAmount ?? 0);
+  return raw > 0 ? round2(Math.max(0, raw - breakHrs)) : null;
+};
+
+/**
+ * Build the display wage object for a mover on a given move.
+ * - If move is Completed:
+ *    - hourStatus === "approved" -> use approvedHours/approvedPay (fallback to calc)
+ *    - hourStatus === "pending" | "rejected" -> put calculated hours*rate into "pending*"
+ * - Otherwise:
+ *    - Fill only estimatedMin/Max (using your existing estimator)
+ */
+export function buildMoverWageForMoveDisplay(
+  move: Doc<"move">,
+  assignment: Doc<"moveAssignments">,
+  hourlyRateInput: number | null
+): MoverWageForMove {
+  const hourlyRate = Math.max(0, hourlyRateInput ?? 0);
+
+  // default empty shape
+  const out: MoverWageForMove = {
+    estimatedMin: null,
+    estimatedMax: null,
+    pendingPayout: null,
+    pendingHours: null,
+    approvedPayout: null,
+    approvedHours: null,
+  };
+
+  // If the move is finished, show final (approved or pending/rejected)
+  const isCompleted = move.moveStatus === "Completed";
+
+  if (isCompleted) {
+    // APPROVED → use approved fields; if missing, derive from timestamps
+    if (assignment.hourStatus === "approved") {
+      const hrs =
+        typeof assignment.approvedHours === "number"
+          ? round2(Math.max(0, assignment.approvedHours))
+          : workedHoursFromAssignment(assignment);
+
+      const pay =
+        typeof assignment.approvedPay === "number"
+          ? round2(Math.max(0, assignment.approvedPay))
+          : hrs != null
+            ? round2(hrs * hourlyRate)
+            : null;
+
+      out.approvedHours = hrs;
+      out.approvedPayout = pay;
+      return out;
+    }
+
+    // PENDING or REJECTED → compute as “pending”
+    if (
+      assignment.hourStatus === "pending" ||
+      assignment.hourStatus === "rejected"
+    ) {
+      const hrs = workedHoursFromAssignment(assignment);
+      const pay = hrs != null ? round2(hrs * hourlyRate) : null;
+      out.pendingHours = hrs;
+      out.pendingPayout = pay;
+      return out;
+    }
+
+    // Unknown status on a completed move → fall back to pending-style calc
+    const hrs = workedHoursFromAssignment(assignment);
+    const pay = hrs != null ? round2(hrs * hourlyRate) : null;
+    out.pendingHours = hrs;
+    out.pendingPayout = pay;
+    return out;
+  }
+
+  // Not completed → show estimates only
+  if (move.jobType === "hourly") {
+    const est = computeHourlyRangeEstimated(move, assignment, hourlyRate);
+    out.estimatedMin = est.min;
+    out.estimatedMax = est.max;
+  } else {
+    // If you pay movers hourly even on flat jobs, you could optionally
+    // estimate using starting/ending hours here. Otherwise keep as nulls.
+    out.estimatedMin = null;
+    out.estimatedMax = null;
+  }
+
+  return out;
 }

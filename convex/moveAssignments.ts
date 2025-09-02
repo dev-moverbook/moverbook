@@ -10,14 +10,16 @@ import {
 } from "./backendUtils/validate";
 import { handleInternalError } from "./backendUtils/helper";
 import { ClerkRoles, ResponseStatus } from "@/types/enums";
-import { HourStatusConvex } from "./schema"; // adjust if needed
+import { HourStatusConvex } from "./schema";
 import {
   CreateMoveAssignmentResponse,
   GetMoveAssignmentsPageResponse,
+  GetMoveAssignmentsResponse,
   GetMovePageForMoverResponse,
   UpdateMoveAssignmentResponse,
 } from "@/types/convex-responses";
 import { Doc } from "./_generated/dataModel";
+import { computeApprovedPayout } from "./backendUtils/calculations";
 
 export const updateMoveAssignment = mutation({
   args: {
@@ -46,10 +48,13 @@ export const updateMoveAssignment = mutation({
       ]);
 
       const assignment = validateMoveAssignment(await ctx.db.get(assignmentId));
-
       const move = validateMove(await ctx.db.get(assignment.moveId));
       const company = validateCompany(await ctx.db.get(move.companyId));
       isUserInOrg(identity, company.clerkOrganizationId);
+
+      if (updates.endTime !== undefined) {
+        updates.hourStatus = "pending";
+      }
 
       await ctx.db.patch(assignmentId, updates);
 
@@ -77,13 +82,7 @@ export const updateMoveAssignmentHours = mutation({
     { assignmentId, updates }
   ): Promise<UpdateMoveAssignmentResponse> => {
     try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-        ClerkRoles.SALES_REP,
-        ClerkRoles.MOVER,
-      ]);
+      const identity = await requireAuthenticatedUser(ctx, [ClerkRoles.MOVER]);
 
       const assignment = validateMoveAssignment(await ctx.db.get(assignmentId));
 
@@ -98,11 +97,20 @@ export const updateMoveAssignmentHours = mutation({
         >
       >;
 
-      const nextStart = updates.startTime ?? assignment.startTime;
-      const nextEnd = updates.endTime ?? assignment.endTime;
+      const nextStart =
+        typeof updates.startTime === "number"
+          ? updates.startTime
+          : assignment.startTime;
+      const nextEnd =
+        typeof updates.endTime === "number"
+          ? updates.endTime
+          : assignment.endTime;
+
+      const hasAnyTime =
+        typeof nextStart === "number" || typeof nextEnd === "number";
 
       const patch: AssignmentPatch = { ...updates };
-      if (nextStart != null && nextEnd != null) {
+      if (hasAnyTime) {
         patch.hourStatus = "pending";
       }
 
@@ -292,6 +300,109 @@ export const getMovePageForMover = query({
           additionalLiabilityCoverage,
           fees,
         },
+      };
+    } catch (error) {
+      return handleInternalError(error);
+    }
+  },
+});
+
+export const getMoveAssignments = query({
+  args: {
+    moveId: v.id("move"),
+  },
+  handler: async (ctx, { moveId }): Promise<GetMoveAssignmentsResponse> => {
+    try {
+      const identity = await requireAuthenticatedUser(ctx, [
+        ClerkRoles.ADMIN,
+        ClerkRoles.APP_MODERATOR,
+        ClerkRoles.MANAGER,
+      ]);
+
+      const move = validateMove(await ctx.db.get(moveId));
+      const company = validateCompany(await ctx.db.get(move.companyId));
+      isUserInOrg(identity, company.clerkOrganizationId);
+
+      const assignments = await ctx.db
+        .query("moveAssignments")
+        .withIndex("by_move", (q) => q.eq("moveId", moveId))
+        .collect();
+
+      const enrichedAssignments = await Promise.all(
+        assignments.map(async (assignment) => {
+          const mover = await ctx.db.get(assignment.moverId);
+          return {
+            ...assignment,
+            moverName: mover?.name ?? null,
+            hourlyRate: mover?.hourlyRate ?? null,
+          };
+        })
+      );
+
+      return {
+        status: ResponseStatus.SUCCESS,
+        data: {
+          assignments: enrichedAssignments,
+        },
+      };
+    } catch (error) {
+      return handleInternalError(error);
+    }
+  },
+});
+
+export const approveMoveAssignmentHours = mutation({
+  args: {
+    assignmentId: v.id("moveAssignments"),
+    updates: v.object({
+      hourStatus: HourStatusConvex,
+      managerNotes: v.optional(v.string()),
+    }),
+  },
+  handler: async (
+    ctx,
+    { assignmentId, updates }
+  ): Promise<UpdateMoveAssignmentResponse> => {
+    try {
+      const identity = await requireAuthenticatedUser(ctx, [
+        ClerkRoles.ADMIN,
+        ClerkRoles.APP_MODERATOR,
+        ClerkRoles.MANAGER,
+      ]);
+
+      const assignment = validateMoveAssignment(await ctx.db.get(assignmentId));
+      const move = validateMove(await ctx.db.get(assignment.moveId));
+      const company = validateCompany(await ctx.db.get(move.companyId));
+      isUserInOrg(identity, company.clerkOrganizationId);
+
+      if (updates.hourStatus === "approved") {
+        if (
+          typeof assignment.startTime !== "number" ||
+          typeof assignment.endTime !== "number"
+        ) {
+          throw new Error("Start and end times are required to approve hours.");
+        }
+
+        const mover = await ctx.db.get(assignment.moverId);
+        const { hours, pay } = computeApprovedPayout({
+          startTime: assignment.startTime,
+          endTime: assignment.endTime,
+          breakAmount: assignment.breakAmount ?? 0,
+          hourlyRate: mover?.hourlyRate ?? 0,
+        });
+
+        await ctx.db.patch(assignmentId, {
+          ...updates,
+          approvedHours: hours,
+          approvedPay: pay,
+        });
+      } else {
+        await ctx.db.patch(assignmentId, updates);
+      }
+
+      return {
+        status: ResponseStatus.SUCCESS,
+        data: { assignmentId },
       };
     } catch (error) {
       return handleInternalError(error);

@@ -23,7 +23,9 @@ export const useUpdateMoveAssignmentHours = () => {
     string | null
   >(null);
 
-  const updateMutation = useMutation(api.moveAssignments.updateMoveAssignment);
+  const updateMutation = useMutation(
+    api.moveAssignments.updateMoveAssignmentHours
+  );
 
   const updateMoveAssignmentHours = async ({
     assignmentId,

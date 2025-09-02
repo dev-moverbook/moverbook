@@ -209,3 +209,27 @@ export type CommunicationType = "email" | "sms";
 
 export type MessageSentType = "outgoing" | "incoming";
 export type MessageVariablesTarget = "subject" | "body";
+
+export type MoverWageForMove = {
+  estimatedMin: number | null;
+  estimatedMax: number | null;
+  pendingPayout: number | null;
+  pendingHours: number | null;
+  approvedPayout: number | null;
+  approvedHours: number | null;
+};
+
+export type LaborCalculationResult = {
+  totalHours: number;
+  totalPay: number;
+};
+
+export type CostFormat = {
+  label: string;
+  value: number;
+};
+
+export type FinalMoveCost = {
+  items: CostFormat[];
+  total: number;
+};

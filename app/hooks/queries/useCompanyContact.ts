@@ -12,11 +12,12 @@ interface UseCompanyContactResult {
 }
 
 export const useCompanyContact = (
-  companyId: Id<"companies"> | null
+  companyId: Id<"companies">,
+  { enabled = true }: { enabled?: boolean } = {}
 ): UseCompanyContactResult => {
-  const response = useQuery<typeof api.companyContact.getCompanyContact>(
+  const response = useQuery(
     api.companyContact.getCompanyContact,
-    companyId ? { companyId } : "skip"
+    enabled ? { companyId } : "skip"
   );
 
   const isLoading = response === undefined;

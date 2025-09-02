@@ -3,7 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
-import { CopyPlus, Eye } from "lucide-react";
+import { CopyPlus, Eye, MessageSquare } from "lucide-react";
 import {
   formatDateToLong,
   formatLocationType,
@@ -11,13 +11,14 @@ import {
   getStatusColor,
   getInitials,
   computeMoveTotal,
+  formatCurrency,
 } from "@/app/frontendUtils/helper";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Doc } from "@/convex/_generated/dataModel";
 import { Button } from "../ui/button";
-import { HourStatus, WageRange } from "@/convex/backendUtils/queryHelpers";
-import { WINDOW_LABEL } from "@/types/types";
+import { HourStatus } from "@/convex/backendUtils/queryHelpers";
+import { MoverWageForMove, WINDOW_LABEL } from "@/types/types";
 
 interface MoveCardProps {
   move: Doc<"move">;
@@ -27,10 +28,9 @@ interface MoveCardProps {
   salesRep: Doc<"users"> | null;
   asCustomerLink?: boolean;
   isMover?: boolean;
-  estimatedWage?: WageRange | null;
   hourStatus?: HourStatus;
   slug: string;
-  completedWage?: number | null;
+  moverWageDisplay?: MoverWageForMove | null;
 }
 
 const MoveCard: React.FC<MoveCardProps> = ({
@@ -43,8 +43,7 @@ const MoveCard: React.FC<MoveCardProps> = ({
   isMover,
   hourStatus,
   slug,
-  estimatedWage,
-  completedWage,
+  moverWageDisplay,
 }) => {
   const { moveDate, moveStatus, _id } = move;
   const name = moveCustomer?.name;
@@ -69,12 +68,28 @@ const MoveCard: React.FC<MoveCardProps> = ({
     segmentDistances: move.segmentDistances,
   });
 
-  let price = isMover
-    ? formatPriceRange(estimatedWage?.min || 0, estimatedWage?.max || 0)
-    : formatPriceRange(minTotal, maxTotal);
+  let min = minTotal;
+  let max = maxTotal;
 
-  if (completedWage) {
-    price = formatPriceRange(completedWage);
+  let price = min === max ? formatCurrency(min) : formatPriceRange(min, max);
+
+  if (isMover && move.moveStatus === "Completed" && hourStatus === "approved") {
+    price = formatCurrency(moverWageDisplay?.approvedPayout ?? 0);
+  }
+
+  if (isMover && move.moveStatus === "Completed" && hourStatus === "pending") {
+    price = formatCurrency(moverWageDisplay?.pendingPayout ?? 0);
+  }
+
+  if (isMover && move.moveStatus !== "Completed") {
+    price = formatPriceRange(
+      moverWageDisplay?.estimatedMin ?? 0,
+      moverWageDisplay?.estimatedMax ?? 0
+    );
+  }
+
+  if (!isMover && move.moveStatus === "Completed" && move.invoiceAmountPaid) {
+    price = formatCurrency(move.invoiceAmountPaid + move.deposit);
   }
 
   const repInitials = getInitials(salesRep?.name || "Rep");
@@ -161,7 +176,17 @@ const MoveCard: React.FC<MoveCardProps> = ({
         </div>
 
         {showActions && (
-          <div className="flex gap-4 mt-2 justify-between sm:justify-start">
+          <div className="flex gap-4 mt-2 justify-start">
+            <Button
+              size="auto"
+              variant="link"
+              onClick={() => router.push(`/app/${slug}/moves/${_id}/messages`)}
+            >
+              <div className="flex items-center gap-1">
+                <MessageSquare className="w-4 h-4" />
+                <span className="text-base">Messages</span>
+              </div>
+            </Button>
             <Button
               size="auto"
               variant="link"
@@ -171,7 +196,7 @@ const MoveCard: React.FC<MoveCardProps> = ({
             >
               <div className="flex items-center gap-1">
                 <Eye className="w-4 h-4" />
-                <span>View Customer</span>
+                <span className="text-base">View Customer</span>
               </div>
             </Button>
             <Button
@@ -181,7 +206,7 @@ const MoveCard: React.FC<MoveCardProps> = ({
             >
               <div className="flex items-center gap-1">
                 <CopyPlus className="w-4 h-4" />
-                <span>Duplicate Move</span>
+                <span className="text-base">Duplicate Move</span>
               </div>
             </Button>
           </div>

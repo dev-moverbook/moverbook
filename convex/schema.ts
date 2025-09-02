@@ -300,6 +300,7 @@ export default defineSchema({
     deposit: v.number(),
     destinationToOrigin: v.union(v.null(), v.number()),
     endingMoveTime: v.union(v.null(), v.number()),
+    invoiceAmountPaid: v.optional(v.number()),
     jobId: v.string(),
     jobType: JobTypeConvex,
     jobTypeRate: v.union(v.null(), v.number()),
@@ -331,6 +332,8 @@ export default defineSchema({
     .index("by_moveCustomerId", ["moveCustomerId"]),
 
   moveAssignments: defineTable({
+    approvedHours: v.optional(v.number()),
+    approvedPay: v.optional(v.number()),
     breakAmount: v.optional(v.number()),
     endTime: v.optional(v.number()),
     hourStatus: v.optional(HourStatusConvex),

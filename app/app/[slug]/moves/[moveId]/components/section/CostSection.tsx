@@ -1,6 +1,7 @@
 import { useMoveContext } from "@/app/contexts/MoveContext";
 import { getMoveDisplayRows } from "@/app/frontendUtils/helper";
 import CostTable from "@/app/components/move/sections/CostTable";
+import { computeQuoteMoveCost } from "@/app/frontendUtils/payout";
 
 const CostSection = () => {
   const { moveData } = useMoveContext();
@@ -18,6 +19,21 @@ const CostSection = () => {
     endingMoveTime,
     segmentDistances,
   } = move;
+
+  const { items, total } = computeQuoteMoveCost({
+    creditCardFee,
+    endingMoveTime: endingMoveTime ?? 0,
+    jobType,
+    jobTypeRate,
+    liabilityCoverage,
+    moveFees,
+    paymentMethod,
+    segmentDistance: segmentDistances[0],
+    startingMoveTime: startingMoveTime ?? 0,
+    travelFeeMethod: travelFeeMethod ?? null,
+    travelFeeRate: travelFeeRate ?? null,
+    showTotal: true,
+  });
 
   const displayRows = getMoveDisplayRows({
     moveFees,

@@ -3,13 +3,20 @@
 import React, { useEffect, useState } from "react";
 import SectionContainer from "@/app/components/shared/containers/SectionContainer";
 import Header3 from "@/app/components/shared/heading/Header3";
-import FormActions from "../../shared/FormActions";
-import LabeledDateTime from "../../shared/labeled/LabeledDateTime";
 import EditToggleButton from "../../shared/buttons/EditToggleButton";
 import { Doc } from "@/convex/_generated/dataModel";
-import { DateTime } from "luxon";
-import CounterInput from "../../shared/labeled/CounterInput";
-import { Label } from "@/components/ui/label";
+import PayOutCard from "./PayOutCard";
+import { MoverWageForMove, MyWage } from "@/convex/backendUtils/queryHelpers";
+import {
+  splitDecimalHours,
+  combineToDecimalHours,
+  clamp,
+} from "@/app/frontendUtils/timeUtils";
+import {
+  toLocalDateTime,
+  fromLocalDateTime,
+} from "@/app/frontendUtils/luxonUtils";
+import MoverSectionContent from "./MoverSectionContent";
 
 interface MoverSectionProps {
   isSaving?: boolean;
@@ -19,17 +26,12 @@ interface MoverSectionProps {
   handleEndTimeChange: (value: number) => Promise<void> | void;
   assignment: Doc<"moveAssignments">;
   timeZone: string;
-  breakMoveTime?: number;
-  handleChangeBreakTime: (value: number) => Promise<void> | void;
+  wageDisplay: MoverWageForMove | null;
+  breakHours?: number;
+  handleChangeBreakTime: (hoursDecimal: number) => Promise<void> | void;
 }
 
 type ManualTarget = "start" | "end" | null;
-
-const toLocalDT = (ms: number, zone: string) =>
-  DateTime.fromMillis(ms, { zone }).toFormat("yyyy-LL-dd'T'HH:mm");
-
-const fromLocalDT = (val: string, zone: string) =>
-  DateTime.fromISO(val, { zone }).toMillis();
 
 const MoverSection: React.FC<MoverSectionProps> = ({
   isSaving = false,
@@ -39,8 +41,9 @@ const MoverSection: React.FC<MoverSectionProps> = ({
   handleEndTimeChange,
   assignment,
   timeZone,
-  breakMoveTime,
+  breakHours = 0,
   handleChangeBreakTime,
+  wageDisplay,
 }) => {
   const startTime = assignment.startTime;
   const endTime = assignment.endTime;
@@ -48,68 +51,109 @@ const MoverSection: React.FC<MoverSectionProps> = ({
   const hasStartTime = typeof startTime === "number";
   const hasEndTime = typeof endTime === "number";
 
+  const isCompleted = hasStartTime && hasEndTime;
   const canStart = !hasStartTime;
   const canEnd = hasStartTime && !hasEndTime;
 
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
   const [manualTarget, setManualTarget] = useState<ManualTarget>(null);
 
   const [startLocal, setStartLocal] = useState<string>("");
   const [endLocal, setEndLocal] = useState<string>("");
 
+  const { hours: serverBreakHours, minutes: serverBreakMinutes } =
+    splitDecimalHours(breakHours);
+
+  const [breakHoursLocal, setBreakHoursLocal] =
+    useState<number>(serverBreakHours);
+  const [breakMinutesLocal, setBreakMinutesLocal] =
+    useState<number>(serverBreakMinutes);
+
   useEffect(() => {
     if (isEditing) {
-      setStartLocal(hasStartTime ? toLocalDT(startTime!, timeZone) : "");
-      setEndLocal(hasEndTime ? toLocalDT(endTime!, timeZone) : "");
+      setStartLocal(hasStartTime ? toLocalDateTime(startTime!, timeZone) : "");
+      setEndLocal(hasEndTime ? toLocalDateTime(endTime!, timeZone) : "");
+
+      setBreakHoursLocal(serverBreakHours);
+      setBreakMinutesLocal(serverBreakMinutes);
     }
-  }, [isEditing, hasStartTime, hasEndTime, startTime, endTime, timeZone]);
+  }, [isEditing]);
 
   useEffect(() => {
     if (manualTarget === "start") {
       setStartLocal(
         hasStartTime
-          ? toLocalDT(startTime!, timeZone)
-          : toLocalDT(Date.now(), timeZone)
+          ? toLocalDateTime(startTime!, timeZone)
+          : toLocalDateTime(Date.now(), timeZone)
       );
     } else if (manualTarget === "end") {
       setEndLocal(
         hasEndTime
-          ? toLocalDT(endTime!, timeZone)
-          : toLocalDT(Date.now(), timeZone)
+          ? toLocalDateTime(endTime!, timeZone)
+          : toLocalDateTime(Date.now(), timeZone)
       );
     }
   }, [manualTarget, hasStartTime, hasEndTime, startTime, endTime, timeZone]);
 
   const saveLabel = canStart ? "Start" : "End";
 
-  const handleQuickAction = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const now = Date.now();
-    if (canStart) await handleStartTimeChange(now);
-    else if (canEnd) await handleEndTimeChange(now);
+  const handleQuickAction = async (event: React.FormEvent) => {
+    event.preventDefault();
+    const nowMillis = Date.now();
+    if (canStart) {
+      await handleStartTimeChange(nowMillis);
+    }
+    if (canEnd) {
+      await handleEndTimeChange(nowMillis);
+    }
   };
 
-  const handleEditSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    // Update unknown type
-    const promises: Promise<unknown>[] = [];
+  const handleEditSave = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    const pendingUpdates: Promise<unknown>[] = [];
+
     if (hasStartTime) {
-      const newStart = fromLocalDT(startLocal, timeZone);
-      if (newStart !== startTime)
-        promises.push(Promise.resolve(handleStartTimeChange(newStart)));
+      const newStartMillis = fromLocalDateTime(startLocal, timeZone);
+      if (newStartMillis !== startTime) {
+        const promise = handleStartTimeChange(newStartMillis);
+        if (promise) {
+          pendingUpdates.push(promise);
+        }
+      }
     }
     if (hasEndTime) {
-      const newEnd = fromLocalDT(endLocal, timeZone);
-      if (newEnd !== endTime)
-        promises.push(Promise.resolve(handleEndTimeChange(newEnd)));
+      const newEndMillis = fromLocalDateTime(endLocal, timeZone);
+      if (newEndMillis !== endTime) {
+        const promise = handleEndTimeChange(newEndMillis);
+        if (promise) {
+          pendingUpdates.push(promise);
+        }
+      }
     }
-    await Promise.all(promises);
+
+    const newBreakDecimal = combineToDecimalHours(
+      Math.max(0, breakHoursLocal),
+      clamp(Math.round(breakMinutesLocal), 0, 59)
+    );
+    if (newBreakDecimal !== breakHours) {
+      const promise = handleChangeBreakTime(newBreakDecimal);
+      if (promise) {
+        pendingUpdates.push(promise);
+      }
+    }
+
+    await Promise.all(pendingUpdates);
     setIsEditing(false);
   };
 
   const handleEditCancel = () => {
-    setStartLocal(hasStartTime ? toLocalDT(startTime!, timeZone) : "");
-    setEndLocal(hasEndTime ? toLocalDT(endTime!, timeZone) : "");
+    setStartLocal(hasStartTime ? toLocalDateTime(startTime!, timeZone) : "");
+    setEndLocal(hasEndTime ? toLocalDateTime(endTime!, timeZone) : "");
+    // reset local break edits to server values
+    setBreakHoursLocal(serverBreakHours);
+    setBreakMinutesLocal(serverBreakMinutes);
+
     setIsEditing(false);
     onCancel?.();
   };
@@ -119,14 +163,12 @@ const MoverSection: React.FC<MoverSectionProps> = ({
     setManualTarget(canStart ? "start" : "end");
   };
 
-  const handleManualSave = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleManualSave = async (event: React.FormEvent) => {
+    event.preventDefault();
     if (manualTarget === "start") {
-      const newStart = fromLocalDT(startLocal, timeZone);
-      await handleStartTimeChange(newStart);
+      await handleStartTimeChange(fromLocalDateTime(startLocal, timeZone));
     } else if (manualTarget === "end") {
-      const newEnd = fromLocalDT(endLocal, timeZone);
-      await handleEndTimeChange(newEnd);
+      await handleEndTimeChange(fromLocalDateTime(endLocal, timeZone));
     }
     setManualTarget(null);
   };
@@ -145,40 +187,33 @@ const MoverSection: React.FC<MoverSectionProps> = ({
     isEditing || manualTarget === "start"
       ? startLocal
       : hasStartTime
-        ? toLocalDT(startTime!, timeZone)
+        ? toLocalDateTime(startTime!, timeZone)
         : "";
 
   const endValue =
     isEditing || manualTarget === "end"
       ? endLocal
       : hasEndTime
-        ? toLocalDT(endTime!, timeZone)
+        ? toLocalDateTime(endTime!, timeZone)
         : "";
 
-  const statusKey = (assignment.hourStatus ?? "").toString().toLowerCase();
-  const statusLabelMap = {
-    pending: "Pending Hours Approval",
-    rejected: "Hours Rejected",
-    approved: "Hours Approved",
-  } as const;
-  const statusColorMap = {
-    pending: "text-yellow-400",
-    rejected: "text-red-400",
-    approved: "text-green-400",
-  } as const;
-  const statusLabel =
-    statusLabelMap[statusKey as keyof typeof statusLabelMap] ?? "";
-  const statusColor =
-    statusColorMap[statusKey as keyof typeof statusColorMap] ?? "text-gray-400";
+  const handleBreakHoursLocalChange = (newHoursWhole: number) => {
+    setBreakHoursLocal(Math.max(0, newHoursWhole));
+  };
+
+  const handleBreakMinutesLocalChange = (newMinutesWhole: number) => {
+    setBreakMinutesLocal(clamp(Math.round(newMinutesWhole), 0, 59));
+  };
 
   return (
-    <div>
+    <div className="pb-20">
       <Header3
+        isCompleted={isCompleted}
         button={
           showEditButton && (
             <EditToggleButton
               isEditing={isEditing}
-              onToggle={() => setIsEditing((v) => !v)}
+              onToggle={() => setIsEditing((prev) => !prev)}
             />
           )
         }
@@ -186,81 +221,35 @@ const MoverSection: React.FC<MoverSectionProps> = ({
         Work Hours
       </Header3>
 
-      <SectionContainer>
-        {(hasStartTime || manualTarget === "start") && (
-          <div className="mb-3">
-            <LabeledDateTime
-              label="Start Time"
-              value={startValue}
-              onChange={(e) => setStartLocal(e.target.value)}
-              isEditing={isEditing || manualTarget === "start"}
-            />
-          </div>
-        )}
+      <SectionContainer showBorder={false}>
+        <MoverSectionContent
+          hasStartTime={hasStartTime}
+          hasEndTime={hasEndTime}
+          isEditing={isEditing}
+          manualTarget={manualTarget}
+          startValue={startValue}
+          endValue={endValue}
+          onStartChange={setStartLocal}
+          onEndChange={setEndLocal}
+          isSaving={isSaving}
+          updateError={updateError}
+          saveLabel={saveLabel}
+          canStart={canStart}
+          canEnd={canEnd}
+          onQuickAction={handleQuickAction}
+          onEditSave={handleEditSave}
+          onEditCancel={handleEditCancel}
+          onManualSave={handleManualSave}
+          onManualCancel={handleManualCancel}
+          beginManualEntry={beginManualEntry}
+          breakHours={breakHoursLocal}
+          breakMinutes={breakMinutesLocal}
+          onBreakHoursChange={handleBreakHoursLocalChange}
+          onBreakMinutesChange={handleBreakMinutesLocalChange}
+        />
 
-        {(hasEndTime || manualTarget === "end") && (
-          <div className="mb-3">
-            <LabeledDateTime
-              label="End Time"
-              value={endValue}
-              onChange={(e) => setEndLocal(e.target.value)}
-              isEditing={isEditing || manualTarget === "end"}
-            />
-          </div>
-        )}
-
-        <div>
-          <Label>Break Time</Label>
-          <div className="flex gap-12">
-            <CounterInput
-              label="Hours"
-              value={breakMoveTime ?? 0}
-              onChange={(value) => handleChangeBreakTime(value)}
-              min={0}
-            />
-            <CounterInput
-              label="Minutes"
-              value={breakMoveTime ?? 0}
-              onChange={(value) => handleChangeBreakTime(value)}
-              min={0}
-              max={59}
-            />
-          </div>
-        </div>
-
-        {isEditing ? (
-          <FormActions
-            onSave={(e) => void handleEditSave(e)}
-            onCancel={handleEditCancel}
-            isSaving={isSaving}
-            error={updateError}
-            saveLabel="Save"
-            cancelLabel="Cancel"
-          />
-        ) : manualTarget ? (
-          <FormActions
-            onSave={(e) => void handleManualSave(e)}
-            onCancel={handleManualCancel}
-            isSaving={isSaving}
-            error={updateError}
-            saveLabel="Save"
-            cancelLabel="Cancel"
-          />
-        ) : canStart || canEnd ? (
-          <FormActions
-            onSave={(e) => void handleQuickAction(e)}
-            onCancel={beginManualEntry}
-            isSaving={isSaving}
-            error={updateError}
-            saveLabel={saveLabel}
-            cancelLabel="Enter Time"
-          />
-        ) : null}
-
-        {statusLabel && (
-          <div className={`mt-4 text-sm font-medium ${statusColor}`}>
-            {statusLabel}
-          </div>
+        {isCompleted && (
+          <PayOutCard moveAssignment={assignment} wageDisplay={wageDisplay} />
         )}
       </SectionContainer>
     </div>

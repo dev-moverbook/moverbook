@@ -14,9 +14,11 @@ import { Doc } from "@/convex/_generated/dataModel";
 interface InvoiceSignatureProps {
   invoice: Doc<"invoices"> | null;
   move: Doc<"move">;
+  total: number;
 }
 
-const InvoiceSignature = ({ invoice, move }: InvoiceSignatureProps) => {
+const InvoiceSignature = ({ invoice, move, total }: InvoiceSignatureProps) => {
+  console.log("total", total);
   const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
   const [isEmailing, setIsEmailing] = useState(false);
   const [isTexting, setIsTexting] = useState(false);
@@ -36,7 +38,7 @@ const InvoiceSignature = ({ invoice, move }: InvoiceSignatureProps) => {
     if (move.moveStatus !== "Completed") {
       await updateMove({
         moveId: move._id,
-        updates: { moveStatus: "Completed" },
+        updates: { moveStatus: "Completed", invoiceAmountPaid: total },
       });
     }
   };
@@ -68,6 +70,7 @@ const InvoiceSignature = ({ invoice, move }: InvoiceSignatureProps) => {
 
     const updates: Partial<Doc<"invoices">> = {
       status: "completed",
+
       ...(signatureDataUrl && { repSignature: signatureDataUrl }),
     };
 

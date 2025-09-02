@@ -12,6 +12,7 @@ import { getInvoiceStatus } from "@/app/frontendUtils/tsxHelper";
 import { useMoveContext } from "@/app/contexts/MoveContext";
 import { QueryStatus } from "@/types/enums";
 import { useGetPaymentPage } from "@/app/hooks/queries/useGetPaymentPage";
+import { computeFinalMoveCost } from "@/app/frontendUtils/payout";
 
 const PaymentStep = () => {
   const { moveData } = useMoveContext();
@@ -37,6 +38,41 @@ const PaymentStep = () => {
       } = result.data ?? {};
 
       const invoiceStatus = getInvoiceStatus(invoice);
+      const {
+        moveFees,
+        jobType,
+        jobTypeRate,
+        liabilityCoverage,
+        segmentDistances,
+        travelFeeRate,
+        travelFeeMethod,
+        paymentMethod,
+        creditCardFee,
+        actualBreakTime,
+        actualStartTime,
+        actualEndTime,
+        actualArrivalTime,
+        deposit,
+      } = move;
+
+      const { items, total } = computeFinalMoveCost({
+        moveFees,
+        jobType,
+        jobTypeRate: jobTypeRate ?? 0,
+        liabilityCoverage,
+        segmentDistances,
+        travelFeeRate: travelFeeRate ?? null,
+        travelFeeMethod: travelFeeMethod ?? null,
+        paymentMethod,
+        creditCardFee,
+        actualBreakTime: actualBreakTime ?? 0,
+        actualStartTime: actualStartTime ?? 0,
+        actualEndTime: actualEndTime ?? 0,
+        actualArrivalTime: actualArrivalTime ?? 0,
+        additionalFees,
+        discounts,
+        deposit: deposit ?? 0,
+      });
 
       return (
         <div>
@@ -56,12 +92,8 @@ const PaymentStep = () => {
             fees={fees}
           />
           <Discounts discounts={discounts} moveId={moveId} />
-          <InvoiceSummary
-            move={move}
-            discounts={discounts}
-            additionalFees={additionalFees}
-          />
-          <InvoiceSignature invoice={invoice} move={move} />
+          <InvoiceSummary move={move} items={items} total={total} />
+          <InvoiceSignature invoice={invoice} move={move} total={total} />
           <InternalReview internalReview={internalReview} move={move} />
           <ExternalReview move={move} />
         </div>

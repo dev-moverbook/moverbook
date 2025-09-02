@@ -17,6 +17,7 @@ import type * as additionalFees from "../additionalFees.js";
 import type * as additionalLiabilityCoverage from "../additionalLiabilityCoverage.js";
 import type * as arrivalWindow from "../arrivalWindow.js";
 import type * as backendUtils_auth from "../backendUtils/auth.js";
+import type * as backendUtils_calculations from "../backendUtils/calculations.js";
 import type * as backendUtils_checkUnique from "../backendUtils/checkUnique.js";
 import type * as backendUtils_clerk from "../backendUtils/clerk.js";
 import type * as backendUtils_connectedAccountWebhook from "../backendUtils/connectedAccountWebhook.js";
@@ -77,6 +78,7 @@ declare const fullApi: ApiFromModules<{
   additionalLiabilityCoverage: typeof additionalLiabilityCoverage;
   arrivalWindow: typeof arrivalWindow;
   "backendUtils/auth": typeof backendUtils_auth;
+  "backendUtils/calculations": typeof backendUtils_calculations;
   "backendUtils/checkUnique": typeof backendUtils_checkUnique;
   "backendUtils/clerk": typeof backendUtils_clerk;
   "backendUtils/connectedAccountWebhook": typeof backendUtils_connectedAccountWebhook;

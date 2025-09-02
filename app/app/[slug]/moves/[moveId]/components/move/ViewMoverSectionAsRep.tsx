@@ -1,130 +1,76 @@
 "use client";
 
-import { useSlugContext } from "@/app/contexts/SlugContext";
 import React from "react";
+import { useMoveContext } from "@/app/contexts/MoveContext";
 import { useUpdateMove } from "../../../hooks/useUpdateMove";
 import StartMoveSection from "@/app/components/move/movers/StartMoveSection";
+import { useSlugContext } from "@/app/contexts/SlugContext";
 import ArriveOriginSection from "@/app/components/move/movers/ArriveOriginSection";
 import EndMoveSection from "@/app/components/move/movers/EndMoveSectiont";
 import BreakMoveSection from "@/app/components/move/movers/BreakMoveSection";
-import { Doc } from "@/convex/_generated/dataModel";
-import PreMove from "../move/PreMove";
-import AdditionalLiabilityCoverage from "../move/AdditionalLiabilityCoverage";
-import Discounts from "../payment/Discounts";
-import AdditionalFees from "../payment/AdditionalFees";
-import InvoiceSignature from "../payment/InvoiceSignature";
-import InvoiceSummary from "../payment/InvoiceSummary";
-import { useMoveContext } from "@/app/contexts/MoveContext";
-import { computeFinalMoveCost } from "@/app/frontendUtils/payout";
 
-interface ViewMoverSectionProps {
-  assignment: Doc<"moveAssignments">;
-  preMoveDoc: Doc<"preMoveDocs"> | null;
-  discounts: Doc<"discounts">[];
-  additionalFees: Doc<"additionalFees">[];
-  invoice: Doc<"invoices"> | null;
-  additionalLiabilityCoverage: Doc<"additionalLiabilityCoverage"> | null;
-  fees: Doc<"fees">[];
-}
-
-const ViewMoverSection: React.FC<ViewMoverSectionProps> = ({
-  assignment,
-  preMoveDoc,
-  discounts,
-  additionalFees,
-  invoice,
-  additionalLiabilityCoverage,
-  fees,
-}) => {
-  const { timeZone } = useSlugContext();
+const ViewMoverSectionAsRep = () => {
   const { moveData } = useMoveContext();
   const { move } = moveData;
   const {
+    _id: moveId,
     actualStartTime,
     actualArrivalTime,
     actualEndTime,
     actualBreakTime,
-    moveFees,
-    jobType,
-    jobTypeRate,
-    liabilityCoverage,
-    segmentDistances,
-    travelFeeRate,
-    travelFeeMethod,
-    paymentMethod,
-    creditCardFee,
-    deposit,
   } = move;
 
+  const { timeZone } = useSlugContext();
   const { updateMove, updateMoveLoading, updateMoveError } = useUpdateMove();
 
   const handleStartMove = async () => {
     await updateMove({
-      moveId: assignment.moveId,
+      moveId,
       updates: { actualStartTime: Date.now() },
     });
   };
 
   const handleArriveOrigin = async () => {
     await updateMove({
-      moveId: assignment.moveId,
+      moveId,
       updates: { actualArrivalTime: Date.now() },
     });
   };
 
   const handleEndMove = async () => {
     await updateMove({
-      moveId: assignment.moveId,
+      moveId,
       updates: { actualEndTime: Date.now() },
     });
   };
 
   const handleChangeBreakTime = async (breakTime: number) => {
     await updateMove({
-      moveId: assignment.moveId,
+      moveId,
       updates: { actualBreakTime: breakTime },
     });
   };
 
   const handleSetStartTime = async (millis: number) => {
     await updateMove({
-      moveId: assignment.moveId,
+      moveId,
       updates: { actualStartTime: millis },
     });
   };
 
   const handleSetArriveOrigin = async (millis: number) => {
     await updateMove({
-      moveId: assignment.moveId,
+      moveId,
       updates: { actualArrivalTime: millis },
     });
   };
 
   const handleSetEndMove = async (millis: number) => {
     await updateMove({
-      moveId: assignment.moveId,
+      moveId,
       updates: { actualEndTime: millis },
     });
   };
-
-  const { items, total } = computeFinalMoveCost({
-    moveFees,
-    jobType,
-    jobTypeRate: jobTypeRate ?? 0,
-    liabilityCoverage,
-    segmentDistances,
-    travelFeeRate: travelFeeRate ?? null,
-    travelFeeMethod: travelFeeMethod ?? null,
-    paymentMethod,
-    creditCardFee,
-    actualBreakTime: actualBreakTime ?? 0,
-    actualStartTime: actualStartTime ?? 0,
-    actualEndTime: actualEndTime ?? 0,
-    actualArrivalTime: actualArrivalTime ?? 0,
-    additionalFees,
-    discounts,
-    deposit: deposit ?? 0,
-  });
 
   return (
     <>
@@ -167,21 +113,8 @@ const ViewMoverSection: React.FC<ViewMoverSectionProps> = ({
           breakMoveTime={actualBreakTime}
         />
       )}
-
-      <PreMove preMoveDoc={preMoveDoc} />
-      <AdditionalLiabilityCoverage
-        additionalLiabilityCoverage={additionalLiabilityCoverage}
-      />
-      <Discounts discounts={discounts} moveId={move._id} />
-      <AdditionalFees
-        additionalFees={additionalFees}
-        moveId={move._id}
-        fees={fees}
-      />
-      <InvoiceSummary move={move} items={items} total={total} />
-      <InvoiceSignature move={move} invoice={invoice} total={total} />
     </>
   );
 };
 
-export default ViewMoverSection;
+export default ViewMoverSectionAsRep;

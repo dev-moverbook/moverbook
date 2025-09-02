@@ -13,7 +13,7 @@ interface ArriveOriginSectionProps {
   updateError?: string | null;
   onCancel?: () => void;
   handleArriveOrigin: () => Promise<void> | void;
-  handleSetArriveOrigin?: (value: number) => Promise<void> | void;
+  handleSetArriveOrigin: (value: number) => Promise<void> | void;
   arriveOriginTime?: number | null;
   timeZone: string;
 }
@@ -29,8 +29,8 @@ const ArriveOriginSection: React.FC<ArriveOriginSectionProps> = ({
 }) => {
   const hasArriveOriginTime = typeof arriveOriginTime === "number";
   const canManual = Boolean(handleSetArriveOrigin);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isManual, setIsManual] = useState(false);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [isManual, setIsManual] = useState<boolean>(false);
   const [startLocal, setStartLocal] = useState<string>("");
 
   useEffect(() => {

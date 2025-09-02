@@ -13,7 +13,7 @@ interface RowOptions {
 }
 
 interface ReusableCardProps {
-  title: string;
+  title: string | React.ReactNode;
   texts: [string, string | number | null, RowOptions?][];
   className?: string;
   headerClassName?: string;
@@ -21,6 +21,9 @@ interface ReusableCardProps {
   rowClassName?: string;
   labelClassName?: string;
   valueClassName?: string;
+  actions?: React.ReactNode;
+  actionsClassName?: string;
+  titleActions?: React.ReactNode;
 }
 
 const ReusableCard = ({
@@ -32,6 +35,9 @@ const ReusableCard = ({
   rowClassName,
   labelClassName,
   valueClassName,
+  actions,
+  actionsClassName,
+  titleActions,
 }: ReusableCardProps) => {
   return (
     <CustomCard
@@ -40,6 +46,7 @@ const ReusableCard = ({
       <CardHeaderWithActions
         title={title}
         className={cn("p-0", headerClassName)}
+        actions={titleActions} // 🔹 pass optional actions here
       />
       <div className={cn("flex flex-col gap-4", contentClassName)}>
         {texts.map(([label, value, options], index) => {
@@ -50,7 +57,6 @@ const ReusableCard = ({
             labelClassName: rowLabelCls,
             valueClassName: rowValueCls,
           } = options || {};
-
           return (
             <div
               key={index}
@@ -73,6 +79,8 @@ const ReusableCard = ({
           );
         })}
       </div>
+
+      {actions && <div className={cn("pt-2", actionsClassName)}>{actions}</div>}
     </CustomCard>
   );
 };

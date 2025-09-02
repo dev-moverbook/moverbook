@@ -17,7 +17,25 @@ const MoverStep = () => {
     case QueryStatus.ERROR:
       return <ErrorComponent message={result.errorMessage} />;
     case QueryStatus.SUCCESS: {
-      return <ViewMoverSection data={result.data} />;
+      const isLead = result.data.isLead;
+
+      if (isLead) {
+        return (
+          <ViewMoverSection
+            preMoveDoc={result.data.preMoveDoc}
+            discounts={result.data.discounts}
+            additionalFees={result.data.additionalFees}
+            invoice={result.data.invoice}
+            additionalLiabilityCoverage={
+              result.data.additionalLiabilityCoverage
+            }
+            fees={result.data.fees}
+            assignment={result.data.assignment}
+          />
+        );
+      } else {
+        return null;
+      }
     }
     default:
       return null;

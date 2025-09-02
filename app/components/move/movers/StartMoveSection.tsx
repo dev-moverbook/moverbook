@@ -29,8 +29,8 @@ const StartMoveSection: React.FC<StartMoveSectionProps> = ({
 }) => {
   const hasStartTime = typeof startTime === "number";
   const canManual = Boolean(handleSetStartTime);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isManual, setIsManual] = useState(false);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [isManual, setIsManual] = useState<boolean>(false);
   const [startLocal, setStartLocal] = useState<string>("");
 
   useEffect(() => {

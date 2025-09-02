@@ -11,9 +11,9 @@ interface UseMoveResult {
   errorMessage: string | null;
 }
 
-export const useMove = (moveId: Id<"move"> | null): UseMoveResult => {
-  const response = useQuery<typeof api.move.getMove>(
-    api.move.getMove,
+export const useMoveContext = (moveId: Id<"move"> | null): UseMoveResult => {
+  const response = useQuery<typeof api.move.getMoveContext>(
+    api.move.getMoveContext,
     moveId ? { moveId } : "skip"
   );
 

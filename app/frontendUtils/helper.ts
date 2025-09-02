@@ -1,6 +1,7 @@
 import { CreatableUserRole, TravelChargingTypes } from "@/types/enums";
 import {
   AccessType,
+  HourStatus,
   JobType,
   LocationType,
   MoveSize,
@@ -21,6 +22,7 @@ import { Doc } from "@/convex/_generated/dataModel";
 import { AddressInput, LocationInput } from "@/types/form-types";
 import { EnrichedMove } from "@/types/convex-responses";
 import { WageRange } from "@/convex/backendUtils/queryHelpers";
+import { formatLiabilityPremium, formatMoveFeeLines } from "./payout";
 
 export const isValidEmail = (email: string) => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -382,39 +384,43 @@ export const getMoverStatusColor = (
 };
 
 export function getMoveCostRange(move: Doc<"move">): [number, number?] {
+  if (move.invoiceAmountPaid) {
+    const total = move.invoiceAmountPaid + move.deposit;
+    return [total];
+  }
+
   let base = 0;
 
-  if (move.jobType === "flat") {
-    base = move.jobTypeRate ?? 0;
-  }
+  const liabilityValue = formatLiabilityPremium(move.liabilityCoverage).value;
 
-  if (move.jobType === "hourly" && move.startingMoveTime) {
-    const start = move.startingMoveTime;
-    const end = move.endingMoveTime ?? start;
-
-    const highHours = (end - start) / (1000 * 60 * 60);
-    const rate = move.jobTypeRate ?? 0;
-
-    const low = base;
-    const high = highHours * rate;
-
-    const extras =
-      (move.liabilityCoverage?.premium ?? 0) +
-      move.moveFees.reduce(
-        (sum, fee) => sum + (fee.price ?? 0) * (fee.quantity ?? 1),
-        0
-      );
-
-    return [low + extras, high + extras];
-  }
-
-  base += move.liabilityCoverage?.premium ?? 0;
-  base += move.moveFees.reduce(
-    (sum, fee) => sum + (fee.price ?? 0) * (fee.quantity ?? 1),
+  const moveFeesTotal = formatMoveFeeLines(move.moveFees).reduce(
+    (totalValue, feeItem) => {
+      return totalValue + feeItem.value;
+    },
     0
   );
 
-  return [base];
+  const extras = liabilityValue + moveFeesTotal;
+
+  if (move.jobType === "flat") {
+    base = (move.jobTypeRate ?? 0) + extras;
+    return [base];
+  }
+
+  if (
+    move.jobType === "hourly" &&
+    move.startingMoveTime &&
+    move.endingMoveTime &&
+    move.jobTypeRate
+  ) {
+    const rate = move.jobTypeRate;
+    const low = move.startingMoveTime * rate + extras;
+    const high = move.endingMoveTime * rate + extras;
+
+    return [low, high];
+  }
+
+  return [extras];
 }
 
 export const formatPriceRange = (low: number, high?: number): string => {
@@ -1177,18 +1183,6 @@ export function formatWeekRange(
   return `${weekStart.toFormat("MMM d, yyyy")} - ${weekEnd.toFormat("MMM d,  yyyy")}`;
 }
 
-export const getMovePayoutAmount = (move: EnrichedMove): number => {
-  const wage = move.estimatedWage;
-  if (!wage) {
-    return 0;
-  }
-  return typeof wage.min === "number" && typeof wage.max === "number"
-    ? Math.abs(wage.max - wage.min) < 1e-6
-      ? wage.max
-      : wage.max
-    : 0;
-};
-
 export const getMajorityMonth = (weekDates: Date[], timeZone: string): Date => {
   const monthCount: Record<number, number> = {};
   for (const date of weekDates) {
@@ -1218,10 +1212,10 @@ export function toISODateInZone(date: Date, timeZone: string): string {
 }
 
 export function movesOnISODate(
-  moves: CalendarMove[],
+  moves: EnrichedMove[],
   isoDate: string,
   timeZone: string
-): CalendarMove[] {
+): EnrichedMove[] {
   return moves.filter((move) => {
     const moveDate = DateTime.fromISO(move.moveDate ?? "")
       .setZone(timeZone)
@@ -1231,7 +1225,7 @@ export function movesOnISODate(
 }
 
 export function computeMoveStatusesForDay(
-  movesOnDate: CalendarMove[],
+  movesOnDate: EnrichedMove[],
   isMoverUser: boolean
 ): string[] {
   return movesOnDate.map((move) =>
@@ -1246,18 +1240,52 @@ export function computeMoveStatusesForDay(
 }
 
 export function computeDailyTotal(
-  movesOnDate: CalendarMove[],
-  isMoverUser: boolean
+  movesOnDate: EnrichedMove[],
+  isMoverUser: boolean,
+  selectedStatuses: MoveStatus[]
 ): number {
   if (isMoverUser) {
-    return movesOnDate.reduce((sum, move) => {
-      const wage = move.estimatedWage;
-      const amount = wage && typeof wage.min === "number" ? wage.min : 0;
-      return sum + amount;
+    const includesCompleted = selectedStatuses?.includes(
+      "Completed" as MoveStatus
+    );
+    if (includesCompleted) {
+      return movesOnDate.reduce((total, move) => {
+        const wage = move.moverWageForMove;
+        const payout = wage?.approvedPayout ?? wage?.pendingPayout ?? 0;
+        return total + (Number.isFinite(payout) ? payout : 0);
+      }, 0);
+    }
+    return movesOnDate.reduce((total, move) => {
+      const estimated = move.moverWageForMove?.estimatedMin ?? 0;
+      return total + (Number.isFinite(estimated) ? estimated : 0);
     }, 0);
   }
-  return movesOnDate.reduce((sum, move) => {
+  return movesOnDate.reduce((total, move) => {
     const [low] = getMoveCostRange(move);
-    return sum + (low || 0);
+    return total + (low || 0);
   }, 0);
 }
+
+export const formatHourStatus = (status: HourStatus | undefined): string => {
+  const map: Record<Exclude<HourStatus, undefined>, string> = {
+    pending: "Pending",
+    approved: "Approved",
+    rejected: "Rejected",
+  };
+
+  return map[status ?? "pending"];
+};
+
+export const statusColorMap = {
+  pending: "text-yellow-400",
+  rejected: "text-red-400",
+  approved: "text-green-400",
+} as const;
+
+export const formatTwoDecimals = (
+  value: number | null | undefined,
+  suffix?: string
+): string => {
+  if (value == null || isNaN(value)) return "—";
+  return `${value.toFixed(2)}${suffix ? ` ${suffix}` : ""}`;
+};

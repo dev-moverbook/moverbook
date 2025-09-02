@@ -29,6 +29,7 @@ const MoveCardContainer: React.FC<MoveCardContainerProps> = ({
   const emptyMessage = isfilterDates
     ? "No moves for custom date range."
     : "No moves this week.";
+
   return (
     <div className="mt-2">
       {moves.length === 0 ? (
@@ -41,8 +42,8 @@ const MoveCardContainer: React.FC<MoveCardContainerProps> = ({
               move={move}
               moveCustomer={move.moveCustomer}
               salesRep={move.salesRepUser}
-              estimatedWage={move.estimatedWage}
               hourStatus={move.hourStatus}
+              moverWageDisplay={move.moverWageForMove}
               isMover={isMoverUser}
               slug={slug ?? ""}
             />

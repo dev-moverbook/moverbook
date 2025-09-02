@@ -26,7 +26,13 @@ const CalendarMonthGrid = ({
   today,
   shouldDimDate,
 }: CalendarMonthGridProps) => {
-  const { isWeekView, setSelectedDate, setIsWeekView, moves } = useMoveFilter();
+  const {
+    isWeekView,
+    setSelectedDate,
+    setIsWeekView,
+    moves,
+    selectedStatuses,
+  } = useMoveFilter();
   const { timeZone, user } = useSlugContext();
 
   const isMoverUser = isMover(user.publicMetadata.role as ClerkRoles);
@@ -49,7 +55,11 @@ const CalendarMonthGrid = ({
           movesOnDate,
           isMoverUser
         );
-        const dailyTotal = computeDailyTotal(movesOnDate, isMoverUser);
+        const dailyTotal = computeDailyTotal(
+          movesOnDate,
+          isMoverUser,
+          selectedStatuses
+        );
         const price = dailyTotal > 0 ? formatCurrencyCompact(dailyTotal) : null;
 
         return (

@@ -8,7 +8,7 @@ import { useUpdateMove } from "../../../hooks/useUpdateMove";
 import { useCompanyArrival } from "@/app/hooks/queries/useCompanyArrivalResult";
 import { QueryStatus, ClerkRoles } from "@/types/enums";
 import { formatTime } from "@/app/frontendUtils/helper";
-import { canCreateMove } from "@/app/frontendUtils/permissions";
+import { canCreateMove, isMover } from "@/app/frontendUtils/permissions";
 import { useSlugContext } from "@/app/contexts/SlugContext";
 import MoveTypeSection from "@/app/components/move/sections/MoveTypeSection";
 
@@ -20,6 +20,7 @@ const ViewMoveType: React.FC = () => {
   const canCreateMoveUser = canCreateMove(
     user.publicMetadata.role as ClerkRoles
   );
+  const isMoverUser = isMover(user.publicMetadata.role as ClerkRoles);
 
   const { updateMove, updateMoveLoading, updateMoveError } = useUpdateMove();
 
@@ -39,7 +40,9 @@ const ViewMoveType: React.FC = () => {
   });
 
   // Fetch company arrival windows (used to build selectable “available” slots)
-  const arrivalRes = useCompanyArrival(move.companyId);
+  const arrivalRes = useCompanyArrival(move.companyId, {
+    enabled: !isMoverUser,
+  });
   const arrivalWindow =
     arrivalRes.status === QueryStatus.SUCCESS ? arrivalRes.arrivalWindow : null;
 

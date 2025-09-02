@@ -28,6 +28,7 @@ export interface UpdateMoveInput {
     deposit?: number;
     destinationToOrigin?: number | null;
     endingMoveTime?: number | null;
+    invoiceAmountPaid?: number;
     jobType?: JobType;
     jobTypeRate?: number | null;
     liabilityCoverage?: InsurancePolicySchema | null;

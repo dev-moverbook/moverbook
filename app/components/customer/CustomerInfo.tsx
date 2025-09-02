@@ -15,7 +15,7 @@ import SectionHeader from "../shared/SectionHeader";
 import { isValidEmail, isValidPhoneNumber } from "@/utils/helper";
 import { ClerkRoles, QueryStatus } from "@/types/enums";
 import { useSlugContext } from "@/app/contexts/SlugContext";
-import { canCreateMove } from "@/app/frontendUtils/permissions";
+import { canCreateMove, isMover } from "@/app/frontendUtils/permissions";
 
 interface CustomerInfoProps {
   moveCustomer: Doc<"moveCustomers">;
@@ -32,10 +32,13 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
   const canCreateMoveUser = canCreateMove(
     user.publicMetadata.role as ClerkRoles
   );
+  const isMoverUser = isMover(user.publicMetadata.role as ClerkRoles);
   const { name, phoneNumber, altPhoneNumber, email, referral } = moveCustomer;
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
-  const result = useReferralSources(moveCustomer.companyId);
+  const result = useReferralSources(moveCustomer.companyId, {
+    enabled: !isMoverUser,
+  });
   const referralSelectOptions =
     result.status === QueryStatus.SUCCESS
       ? result.options.map((r) => ({ label: r.label, value: r.value }))

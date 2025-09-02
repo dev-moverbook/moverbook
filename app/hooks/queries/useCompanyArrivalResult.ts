@@ -22,14 +22,15 @@ export type UseCompanyArrivalResult =
   | UseCompanyArrivalSuccess;
 
 export const useCompanyArrival = (
-  companyId: Id<"companies"> | null
+  companyId: Id<"companies">,
+  { enabled = true }: { enabled?: boolean } = {}
 ): UseCompanyArrivalResult => {
-  const response = useQuery<typeof api.arrivalWindow.getCompanyArrival>(
+  const response = useQuery(
     api.arrivalWindow.getCompanyArrival,
-    companyId ? { companyId } : "skip"
+    enabled ? { companyId } : "skip"
   );
 
-  if (!companyId || !response) {
+  if (!response) {
     return { status: QueryStatus.LOADING };
   }
 
@@ -40,7 +41,6 @@ export const useCompanyArrival = (
     };
   }
 
-  // Success
   return {
     status: QueryStatus.SUCCESS,
     arrivalWindow: response.data.arrivalWindow,

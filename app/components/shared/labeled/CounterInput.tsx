@@ -3,8 +3,8 @@
 import React, { useRef, useState, useEffect } from "react";
 import { Minus, Plus } from "lucide-react";
 import { Label } from "@/components/ui/label";
-import clsx from "clsx";
 import FormErrorMessage from "../error/FormErrorMessage";
+import { cn } from "@/lib/utils";
 
 interface CounterInputProps {
   label?: string;
@@ -14,7 +14,8 @@ interface CounterInputProps {
   max?: number;
   className?: string;
   error?: string | null;
-  isEditingProp?: boolean; // if true, show input on load
+  isEditingProp?: boolean;
+  labelClassName?: string;
 }
 
 const CounterInput: React.FC<CounterInputProps> = ({
@@ -26,6 +27,7 @@ const CounterInput: React.FC<CounterInputProps> = ({
   className,
   error,
   isEditingProp = true,
+  labelClassName,
 }) => {
   const [isEditing, setIsEditing] = useState(isEditingProp);
   const [inputValue, setInputValue] = useState<string>(
@@ -84,8 +86,12 @@ const CounterInput: React.FC<CounterInputProps> = ({
 
   if (!isEditingProp) {
     return (
-      <div className={clsx("flex flex-col gap-2", className)}>
-        {label && <Label className="text-white  font-medium">{label}</Label>}
+      <div className={cn("flex flex-col gap-2", className)}>
+        {label && (
+          <Label className={cn("text-white font-medium", labelClassName)}>
+            {label}
+          </Label>
+        )}{" "}
         <div className="flex items-center gap-4">
           <div className="min-w-[60px] px-4 py-1 text-center text-white border border-grayCustom rounded-xl text-lg bg-transparent">
             {value ?? "-"}
@@ -97,8 +103,12 @@ const CounterInput: React.FC<CounterInputProps> = ({
   }
 
   return (
-    <div className={clsx("flex flex-col gap-2", className)}>
-      {label && <Label className="text-white  font-medium">{label}</Label>}
+    <div className={cn("flex flex-col gap-2", className)}>
+      {label && (
+        <Label className={cn("text-white font-medium", labelClassName)}>
+          {label}
+        </Label>
+      )}
       <div className="flex items-center gap-4">
         {/* Minus button */}
         <button

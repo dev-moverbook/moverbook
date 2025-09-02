@@ -23,19 +23,18 @@ export type UseReferralSourcesResult =
   | UseReferralSourcesSuccess;
 
 export const useReferralSources = (
-  companyId: Id<"companies"> | null
+  companyId: Id<"companies">,
+  { enabled = true }: { enabled?: boolean } = {}
 ): UseReferralSourcesResult => {
-  const response = useQuery<typeof api.referrals.getActiveReferralsByCompanyId>(
+  const response = useQuery(
     api.referrals.getActiveReferralsByCompanyId,
-    companyId ? { companyId } : "skip"
+    enabled ? { companyId } : "skip"
   );
 
-  // loading (also covers no companyId yet)
-  if (!companyId || !response) {
+  if (!response) {
     return { status: QueryStatus.LOADING };
   }
 
-  // error
   if (response.status === ResponseStatus.ERROR) {
     return {
       status: QueryStatus.ERROR,
@@ -43,7 +42,6 @@ export const useReferralSources = (
     };
   }
 
-  // success
   return {
     status: QueryStatus.SUCCESS,
     options:

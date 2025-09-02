@@ -13,7 +13,7 @@ interface EndMoveSectionProps {
   updateError?: string | null;
   onCancel?: () => void;
   handleEndMove: () => Promise<void> | void;
-  handleSetEndMove?: (value: number) => Promise<void> | void;
+  handleSetEndMove: (value: number) => Promise<void> | void;
   endMoveTime?: number | null;
   timeZone: string;
 }
@@ -29,8 +29,8 @@ const EndMoveSection: React.FC<EndMoveSectionProps> = ({
 }) => {
   const hasEndMoveTime = typeof endMoveTime === "number";
   const canManual = Boolean(handleSetEndMove);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isManual, setIsManual] = useState(false);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [isManual, setIsManual] = useState<boolean>(false);
   const [startLocal, setStartLocal] = useState<string>("");
 
   useEffect(() => {

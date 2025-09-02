@@ -7,105 +7,34 @@ import SectionHeader from "@/app/components/shared/SectionHeader";
 import ListRow from "@/app/components/shared/ui/ListRow";
 import ReusableCard from "../card/ReusableCard";
 import { cn } from "@/lib/utils";
-import { DisplayRow } from "@/types/types";
+import { CostFormat, DisplayRow } from "@/types/types";
 import { Doc } from "@/convex/_generated/dataModel";
-import {
-  computeInvoiceTotals,
-  computeMoveTotal,
-  getMoveDisplayRows,
-  ListRowType,
-} from "@/app/frontendUtils/helper";
+import { formatCurrency } from "@/app/frontendUtils/helper";
 
 interface InvoiceSummaryProps {
   move: Doc<"move">;
-  discounts: Doc<"discounts">[];
-  additionalFees: Doc<"additionalFees">[];
+  items: CostFormat[];
+  total: number;
 }
 
-const InvoiceSummary = ({
-  move,
-  discounts,
-  additionalFees,
-}: InvoiceSummaryProps) => {
-  const {
-    liabilityCoverage,
-    moveFees,
-    deposit,
-    jobTypeRate,
-    jobType,
-    startingMoveTime,
-    endingMoveTime,
-    segmentDistances,
-    travelFeeMethod,
-    travelFeeRate,
-    paymentMethod,
-    creditCardFee,
-    actualBreakTime,
-    actualStartTime,
-    actualEndTime,
-  } = move;
+const InvoiceSummary = ({ move, items, total }: InvoiceSummaryProps) => {
+  const displayRows: DisplayRow[] = items.map(
+    (item: CostFormat, index: number) => {
+      const rightText = formatCurrency(item.value);
+      const isNegative = item.value < 0;
+      const isLast = index === items.length - 1;
 
-  const rows: ListRowType[] = getMoveDisplayRows({
-    moveFees,
-    jobType,
-    jobTypeRate,
-    liabilityCoverage,
-    travelFeeRate: travelFeeRate ?? null,
-    travelFeeMethod: travelFeeMethod ?? null,
-    paymentMethod,
-    creditCardFee,
-    startingMoveTime,
-    endingMoveTime,
-    actualStartTime,
-    actualEndTime,
-    actualBreakTime,
-    segmentDistances,
-    additionalFees,
-    discounts,
-    deposit: deposit ?? 0,
-    getTotal: true,
-    includeInvoiceRow: true,
-  });
-
-  const displayRows: DisplayRow[] = rows.map((r, i) => {
-    const rightText = r.right ?? "";
-    const isNegative = rightText.trim().startsWith("-");
-    return {
-      left: r.left,
-      right: rightText,
-      className: cn(
-        i % 2 === 1 ? "" : "bg-background2",
-        isNegative ? "text-green-500" : undefined
-      ),
-    };
-  });
-
-  const { minTotal, maxTotal } = computeMoveTotal({
-    moveFees,
-    jobType,
-    jobTypeRate,
-    liabilityCoverage,
-    travelFeeRate: travelFeeRate ?? null,
-    travelFeeMethod: travelFeeMethod ?? null,
-    segmentDistances,
-    paymentMethod,
-    creditCardFee,
-    startingMoveTime,
-    endingMoveTime,
-    actualStartTime,
-    actualEndTime,
-    actualBreakTime,
-  });
-
-  const { invoiceMax } = computeInvoiceTotals({
-    baseMin: minTotal,
-    baseMax: maxTotal,
-    additionalFees,
-    discounts,
-    deposit: deposit ?? 0,
-  });
-
-  const dueToday = invoiceMax;
+      return {
+        left: item.label,
+        right: rightText,
+        className: cn(
+          index % 2 === 0 ? "bg-background2" : "",
+          isNegative ? "text-green-500" : "",
+          isLast ? "font-bold" : ""
+        ),
+      };
+    }
+  );
 
   return (
     <div>
@@ -127,7 +56,7 @@ const InvoiceSummary = ({
       <SectionContainer>
         <ReusableCard
           title="Due Today"
-          texts={[["Total", dueToday, { isCurrency: true, isBold: true }]]}
+          texts={[["Total", total, { isCurrency: true, isBold: true }]]}
         />
       </SectionContainer>
     </div>

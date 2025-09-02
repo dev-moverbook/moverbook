@@ -8,10 +8,12 @@ import { useMoveContext } from "@/app/contexts/MoveContext";
 import { Doc } from "@/convex/_generated/dataModel";
 import DuplicateMoveModal from "../../customer/[customerId]/modals/DuplicateMoveModal";
 import { useSlugContext } from "@/app/contexts/SlugContext";
-import { isMover } from "@/app/frontendUtils/permissions";
+import { canManageCompany, isMover } from "@/app/frontendUtils/permissions";
 import { ClerkRoles } from "@/types/enums";
 import MoverStep from "./components/steps/MoverStep";
 import InfoTab from "./components/tabs/InfoTab";
+import ShiftStep from "./components/steps/ShiftStep";
+import SummaryTab from "./components/tabs/SummaryTab";
 
 const MoveContent = () => {
   const router = useRouter();
@@ -19,28 +21,36 @@ const MoveContent = () => {
   const { cleanSlug, user } = useSlugContext();
 
   const { moveData } = useMoveContext();
+  const { wageDisplay } = moveData;
   const [isDuplicateMoveModalOpen, setIsDuplicateMoveModalOpen] =
     useState(false);
   const [selectedMove, setSelectedMove] = useState<Doc<"move"> | null>(null);
 
   const { move, moveCustomer, salesRepUser } = moveData;
+  const role = user.publicMetadata.role as ClerkRoles;
 
-  const isMoverUser = isMover(user.publicMetadata.role as ClerkRoles);
-  const [activeTab, setActiveTab] = useState<string>("INFO");
+  const isMoverUser = isMover(role);
+  const isLeadMover = Boolean(isMoverUser && moveData.myAssignment?.isLead);
+  const isManagement = canManageCompany(role);
 
-  const tabs = useMemo<string[]>(
-    () =>
-      isMoverUser
-        ? ["INFO", "ACTIVITES", "MOVE"]
-        : ["INFO", "ACTIVITES", "MESSAGES"],
-    [isMoverUser]
+  const [activeTab, setActiveTab] = useState<string>(
+    isMoverUser ? "SHIFT" : "INFO"
   );
+  const tabs = useMemo<string[]>(() => {
+    if (isMoverUser) {
+      const moverTabs = ["SHIFT", "INFO", "FEED"];
+      if (isLeadMover) moverTabs.push("MOVE");
+      if (isManagement) moverTabs.push("SUMMARY");
+      return moverTabs;
+    }
+
+    const nonMoverTabs = ["INFO", "FEED"];
+    if (isManagement) nonMoverTabs.push("SUMMARY");
+    return nonMoverTabs;
+  }, [isMoverUser, isLeadMover, isManagement]);
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
-    if (!isMoverUser && tab === "MESSAGES" && !pathname.endsWith("/messages")) {
-      router.push(`${pathname}/messages`);
-    }
   };
 
   const handleDuplicateMove = (m: Doc<"move">) => {
@@ -53,9 +63,6 @@ const MoveContent = () => {
     setSelectedMove(null);
   };
 
-  const completedWage =
-    move.moveStatus === "Completed" ? moveData.myWage?.final : null;
-
   return (
     <main>
       <MoveCard
@@ -67,13 +74,8 @@ const MoveContent = () => {
         salesRep={salesRepUser}
         slug={cleanSlug}
         isMover={isMoverUser}
-        estimatedWage={
-          moveData.myWage?.estimated
-            ? { min: moveData.myWage.estimated, max: moveData.myWage.estimated }
-            : null
-        }
         hourStatus={moveData.myAssignment?.hourStatus}
-        completedWage={completedWage}
+        moverWageDisplay={wageDisplay}
       />
 
       <TabSelector
@@ -84,7 +86,10 @@ const MoveContent = () => {
       />
 
       {activeTab === "INFO" && <InfoTab hideStepper={isMoverUser} />}
-      {activeTab === "MOVE" && <MoverStep />}
+      {activeTab === "SHIFT" && <ShiftStep />}
+      {activeTab === "MOVE" && isLeadMover && <MoverStep />}
+
+      {activeTab === "SUMMARY" && isManagement && <SummaryTab />}
 
       {selectedMove && isDuplicateMoveModalOpen && (
         <DuplicateMoveModal

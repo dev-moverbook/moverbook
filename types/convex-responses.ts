@@ -33,7 +33,11 @@ import {
   VariableSchema,
   WebIntegrationsSchema,
 } from "./convex-schemas";
-import { HourStatus, RecentMoveMessageSummary } from "./types";
+import {
+  HourStatus,
+  MoverWageForMove,
+  RecentMoveMessageSummary,
+} from "./types";
 import { MyWage, WageRange } from "@/convex/backendUtils/queryHelpers";
 
 export interface ErrorResponse {
@@ -850,24 +854,26 @@ export interface GetUserByClerkIdSuccess {
 export interface GetUserByClerkIdData {
   user: UserSchema;
 }
-export type GetMoveResponse = GetMoveSuccess | ErrorResponse;
+export type GetMoveContextResponse = GetMoveContextSuccess | ErrorResponse;
 
-export interface GetMoveSuccess {
+export interface GetMoveContextSuccess {
   status: ResponseStatus.SUCCESS;
   data: GetMoveData;
 }
 
 export interface GetMoveData {
+  additionalFees: Doc<"additionalFees">[];
+  discounts: Doc<"discounts">[];
   move: Doc<"move">;
   quote: Doc<"quotes"> | null;
   company: Doc<"companies">;
   companyContact: Doc<"companyContact">;
-  policy: Doc<"policies">;
   moveCustomer: Doc<"moveCustomers">;
   salesRepUser: Doc<"users"> | null;
-  travelFee: Doc<"travelFee">;
   myAssignment: Doc<"moveAssignments"> | null;
-  myWage: MyWage | null;
+  wageDisplay: MoverWageForMove | null;
+  travelFee: Doc<"travelFee">;
+  policy: Doc<"policies">;
 }
 
 export type UpdateMoveResponse = UpdateMoveSuccess | ErrorResponse;
@@ -1088,7 +1094,7 @@ export interface GetMovesByNameSuccess {
 export interface EnrichedMove extends Doc<"move"> {
   moveCustomer: Doc<"moveCustomers"> | null;
   salesRepUser: Doc<"users"> | null;
-  estimatedWage?: WageRange;
+  moverWageForMove?: MoverWageForMove;
   hourStatus?: HourStatus;
 }
 
@@ -1241,4 +1247,33 @@ export interface GetMovePageForMoverLeadData {
 export interface GetMovePageForMoverMemberData {
   isLead: false;
   assignment: Doc<"moveAssignments">;
+}
+
+export type GetMoveResponse = GetMoveSuccess | ErrorResponse;
+
+export interface GetMoveSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetSingleMoveData;
+}
+
+export interface GetSingleMoveData {
+  move: Doc<"move">;
+}
+
+export type GetMoveAssignmentsResponse =
+  | GetMoveAssignmentsSuccess
+  | ErrorResponse;
+
+export interface GetMoveAssignmentsSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetMoveAssignmentsData;
+}
+
+export interface EnrichedMoveAssignment extends Doc<"moveAssignments"> {
+  moverName: string | null;
+  hourlyRate: number | null;
+}
+
+export interface GetMoveAssignmentsData {
+  assignments: EnrichedMoveAssignment[];
 }
