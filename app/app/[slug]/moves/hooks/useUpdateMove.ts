@@ -13,6 +13,7 @@ import {
   ServiceType,
   JobType,
   PaymentMethod,
+  SegmentDistance,
 } from "@/types/types";
 import { ArrivalTimes, InsurancePolicySchema } from "@/types/convex-schemas";
 
@@ -45,6 +46,7 @@ export interface UpdateMoveInput {
     roundTripDrive?: number | null;
     roundTripMiles?: number | null;
     salesRep?: Id<"users">;
+    segmentDistances?: SegmentDistance[];
     serviceType?: ServiceType | null;
     startingMoveTime?: number | null;
     totalMiles?: number | null;

@@ -21,14 +21,11 @@ const LocationSummary = ({
   segmentDistances,
   showBorder = false,
 }: LocationSummaryProps) => {
-  console.log("segmentDistances", segmentDistances);
-
   const moveAddresses = locations
     .map((loc) => loc.address?.placeId)
     .filter(Boolean);
   const office = companyContact?.address?.placeId ?? null;
 
-  // Route: office ➝ origin ➝ stops ➝ destination ➝ office
   const placeIds = [office, ...moveAddresses, office] as string[];
 
   return (

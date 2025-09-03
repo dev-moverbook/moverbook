@@ -1289,3 +1289,7 @@ export const formatTwoDecimals = (
   if (value == null || isNaN(value)) return "—";
   return `${value.toFixed(2)}${suffix ? ` ${suffix}` : ""}`;
 };
+
+export function roundToTwoDecimals(num: number): number {
+  return Math.round(num * 100) / 100;
+}

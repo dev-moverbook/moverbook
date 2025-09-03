@@ -6,6 +6,7 @@ import ListRow from "@/app/components/shared/ui/ListRow";
 import {
   formatDisplayNumber,
   getTotalHoursRange,
+  roundToTwoDecimals,
 } from "@/app/frontendUtils/helper";
 import { LaborFormData } from "../LaborSection";
 
@@ -18,6 +19,8 @@ const LaborSummary: React.FC<LaborSummaryProps> = ({
   formData,
   totalDriveTime,
 }) => {
+  const hours = totalDriveTime ? roundToTwoDecimals(totalDriveTime / 60) : 0;
+
   return (
     <ListRowContainer className="mb-4">
       <ListRow
@@ -27,9 +30,7 @@ const LaborSummary: React.FC<LaborSummaryProps> = ({
       />
       <ListRow
         left="Drive Time"
-        right={
-          totalDriveTime ? `${formatDisplayNumber(totalDriveTime, "hrs")}` : ""
-        }
+        right={totalDriveTime ? `${formatDisplayNumber(hours, "hours")}` : ""}
         className=""
       />
       <ListRow
@@ -37,7 +38,7 @@ const LaborSummary: React.FC<LaborSummaryProps> = ({
         right={getTotalHoursRange(
           formData.startingMoveTime ?? 0,
           formData.endingMoveTime ?? 0,
-          totalDriveTime ?? 0
+          hours
         )}
         className="bg-background2  border-grayCustom"
         bold

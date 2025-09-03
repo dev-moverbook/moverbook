@@ -187,7 +187,9 @@ export function computeFinalMoveCost(
     jobType,
     jobTypeRate,
   });
-  if (labor) items.push(labor);
+  if (labor) {
+    items.push(labor);
+  }
 
   const travel = computeTravelRate({
     actualArrivalTime,
@@ -196,18 +198,24 @@ export function computeFinalMoveCost(
     travelFeeMethod,
     travelFeeRate,
   });
-  if (travel) items.push(travel);
+  if (travel) {
+    items.push(travel);
+  }
 
   items.push(...formatMoveFeeLines(moveFees));
   items.push(...formatAdditionalFeeLines(additionalFees));
 
   const liability = formatLiabilityPremium(liabilityCoverage);
-  if (liability) items.push(liability);
+  if (liability) {
+    items.push(liability);
+  }
 
   items.push(...formatDiscountLines(discounts));
 
   const depositItem = formatDeposit(deposit);
-  if (depositItem) items.push(depositItem);
+  if (depositItem) {
+    items.push(depositItem);
+  }
 
   const subTotalValue = sumCostFormats(items);
   let total = subTotalValue;
@@ -231,7 +239,8 @@ export function computeWorkedHours(
 ): number {
   const rawHours = (actualEndTime - actualStartTime) / MS_PER_HOUR;
   const worked = rawHours - actualBreakTime;
-  return Number(Math.max(0, worked).toFixed(2));
+  console.log("worked ", worked);
+  return to2Decimals(Math.max(0, worked));
 }
 
 function formatLaborLabelAndValue(
@@ -381,8 +390,9 @@ export function formatCreditCardFee(
   creditCardFee: number
 ): CostFormat {
   const feeRate = creditCardFee / 100;
-  const feeValue = to2Decimals(amount * feeRate);
 
+  const base = Math.max(0, amount);
+  const feeValue = to2Decimals(base * feeRate);
   return {
     label: `Credit Card Fee (${creditCardFee.toFixed(2)}%)`,
     value: feeValue,

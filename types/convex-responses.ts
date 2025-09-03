@@ -852,7 +852,7 @@ export interface GetUserByClerkIdSuccess {
 }
 
 export interface GetUserByClerkIdData {
-  user: UserSchema;
+  user: Doc<"users">;
 }
 export type GetMoveContextResponse = GetMoveContextSuccess | ErrorResponse;
 

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { LocationInput } from "@/types/form-types";
+import { SegmentDistance } from "@/types/types";
 import MoveAddress from "@/app/app/[slug]/add-move/components/sections/MoveAddress";
 import LocationSummary from "@/app/app/[slug]/add-move/components/sections/LocationSummary";
 import StopSection from "@/app/app/[slug]/add-move/components/sections/StopSection";
@@ -12,6 +13,10 @@ import { useMoveContext } from "@/app/contexts/MoveContext";
 import { ClerkRoles } from "@/types/enums";
 import { canCreateMove, isMover } from "@/app/frontendUtils/permissions";
 import { useSlugContext } from "@/app/contexts/SlugContext";
+import { useDistanceMatrix } from "@/app/app/[slug]/add-move/hooks/useDistanceMatrix";
+import { buildDefaultSegments } from "@/app/frontendUtils/segmentDistanceHelper";
+import { segmentsEqual } from "@/app/frontendUtils/helper";
+import { useSegmentDistances } from "@/app/frontendUtils/moveFormHelper/useSegmentDistances";
 
 const LocationSection = () => {
   const { moveData } = useMoveContext();
@@ -33,12 +38,33 @@ const LocationSection = () => {
     enabled: !isMoverUser,
   });
   const { updateMove, updateMoveLoading, updateMoveError } = useUpdateMove();
+  const { fetchDistance } = useDistanceMatrix();
+
+  const [localSegments, setLocalSegments] = useState<SegmentDistance[]>(
+    buildDefaultSegments()
+  );
+
+  useSegmentDistances(
+    companyContact?.companyContact?.address ?? null,
+    editedLocations,
+    fetchDistance,
+    setLocalSegments
+  );
 
   useEffect(() => {
     if (Array.isArray(move.locations) && move.locations.length >= 2) {
       setEditedLocations(move.locations);
     }
   }, [move.locations]);
+
+  useEffect(() => {
+    if (!segmentsEqual(move.segmentDistances ?? [], localSegments)) {
+      void updateMove({
+        moveId: move._id,
+        updates: { segmentDistances: localSegments },
+      });
+    }
+  }, [localSegments, move._id, move.segmentDistances, updateMove]);
 
   const persistLocations = async (next: LocationInput[]) => {
     await updateMove({
@@ -52,12 +78,10 @@ const LocationSection = () => {
       i === index ? { ...loc, ...partial } : loc
     );
     setEditedLocations(next);
-    // persist changes
     void persistLocations(next);
   };
 
   const removeLocation = async (index: number) => {
-    // optimistic update
     const prev = editedLocations;
     const next = prev.filter((_, i) => i !== index);
     setEditedLocations(next);
@@ -71,7 +95,6 @@ const LocationSection = () => {
       updates: { locations: next },
     });
 
-    // rollback if failed
     if (!success) {
       setEditedLocations(prev);
     }
@@ -91,7 +114,6 @@ const LocationSection = () => {
       timeDistanceRange: "0-30 sec (less than 100 ft)",
     };
 
-    // insert before the ending location
     const insertIndex = editedLocations.length - 1;
     const next = [
       ...editedLocations.slice(0, insertIndex),
@@ -103,8 +125,6 @@ const LocationSection = () => {
     setAddingStopIndex(insertIndex);
     setShowBanner(true);
     setTimeout(() => setShowBanner(false), 2000);
-
-    // persist new stop
     void persistLocations(next);
   };
 
@@ -126,6 +146,7 @@ const LocationSection = () => {
           canEdit={canCreateMoveUser}
         />
       )}
+
       {canCreateMoveUser && (
         <StopSection
           locations={editedLocations}
@@ -159,7 +180,7 @@ const LocationSection = () => {
       <LocationSummary
         companyContact={companyContact?.companyContact}
         locations={editedLocations}
-        segmentDistances={move.segmentDistances}
+        segmentDistances={localSegments}
         showBorder={false}
       />
     </div>

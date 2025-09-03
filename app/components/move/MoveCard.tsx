@@ -73,19 +73,19 @@ const MoveCard: React.FC<MoveCardProps> = ({
 
   let price = min === max ? formatCurrency(min) : formatPriceRange(min, max);
 
+  if (isMover) {
+    price = formatPriceRange(
+      moverWageDisplay?.estimatedMin ?? 0,
+      moverWageDisplay?.estimatedMax ?? 0
+    );
+  }
+
   if (isMover && move.moveStatus === "Completed" && hourStatus === "approved") {
     price = formatCurrency(moverWageDisplay?.approvedPayout ?? 0);
   }
 
   if (isMover && move.moveStatus === "Completed" && hourStatus === "pending") {
     price = formatCurrency(moverWageDisplay?.pendingPayout ?? 0);
-  }
-
-  if (isMover && move.moveStatus !== "Completed") {
-    price = formatPriceRange(
-      moverWageDisplay?.estimatedMin ?? 0,
-      moverWageDisplay?.estimatedMax ?? 0
-    );
   }
 
   if (!isMover && move.moveStatus === "Completed" && move.invoiceAmountPaid) {
