@@ -36,10 +36,7 @@ import {
   isLocationSectionComplete as selectLocationsDone,
   isMoveDetailsComplete as selectDetailsDone,
 } from "../frontendUtils/moveFormHelper/moveFormSelectors";
-import {
-  applyHourlyRateIfNeeded,
-  followLaborRateForTravel,
-} from "../frontendUtils/moveFormHelper/rate";
+import { followLaborRateForTravel } from "../frontendUtils/moveFormHelper/rate";
 import { ensureArrivalDefaults } from "../frontendUtils/moveFormHelper/arrival";
 import { applyBootstrapDefaults } from "../frontendUtils/moveFormHelper/bootstrap";
 import { useSegmentDistances } from "../frontendUtils/moveFormHelper/useSegmentDistances";

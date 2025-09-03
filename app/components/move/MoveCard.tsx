@@ -13,9 +13,7 @@ import {
   computeMoveTotal,
   formatCurrency,
 } from "@/app/frontendUtils/helper";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { Doc } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import { Button } from "../ui/button";
 import { HourStatus } from "@/convex/backendUtils/queryHelpers";
 import { MoverWageForMove, WINDOW_LABEL } from "@/types/types";
@@ -26,11 +24,12 @@ interface MoveCardProps {
   showActions?: boolean;
   onDuplicate?: (move: Doc<"move">) => void;
   salesRep: Doc<"users"> | null;
-  asCustomerLink?: boolean;
   isMover?: boolean;
   hourStatus?: HourStatus;
-  slug: string;
   moverWageDisplay?: MoverWageForMove | null;
+  onMessagesClick?: () => void;
+  onViewCustomerClick?: () => void;
+  onCardClick?: (moveId: Id<"move">) => void;
 }
 
 const MoveCard: React.FC<MoveCardProps> = ({
@@ -39,15 +38,15 @@ const MoveCard: React.FC<MoveCardProps> = ({
   showActions = false,
   onDuplicate,
   salesRep,
-  asCustomerLink = false,
   isMover,
   hourStatus,
-  slug,
   moverWageDisplay,
+  onMessagesClick,
+  onViewCustomerClick,
+  onCardClick,
 }) => {
-  const { moveDate, moveStatus, _id } = move;
+  const { moveDate, moveStatus } = move;
   const name = moveCustomer?.name;
-  const router = useRouter();
 
   const tags = [
     move.jobId ? `Job ID: ${move.jobId}` : null,
@@ -68,8 +67,8 @@ const MoveCard: React.FC<MoveCardProps> = ({
     segmentDistances: move.segmentDistances,
   });
 
-  let min = minTotal;
-  let max = maxTotal;
+  const min = minTotal;
+  const max = maxTotal;
 
   let price = min === max ? formatCurrency(min) : formatPriceRange(min, max);
 
@@ -94,10 +93,6 @@ const MoveCard: React.FC<MoveCardProps> = ({
 
   const repInitials = getInitials(salesRep?.name || "Rep");
 
-  const hrefLink = asCustomerLink
-    ? `/app/${slug}/customer/${moveCustomer?._id}`
-    : `/app/${slug}/moves/${_id}`;
-
   const showHourStatus =
     !!isMover && (hourStatus === "pending" || hourStatus === "rejected");
 
@@ -116,7 +111,7 @@ const MoveCard: React.FC<MoveCardProps> = ({
       ? getStatusColor(move.moveWindow)
       : getStatusColor(moveStatus);
 
-  const content = (
+  const body = (
     <div
       className={`py-4 px-4 text-white shadow-md ${
         !showActions
@@ -177,23 +172,13 @@ const MoveCard: React.FC<MoveCardProps> = ({
 
         {showActions && (
           <div className="flex gap-4 mt-2 justify-start">
-            <Button
-              size="auto"
-              variant="link"
-              onClick={() => router.push(`/app/${slug}/moves/${_id}/messages`)}
-            >
+            <Button size="auto" variant="link" onClick={onMessagesClick}>
               <div className="flex items-center gap-1">
                 <MessageSquare className="w-4 h-4" />
                 <span className="text-base">Messages</span>
               </div>
             </Button>
-            <Button
-              size="auto"
-              variant="link"
-              onClick={() =>
-                router.push(`/app/${slug}/customer/${moveCustomer?._id}`)
-              }
-            >
+            <Button size="auto" variant="link" onClick={onViewCustomerClick}>
               <div className="flex items-center gap-1">
                 <Eye className="w-4 h-4" />
                 <span className="text-base">View Customer</span>
@@ -215,7 +200,22 @@ const MoveCard: React.FC<MoveCardProps> = ({
     </div>
   );
 
-  return showActions ? content : <Link href={hrefLink}>{content}</Link>;
+  if (showActions) return body;
+
+  if (onCardClick)
+    return (
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={() => onCardClick?.(move._id)}
+        onKeyDown={(e) => e.key === "Enter" && onCardClick?.(move._id)}
+        className="cursor-pointer"
+      >
+        {body}
+      </div>
+    );
+
+  return body;
 };
 
 export default MoveCard;

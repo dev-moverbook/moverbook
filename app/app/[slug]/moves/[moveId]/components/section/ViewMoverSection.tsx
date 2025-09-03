@@ -178,7 +178,7 @@ const ViewMoverSection: React.FC<ViewMoverSectionProps> = ({
         moveId={move._id}
         fees={fees}
       />
-      <InvoiceSummary move={move} items={items} total={total} />
+      <InvoiceSummary items={items} total={total} />
       <InvoiceSignature move={move} invoice={invoice} total={total} />
     </>
   );

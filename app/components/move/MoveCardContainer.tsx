@@ -6,6 +6,8 @@ import { useSlugContext } from "@/app/contexts/SlugContext";
 import { isMover } from "@/app/frontendUtils/permissions";
 import { ClerkRoles } from "@/types/enums";
 import { useMoveFilter } from "@/app/contexts/MoveFilterContext";
+import { useRouter } from "next/navigation";
+import { Id } from "@/convex/_generated/dataModel";
 
 interface MoveCardContainerProps {
   moves: EnrichedMove[];
@@ -20,7 +22,8 @@ const MoveCardContainer: React.FC<MoveCardContainerProps> = ({
   weekStart,
   weekEnd,
 }) => {
-  const { user, slug } = useSlugContext();
+  const router = useRouter();
+  const { user, cleanSlug } = useSlugContext();
   const { selectedStatuses } = useMoveFilter();
   const isMoverUser = isMover(user.publicMetadata.role as ClerkRoles);
   const isCompleted = selectedStatuses.includes("Completed");
@@ -29,6 +32,10 @@ const MoveCardContainer: React.FC<MoveCardContainerProps> = ({
   const emptyMessage = isfilterDates
     ? "No moves for custom date range."
     : "No moves this week.";
+
+  const handleCardClick = (moveId: Id<"move">) => {
+    router.push(`/app/${cleanSlug}/moves/${moveId}`);
+  };
 
   return (
     <div className="mt-2">
@@ -45,7 +52,7 @@ const MoveCardContainer: React.FC<MoveCardContainerProps> = ({
               hourStatus={move.hourStatus}
               moverWageDisplay={move.moverWageForMove}
               isMover={isMoverUser}
-              slug={slug ?? ""}
+              onCardClick={() => handleCardClick(move._id)}
             />
           ))}
         </div>

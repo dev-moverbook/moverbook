@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import MoveCard from "@/app/components/move/MoveCard";
 import TabSelector from "@/app/components/shared/TabSelector";
 import { useMoveContext } from "@/app/contexts/MoveContext";
@@ -17,11 +18,10 @@ import SummaryTab from "./components/tabs/SummaryTab";
 
 const MoveContent = () => {
   const router = useRouter();
-  const pathname = usePathname();
   const { cleanSlug, user } = useSlugContext();
-
   const { moveData } = useMoveContext();
   const { wageDisplay } = moveData;
+
   const [isDuplicateMoveModalOpen, setIsDuplicateMoveModalOpen] =
     useState(false);
   const [selectedMove, setSelectedMove] = useState<Doc<"move"> | null>(null);
@@ -36,6 +36,7 @@ const MoveContent = () => {
   const [activeTab, setActiveTab] = useState<string>(
     isMoverUser ? "SHIFT" : "INFO"
   );
+
   const tabs = useMemo<string[]>(() => {
     if (isMoverUser) {
       const moverTabs = ["SHIFT", "INFO", "FEED"];
@@ -43,15 +44,12 @@ const MoveContent = () => {
       if (isManagement) moverTabs.push("SUMMARY");
       return moverTabs;
     }
-
     const nonMoverTabs = ["INFO", "FEED"];
     if (isManagement) nonMoverTabs.push("SUMMARY");
     return nonMoverTabs;
   }, [isMoverUser, isLeadMover, isManagement]);
 
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
-  };
+  const handleTabChange = (tab: string) => setActiveTab(tab);
 
   const handleDuplicateMove = (m: Doc<"move">) => {
     setSelectedMove(m);
@@ -63,20 +61,33 @@ const MoveContent = () => {
     setSelectedMove(null);
   };
 
+  const hrefLink = isMoverUser
+    ? `/app/${cleanSlug}/customer/${moveCustomer?._id}`
+    : `/app/${cleanSlug}/moves/${move._id}`;
+
+  const card = (
+    <MoveCard
+      move={move}
+      moveCustomer={moveCustomer}
+      showActions={!isMoverUser}
+      onDuplicate={handleDuplicateMove}
+      salesRep={salesRepUser}
+      isMover={isMoverUser}
+      hourStatus={moveData.myAssignment?.hourStatus}
+      moverWageDisplay={wageDisplay}
+      onMessagesClick={() =>
+        router.push(`/app/${cleanSlug}/moves/${move._id}/messages`)
+      }
+      onViewCustomerClick={() =>
+        router.push(`/app/${cleanSlug}/customer/${moveCustomer?._id}`)
+      }
+      onCardClick={() => router.push(hrefLink)}
+    />
+  );
+
   return (
     <main>
-      <MoveCard
-        move={move}
-        moveCustomer={moveCustomer}
-        showActions={!isMoverUser}
-        asCustomerLink={isMoverUser}
-        onDuplicate={handleDuplicateMove}
-        salesRep={salesRepUser}
-        slug={cleanSlug}
-        isMover={isMoverUser}
-        hourStatus={moveData.myAssignment?.hourStatus}
-        moverWageDisplay={wageDisplay}
-      />
+      {isMoverUser ? <Link href={hrefLink}>{card}</Link> : card}
 
       <TabSelector
         tabs={tabs}
@@ -88,7 +99,6 @@ const MoveContent = () => {
       {activeTab === "INFO" && <InfoTab hideStepper={isMoverUser} />}
       {activeTab === "SHIFT" && <ShiftStep />}
       {activeTab === "MOVE" && isLeadMover && <MoverStep />}
-
       {activeTab === "SUMMARY" && isManagement && <SummaryTab />}
 
       {selectedMove && isDuplicateMoveModalOpen && (

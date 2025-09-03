@@ -8,6 +8,9 @@ import ReusableCard from "@/app/app/[slug]/moves/[moveId]/components/card/Reusab
 import { Doc } from "@/convex/_generated/dataModel";
 import { MoverWageForMove } from "@/convex/backendUtils/queryHelpers";
 
+type TextMeta = { valueClassName?: string };
+type TextRow = [string, string | number | null, TextMeta?];
+
 interface PayOutCardProps {
   moveAssignment: Doc<"moveAssignments">;
   wageDisplay: MoverWageForMove | null;
@@ -18,35 +21,21 @@ const PayOutCard = ({ moveAssignment, wageDisplay }: PayOutCardProps) => {
     return null;
   }
 
-  let totalHours: number | null = null;
+  const approved = moveAssignment.hourStatus === "approved";
 
-  if (moveAssignment.hourStatus === "approved") {
-    totalHours = wageDisplay?.approvedHours ?? 0;
-  } else {
-    totalHours = wageDisplay?.pendingHours ?? 0;
-  }
+  const totalHours: number =
+    (approved ? wageDisplay?.approvedHours : wageDisplay?.pendingHours) ?? 0;
 
-  let totalPayout: number | null = null;
-
-  if (moveAssignment.hourStatus === "approved") {
-    totalPayout = wageDisplay?.approvedPayout ?? 0;
-  } else {
-    totalPayout = wageDisplay?.pendingPayout ?? 0;
-  }
+  const totalPayout: number =
+    (approved ? wageDisplay?.approvedPayout : wageDisplay?.pendingPayout) ?? 0;
 
   const status = formatHourStatus(moveAssignment.hourStatus);
+  const statusKey = status.toLowerCase() as keyof typeof statusColorMap;
 
-  const texts: [string, string | number | null, any?][] = [
+  const texts: TextRow[] = [
     ["Total Hours", formatTwoDecimals(totalHours, "hours")],
-    ["Total Payout", totalPayout, { isCurrency: true }],
-    [
-      "Status",
-      status,
-      {
-        valueClassName:
-          statusColorMap[status.toLowerCase() as keyof typeof statusColorMap],
-      },
-    ],
+    ["Total Payout", totalPayout],
+    ["Status", status, { valueClassName: statusColorMap[statusKey] }],
   ];
 
   if (moveAssignment.managerNotes) {

@@ -6,7 +6,6 @@ import {
   CostFormat,
   FinalMoveCost,
   JobType,
-  LaborCalculationResult,
   PaymentMethod,
   SegmentDistance,
 } from "@/types/types";

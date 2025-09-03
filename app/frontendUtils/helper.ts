@@ -1266,14 +1266,21 @@ export function computeDailyTotal(
   }, 0);
 }
 
-export const formatHourStatus = (status: HourStatus | undefined): string => {
-  const map: Record<Exclude<HourStatus, undefined>, string> = {
-    pending: "Pending",
-    approved: "Approved",
-    rejected: "Rejected",
-  };
+export const formatHourStatus = (status?: HourStatus): string => {
+  if (!status) {
+    return "Incomplete";
+  }
 
-  return map[status ?? "pending"];
+  switch (status) {
+    case "pending":
+      return "Pending";
+    case "approved":
+      return "Approved";
+    case "rejected":
+      return "Rejected";
+    default:
+      return "Incomplete";
+  }
 };
 
 export const statusColorMap = {

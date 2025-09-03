@@ -6,8 +6,7 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { ResponseStatus } from "@/types/enums";
 import { FrontEndErrorMessages } from "@/types/errors";
-
-type HourStatus = "pending" | "approved" | "rejected";
+import { HourStatus } from "@/types/types";
 
 interface ApproveMoveAssignmentHoursInput {
   assignmentId: Id<"moveAssignments">;
@@ -48,6 +47,7 @@ export const useApproveMoveAssignmentHours = () => {
       setApproveAssignmentError(response.error);
       return { success: false };
     } catch (error) {
+      console.error(error);
       setApproveAssignmentError(FrontEndErrorMessages.GENERIC);
       return { success: false };
     } finally {

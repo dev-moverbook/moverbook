@@ -92,7 +92,7 @@ const PaymentStep = () => {
             fees={fees}
           />
           <Discounts discounts={discounts} moveId={moveId} />
-          <InvoiceSummary move={move} items={items} total={total} />
+          <InvoiceSummary items={items} total={total} />
           <InvoiceSignature invoice={invoice} move={move} total={total} />
           <InternalReview internalReview={internalReview} move={move} />
           <ExternalReview move={move} />

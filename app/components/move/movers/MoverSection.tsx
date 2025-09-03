@@ -6,7 +6,7 @@ import Header3 from "@/app/components/shared/heading/Header3";
 import EditToggleButton from "../../shared/buttons/EditToggleButton";
 import { Doc } from "@/convex/_generated/dataModel";
 import PayOutCard from "./PayOutCard";
-import { MoverWageForMove, MyWage } from "@/convex/backendUtils/queryHelpers";
+import { MoverWageForMove } from "@/convex/backendUtils/queryHelpers";
 import {
   splitDecimalHours,
   combineToDecimalHours,

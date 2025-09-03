@@ -1,4 +1,3 @@
-// components/InvoiceSummary.tsx
 "use client";
 
 import ListRowContainer from "@/app/components/shared/containers/ListRowContainer";
@@ -8,16 +7,14 @@ import ListRow from "@/app/components/shared/ui/ListRow";
 import ReusableCard from "../card/ReusableCard";
 import { cn } from "@/lib/utils";
 import { CostFormat, DisplayRow } from "@/types/types";
-import { Doc } from "@/convex/_generated/dataModel";
 import { formatCurrency } from "@/app/frontendUtils/helper";
 
 interface InvoiceSummaryProps {
-  move: Doc<"move">;
   items: CostFormat[];
   total: number;
 }
 
-const InvoiceSummary = ({ move, items, total }: InvoiceSummaryProps) => {
+const InvoiceSummary = ({ items, total }: InvoiceSummaryProps) => {
   const displayRows: DisplayRow[] = items.map(
     (item: CostFormat, index: number) => {
       const rightText = formatCurrency(item.value);
