@@ -22,11 +22,7 @@ import { Doc } from "@/convex/_generated/dataModel";
 import { AddressInput, LocationInput } from "@/types/form-types";
 import { EnrichedMove } from "@/types/convex-responses";
 import { WageRange } from "@/convex/backendUtils/queryHelpers";
-import {
-  computeQuoteTravelRate,
-  formatLiabilityPremium,
-  formatMoveFeeLines,
-} from "./payout";
+import { formatLiabilityPremium, formatMoveFeeLines } from "./payout";
 
 export const isValidEmail = (email: string) => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -500,9 +496,6 @@ type ComputeQuoteTotalParams = {
   travelFeeRate: number | null;
 };
 
-const pctToUnit = (p: number) => (p <= 1 ? p : p / 100);
-
-// replace your calcTravelCost with this
 const calcTravelCost = (
   method: TravelChargingTypes | null,
   rate: number | null,
@@ -984,11 +977,6 @@ export const normalizeBreakMinutes = (
   return actualBreakTime <= 10
     ? Math.round(actualBreakTime * 60)
     : Math.round(actualBreakTime);
-};
-
-const hoursBetweenMs = (start?: number | null, end?: number | null): number => {
-  if (typeof start !== "number" || typeof end !== "number") return 0;
-  return Math.max(0, (end - start) / (1000 * 60 * 60));
 };
 
 export const getWeekDates = (currentDate: Date, timeZone: string) => {

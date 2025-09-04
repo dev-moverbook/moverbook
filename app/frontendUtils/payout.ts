@@ -326,7 +326,9 @@ export function computeQuoteTravelRate(params: {
       };
 
     case TravelChargingTypes.LABOR_HOURS: {
-      let hours = segmentDistance?.duration ? segmentDistance.duration / 60 : 0;
+      const hours = segmentDistance?.duration
+        ? segmentDistance.duration / 60
+        : 0;
       return {
         label: traveFeeLabel,
         value: Number((hours * travelFeeRate).toFixed(2)),

@@ -52,7 +52,6 @@ export const MoverCalendarProvider = ({
   const [mover, setMover] = useState<MoverOption | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>(today);
 
-  // Always use month boundaries for the selected date
   const { startISO, endISO } = useMemo(() => {
     const dt = DateTime.fromJSDate(selectedDate).setZone(timeZone);
     const start = dt.startOf("month");
@@ -60,16 +59,17 @@ export const MoverCalendarProvider = ({
     return { startISO: start.toISODate()!, endISO: end.toISODate()! };
   }, [selectedDate, timeZone]);
 
-  if (!companyId) {
-    return null;
-  }
+  const queryArgs =
+    companyId != null
+      ? {
+          start: startISO,
+          end: endISO,
+          companyId,
+          moverId: mover?.id ?? null,
+        }
+      : undefined;
 
-  const movesResult = useMovesForMoverCalendar({
-    start: startISO,
-    end: endISO,
-    companyId,
-    moverId: mover?.id ?? null,
-  });
+  const movesResult = useMovesForMoverCalendar(queryArgs);
 
   const isLoading = movesResult.status === QueryStatus.LOADING;
   const isError = movesResult.status === QueryStatus.ERROR;

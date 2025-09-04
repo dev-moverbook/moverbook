@@ -16,14 +16,14 @@ interface InsurancePolicy {
 
 export function useDefaultInsurancePolicy(
   insurancePolicyOptions: InsurancePolicy[] | undefined,
-  setMoveFormData: React.Dispatch<React.SetStateAction<any>>
+  setMoveFormData: React.Dispatch<React.SetStateAction<MoveFormData>>
 ) {
   useEffect(() => {
     if (!insurancePolicyOptions || insurancePolicyOptions.length === 0) {
       return;
     }
 
-    setMoveFormData((prev: MoveFormData) => {
+    setMoveFormData((prev) => {
       if (prev.liabilityCoverage?._id) {
         return prev;
       }

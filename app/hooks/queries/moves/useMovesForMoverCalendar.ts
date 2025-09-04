@@ -1,3 +1,4 @@
+// hooks/queries/moves/useMovesForMoverCalendar.ts
 import { api } from "@/convex/_generated/api";
 import { useQuery } from "convex/react";
 import { Doc, Id } from "@/convex/_generated/dataModel";
@@ -18,27 +19,25 @@ export type UseMovesForMoverCalendarResult =
   | UseMovesForMoverCalendarError
   | UseMovesForMoverCalendarSuccess;
 
-export const useMovesForMoverCalendar = ({
-  companyId,
-  moverId,
-  start,
-  end,
-}: {
+export const useMovesForMoverCalendar = (args?: {
   companyId: Id<"companies">;
   moverId: Id<"users"> | null;
   start: string;
   end: string;
 }): UseMovesForMoverCalendarResult => {
-  const response = useQuery(api.move.getMovesForMoverCalendar, {
-    companyId,
-    moverId,
-    start,
-    end,
-  });
+  const response = useQuery(
+    api.move.getMovesForMoverCalendar,
+    args
+      ? {
+          companyId: args.companyId,
+          moverId: args.moverId,
+          start: args.start,
+          end: args.end,
+        }
+      : "skip"
+  );
 
-  console.log("response in useMovesForMoverCalendar", response);
-
-  if (!response) {
+  if (!args || !response) {
     return { status: QueryStatus.LOADING };
   }
 

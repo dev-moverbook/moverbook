@@ -77,7 +77,7 @@ const MoverSection: React.FC<MoverSectionProps> = ({
       setBreakHoursLocal(serverBreakHours);
       setBreakMinutesLocal(serverBreakMinutes);
     }
-  }, [isEditing]);
+  }, [isEditing, hasStartTime, hasEndTime, startTime, endTime, timeZone]);
 
   useEffect(() => {
     if (manualTarget === "start") {

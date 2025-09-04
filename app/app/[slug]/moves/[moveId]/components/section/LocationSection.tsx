@@ -44,7 +44,6 @@ const LocationSection = () => {
     buildDefaultSegments()
   );
 
-  // ---------- helpers to prevent feedback loops ----------
   const locationsEqual = useCallback(
     (a: LocationInput[], b: LocationInput[]) =>
       JSON.stringify(a) === JSON.stringify(b),
@@ -65,7 +64,6 @@ const LocationSection = () => {
 
   const persistLocations = useCallback(
     (next: LocationInput[]) => {
-      // Debounce saves to avoid writing on each keystroke
       clearPersistTimer();
       persistTimerRef.current = setTimeout(async () => {
         if (
@@ -99,7 +97,7 @@ const LocationSection = () => {
       setEditedLocations(move.locations);
       lastPersistedLocationsRef.current = move.locations;
     }
-  }, [move.locations]); // intentionally minimal deps
+  }, [move.locations, editedLocations, locationsEqual]);
 
   const lastSentSegmentsRef = useRef<SegmentDistance[] | null>(
     move.segmentDistances ?? null
