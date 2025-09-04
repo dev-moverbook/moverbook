@@ -57,8 +57,6 @@ const MoveCard: React.FC<MoveCardProps> = ({
     moveFees: move.moveFees,
     jobType: move.jobType,
     jobTypeRate: move.jobTypeRate,
-    paymentMethod: move.paymentMethod,
-    creditCardFee: move.creditCardFee,
     startingMoveTime: move.startingMoveTime,
     endingMoveTime: move.endingMoveTime,
     liabilityCoverage: move.liabilityCoverage,

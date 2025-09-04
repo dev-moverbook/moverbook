@@ -22,6 +22,7 @@ import {
   GetMoveOptionsResponse,
   GetMoveResponse,
   GetMovesForCalendarResponse,
+  GetMovesForMoverCalendarResponse,
   UpdateMoveResponse,
 } from "@/types/convex-responses";
 import {
@@ -458,6 +459,7 @@ export const getMovesForCalendar = query({
       salesRepId,
       priceOrder,
       moveTimeFilter,
+      moverId,
     } = args;
 
     try {
@@ -472,7 +474,7 @@ export const getMovesForCalendar = query({
       const company = validateCompany(await ctx.db.get(companyId));
       isUserInOrg(identity, company.clerkOrganizationId);
 
-      const {
+      let {
         isMover,
         moverId: selfMoverId,
         hourlyRate: selfHourlyRate,
@@ -579,6 +581,64 @@ export const getMove = query({
       return {
         status: ResponseStatus.SUCCESS,
         data: { move },
+      };
+    } catch (error) {
+      return handleInternalError(error);
+    }
+  },
+});
+
+export const getMovesForMoverCalendar = query({
+  args: {
+    start: v.string(),
+    end: v.string(),
+    moverId: v.union(v.id("users"), v.null()),
+    companyId: v.id("companies"),
+  },
+  handler: async (ctx, args): Promise<GetMovesForMoverCalendarResponse> => {
+    const { start, end, moverId, companyId } = args;
+    console.log("querying getMovesForMoverCalendar");
+    try {
+      const identity = await requireAuthenticatedUser(ctx, [
+        ClerkRoles.ADMIN,
+        ClerkRoles.APP_MODERATOR,
+        ClerkRoles.MANAGER,
+        ClerkRoles.SALES_REP,
+        ClerkRoles.MOVER,
+      ]);
+
+      const company = validateCompany(await ctx.db.get(companyId));
+      isUserInOrg(identity, company.clerkOrganizationId);
+
+      if (moverId === null) {
+        console.log("getting all moves for company");
+        const moves = await getCompanyMoves(ctx, {
+          companyId,
+          start,
+          end,
+          statuses: ["Booked"],
+        });
+        console.log("moves", moves);
+        return { status: ResponseStatus.SUCCESS, data: { moves } };
+      }
+
+      validateUser(await ctx.db.get(moverId));
+
+      const allMoves = await getCompanyMoves(ctx, {
+        companyId,
+        start,
+        end,
+      });
+
+      const { moves: scopedMoves } = await scopeMovesToMover(
+        ctx,
+        allMoves,
+        moverId
+      );
+
+      return {
+        status: ResponseStatus.SUCCESS,
+        data: { moves: scopedMoves },
       };
     } catch (error) {
       return handleInternalError(error);

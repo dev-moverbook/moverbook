@@ -14,7 +14,6 @@ interface LocationCardProps {
 }
 
 const LocationCard = ({ segmentDistances }: LocationCardProps) => {
-  console.log("segmentDistances", segmentDistances);
   const { totalMiles, totalMinutes } = sumSegments(
     segmentDistances.map((s) => ({
       distance: s.distance ?? null,

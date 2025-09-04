@@ -114,7 +114,6 @@ const AddMovePageContent = () => {
 
   useEffect(() => {
     if (customerResponse?.status === ResponseStatus.SUCCESS && moveCustomerId) {
-      // 1. Prefill customer info
       const customer = customerResponse.data.moveCustomer;
       setCustomer({
         name: customer.name,
@@ -124,13 +123,11 @@ const AddMovePageContent = () => {
         referral: customer.referral ?? "",
       });
 
-      // 2. Set moveCustomerId in form data
       setMoveFormData((prev) => ({
         ...prev,
         moveCustomerId: moveCustomerId as Id<"moveCustomers">,
       }));
 
-      // 3. Skip to Step 2
       setCurrentStep(2);
     }
   }, [customerResponse, moveCustomerId, setCustomer, setMoveFormData]);

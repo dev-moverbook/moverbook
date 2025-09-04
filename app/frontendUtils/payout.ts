@@ -238,7 +238,6 @@ export function computeWorkedHours(
 ): number {
   const rawHours = (actualEndTime - actualStartTime) / MS_PER_HOUR;
   const worked = rawHours - actualBreakTime;
-  console.log("worked ", worked);
   return to2Decimals(Math.max(0, worked));
 }
 
@@ -304,6 +303,47 @@ export function computeTravelHours(
 ): number {
   const rawHours = (actualArrivalTime - actualStartTime) / MS_PER_HOUR;
   return Number(Math.max(0, rawHours).toFixed(2));
+}
+
+export function computeQuoteTravelRate(params: {
+  segmentDistance: SegmentDistance;
+  travelFeeMethod: TravelChargingTypes | null | undefined;
+  travelFeeRate: number | null | undefined;
+}): CostFormat | null {
+  const { segmentDistance, travelFeeMethod, travelFeeRate } = params;
+
+  if (!travelFeeMethod || travelFeeRate == null) {
+    return null;
+  }
+
+  const traveFeeLabel = "Travel Fee";
+
+  switch (travelFeeMethod) {
+    case TravelChargingTypes.FLAT:
+      return {
+        label: traveFeeLabel,
+        value: Number(travelFeeRate.toFixed(2)),
+      };
+
+    case TravelChargingTypes.LABOR_HOURS: {
+      let hours = segmentDistance?.duration ? segmentDistance.duration / 60 : 0;
+      return {
+        label: traveFeeLabel,
+        value: Number((hours * travelFeeRate).toFixed(2)),
+      };
+    }
+
+    case TravelChargingTypes.MILEAGE: {
+      const miles = segmentDistance?.distance ?? 0;
+      return {
+        label: traveFeeLabel,
+        value: Number((miles * travelFeeRate).toFixed(2)),
+      };
+    }
+
+    default:
+      return null;
+  }
 }
 
 export function computeTravelRate(params: {

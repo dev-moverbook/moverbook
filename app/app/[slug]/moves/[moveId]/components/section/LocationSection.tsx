@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { LocationInput } from "@/types/form-types";
 import { SegmentDistance } from "@/types/types";
 import MoveAddress from "@/app/app/[slug]/add-move/components/sections/MoveAddress";
@@ -44,6 +44,49 @@ const LocationSection = () => {
     buildDefaultSegments()
   );
 
+  // ---------- helpers to prevent feedback loops ----------
+  const locationsEqual = useCallback(
+    (a: LocationInput[], b: LocationInput[]) =>
+      JSON.stringify(a) === JSON.stringify(b),
+    []
+  );
+
+  const lastPersistedLocationsRef = useRef<LocationInput[] | null>(
+    move.locations
+  );
+  const persistTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearPersistTimer = () => {
+    if (persistTimerRef.current) {
+      clearTimeout(persistTimerRef.current);
+      persistTimerRef.current = null;
+    }
+  };
+
+  const persistLocations = useCallback(
+    (next: LocationInput[]) => {
+      // Debounce saves to avoid writing on each keystroke
+      clearPersistTimer();
+      persistTimerRef.current = setTimeout(async () => {
+        if (
+          !lastPersistedLocationsRef.current ||
+          !locationsEqual(lastPersistedLocationsRef.current, next)
+        ) {
+          const { success } = await updateMove({
+            moveId: move._id,
+            updates: { locations: next },
+          });
+          if (success) lastPersistedLocationsRef.current = next;
+        }
+      }, 400);
+    },
+    [locationsEqual, move._id, updateMove]
+  );
+
+  useEffect(() => {
+    return () => clearPersistTimer();
+  }, []);
+
   useSegmentDistances(
     companyContact?.companyContact?.address ?? null,
     editedLocations,
@@ -52,52 +95,51 @@ const LocationSection = () => {
   );
 
   useEffect(() => {
-    if (Array.isArray(move.locations) && move.locations.length >= 2) {
+    if (!locationsEqual(move.locations, editedLocations)) {
       setEditedLocations(move.locations);
+      lastPersistedLocationsRef.current = move.locations;
     }
-  }, [move.locations]);
+  }, [move.locations]); // intentionally minimal deps
+
+  const lastSentSegmentsRef = useRef<SegmentDistance[] | null>(
+    move.segmentDistances ?? null
+  );
 
   useEffect(() => {
-    if (!segmentsEqual(move.segmentDistances ?? [], localSegments)) {
+    const current = move.segmentDistances ?? [];
+    const next = localSegments;
+
+    const sameAsMove = segmentsEqual(current, next);
+    const sameAsLastSent = lastSentSegmentsRef.current
+      ? segmentsEqual(lastSentSegmentsRef.current, next)
+      : false;
+
+    if (!sameAsMove && !sameAsLastSent) {
+      lastSentSegmentsRef.current = next;
       void updateMove({
         moveId: move._id,
-        updates: { segmentDistances: localSegments },
+        updates: { segmentDistances: next },
       });
     }
   }, [localSegments, move._id, move.segmentDistances, updateMove]);
-
-  const persistLocations = async (next: LocationInput[]) => {
-    await updateMove({
-      moveId: move._id,
-      updates: { locations: next },
-    });
-  };
 
   const updateLocation = (index: number, partial: Partial<LocationInput>) => {
     const next = editedLocations.map((loc, i) =>
       i === index ? { ...loc, ...partial } : loc
     );
     setEditedLocations(next);
-    void persistLocations(next);
+    persistLocations(next);
   };
 
-  const removeLocation = async (index: number) => {
-    const prev = editedLocations;
-    const next = prev.filter((_, i) => i !== index);
+  const removeLocation = (index: number) => {
+    const next = editedLocations.filter((_, i) => i !== index);
     setEditedLocations(next);
 
     if (addingStopIndex !== null && index === addingStopIndex) {
       setAddingStopIndex(null);
     }
 
-    const { success } = await updateMove({
-      moveId: move._id,
-      updates: { locations: next },
-    });
-
-    if (!success) {
-      setEditedLocations(prev);
-    }
+    persistLocations(next);
   };
 
   const addStopLocation = () => {
@@ -125,7 +167,7 @@ const LocationSection = () => {
     setAddingStopIndex(insertIndex);
     setShowBanner(true);
     setTimeout(() => setShowBanner(false), 2000);
-    void persistLocations(next);
+    persistLocations(next);
   };
 
   const handleSavedStop = () => {

@@ -22,7 +22,11 @@ import { Doc } from "@/convex/_generated/dataModel";
 import { AddressInput, LocationInput } from "@/types/form-types";
 import { EnrichedMove } from "@/types/convex-responses";
 import { WageRange } from "@/convex/backendUtils/queryHelpers";
-import { formatLiabilityPremium, formatMoveFeeLines } from "./payout";
+import {
+  computeQuoteTravelRate,
+  formatLiabilityPremium,
+  formatMoveFeeLines,
+} from "./payout";
 
 export const isValidEmail = (email: string) => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -482,30 +486,18 @@ export interface ListRowType {
   right: string | null;
 }
 
-// ---- types you already have somewhere ----
-// import { PaymentMethod } from "@/types/types";
-// import { TravelChargingTypes } from "@/types/enums";
-
 type LineFee = { name: string; quantity: number; price: number };
 
-type ComputeTotalParams = {
-  moveFees: LineFee[];
-  jobType: "hourly" | "flat";
+type ComputeQuoteTotalParams = {
+  endingMoveTime?: number | null;
+  jobType: JobType;
   jobTypeRate: number | null;
-
   liabilityCoverage?: { premium: number } | null;
+  moveFees: LineFee[];
   segmentDistances: SegmentDistance[];
-  travelFeeRate: number | null;
+  startingMoveTime?: number | null;
   travelFeeMethod: TravelChargingTypes | null;
-
-  paymentMethod: PaymentMethod;
-  creditCardFee: number; // 2.5 or 0.025 both supported
-
-  startingMoveTime?: number | null; // min labor hours (for hourly)
-  endingMoveTime?: number | null; // max labor hours (for hourly)
-  actualStartTime?: number | null;
-  actualEndTime?: number | null;
-  actualBreakTime?: number | null;
+  travelFeeRate: number | null;
 };
 
 const pctToUnit = (p: number) => (p <= 1 ? p : p / 100);
@@ -535,26 +527,17 @@ const calcTravelCost = (
   }
 };
 
-/**
- * Returns { minTotal, maxTotal } (they’re equal for flat jobs).
- */
-// --- update computeMoveTotal to prefer actuals if present ---
 export function computeMoveTotal({
-  moveFees,
+  endingMoveTime,
   jobType,
   jobTypeRate,
   liabilityCoverage,
-  travelFeeRate,
-  travelFeeMethod,
+  moveFees,
   segmentDistances,
-  paymentMethod,
-  creditCardFee,
   startingMoveTime,
-  endingMoveTime,
-  actualStartTime,
-  actualEndTime,
-  actualBreakTime,
-}: ComputeTotalParams): { minTotal: number; maxTotal: number } {
+  travelFeeMethod,
+  travelFeeRate,
+}: ComputeQuoteTotalParams): { minTotal: number; maxTotal: number } {
   const feesSubtotal = moveFees.reduce(
     (sum, f) => sum + f.price * f.quantity,
     0
@@ -567,28 +550,7 @@ export function computeMoveTotal({
     segmentDistances
   );
 
-  const ccRate =
-    paymentMethod?.kind === "credit_card" ? pctToUnit(creditCardFee) : 0;
-
   if (jobType === "hourly") {
-    // prefer actuals when both start & end exist
-    const haveActuals =
-      typeof actualStartTime === "number" && typeof actualEndTime === "number";
-    if (haveActuals) {
-      const breakMin = normalizeBreakMinutes(actualBreakTime);
-      const workedHrs = Math.max(
-        0,
-        hoursBetweenMs(actualStartTime!, actualEndTime!) - breakMin / 60
-      );
-      const rate = jobTypeRate ?? 0;
-
-      const base = feesSubtotal + liabilityCost + travelCost + workedHrs * rate;
-      const total = base + base * ccRate;
-
-      return { minTotal: total, maxTotal: total }; // exact
-    }
-
-    // fallback to estimate range
     const minH =
       typeof startingMoveTime === "number" ? Math.max(0, startingMoveTime) : 0;
     const maxH =
@@ -601,21 +563,16 @@ export function computeMoveTotal({
     const preMax = feesSubtotal + liabilityCost + travelCost + rate * maxH;
 
     return {
-      minTotal: preMin + preMin * ccRate,
-      maxTotal: preMax + preMax * ccRate,
+      minTotal: preMin,
+      maxTotal: preMax,
     };
   }
 
-  // flat job
   const job = jobTypeRate ?? 0;
   const pre = feesSubtotal + liabilityCost + travelCost + job;
-  const total = pre + pre * ccRate;
-  return { minTotal: total, maxTotal: total };
+  return { minTotal: pre, maxTotal: pre };
 }
 
-// --------------------------------------------------------------------
-// Your existing rows builder, now calling computeMoveTotal when needed.
-// --------------------------------------------------------------------
 const fmt2 = (n: number) => (Number.isFinite(n) ? n.toFixed(2) : "0.00");
 
 const fmtSmart = (n: number) =>
@@ -677,47 +634,32 @@ export function computeInvoiceTotals({
   return { invoiceMin, invoiceMax };
 }
 
-// --- update getMoveDisplayRows signature and usage ---
 export function getMoveDisplayRows({
-  moveFees,
+  endingMoveTime,
+  getTotal = false,
   jobType,
   jobTypeRate,
   liabilityCoverage,
-  travelFeeRate,
-  travelFeeMethod,
+  moveFees,
   paymentMethod,
   creditCardFee,
-  getTotal = false,
-  startingMoveTime,
-  endingMoveTime,
-  actualStartTime,
-  actualEndTime,
-  actualBreakTime,
   segmentDistances,
-  additionalFees = [],
-  discounts = [],
-  deposit = 0,
-  includeInvoiceRow = false,
+  startingMoveTime,
+  travelFeeMethod,
+  travelFeeRate,
 }: {
-  moveFees: { name: string; quantity: number; price: number }[];
-  jobType: "hourly" | "flat";
+  endingMoveTime?: number | null;
+  getTotal?: boolean;
+  jobType: JobType;
   jobTypeRate: number | null;
+  liabilityCoverage?: { premium: number } | null;
+  moveFees: { name: string; quantity: number; price: number }[];
   paymentMethod: PaymentMethod;
   creditCardFee: number;
-  liabilityCoverage?: { premium: number } | null;
-  travelFeeRate?: number | null;
-  travelFeeMethod: TravelChargingTypes | null;
-  getTotal?: boolean;
-  startingMoveTime?: number | null;
-  endingMoveTime?: number | null;
-  actualStartTime?: number | null;
-  actualEndTime?: number | null;
-  actualBreakTime?: number | null;
   segmentDistances: SegmentDistance[];
-  additionalFees?: { name: string; price: number }[];
-  discounts?: { name: string; price: number }[];
-  deposit?: number | null;
-  includeInvoiceRow?: boolean;
+  startingMoveTime?: number | null;
+  travelFeeMethod: TravelChargingTypes | null;
+  travelFeeRate?: number | null;
 }): ListRowType[] {
   const jobTypeRateDisplayBase =
     jobType === "hourly" ? "Hourly Rate" : "Job Rate";
@@ -747,21 +689,9 @@ export function getMoveDisplayRows({
     });
   }
 
-  // job line (show actual hours when present)
   let jobSuffix = "";
   if (getTotal && jobType === "hourly") {
-    const haveActuals =
-      typeof actualStartTime === "number" && typeof actualEndTime === "number";
-    if (haveActuals) {
-      const breakMin = normalizeBreakMinutes(actualBreakTime);
-      const workedHrs = Math.max(
-        0,
-        hoursBetweenMs(actualStartTime!, actualEndTime!) - breakMin / 60
-      );
-      jobSuffix = ` (${fmtSmart(workedHrs)} hrs actual)`;
-    } else {
-      jobSuffix = buildHourlySuffix(startingMoveTime, endingMoveTime);
-    }
+    jobSuffix = buildHourlySuffix(startingMoveTime, endingMoveTime);
   }
 
   rows.push({
@@ -774,11 +704,9 @@ export function getMoveDisplayRows({
     rows.push({ left: "Credit Card Fee", right: `${pct.toFixed(2)}%` });
   }
 
-  for (const fee of additionalFees) {
-    rows.push({ left: fee.name, right: formatCurrency(fee.price) });
+  if (!getTotal) {
+    return rows;
   }
-
-  if (!getTotal) return rows;
 
   const { minTotal, maxTotal } = computeMoveTotal({
     moveFees,
@@ -788,13 +716,8 @@ export function getMoveDisplayRows({
     travelFeeRate: travelFeeRate ?? null,
     travelFeeMethod,
     segmentDistances,
-    paymentMethod,
-    creditCardFee,
     startingMoveTime,
     endingMoveTime,
-    actualStartTime,
-    actualEndTime,
-    actualBreakTime,
   });
 
   rows.push({
@@ -804,34 +727,6 @@ export function getMoveDisplayRows({
         ? formatCurrency(minTotal)
         : `${formatCurrency(minTotal)} - ${formatCurrency(maxTotal)}`,
   });
-
-  for (const d of discounts) {
-    rows.push({
-      left: `${d.name} (discount)`,
-      right: `-${formatCurrency(d.price)}`,
-    });
-  }
-
-  if (deposit && deposit > 0) {
-    rows.push({ left: "Deposit", right: `-${formatCurrency(deposit)}` });
-  }
-
-  if (includeInvoiceRow) {
-    const { invoiceMin, invoiceMax } = computeInvoiceTotals({
-      baseMin: minTotal,
-      baseMax: maxTotal,
-      additionalFees,
-      discounts,
-      deposit: deposit ?? 0,
-    });
-    rows.push({
-      left: "Invoice Total",
-      right:
-        invoiceMin === invoiceMax
-          ? formatCurrency(invoiceMin)
-          : `${formatCurrency(invoiceMin)} - ${formatCurrency(invoiceMax)}`,
-    });
-  }
 
   return rows;
 }
@@ -955,15 +850,17 @@ export const buildOrderedRefs = (
   distanceRefs: string[]
 ): string[] => {
   if (!originRef) return [];
-  // keep only truthy legs
   const middles = distanceRefs.filter(Boolean);
   return [originRef, ...middles, originRef];
 };
 
-// Human-friendly label for each leg
 export const legLabel = (index: number, totalMiddles: number): string => {
-  if (index === 0) return "Office → Starting";
-  if (index === totalMiddles) return "Ending → Office";
+  if (index === 0) {
+    return "Office → Starting";
+  }
+  if (index === totalMiddles) {
+    return "Ending → Office";
+  }
   return `Stop ${index} → Stop ${index + 1}`;
 };
 

@@ -5,9 +5,8 @@ import { DateTime } from "luxon";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { useSlugContext } from "@/app/contexts/SlugContext";
 import { getCurrentDate } from "../frontendUtils/helper";
-import { EnrichedMove } from "@/types/convex-responses";
 import { QueryStatus } from "@/types/enums";
-import { useMovesForCalendar } from "@/app/hooks/queries/useGetMovesForCalendar";
+import { useMovesForMoverCalendar } from "../hooks/queries/moves/useMovesForMoverCalendar";
 
 export type MoverOption = { id: Id<"users">; name: string };
 
@@ -17,12 +16,10 @@ interface MoverCalendarContextProps {
   moverOptions: MoverOption[];
   selectedDate: Date;
   setSelectedDate: React.Dispatch<React.SetStateAction<Date>>;
-  isWeekView: boolean;
-  setIsWeekView: React.Dispatch<React.SetStateAction<boolean>>;
   startISO: string;
   endISO: string;
   today: Date;
-  moves: EnrichedMove[];
+  moves: Doc<"move">[];
   isLoading: boolean;
   isError: boolean;
   errorMessage: string | null;
@@ -35,7 +32,6 @@ const MoverCalendarContext = createContext<
 export const MoverCalendarProvider = ({
   children,
   allMovers,
-  initialMoverId = null,
 }: {
   children: React.ReactNode;
   allMovers: Doc<"users">[];
@@ -53,37 +49,33 @@ export const MoverCalendarProvider = ({
     [allMovers]
   );
 
-  const initialMover =
-    (initialMoverId && moverOptions.find((m) => m.id === initialMoverId)) ||
-    null;
-
-  const [mover, setMover] = useState<MoverOption | null>(initialMover);
+  const [mover, setMover] = useState<MoverOption | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>(today);
-  const [isWeekView, setIsWeekView] = useState<boolean>(true);
 
+  // Always use month boundaries for the selected date
   const { startISO, endISO } = useMemo(() => {
     const dt = DateTime.fromJSDate(selectedDate).setZone(timeZone);
-    const start = isWeekView ? dt.startOf("week") : dt.startOf("month");
-    const end = isWeekView ? dt.endOf("week") : dt.endOf("month");
+    const start = dt.startOf("month");
+    const end = dt.endOf("month");
     return { startISO: start.toISODate()!, endISO: end.toISODate()! };
-  }, [selectedDate, timeZone, isWeekView]);
+  }, [selectedDate, timeZone]);
 
-  const movesResult = useMovesForCalendar({
+  if (!companyId) {
+    return null;
+  }
+
+  const movesResult = useMovesForMoverCalendar({
     start: startISO,
     end: endISO,
     companyId,
-    salesRepId: null,
-    priceOrder: null,
     moverId: mover?.id ?? null,
-    moveTimeFilter: [],
   });
 
   const isLoading = movesResult.status === QueryStatus.LOADING;
   const isError = movesResult.status === QueryStatus.ERROR;
-  const errorMessage =
-    movesResult.status === QueryStatus.ERROR ? movesResult.errorMessage : null;
+  const errorMessage = isError ? movesResult.errorMessage : null;
 
-  const moves = useMemo<EnrichedMove[]>(
+  const moves = useMemo<Doc<"move">[]>(
     () => (movesResult.status === QueryStatus.SUCCESS ? movesResult.data : []),
     [movesResult]
   );
@@ -94,8 +86,6 @@ export const MoverCalendarProvider = ({
     moverOptions,
     selectedDate,
     setSelectedDate,
-    isWeekView,
-    setIsWeekView,
     startISO,
     endISO,
     today,

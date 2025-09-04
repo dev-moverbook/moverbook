@@ -42,6 +42,7 @@ import { applyBootstrapDefaults } from "../frontendUtils/moveFormHelper/bootstra
 import { useSegmentDistances } from "../frontendUtils/moveFormHelper/useSegmentDistances";
 import { useCreditCardFee } from "../frontendUtils/moveFormHelper/hooks/useCreditCardFee";
 import { useHourlyRate } from "../frontendUtils/moveFormHelper/hooks/useHourlyRate";
+import { useDefaultInsurancePolicy } from "../frontendUtils/moveFormHelper/hooks/useDefaultInsurancePolicy";
 
 interface AddMoveFormData {
   addMoveFee: (fee: MoveFeeInput) => void;
@@ -152,6 +153,8 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
     setMoveFormData,
     (movers) => getHourlyRateFromLabor(movers, laborRates)
   );
+
+  useDefaultInsurancePolicy(insurancePolicyOptions, setMoveFormData);
 
   useEffect(() => {
     setMoveFormData((prev) =>

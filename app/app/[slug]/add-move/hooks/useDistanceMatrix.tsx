@@ -28,7 +28,6 @@ export const useDistanceMatrix = () => {
 
       try {
         const result = await getDistanceMatrix({ origin, destination });
-        console.log("result", result);
         if (result.status === ResponseStatus.SUCCESS) {
           return {
             success: true,
@@ -46,7 +45,7 @@ export const useDistanceMatrix = () => {
         setLoading(false);
       }
     },
-    [getDistanceMatrix] // <- stable!
+    [getDistanceMatrix]
   );
 
   return { fetchDistance, loading, error };

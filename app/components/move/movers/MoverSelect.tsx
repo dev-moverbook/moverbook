@@ -29,11 +29,16 @@ export default function MoverSelect({
       <div className="flex flex-col gap-1">
         <Label>{label}</Label>
         <Select
-          value={mover?.id ?? ""}
-          onValueChange={(newMoverId) => {
+          value={(mover?.id as unknown as string) ?? "ALL"}
+          onValueChange={(newValue) => {
+            if (newValue === "ALL") {
+              setMover(null);
+              return;
+            }
             const opt =
-              moverOptions.find((o) => o.id === (newMoverId as Id<"users">)) ||
-              null;
+              moverOptions.find(
+                (o) => o.id === (newValue as unknown as Id<"users">)
+              ) || null;
             setMover(opt);
           }}
         >
@@ -41,8 +46,9 @@ export default function MoverSelect({
             <SelectValue placeholder={placeholder} />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="ALL">All movers</SelectItem>
             {moverOptions.map((m) => (
-              <SelectItem key={m.id} value={m.id}>
+              <SelectItem key={m.id} value={m.id as unknown as string}>
                 {m.name}
               </SelectItem>
             ))}

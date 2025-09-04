@@ -17,7 +17,7 @@ export default function MoverMonthGrid({ today, shouldDimDate }: Props) {
   const { timeZone } = useSlugContext();
 
   const dates = getMonthGrid(selectedDate, timeZone);
-
+  console.log("moves in grid");
   return (
     <div className="flex flex-wrap w-full">
       {dates.map((day) => {
@@ -31,6 +31,8 @@ export default function MoverMonthGrid({ today, shouldDimDate }: Props) {
             .toISODate();
           return moveDate === isoDate;
         });
+
+        console.log("moves", moves);
 
         const colors = movesOnDate
           .map((m) => getStatusColor(m.moveWindow))

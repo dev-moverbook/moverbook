@@ -1277,3 +1277,16 @@ export interface EnrichedMoveAssignment extends Doc<"moveAssignments"> {
 export interface GetMoveAssignmentsData {
   assignments: EnrichedMoveAssignment[];
 }
+
+export type GetMovesForMoverCalendarResponse =
+  | GetMovesForMoverCalendarSuccess
+  | ErrorResponse;
+
+export interface GetMovesForMoverCalendarSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetMovesForMoverCalendarData;
+}
+
+export interface GetMovesForMoverCalendarData {
+  moves: Doc<"move">[];
+}
