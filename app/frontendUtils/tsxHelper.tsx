@@ -85,7 +85,8 @@ export const getMoveStatus = (
 };
 
 export const getInvoiceStatus = (
-  invoice: Doc<"invoices"> | null
+  invoice: Doc<"invoices"> | null,
+  move: Doc<"move">
 ): {
   label: string;
   icon: ReactNode;
@@ -99,6 +100,15 @@ export const getInvoiceStatus = (
     return {
       label: "Invoice Pending",
       icon: <Clock className="w-4 h-4 text-yellow-500" />,
+    };
+  } else if (
+    !move.actualStartTime ||
+    !move.actualArrivalTime ||
+    !move.actualEndTime
+  ) {
+    return {
+      label: "Move Times Not Set",
+      icon: <AlertTriangle className="w-4 h-4 text-yellow-500" />,
     };
   }
 

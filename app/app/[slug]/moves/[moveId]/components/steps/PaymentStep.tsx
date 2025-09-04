@@ -13,6 +13,7 @@ import { useMoveContext } from "@/app/contexts/MoveContext";
 import { QueryStatus } from "@/types/enums";
 import { useGetPaymentPage } from "@/app/hooks/queries/useGetPaymentPage";
 import { computeFinalMoveCost } from "@/app/frontendUtils/payout";
+import InvoiceNotReady from "../shared/InvoiceNotReady";
 
 const PaymentStep = () => {
   const { moveData } = useMoveContext();
@@ -37,7 +38,7 @@ const PaymentStep = () => {
         fees = [],
       } = result.data ?? {};
 
-      const invoiceStatus = getInvoiceStatus(invoice);
+      const invoiceStatus = getInvoiceStatus(invoice, move);
       const {
         moveFees,
         jobType,
@@ -74,6 +75,9 @@ const PaymentStep = () => {
         deposit: deposit ?? 0,
       });
 
+      const showInvoice =
+        !!actualStartTime && !!actualArrivalTime && !!actualEndTime;
+
       return (
         <div>
           <StepStatus
@@ -92,10 +96,16 @@ const PaymentStep = () => {
             fees={fees}
           />
           <Discounts discounts={discounts} moveId={moveId} />
-          <InvoiceSummary items={items} total={total} />
-          <InvoiceSignature invoice={invoice} move={move} total={total} />
-          <InternalReview internalReview={internalReview} move={move} />
-          <ExternalReview move={move} />
+          {showInvoice ? (
+            <>
+              <InvoiceSummary items={items} total={total} />
+              <InvoiceSignature invoice={invoice} move={move} total={total} />
+              <InternalReview internalReview={internalReview} move={move} />
+              <ExternalReview move={move} />
+            </>
+          ) : (
+            <InvoiceNotReady />
+          )}
         </div>
       );
     }

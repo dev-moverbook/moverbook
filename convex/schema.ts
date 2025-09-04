@@ -344,7 +344,8 @@ export default defineSchema({
     startTime: v.optional(v.number()),
   })
     .index("by_move", ["moveId"])
-    .index("by_move_mover", ["moveId", "moverId"]),
+    .index("by_move_mover", ["moveId", "moverId"])
+    .index("by_mover", ["moverId"]),
 
   moveCustomers: defineTable({
     altPhoneNumber: v.union(v.null(), v.string()),

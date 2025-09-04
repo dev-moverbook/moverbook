@@ -2,8 +2,8 @@ import { SelectOption } from "@/types/types";
 import { Doc } from "@/convex/_generated/dataModel";
 
 export function buildSalesRepOptions(
-  salesReps?: Doc<"users">[] | null,
-  currentUser?: Doc<"users"> | null
+  salesReps: Doc<"users">[] | undefined,
+  currentUser: Doc<"users"> | undefined
 ): SelectOption[] {
   const base =
     salesReps?.map((rep) => ({

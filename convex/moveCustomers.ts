@@ -10,11 +10,12 @@ import {
   SearchMoveCustomersAndJobIdResponse,
   UpdateMoveCustomerResponse,
 } from "@/types/convex-responses";
-import { Doc } from "./_generated/dataModel";
+import { Doc, Id } from "./_generated/dataModel";
 import {
   isUserInOrg,
   validateCompany,
   validateMoveCustomer,
+  validateUser,
 } from "./backendUtils/validate";
 import { ErrorMessages } from "@/types/errors";
 
@@ -106,42 +107,79 @@ export const searchMoveCustomersAndJobId = query({
         ClerkRoles.APP_MODERATOR,
         ClerkRoles.MANAGER,
         ClerkRoles.SALES_REP,
+        ClerkRoles.MOVER,
       ]);
 
       const company = validateCompany(await ctx.db.get(companyId));
       isUserInOrg(identity, company.clerkOrganizationId);
 
+      const isMover = identity.role === ClerkRoles.MOVER;
+
+      const clerkId = identity.id as string;
+      let moverId: Id<"users"> | null = null;
+
+      if (isMover) {
+        const user = validateUser(
+          await ctx.db
+            .query("users")
+            .withIndex("by_clerkUserId", (q) => q.eq("clerkUserId", clerkId))
+            .first()
+        );
+        moverId = user._id;
+      }
+
       const normalized = searchTerm.toLowerCase();
 
-      // --- Search customers
       const allCustomers = await ctx.db
         .query("moveCustomers")
         .filter((q) => q.eq(q.field("companyId"), companyId))
         .collect();
 
-      const matchingCustomers = allCustomers.filter((customer) => {
-        return (
-          (customer.name?.toLowerCase().includes(normalized) ?? false) ||
-          (customer.email?.toLowerCase().includes(normalized) ?? false) ||
-          (customer.phoneNumber?.toLowerCase().includes(normalized) ?? false)
-        );
-      });
-
-      // --- Search moves by jobId
       const allMoves = await ctx.db
         .query("move")
-        .filter((q) => q.eq(q.field("companyId"), companyId))
+        .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
         .collect();
 
-      const matchingMoves = allMoves.filter((move) =>
-        move.jobId?.toLowerCase().includes(normalized)
-      );
+      let allowedMoveIds: Set<Id<"move">> | null = null;
+      if (isMover && moverId) {
+        const assignments = await ctx.db
+          .query("moveAssignments")
+          .withIndex("by_mover", (q) => q.eq("moverId", moverId))
+          .collect();
+        allowedMoveIds = new Set(assignments.map((a) => a.moveId));
+      }
+
+      const matchingMoves = allMoves
+        .filter(
+          (m) =>
+            (allowedMoveIds ? allowedMoveIds.has(m._id) : true) &&
+            (m.jobId?.toLowerCase().includes(normalized) ?? false)
+        )
+        .slice(0, 10);
+
+      const allowedCustomerIds = allowedMoveIds
+        ? new Set(
+            allMoves
+              .filter((m) => allowedMoveIds!.has(m._id))
+              .map((m) => m.moveCustomerId)
+          )
+        : null;
+
+      const matchingCustomers = allCustomers
+        .filter(
+          (c) =>
+            (allowedCustomerIds ? allowedCustomerIds.has(c._id) : true) &&
+            ((c.name?.toLowerCase().includes(normalized) ?? false) ||
+              (c.email?.toLowerCase().includes(normalized) ?? false) ||
+              (c.phoneNumber?.toLowerCase().includes(normalized) ?? false))
+        )
+        .slice(0, 10);
 
       return {
         status: ResponseStatus.SUCCESS,
         data: {
-          moveCustomers: matchingCustomers.slice(0, 10),
-          moves: matchingMoves.slice(0, 10),
+          moveCustomers: matchingCustomers,
+          moves: matchingMoves,
         },
       };
     } catch (error) {
@@ -176,7 +214,6 @@ export const updateMoveCustomer = mutation({
       const company = validateCompany(await ctx.db.get(existing.companyId));
       isUserInOrg(identity, company.clerkOrganizationId);
 
-      // Check for unique email (excluding current customer)
       if (updates.email && updates.email !== existing.email) {
         const emailTaken = await ctx.db
           .query("moveCustomers")
@@ -189,7 +226,6 @@ export const updateMoveCustomer = mutation({
         }
       }
 
-      // Check for unique phone number (excluding current customer)
       if (updates.phoneNumber && updates.phoneNumber !== existing.phoneNumber) {
         const phoneTaken = await ctx.db
           .query("moveCustomers")
@@ -243,12 +279,43 @@ export const getCustomerAndMoves = query({
       const company = validateCompany(await ctx.db.get(moveCustomer.companyId));
       isUserInOrg(identity, company.clerkOrganizationId);
 
-      const moves: Doc<"move">[] = await ctx.db
+      const isMover = identity.role === ClerkRoles.MOVER;
+
+      let moverId: Id<"users"> | null = null;
+
+      if (isMover) {
+        const user = validateUser(
+          await ctx.db
+            .query("users")
+            .withIndex("by_clerkUserId", (q) =>
+              q.eq("clerkUserId", identity.id as string)
+            )
+            .first()
+        );
+        moverId = user._id;
+      }
+
+      let moves: Doc<"move">[] = await ctx.db
         .query("move")
         .withIndex("by_moveCustomerId", (q) =>
           q.eq("moveCustomerId", moveCustomerId)
         )
         .collect();
+
+      if (isMover && moverId) {
+        const filtered = await Promise.all(
+          moves.map(async (m) => {
+            const assigned = await ctx.db
+              .query("moveAssignments")
+              .withIndex("by_move_mover", (q) =>
+                q.eq("moveId", m._id).eq("moverId", moverId!)
+              )
+              .first();
+            return assigned ? m : null;
+          })
+        );
+        moves = filtered.filter((m): m is Doc<"move"> => m !== null);
+      }
 
       return {
         status: ResponseStatus.SUCCESS,

@@ -23,7 +23,7 @@ const MoveContent = () => {
   const { wageDisplay } = moveData;
 
   const [isDuplicateMoveModalOpen, setIsDuplicateMoveModalOpen] =
-    useState(false);
+    useState<boolean>(false);
   const [selectedMove, setSelectedMove] = useState<Doc<"move"> | null>(null);
 
   const { move, moveCustomer, salesRepUser } = moveData;

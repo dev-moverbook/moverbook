@@ -6,7 +6,7 @@ const CustomerPage = async ({
 }: {
   params: Promise<{ customerId: string }>;
 }) => {
-  const { customerId } = await params; // ✅ correct: await the params Promise
+  const { customerId } = await params;
   return <CustomerPageClient customerId={customerId as Id<"moveCustomers">} />;
 };
 

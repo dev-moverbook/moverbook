@@ -22,7 +22,7 @@ import { ClerkRoles } from "@/types/enums";
 const Navbar = () => {
   const { slug, isCompanyContactComplete, isStripeComplete, user } =
     useSlugContext();
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
   const router = useRouter();
 
   const userRole = user.publicMetadata.role as ClerkRoles;

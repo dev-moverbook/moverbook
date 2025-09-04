@@ -16,6 +16,8 @@ import InvoiceSignature from "../payment/InvoiceSignature";
 import InvoiceSummary from "../payment/InvoiceSummary";
 import { useMoveContext } from "@/app/contexts/MoveContext";
 import { computeFinalMoveCost } from "@/app/frontendUtils/payout";
+import SectionContainer from "@/app/components/shared/containers/SectionContainer";
+import InvoiceNotReady from "../shared/InvoiceNotReady";
 
 interface ViewMoverSectionProps {
   assignment: Doc<"moveAssignments">;
@@ -126,6 +128,9 @@ const ViewMoverSection: React.FC<ViewMoverSectionProps> = ({
     deposit: deposit ?? 0,
   });
 
+  const showInvoice =
+    !!actualStartTime && !!actualArrivalTime && !!actualEndTime;
+
   return (
     <>
       <StartMoveSection
@@ -178,8 +183,14 @@ const ViewMoverSection: React.FC<ViewMoverSectionProps> = ({
         moveId={move._id}
         fees={fees}
       />
-      <InvoiceSummary items={items} total={total} />
-      <InvoiceSignature move={move} invoice={invoice} total={total} />
+      {showInvoice ? (
+        <>
+          <InvoiceSummary items={items} total={total} />
+          <InvoiceSignature move={move} invoice={invoice} total={total} />
+        </>
+      ) : (
+        <InvoiceNotReady />
+      )}
     </>
   );
 };

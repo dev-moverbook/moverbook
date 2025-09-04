@@ -468,6 +468,7 @@ export const getMovesForCalendar = query({
         ClerkRoles.SALES_REP,
         ClerkRoles.MOVER,
       ]);
+
       const company = validateCompany(await ctx.db.get(companyId));
       isUserInOrg(identity, company.clerkOrganizationId);
 
@@ -488,23 +489,22 @@ export const getMovesForCalendar = query({
       let moverWageByMoveId: Map<string, MoverWageForMove> = new Map();
       let hourStatusMap: HourStatusMap = new Map();
 
-      if (isMover) {
+      if (isMover && selfMoverId) {
         const { moves: scopedMoves, assignmentMap } = await scopeMovesToMover(
           ctx,
           moves,
           selfMoverId
         );
-
-        for (const move of scopedMoves) {
-          const assignment = assignmentMap.get(move._id);
-          if (assignment) {
+        moves = scopedMoves;
+        for (const m of moves) {
+          const a = assignmentMap.get(m._id);
+          if (a) {
             moverWageByMoveId.set(
-              move._id,
-              buildMoverWageForMoveDisplay(move, assignment, selfHourlyRate)
+              m._id,
+              buildMoverWageForMoveDisplay(m, a, selfHourlyRate)
             );
           }
         }
-
         hourStatusMap = new Map(
           moves.map((m) => [
             m._id,
