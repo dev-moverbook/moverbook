@@ -16,7 +16,6 @@ import InvoiceSignature from "../payment/InvoiceSignature";
 import InvoiceSummary from "../payment/InvoiceSummary";
 import { useMoveContext } from "@/app/contexts/MoveContext";
 import { computeFinalMoveCost } from "@/app/frontendUtils/payout";
-import SectionContainer from "@/app/components/shared/containers/SectionContainer";
 import InvoiceNotReady from "../shared/InvoiceNotReady";
 
 interface ViewMoverSectionProps {
