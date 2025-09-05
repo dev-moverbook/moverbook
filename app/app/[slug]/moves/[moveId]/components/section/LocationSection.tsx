@@ -11,7 +11,7 @@ import { useCompanyContact } from "@/app/hooks/queries/useCompanyContact";
 import { nanoid } from "nanoid";
 import { useMoveContext } from "@/app/contexts/MoveContext";
 import { ClerkRoles } from "@/types/enums";
-import { canCreateMove, isMover } from "@/app/frontendUtils/permissions";
+import { canCreateMove } from "@/app/frontendUtils/permissions";
 import { useSlugContext } from "@/app/contexts/SlugContext";
 import { useDistanceMatrix } from "@/app/app/[slug]/add-move/hooks/useDistanceMatrix";
 import { buildDefaultSegments } from "@/app/frontendUtils/segmentDistanceHelper";
