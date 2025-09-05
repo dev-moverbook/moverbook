@@ -72,7 +72,15 @@ const MoveSearchDropdown = () => {
 
           {moves.length > 0 &&
             moves.map((move) => (
-              <MoveOnlyCard key={move._id} move={move} showOnlyJobIdTag />
+              <MoveOnlyCard
+                key={move._id}
+                move={move}
+                showOnlyJobIdTag
+                onNavigate={() => {
+                  setQuery("");
+                  setVisible(false);
+                }}
+              />
             ))}
         </ul>
       ) : (

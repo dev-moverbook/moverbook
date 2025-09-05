@@ -104,8 +104,9 @@ export const QuoteStatusConvex = v.union(
 );
 
 export const HourStatusConvex = v.union(
-  v.literal("pending"),
   v.literal("approved"),
+  v.literal("incomplete"),
+  v.literal("pending"),
   v.literal("rejected")
 );
 

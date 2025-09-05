@@ -28,6 +28,7 @@ interface MoveOnlyCardProps {
   asCustomerLink?: boolean;
   customerId?: Id<"moveCustomers">;
   linkDisabled?: boolean;
+  onNavigate?: () => void;
 }
 
 const MoveOnlyCard: React.FC<MoveOnlyCardProps> = ({
@@ -39,6 +40,7 @@ const MoveOnlyCard: React.FC<MoveOnlyCardProps> = ({
   asCustomerLink = false,
   customerId,
   linkDisabled = false,
+  onNavigate,
 }) => {
   const { moveDate, moveStatus, _id } = move;
   const { slug } = useSlugContext();
@@ -97,6 +99,7 @@ const MoveOnlyCard: React.FC<MoveOnlyCardProps> = ({
               variant="link"
               onClick={(e) => {
                 e.stopPropagation();
+                onNavigate?.();
                 router.push(`/app/${slug}/moves/${_id}`);
               }}
             >
@@ -129,9 +132,12 @@ const MoveOnlyCard: React.FC<MoveOnlyCardProps> = ({
     <div className={cn("border-b border-grayCustom", className)}>{inner}</div>
   );
 
-  // Only wrap with Link when not showing actions and not explicitly disabled
   if (!showActions && !linkDisabled) {
-    return <Link href={hrefLink}>{outer}</Link>;
+    return (
+      <Link href={hrefLink} onClick={onNavigate}>
+        {outer}
+      </Link>
+    );
   }
 
   return outer;

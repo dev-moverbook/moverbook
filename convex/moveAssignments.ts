@@ -20,6 +20,7 @@ import {
 } from "@/types/convex-responses";
 import { Doc } from "./_generated/dataModel";
 import { computeApprovedPayout } from "./backendUtils/calculations";
+import { buildMoverWageForMoveDisplay } from "./backendUtils/queryHelpers";
 
 export const updateMoveAssignment = mutation({
   args: {
@@ -107,7 +108,7 @@ export const updateMoveAssignmentHours = mutation({
           : assignment.endTime;
 
       const hasAnyTime =
-        typeof nextStart === "number" || typeof nextEnd === "number";
+        typeof nextStart === "number" && typeof nextEnd === "number";
 
       const patch: AssignmentPatch = { ...updates };
       if (hasAnyTime) {
@@ -152,6 +153,8 @@ export const insertMoveAssignment = mutation({
         moveId,
         moverId,
         isLead,
+        hourStatus: "incomplete",
+        breakAmount: 0,
       });
 
       return {
@@ -330,20 +333,26 @@ export const getMoveAssignments = query({
 
       const enrichedAssignments = await Promise.all(
         assignments.map(async (assignment) => {
-          const mover = await ctx.db.get(assignment.moverId);
+          const mover = validateUser(await ctx.db.get(assignment.moverId));
+          const hourlyRate = mover?.hourlyRate ?? null;
+          const wage = buildMoverWageForMoveDisplay(
+            move,
+            assignment,
+            hourlyRate
+          );
           return {
             ...assignment,
-            moverName: mover?.name ?? null,
-            hourlyRate: mover?.hourlyRate ?? null,
+            moverName: mover.name,
+            hourlyRate,
+            pendingHours: wage.pendingHours,
+            pendingPayout: wage.pendingPayout,
           };
         })
       );
 
       return {
         status: ResponseStatus.SUCCESS,
-        data: {
-          assignments: enrichedAssignments,
-        },
+        data: { assignments: enrichedAssignments },
       };
     } catch (error) {
       return handleInternalError(error);

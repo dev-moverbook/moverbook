@@ -22,13 +22,15 @@ interface MoverSectionProps {
   isSaving?: boolean;
   updateError?: string | null;
   onCancel?: () => void;
-  handleStartTimeChange: (value: number) => Promise<void> | void;
-  handleEndTimeChange: (value: number) => Promise<void> | void;
+  updateHours: (updates: {
+    startTime?: number;
+    endTime?: number;
+    breakAmount?: number;
+  }) => Promise<void> | void;
   assignment: Doc<"moveAssignments">;
   timeZone: string;
   wageDisplay: MoverWageForMove | null;
   breakHours?: number;
-  handleChangeBreakTime: (hoursDecimal: number) => Promise<void> | void;
 }
 
 type ManualTarget = "start" | "end" | null;
@@ -37,12 +39,10 @@ const MoverSection: React.FC<MoverSectionProps> = ({
   isSaving = false,
   updateError,
   onCancel,
-  handleStartTimeChange,
-  handleEndTimeChange,
+  updateHours,
   assignment,
   timeZone,
   breakHours = 0,
-  handleChangeBreakTime,
   wageDisplay,
 }) => {
   const startTime = assignment.startTime;
@@ -73,11 +73,19 @@ const MoverSection: React.FC<MoverSectionProps> = ({
     if (isEditing) {
       setStartLocal(hasStartTime ? toLocalDateTime(startTime!, timeZone) : "");
       setEndLocal(hasEndTime ? toLocalDateTime(endTime!, timeZone) : "");
-
       setBreakHoursLocal(serverBreakHours);
       setBreakMinutesLocal(serverBreakMinutes);
     }
-  }, [isEditing, hasStartTime, hasEndTime, startTime, endTime, timeZone]);
+  }, [
+    isEditing,
+    hasStartTime,
+    hasEndTime,
+    startTime,
+    endTime,
+    timeZone,
+    serverBreakHours,
+    serverBreakMinutes,
+  ]);
 
   useEffect(() => {
     if (manualTarget === "start") {
@@ -101,34 +109,32 @@ const MoverSection: React.FC<MoverSectionProps> = ({
     event.preventDefault();
     const nowMillis = Date.now();
     if (canStart) {
-      await handleStartTimeChange(nowMillis);
+      await updateHours({ startTime: nowMillis });
     }
     if (canEnd) {
-      await handleEndTimeChange(nowMillis);
+      await updateHours({ endTime: nowMillis });
     }
   };
 
   const handleEditSave = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    const pendingUpdates: Promise<unknown>[] = [];
+    const updates: {
+      startTime?: number;
+      endTime?: number;
+      breakAmount?: number;
+    } = {};
 
     if (hasStartTime) {
       const newStartMillis = fromLocalDateTime(startLocal, timeZone);
       if (newStartMillis !== startTime) {
-        const promise = handleStartTimeChange(newStartMillis);
-        if (promise) {
-          pendingUpdates.push(promise);
-        }
+        updates.startTime = newStartMillis;
       }
     }
     if (hasEndTime) {
       const newEndMillis = fromLocalDateTime(endLocal, timeZone);
       if (newEndMillis !== endTime) {
-        const promise = handleEndTimeChange(newEndMillis);
-        if (promise) {
-          pendingUpdates.push(promise);
-        }
+        updates.endTime = newEndMillis;
       }
     }
 
@@ -137,23 +143,21 @@ const MoverSection: React.FC<MoverSectionProps> = ({
       clamp(Math.round(breakMinutesLocal), 0, 59)
     );
     if (newBreakDecimal !== breakHours) {
-      const promise = handleChangeBreakTime(newBreakDecimal);
-      if (promise) {
-        pendingUpdates.push(promise);
-      }
+      updates.breakAmount = newBreakDecimal;
     }
 
-    await Promise.all(pendingUpdates);
+    if (Object.keys(updates).length > 0) {
+      await updateHours(updates);
+    }
+
     setIsEditing(false);
   };
 
   const handleEditCancel = () => {
     setStartLocal(hasStartTime ? toLocalDateTime(startTime!, timeZone) : "");
     setEndLocal(hasEndTime ? toLocalDateTime(endTime!, timeZone) : "");
-    // reset local break edits to server values
     setBreakHoursLocal(serverBreakHours);
     setBreakMinutesLocal(serverBreakMinutes);
-
     setIsEditing(false);
     onCancel?.();
   };
@@ -166,9 +170,9 @@ const MoverSection: React.FC<MoverSectionProps> = ({
   const handleManualSave = async (event: React.FormEvent) => {
     event.preventDefault();
     if (manualTarget === "start") {
-      await handleStartTimeChange(fromLocalDateTime(startLocal, timeZone));
+      await updateHours({ startTime: fromLocalDateTime(startLocal, timeZone) });
     } else if (manualTarget === "end") {
-      await handleEndTimeChange(fromLocalDateTime(endLocal, timeZone));
+      await updateHours({ endTime: fromLocalDateTime(endLocal, timeZone) });
     }
     setManualTarget(null);
   };

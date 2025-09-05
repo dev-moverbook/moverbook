@@ -10,6 +10,7 @@ import {
   sumSegments,
 } from "@/app/frontendUtils/helper";
 import { EnrichedMove } from "@/types/convex-responses";
+import { HourStatus } from "@/types/types";
 
 export type MoverContext = {
   isMover: boolean;
@@ -365,7 +366,6 @@ export function buildEstimatedWageRangeMap(
   return wageMap;
 }
 
-export type HourStatus = "pending" | "approved" | "rejected";
 export type HourStatusMap = Map<string, HourStatus | undefined>;
 export type MyWage = {
   estimated: number | null;
@@ -598,7 +598,7 @@ export function buildMoverWageForMoveDisplay(
 ): MoverWageForMove {
   const hourlyRate = Math.max(0, hourlyRateInput ?? 0);
 
-  const out: MoverWageForMove = {
+  const wageSummary: MoverWageForMove = {
     estimatedMin: null,
     estimatedMax: null,
     pendingPayout: null,
@@ -607,53 +607,99 @@ export function buildMoverWageForMoveDisplay(
     approvedHours: null,
   };
 
-  const isCompleted = move.moveStatus === "Completed";
+  const mode = determineMode(assignment);
+  switch (mode) {
+    case "APPROVED":
+      return fillApproved(wageSummary, assignment, hourlyRate);
+    case "PENDING":
+      return fillPending(wageSummary, assignment, hourlyRate);
+    case "ESTIMATE":
+      return fillEstimate(wageSummary, move, assignment, hourlyRate);
+  }
+}
 
-  if (isCompleted) {
-    if (assignment.hourStatus === "approved") {
-      const hrs =
-        typeof assignment.approvedHours === "number"
-          ? roundToTwoDecimals(Math.max(0, assignment.approvedHours))
-          : workedHoursFromAssignment(assignment);
+function determineMode(
+  assignment: Doc<"moveAssignments">
+): "APPROVED" | "PENDING" | "ESTIMATE" {
+  const hasBothTimes =
+    typeof assignment.startTime === "number" &&
+    typeof assignment.endTime === "number";
 
-      const pay =
-        typeof assignment.approvedPay === "number"
-          ? roundToTwoDecimals(Math.max(0, assignment.approvedPay))
-          : hrs != null
-            ? roundToTwoDecimals(hrs * hourlyRate)
-            : null;
+  const hasApproved =
+    assignment.hourStatus === "approved" ||
+    typeof assignment.approvedHours === "number" ||
+    typeof assignment.approvedPay === "number";
 
-      out.approvedHours = hrs;
-      out.approvedPayout = pay;
-      return out;
-    }
+  if (hasApproved) return "APPROVED";
 
-    if (
-      assignment.hourStatus === "pending" ||
-      assignment.hourStatus === "rejected"
-    ) {
-      const hrs = workedHoursFromAssignment(assignment);
-      const pay = hrs != null ? roundToTwoDecimals(hrs * hourlyRate) : null;
-      out.pendingHours = hrs;
-      out.pendingPayout = pay;
-      return out;
-    }
-
-    const hrs = workedHoursFromAssignment(assignment);
-    const pay = hrs != null ? roundToTwoDecimals(hrs * hourlyRate) : null;
-    out.pendingHours = hrs;
-    out.pendingPayout = pay;
-    return out;
+  if (hasBothTimes) {
+    return "PENDING";
   }
 
-  if (move.jobType === "hourly") {
-    const est = computeHourlyRangeEstimated(move, assignment, hourlyRate);
-    out.estimatedMin = est.min;
-    out.estimatedMax = est.max;
-  } else {
-    out.estimatedMin = null;
-    out.estimatedMax = null;
+  return "ESTIMATE";
+}
+
+function fillApproved(
+  summary: MoverWageForMove,
+  assignment: Doc<"moveAssignments">,
+  hourlyRate: number
+): MoverWageForMove {
+  let hrs: number | null = null;
+  if (typeof assignment.approvedHours === "number") {
+    hrs = roundToTwoDecimals(Math.max(0, assignment.approvedHours));
+  } else if (hasBothTimes(assignment)) {
+    hrs = workedHoursFromAssignment(assignment);
   }
 
-  return out;
+  let pay: number | null = null;
+  if (typeof assignment.approvedPay === "number") {
+    pay = roundToTwoDecimals(Math.max(0, assignment.approvedPay));
+  } else if (hrs != null) {
+    pay = roundToTwoDecimals(hrs * hourlyRate);
+  }
+
+  return {
+    ...summary,
+    approvedHours: hrs,
+    approvedPayout: pay,
+  };
+}
+
+function fillPending(
+  summary: MoverWageForMove,
+  assignment: Doc<"moveAssignments">,
+  hourlyRate: number
+): MoverWageForMove {
+  const hrs = workedHoursFromAssignment(assignment);
+  const pay = hrs != null ? roundToTwoDecimals(hrs * hourlyRate) : null;
+
+  return {
+    ...summary,
+    pendingHours: hrs,
+    pendingPayout: pay,
+  };
+}
+
+function fillEstimate(
+  summary: MoverWageForMove,
+  move: Doc<"move">,
+  assignment: Doc<"moveAssignments">,
+  hourlyRate: number
+): MoverWageForMove {
+  if (move.jobType !== "hourly") return summary;
+
+  const est = computeHourlyRangeEstimated(move, assignment, hourlyRate);
+
+  return {
+    ...summary,
+    estimatedMin: est.min,
+    estimatedMax: est.max,
+  };
+}
+
+function hasBothTimes(assignment: Doc<"moveAssignments">): boolean {
+  return (
+    typeof assignment.startTime === "number" &&
+    typeof assignment.endTime === "number"
+  );
 }

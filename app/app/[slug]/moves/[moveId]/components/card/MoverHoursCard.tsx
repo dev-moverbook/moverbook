@@ -3,14 +3,9 @@ import React, { useState } from "react";
 import { EnrichedMoveAssignment } from "@/types/convex-responses";
 import ReusableCard from "./ReusableCard";
 import FormActions from "@/app/components/shared/FormActions";
-import {
-  formatCurrency,
-  formatHourStatus,
-  formatTwoDecimals,
-} from "@/app/frontendUtils/helper";
-import { formatLongDateTime } from "@/app/frontendUtils/luxonUtils";
 import { Id } from "@/convex/_generated/dataModel";
 import EditToggleButton from "@/app/components/shared/buttons/EditToggleButton";
+import { buildMoverHoursTexts } from "@/app/frontendUtils/moveHelper";
 
 interface MoverHoursCardProps {
   assignment: EnrichedMoveAssignment;
@@ -29,29 +24,10 @@ const MoverHoursCard = ({
   errorMessage = null,
   timeZone,
 }: MoverHoursCardProps) => {
-  const {
-    _id,
-    moverName,
-    startTime,
-    endTime,
-    breakAmount,
-    approvedHours,
-    approvedPay,
-    hourStatus,
-    managerNotes,
-  } = assignment;
-
+  const { _id, moverName, hourStatus } = assignment;
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
-  const texts: [string, string | number | null][] = [
-    ["Start Time", startTime ? formatLongDateTime(startTime, timeZone) : "—"],
-    ["End Time", endTime ? formatLongDateTime(endTime, timeZone) : "—"],
-    ["Break", formatTwoDecimals(breakAmount, "hours")],
-    ["Total Hours", formatTwoDecimals(approvedHours, "hours")],
-    ["Total Pay", approvedPay ? formatCurrency(approvedPay) : "—"],
-    ["Status", formatHourStatus(hourStatus) ?? "—"],
-  ];
-  if (managerNotes) texts.push(["Manager Notes", managerNotes]);
+  const texts = buildMoverHoursTexts(assignment, timeZone);
 
   const handleApprove = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,6 +52,8 @@ const MoverHoursCard = ({
       />
     ) : null;
 
+  const showEditToggle = hourStatus === "approved" || hourStatus === "rejected";
+
   return (
     <ReusableCard
       title={moverName ?? "Mover"}
@@ -83,10 +61,12 @@ const MoverHoursCard = ({
       actions={actions}
       actionsClassName="mt-2"
       titleActions={
-        <EditToggleButton
-          isEditing={isEditing}
-          onToggle={() => setIsEditing((v) => !v)}
-        />
+        showEditToggle && (
+          <EditToggleButton
+            isEditing={isEditing}
+            onToggle={() => setIsEditing((v) => !v)}
+          />
+        )
       }
     />
   );

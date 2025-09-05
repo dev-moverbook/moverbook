@@ -181,7 +181,7 @@ export const QUOTE_STATUS_LABELS: Record<QuoteStatus, string> = {
   customer_change: "Customer Requested Changes",
 };
 
-export type HourStatus = "pending" | "approved" | "rejected";
+export type HourStatus = "approved" | "incomplete" | "pending" | "rejected";
 
 export interface DisplayRow {
   left: string;

@@ -1272,6 +1272,8 @@ export interface GetMoveAssignmentsSuccess {
 export interface EnrichedMoveAssignment extends Doc<"moveAssignments"> {
   moverName: string | null;
   hourlyRate: number | null;
+  pendingHours: number | null;
+  pendingPayout: number | null;
 }
 
 export interface GetMoveAssignmentsData {

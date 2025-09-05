@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  formatCurrency,
   formatHourStatus,
   formatTwoDecimals,
   statusColorMap,
@@ -34,7 +35,7 @@ const PayOutCard = ({ moveAssignment, wageDisplay }: PayOutCardProps) => {
 
   const texts: TextRow[] = [
     ["Total Hours", formatTwoDecimals(totalHours, "hours")],
-    ["Total Payout", totalPayout],
+    ["Total Payout", formatCurrency(totalPayout)],
     ["Status", status, { valueClassName: statusColorMap[statusKey] }],
   ];
 

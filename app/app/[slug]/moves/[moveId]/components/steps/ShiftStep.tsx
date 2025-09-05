@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { useMoveContext } from "@/app/contexts/MoveContext";
 import MoverSection from "@/app/components/move/movers/MoverSection";
@@ -10,6 +12,8 @@ const ShiftStep = () => {
   const { timeZone } = useSlugContext();
   const { wageDisplay } = moveData;
 
+  console.log("wageDisplay", wageDisplay);
+
   const {
     updateMoveAssignmentHours,
     assignmentUpdateLoading,
@@ -20,24 +24,14 @@ const ShiftStep = () => {
     return null;
   }
 
-  const handleStartTimeChange = async (startTime: number) => {
+  const updateHours = async (updates: {
+    startTime?: number;
+    endTime?: number;
+    breakAmount?: number;
+  }) => {
     await updateMoveAssignmentHours({
       assignmentId: assignment._id,
-      updates: { startTime },
-    });
-  };
-
-  const handleEndTimeChange = async (endTime: number) => {
-    await updateMoveAssignmentHours({
-      assignmentId: assignment._id,
-      updates: { endTime },
-    });
-  };
-
-  const handleChangeBreakTime = async (breakTime: number) => {
-    await updateMoveAssignmentHours({
-      assignmentId: assignment._id,
-      updates: { breakAmount: breakTime },
+      updates,
     });
   };
 
@@ -45,12 +39,10 @@ const ShiftStep = () => {
     <MoverSection
       isSaving={assignmentUpdateLoading}
       updateError={assignmentUpdateError}
-      handleStartTimeChange={handleStartTimeChange}
-      handleEndTimeChange={handleEndTimeChange}
+      updateHours={updateHours}
       assignment={assignment}
       timeZone={timeZone}
       breakHours={assignment.breakAmount || 0}
-      handleChangeBreakTime={handleChangeBreakTime}
       wageDisplay={wageDisplay}
     />
   );

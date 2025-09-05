@@ -1157,6 +1157,8 @@ export const formatHourStatus = (status?: HourStatus): string => {
   }
 
   switch (status) {
+    case "incomplete":
+      return "Incomplete";
     case "pending":
       return "Pending";
     case "approved":

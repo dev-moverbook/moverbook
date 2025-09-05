@@ -69,7 +69,14 @@ export const MoverCalendarProvider = ({
         }
       : undefined;
 
-  const movesResult = useMovesForMoverCalendar(queryArgs);
+  const movesResult = useMovesForMoverCalendar(
+    queryArgs as {
+      companyId: Id<"companies">;
+      moverId: Id<"users"> | null;
+      start: string;
+      end: string;
+    }
+  );
 
   const isLoading = movesResult.status === QueryStatus.LOADING;
   const isError = movesResult.status === QueryStatus.ERROR;

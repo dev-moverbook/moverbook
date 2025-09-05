@@ -1,22 +1,20 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
-import { CopyPlus, Eye, MessageSquare } from "lucide-react";
 import {
   formatDateToLong,
   formatLocationType,
-  formatPriceRange,
-  getStatusColor,
-  getInitials,
-  computeMoveTotal,
-  formatCurrency,
 } from "@/app/frontendUtils/helper";
 import { Doc, Id } from "@/convex/_generated/dataModel";
-import { Button } from "../ui/button";
-import { HourStatus } from "@/convex/backendUtils/queryHelpers";
-import { MoverWageForMove, WINDOW_LABEL } from "@/types/types";
+import { MoverWageForMove, HourStatus } from "@/types/types";
+import {
+  getDisplayedPrice,
+  getHourStatusClass,
+  getStatusDisplay,
+} from "@/app/frontendUtils/moveHelper";
+import { RepAvatar } from "../shared/avatars/RepAvatar";
+import { MoveCardActions } from "./MoveCardActions";
 
 interface MoveCardProps {
   move: Doc<"move">;
@@ -38,76 +36,29 @@ const MoveCard: React.FC<MoveCardProps> = ({
   showActions = false,
   onDuplicate,
   salesRep,
-  isMover,
+  isMover = false,
   hourStatus,
   moverWageDisplay,
   onMessagesClick,
   onViewCustomerClick,
   onCardClick,
 }) => {
-  const { moveDate, moveStatus } = move;
   const name = moveCustomer?.name;
-
   const tags = [
     move.jobId ? `Job ID: ${move.jobId}` : null,
     formatLocationType(move.locations[0].locationType),
   ].filter(Boolean) as string[];
 
-  const { minTotal, maxTotal } = computeMoveTotal({
-    moveFees: move.moveFees,
-    jobType: move.jobType,
-    jobTypeRate: move.jobTypeRate,
-    startingMoveTime: move.startingMoveTime,
-    endingMoveTime: move.endingMoveTime,
-    liabilityCoverage: move.liabilityCoverage,
-    travelFeeRate: move.travelFeeRate ?? null,
-    travelFeeMethod: move.travelFeeMethod ?? null,
-    segmentDistances: move.segmentDistances,
-  });
-
-  const min = minTotal;
-  const max = maxTotal;
-
-  let price = min === max ? formatCurrency(min) : formatPriceRange(min, max);
-
-  if (isMover) {
-    price = formatPriceRange(
-      moverWageDisplay?.estimatedMin ?? 0,
-      moverWageDisplay?.estimatedMax ?? 0
-    );
-  }
-
-  if (isMover && move.moveStatus === "Completed" && hourStatus === "approved") {
-    price = formatCurrency(moverWageDisplay?.approvedPayout ?? 0);
-  }
-
-  if (isMover && move.moveStatus === "Completed" && hourStatus === "pending") {
-    price = formatCurrency(moverWageDisplay?.pendingPayout ?? 0);
-  }
-
-  if (!isMover && move.moveStatus === "Completed" && move.invoiceAmountPaid) {
-    price = formatCurrency(move.invoiceAmountPaid + move.deposit);
-  }
-
-  const repInitials = getInitials(salesRep?.name || "Rep");
+  const price = getDisplayedPrice(move, isMover, hourStatus, moverWageDisplay);
+  const { label: displayStatus, color: statusDotColor } = getStatusDisplay(
+    move,
+    isMover
+  );
 
   const showHourStatus =
-    !!isMover && (hourStatus === "pending" || hourStatus === "rejected");
+    isMover && (hourStatus === "pending" || hourStatus === "rejected");
 
-  const hourStatusClass =
-    hourStatus === "pending"
-      ? "text-grayCustom2"
-      : hourStatus === "rejected"
-        ? "text-red-400"
-        : "";
-
-  const isCompleted = moveStatus === "Completed";
-  const displayStatus =
-    isMover && !isCompleted ? WINDOW_LABEL[move.moveWindow] : moveStatus;
-  const statusDotColor =
-    isMover && !isCompleted
-      ? getStatusColor(move.moveWindow)
-      : getStatusColor(moveStatus);
+  const hourStatusClass = getHourStatusClass(hourStatus);
 
   const body = (
     <div
@@ -119,8 +70,11 @@ const MoveCard: React.FC<MoveCardProps> = ({
     >
       <div className="max-w-screen-sm mx-auto">
         <div className="flex items-stretch justify-between gap-4">
+          {/* --- LEFT (Details) --- */}
           <div className="flex flex-col min-w-0">
-            <p className="text-grayCustom2">{formatDateToLong(moveDate)}</p>
+            <p className="text-grayCustom2">
+              {formatDateToLong(move.moveDate)}
+            </p>
             <h3 className="text-lg font-medium truncate">
               {name ?? "No name"}
             </h3>
@@ -138,80 +92,42 @@ const MoveCard: React.FC<MoveCardProps> = ({
             </div>
           </div>
 
-          <div className="flex flex-col items-center self-stretch">
-            <div className="mt-auto flex flex-col items-center">
-              <div className="w-10 h-10 border border-grayCustom rounded-full overflow-hidden flex items-center justify-center bg-background2">
-                {salesRep?.imageUrl ? (
-                  <Image
-                    src={salesRep.imageUrl}
-                    alt={salesRep?.name ?? "Sales rep"}
-                    width={40}
-                    height={40}
-                    className="rounded-full object-cover w-10 h-10"
-                  />
-                ) : (
-                  <span className="text-sm text-white font-medium">
-                    {repInitials}
-                  </span>
-                )}
-              </div>
-              <span className="text-sm text-grayCustom2 text-center max-w-[9rem] truncate">
-                {salesRep?.name}
-              </span>
-            </div>
-          </div>
+          {/* --- RIGHT (Rep) --- */}
+          <RepAvatar salesRep={salesRep} />
         </div>
-
+        {/* Tags */}
         <div className="flex gap-1 flex-wrap mt-1">
           {tags.map((tag, i) => (
             <Badge key={i}>{tag}</Badge>
           ))}
         </div>
-
         {showActions && (
-          <div className="flex gap-4 mt-2 justify-start">
-            <Button size="auto" variant="link" onClick={onMessagesClick}>
-              <div className="flex items-center gap-1">
-                <MessageSquare className="w-4 h-4" />
-                <span className="text-base">Messages</span>
-              </div>
-            </Button>
-            <Button size="auto" variant="link" onClick={onViewCustomerClick}>
-              <div className="flex items-center gap-1">
-                <Eye className="w-4 h-4" />
-                <span className="text-base">View Customer</span>
-              </div>
-            </Button>
-            <Button
-              size="auto"
-              variant="link"
-              onClick={() => onDuplicate?.(move)}
-            >
-              <div className="flex items-center gap-1">
-                <CopyPlus className="w-4 h-4" />
-                <span className="text-base">Duplicate Move</span>
-              </div>
-            </Button>
-          </div>
-        )}
+          <MoveCardActions
+            onMessagesClick={onMessagesClick}
+            onViewCustomerClick={onViewCustomerClick}
+            onDuplicate={onDuplicate}
+            move={move}
+          />
+        )}{" "}
       </div>
     </div>
   );
 
   if (showActions) return body;
 
-  if (onCardClick)
+  if (onCardClick) {
     return (
       <div
         role="button"
         tabIndex={0}
-        onClick={() => onCardClick?.(move._id)}
-        onKeyDown={(e) => e.key === "Enter" && onCardClick?.(move._id)}
+        onClick={() => onCardClick(move._id)}
+        onKeyDown={(e) => e.key === "Enter" && onCardClick(move._id)}
         className="cursor-pointer"
       >
         {body}
       </div>
     );
+  }
 
   return body;
 };
