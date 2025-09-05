@@ -21,12 +21,14 @@ interface CustomerInfoProps {
   moveCustomer: Doc<"moveCustomers">;
   onClick?: () => void;
   showCheckmark?: boolean;
+  isMoverLead?: boolean;
 }
 
 const CustomerInfo: React.FC<CustomerInfoProps> = ({
   moveCustomer,
   onClick,
   showCheckmark,
+  isMoverLead,
 }) => {
   const { user } = useSlugContext();
   const canCreateMoveUser = canCreateMove(
@@ -97,6 +99,8 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
 
   const isDisabled = !isCompleted;
 
+  const showContactFields = !isMoverUser || isMoverLead;
+
   return (
     <div
       onClick={onClick}
@@ -106,20 +110,17 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
           "cursor-pointer hover:bg-background2 transition-colors duration-200"
       )}
     >
-      {/* Main Content */}
       <div className="flex flex-col gap-2 w-full">
-        {/* Name field */}
         <SectionHeader
           title="Customer Info"
           isEditing={isEditing}
           onEditClick={() => setIsEditing(true)}
           onCancelEdit={() => setIsEditing(false)}
           className="px-0 pt-0"
-          showCheckmark={showCheckmark}
+          showCheckmark={showCheckmark && canCreateMoveUser}
           isCompleted={isCompleted}
           canEdit={canCreateMoveUser}
         />
-        {/* Contact fields */}
         <EditableIconField
           icon={<Contact className="w-4 h-4" />}
           value={formData.name}
@@ -128,43 +129,48 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
           label="Name"
           placeholder="Enter name"
         />
-        <EditableIconField
-          icon={<Phone className="w-4 h-4" />}
-          value={formData.phoneNumber}
-          onChange={(val) => setFormData({ ...formData, phoneNumber: val })}
-          isEditing={isEditing}
-          label="Phone Number"
-          placeholder="Enter phone number"
-          isPhoneNumber
-        />
-        <EditableIconField
-          icon={<Mail className="w-4 h-4" />}
-          value={formData.email}
-          onChange={(val) => setFormData({ ...formData, email: val })}
-          isEditing={isEditing}
-          label="Email"
-          placeholder="Enter email"
-        />
-        <EditableIconField
-          icon={<PhoneForwarded className="w-4 h-4" />}
-          value={formData.altPhoneNumber || ""}
-          onChange={(val) => setFormData({ ...formData, altPhoneNumber: val })}
-          isEditing={isEditing}
-          label="Alternative Phone Number"
-          placeholder="Enter alternative phone number"
-          isPhoneNumber
-          suffix="  (alt)"
-        />
-        <EditableIconSelectField
-          icon={<UserIcon className="w-4 h-4" />}
-          value={formData.referral}
-          options={referralSelectOptions.map((o) => o.value)}
-          isEditing={isEditing}
-          onChange={(val) => setFormData({ ...formData, referral: val })}
-          error={errors.referral}
-          label="Referral"
-        />
-        {/* Actions */}
+        {showContactFields && (
+          <>
+            <EditableIconField
+              icon={<Phone className="w-4 h-4" />}
+              value={formData.phoneNumber}
+              onChange={(val) => setFormData({ ...formData, phoneNumber: val })}
+              isEditing={isEditing}
+              label="Phone Number"
+              placeholder="Enter phone number"
+              isPhoneNumber
+            />
+            <EditableIconField
+              icon={<Mail className="w-4 h-4" />}
+              value={formData.email}
+              onChange={(val) => setFormData({ ...formData, email: val })}
+              isEditing={isEditing}
+              label="Email"
+              placeholder="Enter email"
+            />
+            <EditableIconField
+              icon={<PhoneForwarded className="w-4 h-4" />}
+              value={formData.altPhoneNumber || ""}
+              onChange={(val) =>
+                setFormData({ ...formData, altPhoneNumber: val })
+              }
+              isEditing={isEditing}
+              label="Alternative Phone Number"
+              placeholder="Enter alternative phone number"
+              isPhoneNumber
+              suffix="  (alt)"
+            />
+            <EditableIconSelectField
+              icon={<UserIcon className="w-4 h-4" />}
+              value={formData.referral}
+              options={referralSelectOptions.map((o) => o.value)}
+              isEditing={isEditing}
+              onChange={(val) => setFormData({ ...formData, referral: val })}
+              error={errors.referral}
+              label="Referral"
+            />
+          </>
+        )}
         {isEditing && (
           <FormActions
             onSave={(e) => {

@@ -2,10 +2,11 @@ import CustomerInfo from "@/app/components/customer/CustomerInfo";
 import { Doc } from "@/convex/_generated/dataModel";
 import React from "react";
 import CustomerMoves from "./components/CustomerMoves";
+import { EnrichedMoveForMover } from "@/types/convex-responses";
 
 interface CustomerPageContentProps {
   moveCustomer: Doc<"moveCustomers">;
-  moves: Doc<"move">[];
+  moves: EnrichedMoveForMover[];
 }
 
 const CustomerPageContent: React.FC<CustomerPageContentProps> = ({

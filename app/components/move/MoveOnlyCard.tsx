@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { CopyPlus, Eye } from "lucide-react";
 import {
@@ -9,24 +8,23 @@ import {
   formatDateToLong,
   formatMoveSize,
   formatLocationType,
-  formatPriceRange,
-  getMoveCostRange,
-  getStatusColor,
 } from "@/app/frontendUtils/helper";
-import { useRouter } from "next/navigation";
-import { useSlugContext } from "@/app/contexts/SlugContext";
-import { Doc, Id } from "@/convex/_generated/dataModel";
+import { Doc } from "@/convex/_generated/dataModel";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
+import { EnrichedMoveForMover } from "@/types/convex-responses";
+import {
+  getDisplayedPrice,
+  getHourStatusClass,
+  getStatusDisplay,
+} from "@/app/frontendUtils/moveHelper";
 
 interface MoveOnlyCardProps {
-  move: Doc<"move">;
+  move: EnrichedMoveForMover;
   showActions?: boolean;
   onDuplicate?: (move: Doc<"move">) => void;
   showOnlyJobIdTag?: boolean;
   className?: string;
-  asCustomerLink?: boolean;
-  customerId?: Id<"moveCustomers">;
   linkDisabled?: boolean;
   onNavigate?: () => void;
 }
@@ -37,50 +35,64 @@ const MoveOnlyCard: React.FC<MoveOnlyCardProps> = ({
   onDuplicate,
   showOnlyJobIdTag = false,
   className,
-  asCustomerLink = false,
-  customerId,
   linkDisabled = false,
   onNavigate,
 }) => {
-  const { moveDate, moveStatus, _id } = move;
-  const { slug } = useSlugContext();
-  const router = useRouter();
+  const isMover = Boolean(
+    move.moverWageForMove || move.hourStatus !== undefined
+  );
+  const price = getDisplayedPrice(
+    move,
+    isMover,
+    move.hourStatus,
+    move.moverWageForMove
+  );
+  const { label: displayStatus, color: statusDotColor } = getStatusDisplay(
+    move,
+    isMover
+  );
+  const showHourStatus = isMover;
+  const hourStatusClass = getHourStatusClass(move.hourStatus);
 
-  const allTags = [
+  const tagsAll = [
     move.jobId ? `Job ID: ${move.jobId}` : null,
     formatMoveSize(move.locations[0].moveSize),
     formatAccessType(move.locations[0].accessType),
     formatLocationType(move.locations[0].locationType),
   ].filter(Boolean) as string[];
 
-  const jobIdTag = move.jobId ? [`Job ID: ${move.jobId}`] : [];
-  const tags = showOnlyJobIdTag ? jobIdTag : allTags;
-
-  const [low, high] = getMoveCostRange(move);
-  const price = formatPriceRange(low, high);
-
-  const hrefLink =
-    asCustomerLink && customerId
-      ? `/app/${slug}/customer/${customerId}`
-      : `/app/${slug}/moves/${_id}`;
+  const tagsJobOnly = move.jobId ? [`Job ID: ${move.jobId}`] : [];
+  const tags = showOnlyJobIdTag ? tagsJobOnly : tagsAll;
 
   const inner = (
     <div
       className={cn(
         "bg-black py-4 px-4 text-white transition-colors duration-200",
         !showActions && !linkDisabled
-          ? "hover:bg-background2 hover:rounded-lg"
+          ? "hover:bg-background2 hover:rounded-lg cursor-pointer"
           : ""
       )}
+      onClick={() => {
+        if (!showActions && !linkDisabled) onNavigate?.();
+      }}
     >
       <div className="max-w-screen-sm mx-auto">
-        <p className="text-grayCustom2">{formatDateToLong(moveDate)}</p>
+        <p className="text-grayCustom2">{formatDateToLong(move.moveDate)}</p>
 
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1">
-            <span style={{ color: getStatusColor(moveStatus) }}>●</span>
-            <span>{moveStatus}</span>
-            <span className="text-greenCustom font-medium pl-2">{price}</span>
+          <div className="flex items-center gap-2 min-w-0">
+            <span style={{ color: statusDotColor }}>●</span>
+            <span className="truncate">{displayStatus}</span>
+            <span className="text-greenCustom font-semibold pl-1">{price}</span>
+            {showHourStatus && (
+              <span className={`${hourStatusClass} italic`}>
+                (
+                {move.hourStatus === "incomplete"
+                  ? "Estimated"
+                  : move.hourStatus}
+                )
+              </span>
+            )}
           </div>
         </div>
 
@@ -100,7 +112,6 @@ const MoveOnlyCard: React.FC<MoveOnlyCardProps> = ({
               onClick={(e) => {
                 e.stopPropagation();
                 onNavigate?.();
-                router.push(`/app/${slug}/moves/${_id}`);
               }}
             >
               <div className="flex items-center gap-1">
@@ -128,19 +139,9 @@ const MoveOnlyCard: React.FC<MoveOnlyCardProps> = ({
     </div>
   );
 
-  const outer = (
+  return (
     <div className={cn("border-b border-grayCustom", className)}>{inner}</div>
   );
-
-  if (!showActions && !linkDisabled) {
-    return (
-      <Link href={hrefLink} onClick={onNavigate}>
-        {outer}
-      </Link>
-    );
-  }
-
-  return outer;
 };
 
 export default MoveOnlyCard;

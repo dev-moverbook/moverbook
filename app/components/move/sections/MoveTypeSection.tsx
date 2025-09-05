@@ -103,7 +103,7 @@ const MoveTypeSection: React.FC<MoveTypeSectionProps> = ({
         onCancelEdit={onCancel}
         className="pb-0 mx-auto"
         isCompleted={isCompleted}
-        showCheckmark
+        showCheckmark={canEdit}
         canEdit={canEdit}
       />
 

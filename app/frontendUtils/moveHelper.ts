@@ -35,7 +35,13 @@ export function getDisplayedPrice(
       case "approved":
         return formatCurrency(moverWageDisplay?.approvedPayout ?? 0);
       case "pending":
+        return formatCurrency(moverWageDisplay?.pendingPayout ?? 0);
       case "incomplete":
+        return formatPriceRange(
+          moverWageDisplay?.estimatedMin ?? 0,
+          moverWageDisplay?.estimatedMax ?? 0
+        );
+      case "rejected":
         return formatCurrency(moverWageDisplay?.pendingPayout ?? 0);
       default:
         return formatPriceRange(
@@ -76,7 +82,7 @@ export function getStatusDisplay(
 export function getHourStatusClass(status: HourStatus | undefined): string {
   if (status === "pending") return "text-grayCustom2";
   if (status === "rejected") return "text-red-400";
-  return "";
+  return "text-grayCustom2";
 }
 
 export function buildMoverHoursTexts(
@@ -95,6 +101,8 @@ export function buildMoverHoursTexts(
     pendingPayout,
   } = assignment;
 
+  const hourlyRate = assignment?.hourlyRate;
+
   const isPendingOrRejected =
     hourStatus === "pending" || hourStatus === "rejected";
 
@@ -106,13 +114,19 @@ export function buildMoverHoursTexts(
       ? roundToTwoDecimals(Math.max(0, pendingPayout))
       : null;
 
+  const computedPending =
+    pendingPayRounded ??
+    (hourlyRate != null && pendingHours != null
+      ? roundToTwoDecimals(Math.max(0, hourlyRate * pendingHours))
+      : null);
+
   const totalHoursDisplay = isPendingOrRejected
     ? formatTwoDecimals(pendingHours, "hours")
     : formatTwoDecimals(approvedHours, "hours");
 
   const totalPayDisplay = isPendingOrRejected
-    ? pendingPayRounded != null
-      ? formatCurrency(pendingPayRounded)
+    ? computedPending != null
+      ? formatCurrency(computedPending)
       : "—"
     : approvedPayRounded != null
       ? formatCurrency(approvedPayRounded)

@@ -26,7 +26,6 @@ const LocationSection = () => {
   const canCreateMoveUser = canCreateMove(
     user.publicMetadata.role as ClerkRoles
   );
-  const isMoverUser = isMover(user.publicMetadata.role as ClerkRoles);
 
   const [addingStopIndex, setAddingStopIndex] = useState<number | null>(null);
   const [editedLocations, setEditedLocations] = useState<LocationInput[]>(
@@ -34,9 +33,7 @@ const LocationSection = () => {
   );
   const [showBanner, setShowBanner] = useState<boolean>(false);
 
-  const { data: companyContact } = useCompanyContact(move.companyId, {
-    enabled: !isMoverUser,
-  });
+  const { data: companyContact } = useCompanyContact(move.companyId);
   const { updateMove, updateMoveLoading, updateMoveError } = useUpdateMove();
   const { fetchDistance } = useDistanceMatrix();
 

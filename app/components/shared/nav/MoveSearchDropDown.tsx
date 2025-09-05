@@ -37,6 +37,12 @@ const MoveSearchDropdown = () => {
     setVisible(false);
   };
 
+  const handleSelectMove = (id: string) => {
+    router.push(`/app/${slug}/moves/${id}`);
+    setQuery("");
+    setVisible(false);
+  };
+
   if (!visible || trimmed === "") return null;
 
   let content: React.ReactNode;
@@ -76,10 +82,7 @@ const MoveSearchDropdown = () => {
                 key={move._id}
                 move={move}
                 showOnlyJobIdTag
-                onNavigate={() => {
-                  setQuery("");
-                  setVisible(false);
-                }}
+                onNavigate={() => handleSelectMove(move._id)}
               />
             ))}
         </ul>

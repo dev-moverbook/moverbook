@@ -13,9 +13,10 @@ import { useSlugContext } from "@/app/contexts/SlugContext";
 import { isMover } from "@/app/frontendUtils/permissions";
 import { ClerkRoles } from "@/types/enums";
 import SectionHeaderWithAction from "@/app/components/shared/ SectionHeaderWithAction";
+import { EnrichedMoveForMover } from "@/types/convex-responses";
 
 interface CustomerMovesProps {
-  moves: Doc<"move">[];
+  moves: EnrichedMoveForMover[];
   moveCustomer: Doc<"moveCustomers">;
 }
 
@@ -25,8 +26,6 @@ const CustomerMoves: React.FC<CustomerMovesProps> = ({
 }) => {
   const router = useRouter();
   const { slug } = useParams();
-
-  // NEW: get user role and check mover
   const { user } = useSlugContext();
   const isMoverUser = isMover(user.publicMetadata.role as ClerkRoles);
 
@@ -48,7 +47,6 @@ const CustomerMoves: React.FC<CustomerMovesProps> = ({
     setSelectedMove(null);
   };
 
-  // NEW: only show Add Move button if NOT a mover
   const actionNode = isMoverUser ? null : (
     <Button variant="outline" onClick={handleAddMove}>
       <div className="flex items-center gap-1">
@@ -74,6 +72,7 @@ const CustomerMoves: React.FC<CustomerMovesProps> = ({
               move={move}
               showActions={!isMoverUser}
               onDuplicate={handleDuplicateMove}
+              onNavigate={() => router.push(`/app/${slug}/moves/${move._id}`)}
             />
           ))}
         </CardContainer>

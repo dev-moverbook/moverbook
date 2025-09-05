@@ -7,7 +7,15 @@ const ViewCustomer = () => {
   const { moveData } = useMoveContext();
   const moveCustomer = moveData.moveCustomer;
 
-  return <CustomerInfo moveCustomer={moveCustomer} showCheckmark={true} />;
+  const isMoverLead = moveData.myAssignment?.isLead;
+
+  return (
+    <CustomerInfo
+      moveCustomer={moveCustomer}
+      showCheckmark={true}
+      isMoverLead={isMoverLead}
+    />
+  );
 };
 
 export default ViewCustomer;

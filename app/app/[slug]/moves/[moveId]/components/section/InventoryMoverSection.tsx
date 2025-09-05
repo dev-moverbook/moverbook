@@ -9,7 +9,7 @@ const InventoryMoverSection = () => {
 
   return (
     <div>
-      <Header3 wrapperClassName={`px-4 `} isCompleted>
+      <Header3 wrapperClassName={`px-4 `} showCheckmark={false}>
         Inventory
       </Header3>
 

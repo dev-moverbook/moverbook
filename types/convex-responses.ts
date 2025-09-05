@@ -1164,7 +1164,7 @@ export interface SearchMoveCustomersAndJobIdSuccess {
 
 export interface SearchMoveCustomersAndJobIdData {
   moveCustomers: Doc<"moveCustomers">[];
-  moves: Doc<"move">[];
+  moves: EnrichedMoveForMover[];
 }
 
 export type UpdateMoveCustomerResponse =
@@ -1191,7 +1191,7 @@ export interface GetCustomerAndMovesSuccess {
 
 export interface GetCustomerAndMovesData {
   moveCustomer: Doc<"moveCustomers">;
-  moves: Doc<"move">[];
+  moves: EnrichedMoveForMover[];
 }
 
 export type GetMoveCustomerResponse = GetMoveCustomerSuccess | ErrorResponse;
@@ -1291,4 +1291,9 @@ export interface GetMovesForMoverCalendarSuccess {
 
 export interface GetMovesForMoverCalendarData {
   moves: Doc<"move">[];
+}
+
+export interface EnrichedMoveForMover extends Doc<"move"> {
+  moverWageForMove?: MoverWageForMove;
+  hourStatus?: HourStatus;
 }

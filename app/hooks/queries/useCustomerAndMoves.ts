@@ -5,6 +5,7 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id, Doc } from "@/convex/_generated/dataModel";
 import { QueryStatus, ResponseStatus } from "@/types/enums";
+import { EnrichedMoveForMover } from "@/types/convex-responses";
 
 type UseCustomerAndMovesLoading = { status: QueryStatus.LOADING };
 type UseCustomerAndMovesError = {
@@ -15,7 +16,7 @@ type UseCustomerAndMovesSuccess = {
   status: QueryStatus.SUCCESS;
   data: {
     moveCustomer: Doc<"moveCustomers">;
-    moves: Doc<"move">[];
+    moves: EnrichedMoveForMover[];
   };
 };
 
@@ -25,14 +26,14 @@ export type UseCustomerAndMovesResult =
   | UseCustomerAndMovesSuccess;
 
 export const useCustomerAndMoves = (
-  moveCustomerId: Id<"moveCustomers"> | null
+  moveCustomerId: Id<"moveCustomers">
 ): UseCustomerAndMovesResult => {
   const response = useQuery<typeof api.moveCustomers.getCustomerAndMoves>(
     api.moveCustomers.getCustomerAndMoves,
-    moveCustomerId ? { moveCustomerId } : "skip"
+    { moveCustomerId }
   );
 
-  if (!moveCustomerId || !response) {
+  if (!response) {
     return { status: QueryStatus.LOADING };
   }
 

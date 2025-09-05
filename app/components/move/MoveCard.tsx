@@ -55,8 +55,7 @@ const MoveCard: React.FC<MoveCardProps> = ({
     isMover
   );
 
-  const showHourStatus =
-    isMover && (hourStatus === "pending" || hourStatus === "rejected");
+  const showHourStatus = isMover;
 
   const hourStatusClass = getHourStatusClass(hourStatus);
 
@@ -86,7 +85,7 @@ const MoveCard: React.FC<MoveCardProps> = ({
               </span>
               {showHourStatus && (
                 <span className={`${hourStatusClass} italic`}>
-                  ({hourStatus})
+                  ({hourStatus === "incomplete" ? "Estimated" : hourStatus})
                 </span>
               )}
             </div>

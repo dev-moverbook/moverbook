@@ -5,6 +5,7 @@ import { ClerkRoles, ResponseStatus } from "@/types/enums";
 import { handleInternalError } from "./backendUtils/helper";
 import {
   CreateMoveCustomerResponse,
+  EnrichedMoveForMover,
   GetCustomerAndMovesResponse,
   GetMoveCustomerResponse,
   SearchMoveCustomersAndJobIdResponse,
@@ -18,6 +19,12 @@ import {
   validateUser,
 } from "./backendUtils/validate";
 import { ErrorMessages } from "@/types/errors";
+import {
+  buildMoverWageForMoveDisplay,
+  scopeMovesToMover,
+  resolveMoverContext,
+} from "./backendUtils/queryHelpers";
+import { HourStatus } from "@/types/types";
 
 export const createMoveCustomer = mutation({
   args: {
@@ -113,65 +120,94 @@ export const searchMoveCustomersAndJobId = query({
       const company = validateCompany(await ctx.db.get(companyId));
       isUserInOrg(identity, company.clerkOrganizationId);
 
-      const isMover = identity.role === ClerkRoles.MOVER;
+      const {
+        isMover,
+        moverId: signedInMoverId,
+        hourlyRate: signedInMoverHourlyRate,
+      } = await resolveMoverContext(ctx, identity);
 
-      const clerkId = identity.id as string;
-      let moverId: Id<"users"> | null = null;
-
-      if (isMover) {
-        const user = validateUser(
-          await ctx.db
-            .query("users")
-            .withIndex("by_clerkUserId", (q) => q.eq("clerkUserId", clerkId))
-            .first()
-        );
-        moverId = user._id;
-      }
-
-      const normalized = searchTerm.toLowerCase();
+      const normalizedSearch = searchTerm.trim().toLowerCase();
 
       const allCustomers = await ctx.db
         .query("moveCustomers")
         .filter((q) => q.eq(q.field("companyId"), companyId))
         .collect();
 
-      const allMoves = await ctx.db
+      const allCompanyMoves = await ctx.db
         .query("move")
         .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
         .collect();
 
-      let allowedMoveIds: Set<Id<"move">> | null = null;
-      if (isMover && moverId) {
-        const assignments = await ctx.db
-          .query("moveAssignments")
-          .withIndex("by_mover", (q) => q.eq("moverId", moverId))
-          .collect();
-        allowedMoveIds = new Set(assignments.map((a) => a.moveId));
+      let assignmentMapByMoveId:
+        | Map<string, Doc<"moveAssignments">>
+        | undefined;
+
+      let movesScopedToMover: Doc<"move">[] = allCompanyMoves;
+
+      if (isMover && signedInMoverId) {
+        const { moves: scopedMoves, assignmentMap } = await scopeMovesToMover(
+          ctx,
+          allCompanyMoves,
+          signedInMoverId
+        );
+        movesScopedToMover = scopedMoves;
+        assignmentMapByMoveId = assignmentMap;
       }
 
-      const matchingMoves = allMoves
+      const allowedMoveIds: Set<Id<"move">> | null =
+        isMover && signedInMoverId
+          ? new Set(movesScopedToMover.map((moveRecord) => moveRecord._id))
+          : null;
+
+      const matchingMovesBase = allCompanyMoves
         .filter(
-          (m) =>
-            (allowedMoveIds ? allowedMoveIds.has(m._id) : true) &&
-            (m.jobId?.toLowerCase().includes(normalized) ?? false)
+          (moveRecord) =>
+            (allowedMoveIds ? allowedMoveIds.has(moveRecord._id) : true) &&
+            (moveRecord.jobId?.toLowerCase().includes(normalizedSearch) ??
+              false)
         )
         .slice(0, 10);
 
-      const allowedCustomerIds = allowedMoveIds
+      const enrichedMoves: EnrichedMoveForMover[] =
+        isMover && signedInMoverId && assignmentMapByMoveId
+          ? matchingMovesBase.map((moveRecord) => {
+              const assignment = assignmentMapByMoveId!.get(moveRecord._id);
+              return {
+                ...moveRecord,
+                moverWageForMove: assignment
+                  ? buildMoverWageForMoveDisplay(
+                      moveRecord,
+                      assignment,
+                      signedInMoverHourlyRate
+                    )
+                  : undefined,
+                hourStatus: (assignment?.hourStatus as HourStatus) ?? undefined,
+              };
+            })
+          : (matchingMovesBase as EnrichedMoveForMover[]);
+
+      const allowedCustomerIdsForMover = allowedMoveIds
         ? new Set(
-            allMoves
-              .filter((m) => allowedMoveIds!.has(m._id))
-              .map((m) => m.moveCustomerId)
+            allCompanyMoves
+              .filter((moveRecord) => allowedMoveIds!.has(moveRecord._id))
+              .map((moveRecord) => moveRecord.moveCustomerId)
           )
         : null;
 
       const matchingCustomers = allCustomers
         .filter(
-          (c) =>
-            (allowedCustomerIds ? allowedCustomerIds.has(c._id) : true) &&
-            ((c.name?.toLowerCase().includes(normalized) ?? false) ||
-              (c.email?.toLowerCase().includes(normalized) ?? false) ||
-              (c.phoneNumber?.toLowerCase().includes(normalized) ?? false))
+          (customerRecord) =>
+            (allowedCustomerIdsForMover
+              ? allowedCustomerIdsForMover.has(customerRecord._id)
+              : true) &&
+            ((customerRecord.name?.toLowerCase().includes(normalizedSearch) ??
+              false) ||
+              (customerRecord.email?.toLowerCase().includes(normalizedSearch) ??
+                false) ||
+              (customerRecord.phoneNumber
+                ?.toLowerCase()
+                .includes(normalizedSearch) ??
+                false))
         )
         .slice(0, 10);
 
@@ -179,7 +215,7 @@ export const searchMoveCustomersAndJobId = query({
         status: ResponseStatus.SUCCESS,
         data: {
           moveCustomers: matchingCustomers,
-          moves: matchingMoves,
+          moves: enrichedMoves,
         },
       };
     } catch (error) {
@@ -279,43 +315,49 @@ export const getCustomerAndMoves = query({
       const company = validateCompany(await ctx.db.get(moveCustomer.companyId));
       isUserInOrg(identity, company.clerkOrganizationId);
 
-      const isMover = identity.role === ClerkRoles.MOVER;
+      const {
+        isMover,
+        moverId: selfMoverId,
+        hourlyRate: selfHourlyRate,
+      } = await resolveMoverContext(ctx, identity);
 
-      let moverId: Id<"users"> | null = null;
-
-      if (isMover) {
-        const user = validateUser(
-          await ctx.db
-            .query("users")
-            .withIndex("by_clerkUserId", (q) =>
-              q.eq("clerkUserId", identity.id as string)
-            )
-            .first()
-        );
-        moverId = user._id;
-      }
-
-      let moves: Doc<"move">[] = await ctx.db
+      const baseMoves: Doc<"move">[] = await ctx.db
         .query("move")
-        .withIndex("by_moveCustomerId", (q) =>
-          q.eq("moveCustomerId", moveCustomerId)
+        .withIndex("by_moveCustomerId", (index) =>
+          index.eq("moveCustomerId", moveCustomerId)
         )
         .collect();
 
-      if (isMover && moverId) {
-        const filtered = await Promise.all(
-          moves.map(async (m) => {
-            const assigned = await ctx.db
-              .query("moveAssignments")
-              .withIndex("by_move_mover", (q) =>
-                q.eq("moveId", m._id).eq("moverId", moverId!)
-              )
-              .first();
-            return assigned ? m : null;
-          })
-        );
-        moves = filtered.filter((m): m is Doc<"move"> => m !== null);
+      if (!isMover || !selfMoverId) {
+        return {
+          status: ResponseStatus.SUCCESS,
+          data: {
+            moveCustomer,
+            moves: baseMoves as EnrichedMoveForMover[],
+          },
+        };
       }
+
+      const { moves: scopedMoves, assignmentMap } = await scopeMovesToMover(
+        ctx,
+        baseMoves,
+        selfMoverId
+      );
+
+      const moves: EnrichedMoveForMover[] = scopedMoves.map((moveRecord) => {
+        const assignment = assignmentMap.get(moveRecord._id);
+        return {
+          ...moveRecord,
+          moverWageForMove: assignment
+            ? buildMoverWageForMoveDisplay(
+                moveRecord,
+                assignment,
+                selfHourlyRate
+              )
+            : undefined,
+          hourStatus: (assignment?.hourStatus as HourStatus) ?? undefined,
+        };
+      });
 
       return {
         status: ResponseStatus.SUCCESS,
@@ -329,7 +371,6 @@ export const getCustomerAndMoves = query({
     }
   },
 });
-
 export const getMoveCustomer = query({
   args: {
     moveCustomerId: v.id("moveCustomers"),

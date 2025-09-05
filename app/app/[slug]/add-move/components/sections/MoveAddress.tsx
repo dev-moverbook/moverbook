@@ -185,6 +185,7 @@ const MoveAddress = ({
           wrapperClassName="pt-4 "
           isCompleted={isComplete}
           button={headerButtons}
+          showCheckmark={canEdit}
         >
           {title}
         </Header3>

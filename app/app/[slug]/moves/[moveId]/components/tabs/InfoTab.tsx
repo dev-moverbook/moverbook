@@ -42,9 +42,7 @@ export default function InfoTab({ hideStepper }: InfoTabProps) {
   }, [stepFromQuery]);
 
   const isLeadStepComplete = React.useMemo(() => {
-    // local duplicate of your helper to avoid extra import in this snippet:
-    // but if you already export `hasRequiredMoveFields`, import and use it instead.
-    return !!(move && moveCustomer); // replace with hasRequiredMoveFields(move, moveCustomer)
+    return !!(move && moveCustomer);
   }, [move, moveCustomer]);
 
   const isQuoteStepComplete = quote?.status === "completed";

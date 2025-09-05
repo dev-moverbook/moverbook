@@ -300,10 +300,6 @@ export const getMoveContext = query({
         hourlyRate: selfHourlyRate,
       } = await resolveMoverContext(ctx, identity);
 
-      console.log("isMover", isMover);
-      console.log("selfMoverId", selfMoverId);
-      console.log("selfHourlyRate", selfHourlyRate);
-
       let myAssignment: Doc<"moveAssignments"> | null = null;
 
       if (isMover && selfMoverId) {

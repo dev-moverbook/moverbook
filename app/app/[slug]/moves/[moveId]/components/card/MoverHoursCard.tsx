@@ -32,7 +32,9 @@ const MoverHoursCard = ({
   const handleApprove = async (e: React.FormEvent) => {
     e.preventDefault();
     const success = await onApprove?.(_id);
-    if (success) setIsEditing(false);
+    if (success) {
+      setIsEditing(false);
+    }
   };
 
   const handleReject = () => {

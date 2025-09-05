@@ -131,6 +131,7 @@ export const getCompanyContact = query({
         ClerkRoles.APP_MODERATOR,
         ClerkRoles.MANAGER,
         ClerkRoles.SALES_REP,
+        ClerkRoles.MOVER,
       ]);
 
       const company = validateCompany(await ctx.db.get(companyId));

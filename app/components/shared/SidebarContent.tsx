@@ -28,7 +28,9 @@ const SidebarContent = ({ onNavigate }: SidebarContentProps) => {
   const { user } = useUser();
   const { isCompanyContactComplete, isStripeComplete, slug } = useSlugContext();
 
-  if (!user) return null;
+  if (!user) {
+    return null;
+  }
   const role = user.publicMetadata.role as ClerkRoles;
   const canSeeAdmin = isCompanyAdminRole(role);
   const canSeeMovePages = canCreateMove(role);
@@ -82,15 +84,12 @@ const SidebarContent = ({ onNavigate }: SidebarContentProps) => {
             <BarChart2 size={24} />
             Analytics
           </NavLink>
+          <NavLink href={`/app/${slug}/team`} onNavigate={onNavigate}>
+            <Users size={24} />
+            Team
+          </NavLink>
         </>
       )}
-
-      <NavLink href={`/app/${slug}/team`} onNavigate={onNavigate}>
-        <Users size={24} />
-        Team
-      </NavLink>
-
-      {/* Routed buttons */}
 
       {canSeeCompanySetup && (
         <>
