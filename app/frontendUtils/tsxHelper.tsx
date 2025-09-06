@@ -1,6 +1,7 @@
 import { FileText, Clock, CheckCircle2, AlertTriangle } from "lucide-react";
 import { ReactNode } from "react";
 import { Doc } from "@/convex/_generated/dataModel";
+import { isSameDayOrLater } from "./luxonUtils";
 
 export const getQuoteStatusInfo = (
   quote: Doc<"quotes"> | null
@@ -43,7 +44,8 @@ export const getQuoteStatusInfo = (
 export const getMoveStatus = (
   move: Doc<"move">,
   assignedMovers: number,
-  preMoveDoc: Doc<"preMoveDocs"> | null
+  preMoveDoc: Doc<"preMoveDocs"> | null,
+  timeZone: string
 ): {
   label: string;
   icon: ReactNode;
@@ -52,6 +54,15 @@ export const getMoveStatus = (
     return {
       label: "Assignment Required",
       icon: <AlertTriangle className="w-4 h-4 text-yellow-500" />,
+    };
+  }
+
+  const showPreMove = isSameDayOrLater(move.moveDate, timeZone);
+
+  if (!showPreMove) {
+    return {
+      label: "Awaiting Move Day",
+      icon: <FileText className="w-4 h-4 text-gray-400" />,
     };
   }
 

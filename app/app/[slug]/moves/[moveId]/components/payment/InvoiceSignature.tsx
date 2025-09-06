@@ -18,11 +18,11 @@ interface InvoiceSignatureProps {
 }
 
 const InvoiceSignature = ({ invoice, move, total }: InvoiceSignatureProps) => {
-  console.log("total", total);
   const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
-  const [isEmailing, setIsEmailing] = useState(false);
-  const [isTexting, setIsTexting] = useState(false);
-  const [isMarkingAsComplete, setIsMarkingAsComplete] = useState(false);
+  const [isEmailing, setIsEmailing] = useState<boolean>(false);
+  const [isTexting, setIsTexting] = useState<boolean>(false);
+  const [isMarkingAsComplete, setIsMarkingAsComplete] =
+    useState<boolean>(false);
 
   const { createOrUpdateInvoice, invoiceUpdateError } =
     useCreateOrUpdateInvoice();

@@ -17,6 +17,7 @@ import InvoiceSummary from "../payment/InvoiceSummary";
 import { useMoveContext } from "@/app/contexts/MoveContext";
 import { computeFinalMoveCost } from "@/app/frontendUtils/payout";
 import InvoiceNotReady from "../shared/InvoiceNotReady";
+import { isSameDayOrLater } from "@/app/frontendUtils/luxonUtils";
 
 interface ViewMoverSectionProps {
   assignment: Doc<"moveAssignments">;
@@ -130,6 +131,8 @@ const ViewMoverSection: React.FC<ViewMoverSectionProps> = ({
   const showInvoice =
     !!actualStartTime && !!actualArrivalTime && !!actualEndTime;
 
+  const showPreMove = isSameDayOrLater(move.moveDate, timeZone);
+
   return (
     <>
       <StartMoveSection
@@ -172,7 +175,7 @@ const ViewMoverSection: React.FC<ViewMoverSectionProps> = ({
         />
       )}
 
-      <PreMove preMoveDoc={preMoveDoc} />
+      {showPreMove && <PreMove preMoveDoc={preMoveDoc} />}
       <AdditionalLiabilityCoverage
         additionalLiabilityCoverage={additionalLiabilityCoverage}
       />

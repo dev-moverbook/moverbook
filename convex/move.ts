@@ -423,8 +423,6 @@ export const updateMove = mutation({
       const company = validateCompany(await ctx.db.get(move.companyId));
       isUserInOrg(identity, company.clerkOrganizationId);
 
-      console.log("updates", updates);
-
       await ctx.db.patch(moveId, updates);
 
       return {
@@ -597,7 +595,6 @@ export const getMovesForMoverCalendar = query({
   },
   handler: async (ctx, args): Promise<GetMovesForMoverCalendarResponse> => {
     const { start, end, moverId, companyId } = args;
-    console.log("querying getMovesForMoverCalendar");
     try {
       const identity = await requireAuthenticatedUser(ctx, [
         ClerkRoles.ADMIN,
@@ -610,15 +607,13 @@ export const getMovesForMoverCalendar = query({
       const company = validateCompany(await ctx.db.get(companyId));
       isUserInOrg(identity, company.clerkOrganizationId);
 
-      if (moverId === null) {
-        console.log("getting all moves for company");
+      if (!moverId) {
         const moves = await getCompanyMoves(ctx, {
           companyId,
           start,
           end,
           statuses: ["Booked"],
         });
-        console.log("moves", moves);
         return { status: ResponseStatus.SUCCESS, data: { moves } };
       }
 

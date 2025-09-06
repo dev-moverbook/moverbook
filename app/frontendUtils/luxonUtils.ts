@@ -13,3 +13,18 @@ export const formatLongDateTime = (ms: number, timeZone = "UTC"): string => {
     "MMM d, yyyy h:mm a"
   );
 };
+
+export function isSameDayOrLater(
+  moveDate: string | Date | null,
+  timeZone: string
+): boolean {
+  if (!moveDate) {
+    return false;
+  }
+  const moveDateLuxon = DateTime.fromJSDate(
+    typeof moveDate === "string" ? new Date(moveDate) : moveDate,
+    { zone: timeZone }
+  ).startOf("day");
+  const nowLuxon = DateTime.now().setZone(timeZone).startOf("day");
+  return nowLuxon >= moveDateLuxon;
+}

@@ -16,7 +16,6 @@ import {
   isUserInOrg,
   validateCompany,
   validateMoveCustomer,
-  validateUser,
 } from "./backendUtils/validate";
 import { ErrorMessages } from "@/types/errors";
 import {

@@ -36,7 +36,6 @@ export const useCreateMoveCustomer = () => {
   ): Promise<CreateMoveCustomerResult> => {
     setLoading(true);
     setError(null);
-    console.log("data", data);
 
     try {
       const response = await createMoveCustomerMutation(data);
@@ -51,7 +50,6 @@ export const useCreateMoveCustomer = () => {
         }
 
         if ("moveCustomer" in response.data) {
-          console.log("moveCustomer", response.data.moveCustomer);
           return {
             success: true,
             existingCustomer: response.data.moveCustomer,

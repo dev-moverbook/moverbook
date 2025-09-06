@@ -10,9 +10,12 @@ import { useMoveContext } from "@/app/contexts/MoveContext";
 import { QueryStatus } from "@/types/enums";
 import MoverScheduleCalendar from "../move/MoverScheduleCalendar";
 import ViewMoverSectionAsRep from "../move/ViewMoverSectionAsRep";
+import { isSameDayOrLater } from "@/app/frontendUtils/luxonUtils";
+import { useSlugContext } from "@/app/contexts/SlugContext";
 
 const MoveStep = () => {
   const { moveData } = useMoveContext();
+  const { timeZone } = useSlugContext();
   const { move } = moveData;
 
   const result = useGetMoveAssignmentsPage(move._id);
@@ -29,7 +32,14 @@ const MoveStep = () => {
         preMoveDoc,
         additionalLiabilityCoverage,
       } = result.data;
-      const moveStatus = getMoveStatus(move, assignments.length, preMoveDoc);
+      const moveStatus = getMoveStatus(
+        move,
+        assignments.length,
+        preMoveDoc,
+        timeZone
+      );
+
+      const showPreMove = isSameDayOrLater(move.moveDate, timeZone);
 
       return (
         <div>
@@ -44,7 +54,7 @@ const MoveStep = () => {
           />
           <MoverScheduleCalendar allMovers={allMovers} />
           <AssignMovers assignments={assignments} allMovers={allMovers} />
-          <PreMove preMoveDoc={preMoveDoc} />
+          {showPreMove && <PreMove preMoveDoc={preMoveDoc} />}
           <AdditionalLiabilityCoverage
             additionalLiabilityCoverage={additionalLiabilityCoverage}
           />

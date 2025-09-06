@@ -4,11 +4,9 @@ import { GetDistanceMatrixResponse } from "@/types/convex-responses";
 import { ResponseStatus } from "@/types/enums";
 import { handleInternalError } from "./backendUtils/helper";
 
-// Ensure we pass raw placeId strings to the API
 const normalizePlaceId = (pid: string) =>
   pid.startsWith("place_id:") ? pid.slice("place_id:".length) : pid;
 
-// "3600s" or "PT20M34S" -> minutes
 function parseDurationToMinutes(
   duration: string | number | undefined
 ): number | null {
@@ -28,7 +26,6 @@ function parseDurationToMinutes(
 
 export const getDistanceMatrix = action({
   args: {
-    // raw place IDs only (e.g., "ChIJ6ysb4ttyZ0gRNZnIqkRht_I")
     origin: v.string(),
     destination: v.string(),
   },
@@ -37,7 +34,6 @@ export const getDistanceMatrix = action({
     { origin, destination }
   ): Promise<GetDistanceMatrixResponse> => {
     try {
-      // Use a server-side key with Google Maps Routes API enabled
       const apiKey =
         process.env.GOOGLE_ROUTES_API_KEY ??
         process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
@@ -64,8 +60,6 @@ export const getDistanceMatrix = action({
         },
         body: JSON.stringify(body),
       });
-
-      console.log("response", response);
 
       if (!response.ok) {
         const errText = await response.text();
