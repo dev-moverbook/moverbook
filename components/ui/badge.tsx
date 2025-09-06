@@ -2,13 +2,13 @@
 
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
-import type { HTMLAttributes } from "react";
+import type { HTMLAttributes, MouseEventHandler } from "react";
 
 export interface BadgeProps
-  extends HTMLAttributes<HTMLDivElement>,
+  extends HTMLAttributes<HTMLElement>,
     VariantProps<typeof badgeVariants> {
   active?: boolean;
-  interactive?: boolean; // <- set false for read-only tags
+  interactive?: boolean;
 }
 
 const badgeVariants = cva(
@@ -35,7 +35,7 @@ export function Badge({
   active = false,
   interactive = true,
   onClick,
-  ...props
+  ...rest
 }: BadgeProps) {
   const base = badgeVariants({ variant: active ? "active" : variant });
   const interactiveClasses =
@@ -43,19 +43,18 @@ export function Badge({
   const readOnlyClasses = "cursor-default";
 
   if (interactive) {
+    const handleClick = onClick as
+      | MouseEventHandler<HTMLButtonElement>
+      | undefined;
     return (
-      <div
-        role="button"
-        tabIndex={0}
-        onClick={onClick}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") onClick?.(e as any);
-        }}
+      <button
+        type="button"
+        onClick={handleClick}
         className={cn(base, interactiveClasses, className)}
-        {...props}
+        {...rest}
       />
     );
   }
 
-  return <div className={cn(base, readOnlyClasses, className)} {...props} />;
+  return <div className={cn(base, readOnlyClasses, className)} {...rest} />;
 }
