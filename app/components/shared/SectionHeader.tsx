@@ -37,7 +37,7 @@ const SectionHeader: React.FC<SectionHeaderProps> = ({
   return (
     <div
       className={cn(
-        "flex items-center justify-between pt-6 px-4 md:px-0 max-w-screen-sm ",
+        "flex items-center justify-between pt-4 px-4 md:px-0 max-w-screen-sm ",
         className
       )}
     >

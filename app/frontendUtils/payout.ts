@@ -370,7 +370,7 @@ export function computeTravelRate(params: {
   switch (travelFeeMethod) {
     case TravelChargingTypes.FLAT:
       return {
-        label: `Travel Fee: (Flat)`,
+        label: `Travel Fee (Flat)`,
         value: Number(travelFeeRate.toFixed(2)),
       };
 
@@ -380,7 +380,7 @@ export function computeTravelRate(params: {
         hours = computeTravelHours(actualArrivalTime, actualStartTime);
       }
       return {
-        label: `Travel Fee: (${hours.toFixed(2)} hrs @ ${travelFeeRate.toFixed(2)}/hr)`,
+        label: `Travel Fee (${hours.toFixed(2)} hrs @ ${travelFeeRate.toFixed(2)}/hr)`,
         value: Number((hours * travelFeeRate).toFixed(2)),
       };
     }
@@ -388,7 +388,7 @@ export function computeTravelRate(params: {
     case TravelChargingTypes.MILEAGE: {
       const miles = segmentDistance?.distance ?? 0;
       return {
-        label: `Travel Fee: (${miles.toFixed(2)} mi @ ${travelFeeRate.toFixed(2)}/mi)`,
+        label: `Travel Fee (${miles.toFixed(2)} mi @ ${travelFeeRate.toFixed(2)}/mi)`,
         value: Number((miles * travelFeeRate).toFixed(2)),
       };
     }

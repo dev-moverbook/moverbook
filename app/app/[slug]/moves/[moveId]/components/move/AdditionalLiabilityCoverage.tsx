@@ -63,15 +63,15 @@ const AdditionalLiabilityCoverage = ({
 
   return (
     <CollapsibleSection
-      title="Additional Liability Coverage"
+      title="Waiver"
       defaultOpen={false}
       headerClassName="mx-auto"
       showCheckmark
       isCompleted={isCompleted}
       toggleLabels={{ open: "Hide", closed: "Show" }}
-      className="max-w-screen-sm mx-auto"
+      className="max-w-screen-sm mx-auto border-b md:border-none"
     >
-      <SectionContainer showBorder={false}>
+      <SectionContainer>
         <AdditionalLiabilityTerms />
         {showRepSignature ? (
           <DisplaySignature

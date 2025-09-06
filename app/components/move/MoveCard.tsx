@@ -77,7 +77,7 @@ const MoveCard: React.FC<MoveCardProps> = ({
             <h3 className="text-lg font-medium truncate">
               {name ?? "No name"}
             </h3>
-            <div className="flex items-center gap-2 min-w-0">
+            <div className="flex items-center gap-1 min-w-0">
               <span style={{ color: statusDotColor }}>●</span>
               <span className="truncate">{displayStatus}</span>
               <span className="text-greenCustom font-semibold pl-1">
@@ -85,7 +85,7 @@ const MoveCard: React.FC<MoveCardProps> = ({
               </span>
               {showHourStatus && (
                 <span className={`${hourStatusClass} italic`}>
-                  ({hourStatus === "incomplete" ? "Estimated" : hourStatus})
+                  ({hourStatus === "incomplete" ? "est." : hourStatus})
                 </span>
               )}
             </div>

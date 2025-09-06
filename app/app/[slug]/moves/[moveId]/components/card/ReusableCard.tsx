@@ -41,14 +41,18 @@ const ReusableCard = ({
 }: ReusableCardProps) => {
   return (
     <CustomCard
-      className={cn("flex flex-col justify-between gap-4 p-4", className)}
+      className={cn(
+        "w-full max-w-full flex flex-col gap-4 p-4 overflow-hidden",
+        className
+      )}
     >
       <CardHeaderWithActions
         title={title}
         className={cn("p-0", headerClassName)}
-        actions={titleActions} // 🔹 pass optional actions here
+        actions={titleActions}
       />
-      <div className={cn("flex flex-col gap-4", contentClassName)}>
+
+      <div className={cn("flex flex-col gap-3", contentClassName)}>
         {texts.map(([label, value, options], index) => {
           const {
             isCurrency,
@@ -57,23 +61,36 @@ const ReusableCard = ({
             labelClassName: rowLabelCls,
             valueClassName: rowValueCls,
           } = options || {};
+          const rendered =
+            value == null
+              ? ""
+              : isCurrency
+                ? formatCurrency(value as number)
+                : value;
+
           return (
             <div
               key={index}
               className={cn(
-                "flex items-center justify-between",
+                "grid grid-cols-[auto,1fr] items-start gap-x-3",
                 isBold && "font-bold",
                 rowClassName,
                 rowCls
               )}
             >
-              <p className={cn(labelClassName, rowLabelCls)}>{label}</p>
-              <p className={cn(valueClassName, rowValueCls)}>
-                {value == null
-                  ? ""
-                  : isCurrency
-                    ? formatCurrency(value as number)
-                    : value}
+              <p
+                className={cn("whitespace-nowrap", labelClassName, rowLabelCls)}
+              >
+                {label}
+              </p>
+              <p
+                className={cn(
+                  "min-w-0 text-right break-words break-all",
+                  valueClassName,
+                  rowValueCls
+                )}
+              >
+                {rendered}
               </p>
             </div>
           );

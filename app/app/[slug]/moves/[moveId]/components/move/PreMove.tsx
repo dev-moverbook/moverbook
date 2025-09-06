@@ -70,7 +70,7 @@ const PreMove = ({ preMoveDoc }: PreMoveProps) => {
       showCheckmark
       isCompleted={isCompleted}
       toggleLabels={{ open: "Hide", closed: "Show" }}
-      className="max-w-screen-sm mx-auto"
+      className="max-w-screen-sm mx-auto border-b md:border-none"
     >
       <SectionContainer showBorder={false}>
         <PreMoveTerms />

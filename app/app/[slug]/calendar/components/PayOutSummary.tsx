@@ -1,4 +1,3 @@
-// components/calendar/PayOutSummary.tsx
 import { useMoveFilter } from "@/app/contexts/MoveFilterContext";
 import React, { useMemo } from "react";
 import ReusableCard from "../../moves/[moveId]/components/card/ReusableCard";
@@ -27,22 +26,35 @@ const PayOutSummary = ({ moves, weekStart, weekEnd }: PayOutSummaryProps) => {
   );
 
   const filteredDates = isList
-    ? `${formatLongDateInZone(filterStartDate, timeZone)} - ${formatLongDateInZone(filterEndDate, timeZone)}`
-    : `${formatLongDateInZone(weekStart, timeZone)} - ${formatLongDateInZone(weekEnd, timeZone)}`;
+    ? `${formatLongDateInZone(filterStartDate, timeZone)} - ${formatLongDateInZone(
+        filterEndDate,
+        timeZone
+      )}`
+    : `${formatLongDateInZone(weekStart, timeZone)} - ${formatLongDateInZone(
+        weekEnd,
+        timeZone
+      )}`;
 
-  const pendingValue = `${formatCurrency(pendingTotal)} (${formatTwoDecimals(pendingHours, "hours")})`;
-  const approvedValue = `${formatCurrency(approvedTotal)} (${formatTwoDecimals(approvedHours, "hours")})`;
+  const pendingValue = `${formatCurrency(pendingTotal)} (${formatTwoDecimals(
+    pendingHours,
+    "hours"
+  )})`;
+  const approvedValue = `${formatCurrency(approvedTotal)} (${formatTwoDecimals(
+    approvedHours,
+    "hours"
+  )})`;
 
   return (
-    <ReusableCard
-      title="Payout Summary"
-      texts={[
-        ["Date Range", filteredDates],
-        ["Pending", pendingValue],
-        ["Approved", approvedValue, { isBold: true }],
-      ]}
-      className="mt-8"
-    />
+    <div className="max-w-screen-sm w-full mx-auto px-4 md:px-0 pt-4">
+      <ReusableCard
+        title="Payout Summary"
+        texts={[
+          ["Date Range", filteredDates],
+          ["Pending", pendingValue],
+          ["Approved", approvedValue, { isBold: true }],
+        ]}
+      />
+    </div>
   );
 };
 

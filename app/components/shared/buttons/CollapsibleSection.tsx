@@ -58,7 +58,7 @@ export default function CollapsibleSection({
     <section className={cn("border-grayCustom bg-black", className)}>
       <SectionHeader
         title={title}
-        className={cn("mx-auto", headerClassName)}
+        className={cn("mx-auto pb-4", headerClassName)}
         actions={actions}
         isCompleted={isCompleted}
         showCheckmark={showCheckmark}

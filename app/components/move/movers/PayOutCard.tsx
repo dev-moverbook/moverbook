@@ -43,7 +43,7 @@ const PayOutCard = ({ moveAssignment, wageDisplay }: PayOutCardProps) => {
     texts.push(["Manager Notes", moveAssignment.managerNotes]);
   }
 
-  return <ReusableCard title="Payout Summary" texts={texts} />;
+  return <ReusableCard title="Payout Summary" texts={texts} className="" />;
 };
 
 export default PayOutCard;
