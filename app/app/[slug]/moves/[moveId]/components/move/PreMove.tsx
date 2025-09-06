@@ -1,12 +1,12 @@
 "use client";
 
-import SectionHeader from "@/app/components/shared/SectionHeader";
+import React, { useState } from "react";
 import SectionContainer from "@/app/components/shared/containers/SectionContainer";
-import React from "react";
 import DisplaySignature from "@/app/components/move/shared/DisplaySignature";
 import Signature from "@/app/components/move/shared/Signature";
 import PreMoveTerms from "../copy/PreMoveTerms";
 import FormActions from "@/app/components/shared/FormActions";
+import CollapsibleSection from "@/app/components/shared/buttons/CollapsibleSection";
 import { useCreateOrUpdatePreMoveDoc } from "../../../hooks/useCreateOrUpdatePreMoveDoc";
 import { Doc } from "@/convex/_generated/dataModel";
 import { useMoveContext } from "@/app/contexts/MoveContext";
@@ -19,14 +19,13 @@ const PreMove = ({ preMoveDoc }: PreMoveProps) => {
   const { moveData } = useMoveContext();
   const { move } = moveData;
   const { _id: moveId } = move;
+
   const { customerSignature, repSignature, customerSignedAt, repSignedAt } =
     preMoveDoc ?? {};
 
-  const [signatureDataUrl, setSignatureDataUrl] = React.useState<string | null>(
-    null
-  );
-  const [isSendingSMS, setIsSendingSMS] = React.useState(false);
-  const [isSendingEmail, setIsSendingEmail] = React.useState(false);
+  const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
+  const [isSendingSMS, setIsSendingSMS] = useState(false);
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
 
   const {
     createOrUpdatePreMoveDoc,
@@ -37,6 +36,7 @@ const PreMove = ({ preMoveDoc }: PreMoveProps) => {
   const showRepSignature = !!repSignature && repSignedAt;
   const showCustomerSignature = !!customerSignature && customerSignedAt;
   const isDisabled = !signatureDataUrl;
+  const isCompleted = !!repSignature && !!customerSignature;
 
   const handleSMS = async () => {
     setCreateOrUpdatePreMoveDocError(null);
@@ -60,17 +60,19 @@ const PreMove = ({ preMoveDoc }: PreMoveProps) => {
     }
   };
 
-  const isCompleted = !!repSignature && !!customerSignature;
+  const collapsePreMove = !isCompleted;
 
   return (
-    <div>
-      <SectionHeader
-        isCompleted={isCompleted}
-        className="mx-auto"
-        title="Pre Move Doc"
-        showCheckmark={true}
-      />
-      <SectionContainer>
+    <CollapsibleSection
+      title="Pre Move Doc"
+      defaultOpen={collapsePreMove}
+      headerClassName="mx-auto"
+      showCheckmark
+      isCompleted={isCompleted}
+      toggleLabels={{ open: "Hide", closed: "Show" }}
+      className="max-w-screen-sm mx-auto"
+    >
+      <SectionContainer showBorder={false}>
         <PreMoveTerms />
         {showRepSignature ? (
           <DisplaySignature
@@ -105,7 +107,7 @@ const PreMove = ({ preMoveDoc }: PreMoveProps) => {
           cancelDisabled={isSendingEmail || isDisabled}
         />
       </SectionContainer>
-    </div>
+    </CollapsibleSection>
   );
 };
 

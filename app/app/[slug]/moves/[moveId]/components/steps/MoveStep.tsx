@@ -40,6 +40,7 @@ const MoveStep = () => {
       );
 
       const showPreMove = isSameDayOrLater(move.moveDate, timeZone);
+      const isScheduleOpen = assignments.length !== allMovers.length;
 
       return (
         <div>
@@ -52,7 +53,10 @@ const MoveStep = () => {
               },
             ]}
           />
-          <MoverScheduleCalendar allMovers={allMovers} />
+          <MoverScheduleCalendar
+            allMovers={allMovers}
+            defaultOpen={isScheduleOpen}
+          />
           <AssignMovers assignments={assignments} allMovers={allMovers} />
           {showPreMove && <PreMove preMoveDoc={preMoveDoc} />}
           <AdditionalLiabilityCoverage

@@ -30,7 +30,6 @@ const AssignMovers = ({
   const { insertMoveAssignment } = useInsertMoveAssignment();
   const { updateMoveAssignment } = useUpdateMoveAssignment();
 
-  // Build display slots
   const slots = Array.from({ length: moverNumber }, (_, i) => {
     const isLead = i === 0;
     const label = isLead ? "Lead Mover" : `Mover #${i}`;
@@ -71,9 +70,16 @@ const AssignMovers = ({
     }
   };
 
+  const isComplete = assignments.length === moverNumber;
+
   return (
     <div>
-      <SectionHeader className="mx-auto" title="Assigned Movers" />
+      <SectionHeader
+        className="mx-auto"
+        title="Assigned Movers"
+        showCheckmark={true}
+        isCompleted={isComplete}
+      />
       <SectionContainer>
         <div className="flex flex-col gap-4">
           {slots.map(({ slot, label, assignment, isLead }) => (

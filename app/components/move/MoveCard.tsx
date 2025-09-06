@@ -97,7 +97,9 @@ const MoveCard: React.FC<MoveCardProps> = ({
         {/* Tags */}
         <div className="flex gap-1 flex-wrap mt-1">
           {tags.map((tag, i) => (
-            <Badge key={i}>{tag}</Badge>
+            <Badge interactive={false} key={i}>
+              {tag}
+            </Badge>
           ))}
         </div>
         {showActions && (

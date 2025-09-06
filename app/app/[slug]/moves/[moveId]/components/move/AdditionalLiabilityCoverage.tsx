@@ -1,8 +1,7 @@
 "use client";
 
-import SectionHeader from "@/app/components/shared/SectionHeader";
-import SectionContainer from "@/app/components/shared/containers/SectionContainer";
 import React from "react";
+import SectionContainer from "@/app/components/shared/containers/SectionContainer";
 import DisplaySignature from "@/app/components/move/shared/DisplaySignature";
 import Signature from "@/app/components/move/shared/Signature";
 import FormActions from "@/app/components/shared/FormActions";
@@ -10,6 +9,7 @@ import { Doc } from "@/convex/_generated/dataModel";
 import { useCreateOrUpdateAdditionalLiabilityCoverage } from "../../../hooks/useCreateOrUpdateAdditionalLiabilityCoverage";
 import AdditionalLiabilityTerms from "../copy/AdditionalLiabilityTerms";
 import { useMoveContext } from "@/app/contexts/MoveContext";
+import CollapsibleSection from "@/app/components/shared/buttons/CollapsibleSection";
 
 interface AdditionalLiabilityCoverageProps {
   additionalLiabilityCoverage: Doc<"additionalLiabilityCoverage"> | null;
@@ -37,6 +37,7 @@ const AdditionalLiabilityCoverage = ({
   const showRepSignature = !!repSignature && repSignedAt;
   const showCustomerSignature = !!customerSignature && customerSignedAt;
   const isDisabled = !signatureDataUrl;
+  const isCompleted = !!showRepSignature && !!showCustomerSignature;
 
   const handleSMS = async () => {
     setError(null);
@@ -61,11 +62,15 @@ const AdditionalLiabilityCoverage = ({
   };
 
   return (
-    <div>
-      <SectionHeader
-        className="mx-auto"
-        title="Additional Liability Coverage"
-      />
+    <CollapsibleSection
+      title="Additional Liability Coverage"
+      defaultOpen={false}
+      headerClassName="mx-auto"
+      showCheckmark
+      isCompleted={isCompleted}
+      toggleLabels={{ open: "Hide", closed: "Show" }}
+      className="max-w-screen-sm mx-auto"
+    >
       <SectionContainer showBorder={false}>
         <AdditionalLiabilityTerms />
         {showRepSignature ? (
@@ -101,7 +106,7 @@ const AdditionalLiabilityCoverage = ({
           cancelDisabled={isSendingEmail || isDisabled}
         />
       </SectionContainer>
-    </div>
+    </CollapsibleSection>
   );
 };
 

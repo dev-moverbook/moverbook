@@ -12,9 +12,15 @@ interface InternalReviewProps {
 }
 const InternalReview = ({ internalReview, move }: InternalReviewProps) => {
   const isDisabled = move.moveStatus !== "Completed";
+  const isComplete = !!internalReview?.rating;
   return (
     <div>
-      <SectionHeader className="mx-auto" title="Internal Review" />
+      <SectionHeader
+        className="mx-auto"
+        title="Internal Review"
+        showCheckmark
+        isCompleted={isComplete}
+      />
       <SectionContainer>
         <StarRating value={internalReview?.rating ?? null} readOnly />
 

@@ -82,7 +82,12 @@ const InvoiceSignature = ({ invoice, move, total }: InvoiceSignatureProps) => {
 
   return (
     <div>
-      <SectionHeader className="mx-auto" title="Invoice Signature" />
+      <SectionHeader
+        className="mx-auto"
+        title="Invoice Signature"
+        showCheckmark
+        isCompleted={isComplete}
+      />
       <SectionContainer>
         {showRepSignature ? (
           <DisplaySignature

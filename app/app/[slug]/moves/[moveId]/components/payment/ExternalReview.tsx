@@ -10,9 +10,14 @@ interface ExternalReviewProps {
 }
 const ExternalReview = ({ move }: ExternalReviewProps) => {
   const isDisabled = move.moveStatus !== "Completed";
+
   return (
     <div>
-      <SectionHeader className="mx-auto" title="External Review" />
+      <SectionHeader
+        showCheckmark
+        className="mx-auto"
+        title="External Review"
+      />
       <SectionContainer showBorder={false}>
         <FormActions
           onCancel={() => {}}

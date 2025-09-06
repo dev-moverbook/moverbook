@@ -12,8 +12,6 @@ const ShiftStep = () => {
   const { timeZone } = useSlugContext();
   const { wageDisplay } = moveData;
 
-  console.log("wageDisplay", wageDisplay);
-
   const {
     updateMoveAssignmentHours,
     assignmentUpdateLoading,
