@@ -1,9 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
 import { CommandInput } from "@/components/ui/command";
 import { X } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 interface CommandSearchInputProps {
   value: string;

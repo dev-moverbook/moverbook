@@ -2,15 +2,13 @@ import ErrorComponent from "@/app/components/shared/ErrorComponent";
 import { useSlugContext } from "@/app/contexts/SlugContext";
 import { useSalesRepsAndReferrals } from "@/app/hooks/queries/analytics/useSalesRepsAndReferrals";
 import { QueryStatus } from "@/types/enums";
-import AnalyticsHeader from "../header/AnalyticsHeader";
 import AnalyticsTabSuccess from "./AnalyticsTabSuccess";
 
 interface AnalyticsTabProps {
   tab: "FORECASTED" | "HISTORICAL";
-  headerRight?: React.ReactNode;
 }
 
-const AnalyticsTab = ({ tab, headerRight }: AnalyticsTabProps) => {
+const AnalyticsTab = ({ tab }: AnalyticsTabProps) => {
   const { companyId } = useSlugContext();
 
   const result = useSalesRepsAndReferrals(companyId);
@@ -32,12 +30,7 @@ const AnalyticsTab = ({ tab, headerRight }: AnalyticsTabProps) => {
     }
   }
 
-  return (
-    <section>
-      <AnalyticsHeader tab={tab} right={headerRight} />
-      {body}
-    </section>
-  );
+  return <>{body}</>;
 };
 
 export default AnalyticsTab;
