@@ -193,23 +193,6 @@ const DrawerContent = React.forwardRef<
   DrawerContentProps
 >(({ className, children, heightVh, maxHeightVh, style, ...props }, ref) => {
   // Keep a CSS var --kb updated with the keyboard overlap using VisualViewport
-  React.useEffect(() => {
-    const vv = window.visualViewport;
-    if (!vv) return;
-
-    const setKb = () => {
-      const overlap = Math.max(0, window.innerHeight - vv.height);
-      document.documentElement.style.setProperty("--kb", `${overlap}px`);
-    };
-
-    setKb();
-    vv.addEventListener("resize", setKb);
-    vv.addEventListener("scroll", setKb);
-    return () => {
-      vv.removeEventListener("resize", setKb);
-      vv.removeEventListener("scroll", setKb);
-    };
-  }, []);
 
   const dynamicStyle: React.CSSProperties = {
     ...(heightVh ? { height: `${heightVh}dvh` } : {}),
@@ -234,7 +217,7 @@ const DrawerContent = React.forwardRef<
 
         {/* Scrollable content (adds padding for safe area + keyboard + footer) */}
         <div
-          className="flex-1 overflow-y-auto px-4"
+          className="flex-1 overflow-y-auto "
           style={{
             // Footer height ~72px; keep content end above footer + keyboard + safe area
             paddingBottom:

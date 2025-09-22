@@ -14,6 +14,19 @@ export type ServiceType =
   | "moving_and_packing"
   | "commercial";
 
+export type NumberOfMovers = "1" | "2" | "3" | "4" | "5+";
+
+export const NUMBER_OF_MOVERS_OPTIONS: {
+  label: string;
+  value: NumberOfMovers;
+}[] = [
+  { label: "1 Mover", value: "1" },
+  { label: "2 Movers", value: "2" },
+  { label: "3 Movers", value: "3" },
+  { label: "4 Movers", value: "4" },
+  { label: "5+ Movers", value: "5+" },
+];
+
 export const SERVICE_TYPE_OPTIONS: { label: string; value: ServiceType }[] = [
   { label: "Moving", value: "moving" },
   { label: "Packing", value: "packing" },
@@ -233,3 +246,35 @@ export type FinalMoveCost = {
   items: CostFormat[];
   total: number;
 };
+
+export type Option = { value: string; label: string; image?: string };
+
+export type ForecastTimeValue =
+  | "next_7_days"
+  | "next_14_days"
+  | "next_30_days"
+  | "custom";
+
+export const FORECAST_DAYS_BY_VALUE: Record<
+  Exclude<ForecastTimeValue, "custom">,
+  number
+> = {
+  next_7_days: 7,
+  next_14_days: 14,
+  next_30_days: 30,
+};
+
+export const HISTORICAL_DAYS_BY_VALUE: Record<
+  Exclude<HistoricalTimeValue, "custom">,
+  number
+> = {
+  last_30_days: 30,
+  last_90_days: 90,
+  last_365_days: 365,
+};
+
+export type HistoricalTimeValue =
+  | "last_30_days"
+  | "last_90_days"
+  | "last_365_days"
+  | "custom";

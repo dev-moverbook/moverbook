@@ -1,4 +1,5 @@
 import { TravelChargingTypes } from "./enums";
+import { Option } from "./types";
 
 export const MOBILE_BREAKPOINT = 768;
 
@@ -67,6 +68,20 @@ export type StarterItem = {
   size: number;
   weight: number;
 };
+
+export const FORECASTED_TIME_OPTIONS: Option[] = [
+  { value: "next_7_days", label: "Next 7 days" },
+  { value: "next_14_days", label: "Next 14 days" },
+  { value: "next_30_days", label: "Next 30 days" },
+  { value: "custom", label: "Custom" },
+];
+
+export const HISTORICAL_TIME_OPTIONS: Option[] = [
+  { value: "last_30_days", label: "Last 30 days" },
+  { value: "last_90_days", label: "Last 90 days" },
+  { value: "last_365_days", label: "Last 365 days" },
+  { value: "custom", label: "Custom" },
+];
 
 export const MS_PER_HOUR = 1000 * 60 * 60;
 

@@ -1297,3 +1297,17 @@ export interface EnrichedMoveForMover extends Doc<"move"> {
   moverWageForMove?: MoverWageForMove;
   hourStatus?: HourStatus;
 }
+
+export type GetSalesRepsAndReferralByCompanyIdResponse =
+  | GetSalesRepsAndReferralByCompanyIdSuccess
+  | ErrorResponse;
+
+export interface GetSalesRepsAndReferralByCompanyIdSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetSalesRepsAndReferralByCompanyIdData;
+}
+
+export interface GetSalesRepsAndReferralByCompanyIdData {
+  users: Doc<"users">[];
+  referrals: Doc<"referrals">[];
+}

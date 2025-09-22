@@ -9,8 +9,8 @@ import PageContainer from "@/app/components/shared/containers/PageContainer";
 import MoveCardContainer from "@/app/components/move/MoveCardContainer";
 import CalendarNav from "./components/CalendarNav";
 import { useMoveFilter } from "@/app/contexts/MoveFilterContext";
-import DateRangeFields from "./components/DateRangerPiker";
 import ErrorComponent from "@/app/components/shared/ErrorComponent";
+import DateRangeFieldsWithFilter from "./components/DateRangerPicker";
 
 const CalendarPageContent = () => {
   const { timeZone } = useSlugContext();
@@ -50,7 +50,7 @@ const CalendarPageContent = () => {
     <PageContainer className="gap-2 pb-10">
       <CalendarNav />
       {isList ? (
-        <DateRangeFields />
+        <DateRangeFieldsWithFilter />
       ) : (
         <div>
           <CalendarSwitcher />

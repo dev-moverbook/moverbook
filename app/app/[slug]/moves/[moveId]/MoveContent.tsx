@@ -40,12 +40,18 @@ const MoveContent = () => {
   const tabs = useMemo<string[]>(() => {
     if (isMoverUser) {
       const moverTabs = ["SHIFT", "INFO", "FEED"];
-      if (isLeadMover) moverTabs.push("MOVE");
-      if (isManagement) moverTabs.push("SUMMARY");
+      if (isLeadMover) {
+        moverTabs.push("MOVE");
+      }
+      if (isManagement) {
+        moverTabs.push("SUMMARY");
+      }
       return moverTabs;
     }
     const nonMoverTabs = ["INFO", "FEED"];
-    if (isManagement) nonMoverTabs.push("SUMMARY");
+    if (isManagement) {
+      nonMoverTabs.push("SUMMARY");
+    }
     return nonMoverTabs;
   }, [isMoverUser, isLeadMover, isManagement]);
 

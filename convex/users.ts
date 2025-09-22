@@ -1,4 +1,3 @@
-import { CompanySchema, UserSchema } from "@/types/convex-schemas";
 import { ErrorMessages } from "@/types/errors";
 import { v } from "convex/values";
 import {
@@ -21,6 +20,7 @@ import { internal } from "./_generated/api";
 import {
   GetAllUsersByCompanyIdResponse,
   GetMoversByCompanyIdResponse,
+  GetSalesRepsAndReferralByCompanyIdResponse,
   GetSalesRepsByCompanyIdResponse,
   GetUserByClerkIdResponse,
   GetUserByIdResponse,
@@ -420,6 +420,51 @@ export const getMoversByCompanyId = query({
       return {
         status: ResponseStatus.SUCCESS,
         data: { users: movers },
+      };
+    } catch (error) {
+      return handleInternalError(error);
+    }
+  },
+});
+
+export const getSalesRepsAndReferralByCompanyId = query({
+  args: {
+    companyId: v.id("companies"),
+  },
+  handler: async (
+    ctx,
+    args
+  ): Promise<GetSalesRepsAndReferralByCompanyIdResponse> => {
+    const { companyId } = args;
+    try {
+      const identity = await requireAuthenticatedUser(ctx, [
+        ClerkRoles.ADMIN,
+        ClerkRoles.APP_MODERATOR,
+        ClerkRoles.MANAGER,
+        ClerkRoles.SALES_REP,
+      ]);
+
+      const company = validateCompany(await ctx.db.get(companyId));
+      isUserInOrg(identity, company.clerkOrganizationId);
+
+      const users = await ctx.db
+        .query("users")
+        .filter((q) => q.eq(q.field("companyId"), companyId))
+        .filter((q) => q.eq(q.field("isActive"), true))
+        .filter((q) => q.or(q.eq(q.field("role"), ClerkRoles.SALES_REP)))
+        .collect();
+
+      const sortedUsers = users.sort((a, b) => a.name.localeCompare(b.name));
+
+      const referrals = await ctx.db
+        .query("referrals")
+        .filter((q) => q.eq(q.field("companyId"), companyId))
+        .filter((q) => q.eq(q.field("isActive"), true))
+        .collect();
+
+      return {
+        status: ResponseStatus.SUCCESS,
+        data: { users: sortedUsers, referrals },
       };
     } catch (error) {
       return handleInternalError(error);

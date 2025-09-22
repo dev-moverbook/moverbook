@@ -26,6 +26,8 @@ const buttonVariants = cva(
         plain: "",
         sidebar:
           "w-full hover:bg-gray-700 rounded-md p-1 transition justify-start gap-4",
+        combobox:
+          " py-4 w-full bg-black text-white border border-grayCustom hover:bg-background2 rounded-md ",
       },
       size: {
         default: "h-9 px-4 py-2",
@@ -33,6 +35,7 @@ const buttonVariants = cva(
         lg: "h-10 rounded-md px-8",
         icon: "h-6 w-6",
         auto: "p-0 h-auto w-auto",
+        combobox: "h-11 px-4 py-2",
       },
     },
     defaultVariants: {
@@ -89,7 +92,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           disabled={isLoading || disabled}
           {...props}
         >
-          <span className={cn(isLoading && "invisible")}>{children}</span>
+          <span className={cn(isLoading && "invisible", "w-full")}>
+            {children}
+          </span>
           {isLoading && (
             <span className="absolute inset-0 flex items-center justify-center">
               <Loader2 className="h-4 w-4 animate-spin" />
