@@ -3,13 +3,10 @@ import {
   OrganizationMembership,
   User,
   createClerkClient,
-} from "@clerk/backend";
-import {
   Invitation,
-  Organization,
-  OrganizationInvitation,
-} from "@clerk/nextjs/server";
-import { ClerkRoles, UserRole } from "@/types/enums";
+} from "@clerk/backend";
+import { Organization, OrganizationInvitation } from "@clerk/nextjs/server";
+import { UserRole } from "@/types/enums";
 import { getBaseUrl } from "@/utils/helper";
 
 if (!process.env.CLERK_SECRET_KEY) {
