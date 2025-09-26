@@ -2,34 +2,19 @@
 
 import SectionContainer from "@/app/components/shared/containers/SectionContainer";
 import SectionHeader from "@/app/components/shared/SectionHeader";
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import FormActions from "@/app/components/shared/FormActions";
-import SelectFieldRow from "@/app/components/shared/SelectFieldRow";
-import { useReferralSources } from "@/app/hooks/queries/useReferralSources";
 import { CustomerFormData, CustomerFormErrors } from "@/types/form-types";
 import LabeledInput from "@/app/components/shared/labeled/LabeledInput";
 import { cn } from "@/lib/utils";
 import { validateCustomerForm } from "@/app/frontendUtils/validation";
 import { useMoveContext } from "@/app/contexts/MoveContext";
 import { useUpdateMoveCustomer } from "@/app/hooks/mutations/customers/useUpdateMoveCustomer";
-import { QueryStatus } from "@/types/enums";
 
 const CustomerSection: React.FC = () => {
   const { moveData } = useMoveContext();
   const moveCustomer = moveData.moveCustomer;
   const [isEditing, setIsEditing] = useState<boolean>(false);
-
-  const referralResult = useReferralSources(moveCustomer.companyId);
-
-  const referralSelectOptions = useMemo(() => {
-    if (referralResult.status === QueryStatus.SUCCESS) {
-      return referralResult.options.map((r) => ({
-        label: r.label,
-        value: r.value,
-      }));
-    }
-    return [];
-  }, [referralResult]);
 
   const {
     updateMoveCustomer,
@@ -43,7 +28,6 @@ const CustomerSection: React.FC = () => {
     email: moveCustomer.email,
     phoneNumber: moveCustomer.phoneNumber,
     altPhoneNumber: moveCustomer.altPhoneNumber,
-    referral: moveCustomer.referral,
   });
 
   const [errors, setErrors] = useState<CustomerFormErrors>({});
@@ -61,8 +45,7 @@ const CustomerSection: React.FC = () => {
 
   const handleSave = async () => {
     setUpdateMoveCustomerError(null);
-    const referralValues = referralSelectOptions.map((r) => r.value);
-    const { isValid, errors } = validateCustomerForm(formData, referralValues);
+    const { isValid, errors } = validateCustomerForm(formData);
     if (!isValid) {
       setErrors(errors);
       return;
@@ -80,7 +63,6 @@ const CustomerSection: React.FC = () => {
       email: moveCustomer.email,
       phoneNumber: moveCustomer.phoneNumber,
       altPhoneNumber: moveCustomer.altPhoneNumber,
-      referral: moveCustomer.referral,
     });
     setIsEditing(false);
   };
@@ -89,8 +71,7 @@ const CustomerSection: React.FC = () => {
   const isCompleted =
     !!formData.name?.trim() &&
     !!formData.email?.trim() &&
-    !!formData.phoneNumber?.trim() &&
-    !!formData.referral?.trim();
+    !!formData.phoneNumber?.trim();
 
   return (
     <div>
@@ -156,20 +137,6 @@ const CustomerSection: React.FC = () => {
           error={errors.altPhoneNumber}
           isPhoneNumber={true}
         />
-
-        <SelectFieldRow
-          label="Referral"
-          name="referral"
-          value={formData.referral}
-          options={referralSelectOptions.map((o) => o.value)}
-          isEditing={isEditing}
-          onChange={(val) => {
-            setFormData((prev) => ({ ...prev, referral: val }));
-            if (errors.referral) removeError("referral");
-          }}
-          error={errors.referral}
-        />
-
         {isEditing && (
           <FormActions
             onSave={(e) => {

@@ -350,7 +350,7 @@ export default defineSchema({
     .index("by_mover", ["moverId"]),
 
   moveCustomers: defineTable({
-    altPhoneNumber: v.union(v.null(), v.string()),
+    altPhoneNumber: v.string(),
     companyId: v.id("companies"),
     email: v.string(),
     name: v.string(),
