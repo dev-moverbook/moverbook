@@ -6,10 +6,10 @@ import {
 
 export function isInfoSectionComplete(customer: CustomerFormData) {
   return (
+    !!customer.name.trim() &&
     !!customer.email.trim() &&
     !!customer.phoneNumber.trim() &&
-    (customer.altPhoneNumber ? !!customer.altPhoneNumber.trim() : true) &&
-    !!customer.referral
+    !!customer.altPhoneNumber.trim()
   );
 }
 
