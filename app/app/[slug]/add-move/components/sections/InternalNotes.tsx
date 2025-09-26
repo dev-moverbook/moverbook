@@ -8,9 +8,12 @@ import { Id } from "@/convex/_generated/dataModel";
 import Header3 from "@/app/components/shared/heading/Header3";
 
 const InternalNotes = () => {
-  const { salesRepOptions, setMoveFormData, moveFormData } = useMoveForm();
+  const { salesRepOptions, setMoveFormData, moveFormData, referralOptions } =
+    useMoveForm();
+  const referralSelectOptions =
+    referralOptions?.map((r) => ({ label: r.name, value: r.name })) ?? [];
 
-  const { salesRep, moveStatus, notes } = moveFormData;
+  const { salesRep, moveStatus, notes, referralId } = moveFormData;
 
   return (
     <SectionContainer showBorder={false}>
@@ -32,6 +35,18 @@ const InternalNotes = () => {
         onChange={(value) =>
           setMoveFormData({ ...moveFormData, moveStatus: value as MoveStatus })
         }
+      />
+      <LabeledSelect
+        label="Referral Source*"
+        value={referralId ?? ""}
+        onChange={(value) =>
+          setMoveFormData({
+            ...moveFormData,
+            referralId: value as Id<"referrals">,
+          })
+        }
+        options={referralSelectOptions}
+        placeholder="Select a referral source"
       />
       <LabeledTextarea
         label="Notes"

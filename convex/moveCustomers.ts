@@ -32,11 +32,9 @@ export const createMoveCustomer = mutation({
     email: v.string(),
     phoneNumber: v.string(),
     altPhoneNumber: v.union(v.string(), v.null()),
-    referral: v.union(v.string(), v.null()),
   },
   handler: async (ctx, args): Promise<CreateMoveCustomerResponse> => {
-    const { name, email, phoneNumber, altPhoneNumber, referral, companyId } =
-      args;
+    const { name, email, phoneNumber, altPhoneNumber, companyId } = args;
 
     try {
       const identity = await requireAuthenticatedUser(ctx, [
@@ -82,7 +80,6 @@ export const createMoveCustomer = mutation({
         email,
         phoneNumber,
         altPhoneNumber,
-        referral,
         companyId,
       });
 

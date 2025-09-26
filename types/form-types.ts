@@ -226,8 +226,7 @@ export interface CustomerFormData {
   name: string;
   email: string;
   phoneNumber: string;
-  altPhoneNumber: string | null;
-  referral: string | null;
+  altPhoneNumber: string;
 }
 
 export interface CustomerFormErrors {
@@ -235,7 +234,6 @@ export interface CustomerFormErrors {
   email?: string;
   phoneNumber?: string;
   altPhoneNumber?: string;
-  referral?: string;
 }
 
 export interface MoveFormData {
@@ -259,6 +257,7 @@ export interface MoveFormData {
   notes: string | null;
   officeToOrigin: number | null;
   paymentMethod: PaymentMethod;
+  referralId: Id<"referrals"> | null;
   roundTripDrive: number | null;
   roundTripMiles: number | null;
   salesRep: Id<"users"> | null;

@@ -16,6 +16,7 @@ import type {
 import type * as additionalFees from "../additionalFees.js";
 import type * as additionalLiabilityCoverage from "../additionalLiabilityCoverage.js";
 import type * as arrivalWindow from "../arrivalWindow.js";
+import type * as backendUtils_analyticsHelper from "../backendUtils/analyticsHelper.js";
 import type * as backendUtils_auth from "../backendUtils/auth.js";
 import type * as backendUtils_calculations from "../backendUtils/calculations.js";
 import type * as backendUtils_checkUnique from "../backendUtils/checkUnique.js";
@@ -77,6 +78,7 @@ declare const fullApi: ApiFromModules<{
   additionalFees: typeof additionalFees;
   additionalLiabilityCoverage: typeof additionalLiabilityCoverage;
   arrivalWindow: typeof arrivalWindow;
+  "backendUtils/analyticsHelper": typeof backendUtils_analyticsHelper;
   "backendUtils/auth": typeof backendUtils_auth;
   "backendUtils/calculations": typeof backendUtils_calculations;
   "backendUtils/checkUnique": typeof backendUtils_checkUnique;

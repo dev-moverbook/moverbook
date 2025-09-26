@@ -1,4 +1,3 @@
-// AdaptiveSelect.tsx
 "use client";
 
 import React, { useMemo, useState } from "react";
@@ -17,6 +16,7 @@ export interface AdaptiveSelectProps {
   description: string;
   disabled?: boolean;
   emptyText?: string;
+  label?: string;
   onChange: (value: string) => void;
   options: Option[];
   placeholder?: string;
@@ -35,6 +35,7 @@ export default function AdaptiveSelect({
   description,
   disabled,
   emptyText = "No results found.",
+  label,
   onChange,
   options,
   placeholder = "Select...",
@@ -47,24 +48,24 @@ export default function AdaptiveSelect({
   const isMobileViewport = useMediaQuery({ maxWidth: MOBILE_BREAKPOINT });
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
-  const hasAllOption = showAllOption && !!allLabel?.trim();
+  const shouldShowAllOption = showAllOption && !!allLabel?.trim();
 
   const displayedOptions: Option[] = useMemo(
     () =>
-      hasAllOption
+      shouldShowAllOption
         ? [{ value: allValue, label: allLabel! }, ...options]
         : options,
-    [hasAllOption, allValue, allLabel, options]
+    [shouldShowAllOption, allValue, allLabel, options]
   );
 
   const effectiveValue = useMemo(
     () =>
-      hasAllOption
+      shouldShowAllOption
         ? value == null || value === ""
           ? allValue
           : value
         : (value ?? null),
-    [hasAllOption, value, allValue]
+    [shouldShowAllOption, value, allValue]
   );
 
   const selectedOption = useMemo(
@@ -78,11 +79,9 @@ export default function AdaptiveSelect({
     onChange(nextValue);
     setIsOpen(false);
   };
-
   return isMobileViewport ? (
     <>
       <AdaptiveSelectTrigger
-        allIcon={allIcon}
         allValue={allValue}
         className={className}
         disabled={disabled}

@@ -2,24 +2,17 @@
 import React from "react";
 import LabeledInput from "@/app/components/shared/labeled/LabeledInput";
 import PhoneNumberInput from "@/app/components/shared/labeled/PhoneNumberInput";
-import LabeledSelect from "@/app/components/shared/labeled/LabeledSelect";
 import { CustomerFormData, CustomerFormErrors } from "@/types/form-types";
 
 interface CustomerFormProps {
   customer: CustomerFormData;
   errors: CustomerFormErrors;
-  referralOptions: { label: string; value: string }[];
-  isLoading: boolean;
-  errorMessage?: string | null;
   onChange: (key: keyof CustomerFormData, value: string) => void;
 }
 
 const CustomerForm: React.FC<CustomerFormProps> = ({
   customer,
   errors,
-  referralOptions,
-  isLoading,
-  errorMessage,
   onChange,
 }) => {
   return (
@@ -53,16 +46,6 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
         error={errors.altPhoneNumber}
         placeholder="Enter alternative phone number"
         isEditing={true}
-      />
-      <LabeledSelect
-        label="Referral Source*"
-        value={customer.referral}
-        onChange={(value) => onChange("referral", value)}
-        options={referralOptions}
-        loading={isLoading}
-        queryError={errorMessage}
-        placeholder="Select a referral source"
-        error={errors.referral}
       />
     </div>
   );

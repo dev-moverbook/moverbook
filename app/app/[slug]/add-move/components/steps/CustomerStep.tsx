@@ -33,8 +33,6 @@ const CustomerStep = ({ onNext, onCancel }: CustomerStepProps) => {
     setCustomer,
     customerErrors,
     setCustomerErrors,
-    referralOptions,
-    isLoading,
     isInfoSectionComplete,
     errorMessage,
     moveFormData,
@@ -55,16 +53,12 @@ const CustomerStep = ({ onNext, onCancel }: CustomerStepProps) => {
     setUpdateMoveCustomerError,
   } = useUpdateMoveCustomer();
 
-  const referralSelectOptions =
-    referralOptions?.map((r) => ({ label: r.name, value: r.name })) ?? [];
-
   const handleChange = (key: keyof typeof customer, value: string): void => {
     if (existingCustomer && (key === "email" || key === "phoneNumber")) {
       setExistingCustomer(null);
     }
     setCustomer({ ...customer, [key]: value });
     if (customerErrors[key]) {
-      // set the specific error key to undefined instead of removing via destructure
       setCustomerErrors({ ...customerErrors, [key]: undefined });
     }
   };
@@ -73,8 +67,7 @@ const CustomerStep = ({ onNext, onCancel }: CustomerStepProps) => {
     !customer.name ||
     !isValidEmail(customer.email) ||
     !isValidPhoneNumber(customer.phoneNumber) ||
-    !isValidPhoneNumber(customer.altPhoneNumber) || // if optional, relax this
-    !customer.referral;
+    !isValidPhoneNumber(customer.altPhoneNumber);
 
   const isDisabled =
     baseDisabled || createMoveCustomerLoading || updateMoveCustomerLoading;
@@ -84,8 +77,7 @@ const CustomerStep = ({ onNext, onCancel }: CustomerStepProps) => {
 
     if (existingCustomer) return;
 
-    const referralValues = referralSelectOptions.map((r) => r.value);
-    const { isValid, errors } = validateCustomerForm(customer, referralValues);
+    const { isValid, errors } = validateCustomerForm(customer);
     if (!isValid) {
       setCustomerErrors(errors);
       return;
@@ -104,7 +96,6 @@ const CustomerStep = ({ onNext, onCancel }: CustomerStepProps) => {
           email: customer.email,
           phoneNumber: customer.phoneNumber,
           altPhoneNumber: customer.altPhoneNumber,
-          referral: customer.referral,
         },
       });
       if (response.success) onNext();
@@ -117,7 +108,6 @@ const CustomerStep = ({ onNext, onCancel }: CustomerStepProps) => {
       email: customer.email,
       phoneNumber: customer.phoneNumber,
       altPhoneNumber: customer.altPhoneNumber,
-      referral: customer.referral,
       companyId,
     });
 
@@ -145,9 +135,6 @@ const CustomerStep = ({ onNext, onCancel }: CustomerStepProps) => {
       <CustomerForm
         customer={customer}
         errors={customerErrors}
-        referralOptions={referralSelectOptions}
-        isLoading={isLoading}
-        errorMessage={errorMessage}
         onChange={handleChange}
       />
 

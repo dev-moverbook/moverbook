@@ -236,8 +236,7 @@ export const validateAdditionalFeeForm = (
 };
 
 export const validateCustomerForm = (
-  formData: CustomerFormData,
-  allowedReferrals: string[]
+  formData: CustomerFormData
 ): { isValid: boolean; errors: CustomerFormErrors } => {
   const errors: CustomerFormErrors = {};
 
@@ -267,10 +266,6 @@ export const validateCustomerForm = (
   const altPhoneError = validatePhoneNumber(formData.altPhoneNumber);
   if (altPhoneError) {
     errors.altPhoneNumber = altPhoneError;
-  }
-
-  if (formData.referral && !allowedReferrals.includes(formData.referral)) {
-    errors.referral = FrontEndErrorMessages.REFERRAL_INVALID;
   }
 
   const isValid = Object.values(errors).every((val) => val === null);

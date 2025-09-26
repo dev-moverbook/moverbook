@@ -1,11 +1,11 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import { CommandItem } from "@/components/ui/command";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Option } from "@/types/types";
+import LeadingMedia from "./LeadingMedia";
 
 interface CommandListItemProps {
   option: Option & { image?: string; altText?: string };
@@ -22,6 +22,7 @@ export default function CommandListItem({
   allIcon,
   onSelect,
 }: CommandListItemProps) {
+  const hasLeadingMedia = Boolean(option.image) || (isAll && Boolean(allIcon));
   return (
     <CommandItem
       value={option.label}
@@ -34,25 +35,19 @@ export default function CommandListItem({
         "min-w-[240px]"
       )}
     >
-      {isAll ? (
-        <span className="h-8 w-8 flex items-center justify-center flex-shrink-0">
-          {allIcon}
-        </span>
-      ) : option.image ? (
-        <div className="relative h-8 w-8 flex-shrink-0">
-          <Image
-            src={option.image}
-            alt={option.altText ?? option.label}
-            fill
-            className="rounded-full object-cover"
-          />
-        </div>
-      ) : (
-        <span className="h-8 w-8 flex-shrink-0" />
+      {hasLeadingMedia && (
+        <LeadingMedia
+          isAll={isAll}
+          allIcon={allIcon}
+          image={option.image}
+          altText={option.altText ?? option.label}
+        />
       )}
+
       <span className={cn("truncate flex-1", isSelected && "font-bold")}>
         {option.label}
       </span>
+
       <Check
         className={cn(
           "h-6 w-6 ml-auto text-white",

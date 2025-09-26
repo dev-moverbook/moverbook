@@ -166,8 +166,7 @@ export const hasRequiredMoveFields = (
     !!moveCustomer.phoneNumber?.trim() &&
     (!!moveCustomer.altPhoneNumber
       ? !!moveCustomer.altPhoneNumber.trim()
-      : true) &&
-    !!moveCustomer.referral?.trim();
+      : true);
 
   // Single-location completeness (matches MoveFormProvider logic)
   const isLocationComplete = (loc: LocationInput): boolean => {

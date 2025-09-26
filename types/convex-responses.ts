@@ -1,44 +1,15 @@
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { ResponseStatus, StripeAccountStatus } from "./enums";
 import { ErrorMessages } from "./errors";
+
 import {
-  AdditionalFeeSchema,
-  ArrivalWindowSchema,
-  CategorySchema,
-  CompanyContactSchema,
-  CompanySchema,
-  ComplianceSchema,
-  ConnectedAccountSchema,
-  CreditCardFeeSchema,
-  DiscountSchema,
-  FeeSchema,
-  InsurancePolicySchema,
-  InternalReviewSchema,
-  InvitationSchema,
-  InvoiceSchema,
-  ItemSchema,
-  LaborSchema,
-  MessageSchema,
-  MoveAssignmentSchema,
-  MoveCustomerSchema,
-  MoveSchema,
-  PolicySchema,
-  PreMoveDocSchema,
-  QuoteSchema,
-  ReferralSchema,
-  RoomSchema,
-  ScriptSchema,
-  TravelFeeSchema,
-  UserSchema,
-  VariableSchema,
-  WebIntegrationsSchema,
-} from "./convex-schemas";
-import {
+  ForecastPoint,
+  HistoricalPoint,
   HourStatus,
+  MoveAnalyticsPoint,
   MoverWageForMove,
   RecentMoveMessageSummary,
 } from "./types";
-import { MyWage, WageRange } from "@/convex/backendUtils/queryHelpers";
 
 export interface ErrorResponse {
   status: ResponseStatus.ERROR;
@@ -222,7 +193,7 @@ export interface GetActiveVariablesByCompanyIdSuccess {
 }
 
 export interface GetActiveVariablesByCompanyIdData {
-  variables: VariableSchema[];
+  variables: Doc<"variables">[];
 }
 
 export type CreateVariableResponse = CreateVariableSuccess | ErrorResponse;
@@ -257,7 +228,7 @@ export interface GetActiveScriptsByCompanyIdSuccess {
 }
 
 export interface GetActiveScriptsByCompanyIdData {
-  scripts: ScriptSchema[];
+  scripts: Doc<"scripts">[];
 }
 
 export type CreateScriptResponse = CreateScriptResponseSuccess | ErrorResponse;
@@ -431,7 +402,7 @@ export interface GetPolicySuccess {
 }
 
 export interface GetPolicyData {
-  policy: PolicySchema;
+  policy: Doc<"policies">;
 }
 
 export type CreateLaborResponse = CreateLaborSuccess | ErrorResponse;
@@ -538,7 +509,7 @@ export interface GetFeesSuccess {
 }
 
 export interface GetFeesData {
-  fees: FeeSchema[];
+  fees: Doc<"fees">[];
 }
 
 export type UpdateTravelFeeResponse = UpdateTravelFeeSuccess | ErrorResponse;
@@ -560,7 +531,7 @@ export interface GetActiveRoomsSuccess {
 }
 
 export interface GetActiveRoomsData {
-  rooms: RoomSchema[];
+  rooms: Doc<"rooms">[];
 }
 
 export type CreateRoomResponse = CreateRoomSuccess | ErrorResponse;
@@ -606,7 +577,7 @@ export interface GetCategoriesSuccess {
 }
 
 export interface GetCategoriesData {
-  categories: CategorySchema[];
+  categories: Doc<"categories">[];
 }
 
 export type UpdateCategoryResponse = UpdateCategorySuccess | ErrorResponse;
@@ -630,7 +601,7 @@ export interface GetItemsByCategorySuccess {
 }
 
 export interface GetItemsByCategoryData {
-  items: ItemSchema[];
+  items: Doc<"items">[];
 }
 
 export type UpdateItemResponse = UpdateItemSuccess | ErrorResponse;
@@ -669,11 +640,11 @@ export interface GetConnectedAccountByCompanyIdSuccess {
 }
 
 export interface GetConnectedAccountByCompanyIdData {
-  labor: LaborSchema[];
-  insurancePolicies: InsurancePolicySchema[];
-  travelFee: TravelFeeSchema;
-  creditCardFee: CreditCardFeeSchema;
-  fees: FeeSchema[];
+  labor: Doc<"labor">[];
+  insurancePolicies: Doc<"insurancePolicies">[];
+  travelFee: Doc<"travelFee">;
+  creditCardFee: Doc<"creditCardFees">;
+  fees: Doc<"fees">[];
 }
 
 export type GetStripeConnectionResponse =
@@ -752,7 +723,7 @@ export interface GetCompanyClerkUserIdSuccess {
 }
 
 export interface GetCompanyClerkUserIdData {
-  company: CompanySchema | null;
+  company: Doc<"companies"> | null;
 }
 
 export type GetCompanyArrivalResponse =
@@ -778,7 +749,7 @@ export interface GetItemsByCompanySuccess {
 }
 
 export interface GetItemsByCompanyData {
-  items: ItemSchema[];
+  items: Doc<"items">[];
 }
 
 export type GetItemsAndCategoriesAndRoomsByCompanyResponse =
@@ -937,7 +908,7 @@ export interface GetMoversByCompanyIdSuccess {
 }
 
 export interface GetMoversByCompanyIdData {
-  users: UserSchema[];
+  users: Doc<"users">[];
 }
 
 export type UpdateMoveAssignmentResponse =
@@ -1310,4 +1281,41 @@ export interface GetSalesRepsAndReferralByCompanyIdSuccess {
 export interface GetSalesRepsAndReferralByCompanyIdData {
   users: Doc<"users">[];
   referrals: Doc<"referrals">[];
+}
+
+export type GetHistoricalAnalyticsResponse =
+  | GetHistoricalAnalyticsSuccess
+  | ErrorResponse;
+
+export interface GetHistoricalAnalyticsSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetHistoricalAnalyticsData;
+}
+
+export interface GetHistoricalAnalyticsData {
+  series: HistoricalPoint[];
+}
+
+export type GetForecastedAnalyticsResponse =
+  | GetForecastedAnalyticsSuccess
+  | ErrorResponse;
+
+export interface GetForecastedAnalyticsSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetForecastedAnalyticsData;
+}
+
+export interface GetForecastedAnalyticsData {
+  series: ForecastPoint[];
+}
+
+export type GetMoveAnalyticsResponse = GetMoveAnalyticsSuccess | ErrorResponse;
+
+export interface GetMoveAnalyticsSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetMoveAnalyticsData;
+}
+
+export interface GetMoveAnalyticsData {
+  series: MoveAnalyticsPoint[];
 }

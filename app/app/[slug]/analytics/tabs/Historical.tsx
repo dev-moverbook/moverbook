@@ -13,13 +13,11 @@ import {
 } from "@/types/types";
 import { Users } from "lucide-react";
 import { HISTORICAL_TIME_OPTIONS } from "@/types/const";
-import {
-  prevNDaysISO,
-  clampEndNotBeforeStart,
-  todayISO,
-} from "@/app/frontendUtils/luxonUtils";
+import { prevNDaysISO, todayISO } from "@/app/frontendUtils/luxonUtils";
 import { useSlugContext } from "@/app/contexts/SlugContext";
 import FilterRow from "@/app/components/shared/containers/FilterRow";
+import HistoricalAnalytics from "../sections/HistoricalAnalytics";
+import { Id } from "@/convex/_generated/dataModel";
 
 interface HistoricalProps {
   userOptions: Option[];
@@ -35,17 +33,19 @@ const Historical = ({ userOptions, sourceOptions }: HistoricalProps) => {
     return prevNDaysISO(timeZone, days, false);
   }, [timeZone]);
 
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-  const [selectedSource, setSelectedSource] = useState<string | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<Id<"users"> | null>(
+    null
+  );
+  const [selectedSource, setSelectedSource] = useState<Id<"referrals"> | null>(
+    null
+  );
   const [selectedTime, setSelectedTime] =
     useState<HistoricalTimeValue>(INITIAL_TIME);
 
-  const [customStartDate, setCustomStartDate] = useState<string | null>(
+  const [customStartDate, setCustomStartDate] = useState<string>(
     initialSeed.start
   );
-  const [customEndDate, setCustomEndDate] = useState<string | null>(
-    initialSeed.end
-  );
+  const [customEndDate, setCustomEndDate] = useState<string>(initialSeed.end);
 
   const showCustomRange = selectedTime === "custom";
   const today = todayISO(timeZone);
@@ -95,10 +95,10 @@ const Historical = ({ userOptions, sourceOptions }: HistoricalProps) => {
           title="Select Sales Rep"
           options={userOptions}
           value={selectedUserId}
-          onChange={setSelectedUserId}
+          onChange={(value) => setSelectedUserId(value as Id<"users">)}
           placeholder="Choose a Sales Rep"
           searchPlaceholder="Search Sales Reps…"
-          allLabel="All Reps"
+          allLabel="Reps"
           allIcon={<Users className="h-6 w-6 text-white" />}
           description="Choose a Sales Rep to see their analytics."
         />
@@ -106,10 +106,10 @@ const Historical = ({ userOptions, sourceOptions }: HistoricalProps) => {
           title="Select source"
           options={sourceOptions}
           value={selectedSource}
-          onChange={setSelectedSource}
+          onChange={(value) => setSelectedSource(value as Id<"referrals">)}
           placeholder="Choose a source"
           searchPlaceholder="Search sources…"
-          allLabel="All sources"
+          allLabel="Sources"
           description="Choose a source to see their analytics."
         />
         <AdaptiveSelect
@@ -118,7 +118,7 @@ const Historical = ({ userOptions, sourceOptions }: HistoricalProps) => {
           value={selectedTime}
           onChange={handleTimeChange}
           placeholder="Choose a time"
-          description="Choose a time to see their analytics."
+          description="Choose a time range to see their analytics."
           showSearch={false}
         />
       </FilterRow>
@@ -126,19 +126,20 @@ const Historical = ({ userOptions, sourceOptions }: HistoricalProps) => {
         <DateRangeFieldsBase
           startDate={customStartDate}
           endDate={customEndDate}
-          onStartChange={(next) => {
-            setCustomStartDate(next);
-            setCustomEndDate((prev) => clampEndNotBeforeStart(next, prev));
-          }}
-          onEndChange={(next) => {
-            setCustomEndDate(clampEndNotBeforeStart(customStartDate, next));
-          }}
+          onStartChange={setCustomStartDate}
+          onEndChange={setCustomEndDate}
           startMax={today}
           endMax={today}
           endMin={customStartDate ?? undefined}
           className="px-0"
         />
       )}
+      <HistoricalAnalytics
+        startDate={customStartDate}
+        endDate={customEndDate}
+        salesRepId={selectedUserId}
+        referralId={selectedSource}
+      />
     </SectionContainer>
   );
 };

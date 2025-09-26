@@ -14,19 +14,6 @@ export type ServiceType =
   | "moving_and_packing"
   | "commercial";
 
-export type NumberOfMovers = "1" | "2" | "3" | "4" | "5+";
-
-export const NUMBER_OF_MOVERS_OPTIONS: {
-  label: string;
-  value: NumberOfMovers;
-}[] = [
-  { label: "1 Mover", value: "1" },
-  { label: "2 Movers", value: "2" },
-  { label: "3 Movers", value: "3" },
-  { label: "4 Movers", value: "4" },
-  { label: "5+ Movers", value: "5+" },
-];
-
 export const SERVICE_TYPE_OPTIONS: { label: string; value: ServiceType }[] = [
   { label: "Moving", value: "moving" },
   { label: "Packing", value: "packing" },
@@ -278,3 +265,47 @@ export type HistoricalTimeValue =
   | "last_90_days"
   | "last_365_days"
   | "custom";
+
+export type HistoricalPoint = {
+  date: string;
+  revenue: number;
+  expense: number;
+  profit: number;
+};
+
+export type MoveExpenseInfo = Readonly<{
+  expense: number;
+  hasApproved: boolean;
+}>;
+
+export type IncomeTotals = { revenue: number; expense: number; profit: number };
+
+export type MoveAnalyticsPoint = {
+  date: string;
+  averageRevenue: number;
+  averageMoveTimeHours: number;
+  count: number;
+};
+
+export type ForecastPoint = {
+  date: string;
+  revenue: number;
+};
+
+export type LineGraphDatum = {
+  label: string | number;
+  value: number;
+  count?: number;
+};
+
+export type LineGraphProps = {
+  title: string;
+  data: LineGraphDatum[];
+  className?: string;
+  height?: number;
+  color?: string;
+  showDots?: boolean;
+  valueFormatter?: (value: number) => string;
+  labelFormatter?: (label: string | number) => string;
+  onPointClick?: (point: LineGraphDatum) => void;
+};

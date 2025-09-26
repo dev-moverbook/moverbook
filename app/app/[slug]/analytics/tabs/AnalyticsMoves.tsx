@@ -3,21 +3,21 @@ import SectionContainer from "@/app/components/shared/containers/SectionContaine
 import AdaptiveSelect from "@/app/components/shared/select/AdaptiveSelect";
 import DateRangeFieldsBase from "@/app/components/shared/select/DateRangePanel";
 import { useSlugContext } from "@/app/contexts/SlugContext";
-import {
-  clampEndNotBeforeStart,
-  prevNDaysISO,
-  todayISO,
-} from "@/app/frontendUtils/luxonUtils";
+import { prevNDaysISO, todayISO } from "@/app/frontendUtils/luxonUtils";
 import { HISTORICAL_TIME_OPTIONS } from "@/types/const";
 import {
   HISTORICAL_DAYS_BY_VALUE,
   HistoricalTimeValue,
-  NUMBER_OF_MOVERS_OPTIONS,
-  NumberOfMovers,
+  LOCATION_TYPE_OPTIONS,
+  LocationType,
+  MOVE_SIZE_OPTIONS,
+  MoveSize,
   SERVICE_TYPE_OPTIONS,
   ServiceType,
 } from "@/types/types";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import MoveDataAnalytics from "../sections/MoveDataAnalytics";
+import MoversSelect from "@/app/components/shared/select/MoversSelect";
 
 const AnalyticsMoves = () => {
   const { timeZone } = useSlugContext();
@@ -29,20 +29,23 @@ const AnalyticsMoves = () => {
   }, [timeZone]);
 
   const [selectedServiceType, setSelectedServiceType] =
-    useState<ServiceType>("moving");
+    useState<ServiceType | null>(null);
 
-  const [selectedNumberOfMovers, setSelectedNumberOfMovers] =
-    useState<NumberOfMovers>("2");
+  const [movers, setMovers] = React.useState<number | null>(null);
+
+  const [selectedLocationType, setSelectedLocationType] =
+    useState<LocationType | null>(null);
+  const [selectedMoveSize, setSelectedMoveSize] = useState<MoveSize | null>(
+    null
+  );
 
   const [selectedTime, setSelectedTime] =
     useState<HistoricalTimeValue>(INITIAL_TIME);
 
-  const [customStartDate, setCustomStartDate] = useState<string | null>(
+  const [customStartDate, setCustomStartDate] = useState<string>(
     initialSeed.start
   );
-  const [customEndDate, setCustomEndDate] = useState<string | null>(
-    initialSeed.end
-  );
+  const [customEndDate, setCustomEndDate] = useState<string>(initialSeed.end);
 
   const showCustomRange = selectedTime === "custom";
   const today = todayISO(timeZone);
@@ -96,22 +99,41 @@ const AnalyticsMoves = () => {
             setSelectedServiceType(next as ServiceType);
           }}
           placeholder="Choose a Service Type"
-          searchPlaceholder="Search Service Types…"
-          allLabel="All Service Types"
-          description="Choose a Sales Rep to see their analytics."
+          allLabel="Services"
+          description="Choose a Service Type to see their analytics."
           showSearch={false}
         />
         <AdaptiveSelect
-          title="Select Number of Movers"
-          options={NUMBER_OF_MOVERS_OPTIONS}
-          value={selectedNumberOfMovers}
+          title="Select Location Type"
+          options={LOCATION_TYPE_OPTIONS}
+          value={selectedLocationType}
           onChange={(next) => {
-            setSelectedNumberOfMovers(next as NumberOfMovers);
+            setSelectedLocationType(next as LocationType);
           }}
-          placeholder="Choose a source"
-          searchPlaceholder="Search sources…"
-          description="Choose a source to see their analytics."
+          placeholder="Choose a Location Type"
+          allLabel="Locations"
+          description="Choose a Location Type to see their analytics."
           showSearch={false}
+        />
+        <AdaptiveSelect
+          title="Select Move Size"
+          options={MOVE_SIZE_OPTIONS}
+          value={selectedMoveSize}
+          onChange={(next) => {
+            setSelectedMoveSize(next as MoveSize);
+          }}
+          placeholder="Choose a Move Size"
+          allLabel="Sizes"
+          description="Choose a Move Size to see their analytics."
+          showSearch={false}
+        />
+        <MoversSelect
+          value={movers}
+          onChange={setMovers}
+          min={1}
+          max={20}
+          title="Choose movers"
+          description={`Use "All Movers" or specify a count.`}
         />
         <AdaptiveSelect
           title="Select time"
@@ -119,7 +141,7 @@ const AnalyticsMoves = () => {
           value={selectedTime}
           onChange={handleTimeChange}
           placeholder="Choose a time"
-          description="Choose a time to see their analytics."
+          description="Choose a time range to see their analytics."
           showSearch={false}
         />
       </FilterRow>
@@ -127,19 +149,22 @@ const AnalyticsMoves = () => {
         <DateRangeFieldsBase
           startDate={customStartDate}
           endDate={customEndDate}
-          onStartChange={(next) => {
-            setCustomStartDate(next);
-            setCustomEndDate((prev) => clampEndNotBeforeStart(next, prev));
-          }}
-          onEndChange={(next) => {
-            setCustomEndDate(clampEndNotBeforeStart(customStartDate, next));
-          }}
+          onStartChange={setCustomStartDate}
+          onEndChange={setCustomEndDate}
           startMax={today}
           endMax={today}
           endMin={customStartDate ?? undefined}
           className="px-0"
         />
       )}
+      <MoveDataAnalytics
+        startDate={customStartDate}
+        endDate={customEndDate}
+        serviceType={selectedServiceType}
+        numberOfMovers={movers}
+        locationType={selectedLocationType}
+        moveSize={selectedMoveSize}
+      />
     </SectionContainer>
   );
 };

@@ -120,7 +120,6 @@ const AddMovePageContent = () => {
         email: customer.email,
         phoneNumber: customer.phoneNumber,
         altPhoneNumber: customer.altPhoneNumber ?? "",
-        referral: customer.referral ?? "",
       });
 
       setMoveFormData((prev) => ({

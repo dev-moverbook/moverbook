@@ -38,7 +38,7 @@ const FieldDate: React.FC<FieldDateProps> = ({
   }
 
   return (
-    <div className="relative">
+    <div className="relative ">
       <Label htmlFor={name} className="block font-medium">
         {label}
       </Label>
@@ -50,7 +50,7 @@ const FieldDate: React.FC<FieldDateProps> = ({
         min={min}
         max={max}
         className={cn(
-          "hover:bg-background2 min-h-[34px] text-white bg-transparent pr-2 cursor-pointer [&::-webkit-calendar-picker-indicator]:invert",
+          "hover:bg-background2 p-2 h-10 text-white bg-transparent pr-2 cursor-pointer [&::-webkit-calendar-picker-indicator]:invert",
           error && "border-red-500"
         )}
       />

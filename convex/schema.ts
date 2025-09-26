@@ -317,6 +317,7 @@ export default defineSchema({
     notes: v.union(v.null(), v.string()),
     officeToOrigin: v.union(v.null(), v.number()),
     paymentMethod: PaymentMethodConvex,
+    referralId: v.id("referrals"),
     roundTripDrive: v.union(v.null(), v.number()),
     roundTripMiles: v.union(v.null(), v.number()),
     salesRep: v.id("users"),
@@ -354,7 +355,6 @@ export default defineSchema({
     email: v.string(),
     name: v.string(),
     phoneNumber: v.string(),
-    referral: v.union(v.null(), v.string()),
   })
     .index("by_email", ["email"])
     .index("by_phone", ["phoneNumber"])

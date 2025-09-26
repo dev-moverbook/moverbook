@@ -1,6 +1,6 @@
 import { ErrorMessages } from "@/types/errors";
-import { Id } from "../_generated/dataModel";
-import { MutationCtx } from "../_generated/server";
+import { Doc, Id } from "../_generated/dataModel";
+import { MutationCtx, QueryCtx } from "../_generated/server";
 import {
   DEFAULT_WEEKDAY_HOUR_MINIMUM,
   DEFAULT_WEEKEND_HOUR_MINIMUM,
@@ -27,6 +27,7 @@ import {
 } from "@/types/const";
 import { ResponseStatus } from "@/types/enums";
 import { ErrorResponse } from "@/types/convex-responses";
+import { HistoricalPoint, IncomeTotals, MoveExpenseInfo } from "@/types/types";
 
 export const createCompanyRecords = async (
   ctx: MutationCtx,
@@ -216,4 +217,126 @@ export function handleInternalError(error: unknown): ErrorResponse {
       ? errorMessage
       : ErrorMessages.GENERIC_ERROR,
   };
+}
+
+export function toIsoDateInTimeZone(input: string, timeZone: string): string {
+  const date = new Date(input);
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  })
+    .formatToParts(date)
+    .reduce<Record<string, string>>((map, part) => {
+      if (part.type !== "literal") map[part.type] = part.value;
+      return map;
+    }, {});
+  return `${parts.year}-${parts.month}-${parts.day}`;
+}
+
+export function enumerateDaysInclusive(
+  startDay: string,
+  endDay: string
+): string[] {
+  const dayList: string[] = [];
+  const startDateUtc = new Date(`${startDay}T00:00:00Z`);
+  const endDateUtc = new Date(`${endDay}T00:00:00Z`);
+  for (
+    let currentDateUtc = startDateUtc;
+    currentDateUtc <= endDateUtc;
+    currentDateUtc = new Date(currentDateUtc.getTime() + 86_400_000)
+  ) {
+    dayList.push(currentDateUtc.toISOString().slice(0, 10));
+  }
+  return dayList;
+}
+
+function initializeTotalsByDay(
+  startDay: string,
+  endDay: string
+): Record<string, IncomeTotals> {
+  const totals: Record<string, IncomeTotals> = {};
+  for (const day of enumerateDaysInclusive(startDay, endDay)) {
+    totals[day] = { revenue: 0, expense: 0, profit: 0 };
+  }
+  return totals;
+}
+
+function addMoveToTotals(
+  move: Doc<"move">,
+  expenseByMoveId: Map<Id<"move">, MoveExpenseInfo>,
+  timeZone: string,
+  totals: Record<string, IncomeTotals>
+) {
+  if (!move.moveDate) {
+    return;
+  }
+  const expenseInfo = expenseByMoveId.get(move._id);
+  if (!expenseInfo || !expenseInfo.hasApproved) {
+    return;
+  }
+  const bucketDay = toIsoDateInTimeZone(move.moveDate, timeZone);
+  const revenue =
+    Number(move.deposit ?? 0) + Number(move.invoiceAmountPaid ?? 0);
+  const expense = expenseInfo.expense;
+  const profit = revenue - expense;
+  if (!totals[bucketDay])
+    totals[bucketDay] = { revenue: 0, expense: 0, profit: 0 };
+  totals[bucketDay].revenue += revenue;
+  totals[bucketDay].expense += expense;
+  totals[bucketDay].profit += profit;
+}
+
+function formatHistoricalSeries(
+  totals: Record<string, IncomeTotals>
+): HistoricalPoint[] {
+  return Object.keys(totals)
+    .sort()
+    .map((date) => ({ date, ...totals[date] }));
+}
+
+export function buildHistoricalSeries(
+  startDay: string,
+  endDay: string,
+  moves: Doc<"move">[],
+  timeZone: string,
+  expenseByMoveId: Map<Id<"move">, MoveExpenseInfo>
+): HistoricalPoint[] {
+  const totals = initializeTotalsByDay(startDay, endDay);
+  for (const move of moves)
+    addMoveToTotals(move, expenseByMoveId, timeZone, totals);
+  return formatHistoricalSeries(totals);
+}
+
+export async function getApprovedPayTotalsForMoves(
+  context: QueryCtx,
+  moveIds: Id<"move">[]
+): Promise<Map<Id<"move">, MoveExpenseInfo>> {
+  const entries: Array<readonly [Id<"move">, MoveExpenseInfo]> =
+    await Promise.all(
+      moveIds.map(async (moveId) => {
+        const assignments = await context.db
+          .query("moveAssignments")
+          .withIndex("by_move", (indexRange) => indexRange.eq("moveId", moveId))
+          .collect();
+
+        const approvedPays = assignments
+          .map((assignment) => assignment.approvedPay)
+          .filter(
+            (value): value is number =>
+              typeof value === "number" && Number.isFinite(value)
+          );
+
+        const hasApproved = approvedPays.length > 0;
+        const expense = hasApproved
+          ? approvedPays.reduce((sum, value) => sum + value, 0)
+          : 0;
+
+        const info: MoveExpenseInfo = { expense, hasApproved };
+        return [moveId, info] as const;
+      })
+    );
+
+  return new Map(entries);
 }

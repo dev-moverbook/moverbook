@@ -20,6 +20,8 @@ import {
 } from "@/app/frontendUtils/luxonUtils";
 import { useSlugContext } from "@/app/contexts/SlugContext";
 import FilterRow from "@/app/components/shared/containers/FilterRow";
+import ForecastedAnalytics from "../sections/ForecastedAnalytics";
+import { Id } from "@/convex/_generated/dataModel";
 
 interface ForecastedProps {
   userOptions: Option[];
@@ -39,17 +41,19 @@ export default function Forecasted({
     return nextNDaysISO(timeZone, days, false);
   }, [timeZone]);
 
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-  const [selectedSource, setSelectedSource] = useState<string | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<Id<"users"> | null>(
+    null
+  );
+  const [selectedSource, setSelectedSource] = useState<Id<"referrals"> | null>(
+    null
+  );
   const [selectedTime, setSelectedTime] =
     useState<ForecastTimeValue>(INITIAL_TIME);
 
-  const [customStartDate, setCustomStartDate] = useState<string | null>(
+  const [customStartDate, setCustomStartDate] = useState<string>(
     initialSeed.start
   );
-  const [customEndDate, setCustomEndDate] = useState<string | null>(
-    initialSeed.end
-  );
+  const [customEndDate, setCustomEndDate] = useState<string>(initialSeed.end);
 
   const showCustomRange = selectedTime === "custom";
 
@@ -101,23 +105,25 @@ export default function Forecasted({
           title="Select Sales Rep"
           options={userOptions}
           value={selectedUserId}
-          onChange={setSelectedUserId}
+          onChange={(value) => setSelectedUserId(value as Id<"users">)}
           placeholder="Choose a Sales Rep"
           searchPlaceholder="Search Sales Reps…"
-          allLabel="All Reps"
-          allIcon={<Users className="h-6 w-6 text-white" />}
+          allLabel="Reps"
           description="Choose a Sales Rep to see their analytics."
+          label="Sales Rep"
+          allIcon={<Users className="h-8 w-8 text-white" />}
         />
 
         <AdaptiveSelect
           title="Select source"
           options={sourceOptions}
           value={selectedSource}
-          onChange={setSelectedSource}
+          onChange={(value) => setSelectedSource(value as Id<"referrals">)}
           placeholder="Choose a source"
           searchPlaceholder="Search sources…"
-          allLabel="All sources"
+          allLabel="Sources"
           description="Choose a source to see their analytics."
+          label="Source"
         />
 
         <AdaptiveSelect
@@ -126,8 +132,9 @@ export default function Forecasted({
           value={selectedTime}
           onChange={handleTimeChange}
           placeholder="Choose a time"
-          description="Choose a time to see their analytics."
+          description="Choose a time range to see their analytics."
           showSearch={false}
+          label="Time"
         />
       </FilterRow>
 
@@ -143,6 +150,12 @@ export default function Forecasted({
           className="px-0"
         />
       )}
+      <ForecastedAnalytics
+        startDate={customStartDate}
+        endDate={customEndDate}
+        salesRepId={selectedUserId}
+        referralId={selectedSource}
+      />
     </SectionContainer>
   );
 }

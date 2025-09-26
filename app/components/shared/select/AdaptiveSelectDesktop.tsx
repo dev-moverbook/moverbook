@@ -54,7 +54,6 @@ export default function AdaptiveSelectDesktop({
     <Popover onOpenChange={setOpen} open={open}>
       <PopoverTrigger asChild>
         <AdaptiveSelectTrigger
-          allIcon={allIcon}
           allValue={allValue}
           className={className}
           disabled={disabled}

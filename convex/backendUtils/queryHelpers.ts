@@ -48,34 +48,90 @@ export type MoveQueryFilters = {
   end: string;
   statuses?: string[];
   salesRepId?: Id<"users"> | null;
+  referralId?: Id<"referrals"> | null;
+  serviceType?: Doc<"move">["serviceType"] | null;
+  moveSize?: Doc<"move">["locations"][number]["moveSize"] | null;
+  numberOfMovers?: number | null;
+  locationType?: Doc<"move">["locations"][number]["locationType"] | null;
 };
 
 export async function getCompanyMoves(
-  ctx: QueryCtx,
-  { companyId, start, end, statuses, salesRepId }: MoveQueryFilters
+  context: QueryCtx,
+  {
+    companyId,
+    start,
+    end,
+    statuses,
+    salesRepId,
+    referralId,
+    serviceType,
+    moveSize,
+    numberOfMovers,
+    locationType,
+  }: MoveQueryFilters
 ): Promise<Doc<"move">[]> {
-  let q = ctx.db
+  let moveQuery = context.db
     .query("move")
-    .withIndex("by_moveDate")
-    .filter((f) =>
-      f.and(
-        f.eq(f.field("companyId"), companyId),
-        f.gte(f.field("moveDate"), start),
-        f.lte(f.field("moveDate"), end)
-      )
-    );
+    .withIndex("by_moveDate", (range) =>
+      range.gte("moveDate", start).lte("moveDate", end)
+    )
+    .filter((filter) => filter.eq(filter.field("companyId"), companyId));
 
   if (statuses?.length) {
-    q = q.filter((f) =>
-      f.or(...statuses.map((s) => f.eq(f.field("moveStatus"), s)))
+    moveQuery = moveQuery.filter((filter) =>
+      filter.or(
+        ...statuses.map((status) =>
+          filter.eq(filter.field("moveStatus"), status)
+        )
+      )
     );
   }
 
   if (salesRepId) {
-    q = q.filter((f) => f.eq(f.field("salesRep"), salesRepId));
+    moveQuery = moveQuery.filter((filter) =>
+      filter.eq(filter.field("salesRep"), salesRepId)
+    );
   }
 
-  return q.collect();
+  if (referralId) {
+    moveQuery = moveQuery.filter((filter) =>
+      filter.eq(filter.field("referralId"), referralId)
+    );
+  }
+
+  if (serviceType ?? null) {
+    moveQuery = moveQuery.filter((filter) =>
+      filter.eq(filter.field("serviceType"), serviceType)
+    );
+  }
+
+  if (typeof numberOfMovers === "number") {
+    moveQuery = moveQuery.filter((filter) =>
+      filter.eq(filter.field("movers"), numberOfMovers)
+    );
+  }
+
+  const moves = await moveQuery.collect();
+
+  if (moveSize == null && locationType == null) {
+    return moves;
+  }
+
+  const filteredByFirstLocation = moves.filter((move) => {
+    const firstLocation = move.locations?.[0];
+    if (!firstLocation) {
+      return false;
+    }
+    if (moveSize != null && firstLocation.moveSize !== moveSize) {
+      return false;
+    }
+    if (locationType != null && firstLocation.locationType !== locationType) {
+      return false;
+    }
+    return true;
+  });
+
+  return filteredByFirstLocation;
 }
 
 type MoveWindow = Doc<"move">["moveWindow"];
@@ -202,7 +258,6 @@ export function enrichMoves(
   opts: {
     moveCustomerMap: Record<string, Doc<"moveCustomers">>;
     salesRepMap: Record<string, Doc<"users">>;
-    // accept the new map (optional for non-mover views)
     moverWageForMove?: Map<string, MoverWageForMove>;
     hourStatusMap?: HourStatusMap;
   }
@@ -214,7 +269,6 @@ export function enrichMoves(
     ...move,
     moveCustomer: moveCustomerMap[move.moveCustomerId] ?? null,
     salesRepUser: move.salesRep ? (salesRepMap[move.salesRep] ?? null) : null,
-    // attach per-move wage object if provided
     moverWageForMove: moverWageForMove?.get(move._id),
     hourStatus: hourStatusMap?.get(move._id),
   }));

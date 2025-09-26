@@ -1,4 +1,5 @@
 import { DateTime } from "luxon";
+import { isNarrowScreen } from "../components/shared/graphs/lineGraphs/lineGraphFormatters";
 
 export function toLocalDateTime(millis: number, zone: string): string {
   return DateTime.fromMillis(millis, { zone }).toFormat("yyyy-LL-dd'T'HH:mm");
@@ -196,7 +197,6 @@ export function rollingRangeISO(
   }
 }
 
-/** Convenience: next N days (forward). includeToday=false => starts tomorrow */
 export function nextNDaysISO(
   tz: string,
   days: number,
@@ -205,7 +205,6 @@ export function nextNDaysISO(
   return rollingRangeISO(tz, days, "forward", { includeToday });
 }
 
-/** Convenience: previous N days (backward). includeToday=false => ends yesterday */
 export function prevNDaysISO(
   tz: string,
   days: number,
@@ -213,3 +212,24 @@ export function prevNDaysISO(
 ): { start: string; end: string } {
   return rollingRangeISO(tz, days, "backward", { includeToday });
 }
+
+export const formatXLabel = (labelValue: string | number): string => {
+  const isMobileViewport = isNarrowScreen();
+  const mobileViewportFormat = "LLL d";
+  const desktopViewportFormat = "M/d";
+
+  const formatDateTimeForViewport = (dateTime: DateTime): string => {
+    if (!dateTime.isValid) return String(labelValue);
+    return dateTime.toFormat(
+      isMobileViewport ? mobileViewportFormat : desktopViewportFormat
+    );
+  };
+
+  if (typeof labelValue === "number") {
+    const dateTime = DateTime.fromMillis(labelValue);
+    return formatDateTimeForViewport(dateTime);
+  }
+
+  const dateTime = DateTime.fromISO(labelValue);
+  return formatDateTimeForViewport(dateTime);
+};

@@ -9,7 +9,6 @@ import { Option } from "@/types/types";
 import { formatDateRangeLabel } from "@/app/frontendUtils/luxonUtils";
 
 export interface AdaptiveSelectTriggerProps {
-  allIcon?: React.ReactNode;
   allValue?: string;
   className?: string;
   customEnd?: string | null;
@@ -29,7 +28,6 @@ const AdaptiveSelectTrigger = forwardRef<
 >(
   (
     {
-      allIcon,
       allValue = "__ALL__",
       className,
       customEnd = null,
@@ -57,57 +55,49 @@ const AdaptiveSelectTrigger = forwardRef<
       customLabel ?? (selectedOption ? selectedOption.label : placeholder);
 
     return (
-      <Button
-        ref={ref}
-        type="button"
-        variant="combobox"
-        role="combobox"
-        aria-label={title}
-        aria-expanded={open}
-        disabled={disabled}
-        onClick={onOpen}
-        size="combobox"
-        className={cn(
-          className,
-          "md:w-[200px] w-full",
-          open && "border-greenCustom"
-        )}
-      >
-        <span className="flex w-full items-center justify-between">
-          <span className="flex min-w-0 flex-1 items-center gap-2">
-            {selectedOption ? (
-              <>
-                {isAllSelection && allIcon && (
-                  <span className="h-6 w-6 shrink-0 flex items-center justify-center rounded-full">
-                    {allIcon}
+      <div className="flex flex-col ">
+        <Button
+          ref={ref}
+          type="button"
+          variant="combobox"
+          role="combobox"
+          aria-label={title}
+          aria-expanded={open}
+          disabled={disabled}
+          onClick={onOpen}
+          size="combobox"
+          className={cn(className, "", open && "border-greenCustom ")}
+        >
+          <span className="flex w-full items-center justify-between">
+            <span className="flex min-w-0 flex-1 items-center gap-2">
+              {selectedOption ? (
+                <>
+                  {!isAllSelection &&
+                    !isCustomSelection &&
+                    selectedOption.image && (
+                      <Image
+                        src={selectedOption.image}
+                        alt={selectedOption.label}
+                        width={24}
+                        height={24}
+                        className="h-6 w-6 shrink-0 rounded-full object-cover"
+                      />
+                    )}
+
+                  <span className="truncate">
+                    {isCustomSelection && !customLabel
+                      ? "Custom range"
+                      : displayLabel}
                   </span>
-                )}
-
-                {!isAllSelection &&
-                  !isCustomSelection &&
-                  selectedOption.image && (
-                    <Image
-                      src={selectedOption.image}
-                      alt={selectedOption.label}
-                      width={24}
-                      height={24}
-                      className="h-6 w-6 shrink-0 rounded-full object-cover"
-                    />
-                  )}
-
-                <span className="truncate">
-                  {isCustomSelection && !customLabel
-                    ? "Custom range"
-                    : displayLabel}
-                </span>
-              </>
-            ) : (
-              <span className="truncate">{placeholder}</span>
-            )}
+                </>
+              ) : (
+                <span className="truncate">{placeholder}</span>
+              )}
+            </span>
+            <ChevronsUpDown className="h-4 w-4 ml-1 shrink-0 opacity-60" />
           </span>
-          <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-60" />
-        </span>
-      </Button>
+        </Button>
+      </div>
     );
   }
 );

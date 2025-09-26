@@ -13,8 +13,7 @@ interface CreateMoveCustomerInput {
   name: string;
   email: string;
   phoneNumber: string;
-  altPhoneNumber: string | null;
-  referral: string | null;
+  altPhoneNumber: string;
 }
 
 interface CreateMoveCustomerResult {

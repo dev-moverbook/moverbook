@@ -7,8 +7,6 @@ type FilterRowProps = {
 
 export default function FilterRow({ children, className }: FilterRowProps) {
   return (
-    <div className={cn("grid grid-cols-1 md:grid-cols-3 gap-2", className)}>
-      {children}
-    </div>
+    <div className={cn("flex gap-2 flex-wrap", className)}>{children}</div>
   );
 }

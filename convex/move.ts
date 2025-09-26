@@ -1,6 +1,11 @@
 import { v } from "convex/values";
-import { internalQuery, mutation, query } from "./_generated/server";
-import { handleInternalError } from "./backendUtils/helper";
+import { internalQuery, mutation, query, QueryCtx } from "./_generated/server";
+import {
+  buildHistoricalSeries,
+  getApprovedPayTotalsForMoves,
+  handleInternalError,
+  toIsoDateInTimeZone,
+} from "./backendUtils/helper";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import { ClerkRoles, ResponseStatus } from "@/types/enums";
 import {
@@ -18,6 +23,9 @@ import { isUserInOrg } from "./backendUtils/validate";
 import {
   CreateMoveResponse,
   EnrichedMove,
+  GetForecastedAnalyticsResponse,
+  GetHistoricalAnalyticsResponse,
+  GetMoveAnalyticsResponse,
   GetMoveContextResponse,
   GetMoveOptionsResponse,
   GetMoveResponse,
@@ -27,6 +35,8 @@ import {
 } from "@/types/convex-responses";
 import {
   JobTypeConvex,
+  LocationTypeConvex,
+  MoveSizeConvex,
   MoveStatusConvex,
   MoveTimesConvex,
   ServiceTypesConvex,
@@ -57,6 +67,10 @@ import {
   scopeMovesToMover,
   sortByPriceOrder,
 } from "./backendUtils/queryHelpers";
+import {
+  buildDailyAveragesSeries,
+  buildForecastedSeries,
+} from "./backendUtils/analyticsHelper";
 
 export const getMoveOptions = query({
   args: { companyId: v.id("companies") },
@@ -219,6 +233,7 @@ export const createMove = mutation({
     movers: v.number(),
     notes: v.union(v.null(), v.string()),
     officeToOrigin: v.union(v.null(), v.number()),
+    referralId: v.id("referrals"),
     roundTripDrive: v.union(v.null(), v.number()),
     roundTripMiles: v.union(v.null(), v.number()),
     salesRep: v.id("users"),
@@ -634,6 +649,174 @@ export const getMovesForMoverCalendar = query({
       return {
         status: ResponseStatus.SUCCESS,
         data: { moves: scopedMoves },
+      };
+    } catch (error) {
+      return handleInternalError(error);
+    }
+  },
+});
+
+export const getHistoricalAnalytics = query({
+  args: {
+    companyId: v.id("companies"),
+    startDate: v.string(),
+    endDate: v.string(),
+    salesRepId: v.union(v.id("users"), v.null()),
+    referralId: v.union(v.id("referrals"), v.null()),
+  },
+  handler: async (ctx, args): Promise<GetHistoricalAnalyticsResponse> => {
+    try {
+      const { companyId, startDate, endDate, salesRepId, referralId } = args;
+
+      const identity = await requireAuthenticatedUser(ctx, [
+        ClerkRoles.ADMIN,
+        ClerkRoles.APP_MODERATOR,
+        ClerkRoles.MANAGER,
+        ClerkRoles.SALES_REP,
+      ]);
+
+      const company = validateCompany(await ctx.db.get(companyId));
+      isUserInOrg(identity, company.clerkOrganizationId);
+      const timeZone = company.timeZone;
+
+      const startDay = toIsoDateInTimeZone(startDate, timeZone);
+      const endDay = toIsoDateInTimeZone(endDate, timeZone);
+
+      const moves = await getCompanyMoves(ctx, {
+        companyId,
+        start: startDay,
+        end: endDay,
+        statuses: ["Completed"],
+        salesRepId,
+        referralId,
+      });
+
+      const expenseByMoveId = await getApprovedPayTotalsForMoves(
+        ctx,
+        moves.map((move) => move._id)
+      );
+
+      const series = buildHistoricalSeries(
+        startDay,
+        endDay,
+        moves,
+        timeZone,
+        expenseByMoveId
+      );
+      return {
+        status: ResponseStatus.SUCCESS,
+        data: { series },
+      };
+    } catch (error) {
+      return handleInternalError(error);
+    }
+  },
+});
+
+export const getForecastedAnalytics = query({
+  args: {
+    companyId: v.id("companies"),
+    startDate: v.string(),
+    endDate: v.string(),
+    salesRepId: v.union(v.id("users"), v.null()),
+    referralId: v.union(v.id("referrals"), v.null()),
+  },
+  handler: async (ctx, args): Promise<GetForecastedAnalyticsResponse> => {
+    try {
+      const { companyId, startDate, endDate, salesRepId, referralId } = args;
+
+      const identity = await requireAuthenticatedUser(ctx, [
+        ClerkRoles.ADMIN,
+        ClerkRoles.APP_MODERATOR,
+        ClerkRoles.MANAGER,
+        ClerkRoles.SALES_REP,
+      ]);
+
+      const company = validateCompany(await ctx.db.get(companyId));
+      isUserInOrg(identity, company.clerkOrganizationId);
+      const timeZone = company.timeZone;
+
+      const startDay = toIsoDateInTimeZone(startDate, timeZone);
+      const endDay = toIsoDateInTimeZone(endDate, timeZone);
+
+      const moves = await getCompanyMoves(ctx, {
+        companyId,
+        start: startDay,
+        end: endDay,
+        statuses: ["Completed"],
+        salesRepId,
+        referralId,
+      });
+
+      const series = buildForecastedSeries(endDay, moves, startDay, timeZone);
+      return {
+        status: ResponseStatus.SUCCESS,
+        data: { series },
+      };
+    } catch (error) {
+      return handleInternalError(error);
+    }
+  },
+});
+
+export const getMoveAnalytics = query({
+  args: {
+    companyId: v.id("companies"),
+    startDate: v.string(),
+    endDate: v.string(),
+    serviceType: v.union(v.null(), ServiceTypesConvex),
+    moveSize: v.union(v.null(), MoveSizeConvex),
+    numberOfMovers: v.union(v.null(), v.number()),
+    locationType: v.union(v.null(), LocationTypeConvex),
+  },
+  handler: async (ctx, args): Promise<GetMoveAnalyticsResponse> => {
+    try {
+      const {
+        companyId,
+        startDate,
+        endDate,
+        serviceType,
+        moveSize,
+        numberOfMovers,
+        locationType,
+      } = args;
+
+      const identity = await requireAuthenticatedUser(ctx, [
+        ClerkRoles.ADMIN,
+        ClerkRoles.APP_MODERATOR,
+        ClerkRoles.MANAGER,
+        ClerkRoles.SALES_REP,
+      ]);
+
+      const company = validateCompany(await ctx.db.get(companyId));
+      isUserInOrg(identity, company.clerkOrganizationId);
+
+      const timeZone = company.timeZone;
+
+      const startDay = toIsoDateInTimeZone(startDate, timeZone);
+      const endDay = toIsoDateInTimeZone(endDate, timeZone);
+
+      const moves = await getCompanyMoves(ctx, {
+        companyId,
+        start: startDay,
+        end: endDay,
+        statuses: ["Completed"],
+        serviceType,
+        moveSize,
+        numberOfMovers,
+        locationType,
+      });
+
+      const series = buildDailyAveragesSeries(
+        endDay,
+        moves,
+        startDay,
+        timeZone
+      );
+
+      return {
+        status: ResponseStatus.SUCCESS,
+        data: { series },
       };
     } catch (error) {
       return handleInternalError(error);

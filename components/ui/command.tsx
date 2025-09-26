@@ -131,7 +131,7 @@ const CommandItem = React.forwardRef<
     ref={ref}
     data-chosen={chosen ? "true" : undefined}
     className={cn(
-      "rounded-md text-white hover:bg-background2 md:border-none border-b border-grayCustom relative flex cursor-pointer gap-2 select-none items-center py-1.5 outline-none data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 data-[chosen=true]:font-bold",
+      "md:rounded-md text-white hover:bg-background2 md:border-none border-b border-grayCustom relative flex cursor-pointer gap-2 select-none items-center py-1.5 outline-none data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 data-[chosen=true]:font-bold",
       className
     )}
     {...props}
