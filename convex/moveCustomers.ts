@@ -31,7 +31,7 @@ export const createMoveCustomer = mutation({
     name: v.string(),
     email: v.string(),
     phoneNumber: v.string(),
-    altPhoneNumber: v.union(v.string(), v.null()),
+    altPhoneNumber: v.string(),
   },
   handler: async (ctx, args): Promise<CreateMoveCustomerResponse> => {
     const { name, email, phoneNumber, altPhoneNumber, companyId } = args;
