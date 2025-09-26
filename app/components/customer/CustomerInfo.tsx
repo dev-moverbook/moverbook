@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Mail, Phone, PhoneForwarded, UserIcon, Contact } from "lucide-react";
+import { Mail, Phone, PhoneForwarded, Contact } from "lucide-react";
 import { Doc } from "@/convex/_generated/dataModel";
 import EditableIconField from "../shared/labeled/EditableIconField";
 import { CustomerFormData, CustomerFormErrors } from "@/types/form-types";
@@ -9,7 +9,6 @@ import { validateCustomerForm } from "@/app/frontendUtils/validation";
 import { useReferralSources } from "@/app/hooks/queries/useReferralSources";
 import FormActions from "../shared/FormActions";
 import { useUpdateMoveCustomer } from "@/app/hooks/mutations/customers/useUpdateMoveCustomer";
-import EditableIconSelectField from "../shared/labeled/EditableIconSelectField";
 import { cn } from "@/lib/utils";
 import SectionHeader from "../shared/SectionHeader";
 import { isValidEmail, isValidPhoneNumber } from "@/utils/helper";
@@ -35,7 +34,7 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
     user.publicMetadata.role as ClerkRoles
   );
   const isMoverUser = isMover(user.publicMetadata.role as ClerkRoles);
-  const { name, phoneNumber, altPhoneNumber, email, referral } = moveCustomer;
+  const { name, phoneNumber, altPhoneNumber, email } = moveCustomer;
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
   const result = useReferralSources(moveCustomer.companyId, {
@@ -58,15 +57,13 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
     email,
     phoneNumber,
     altPhoneNumber,
-    referral,
   });
 
   const [errors, setErrors] = useState<CustomerFormErrors>({});
 
   const handleSave = async () => {
     setUpdateMoveCustomerError(null);
-    const referralValues = referralSelectOptions.map((r) => r.value);
-    const { isValid, errors } = validateCustomerForm(formData, referralValues);
+    const { isValid, errors } = validateCustomerForm(formData);
     if (!isValid) {
       setErrors(errors);
       return;
@@ -85,7 +82,6 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
       email,
       phoneNumber,
       altPhoneNumber,
-      referral,
     });
     setIsEditing(false);
   };
@@ -94,12 +90,17 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
     !!formData.name?.trim() &&
     isValidEmail(formData.email) &&
     isValidPhoneNumber(formData.phoneNumber) &&
-    isValidPhoneNumber(formData.altPhoneNumber) &&
-    !!formData.referral?.trim();
+    isValidPhoneNumber(formData.altPhoneNumber);
 
   const isDisabled = !isCompleted;
 
   const showContactFields = !isMoverUser || isMoverLead;
+  const submitError =
+    updateMoveCustomerError ||
+    errors.name ||
+    errors.email ||
+    errors.phoneNumber ||
+    errors.altPhoneNumber;
 
   return (
     <div
@@ -160,15 +161,6 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
               isPhoneNumber
               suffix="  (alt)"
             />
-            <EditableIconSelectField
-              icon={<UserIcon className="w-4 h-4" />}
-              value={formData.referral}
-              options={referralSelectOptions.map((o) => o.value)}
-              isEditing={isEditing}
-              onChange={(val) => setFormData({ ...formData, referral: val })}
-              error={errors.referral}
-              label="Referral"
-            />
           </>
         )}
         {isEditing && (
@@ -179,7 +171,7 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
             }}
             onCancel={handleCancel}
             isSaving={updateMoveCustomerLoading}
-            error={updateMoveCustomerError}
+            error={submitError}
             disabled={isDisabled}
           />
         )}
