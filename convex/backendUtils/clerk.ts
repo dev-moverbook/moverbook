@@ -4,8 +4,9 @@ import {
   User,
   createClerkClient,
   Invitation,
+  Organization,
+  OrganizationInvitation,
 } from "@clerk/backend";
-import { Organization, OrganizationInvitation } from "@clerk/nextjs/server";
 import { UserRole } from "@/types/enums";
 import { getBaseUrl } from "@/utils/helper";
 
