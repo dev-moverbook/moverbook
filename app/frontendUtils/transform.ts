@@ -14,6 +14,7 @@ export const transformToCreateMoveInput = (
   if (!form.companyId) throw new Error("Company ID is required.");
   if (!form.salesRep) throw new Error("Sales Rep is required.");
   if (!form.moveCustomerId) throw new Error("Customer ID is required.");
+  if (!form.referralId) throw new Error("Referral is required.");
 
   return {
     arrivalTimes: form.arrivalTimes,
@@ -31,7 +32,7 @@ export const transformToCreateMoveInput = (
     moveDate: form.moveDate,
     moveFees: form.moveFees,
     moveItems: form.moveItems,
-    moveStatus: form.moveStatus, // maps to `status` in CreateMoveInput
+    moveStatus: form.moveStatus,
     moveWindow: form.moveWindow,
     movers: form.movers,
     notes: form.notes
@@ -40,6 +41,7 @@ export const transformToCreateMoveInput = (
         : form.notes.trim()
       : null,
     officeToOrigin: form.officeToOrigin,
+    referralId: form.referralId,
     roundTripDrive: form.roundTripDrive,
     roundTripMiles: form.roundTripMiles,
     salesRep: form.salesRep,
