@@ -15,7 +15,6 @@ import {
   defaultLabelFormatter,
   defaultValueFormatter,
   getCategoryTicksFromLabels,
-  pickEvenlySpaced,
 } from "./lineGraphFormatters";
 import type { LineGraphDatum } from "@/types/types";
 import LineGraphTooltip from "./LineGraphTooltip";

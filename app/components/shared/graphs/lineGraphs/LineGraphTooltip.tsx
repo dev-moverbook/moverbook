@@ -1,6 +1,27 @@
 "use client";
 
+import React from "react";
 import type { LineGraphDatum } from "@/types/types";
+
+export type ChartTooltipProps<
+  TValue = number | string | (number | string)[],
+  TName = string | number,
+> = {
+  active?: boolean;
+  label?: string | number;
+  payload?: Array<{
+    value: TValue;
+    name: TName;
+    dataKey?: string | number;
+    color?: string;
+    payload: LineGraphDatum;
+  }>;
+};
+
+type Props = ChartTooltipProps & {
+  valueFormatter: (value: number) => string;
+  labelFormatter: (label: string | number) => string;
+};
 
 const LineGraphTooltip = ({
   active,
@@ -8,17 +29,12 @@ const LineGraphTooltip = ({
   label,
   valueFormatter,
   labelFormatter,
-}: {
-  active?: boolean;
-  payload?: any[];
-  label?: string | number;
-  valueFormatter: (value: number) => string;
-  labelFormatter: (label: string | number) => string;
-}) => {
-  if (!active || !payload?.length) {
+}: Props) => {
+  if (!active || !payload || payload.length === 0) {
     return null;
   }
-  const point: LineGraphDatum | undefined = payload[0]?.payload;
+
+  const point = payload[0]?.payload as LineGraphDatum | undefined;
   if (!point) {
     return null;
   }

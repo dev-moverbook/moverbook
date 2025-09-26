@@ -89,7 +89,7 @@ const Historical = ({ userOptions, sourceOptions }: HistoricalProps) => {
   }, [timeZone, selectedTime, seedRangeFromPreset]);
 
   return (
-    <SectionContainer>
+    <SectionContainer showBorder={false}>
       <FilterRow>
         <AdaptiveSelect
           title="Select Sales Rep"

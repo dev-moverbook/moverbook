@@ -16,7 +16,6 @@ export interface AdaptiveSelectProps {
   description: string;
   disabled?: boolean;
   emptyText?: string;
-  label?: string;
   onChange: (value: string) => void;
   options: Option[];
   placeholder?: string;
@@ -35,7 +34,6 @@ export default function AdaptiveSelect({
   description,
   disabled,
   emptyText = "No results found.",
-  label,
   onChange,
   options,
   placeholder = "Select...",

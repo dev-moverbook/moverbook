@@ -99,7 +99,7 @@ export default function Forecasted({
   }, [timeZone, selectedTime, seedRangeFromPreset]);
 
   return (
-    <SectionContainer>
+    <SectionContainer showBorder={false}>
       <FilterRow>
         <AdaptiveSelect
           title="Select Sales Rep"
@@ -110,7 +110,6 @@ export default function Forecasted({
           searchPlaceholder="Search Sales Reps…"
           allLabel="Reps"
           description="Choose a Sales Rep to see their analytics."
-          label="Sales Rep"
           allIcon={<Users className="h-8 w-8 text-white" />}
         />
 
@@ -123,7 +122,6 @@ export default function Forecasted({
           searchPlaceholder="Search sources…"
           allLabel="Sources"
           description="Choose a source to see their analytics."
-          label="Source"
         />
 
         <AdaptiveSelect
@@ -134,7 +132,6 @@ export default function Forecasted({
           placeholder="Choose a time"
           description="Choose a time range to see their analytics."
           showSearch={false}
-          label="Time"
         />
       </FilterRow>
 
