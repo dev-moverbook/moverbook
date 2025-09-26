@@ -227,8 +227,7 @@ export const updateMoveCustomer = mutation({
       name: v.optional(v.string()),
       email: v.optional(v.string()),
       phoneNumber: v.optional(v.string()),
-      altPhoneNumber: v.optional(v.union(v.string(), v.null())),
-      referral: v.optional(v.union(v.string(), v.null())),
+      altPhoneNumber: v.optional(v.string()),
     }),
   },
   handler: async (ctx, args): Promise<UpdateMoveCustomerResponse> => {
