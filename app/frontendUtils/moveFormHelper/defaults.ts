@@ -11,7 +11,6 @@ export function buildDefaultCustomer(): CustomerFormData {
     email: "",
     phoneNumber: "",
     altPhoneNumber: "",
-    referral: "",
   };
 }
 
@@ -52,6 +51,7 @@ export function buildDefaultMoveFormData(): MoveFormData {
     movers: 1,
     notes: "",
     officeToOrigin: null,
+    referralId: null,
     roundTripDrive: null,
     roundTripMiles: null,
     salesRep: null,
