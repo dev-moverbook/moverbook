@@ -6,13 +6,12 @@ import { Doc } from "@/convex/_generated/dataModel";
 import EditableIconField from "../shared/labeled/EditableIconField";
 import { CustomerFormData, CustomerFormErrors } from "@/types/form-types";
 import { validateCustomerForm } from "@/app/frontendUtils/validation";
-import { useReferralSources } from "@/app/hooks/queries/useReferralSources";
 import FormActions from "../shared/FormActions";
 import { useUpdateMoveCustomer } from "@/app/hooks/mutations/customers/useUpdateMoveCustomer";
 import { cn } from "@/lib/utils";
 import SectionHeader from "../shared/SectionHeader";
 import { isValidEmail, isValidPhoneNumber } from "@/utils/helper";
-import { ClerkRoles, QueryStatus } from "@/types/enums";
+import { ClerkRoles } from "@/types/enums";
 import { useSlugContext } from "@/app/contexts/SlugContext";
 import { canCreateMove, isMover } from "@/app/frontendUtils/permissions";
 
@@ -36,14 +35,6 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
   const isMoverUser = isMover(user.publicMetadata.role as ClerkRoles);
   const { name, phoneNumber, altPhoneNumber, email } = moveCustomer;
   const [isEditing, setIsEditing] = useState<boolean>(false);
-
-  const result = useReferralSources(moveCustomer.companyId, {
-    enabled: !isMoverUser,
-  });
-  const referralSelectOptions =
-    result.status === QueryStatus.SUCCESS
-      ? result.options.map((r) => ({ label: r.label, value: r.value }))
-      : [];
 
   const {
     updateMoveCustomer,
