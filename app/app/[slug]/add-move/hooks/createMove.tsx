@@ -38,6 +38,7 @@ export interface CreateMoveInput {
   notes: string | null;
   officeToOrigin: number | null;
   paymentMethod: PaymentMethod;
+  referralId: Id<"referrals">;
   roundTripDrive: number | null;
   roundTripMiles: number | null;
   salesRep: Id<"users">;
