@@ -37,13 +37,13 @@ function AnalyticsTabSuccess({
   );
 
   return tab === "FORECASTED" ? (
-    <div className="space-y-3">
+    <div className="space-y-3 ">
       <Forecasted userOptions={userOptions} sourceOptions={sourceOptions} />
       <ForecastedByReps />
       <ForecastedBySource />
     </div>
   ) : (
-    <div className="space-y-3">
+    <div className="space-y-3 ">
       <Historical userOptions={userOptions} sourceOptions={sourceOptions} />
       <HistoricalByReps />
       <HistoricalBySource />

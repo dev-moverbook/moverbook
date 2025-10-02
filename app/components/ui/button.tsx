@@ -27,7 +27,7 @@ const buttonVariants = cva(
         sidebar:
           "w-full hover:bg-gray-700 rounded-md p-1 transition justify-start gap-4",
         combobox:
-          " p-2  bg-black text-white border border-grayCustom hover:bg-background2 rounded-md font-medium",
+          " p-2 text-sm bg-black text-white border border-grayCustom hover:bg-background2 rounded-md font-medium",
       },
       size: {
         default: "h-9 px-4 py-2",

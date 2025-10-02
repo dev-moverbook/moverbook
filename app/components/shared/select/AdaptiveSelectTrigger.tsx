@@ -53,8 +53,6 @@ const AdaptiveSelectTrigger = forwardRef<
     let displayLabel =
       customLabel ?? (selectedOption ? selectedOption.label : placeholder);
 
-    console.log("isAllSelection", isAllSelection);
-    console.log("triggerLabel", triggerLabel);
     if (isAllSelection && triggerLabel) {
       displayLabel = triggerLabel;
     }

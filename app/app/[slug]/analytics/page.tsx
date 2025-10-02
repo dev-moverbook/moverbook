@@ -14,7 +14,7 @@ const AnalyticsPage = () => {
   };
 
   return (
-    <main>
+    <main className="pb-20">
       <TabSelector
         tabs={tabs}
         activeTab={activeTab}

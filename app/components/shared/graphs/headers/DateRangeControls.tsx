@@ -1,7 +1,8 @@
 "use client";
 
-import { Button } from "@/app/components/ui/button";
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import React from "react";
+import IconButton from "../../IconButton";
 
 type DateRangeControlsProps = {
   startDate: string;
@@ -12,8 +13,6 @@ type DateRangeControlsProps = {
   canGoForward?: boolean;
   className?: string;
   dateLabelFormatter?: (isoDate: string) => string;
-  previousText?: string;
-  nextText?: string;
 };
 
 export default function DateRangeControls({
@@ -25,8 +24,6 @@ export default function DateRangeControls({
   canGoForward,
   className,
   dateLabelFormatter,
-  previousText = "Previous Week",
-  nextText = "Next Week",
 }: DateRangeControlsProps) {
   const formatDateRangeLabel =
     dateLabelFormatter ?? ((isoDateString: string) => isoDateString);
@@ -37,29 +34,24 @@ export default function DateRangeControls({
   return (
     <div className={className}>
       <div className="grid grid-cols-[auto,1fr,auto] items-center gap-3">
-        <Button
-          variant="combobox"
-          type="button"
+        <IconButton
+          icon={<ChevronLeftIcon />}
           onClick={onPrevWeek}
           disabled={canGoBack === false}
-        >
-          {previousText}
-        </Button>
-
+          className="rounded-md border border-grayCustom"
+        />
         <div className="text-center ">
           <p className="font-semibold">
             {formattedStart} - {formattedEnd}
           </p>
         </div>
 
-        <Button
-          variant="combobox"
-          type="button"
+        <IconButton
+          icon={<ChevronRightIcon />}
           onClick={onNextWeek}
           disabled={canGoForward === false}
-        >
-          {nextText}
-        </Button>
+          className="rounded-md border border-grayCustom"
+        />
       </div>
     </div>
   );

@@ -13,13 +13,13 @@ import {
 import {
   defaultLabelFormatter,
   defaultValueFormatter,
-  getCategoryTicksFromLabels,
   makeYAxisTickFormatter,
   mergeSeriesByLabel,
 } from "./lineGraphUtils";
 import LineGraphTooltip from "./LineGraphTooltip";
 import type { LineSeries } from "@/types/types";
 import { DEFAULT_STROKES } from "./lineGraphUtils";
+import { X_TICK_STYLE, Y_TICK_STYLE } from "@/types/const";
 
 type LineGraphCoreProps = {
   labelFormatter?: (label: string | number) => string;
@@ -36,11 +36,7 @@ export default function LineGraphCore({
   valueFormatter = defaultValueFormatter,
   tooltipValueFormatter,
 }: LineGraphCoreProps) {
-  const { labels, rows } = mergeSeriesByLabel(series);
-  const ticks = getCategoryTicksFromLabels(labels, {
-    maxWidth: 480,
-    narrowCount: 3,
-  });
+  const { rows } = mergeSeriesByLabel(series);
 
   return (
     <ResponsiveContainer width="100%" height="100%">
@@ -68,7 +64,7 @@ export default function LineGraphCore({
           tickFormatter={labelFormatter}
           tickLine={false}
           tickMargin={8}
-          ticks={ticks}
+          tick={X_TICK_STYLE}
         />
 
         <YAxis
@@ -78,20 +74,22 @@ export default function LineGraphCore({
             hideFirstZero: true,
           })}
           tickLine={false}
-          tick={{ fill: "#9CA3AF" }}
+          tick={Y_TICK_STYLE}
           yAxisId="left"
           width={50} // reduce width so it hugs the labels
         />
-
-        {series.map((s, i) => (
+        {series.map((lineSeries, seriesIndex) => (
           <Line
-            key={s.id}
+            key={lineSeries.id}
             connectNulls
-            dataKey={s.id}
-            dot={s.showDots ?? showDotsDefault}
-            name={s.name ?? s.id}
-            stroke={s.color ?? DEFAULT_STROKES[i % DEFAULT_STROKES.length]}
-            strokeDasharray={s.strokeDasharray}
+            dataKey={lineSeries.id}
+            dot={lineSeries.showDots ?? showDotsDefault}
+            name={lineSeries.name ?? lineSeries.id}
+            stroke={
+              lineSeries.color ??
+              DEFAULT_STROKES[seriesIndex % DEFAULT_STROKES.length]
+            }
+            strokeDasharray={lineSeries.strokeDasharray}
             strokeWidth={3}
             type="monotone"
             yAxisId="left"
