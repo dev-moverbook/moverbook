@@ -42,7 +42,10 @@ export default function StackedBarGraphCore({
   yAxisWidth = 0,
   barCategoryGap = "20%",
 }: StackedBarGraphCoreProps) {
-  const safeSeries = Array.isArray(series) ? series : [];
+  const safeSeries = useMemo<StackedDay[]>(
+    () => (Array.isArray(series) ? series : []),
+    [series]
+  );
 
   const weekSeries = useMemo(() => sundayFirst(safeSeries), [safeSeries]);
 
@@ -84,7 +87,6 @@ export default function StackedBarGraphCore({
               tickFormatter={valueFormatter}
               domain={[0, "auto"]}
             />
-
             <Tooltip
               cursor={{ fill: "rgba(255,255,255,0.06)" }}
               content={(tooltipProps) => (
@@ -94,7 +96,6 @@ export default function StackedBarGraphCore({
                 />
               )}
             />
-
             {segmentNames.map((segmentName) => (
               <Bar
                 key={segmentName}

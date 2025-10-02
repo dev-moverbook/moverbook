@@ -50,7 +50,6 @@ export default function MoveDataAnalyticsSuccess({
         title="Average Revenue Per Day"
         valueFormatter={formatCurrencyCompact}
         tooltipValueFormatter={formatCurrency}
-        yAxisWidth={64}
       />
       <LineChartCard
         bodyHeight={240}
@@ -59,7 +58,6 @@ export default function MoveDataAnalyticsSuccess({
         title="Average Move Time Per Day"
         valueFormatter={formatHoursAbbreviated}
         tooltipValueFormatter={formatHours}
-        yAxisWidth={64}
       />
     </div>
   );

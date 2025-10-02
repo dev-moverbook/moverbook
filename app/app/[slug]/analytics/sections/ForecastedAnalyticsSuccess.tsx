@@ -35,7 +35,6 @@ export default function ForecastedAnalyticsSuccess({
       title="Forecasted Revenue"
       valueFormatter={formatCurrencyCompact}
       tooltipValueFormatter={formatCurrency}
-      yAxisWidth={64}
     />
   );
 }

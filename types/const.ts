@@ -1,5 +1,5 @@
 import { TravelChargingTypes } from "./enums";
-import { Option } from "./types";
+import { Option, PlotMargin } from "./types";
 
 export const MOBILE_BREAKPOINT = 768;
 
@@ -81,6 +81,21 @@ export const HISTORICAL_TIME_OPTIONS: Option[] = [
   { value: "last_90_days", label: "Last 90 days" },
   { value: "last_365_days", label: "Last 365 days" },
   { value: "custom", label: "Custom" },
+];
+
+export const plotMarginFunnel: PlotMargin = {
+  top: 54,
+  right: 0,
+  left: 0,
+  bottom: 0,
+};
+
+export const strokeTealFunnel = "rgb(20,184,166)";
+export const bandColorsFunnel = [
+  "rgb(20 184 166 / 0.28)",
+  "rgb(20 184 166 / 0.22)",
+  "rgb(20 184 166 / 0.16)",
+  "rgb(20 184 166 / 0.10)",
 ];
 
 export const UNKNOWN_NAME = "Unknown";

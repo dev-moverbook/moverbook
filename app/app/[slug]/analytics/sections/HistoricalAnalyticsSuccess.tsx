@@ -44,7 +44,6 @@ export default function HistoricalAnalyticsSuccess({
       title="Revenue & Profit"
       valueFormatter={formatCurrencyCompact}
       tooltipValueFormatter={formatCurrency}
-      yAxisWidth={64}
     />
   );
 }

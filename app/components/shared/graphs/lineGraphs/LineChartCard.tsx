@@ -5,7 +5,6 @@ import LineGraphCore from "./LineGraphCore";
 import type { LineSeries } from "@/types/types";
 import { isSeriesEmpty, seriesHasSignal } from "./lineGraphUtils";
 
-// remove yAxisTitle from the props
 type LineChartCardProps = {
   bodyHeight?: number | string;
   className?: string;
@@ -18,7 +17,6 @@ type LineChartCardProps = {
   title: React.ReactNode;
   valueFormatter?: (value: number) => string;
   tooltipValueFormatter?: (value: number) => string;
-  yAxisWidth?: number;
 };
 
 export default function LineChartCard({
@@ -33,7 +31,6 @@ export default function LineChartCard({
   title,
   valueFormatter,
   tooltipValueFormatter,
-  yAxisWidth,
 }: LineChartCardProps) {
   const isEmpty = isSeriesEmpty(series) || !seriesHasSignal(series, 0);
 
@@ -54,7 +51,6 @@ export default function LineChartCard({
           showDotsDefault={showDots}
           valueFormatter={valueFormatter}
           tooltipValueFormatter={tooltipValueFormatter}
-          yAxisWidth={yAxisWidth}
         />
       )}
     </ChartCard>

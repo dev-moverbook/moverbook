@@ -356,3 +356,10 @@ export type RechartsTooltipProps = {
 export type MetricKey = "revenue" | "profit";
 
 export type TooltipRowPayload = { payload?: { date?: string } };
+
+export type PlotMargin = {
+  top: number;
+  right: number;
+  left: number;
+  bottom: number;
+};

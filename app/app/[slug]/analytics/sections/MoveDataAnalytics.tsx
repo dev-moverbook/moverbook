@@ -41,7 +41,12 @@ const MoveDataAnalytics = ({
 
   switch (result.status) {
     case QueryStatus.LOADING:
-      body = <ChartCardSkeletonStatic />;
+      body = (
+        <div className="flex flex-col gap-4">
+          <ChartCardSkeletonStatic />
+          <ChartCardSkeletonStatic />
+        </div>
+      );
       break;
     case QueryStatus.ERROR:
       body = <ErrorComponent message={result.errorMessage} />;

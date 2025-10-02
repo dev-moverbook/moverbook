@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import {
   AreaChart,
   Area,
@@ -13,123 +13,109 @@ import {
 } from "recharts";
 import type { FunnelPoint } from "@/types/types";
 import FunnelGraphTooltip from "./FunnelGraphTooltip";
+import FunnelLabelsGrid from "./FunnelLabelsGrid";
+import {
+  plotMarginFunnel,
+  strokeTealFunnel,
+  bandColorsFunnel,
+} from "@/types/const";
 
-type Props = {
+type FunnelGraphCoreProps = {
   series: FunnelPoint[];
   className?: string;
   labelFormatter?: (label: string | number) => string;
   valueFormatter?: (value: number) => string;
-  tooltipValueFormatter?: (value: number) => string;
-  yAxisWidth?: number;
-  showDotsDefault?: boolean;
 };
 
 export default function FunnelGraphCore({
   series,
   className,
-  labelFormatter = (l) => String(l),
-  valueFormatter = (v) => v.toLocaleString(),
-}: Props) {
-  const stages = Array.isArray(series) ? series : [];
-  const count = stages.length;
-  const data = stages.map((s, i) => ({
-    idx: i,
-    value: s.value,
-    status: s.status,
+  labelFormatter = (labelValue) => String(labelValue),
+  valueFormatter = (numericValue) => numericValue.toLocaleString(),
+}: FunnelGraphCoreProps) {
+  const stages = useMemo<FunnelPoint[]>(
+    () => (Array.isArray(series) ? series : []),
+    [series]
+  );
+  const stageCount = stages.length;
+
+  const chartData = stages.map((stage, stageIndex) => ({
+    index: stageIndex,
+    value: stage.value,
+    status: stage.status,
   }));
-  const maxValue = Math.max(1, ...stages.map((s) => s.value));
 
-  const PLOT_MARGIN = { top: 54, right: 0, left: 0, bottom: 0 };
-
-  // TEAL palette (rgb(20,184,166))
-  const strokeTeal = "rgb(20,184,166)";
-  const bands = [
-    "rgb(20 184 166 / 0.28)",
-    "rgb(20 184 166 / 0.22)",
-    "rgb(20 184 166 / 0.16)",
-    "rgb(20 184 166 / 0.10)",
-  ];
+  const maximumValue = Math.max(1, ...stages.map((stage) => stage.value));
 
   return (
     <div className={className}>
       <div className="relative h-[210px] w-full">
-        {/* Labels */}
-        <div
-          className="pointer-events-none absolute top-2 left-0 right-0 z-10 grid gap-0"
-          style={{
-            gridTemplateColumns: `repeat(${count}, minmax(0,1fr))`,
-            paddingLeft: PLOT_MARGIN.left,
-            paddingRight: PLOT_MARGIN.right,
-          }}
-        >
-          {stages.map((s) => (
-            <div key={s.status} className="min-w-0">
-              <div className="text-sm text-muted-foreground">
-                {labelFormatter(s.status)}
-              </div>
-              <div className="text-sm font-semibold text-white">
-                {valueFormatter(s.value)}
-              </div>
-            </div>
-          ))}
-        </div>
+        <FunnelLabelsGrid
+          stages={stages}
+          plotMargin={plotMarginFunnel}
+          labelFormatter={labelFormatter}
+          valueFormatter={valueFormatter}
+        />
 
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
-            data={data}
-            margin={PLOT_MARGIN}
+            data={chartData}
+            margin={plotMarginFunnel}
             tabIndex={-1}
             role="img"
             aria-label="Funnel"
           >
-            {/* Stage background bands */}
-            {stages.map((_, i) => (
+            {stages.map((_, stageIndex) => (
               <ReferenceArea
-                key={`bg-${i}`}
-                x1={i}
-                x2={i + 1}
+                key={`bg-${stageIndex}`}
+                x1={stageIndex}
+                x2={stageIndex + 1}
                 y1={0}
                 y2="auto"
                 ifOverflow="hidden"
-                fill={bands[i % bands.length]}
+                fill={bandColorsFunnel[stageIndex % bandColorsFunnel.length]}
               />
             ))}
 
-            {/* Dividers */}
-            {stages.map((_, i) =>
-              i === 0 ? null : (
+            {stages.map((_, stageIndex) =>
+              stageIndex === 0 ? null : (
                 <ReferenceLine
-                  key={`sep-${i}`}
-                  x={i}
+                  key={`sep-${stageIndex}`}
+                  x={stageIndex}
                   stroke="rgba(255,255,255,0.12)"
                 />
               )
             )}
 
-            <XAxis type="number" dataKey="idx" domain={[0, count - 1]} hide />
-            <YAxis type="number" domain={[0, maxValue]} hide />
+            <XAxis
+              type="number"
+              dataKey="index"
+              domain={[0, stageCount - 1]}
+              hide
+            />
+            <YAxis type="number" domain={[0, maximumValue]} hide />
 
             <defs>
               <linearGradient id="funnelAreaFill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={strokeTeal} stopOpacity={0.35} />
-                <stop offset="100%" stopColor={strokeTeal} stopOpacity={0.06} />
+                <stop
+                  offset="0%"
+                  stopColor={strokeTealFunnel}
+                  stopOpacity={0.35}
+                />
+                <stop
+                  offset="100%"
+                  stopColor={strokeTealFunnel}
+                  stopOpacity={0.06}
+                />
               </linearGradient>
             </defs>
 
-            <Tooltip
-              content={({ active, label, payload }) => (
-                <FunnelGraphTooltip
-                  active={active}
-                  label={label}
-                  payload={payload}
-                />
-              )}
-            />
+            <Tooltip content={<FunnelGraphTooltip />} />
 
             <Area
               type="monotone"
               dataKey="value"
-              stroke={strokeTeal}
+              stroke={strokeTealFunnel}
               strokeWidth={2}
               fill="url(#funnelAreaFill)"
               dot={false}

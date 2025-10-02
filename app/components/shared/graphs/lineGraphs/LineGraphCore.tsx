@@ -27,7 +27,6 @@ type LineGraphCoreProps = {
   showDotsDefault?: boolean;
   tooltipValueFormatter?: (value: number) => string;
   valueFormatter?: (value: number) => string;
-  yAxisWidth?: number;
 };
 
 export default function LineGraphCore({
@@ -36,7 +35,6 @@ export default function LineGraphCore({
   showDotsDefault = false,
   valueFormatter = defaultValueFormatter,
   tooltipValueFormatter,
-  yAxisWidth = 48,
 }: LineGraphCoreProps) {
   const { labels, rows } = mergeSeriesByLabel(series);
   const ticks = getCategoryTicksFromLabels(labels, {

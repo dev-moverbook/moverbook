@@ -33,22 +33,20 @@ export function useFunnel({
   salesRepId,
   referralId,
 }: UseFunnelArgs): UseFunnelResult {
-  if (!companyId) {
-    return {
-      status: QueryStatus.ERROR,
-      errorMessage: "Company ID is required",
-    };
-  }
+  const response = useQuery(
+    api.move.getFunnel,
+    companyId
+      ? {
+          companyId,
+          startDate,
+          endDate,
+          salesRepId,
+          referralId,
+        }
+      : "skip"
+  );
 
-  const response = useQuery(api.move.getFunnel, {
-    companyId,
-    startDate,
-    endDate,
-    salesRepId,
-    referralId,
-  });
-
-  if (!response) {
+  if (!response || !companyId) {
     return { status: QueryStatus.LOADING };
   }
 

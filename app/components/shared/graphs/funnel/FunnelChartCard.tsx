@@ -13,11 +13,8 @@ type FunnelChartCardProps = {
   headerRight?: React.ReactNode;
   labelFormatter?: (label: string | number) => string;
   series: FunnelPoint[];
-  showDots?: boolean;
   title: React.ReactNode;
   valueFormatter?: (value: number) => string;
-  tooltipValueFormatter?: (value: number) => string;
-  yAxisWidth?: number;
 };
 
 export default function FunnelChartCard({
@@ -28,11 +25,8 @@ export default function FunnelChartCard({
   headerRight,
   labelFormatter,
   series,
-  showDots = false,
   title,
   valueFormatter,
-  tooltipValueFormatter,
-  yAxisWidth,
 }: FunnelChartCardProps) {
   const isEmpty = isFunnelEmpty(series);
 
@@ -50,10 +44,7 @@ export default function FunnelChartCard({
         <FunnelGraphCore
           labelFormatter={labelFormatter}
           series={series}
-          showDotsDefault={showDots}
           valueFormatter={valueFormatter}
-          tooltipValueFormatter={tooltipValueFormatter}
-          yAxisWidth={yAxisWidth}
         />
       )}
     </ChartCard>
