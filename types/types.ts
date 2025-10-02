@@ -234,7 +234,7 @@ export type FinalMoveCost = {
   total: number;
 };
 
-export type Option = { value: string; label: string; image?: string };
+export type Option = { value: string | null; label: string; image?: string };
 
 export type ForecastTimeValue =
   | "next_7_days"
@@ -309,3 +309,50 @@ export type LineGraphProps = {
   labelFormatter?: (label: string | number) => string;
   onPointClick?: (point: LineGraphDatum) => void;
 };
+
+export type LineSeries = {
+  color?: string;
+  data: LineGraphDatum[];
+  id: string;
+  name?: string;
+  showDots?: boolean;
+  strokeDasharray?: string;
+  yAxis?: "left" | "right";
+};
+
+export type FunnelPoint =
+  | { status: "Leads"; value: number }
+  | { status: "Quoted"; value: number }
+  | { status: "Booked"; value: number }
+  | { status: "Completed"; value: number };
+
+export type StackedSegment = { name: string; amount: number };
+export type StackedDay = { date: string; segments: StackedSegment[] };
+
+export type RechartsRow = {
+  date: string;
+  label: string;
+  [segmentName: string]: number | string;
+};
+
+export type TooltipRow = { name: string; value: number; color: string };
+
+export type RechartsValue = number | string | Array<number | string>;
+export type RechartsName = string | number;
+
+export type TooltipPayloadItem = {
+  name?: RechartsName;
+  dataKey?: RechartsName;
+  value?: RechartsValue;
+  color?: string;
+};
+
+export type RechartsTooltipProps = {
+  active?: boolean;
+  label?: RechartsName;
+  payload?: TooltipPayloadItem[];
+};
+
+export type MetricKey = "revenue" | "profit";
+
+export type TooltipRowPayload = { payload?: { date?: string } };

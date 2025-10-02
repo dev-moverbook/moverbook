@@ -24,6 +24,7 @@ import {
   CreateMoveResponse,
   EnrichedMove,
   GetForecastedAnalyticsResponse,
+  GetFunnelResponse,
   GetHistoricalAnalyticsResponse,
   GetMoveAnalyticsResponse,
   GetMoveContextResponse,
@@ -31,6 +32,10 @@ import {
   GetMoveResponse,
   GetMovesForCalendarResponse,
   GetMovesForMoverCalendarResponse,
+  GetStackedForecastedRevenueByRepResponse,
+  GetStackedForecastedRevenueBySourceResponse,
+  GetStackedHistoricalRevenueByRepResponse,
+  GetStackedHistoricalRevenueBySourceResponse,
   UpdateMoveResponse,
 } from "@/types/convex-responses";
 import {
@@ -54,23 +59,30 @@ import {
 import { ErrorMessages } from "@/types/errors";
 import { Doc, Id } from "./_generated/dataModel";
 import { generateJobId } from "./backendUtils/nano";
-import { HourStatus, MoverWageForMove } from "@/types/types";
+import { FunnelPoint, HourStatus, MoverWageForMove } from "@/types/types";
 import {
   buildMoverWageForMoveDisplay,
+  countByTimestamp,
   enrichMoves,
   filterByMoveWindow,
   getCompanyMoves,
   getMoveCustomersMap,
   getUsersMapByIds,
   HourStatusMap,
+  matchesFilters,
   resolveMoverContext,
   scopeMovesToMover,
   sortByPriceOrder,
+  buildStatusTimestampPatch,
 } from "./backendUtils/queryHelpers";
 import {
   buildDailyAveragesSeries,
   buildForecastedSeries,
+  buildStackedForecastedRevenueSeriesByName,
+  buildStackedHistoricalRevenueSeriesByName,
 } from "./backendUtils/analyticsHelper";
+import { toEpochRangeForDates } from "./backendUtils/luxonHelper";
+import { UNKNOWN_NAME } from "@/types/const";
 
 export const getMoveOptions = query({
   args: { companyId: v.id("companies") },
@@ -407,7 +419,7 @@ export const UpdateMoveFields = v.object({
   movers: v.optional(v.number()),
   notes: v.optional(v.union(v.string(), v.null())),
   officeToOrigin: v.optional(v.union(v.number(), v.null())),
-  referral: v.optional(v.union(v.string(), v.null())),
+  referralId: v.optional(v.id("referrals")),
   roundTripDrive: v.optional(v.union(v.number(), v.null())),
   roundTripMiles: v.optional(v.union(v.number(), v.null())),
   salesRep: v.optional(v.id("users")),
@@ -424,8 +436,12 @@ export const updateMove = mutation({
   args: {
     moveId: v.id("move"),
     updates: UpdateMoveFields,
+    effectiveAt: v.optional(v.number()), // optional override for backfills, imports, etc.
   },
-  handler: async (ctx, { moveId, updates }): Promise<UpdateMoveResponse> => {
+  handler: async (
+    ctx,
+    { moveId, updates, effectiveAt }
+  ): Promise<UpdateMoveResponse> => {
     try {
       const identity = await requireAuthenticatedUser(ctx, [
         ClerkRoles.ADMIN,
@@ -434,34 +450,44 @@ export const updateMove = mutation({
         ClerkRoles.SALES_REP,
         ClerkRoles.MOVER,
       ]);
-      const move = validateMove(await ctx.db.get(moveId));
-      const company = validateCompany(await ctx.db.get(move.companyId));
+
+      const moveRecord = validateMove(await ctx.db.get(moveId));
+      const company = validateCompany(await ctx.db.get(moveRecord.companyId));
       isUserInOrg(identity, company.clerkOrganizationId);
 
-      await ctx.db.patch(moveId, updates);
+      // If status is changing, stamp first-seen timestamp (idempotent)
+      let statusPatch: Partial<Doc<"move">> = {};
+      if (updates.moveStatus) {
+        const desiredStatus = updates.moveStatus;
+        const whenMs =
+          typeof effectiveAt === "number" ? effectiveAt : Date.now();
+        statusPatch = buildStatusTimestampPatch(
+          moveRecord,
+          desiredStatus,
+          whenMs
+        );
+      }
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { moveId },
-      };
+      // Final patch (status timestamp fields are added if needed)
+      await ctx.db.patch(moveId, { ...updates, ...statusPatch });
+
+      return { status: ResponseStatus.SUCCESS, data: { moveId } };
     } catch (error) {
       return handleInternalError(error);
     }
   },
 });
-
 export const getMovesForCalendar = query({
   args: {
     start: v.string(),
     end: v.string(),
     companyId: v.id("companies"),
     moveTimeFilter: v.array(MoveTimesConvex),
-    statuses: v.optional(v.array(v.string())),
+    statuses: v.optional(v.array(MoveStatusConvex)),
     salesRepId: v.optional(v.union(v.id("users"), v.null())),
     priceOrder: v.optional(
       v.union(v.literal("asc"), v.literal("desc"), v.null())
     ),
-    moverId: v.optional(v.union(v.id("users"), v.null())),
   },
   handler: async (ctx, args): Promise<GetMovesForCalendarResponse> => {
     const {
@@ -472,7 +498,6 @@ export const getMovesForCalendar = query({
       salesRepId,
       priceOrder,
       moveTimeFilter,
-      moverId,
     } = args;
 
     try {
@@ -743,12 +768,13 @@ export const getForecastedAnalytics = query({
         companyId,
         start: startDay,
         end: endDay,
-        statuses: ["Completed"],
+        statuses: ["New Lead", "Quoted", "Booked"],
         salesRepId,
         referralId,
       });
 
       const series = buildForecastedSeries(endDay, moves, startDay, timeZone);
+
       return {
         status: ResponseStatus.SUCCESS,
         data: { series },
@@ -812,6 +838,341 @@ export const getMoveAnalytics = query({
         moves,
         startDay,
         timeZone
+      );
+
+      return {
+        status: ResponseStatus.SUCCESS,
+        data: { series },
+      };
+    } catch (error) {
+      return handleInternalError(error);
+    }
+  },
+});
+
+export const getFunnel = query({
+  args: {
+    companyId: v.id("companies"),
+    startDate: v.string(),
+    endDate: v.string(),
+    salesRepId: v.union(v.id("users"), v.null()),
+    referralId: v.union(v.id("referrals"), v.null()),
+  },
+  handler: async (ctx, args): Promise<GetFunnelResponse> => {
+    try {
+      const { companyId, startDate, endDate, salesRepId, referralId } = args;
+
+      const identity = await requireAuthenticatedUser(ctx, [
+        ClerkRoles.ADMIN,
+        ClerkRoles.APP_MODERATOR,
+        ClerkRoles.MANAGER,
+        ClerkRoles.SALES_REP,
+      ]);
+
+      const company = validateCompany(await ctx.db.get(companyId));
+      isUserInOrg(identity, company.clerkOrganizationId);
+
+      const { startMs, endMs } = toEpochRangeForDates(
+        startDate,
+        endDate,
+        company.timeZone
+      );
+
+      const moves = await ctx.db
+        .query("move")
+        .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
+        .collect();
+
+      const candidateMoves = moves.filter((moveRecord) =>
+        matchesFilters(moveRecord, salesRepId, referralId)
+      );
+
+      const leadCount = countByTimestamp(
+        candidateMoves,
+        (move) => move._creationTime,
+        startMs,
+        endMs
+      );
+      const quotedCount = countByTimestamp(
+        candidateMoves,
+        (move) => move.quotedAt ?? null,
+        startMs,
+        endMs
+      );
+      const bookedCount = countByTimestamp(
+        candidateMoves,
+        (move) => move.bookedAt ?? null,
+        startMs,
+        endMs
+      );
+      const completedCount = countByTimestamp(
+        candidateMoves,
+        (move) => move.completedAt ?? null,
+        startMs,
+        endMs
+      );
+
+      const funnel: FunnelPoint[] = [
+        { status: "Leads", value: leadCount },
+        { status: "Quoted", value: quotedCount },
+        { status: "Booked", value: bookedCount },
+        { status: "Completed", value: completedCount },
+      ];
+
+      return {
+        status: ResponseStatus.SUCCESS,
+        data: { funnel },
+      };
+    } catch (error) {
+      return handleInternalError(error);
+    }
+  },
+});
+
+export const getStackedForecastedRevenueByRep = query({
+  args: {
+    companyId: v.id("companies"),
+    startDate: v.string(),
+    endDate: v.string(),
+  },
+  handler: async (
+    ctx,
+    args
+  ): Promise<GetStackedForecastedRevenueByRepResponse> => {
+    try {
+      const { companyId, startDate, endDate } = args;
+
+      const identity = await requireAuthenticatedUser(ctx, [
+        ClerkRoles.ADMIN,
+        ClerkRoles.APP_MODERATOR,
+        ClerkRoles.MANAGER,
+        ClerkRoles.SALES_REP,
+      ]);
+
+      const company = validateCompany(await ctx.db.get(companyId));
+      isUserInOrg(identity, company.clerkOrganizationId);
+
+      const timeZone = company.timeZone;
+
+      const startDay = toIsoDateInTimeZone(startDate, timeZone);
+      const endDay = toIsoDateInTimeZone(endDate, timeZone);
+
+      const moves = await getCompanyMoves(ctx, {
+        companyId,
+        start: startDay,
+        end: endDay,
+        statuses: ["New Lead", "Quoted", "Booked"],
+      });
+
+      const reps = await ctx.db
+        .query("users")
+        .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
+        .filter(
+          (q) =>
+            q.eq(q.field("role"), ClerkRoles.SALES_REP) ||
+            q.eq(q.field("role"), ClerkRoles.ADMIN) ||
+            q.eq(q.field("role"), ClerkRoles.MANAGER)
+        )
+        .filter((q) => q.eq(q.field("isActive"), true))
+        .collect();
+
+      const repNames = reps.map((rep) => rep.name ?? UNKNOWN_NAME);
+      const series = buildStackedForecastedRevenueSeriesByName(
+        endDay,
+        moves,
+        repNames,
+        startDay,
+        timeZone,
+        (m) => m.salesRep
+      );
+
+      return {
+        status: ResponseStatus.SUCCESS,
+        data: { series },
+      };
+    } catch (error) {
+      return handleInternalError(error);
+    }
+  },
+});
+
+export const getStackedForecastedRevenueBySource = query({
+  args: {
+    companyId: v.id("companies"),
+    startDate: v.string(),
+    endDate: v.string(),
+  },
+  handler: async (
+    ctx,
+    args
+  ): Promise<GetStackedForecastedRevenueBySourceResponse> => {
+    try {
+      const { companyId, startDate, endDate } = args;
+
+      const identity = await requireAuthenticatedUser(ctx, [
+        ClerkRoles.ADMIN,
+        ClerkRoles.APP_MODERATOR,
+        ClerkRoles.MANAGER,
+        ClerkRoles.SALES_REP,
+      ]);
+
+      const company = validateCompany(await ctx.db.get(companyId));
+      isUserInOrg(identity, company.clerkOrganizationId);
+
+      const timeZone = company.timeZone;
+
+      const startDay = toIsoDateInTimeZone(startDate, timeZone);
+      const endDay = toIsoDateInTimeZone(endDate, timeZone);
+
+      const moves = await getCompanyMoves(ctx, {
+        companyId,
+        start: startDay,
+        end: endDay,
+        statuses: ["New Lead", "Quoted", "Booked"],
+      });
+
+      const sources = await ctx.db
+        .query("referrals")
+        .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
+        .filter((q) => q.eq(q.field("isActive"), true))
+        .collect();
+      const sourceNames = sources.map((source) => source.name ?? UNKNOWN_NAME);
+
+      const series = buildStackedForecastedRevenueSeriesByName(
+        endDay,
+        moves,
+        sourceNames,
+        startDay,
+        timeZone,
+        (m) => m.referralId
+      );
+
+      return {
+        status: ResponseStatus.SUCCESS,
+        data: { series },
+      };
+    } catch (error) {
+      return handleInternalError(error);
+    }
+  },
+});
+
+export const getStackedHistoricalRevenueByRep = query({
+  args: {
+    companyId: v.id("companies"),
+    startDate: v.string(),
+    endDate: v.string(),
+  },
+  handler: async (
+    ctx,
+    args
+  ): Promise<GetStackedHistoricalRevenueByRepResponse> => {
+    try {
+      const { companyId, startDate, endDate } = args;
+
+      const identity = await requireAuthenticatedUser(ctx, [
+        ClerkRoles.ADMIN,
+        ClerkRoles.APP_MODERATOR,
+        ClerkRoles.MANAGER,
+        ClerkRoles.SALES_REP,
+      ]);
+
+      const company = validateCompany(await ctx.db.get(companyId));
+      isUserInOrg(identity, company.clerkOrganizationId);
+
+      const timeZone = company.timeZone;
+
+      const startDay = toIsoDateInTimeZone(startDate, timeZone);
+      const endDay = toIsoDateInTimeZone(endDate, timeZone);
+
+      const moves = await getCompanyMoves(ctx, {
+        companyId,
+        start: startDay,
+        end: endDay,
+        statuses: ["Completed"],
+      });
+
+      const reps = await ctx.db
+        .query("users")
+        .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
+        .filter(
+          (q) =>
+            q.eq(q.field("role"), ClerkRoles.SALES_REP) ||
+            q.eq(q.field("role"), ClerkRoles.ADMIN) ||
+            q.eq(q.field("role"), ClerkRoles.MANAGER)
+        )
+        .filter((q) => q.eq(q.field("isActive"), true))
+        .collect();
+
+      const repNames = reps.map((rep) => rep.name ?? UNKNOWN_NAME);
+      const series = buildStackedHistoricalRevenueSeriesByName(
+        endDay,
+        moves,
+        repNames,
+        startDay,
+        timeZone,
+        (m) => m.salesRep
+      );
+
+      return {
+        status: ResponseStatus.SUCCESS,
+        data: { series },
+      };
+    } catch (error) {
+      return handleInternalError(error);
+    }
+  },
+});
+
+export const getStackedHistoricalRevenueBySource = query({
+  args: {
+    companyId: v.id("companies"),
+    startDate: v.string(),
+    endDate: v.string(),
+  },
+  handler: async (
+    ctx,
+    args
+  ): Promise<GetStackedHistoricalRevenueBySourceResponse> => {
+    try {
+      const { companyId, startDate, endDate } = args;
+
+      const identity = await requireAuthenticatedUser(ctx, [
+        ClerkRoles.ADMIN,
+        ClerkRoles.APP_MODERATOR,
+        ClerkRoles.MANAGER,
+        ClerkRoles.SALES_REP,
+      ]);
+
+      const company = validateCompany(await ctx.db.get(companyId));
+      isUserInOrg(identity, company.clerkOrganizationId);
+
+      const timeZone = company.timeZone;
+
+      const startDay = toIsoDateInTimeZone(startDate, timeZone);
+      const endDay = toIsoDateInTimeZone(endDate, timeZone);
+
+      const moves = await getCompanyMoves(ctx, {
+        companyId,
+        start: startDay,
+        end: endDay,
+        statuses: ["Completed"],
+      });
+
+      const sources = await ctx.db
+        .query("referrals")
+        .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
+        .filter((q) => q.eq(q.field("isActive"), true))
+        .collect();
+      const sourceNames = sources.map((source) => source.name ?? UNKNOWN_NAME);
+
+      const series = buildStackedHistoricalRevenueSeriesByName(
+        endDay,
+        moves,
+        sourceNames,
+        startDay,
+        timeZone,
+        (m) => m.referralId
       );
 
       return {

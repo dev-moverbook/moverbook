@@ -42,7 +42,7 @@ const ToggleButtonGroup = <T extends string>({
             type="button"
             onClick={() => onChange(option.value)}
             className={clsx(
-              "px-6 py-2 rounded-xl border  font-medium transition-all min-w-[80px] hover:bg-white/10",
+              "px-6 text-sm py-2 rounded-xl border  font-medium transition-all min-w-[80px] hover:bg-white/10",
               value === option.value
                 ? "bg-greenCustom  border-greenCustom "
                 : "border-grayCustom bg-transparent"

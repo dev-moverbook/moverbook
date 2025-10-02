@@ -33,7 +33,7 @@ export default function ChartCard({
         {headerRight ? <div className="ml-4">{headerRight}</div> : null}
       </div>
       {isEmpty ? (
-        <div className="flex h-48 items-center justify-center text-sm text-white/70">
+        <div className="flex h-[240px] items-center justify-center text-sm text-white/70">
           {emptyMessage}
         </div>
       ) : (

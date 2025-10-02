@@ -2,55 +2,59 @@
 
 import ChartCard from "../ChartCard";
 import LineGraphCore from "./LineGraphCore";
-import type { LineGraphDatum } from "@/types/types";
+import type { LineSeries } from "@/types/types";
+import { isSeriesEmpty, seriesHasSignal } from "./lineGraphUtils";
 
+// remove yAxisTitle from the props
 type LineChartCardProps = {
-  title: React.ReactNode;
-  data: LineGraphDatum[];
   bodyHeight?: number | string;
   className?: string;
-  color?: string;
   emptyMessage?: string;
   footer?: React.ReactNode;
   headerRight?: React.ReactNode;
   labelFormatter?: (label: string | number) => string;
+  series: LineSeries[];
   showDots?: boolean;
+  title: React.ReactNode;
   valueFormatter?: (value: number) => string;
+  tooltipValueFormatter?: (value: number) => string;
+  yAxisWidth?: number;
 };
 
 export default function LineChartCard({
-  title,
-  data,
   bodyHeight = 220,
   className,
-  color = "#3B82F6",
   emptyMessage = "No data",
   footer,
   headerRight,
   labelFormatter,
+  series,
   showDots = false,
+  title,
   valueFormatter,
+  tooltipValueFormatter,
+  yAxisWidth,
 }: LineChartCardProps) {
-  const safeData = Array.isArray(data) ? data : [];
-  const isEmpty = safeData.length === 0;
+  const isEmpty = isSeriesEmpty(series) || !seriesHasSignal(series, 0);
 
   return (
     <ChartCard
-      title={title}
-      className={className}
-      isEmpty={isEmpty}
-      emptyMessage={emptyMessage}
       bodyHeight={bodyHeight}
-      headerRight={headerRight}
+      className={className}
+      emptyMessage={emptyMessage}
       footer={footer}
+      headerRight={headerRight}
+      isEmpty={isEmpty}
+      title={title}
     >
       {!isEmpty && (
         <LineGraphCore
-          data={safeData}
-          color={color}
-          showDots={showDots}
           labelFormatter={labelFormatter}
+          series={series}
+          showDotsDefault={showDots}
           valueFormatter={valueFormatter}
+          tooltipValueFormatter={tooltipValueFormatter}
+          yAxisWidth={yAxisWidth}
         />
       )}
     </ChartCard>

@@ -59,7 +59,7 @@ const AnalyticsMoves = () => {
   );
 
   const handleTimeChange = useCallback(
-    (nextValue: string) => {
+    (nextValue: string | null) => {
       const next = nextValue as HistoricalTimeValue;
       if (next === "custom") {
         const lastPreset =
@@ -92,6 +92,15 @@ const AnalyticsMoves = () => {
     <SectionContainer showBorder={false}>
       <FilterRow>
         <AdaptiveSelect
+          title="Select time"
+          options={HISTORICAL_TIME_OPTIONS}
+          value={selectedTime}
+          onChange={handleTimeChange}
+          placeholder="Choose a time"
+          description="Choose a time to see their analytics."
+          showSearch={false}
+        />
+        <AdaptiveSelect
           title="Select Service Type"
           options={SERVICE_TYPE_OPTIONS}
           value={selectedServiceType}
@@ -99,9 +108,10 @@ const AnalyticsMoves = () => {
             setSelectedServiceType(next as ServiceType);
           }}
           placeholder="Choose a Service Type"
-          allLabel="Services"
+          allLabel="All Services"
           description="Choose a Service Type to see their analytics."
           showSearch={false}
+          triggerLabel="Services"
         />
         <AdaptiveSelect
           title="Select Location Type"
@@ -111,9 +121,10 @@ const AnalyticsMoves = () => {
             setSelectedLocationType(next as LocationType);
           }}
           placeholder="Choose a Location Type"
-          allLabel="Locations"
+          allLabel="All Locations"
           description="Choose a Location Type to see their analytics."
           showSearch={false}
+          triggerLabel="Locations"
         />
         <AdaptiveSelect
           title="Select Move Size"
@@ -123,9 +134,10 @@ const AnalyticsMoves = () => {
             setSelectedMoveSize(next as MoveSize);
           }}
           placeholder="Choose a Move Size"
-          allLabel="Sizes"
+          allLabel="All Sizes"
           description="Choose a Move Size to see their analytics."
           showSearch={false}
+          triggerLabel="Sizes"
         />
         <MoversSelect
           value={movers}
@@ -134,15 +146,6 @@ const AnalyticsMoves = () => {
           max={20}
           title="Choose movers"
           description={`Use "All Movers" or specify a count.`}
-        />
-        <AdaptiveSelect
-          title="Select time"
-          options={HISTORICAL_TIME_OPTIONS}
-          value={selectedTime}
-          onChange={handleTimeChange}
-          placeholder="Choose a time"
-          description="Choose a time to see their analytics."
-          showSearch={false}
         />
       </FilterRow>
       {showCustomRange && (

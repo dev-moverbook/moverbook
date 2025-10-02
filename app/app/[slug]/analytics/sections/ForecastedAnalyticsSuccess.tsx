@@ -1,31 +1,41 @@
 "use client";
 
-import type { LineGraphDatum, ForecastPoint } from "@/types/types";
+import type { ForecastPoint, LineSeries } from "@/types/types";
 import LineChartCard from "@/app/components/shared/graphs/lineGraphs/LineChartCard";
-import { formatCurrencyCompact } from "@/app/frontendUtils/helper";
+import {
+  formatCurrency,
+  formatCurrencyCompact,
+} from "@/app/frontendUtils/helper";
 import { formatXLabel } from "@/app/frontendUtils/luxonUtils";
 
 type ForecastedAnalyticsSuccessProps = {
   series: ForecastPoint[];
 };
 
-const ForecastedAnalyticsSuccess = ({
+export default function ForecastedAnalyticsSuccess({
   series,
-}: ForecastedAnalyticsSuccessProps) => {
-  const data: LineGraphDatum[] = Array.isArray(series)
-    ? series.map((point) => ({ label: point.date, value: point.revenue }))
-    : [];
+}: ForecastedAnalyticsSuccessProps) {
+  const lineSeries: LineSeries[] = [
+    {
+      color: "var(--revenue-forecast)",
+      data: (Array.isArray(series) ? series : []).map((point) => ({
+        label: point.date,
+        value: point.revenue,
+      })),
+      id: "forecast",
+      name: "Forecasted Revenue",
+    },
+  ];
 
   return (
     <LineChartCard
-      title=" Revenue"
-      data={data}
-      valueFormatter={formatCurrencyCompact}
-      color="#2563EB"
       bodyHeight={240}
       labelFormatter={formatXLabel}
+      series={lineSeries}
+      title="Forecasted Revenue"
+      valueFormatter={formatCurrencyCompact}
+      tooltipValueFormatter={formatCurrency}
+      yAxisWidth={64}
     />
   );
-};
-
-export default ForecastedAnalyticsSuccess;
+}

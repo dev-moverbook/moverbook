@@ -17,11 +17,6 @@ import {
   GetCompanyRatesResponse,
   UpdateLaborResponse,
 } from "@/types/convex-responses";
-import {
-  FeeSchema,
-  InsurancePolicySchema,
-  LaborSchema,
-} from "@/types/convex-schemas";
 import { Doc } from "./_generated/dataModel";
 
 export const createLabor = mutation({

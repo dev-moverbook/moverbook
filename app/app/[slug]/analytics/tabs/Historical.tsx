@@ -18,6 +18,7 @@ import { useSlugContext } from "@/app/contexts/SlugContext";
 import FilterRow from "@/app/components/shared/containers/FilterRow";
 import HistoricalAnalytics from "../sections/HistoricalAnalytics";
 import { Id } from "@/convex/_generated/dataModel";
+import FunnelAnalytics from "../sections/FunnelAnalytics";
 
 interface HistoricalProps {
   userOptions: Option[];
@@ -59,7 +60,7 @@ const Historical = ({ userOptions, sourceOptions }: HistoricalProps) => {
   );
 
   const handleTimeChange = useCallback(
-    (nextValue: string) => {
+    (nextValue: string | null) => {
       const next = nextValue as HistoricalTimeValue;
       if (next === "custom") {
         const lastPreset =
@@ -92,13 +93,23 @@ const Historical = ({ userOptions, sourceOptions }: HistoricalProps) => {
     <SectionContainer showBorder={false}>
       <FilterRow>
         <AdaptiveSelect
+          title="Select time"
+          options={HISTORICAL_TIME_OPTIONS}
+          value={selectedTime}
+          onChange={handleTimeChange}
+          placeholder="Choose a time"
+          description="Choose a time range to see their analytics."
+          showSearch={false}
+        />
+        <AdaptiveSelect
           title="Select Sales Rep"
           options={userOptions}
           value={selectedUserId}
           onChange={(value) => setSelectedUserId(value as Id<"users">)}
           placeholder="Choose a Sales Rep"
           searchPlaceholder="Search Sales Reps…"
-          allLabel="Reps"
+          allLabel="All Reps"
+          triggerLabel="Reps"
           allIcon={<Users className="h-6 w-6 text-white" />}
           description="Choose a Sales Rep to see their analytics."
         />
@@ -109,17 +120,9 @@ const Historical = ({ userOptions, sourceOptions }: HistoricalProps) => {
           onChange={(value) => setSelectedSource(value as Id<"referrals">)}
           placeholder="Choose a source"
           searchPlaceholder="Search sources…"
-          allLabel="Sources"
+          allLabel="All Sources"
+          triggerLabel="Sources"
           description="Choose a source to see their analytics."
-        />
-        <AdaptiveSelect
-          title="Select time"
-          options={HISTORICAL_TIME_OPTIONS}
-          value={selectedTime}
-          onChange={handleTimeChange}
-          placeholder="Choose a time"
-          description="Choose a time range to see their analytics."
-          showSearch={false}
         />
       </FilterRow>
       {showCustomRange && (
@@ -135,6 +138,12 @@ const Historical = ({ userOptions, sourceOptions }: HistoricalProps) => {
         />
       )}
       <HistoricalAnalytics
+        startDate={customStartDate}
+        endDate={customEndDate}
+        salesRepId={selectedUserId}
+        referralId={selectedSource}
+      />
+      <FunnelAnalytics
         startDate={customStartDate}
         endDate={customEndDate}
         salesRepId={selectedUserId}

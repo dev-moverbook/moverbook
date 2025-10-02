@@ -12,7 +12,7 @@ interface CommandListItemProps {
   isSelected: boolean;
   isAll: boolean;
   allIcon?: React.ReactNode;
-  onSelect: (value: string) => void;
+  onSelect: (value: string | null) => void;
 }
 
 export default function CommandListItem({

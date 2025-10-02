@@ -10,7 +10,7 @@ import {
   sumSegments,
 } from "@/app/frontendUtils/helper";
 import { EnrichedMove } from "@/types/convex-responses";
-import { HourStatus } from "@/types/types";
+import { HourStatus, MoveStatus } from "@/types/types";
 
 export type MoverContext = {
   isMover: boolean;
@@ -46,7 +46,7 @@ export type MoveQueryFilters = {
   companyId: Id<"companies">;
   start: string;
   end: string;
-  statuses?: string[];
+  statuses?: MoveStatus[];
   salesRepId?: Id<"users"> | null;
   referralId?: Id<"referrals"> | null;
   serviceType?: Doc<"move">["serviceType"] | null;
@@ -756,4 +756,82 @@ function hasBothTimes(assignment: Doc<"moveAssignments">): boolean {
     typeof assignment.startTime === "number" &&
     typeof assignment.endTime === "number"
   );
+}
+
+export function matchesFilters(
+  moveRecord: Doc<"move">,
+  salesRepId: Id<"users"> | null,
+  referralId: Id<"referrals"> | null
+): boolean {
+  if (salesRepId && moveRecord.salesRep !== salesRepId) {
+    return false;
+  }
+  if (referralId && moveRecord.referralId !== referralId) {
+    return false;
+  }
+  return true;
+}
+
+function isWithinRange(
+  epochMillis: number | null | undefined,
+  startTime: number,
+  endTime: number
+): boolean {
+  return (
+    typeof epochMillis === "number" &&
+    epochMillis >= startTime &&
+    epochMillis < endTime
+  );
+}
+
+export function countByTimestamp(
+  moves: Doc<"move">[],
+  timestampSelector: (m: Doc<"move">) => number | null | undefined,
+  startTime: number,
+  endTime: number
+): number {
+  let count = 0;
+  for (const moveRecord of moves) {
+    const timestamp = timestampSelector(moveRecord);
+    if (isWithinRange(timestamp, startTime, endTime)) count++;
+  }
+  return count;
+}
+
+export function buildStatusTimestampPatch(
+  currentMove: Doc<"move">,
+  newStatus: MoveStatus,
+  effectiveAtMs: number
+): Partial<Doc<"move">> {
+  const patch: Partial<Doc<"move">> = {};
+
+  switch (newStatus) {
+    case "Quoted":
+      if (currentMove.quotedAt == null) patch.quotedAt = effectiveAtMs;
+      break;
+
+    case "Booked":
+      if (currentMove.bookedAt == null) patch.bookedAt = effectiveAtMs;
+      break;
+
+    case "Completed":
+      if (currentMove.completedAt == null) {
+        patch.completedAt = currentMove.actualEndTime ?? effectiveAtMs;
+      }
+      break;
+
+    case "Cancelled":
+      if (currentMove.cancelledAt == null) patch.cancelledAt = effectiveAtMs;
+      break;
+
+    case "Lost":
+      if (currentMove.lostAt == null) patch.lostAt = effectiveAtMs;
+      break;
+
+    case "New Lead":
+    default:
+      break;
+  }
+
+  return patch;
 }

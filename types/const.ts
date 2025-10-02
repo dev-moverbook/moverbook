@@ -83,6 +83,8 @@ export const HISTORICAL_TIME_OPTIONS: Option[] = [
   { value: "custom", label: "Custom" },
 ];
 
+export const UNKNOWN_NAME = "Unknown";
+
 export const MS_PER_HOUR = 1000 * 60 * 60;
 
 export const PRE_MOVE_TERMS_AND_CONDITIONS = `

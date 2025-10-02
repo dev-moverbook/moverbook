@@ -9,7 +9,6 @@ import { Option } from "@/types/types";
 import { formatDateRangeLabel } from "@/app/frontendUtils/luxonUtils";
 
 export interface AdaptiveSelectTriggerProps {
-  allValue?: string;
   className?: string;
   customEnd?: string | null;
   customStart?: string | null;
@@ -20,6 +19,7 @@ export interface AdaptiveSelectTriggerProps {
   placeholder?: string;
   selectedOption: Option | null;
   title?: string;
+  triggerLabel?: string;
 }
 
 const AdaptiveSelectTrigger = forwardRef<
@@ -28,7 +28,6 @@ const AdaptiveSelectTrigger = forwardRef<
 >(
   (
     {
-      allValue = "__ALL__",
       className,
       customEnd = null,
       customStart = null,
@@ -39,11 +38,11 @@ const AdaptiveSelectTrigger = forwardRef<
       placeholder = "Select...",
       selectedOption,
       title = "Select an option",
+      triggerLabel,
     },
     ref
   ) => {
-    const isAllSelection =
-      !!selectedOption && selectedOption.value === allValue;
+    const isAllSelection = !!selectedOption && selectedOption.value === null;
     const isCustomSelection =
       !!selectedOption && selectedOption.value === customValue;
 
@@ -51,11 +50,17 @@ const AdaptiveSelectTrigger = forwardRef<
       ? formatDateRangeLabel(customStart, customEnd)
       : null;
 
-    const displayLabel =
+    let displayLabel =
       customLabel ?? (selectedOption ? selectedOption.label : placeholder);
 
+    console.log("isAllSelection", isAllSelection);
+    console.log("triggerLabel", triggerLabel);
+    if (isAllSelection && triggerLabel) {
+      displayLabel = triggerLabel;
+    }
+
     return (
-      <div className="flex flex-col ">
+      <div className="flex flex-col">
         <Button
           ref={ref}
           type="button"
@@ -66,12 +71,13 @@ const AdaptiveSelectTrigger = forwardRef<
           disabled={disabled}
           onClick={onOpen}
           size="combobox"
-          className={cn(className, "", open && "border-greenCustom ")}
+          className={cn(className, open && "border-greenCustom")}
         >
           <span className="flex w-full items-center justify-between">
             <span className="flex min-w-0 flex-1 items-center gap-2">
               {selectedOption ? (
                 <>
+                  {/* No avatar for All or Custom */}
                   {!isAllSelection &&
                     !isCustomSelection &&
                     selectedOption.image && (
@@ -83,7 +89,6 @@ const AdaptiveSelectTrigger = forwardRef<
                         className="h-6 w-6 shrink-0 rounded-full object-cover"
                       />
                     )}
-
                   <span className="truncate">
                     {isCustomSelection && !customLabel
                       ? "Custom range"

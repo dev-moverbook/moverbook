@@ -6,6 +6,7 @@ import { useForecastedAnalytics } from "@/app/hooks/queries/analytics/useForecas
 import { QueryStatus } from "@/types/enums";
 import type { Id } from "@/convex/_generated/dataModel";
 import ForecastedAnalyticsSuccess from "./ForecastedAnalyticsSuccess";
+import ChartCardSkeletonStatic from "@/app/components/shared/skeleton/ChartCardSkeleton";
 
 interface ForecastedAnalyticsProps {
   startDate: string;
@@ -34,6 +35,7 @@ const ForecastedAnalytics = ({
 
   switch (result.status) {
     case QueryStatus.LOADING:
+      body = <ChartCardSkeletonStatic />;
       break;
     case QueryStatus.ERROR:
       body = <ErrorComponent message={result.errorMessage} />;

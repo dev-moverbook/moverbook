@@ -15,7 +15,7 @@ interface AdaptiveSelectMobileProps {
   allValue?: string;
   description: string;
   emptyText?: string;
-  onChange: (value: string) => void;
+  onChange: (value: string | null) => void;
   open: boolean;
   options: Option[];
   searchPlaceholder?: string;
@@ -39,7 +39,7 @@ export default function AdaptiveSelectMobile({
   title,
   value,
 }: AdaptiveSelectMobileProps) {
-  const handleOptionPick = (nextValue: string) => {
+  const handleOptionPick = (nextValue: string | null) => {
     onChange(nextValue);
     setOpen(false);
   };

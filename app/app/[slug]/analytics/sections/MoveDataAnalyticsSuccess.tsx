@@ -1,51 +1,66 @@
 "use client";
 
-import type { LineGraphDatum, MoveAnalyticsPoint } from "@/types/types";
+import type { LineSeries, MoveAnalyticsPoint } from "@/types/types";
 import LineChartCard from "@/app/components/shared/graphs/lineGraphs/LineChartCard";
-import { formatCurrencyCompact } from "@/app/frontendUtils/helper";
+import {
+  formatCurrency,
+  formatCurrencyCompact,
+  formatHours,
+  formatHoursAbbreviated,
+} from "@/app/frontendUtils/helper";
 import { formatXLabel } from "@/app/frontendUtils/luxonUtils";
 
 type MoveDataAnalyticsSuccessProps = {
   series: MoveAnalyticsPoint[];
 };
 
-const MoveDataAnalyticsSuccess = ({
+export default function MoveDataAnalyticsSuccess({
   series,
-}: MoveDataAnalyticsSuccessProps) => {
-  const averageRevenueData: LineGraphDatum[] = Array.isArray(series)
-    ? series.map((point) => ({
+}: MoveDataAnalyticsSuccessProps) {
+  const averageRevenueSeries: LineSeries[] = [
+    {
+      color: "var(--revenue-average)",
+      data: (Array.isArray(series) ? series : []).map((point) => ({
         label: point.date,
         value: point.averageRevenue,
-      }))
-    : [];
+      })),
+      id: "averageRevenue",
+      name: "Average Revenue Per Day",
+    },
+  ];
 
-  const averageMoveTimeData: LineGraphDatum[] = Array.isArray(series)
-    ? series.map((point) => ({
+  const averageMoveTimeSeries: LineSeries[] = [
+    {
+      color: "var(--average-move-time)",
+      data: (Array.isArray(series) ? series : []).map((point) => ({
         label: point.date,
         value: point.averageMoveTimeHours,
-      }))
-    : [];
+      })),
+      id: "averageMoveTime",
+      name: "Average Move Time Per Day",
+    },
+  ];
 
   return (
     <div className="flex flex-col gap-4">
       <LineChartCard
-        title="Average Revenue"
-        data={averageRevenueData}
-        valueFormatter={formatCurrencyCompact}
-        color="#2563EB"
         bodyHeight={240}
         labelFormatter={formatXLabel}
+        series={averageRevenueSeries}
+        title="Average Revenue Per Day"
+        valueFormatter={formatCurrencyCompact}
+        tooltipValueFormatter={formatCurrency}
+        yAxisWidth={64}
       />
       <LineChartCard
-        title="Average Move Time"
-        data={averageMoveTimeData}
-        valueFormatter={formatCurrencyCompact}
-        color="#2563EB"
         bodyHeight={240}
         labelFormatter={formatXLabel}
+        series={averageMoveTimeSeries}
+        title="Average Move Time Per Day"
+        valueFormatter={formatHoursAbbreviated}
+        tooltipValueFormatter={formatHours}
+        yAxisWidth={64}
       />
     </div>
   );
-};
-
-export default MoveDataAnalyticsSuccess;
+}

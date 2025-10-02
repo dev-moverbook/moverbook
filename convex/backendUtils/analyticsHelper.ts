@@ -1,7 +1,16 @@
-import { ForecastPoint, MoveAnalyticsPoint } from "@/types/types";
-import { Doc } from "../_generated/dataModel";
+import {
+  ForecastPoint,
+  MoveAnalyticsPoint,
+  StackedDay,
+  TooltipRow,
+  RechartsTooltipProps,
+  TooltipPayloadItem,
+} from "@/types/types";
+import { Doc, Id } from "../_generated/dataModel";
 import { enumerateDaysInclusive, toIsoDateInTimeZone } from "./helper";
 import { computeMoveTotal } from "@/app/frontendUtils/helper";
+import { UNKNOWN_NAME } from "@/types/const";
+import { StackedSegment } from "@/types/types";
 
 function inferHoursFromTimestamps(
   startTimestamp: number,
@@ -204,4 +213,243 @@ export function buildForecastedSeries(
   }
   const series = convertRevenueMapToSeries(revenueByDayMap);
   return series;
+}
+
+export type IdNameReferral = { id: Id<"referrals">; name: string };
+
+export function toIdNameReferrals(
+  referralDocs: Doc<"referrals">[]
+): IdNameReferral[] {
+  return referralDocs
+    .map((referralDoc) => ({
+      id: referralDoc._id as Id<"referrals">,
+      name: (referralDoc.name ?? "Unknown").trim(),
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+export type IdNameUser = { id: Id<"users">; name: string };
+
+export function toIdNameUsers(userDocs: Doc<"users">[]): IdNameUser[] {
+  return userDocs
+    .map((userDoc) => ({
+      id: userDoc._id as Id<"users">,
+      name: (userDoc.name ?? "Unknown").trim(),
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+export type IdNameGeneric<GroupId extends string> = {
+  id: GroupId;
+  name: string;
+};
+
+function seedDayTotals(
+  dateKeys: string[]
+): Record<string, Record<string, number>> {
+  const sumsByDay: Record<string, Record<string, number>> = {};
+  for (const dateKey of dateKeys) sumsByDay[dateKey] = {};
+  return sumsByDay;
+}
+
+function sortGroupsByName<GroupId extends string>(
+  groups: IdNameGeneric<GroupId>[]
+): IdNameGeneric<GroupId>[] {
+  return groups.slice().sort((a, b) => a.name.localeCompare(b.name));
+}
+
+function addMoveToTotalsByName(
+  move: Doc<"move">,
+  timeZone: string,
+  sumsByDay: Record<string, Record<string, number>>,
+  getGroupName: (move: Doc<"move">) => string | null | undefined
+): boolean {
+  if (!move.moveDate) {
+    return false;
+  }
+
+  const dayKey = toIsoDateInTimeZone(move.moveDate, timeZone);
+  if (!(dayKey in sumsByDay)) {
+    return false;
+  }
+
+  const rawName = getGroupName(move);
+  const bucketName = (rawName ?? UNKNOWN_NAME).trim() || UNKNOWN_NAME;
+
+  const amount = forecastMinTotalForMove(move);
+  const dayTotals = sumsByDay[dayKey];
+  dayTotals[bucketName] = (dayTotals[bucketName] ?? 0) + amount;
+
+  return rawName == null;
+}
+
+function buildSegmentsForDay(
+  orderedNames: string[],
+  dayTotals: Record<string, number>,
+  includeUnknown: boolean
+): StackedSegment[] {
+  const segs: StackedSegment[] = [];
+
+  for (const name of orderedNames) {
+    segs.push({ name, amount: dayTotals[name] ?? 0 });
+  }
+
+  if (includeUnknown) {
+    segs.push({ name: UNKNOWN_NAME, amount: dayTotals[UNKNOWN_NAME] ?? 0 });
+  }
+
+  return segs;
+}
+
+function sortNames(names: string[]): string[] {
+  return names.slice().sort((a, b) => a.localeCompare(b));
+}
+
+export function buildStackedForecastedRevenueSeriesByName(
+  endDay: string,
+  moves: Doc<"move">[],
+  groupNames: string[], // e.g. reps.map(r => r.name) or sources.map(s => s.name)
+  startDay: string,
+  timeZone: string,
+  getGroupName: (move: Doc<"move">) => string | null | undefined // how to pull the name from a move
+): StackedDay[] {
+  const dateKeys = enumerateDaysInclusive(startDay, endDay);
+  const sumsByDay = seedDayTotals(dateKeys);
+  const orderedNames = sortNames(groupNames);
+
+  let sawUnknown = false;
+  for (const move of moves) {
+    const wasUnknown = addMoveToTotalsByName(
+      move,
+      timeZone,
+      sumsByDay,
+      getGroupName
+    );
+    if (wasUnknown) sawUnknown = true;
+  }
+
+  const series: StackedDay[] = [];
+  for (const dateKey of dateKeys) {
+    series.push({
+      date: dateKey,
+      segments: buildSegmentsForDay(
+        orderedNames,
+        sumsByDay[dateKey],
+        sawUnknown
+      ),
+    });
+  }
+  return series;
+}
+
+function historicalRevenueForMove(move: Doc<"move">): number {
+  const depositAmount = Number(move.deposit ?? 0);
+  const invoicePaidAmount = Number(move.invoiceAmountPaid ?? 0);
+  const sum = depositAmount + invoicePaidAmount;
+  return Number.isFinite(sum) && sum > 0 ? sum : 0;
+}
+
+function addHistoricalMoveTotalsByName(
+  move: Doc<"move">,
+  timeZone: string,
+  sumsByDay: Record<string, Record<string, number>>,
+  getGroupName: (move: Doc<"move">) => string | null | undefined
+): boolean {
+  if (!move.moveDate) {
+    return false;
+  }
+
+  const dayKey = toIsoDateInTimeZone(move.moveDate, timeZone);
+  if (!(dayKey in sumsByDay)) {
+    return false;
+  }
+
+  const rawName = getGroupName(move);
+  const bucketName = (rawName ?? UNKNOWN_NAME).trim() || UNKNOWN_NAME;
+
+  const amount = historicalRevenueForMove(move);
+  const dayTotals = sumsByDay[dayKey];
+  dayTotals[bucketName] = (dayTotals[bucketName] ?? 0) + amount;
+
+  return rawName == null; // indicates we used "Unknown"
+}
+
+export function buildStackedHistoricalRevenueSeriesByName(
+  endDay: string,
+  moves: Doc<"move">[],
+  groupNames: string[], // legend/order (e.g., reps.map(r => r.name ?? UNKNOWN_NAME))
+  startDay: string,
+  timeZone: string,
+  getGroupName: (move: Doc<"move">) => string | null | undefined // must return a NAME, not an ID
+): StackedDay[] {
+  // 1) Setup
+  const dateKeys = enumerateDaysInclusive(startDay, endDay);
+  const sumsByDay = seedDayTotals(dateKeys);
+  const orderedNames = sortNames(groupNames);
+
+  // 2) Accumulate
+  let sawUnknown = false;
+  for (const move of moves) {
+    const usedUnknown = addHistoricalMoveTotalsByName(
+      move,
+      timeZone,
+      sumsByDay,
+      getGroupName
+    );
+    if (usedUnknown) sawUnknown = true;
+  }
+
+  // 3) Build series
+  const series: StackedDay[] = [];
+  for (const dateKey of dateKeys) {
+    const dayTotals = sumsByDay[dateKey];
+    const segments = buildSegmentsForDay(orderedNames, dayTotals, sawUnknown);
+    series.push({ date: dateKey, segments });
+  }
+
+  return series;
+}
+
+export function buildTooltipRows(
+  payload: RechartsTooltipProps["payload"]
+): TooltipRow[] {
+  if (!payload || payload.length === 0) {
+    return [];
+  }
+  const rows: TooltipRow[] = payload
+    .filter(
+      (item): item is TooltipPayloadItem & { value: number } =>
+        typeof item.value === "number"
+    )
+    .map((item) => ({
+      name: String(item.name ?? item.dataKey ?? ""),
+      value: item.value,
+      color: typeof item.color === "string" ? item.color : "#ffffff",
+    }))
+    .sort((left, right) => right.value - left.value);
+  return rows;
+}
+
+export function defaultValueFormat(value: number): string {
+  return value.toLocaleString();
+}
+
+export function defaultLabelFromIso(isoDate: string): string {
+  const dateObj = new Date(isoDate);
+  const weekday = dateObj.toLocaleDateString(undefined, { weekday: "short" });
+  return weekday.slice(0, 1);
+}
+
+export function isStackedSeriesEmpty(
+  series: StackedDay[] | null | undefined
+): boolean {
+  if (!Array.isArray(series) || series.length === 0) {
+    return true;
+  }
+  return series.every((day) =>
+    day.segments.every(
+      (segment) =>
+        typeof segment.amount !== "number" || Number.isNaN(segment.amount)
+    )
+  );
 }

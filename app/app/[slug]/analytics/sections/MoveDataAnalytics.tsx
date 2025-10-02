@@ -6,6 +6,7 @@ import { QueryStatus } from "@/types/enums";
 import { useMoveAnalytics } from "@/app/hooks/queries/analytics/useMoveAnalytics";
 import { LocationType, MoveSize, ServiceType } from "@/types/types";
 import MoveDataAnalyticsSuccess from "./MoveDataAnalyticsSuccess";
+import ChartCardSkeletonStatic from "@/app/components/shared/skeleton/ChartCardSkeleton";
 
 interface MoveDataAnalyticsProps {
   startDate: string;
@@ -40,6 +41,7 @@ const MoveDataAnalytics = ({
 
   switch (result.status) {
     case QueryStatus.LOADING:
+      body = <ChartCardSkeletonStatic />;
       break;
     case QueryStatus.ERROR:
       body = <ErrorComponent message={result.errorMessage} />;

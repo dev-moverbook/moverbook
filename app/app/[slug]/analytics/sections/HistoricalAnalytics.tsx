@@ -6,6 +6,7 @@ import { QueryStatus } from "@/types/enums";
 import type { Id } from "@/convex/_generated/dataModel";
 import { useHistoricalAnalytics } from "@/app/hooks/queries/analytics/useHistoricalAnalytics";
 import HistoricalAnalyticsSuccess from "./HistoricalAnalyticsSuccess";
+import ChartCardSkeletonStatic from "@/app/components/shared/skeleton/ChartCardSkeleton";
 
 interface HistoricalAnalyticsProps {
   startDate: string;
@@ -34,6 +35,7 @@ const HistoricalAnalytics = ({
 
   switch (result.status) {
     case QueryStatus.LOADING:
+      body = <ChartCardSkeletonStatic />;
       break;
     case QueryStatus.ERROR:
       body = <ErrorComponent message={result.errorMessage} />;

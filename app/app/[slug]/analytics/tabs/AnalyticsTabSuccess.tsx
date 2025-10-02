@@ -3,6 +3,10 @@ import React from "react";
 import Forecasted from "./Forecasted";
 import Historical from "./Historical";
 import { Option } from "@/types/types";
+import ForecastedByReps from "../sections/ForecastedByReps";
+import ForecastedBySource from "../sections/ForecastedBySource";
+import HistoricalByReps from "../sections/HistoricalByReps";
+import HistoricalBySource from "../sections/HistoricalBySource";
 
 function AnalyticsTabSuccess({
   tab,
@@ -25,23 +29,25 @@ function AnalyticsTabSuccess({
 
   const sourceOptions: Option[] = React.useMemo(
     () =>
-      referrals
-        .filter(
-          (referralRecord) =>
-            typeof referralRecord.name === "string" &&
-            referralRecord.name.trim().length > 0
-        )
-        .map((referralRecord) => {
-          const name = referralRecord.name!.trim();
-          return { value: name, label: name };
-        }),
+      referrals.map((referralRecord) => {
+        const name = referralRecord.name!.trim();
+        return { value: referralRecord._id, label: name };
+      }),
     [referrals]
   );
 
   return tab === "FORECASTED" ? (
-    <Forecasted userOptions={userOptions} sourceOptions={sourceOptions} />
+    <div className="space-y-3">
+      <Forecasted userOptions={userOptions} sourceOptions={sourceOptions} />
+      <ForecastedByReps />
+      <ForecastedBySource />
+    </div>
   ) : (
-    <Historical userOptions={userOptions} sourceOptions={sourceOptions} />
+    <div className="space-y-3">
+      <Historical userOptions={userOptions} sourceOptions={sourceOptions} />
+      <HistoricalByReps />
+      <HistoricalBySource />
+    </div>
   );
 }
 

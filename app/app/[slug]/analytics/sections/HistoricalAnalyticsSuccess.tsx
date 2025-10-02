@@ -1,31 +1,50 @@
 "use client";
 
-import type { LineGraphDatum, HistoricalPoint } from "@/types/types";
+import type { HistoricalPoint, LineSeries } from "@/types/types";
 import LineChartCard from "@/app/components/shared/graphs/lineGraphs/LineChartCard";
-import { formatCurrencyCompact } from "@/app/frontendUtils/helper";
+import {
+  formatCurrency,
+  formatCurrencyCompact,
+} from "@/app/frontendUtils/helper";
 import { formatXLabel } from "@/app/frontendUtils/luxonUtils";
+import {
+  mapPointsToLineData,
+  sortByDateAscending,
+} from "@/app/frontendUtils/graphHelpers";
 
 type HistoricalAnalyticsSuccessProps = {
   series: HistoricalPoint[];
 };
 
-const HistoricalAnalyticsSuccess = ({
+export default function HistoricalAnalyticsSuccess({
   series,
-}: HistoricalAnalyticsSuccessProps) => {
-  const data: LineGraphDatum[] = Array.isArray(series)
-    ? series.map((point) => ({ label: point.date, value: point.revenue }))
-    : [];
+}: HistoricalAnalyticsSuccessProps) {
+  const sortedPoints = Array.isArray(series) ? sortByDateAscending(series) : [];
+
+  const lineSeries: LineSeries[] = [
+    {
+      color: "var(--revenue-historical)",
+      data: mapPointsToLineData(sortedPoints, "revenue"),
+      id: "revenue",
+      name: "Revenue",
+    },
+    {
+      color: "var(--profit)",
+      data: mapPointsToLineData(sortedPoints, "profit"),
+      id: "profit",
+      name: "Profit",
+    },
+  ];
 
   return (
     <LineChartCard
-      title=" Revenue"
-      data={data}
-      valueFormatter={formatCurrencyCompact}
-      color="#2563EB"
       bodyHeight={240}
       labelFormatter={formatXLabel}
+      series={lineSeries}
+      title="Revenue & Profit"
+      valueFormatter={formatCurrencyCompact}
+      tooltipValueFormatter={formatCurrency}
+      yAxisWidth={64}
     />
   );
-};
-
-export default HistoricalAnalyticsSuccess;
+}

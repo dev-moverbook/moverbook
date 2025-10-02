@@ -8,38 +8,37 @@ import {
   YAxis,
   Tooltip,
   CartesianGrid,
-  TooltipProps,
 } from "recharts";
 
 import {
   defaultLabelFormatter,
   defaultValueFormatter,
   getCategoryTicksFromLabels,
-} from "./lineGraphFormatters";
-import type { LineGraphDatum } from "@/types/types";
+  makeYAxisTickFormatter,
+  mergeSeriesByLabel,
+} from "./lineGraphUtils";
 import LineGraphTooltip from "./LineGraphTooltip";
-import {
-  NameType,
-  ValueType,
-} from "recharts/types/component/DefaultTooltipContent";
+import type { LineSeries } from "@/types/types";
+import { DEFAULT_STROKES } from "./lineGraphUtils";
 
 type LineGraphCoreProps = {
-  data: LineGraphDatum[];
-  color?: string;
-  showDots?: boolean;
-  valueFormatter?: (value: number) => string;
   labelFormatter?: (label: string | number) => string;
+  series: LineSeries[];
+  showDotsDefault?: boolean;
+  tooltipValueFormatter?: (value: number) => string;
+  valueFormatter?: (value: number) => string;
+  yAxisWidth?: number;
 };
 
 export default function LineGraphCore({
-  data,
-  color = "#3B82F6",
-  showDots = false,
-  valueFormatter = defaultValueFormatter,
   labelFormatter = defaultLabelFormatter,
+  series,
+  showDotsDefault = false,
+  valueFormatter = defaultValueFormatter,
+  tooltipValueFormatter,
+  yAxisWidth = 48,
 }: LineGraphCoreProps) {
-  const safeData = Array.isArray(data) ? data : [];
-  const labels = safeData.map((d) => d.label);
+  const { labels, rows } = mergeSeriesByLabel(series);
   const ticks = getCategoryTicksFromLabels(labels, {
     maxWidth: 480,
     narrowCount: 3,
@@ -48,53 +47,68 @@ export default function LineGraphCore({
   return (
     <ResponsiveContainer width="100%" height="100%">
       <LineChart
-        data={safeData}
-        margin={{ top: 8, right: 8, bottom: 0, left: 0 }}
+        aria-hidden
+        aria-label="Line graph"
         className="outline-none focus:outline-none"
-        tabIndex={-1} // not focusable
-        role="img"
-        aria-label="Revenue by day"
+        data={rows}
+        margin={{ top: 8, right: 8, bottom: 0, left: 0 }}
+        tabIndex={0}
       >
         <CartesianGrid
-          vertical
           horizontal={false}
-          strokeDasharray="3 8"
           stroke="#FFFFFF10"
+          strokeDasharray="3 8"
+          vertical
         />
+
         <XAxis
-          dataKey="label"
-          tickLine={false}
           axisLine={false}
-          tickMargin={8}
-          minTickGap={28}
-          tickFormatter={labelFormatter}
-          stroke="#9CA3AF"
+          dataKey="label"
           interval="preserveStartEnd"
+          minTickGap={28}
+          stroke="#9CA3AF"
+          tickFormatter={labelFormatter}
+          tickLine={false}
+          tickMargin={8}
           ticks={ticks}
         />
+
         <YAxis
-          tickLine={false}
           axisLine={false}
-          width={0}
-          tickFormatter={valueFormatter}
           stroke="#9CA3AF"
+          tickFormatter={makeYAxisTickFormatter(valueFormatter, {
+            hideFirstZero: true,
+          })}
+          tickLine={false}
+          tick={{ fill: "#9CA3AF" }}
+          yAxisId="left"
+          width={50} // reduce width so it hugs the labels
         />
-        <Line
-          type="monotone"
-          dataKey="value"
-          stroke={color}
-          strokeWidth={3}
-          dot={showDots}
-        />
+
+        {series.map((s, i) => (
+          <Line
+            key={s.id}
+            connectNulls
+            dataKey={s.id}
+            dot={s.showDots ?? showDotsDefault}
+            name={s.name ?? s.id}
+            stroke={s.color ?? DEFAULT_STROKES[i % DEFAULT_STROKES.length]}
+            strokeDasharray={s.strokeDasharray}
+            strokeWidth={3}
+            type="monotone"
+            yAxisId="left"
+          />
+        ))}
+
         <Tooltip
-          cursor={{ stroke: "#FFFFFF30", strokeWidth: 1 }}
-          content={(tooltipProps: TooltipProps<ValueType, NameType>) => (
+          content={(tp) => (
             <LineGraphTooltip
-              {...tooltipProps}
-              valueFormatter={valueFormatter}
+              {...tp}
               labelFormatter={labelFormatter}
+              valueFormatter={tooltipValueFormatter ?? valueFormatter}
             />
           )}
+          cursor={{ stroke: "#FFFFFF30", strokeWidth: 1 }}
         />
       </LineChart>
     </ResponsiveContainer>

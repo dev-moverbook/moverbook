@@ -1,57 +1,57 @@
 "use client";
 
-import React from "react";
-import type { LineGraphDatum } from "@/types/types";
+import { toNumberOrZero } from "@/app/frontendUtils/graphHelpers";
 
-export type ChartTooltipProps<
-  TValue = number | string | (number | string)[],
-  TName = string | number,
-> = {
+type TooltipEntry = {
+  color?: string;
+  dataKey?: string | number;
+  name?: string | number;
+  value?: number | string | null;
+};
+
+type LineGraphTooltipProps = {
   active?: boolean;
   label?: string | number;
-  payload?: Array<{
-    value: TValue;
-    name: TName;
-    dataKey?: string | number;
-    color?: string;
-    payload: LineGraphDatum;
-  }>;
-};
-
-type Props = ChartTooltipProps & {
-  valueFormatter: (value: number) => string;
+  payload?: TooltipEntry[];
   labelFormatter: (label: string | number) => string;
+  valueFormatter: (value: number) => string;
 };
 
-const LineGraphTooltip = ({
+export default function LineGraphTooltip({
   active,
-  payload,
   label,
-  valueFormatter,
+  payload,
   labelFormatter,
-}: Props) => {
+  valueFormatter,
+}: LineGraphTooltipProps) {
   if (!active || !payload || payload.length === 0) {
     return null;
   }
 
-  const point = payload[0]?.payload as LineGraphDatum | undefined;
-  if (!point) {
-    return null;
-  }
+  const items = payload.filter(Boolean).map((entry) => ({
+    color: entry.color ?? "#ffffff",
+    name: String(entry.name ?? entry.dataKey ?? ""),
+    value: toNumberOrZero(entry.value),
+  }));
 
   return (
-    <div className="rounded-xl bg-neutral-900/90 px-3 py-2 text-xs text-white shadow-xl ring-1 ring-white/10">
+    <div className="rounded-xl bg-neutral-900/90 px-3 py-2 text-sm text-white shadow-xl ring-1 ring-white/10">
       <div className="font-medium opacity-90">
         {labelFormatter(label ?? "")}
       </div>
-      <div className="mt-1 text-sm font-semibold">
-        {valueFormatter(point.value)}
+
+      <div className="mt-1 space-y-0.5">
+        {items.map((item) => (
+          <div key={item.name} className="flex items-center gap-2">
+            <span
+              className="inline-block h-2 w-2 rounded-full"
+              style={{ background: item.color }}
+            />
+            <span className="opacity-80">{item.name}:</span>
+            <span className="font-semibold">{valueFormatter(item.value)}</span>
+          </div>
+        ))}
       </div>
-      {typeof point.count === "number" && (
-        <div className="opacity-70">n = {point.count}</div>
-      )}
     </div>
   );
-};
-
-export default LineGraphTooltip;
+}

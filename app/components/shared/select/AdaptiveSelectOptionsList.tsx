@@ -17,7 +17,7 @@ export interface AdaptiveSelectOptionsListProps {
   allValue?: string;
   emptyText?: string;
   listMaxH?: string;
-  onPick: (value: string) => void;
+  onPick: (value: string | null) => void;
   options: Option[];
   searchPlaceholder?: string;
   showSearch?: boolean;

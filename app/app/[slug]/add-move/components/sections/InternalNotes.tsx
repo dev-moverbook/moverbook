@@ -11,7 +11,10 @@ const InternalNotes = () => {
   const { salesRepOptions, setMoveFormData, moveFormData, referralOptions } =
     useMoveForm();
   const referralSelectOptions =
-    referralOptions?.map((r) => ({ label: r.name, value: r.name })) ?? [];
+    referralOptions?.map((referral) => ({
+      label: referral.name,
+      value: referral._id,
+    })) ?? [];
 
   const { salesRep, moveStatus, notes, referralId } = moveFormData;
 

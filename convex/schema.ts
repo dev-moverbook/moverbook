@@ -328,6 +328,11 @@ export default defineSchema({
     travelFeeMethod: v.optional(v.union(v.null(), TravelChargingTypesConvex)),
     travelFeeRate: v.optional(v.union(v.null(), v.number())),
     trucks: v.number(),
+    quotedAt: v.optional(v.number()),
+    bookedAt: v.optional(v.number()),
+    completedAt: v.optional(v.number()),
+    cancelledAt: v.optional(v.number()),
+    lostAt: v.optional(v.number()),
   })
     .index("by_moveDate", ["moveDate"])
     .index("by_companyId", ["companyId"])

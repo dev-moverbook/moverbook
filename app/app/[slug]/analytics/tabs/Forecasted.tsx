@@ -66,7 +66,7 @@ export default function Forecasted({
   );
 
   const handleTimeChange = useCallback(
-    (nextValue: string) => {
+    (nextValue: string | null) => {
       const next = nextValue as ForecastTimeValue;
 
       if (next === "custom") {
@@ -102,13 +102,23 @@ export default function Forecasted({
     <SectionContainer showBorder={false}>
       <FilterRow>
         <AdaptiveSelect
+          title="Select time"
+          options={FORECASTED_TIME_OPTIONS}
+          value={selectedTime}
+          onChange={handleTimeChange}
+          placeholder="Choose a time"
+          description="Choose a time range to see their analytics."
+          showSearch={false}
+        />
+        <AdaptiveSelect
           title="Select Sales Rep"
           options={userOptions}
           value={selectedUserId}
           onChange={(value) => setSelectedUserId(value as Id<"users">)}
           placeholder="Choose a Sales Rep"
           searchPlaceholder="Search Sales Reps…"
-          allLabel="Reps"
+          triggerLabel="Reps"
+          allLabel="All Reps"
           description="Choose a Sales Rep to see their analytics."
           allIcon={<Users className="h-8 w-8 text-white" />}
         />
@@ -120,18 +130,9 @@ export default function Forecasted({
           onChange={(value) => setSelectedSource(value as Id<"referrals">)}
           placeholder="Choose a source"
           searchPlaceholder="Search sources…"
-          allLabel="Sources"
+          allLabel="All Sources"
+          triggerLabel="Sources"
           description="Choose a source to see their analytics."
-        />
-
-        <AdaptiveSelect
-          title="Select time"
-          options={FORECASTED_TIME_OPTIONS}
-          value={selectedTime}
-          onChange={handleTimeChange}
-          placeholder="Choose a time"
-          description="Choose a time range to see their analytics."
-          showSearch={false}
         />
       </FilterRow>
 

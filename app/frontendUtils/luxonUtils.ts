@@ -1,5 +1,5 @@
 import { DateTime } from "luxon";
-import { isNarrowScreen } from "../components/shared/graphs/lineGraphs/lineGraphFormatters";
+import { isNarrowScreen } from "../components/shared/graphs/lineGraphs/lineGraphUtils";
 
 export function toLocalDateTime(millis: number, zone: string): string {
   return DateTime.fromMillis(millis, { zone }).toFormat("yyyy-LL-dd'T'HH:mm");
@@ -233,3 +233,41 @@ export const formatXLabel = (labelValue: string | number): string => {
   const dateTime = DateTime.fromISO(labelValue);
   return formatDateTimeForViewport(dateTime);
 };
+
+export function formatMonthDayLabelStrict(
+  input: string | number | Date,
+  options?: { zone?: string; locale?: string }
+): string {
+  const dateTime =
+    input instanceof Date
+      ? DateTime.fromJSDate(input, { zone: options?.zone })
+      : typeof input === "number"
+        ? DateTime.fromMillis(input, { zone: options?.zone })
+        : DateTime.fromISO(input, { zone: options?.zone });
+
+  const localized = options?.locale
+    ? dateTime.setLocale(options.locale)
+    : dateTime;
+  if (!localized.isValid) {
+    return String(input);
+  }
+
+  return localized.toFormat("LLL d");
+}
+
+export function formatWeekdayShort(isoDate: string): string {
+  const formatted: string = DateTime.fromISO(isoDate).toFormat("ccc"); // "Sun"
+  return formatted;
+}
+
+export function formatWeekdayShortWithDate(isoDateString: string): string {
+  const dateTime = DateTime.fromISO(isoDateString);
+
+  if (!dateTime.isValid) {
+    const fallback = isoDateString;
+    return fallback;
+  }
+
+  const formatted = dateTime.toFormat("LLL d, yyyy");
+  return formatted;
+}

@@ -1186,3 +1186,11 @@ export const formatTwoDecimals = (
 export function roundToTwoDecimals(num: number): number {
   return Math.round(num * 100) / 100;
 }
+
+export function formatHours(ms: number): string {
+  return `${ms.toFixed(2)} hours`;
+}
+
+export function formatHoursAbbreviated(ms: number): string {
+  return `${ms} hrs`;
+}

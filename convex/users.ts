@@ -451,7 +451,13 @@ export const getSalesRepsAndReferralByCompanyId = query({
         .query("users")
         .filter((q) => q.eq(q.field("companyId"), companyId))
         .filter((q) => q.eq(q.field("isActive"), true))
-        .filter((q) => q.or(q.eq(q.field("role"), ClerkRoles.SALES_REP)))
+        .filter((q) =>
+          q.or(
+            q.eq(q.field("role"), ClerkRoles.SALES_REP),
+            q.eq(q.field("role"), ClerkRoles.ADMIN),
+            q.eq(q.field("role"), ClerkRoles.MANAGER)
+          )
+        )
         .collect();
 
       const sortedUsers = users.sort((a, b) => a.name.localeCompare(b.name));

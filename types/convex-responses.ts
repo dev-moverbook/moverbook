@@ -4,12 +4,15 @@ import { ErrorMessages } from "./errors";
 
 import {
   ForecastPoint,
+  FunnelPoint,
   HistoricalPoint,
   HourStatus,
   MoveAnalyticsPoint,
   MoverWageForMove,
   RecentMoveMessageSummary,
+  StackedDay,
 } from "./types";
+import { getStackedForecastedRevenueByRep } from "@/convex/move";
 
 export interface ErrorResponse {
   status: ResponseStatus.ERROR;
@@ -1318,4 +1321,67 @@ export interface GetMoveAnalyticsSuccess {
 
 export interface GetMoveAnalyticsData {
   series: MoveAnalyticsPoint[];
+}
+
+export type GetFunnelResponse = GetFunnelSuccess | ErrorResponse;
+
+export interface GetFunnelSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetFunnelData;
+}
+
+export interface GetFunnelData {
+  funnel: FunnelPoint[];
+}
+
+export type GetStackedForecastedRevenueBySourceResponse =
+  | GetStackedForecastedRevenueBySourceSuccess
+  | ErrorResponse;
+
+export interface GetStackedForecastedRevenueBySourceSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetStackedForecastedRevenueBySourceData;
+}
+
+export interface GetStackedForecastedRevenueBySourceData {
+  series: StackedDay[];
+}
+
+export type GetStackedForecastedRevenueByRepResponse =
+  | GetStackedForecastedRevenueByRepSuccess
+  | ErrorResponse;
+
+export interface GetStackedForecastedRevenueByRepSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetStackedForecastedRevenueByRepData;
+}
+
+export interface GetStackedForecastedRevenueByRepData {
+  series: StackedDay[];
+}
+
+export type GetStackedHistoricalRevenueByRepResponse =
+  | GetStackedHistoricalRevenueByRepSuccess
+  | ErrorResponse;
+
+export interface GetStackedHistoricalRevenueByRepSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetStackedHistoricalRevenueByRepData;
+}
+
+export interface GetStackedHistoricalRevenueByRepData {
+  series: StackedDay[];
+}
+
+export type GetStackedHistoricalRevenueBySourceResponse =
+  | GetStackedHistoricalRevenueBySourceSuccess
+  | ErrorResponse;
+
+export interface GetStackedHistoricalRevenueBySourceSuccess {
+  status: ResponseStatus.SUCCESS;
+  data: GetStackedHistoricalRevenueBySourceData;
+}
+
+export interface GetStackedHistoricalRevenueBySourceData {
+  series: StackedDay[];
 }

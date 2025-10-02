@@ -16,7 +16,7 @@ interface AdaptiveSelectDesktopProps {
   className?: string;
   disabled?: boolean;
   emptyText?: string;
-  onChange: (value: string) => void;
+  onChange: (value: string | null) => void;
   open: boolean;
   options: Option[];
   placeholder?: string;
@@ -25,6 +25,7 @@ interface AdaptiveSelectDesktopProps {
   setOpen: (open: boolean) => void;
   showSearch?: boolean;
   title?: string;
+  triggerLabel?: string;
   value: string | null;
 }
 
@@ -43,9 +44,10 @@ export default function AdaptiveSelectDesktop({
   setOpen,
   showSearch = true,
   title,
+  triggerLabel,
   value,
 }: AdaptiveSelectDesktopProps) {
-  const handlePick = (nextValue: string) => {
+  const handlePick = (nextValue: string | null) => {
     onChange(nextValue);
     setOpen(false);
   };
@@ -54,7 +56,7 @@ export default function AdaptiveSelectDesktop({
     <Popover onOpenChange={setOpen} open={open}>
       <PopoverTrigger asChild>
         <AdaptiveSelectTrigger
-          allValue={allValue}
+          triggerLabel={triggerLabel}
           className={className}
           disabled={disabled}
           onOpen={() => setOpen(true)}

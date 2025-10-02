@@ -289,11 +289,16 @@ function addMoveToTotals(
 }
 
 function formatHistoricalSeries(
-  totals: Record<string, IncomeTotals>
+  totals: Record<string, { revenue: number; expense: number; profit: number }>
 ): HistoricalPoint[] {
-  return Object.keys(totals)
-    .sort()
-    .map((date) => ({ date, ...totals[date] }));
+  return Object.entries(totals)
+    .sort(([dateA], [dateB]) => dateA.localeCompare(dateB))
+    .map(([date, sums]) => ({
+      date,
+      expense: sums.expense ?? 0,
+      profit: sums.profit ?? 0,
+      revenue: sums.revenue ?? 0,
+    }));
 }
 
 export function buildHistoricalSeries(
