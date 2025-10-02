@@ -31,7 +31,6 @@ interface UseMovesForCalendarParams {
   statuses?: MoveStatus[];
   salesRepId?: Id<"users"> | null;
   priceOrder?: PriceOrder | null;
-  moverId?: Id<"users"> | null;
 }
 
 export const useMovesForCalendar = ({
@@ -42,7 +41,6 @@ export const useMovesForCalendar = ({
   statuses,
   salesRepId,
   priceOrder,
-  moverId,
 }: UseMovesForCalendarParams): UseMovesForCalendarResult => {
   const response = useQuery<typeof api.move.getMovesForCalendar>(
     api.move.getMovesForCalendar,
@@ -55,7 +53,6 @@ export const useMovesForCalendar = ({
           salesRepId,
           priceOrder,
           moveTimeFilter,
-          moverId,
         }
       : "skip"
   );

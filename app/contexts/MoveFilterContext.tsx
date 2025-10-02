@@ -103,7 +103,6 @@ export const MoveFilterProvider = ({
       errorMessage = movesResult.errorMessage;
       break;
     case QueryStatus.SUCCESS:
-      // handled via memoizedMoves
       break;
   }
 
