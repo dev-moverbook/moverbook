@@ -120,11 +120,11 @@ const AnalyticsMoves = () => {
           onChange={(next) => {
             setSelectedLocationType(next as LocationType);
           }}
-          placeholder="Choose a Location Type"
-          allLabel="All Locations"
-          description="Choose a Location Type to see their analytics."
+          placeholder="Choose a Type"
+          allLabel="All Types"
+          description="Choose a Type to see their analytics."
           showSearch={false}
-          triggerLabel="Locations"
+          triggerLabel="Types"
         />
         <AdaptiveSelect
           title="Select Move Size"

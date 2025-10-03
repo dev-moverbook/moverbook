@@ -13,7 +13,6 @@ type LineChartCardProps = {
   headerRight?: React.ReactNode;
   labelFormatter?: (label: string | number) => string;
   series: LineSeries[];
-  showDots?: boolean;
   title: React.ReactNode;
   valueFormatter?: (value: number) => string;
   tooltipValueFormatter?: (value: number) => string;
@@ -27,7 +26,6 @@ export default function LineChartCard({
   headerRight,
   labelFormatter,
   series,
-  showDots = false,
   title,
   valueFormatter,
   tooltipValueFormatter,
@@ -48,7 +46,6 @@ export default function LineChartCard({
         <LineGraphCore
           labelFormatter={labelFormatter}
           series={series}
-          showDotsDefault={showDots}
           valueFormatter={valueFormatter}
           tooltipValueFormatter={tooltipValueFormatter}
         />

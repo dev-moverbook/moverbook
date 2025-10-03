@@ -10,7 +10,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        averageMoveTime: "#F97316", // orange (time)
+        averageMoveTime: "#E69F00", // orange (time)
         background: "hsl(var(--background))",
         background2: "#1E1E1E",
         foreground: "hsl(var(--foreground))",
@@ -18,10 +18,8 @@ export default {
         grayCustom2: "#8D8C8C",
         greenCustom: "#108A01",
         greenCustom80: "#108A0180",
-        profit: "#22C55E", // green (profit)
-        revenueHistorical: "#1D4ED8", // lightest blue (historical)
-        revenueForecast: "#2563EB", // medium blue (forecast)
-        revenueAverage: "#1E40AF", // darker blue (average)
+        profit: "#009E73", // green (profit)
+        revenue: "#0072B2", // lightest blue (historical)
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",

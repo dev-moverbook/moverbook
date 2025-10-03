@@ -13,9 +13,9 @@ body {
 /* globals.css */
 @layer base {
   :root {
-    --revenue-historical: theme(colors.revenueHistorical);
-    --revenue-forecast: theme(colors.revenueForecast);
-    --revenue-average: theme(colors.revenueAverage);
+    --revenue-historical: theme(colors.revenue);
+    --revenue-forecast: theme(colors.revenue);
+    --revenue-average: theme(colors.revenue);
     --profit: theme(colors.profit);
     --average-move-time: theme(colors.averageMoveTime);
   }

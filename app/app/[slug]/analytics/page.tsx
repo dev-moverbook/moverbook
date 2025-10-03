@@ -7,7 +7,7 @@ import AnalyticsTab from "./tabs/AnalyticsTab";
 
 const AnalyticsPage = () => {
   const tabs = ["FORECASTED", "HISTORICAL", "MOVES"];
-  const [activeTab, setActiveTab] = useState<string>("FORECASTED");
+  const [activeTab, setActiveTab] = useState<string>("HISTORICAL");
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);

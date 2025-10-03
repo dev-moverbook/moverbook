@@ -1,9 +1,10 @@
 "use client";
 
+import * as React from "react";
 import {
   ResponsiveContainer,
-  LineChart,
-  Line,
+  ComposedChart,
+  Area,
   XAxis,
   YAxis,
   Tooltip,
@@ -15,16 +16,22 @@ import {
   defaultValueFormatter,
   makeYAxisTickFormatter,
   mergeSeriesByLabel,
+  DEFAULT_STROKES,
 } from "./lineGraphUtils";
 import LineGraphTooltip from "./LineGraphTooltip";
 import type { LineSeries } from "@/types/types";
-import { DEFAULT_STROKES } from "./lineGraphUtils";
 import { X_TICK_STYLE, Y_TICK_STYLE } from "@/types/const";
+import {
+  AREA_TOP_OPACITY,
+  AREA_MID_OPACITY,
+  AREA_BOTTOM_OPACITY,
+  ANIM_DURATION,
+  ANIM_EASING,
+} from "@/app/frontendUtils/graphHelpers";
 
 type LineGraphCoreProps = {
   labelFormatter?: (label: string | number) => string;
   series: LineSeries[];
-  showDotsDefault?: boolean;
   tooltipValueFormatter?: (value: number) => string;
   valueFormatter?: (value: number) => string;
 };
@@ -32,7 +39,6 @@ type LineGraphCoreProps = {
 export default function LineGraphCore({
   labelFormatter = defaultLabelFormatter,
   series,
-  showDotsDefault = false,
   valueFormatter = defaultValueFormatter,
   tooltipValueFormatter,
 }: LineGraphCoreProps) {
@@ -40,7 +46,7 @@ export default function LineGraphCore({
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <LineChart
+      <ComposedChart
         aria-hidden
         aria-label="Line graph"
         className="outline-none focus:outline-none"
@@ -54,6 +60,33 @@ export default function LineGraphCore({
           strokeDasharray="3 8"
           vertical
         />
+
+        <defs>
+          {series.map((s, i) => {
+            const color =
+              s.color ?? DEFAULT_STROKES[i % DEFAULT_STROKES.length];
+            const id = `lineFill-${i}`;
+            return (
+              <linearGradient key={id} id={id} x1="0" y1="0" x2="0" y2="1">
+                <stop
+                  offset="0%"
+                  stopColor={color}
+                  stopOpacity={AREA_TOP_OPACITY}
+                />
+                <stop
+                  offset="70%"
+                  stopColor={color}
+                  stopOpacity={AREA_MID_OPACITY}
+                />
+                <stop
+                  offset="100%"
+                  stopColor={color}
+                  stopOpacity={AREA_BOTTOM_OPACITY}
+                />
+              </linearGradient>
+            );
+          })}
+        </defs>
 
         <XAxis
           axisLine={false}
@@ -76,25 +109,32 @@ export default function LineGraphCore({
           tickLine={false}
           tick={Y_TICK_STYLE}
           yAxisId="left"
-          width={50} // reduce width so it hugs the labels
+          width={50}
         />
-        {series.map((lineSeries, seriesIndex) => (
-          <Line
-            key={lineSeries.id}
-            connectNulls
-            dataKey={lineSeries.id}
-            dot={lineSeries.showDots ?? showDotsDefault}
-            name={lineSeries.name ?? lineSeries.id}
-            stroke={
-              lineSeries.color ??
-              DEFAULT_STROKES[seriesIndex % DEFAULT_STROKES.length]
-            }
-            strokeDasharray={lineSeries.strokeDasharray}
-            strokeWidth={3}
-            type="monotone"
-            yAxisId="left"
-          />
-        ))}
+
+        {series.map((lineSeries, i) => {
+          const stroke =
+            lineSeries.color ?? DEFAULT_STROKES[i % DEFAULT_STROKES.length];
+          const fillId = `lineFill-${i}`;
+
+          return (
+            <Area
+              key={lineSeries.id}
+              type="monotone"
+              dataKey={lineSeries.id}
+              name={lineSeries.name ?? lineSeries.id}
+              yAxisId="left"
+              stroke={stroke} // outline (replaces <Line>)
+              strokeWidth={3}
+              fill={`url(#${fillId})`} // gradient fill
+              connectNulls
+              isAnimationActive
+              animationBegin={0}
+              animationDuration={ANIM_DURATION}
+              animationEasing={ANIM_EASING}
+            />
+          );
+        })}
 
         <Tooltip
           content={(tp) => (
@@ -105,7 +145,7 @@ export default function LineGraphCore({
           )}
           cursor={{ stroke: "#FFFFFF30", strokeWidth: 1 }}
         />
-      </LineChart>
+      </ComposedChart>
     </ResponsiveContainer>
   );
 }
