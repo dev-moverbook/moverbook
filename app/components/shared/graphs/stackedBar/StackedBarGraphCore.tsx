@@ -31,6 +31,8 @@ type StackedBarGraphCoreProps = {
   colorByName?: Record<string, string>;
   yAxisWidth?: number;
   barCategoryGap?: string | number;
+  yAxisLabel?: string;
+  tooltipValueFormatter?: (value: number) => string;
 };
 
 export default function StackedBarGraphCore({
@@ -39,8 +41,10 @@ export default function StackedBarGraphCore({
   labelFormatter = defaultLabelFromIso,
   valueFormatter = defaultValueFormat,
   colorByName,
-  yAxisWidth = 0,
+  yAxisWidth = 56, // give room for ticks + label if shown
   barCategoryGap = "20%",
+  yAxisLabel,
+  tooltipValueFormatter,
 }: StackedBarGraphCoreProps) {
   const safeSeries = useMemo<StackedDay[]>(
     () => (Array.isArray(series) ? series : []),
@@ -79,23 +83,40 @@ export default function StackedBarGraphCore({
               axisLine={false}
               tick={{ fill: "rgba(255,255,255,0.7)", fontSize: 12 }}
             />
+
             <YAxis
-              hide
+              hide={false}
               width={yAxisWidth}
               tickLine={false}
               axisLine={false}
+              tick={{ fill: "rgba(156,163,175,1)", fontSize: 12 }}
               tickFormatter={valueFormatter}
               domain={[0, "auto"]}
+              label={
+                yAxisLabel
+                  ? {
+                      value: yAxisLabel,
+                      angle: -90,
+                      position: "insideLeft", // use "left" to place outside axis
+                      style: {
+                        fill: "rgba(156,163,175,1)",
+                        fontSize: 12,
+                      },
+                    }
+                  : undefined
+              }
             />
+
             <Tooltip
               cursor={{ fill: "rgba(255,255,255,0.06)" }}
               content={(tooltipProps) => (
                 <StackedBarTooltip
                   {...tooltipProps}
-                  valueFormatter={valueFormatter}
+                  valueFormatter={tooltipValueFormatter ?? valueFormatter}
                 />
               )}
             />
+
             {segmentNames.map((segmentName) => (
               <Bar
                 key={segmentName}

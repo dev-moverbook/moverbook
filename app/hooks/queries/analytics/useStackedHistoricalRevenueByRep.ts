@@ -55,6 +55,8 @@ export function useStackedHistoricalRevenueByRep({
     };
   }
 
+  console.log("response.data.series", response.data.series);
+
   return {
     status: QueryStatus.SUCCESS,
     data: { series: response.data.series },

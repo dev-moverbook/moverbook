@@ -7,6 +7,7 @@ import {
   defaultValueFormat,
 } from "@/convex/backendUtils/analyticsHelper";
 import { formatWeekdayShortWithDate } from "@/app/frontendUtils/luxonUtils";
+import TooltipContainer from "../container/TooltipContainer";
 
 export default function StackedBarTooltip(
   props: RechartsTooltipProps & { valueFormatter?: (value: number) => string }
@@ -35,11 +36,13 @@ export default function StackedBarTooltip(
     0
   );
 
+  const rowsToRender = rows.filter((row) => Math.abs(row.value) > 0);
+
   return (
-    <div className="rounded-md border border-white/10 bg-black/80 p-2 text-sm text-white shadow-md">
+    <TooltipContainer>
       <div className="mb-1 font-medium">{headerLabel}</div>
 
-      {rows.map((row) => (
+      {rowsToRender.map((row) => (
         <div key={row.name} className="flex items-center gap-2">
           <span
             className="inline-block h-2 w-2 rounded-full"
@@ -62,6 +65,6 @@ export default function StackedBarTooltip(
             : defaultValueFormat(totalValue)}
         </span>
       </div>
-    </div>
+    </TooltipContainer>
   );
 }

@@ -39,6 +39,7 @@ export default function DateRangeControls({
           onClick={onPrevWeek}
           disabled={canGoBack === false}
           className="rounded-md border border-grayCustom"
+          title="Previous Week"
         />
         <div className="text-center ">
           <p className="font-semibold">
@@ -51,6 +52,7 @@ export default function DateRangeControls({
           onClick={onNextWeek}
           disabled={canGoForward === false}
           className="rounded-md border border-grayCustom"
+          title="Next Week"
         />
       </div>
     </div>

@@ -1,6 +1,8 @@
 "use client";
 
 import { toNumberOrZero } from "@/app/frontendUtils/graphHelpers";
+import TooltipContainer from "../container/TooltipContainer";
+import { formatWeekdayShortWithDate } from "@/app/frontendUtils/luxonUtils";
 
 type TooltipEntry = {
   color?: string;
@@ -13,7 +15,6 @@ type LineGraphTooltipProps = {
   active?: boolean;
   label?: string | number;
   payload?: TooltipEntry[];
-  labelFormatter: (label: string | number) => string;
   valueFormatter: (value: number) => string;
 };
 
@@ -21,7 +22,6 @@ export default function LineGraphTooltip({
   active,
   label,
   payload,
-  labelFormatter,
   valueFormatter,
 }: LineGraphTooltipProps) {
   if (!active || !payload || payload.length === 0) {
@@ -34,11 +34,14 @@ export default function LineGraphTooltip({
     value: toNumberOrZero(entry.value),
   }));
 
+  const headerLabel: string =
+    typeof label === "string"
+      ? formatWeekdayShortWithDate(label)
+      : String(label);
+
   return (
-    <div className="rounded-xl bg-neutral-900/90 px-3 py-2 text-sm text-white shadow-xl ring-1 ring-white/10">
-      <div className="font-medium opacity-90">
-        {labelFormatter(label ?? "")}
-      </div>
+    <TooltipContainer>
+      <div className="font-medium opacity-90">{headerLabel}</div>
 
       <div className="mt-1 space-y-0.5">
         {items.map((item) => (
@@ -52,6 +55,6 @@ export default function LineGraphTooltip({
           </div>
         ))}
       </div>
-    </div>
+    </TooltipContainer>
   );
 }

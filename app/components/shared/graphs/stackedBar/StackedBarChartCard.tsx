@@ -23,6 +23,7 @@ type StackedBarChartCardProps = {
   labelFormatter?: (isoDate: string) => string;
   colorByName?: Record<string, string>;
   footer?: React.ReactNode;
+  tooltipValueFormatter?: (value: number) => string;
 };
 
 export default function StackedBarChartCard({
@@ -36,6 +37,7 @@ export default function StackedBarChartCard({
   labelFormatter,
   colorByName,
   footer,
+  tooltipValueFormatter,
 }: StackedBarChartCardProps) {
   const empty = isStackedSeriesEmpty(series);
 
@@ -65,6 +67,7 @@ export default function StackedBarChartCard({
           valueFormatter={valueFormatter}
           labelFormatter={labelFormatter}
           colorByName={resolvedColorMap}
+          tooltipValueFormatter={tooltipValueFormatter}
         />
       )}
     </ChartCard>

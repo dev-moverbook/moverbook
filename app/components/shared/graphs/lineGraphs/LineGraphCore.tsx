@@ -100,7 +100,6 @@ export default function LineGraphCore({
           content={(tp) => (
             <LineGraphTooltip
               {...tp}
-              labelFormatter={labelFormatter}
               valueFormatter={tooltipValueFormatter ?? valueFormatter}
             />
           )}

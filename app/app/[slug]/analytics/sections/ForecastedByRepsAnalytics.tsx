@@ -5,7 +5,10 @@ import { useSlugContext } from "@/app/contexts/SlugContext";
 import { QueryStatus } from "@/types/enums";
 import { useStackedForecastedRevenueByRep } from "@/app/hooks/queries/analytics/useStackedForecastedRevenueByRep";
 import StackedBarChartCard from "@/app/components/shared/graphs/stackedBar/StackedBarChartCard";
-import { formatCurrency } from "@/app/frontendUtils/helper";
+import {
+  formatCurrency,
+  formatCurrencyCompact,
+} from "@/app/frontendUtils/helper";
 import ChartCardSkeletonStatic from "@/app/components/shared/skeleton/ChartCardSkeleton";
 import { formatWeekdayShort } from "@/app/frontendUtils/luxonUtils";
 
@@ -39,8 +42,9 @@ const ForecastedByRepsAnalytics = ({
         <StackedBarChartCard
           title="Forecasted Revenue by Rep"
           series={result.data.series}
-          valueFormatter={(value) => formatCurrency(value)}
           labelFormatter={formatWeekdayShort}
+          valueFormatter={formatCurrencyCompact}
+          tooltipValueFormatter={formatCurrency}
         />
       );
       break;

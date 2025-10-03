@@ -363,3 +363,8 @@ export type PlotMargin = {
   left: number;
   bottom: number;
 };
+
+export type IdAndName = {
+  id: string;
+  name: string;
+};

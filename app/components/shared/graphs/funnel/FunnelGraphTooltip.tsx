@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import TooltipContainer from "../container/TooltipContainer";
 
 type PayloadEntry = {
   value?: number;
@@ -30,7 +31,7 @@ export default function FunnelGraphTooltip({
   const color = payload[0].color ?? "#fff";
 
   return (
-    <div className="rounded-xl bg-neutral-900/90 px-3 py-2 text-sm text-white shadow-xl ring-1 ring-white/10">
+    <TooltipContainer>
       <div className="font-medium opacity-90">{stageName}</div>
       <div className="mt-1 space-y-0.5">
         <div className="flex items-center gap-2">
@@ -42,6 +43,6 @@ export default function FunnelGraphTooltip({
           <span className="font-semibold">{value.toLocaleString()}</span>
         </div>
       </div>
-    </div>
+    </TooltipContainer>
   );
 }

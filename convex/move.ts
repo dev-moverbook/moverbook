@@ -59,7 +59,12 @@ import {
 import { ErrorMessages } from "@/types/errors";
 import { Doc, Id } from "./_generated/dataModel";
 import { generateJobId } from "./backendUtils/nano";
-import { FunnelPoint, HourStatus, MoverWageForMove } from "@/types/types";
+import {
+  FunnelPoint,
+  HourStatus,
+  IdAndName,
+  MoverWageForMove,
+} from "@/types/types";
 import {
   buildMoverWageForMoveDisplay,
   countByTimestamp,
@@ -966,17 +971,22 @@ export const getStackedForecastedRevenueByRep = query({
 
       const reps = await ctx.db
         .query("users")
-        .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
-        .filter(
-          (q) =>
-            q.eq(q.field("role"), ClerkRoles.SALES_REP) ||
-            q.eq(q.field("role"), ClerkRoles.ADMIN) ||
-            q.eq(q.field("role"), ClerkRoles.MANAGER)
+        .withIndex("by_companyId", (query) => query.eq("companyId", companyId))
+        .filter((query) =>
+          query.or(
+            query.eq(query.field("role"), ClerkRoles.SALES_REP),
+            query.eq(query.field("role"), ClerkRoles.ADMIN),
+            query.eq(query.field("role"), ClerkRoles.MANAGER)
+          )
         )
-        .filter((q) => q.eq(q.field("isActive"), true))
+        .filter((query) => query.eq(query.field("isActive"), true))
         .collect();
 
-      const repNames = reps.map((rep) => rep.name ?? UNKNOWN_NAME);
+      const repNames: IdAndName[] = reps.map((rep) => ({
+        id: rep._id as string,
+        name: rep.name ?? UNKNOWN_NAME,
+      }));
+
       const series = buildStackedForecastedRevenueSeriesByName(
         endDay,
         moves,
@@ -1036,7 +1046,11 @@ export const getStackedForecastedRevenueBySource = query({
         .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
         .filter((q) => q.eq(q.field("isActive"), true))
         .collect();
-      const sourceNames = sources.map((source) => source.name ?? UNKNOWN_NAME);
+
+      const sourceNames: IdAndName[] = sources.map((source) => ({
+        id: source._id as string,
+        name: source.name ?? UNKNOWN_NAME,
+      }));
 
       const series = buildStackedForecastedRevenueSeriesByName(
         endDay,
@@ -1094,17 +1108,22 @@ export const getStackedHistoricalRevenueByRep = query({
 
       const reps = await ctx.db
         .query("users")
-        .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
-        .filter(
-          (q) =>
-            q.eq(q.field("role"), ClerkRoles.SALES_REP) ||
-            q.eq(q.field("role"), ClerkRoles.ADMIN) ||
-            q.eq(q.field("role"), ClerkRoles.MANAGER)
+        .withIndex("by_companyId", (query) => query.eq("companyId", companyId))
+        .filter((query) =>
+          query.or(
+            query.eq(query.field("role"), ClerkRoles.SALES_REP),
+            query.eq(query.field("role"), ClerkRoles.ADMIN),
+            query.eq(query.field("role"), ClerkRoles.MANAGER)
+          )
         )
-        .filter((q) => q.eq(q.field("isActive"), true))
+        .filter((query) => query.eq(query.field("isActive"), true))
         .collect();
 
-      const repNames = reps.map((rep) => rep.name ?? UNKNOWN_NAME);
+      const repNames: IdAndName[] = reps.map((rep) => ({
+        id: rep._id as string,
+        name: rep.name ?? UNKNOWN_NAME,
+      }));
+
       const series = buildStackedHistoricalRevenueSeriesByName(
         endDay,
         moves,
@@ -1164,7 +1183,11 @@ export const getStackedHistoricalRevenueBySource = query({
         .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
         .filter((q) => q.eq(q.field("isActive"), true))
         .collect();
-      const sourceNames = sources.map((source) => source.name ?? UNKNOWN_NAME);
+
+      const sourceNames: IdAndName[] = sources.map((source) => ({
+        id: source._id as string,
+        name: source.name,
+      }));
 
       const series = buildStackedHistoricalRevenueSeriesByName(
         endDay,
