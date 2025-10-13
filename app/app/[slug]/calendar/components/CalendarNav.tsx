@@ -9,7 +9,10 @@ import MoverTags from "./MoverTags";
 
 const CalendarNav = () => {
   const { user } = useUser();
-  if (!user) return null;
+  if (!user) {
+    return null;
+  }
+
   const isMoverUser = isMover(user.publicMetadata.role as ClerkRoles);
 
   return (

@@ -1,13 +1,12 @@
-import { Id } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import { MutationCtx } from "../_generated/server";
-import { VariableSchema } from "@/types/convex-schemas";
 import { CommunicationType } from "@/types/types";
 
 export const checkExistingVariable = async (
   ctx: MutationCtx,
   companyId: Id<"companies">,
   name: string
-): Promise<VariableSchema | null> => {
+): Promise<Doc<"variables"> | null> => {
   return await ctx.db
     .query("variables")
     .filter((q) =>

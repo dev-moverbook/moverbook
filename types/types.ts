@@ -373,3 +373,11 @@ export type IdAndName = {
   id: string;
   name: string;
 };
+
+export type MoveItem = {
+  item: string;
+  room: string;
+  quantity: number;
+  weight: number;
+  size: number;
+};

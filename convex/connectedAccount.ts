@@ -9,7 +9,6 @@ import {
   internalQuery,
   query,
 } from "./_generated/server";
-import { ConnectedAccountSchema } from "@/types/convex-schemas";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import { ClerkRoles, ResponseStatus, StripeAccountStatus } from "@/types/enums";
 import { validateUser } from "./backendUtils/validate";
@@ -182,12 +181,13 @@ export const getStripeDashboardLink = action({
         true
       );
 
-      const existingAccount: ConnectedAccountSchema | null = await ctx.runQuery(
-        internal.connectedAccount.getConnectedAccountInternal,
-        {
-          customerId: user.customerId!,
-        }
-      );
+      const existingAccount: Doc<"connectedAccounts"> | null =
+        await ctx.runQuery(
+          internal.connectedAccount.getConnectedAccountInternal,
+          {
+            customerId: user.customerId!,
+          }
+        );
 
       if (!existingAccount || !existingAccount.stripeAccountId) {
         return {

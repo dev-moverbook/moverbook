@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Id } from "@/convex/_generated/dataModel";
-import { RoomSchema } from "@/types/convex-schemas";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import SectionContainer from "@/app/components/shared/SectionContainer";
 import CenteredContainer from "@/app/components/shared/CenteredContainer";
 import SectionHeader from "@/app/components/shared/SectionHeader";
@@ -17,7 +16,7 @@ import IconButton from "@/app/components/shared/IconButton";
 import { Pencil, Trash2, X } from "lucide-react";
 
 interface RoomSectionProps {
-  rooms: RoomSchema[];
+  rooms: Doc<"rooms">[];
   companyId: Id<"companies">;
 }
 
@@ -27,7 +26,7 @@ const RoomSection: React.FC<RoomSectionProps> = ({ rooms, companyId }) => {
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [isDeleteMode, setIsDeleteMode] = useState<boolean>(false);
 
-  const [selectedRoom, setSelectedRoom] = useState<RoomSchema | null>(null);
+  const [selectedRoom, setSelectedRoom] = useState<Doc<"rooms"> | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
   const [roomToDelete, setRoomToDelete] = useState<Id<"rooms"> | null>(null);
 
@@ -45,7 +44,7 @@ const RoomSection: React.FC<RoomSectionProps> = ({ rooms, companyId }) => {
     setCreateRoomError(null);
   };
 
-  const handleOpenEditModal = (room: RoomSchema): void => {
+  const handleOpenEditModal = (room: Doc<"rooms">): void => {
     setIsEditMode(true);
     setSelectedRoom(room);
     setIsModalOpen(true);

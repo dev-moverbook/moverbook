@@ -9,20 +9,15 @@ import { InvitationStatusConvex, UserRoleConvex } from "@/types/convex-enums";
 import { Doc, Id } from "./_generated/dataModel";
 import { ClerkRoles, InvitationStatus, ResponseStatus } from "@/types/enums";
 import { ErrorMessages } from "@/types/errors";
-import { InvitationSchema } from "@/types/convex-schemas";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import {
   isUserInOrg,
   validateCompany,
   validateInvitation,
 } from "./backendUtils/validate";
-import {
-  GetActiveInvitationsByCompanyIdResponse,
-  RevokeInviteUserResponse,
-} from "@/types/convex-responses";
+import { RevokeInviteUserResponse } from "@/types/convex-responses";
 import { internal } from "./_generated/api";
 import { revokeOrganizationInvitation } from "./backendUtils/clerk";
-import { handleInternalError } from "./backendUtils/helper";
 
 export const createInvitationInternal = internalMutation({
   args: {

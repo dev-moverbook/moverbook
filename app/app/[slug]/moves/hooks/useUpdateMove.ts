@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { TravelChargingTypes } from "@/types/enums";
-import { Id } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import { api } from "@/convex/_generated/api";
 import { LocationInput, MoveFeeInput, MoveItemInput } from "@/types/form-types";
 import {
@@ -13,8 +13,9 @@ import {
   JobType,
   PaymentMethod,
   SegmentDistance,
+  ArrivalTimes,
 } from "@/types/types";
-import { ArrivalTimes, InsurancePolicySchema } from "@/types/convex-schemas";
+
 import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
 export interface UpdateMoveInput {
@@ -32,7 +33,7 @@ export interface UpdateMoveInput {
     invoiceAmountPaid?: number;
     jobType?: JobType;
     jobTypeRate?: number | null;
-    liabilityCoverage?: InsurancePolicySchema | null;
+    liabilityCoverage?: Doc<"insurancePolicies"> | null;
     locations?: LocationInput[];
     moveDate?: string | null;
     moveFees?: MoveFeeInput[];

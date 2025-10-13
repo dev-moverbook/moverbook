@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { DiscountSchema } from "@/types/convex-schemas";
 import FieldGroup from "@/app/components/shared/FieldGroup";
 import FieldRow from "@/app/components/shared/FieldRow";
 import {
@@ -9,12 +8,13 @@ import {
 import FormActions from "@/app/components/shared/FormActions";
 import CurrencyInput from "@/app/components/shared/labeled/CurrencyInput";
 import ResponsiveModal from "@/app/components/shared/modal/ResponsiveModal";
+import { Doc } from "@/convex/_generated/dataModel";
 
 interface DiscountModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (discount: DiscountFormData) => void;
-  initialData?: DiscountSchema | null;
+  initialData?: Doc<"discounts"> | null;
   isLoading: boolean;
   errorMessage?: string | null;
 }

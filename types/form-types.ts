@@ -14,7 +14,8 @@ import {
   StopBehavior,
   TimeDistanceRange,
 } from "./types";
-import { ArrivalTimes } from "./convex-schemas";
+
+import { ArrivalTimes } from "./types";
 
 export interface ComplianceFormData {
   statePucPermitNumber: string;

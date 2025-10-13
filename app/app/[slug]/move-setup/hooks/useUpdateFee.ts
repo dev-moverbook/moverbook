@@ -26,7 +26,6 @@ export const useUpdateFee = () => {
 
     try {
       await updateFeeMutation({ feeId, updates });
-
       return true;
     } catch (error) {
       setErrorFromConvexError(error, setUpdateError);

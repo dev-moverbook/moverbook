@@ -1,7 +1,7 @@
 import React from "react";
 import CustomCard from "@/app/components/shared/CustomCard";
-import { MoveItem } from "@/types/convex-schemas";
 import CardHeaderWithActions from "@/app/components/shared/CardHeaderWithActions";
+import { MoveItem } from "@/types/types";
 
 interface RoomCardProps {
   room: string;

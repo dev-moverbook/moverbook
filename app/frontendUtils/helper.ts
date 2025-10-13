@@ -4,6 +4,7 @@ import {
   HourStatus,
   JobType,
   LocationType,
+  MoveItem,
   MoveSize,
   MoveStatus,
   MoveTimes,
@@ -16,7 +17,6 @@ import {
   StopBehavior,
 } from "@/types/types";
 import { DateTime, DateTimeOptions } from "luxon";
-import { MoveItem } from "@/types/convex-schemas";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { Doc } from "@/convex/_generated/dataModel";
 import { AddressInput, LocationInput } from "@/types/form-types";

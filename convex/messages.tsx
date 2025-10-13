@@ -9,13 +9,8 @@ import {
   validateMove,
   validateMoveCustomer,
 } from "./backendUtils/validate";
-import { MessageSchema } from "@/types/convex-schemas";
 import { handleInternalError } from "./backendUtils/helper";
-import {
-  CreateMessageResponse,
-  GetMessagesByMoveIdResponse,
-  GetRecentMessagesByCompanyIdResponse,
-} from "@/types/convex-responses";
+import { CreateMessageResponse } from "@/types/convex-responses";
 import { RecentMoveMessageSummary } from "@/types/types";
 import {
   CommunicationTypeConvex,

@@ -6,14 +6,14 @@ import CenteredContainer from "@/app/components/shared/CenteredContainer";
 import SectionHeader from "@/app/components/shared/SectionHeader";
 import FormActions from "@/app/components/shared/FormActions";
 import FieldGroup from "@/app/components/shared/FieldGroup";
-import { ArrivalWindowSchema } from "@/types/convex-schemas";
 import { ArrivalWindowFormData } from "@/types/form-types";
 import { useUpdateArrivalWindow } from "../hooks/useUpdateArrivalWindow";
 import TimeRangeFieldRow from "@/app/components/shared/TimeFieldRow";
 import FormActionContainer from "@/app/components/shared/containers/FormActionContainer";
+import { Doc } from "@/convex/_generated/dataModel";
 
 interface ArrivalWindowSectionProps {
-  arrivalWindow: ArrivalWindowSchema;
+  arrivalWindow: Doc<"arrivalWindow">;
 }
 
 const ArrivalWindowSection: React.FC<ArrivalWindowSectionProps> = ({
