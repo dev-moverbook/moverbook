@@ -70,7 +70,9 @@ const RoomSection: React.FC<RoomSectionProps> = ({ rooms, companyId }) => {
   };
 
   const handleConfirmDelete = async (): Promise<void> => {
-    if (!roomToDelete) return;
+    if (!roomToDelete) {
+      return;
+    }
 
     const success = await deleteRoom(roomToDelete);
     if (success) {

@@ -1,4 +1,3 @@
-// components/summary/modal/RejectHoursModal.tsx
 import React, { useState } from "react";
 import FieldGroup from "@/app/components/shared/FieldGroup";
 import FormActions from "@/app/components/shared/FormActions";

@@ -1,4 +1,3 @@
-// ./app/app/[slug]/moves/[moveId]/components/quote/QuoteLocation.tsx
 import React from "react";
 import CustomCard from "@/app/components/shared/CustomCard";
 import { Doc } from "@/convex/_generated/dataModel";

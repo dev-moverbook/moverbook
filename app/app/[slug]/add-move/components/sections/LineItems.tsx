@@ -16,7 +16,6 @@ const LineItems: React.FC = () => {
     moveFormData,
     moveFeeOptions,
     isLoading,
-    errorMessage,
     addMoveFee,
     updateMoveFee,
     deleteMoveFee,
@@ -92,7 +91,6 @@ const LineItems: React.FC = () => {
         onSubmit={handleSubmitFee}
         moveFeeOptions={moveFeeOptions}
         isLoading={isLoading}
-        errorMessage={errorMessage}
       />
       {moveFormData.moveFees.length > 0 && (
         <CardContainer>
