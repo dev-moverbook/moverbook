@@ -70,7 +70,9 @@ const InternalNotesSection = () => {
             label="Sales Rep"
             valueId={formData.salesRep}
             onChangeId={(id) => {
-              if (!id) return;
+              if (!id) {
+                return;
+              }
               setFormData((prev) => ({ ...prev, salesRep: id as Id<"users"> }));
             }}
             isEditing={isEditing}
