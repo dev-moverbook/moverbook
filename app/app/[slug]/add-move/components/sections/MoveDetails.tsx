@@ -1,4 +1,3 @@
-// app/app/[slug]/add-move/components/sections/MoveDetails.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -26,8 +25,6 @@ const MoveDetails = () => {
     setMoveFormErrors,
     arrivalWindowOptions,
     isLoading,
-    isError,
-    errorMessage,
     isMoveDetailsComplete,
   } = useMoveForm();
 
@@ -220,8 +217,6 @@ const MoveDetails = () => {
                 : null
             }
             isLoading={isLoading}
-            isError={isError}
-            error={errorMessage}
           />
         )}
       </SectionContainer>

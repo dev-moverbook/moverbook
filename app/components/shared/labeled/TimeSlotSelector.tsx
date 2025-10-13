@@ -14,10 +14,8 @@ interface TimeSlotSelectorProps {
   onChange: (value: string) => void;
   options: TimeSlotOption[] | null;
   isLoading: boolean;
-  isError: boolean;
   fetchErrorMessage?: string | null;
   isEditing?: boolean;
-  error?: string | null;
 }
 
 const TimeSlotSelector: React.FC<TimeSlotSelectorProps> = ({
@@ -25,10 +23,8 @@ const TimeSlotSelector: React.FC<TimeSlotSelectorProps> = ({
   onChange,
   options,
   isLoading,
-  isError,
   fetchErrorMessage,
   isEditing = true,
-  error,
 }) => {
   if (!isEditing) {
     const selectedLabel =
@@ -43,7 +39,7 @@ const TimeSlotSelector: React.FC<TimeSlotSelectorProps> = ({
     return <p className="text-sm text-gray-400">Loading time slots...</p>;
   }
 
-  if (isError || !options) {
+  if (!options) {
     return (
       <p className="text-sm text-red-500">
         {fetchErrorMessage || "Failed to load time slots."}
@@ -77,7 +73,6 @@ const TimeSlotSelector: React.FC<TimeSlotSelectorProps> = ({
           </Label>
         </div>
       ))}
-      <FieldErrorMessage error={error} />
     </RadioGroup>
   );
 };

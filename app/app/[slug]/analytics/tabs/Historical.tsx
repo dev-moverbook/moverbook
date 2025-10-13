@@ -1,11 +1,9 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-
 import SectionContainer from "@/app/components/shared/containers/SectionContainer";
 import AdaptiveSelect from "@/app/components/shared/select/AdaptiveSelect";
 import DateRangeFieldsBase from "@/app/components/shared/select/DateRangePanel";
-
 import {
   HISTORICAL_DAYS_BY_VALUE,
   HistoricalTimeValue,

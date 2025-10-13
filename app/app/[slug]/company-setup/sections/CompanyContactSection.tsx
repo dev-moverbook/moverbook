@@ -76,7 +76,6 @@ const CompanyContactSection: React.FC<CompanyContactSectionProps> = ({
     null
   );
 
-  // Address merge helper (no `unknown` casts, assumes AddressInput.lat/lng are number | null)
   const mergeAddress = (patch: Partial<AddressInput>) => {
     setFormData((prev) => {
       const prevAddr: AddressInput = (prev.address as AddressInput) ?? {
