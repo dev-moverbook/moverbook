@@ -13,7 +13,8 @@ interface CreateDiscountInput {
 }
 
 export const useCreateDiscount = () => {
-  const [createDiscountLoading, setCreateDiscountLoading] = useState(false);
+  const [createDiscountLoading, setCreateDiscountLoading] =
+    useState<boolean>(false);
   const [createDiscountError, setCreateDiscountError] = useState<string | null>(
     null
   );
@@ -25,8 +26,7 @@ export const useCreateDiscount = () => {
       setCreateDiscountLoading(true);
       setCreateDiscountError(null);
       try {
-        await createMutation(input);
-        return true;
+        return await createMutation(input);
       } catch (error) {
         setErrorFromConvexError(error, (msg) => setCreateDiscountError(msg));
         return false;

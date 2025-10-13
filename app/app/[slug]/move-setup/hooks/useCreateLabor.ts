@@ -31,9 +31,7 @@ export const useCreateLabor = () => {
     setCreateLaborError(null);
 
     try {
-      await createLaborMutation({ companyId, ...laborData });
-
-      return true;
+      return await createLaborMutation({ companyId, ...laborData });
     } catch (error) {
       setErrorFromConvexError(error, setCreateLaborError);
       return false;

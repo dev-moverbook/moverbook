@@ -21,9 +21,7 @@ export const useCreateFee = () => {
     setCreateError(null);
 
     try {
-      await createFeeMutation({ companyId, ...feeData });
-
-      return true;
+      return await createFeeMutation({ companyId, ...feeData });
     } catch (error) {
       setErrorFromConvexError(error, setCreateError);
       return false;

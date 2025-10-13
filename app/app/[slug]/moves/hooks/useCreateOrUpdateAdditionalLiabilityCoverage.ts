@@ -29,9 +29,7 @@ export const useCreateOrUpdateAdditionalLiabilityCoverage = () => {
     setError(null);
 
     try {
-      await mutationFn({ moveId, updates });
-
-      return true;
+      return await mutationFn({ moveId, updates });
     } catch (error) {
       setErrorFromConvexError(error, setError);
       return false;

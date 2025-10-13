@@ -416,10 +416,7 @@ export const updateMove = mutation({
     updates: UpdateMoveFields,
     effectiveAt: v.optional(v.number()), // optional override for backfills, imports, etc.
   },
-  handler: async (
-    ctx,
-    { moveId, updates, effectiveAt }
-  ): Promise<Id<"move">> => {
+  handler: async (ctx, { moveId, updates, effectiveAt }): Promise<boolean> => {
     const identity = await requireAuthenticatedUser(ctx, [
       ClerkRoles.ADMIN,
       ClerkRoles.APP_MODERATOR,
@@ -446,7 +443,7 @@ export const updateMove = mutation({
 
     await ctx.db.patch(moveId, { ...updates, ...statusPatch });
 
-    return moveId;
+    return true;
   },
 });
 export const getMovesForCalendar = query({

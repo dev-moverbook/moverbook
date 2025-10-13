@@ -32,9 +32,7 @@ export const useUpdatePolicy = () => {
     setUpdatePolicyError(null);
 
     try {
-      await updatePolicyMutation({ policyId, updates });
-
-      return true;
+      return await updatePolicyMutation({ policyId, updates });
     } catch (error) {
       setErrorFromConvexError(error, setUpdatePolicyError);
       return false;

@@ -5,7 +5,6 @@ import { requireAuthenticatedUser } from "./backendUtils/auth";
 import { validateCompany, validateTravelFee } from "./backendUtils/validate";
 import { isUserInOrg } from "./backendUtils/validate";
 import { TravelChargingTypesConvex } from "@/types/convex-enums";
-import { Id } from "./_generated/dataModel";
 
 export const updateTravelFee = mutation({
   args: {
@@ -16,7 +15,7 @@ export const updateTravelFee = mutation({
       defaultMethod: v.optional(v.union(v.null(), TravelChargingTypesConvex)),
     }),
   },
-  handler: async (ctx, args): Promise<Id<"travelFee">> => {
+  handler: async (ctx, args): Promise<boolean> => {
     const { travelFeeId, updates } = args;
 
     const identity = await requireAuthenticatedUser(ctx, [
@@ -32,6 +31,6 @@ export const updateTravelFee = mutation({
 
     await ctx.db.patch(travelFeeId, updates);
 
-    return travelFeeId;
+    return true;
   },
 });

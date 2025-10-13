@@ -63,7 +63,7 @@ export const createRoom = mutation({
     companyId: v.id("companies"),
     name: v.string(),
   },
-  handler: async (ctx, args): Promise<Id<"rooms">> => {
+  handler: async (ctx, args): Promise<boolean> => {
     const { companyId, name } = args;
 
     const identity = await requireAuthenticatedUser(ctx, [
@@ -77,14 +77,14 @@ export const createRoom = mutation({
 
     await validateUniqueRoomName(ctx, companyId, name);
 
-    const roomId = await ctx.db.insert("rooms", {
+    await ctx.db.insert("rooms", {
       companyId,
       name,
       isActive: true,
       isStarter: false,
     });
 
-    return roomId;
+    return true;
   },
 });
 
@@ -96,7 +96,7 @@ export const updateRoom = mutation({
       isActive: v.optional(v.boolean()),
     }),
   },
-  handler: async (ctx, args): Promise<Id<"rooms">> => {
+  handler: async (ctx, args): Promise<boolean> => {
     const { roomId, updates } = args;
 
     const identity = await requireAuthenticatedUser(ctx, [
@@ -116,7 +116,7 @@ export const updateRoom = mutation({
 
     await ctx.db.patch(roomId, updates);
 
-    return roomId;
+    return true;
   },
 });
 

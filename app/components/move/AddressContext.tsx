@@ -1,8 +1,7 @@
-// AddressContext.tsx
 import React, { createContext, useContext } from "react";
 
 export type AddressContextType = {
-  placeIds: string[]; // first = origin, last = destination, middle = stops
+  placeIds: string[];
 };
 
 const AddressContext = createContext<AddressContextType>({ placeIds: [] });

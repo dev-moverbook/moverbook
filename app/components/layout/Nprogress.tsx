@@ -14,10 +14,8 @@ export default function RouteChangeProgress() {
   useEffect(() => {
     NProgress.start();
 
-    // Stop progress bar after navigation completes
     NProgress.done();
 
-    // Cleanup on unmount
     return () => {
       NProgress.done();
     };

@@ -36,9 +36,7 @@ export const useCreateOrUpdateInvoice = () => {
     setInvoiceUpdateError(null);
 
     try {
-      await createOrUpdateMutation({ moveId, updates });
-
-      return true;
+      return await createOrUpdateMutation({ moveId, updates });
     } catch (error) {
       setErrorFromConvexError(error, setInvoiceUpdateError);
       return false;

@@ -1,12 +1,10 @@
-import { ClerkRoles, ResponseStatus } from "@/types/enums";
+import { ClerkRoles } from "@/types/enums";
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import { validateCompany, validatePolicy } from "./backendUtils/validate";
 import { isUserInOrg } from "./backendUtils/validate";
-import { handleInternalError } from "./backendUtils/helper";
-import { GetPolicyResponse } from "@/types/convex-responses";
-import { Doc, Id } from "./_generated/dataModel";
+import { Doc } from "./_generated/dataModel";
 
 export const updatePolicy = mutation({
   args: {
@@ -20,7 +18,7 @@ export const updatePolicy = mutation({
       additionalTermsAndConditions: v.optional(v.string()),
     }),
   },
-  handler: async (ctx, args): Promise<Id<"policies">> => {
+  handler: async (ctx, args): Promise<boolean> => {
     const { policyId, updates } = args;
 
     const identity = await requireAuthenticatedUser(ctx, [
@@ -36,7 +34,7 @@ export const updatePolicy = mutation({
 
     await ctx.db.patch(policyId, updates);
 
-    return policyId;
+    return true;
   },
 });
 

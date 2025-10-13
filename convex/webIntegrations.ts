@@ -7,7 +7,6 @@ import {
   isUserInOrg,
   validateWebIntegrations,
 } from "./backendUtils/validate";
-import { Id } from "./_generated/dataModel";
 
 export const updateWebIntegrations = mutation({
   args: {
@@ -18,7 +17,7 @@ export const updateWebIntegrations = mutation({
       externalReviewUrl: v.optional(v.string()),
     }),
   },
-  handler: async (ctx, args): Promise<Id<"webIntegrations">> => {
+  handler: async (ctx, args): Promise<boolean> => {
     const { webIntegrationsId, updates } = args;
 
     const identity = await requireAuthenticatedUser(ctx, [
@@ -39,6 +38,6 @@ export const updateWebIntegrations = mutation({
 
     await ctx.db.patch(webIntegrations._id, updates);
 
-    return webIntegrations._id;
+    return true;
   },
 });

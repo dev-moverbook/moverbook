@@ -29,12 +29,10 @@ export const useUpdateCreditCardFee = () => {
     setUpdateCreditCardFeeError(null);
 
     try {
-      await updateCreditCardFeeMutation({
+      return await updateCreditCardFeeMutation({
         creditCardFeeId,
         updates,
       });
-
-      return true;
     } catch (error) {
       setErrorFromConvexError(error, setUpdateCreditCardFeeError);
       return false;

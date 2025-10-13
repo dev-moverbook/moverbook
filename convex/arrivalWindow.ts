@@ -9,7 +9,7 @@ import {
   validatePolicy,
 } from "./backendUtils/validate";
 import { GetCompanyArrivalAndPoliciesData } from "@/types/convex-responses";
-import { Doc, Id } from "./_generated/dataModel";
+import { Doc } from "./_generated/dataModel";
 
 export const getCompanyArrivalAndPolicies = query({
   args: { companyId: v.id("companies") },
@@ -81,7 +81,7 @@ export const updateArrivalWindow = mutation({
       afternoonEnd: v.optional(v.string()),
     }),
   },
-  handler: async (ctx, args): Promise<Id<"arrivalWindow">> => {
+  handler: async (ctx, args): Promise<boolean> => {
     const { arrivalWindowId, updates } = args;
 
     const identity = await requireAuthenticatedUser(ctx, [
@@ -99,6 +99,6 @@ export const updateArrivalWindow = mutation({
 
     await ctx.db.patch(arrivalWindowId, updates);
 
-    return arrivalWindowId;
+    return true;
   },
 });

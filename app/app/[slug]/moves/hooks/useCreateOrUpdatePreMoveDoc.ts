@@ -29,9 +29,7 @@ export const useCreateOrUpdatePreMoveDoc = () => {
     setCreateOrUpdatePreMoveDocError(null);
 
     try {
-      await mutationFn({ moveId, updates });
-
-      return true;
+      return await mutationFn({ moveId, updates });
     } catch (error) {
       setErrorFromConvexError(error, setCreateOrUpdatePreMoveDocError);
       return false;

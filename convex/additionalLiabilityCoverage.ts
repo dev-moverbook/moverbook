@@ -19,7 +19,7 @@ export const createOrUpdateAdditionalLiabilityCoverage = mutation({
       repSignedAt: v.optional(v.number()),
     }),
   },
-  handler: async (ctx, args): Promise<Id<"additionalLiabilityCoverage">> => {
+  handler: async (ctx, args): Promise<boolean> => {
     const { moveId } = args;
     const updates = { ...args.updates };
 
@@ -65,6 +65,6 @@ export const createOrUpdateAdditionalLiabilityCoverage = mutation({
       );
     }
 
-    return additionalLiabilityCoverageId;
+    return true;
   },
 });

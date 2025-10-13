@@ -12,7 +12,7 @@ export const createFee = mutation({
     name: v.string(),
     price: v.number(),
   },
-  handler: async (ctx, args): Promise<Id<"fees">> => {
+  handler: async (ctx, args): Promise<boolean> => {
     const { companyId, name, price } = args;
 
     const identity = await requireAuthenticatedUser(ctx, [
@@ -24,14 +24,14 @@ export const createFee = mutation({
     const company = validateCompany(await ctx.db.get(companyId));
     isUserInOrg(identity, company.clerkOrganizationId);
 
-    const feeId = await ctx.db.insert("fees", {
+    await ctx.db.insert("fees", {
       companyId,
       name,
       price,
       isActive: true,
     });
 
-    return feeId;
+    return true;
   },
 });
 

@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { ResponseStatus } from "@/types/enums";
-import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
+import { setErrorFromConvexError } from "../frontendUtils/errorHelper";
 
 export const useRevokeInvite = () => {
   const [revokeLoading, setRevokeLoading] = useState<boolean>(false);
@@ -18,17 +17,9 @@ export const useRevokeInvite = () => {
     setRevokeError(null);
 
     try {
-      const response = await clerkRevokeInviteUser({ invitationId });
-
-      if (response.status === ResponseStatus.SUCCESS) {
-        return true;
-      } else {
-        setRevokeError(response.error);
-        return false;
-      }
+      return await clerkRevokeInviteUser({ invitationId });
     } catch (error) {
-      console.error(error);
-      setRevokeError(FrontEndErrorMessages.GENERIC);
+      setErrorFromConvexError(error, setRevokeError);
       return false;
     } finally {
       setRevokeLoading(false);

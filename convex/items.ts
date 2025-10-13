@@ -10,7 +10,6 @@ import {
 import {
   GetItemsAndCategoriesAndRoomsByCompanyData,
   GetItemsByCategoryResponse,
-  GetItemsByCompanyResponse,
 } from "@/types/convex-responses";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import { handleInternalError } from "./backendUtils/helper";
@@ -92,8 +91,8 @@ export const createItem = mutation({
     isPopular: v.optional(v.boolean()),
     weight: v.number(),
   },
-  handler: async (ctx, args): Promise<Id<"items">> => {
-    const { companyId, categoryId, name, size, isPopular, weight } = args;
+  handler: async (ctx, args): Promise<boolean> => {
+    const { companyId, categoryId, name, size, weight } = args;
 
     const identity = await requireAuthenticatedUser(ctx, [
       ClerkRoles.ADMIN,
@@ -108,7 +107,7 @@ export const createItem = mutation({
       validateCategory(await ctx.db.get(categoryId));
     }
 
-    const itemId = await ctx.db.insert("items", {
+    await ctx.db.insert("items", {
       companyId,
       categoryId,
       name,
@@ -119,7 +118,7 @@ export const createItem = mutation({
       weight,
     });
 
-    return itemId;
+    return true;
   },
 });
 

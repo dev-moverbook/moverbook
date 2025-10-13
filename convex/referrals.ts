@@ -46,7 +46,7 @@ export const createReferral = mutation({
     companyId: v.id("companies"),
     name: v.string(),
   },
-  handler: async (ctx, args): Promise<Id<"referrals">> => {
+  handler: async (ctx, args): Promise<boolean> => {
     const { companyId, name } = args;
 
     const identity = await requireAuthenticatedUser(ctx, [
@@ -61,13 +61,13 @@ export const createReferral = mutation({
     const validatedCompany = validateCompany(company);
     isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
-    const referralId = await ctx.db.insert("referrals", {
+    await ctx.db.insert("referrals", {
       companyId,
       name,
       isActive: true,
     });
 
-    return referralId;
+    return true;
   },
 });
 

@@ -29,36 +29,31 @@ export const saveConnectedAccount = internalMutation({
     status: StripeAccountStatusConvex,
   },
   handler: async (ctx, args): Promise<Id<"connectedAccounts">> => {
-    try {
-      const existingAccount = await ctx.db
-        .query("connectedAccounts")
-        .withIndex("by_stripeAccountId", (q) =>
-          q.eq("stripeAccountId", args.stripeAccountId)
-        )
-        .first();
+    const existingAccount = await ctx.db
+      .query("connectedAccounts")
+      .withIndex("by_stripeAccountId", (q) =>
+        q.eq("stripeAccountId", args.stripeAccountId)
+      )
+      .first();
 
-      let connectedAccountId: Id<"connectedAccounts">;
-      if (existingAccount) {
-        await ctx.db.patch(existingAccount._id, {
-          customerId: args.customerId,
-          status: args.status,
-          lastStripeUpdate: Date.now(),
-        });
-        connectedAccountId = existingAccount._id;
-      } else {
-        connectedAccountId = await ctx.db.insert("connectedAccounts", {
-          customerId: args.customerId,
-          stripeAccountId: args.stripeAccountId,
-          status: args.status,
-          lastStripeUpdate: Date.now(),
-        });
-      }
-
-      return existingAccount?._id || connectedAccountId;
-    } catch (error) {
-      console.error(error);
-      throw new Error(ErrorMessages.STRIPE_CONNECTED_DB_CREATE);
+    let connectedAccountId: Id<"connectedAccounts">;
+    if (existingAccount) {
+      await ctx.db.patch(existingAccount._id, {
+        customerId: args.customerId,
+        status: args.status,
+        lastStripeUpdate: Date.now(),
+      });
+      connectedAccountId = existingAccount._id;
+    } else {
+      connectedAccountId = await ctx.db.insert("connectedAccounts", {
+        customerId: args.customerId,
+        stripeAccountId: args.stripeAccountId,
+        status: args.status,
+        lastStripeUpdate: Date.now(),
+      });
     }
+
+    return existingAccount?._id || connectedAccountId;
   },
 });
 

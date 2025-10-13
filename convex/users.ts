@@ -1,4 +1,3 @@
-import { ErrorMessages } from "@/types/errors";
 import { v } from "convex/values";
 import {
   action,
@@ -20,8 +19,6 @@ import { internal } from "./_generated/api";
 import {
   GetMoversByCompanyIdResponse,
   GetSalesRepsAndReferralByCompanyIdData,
-  UpdateUserActiveStatusResponse,
-  UpdateUserResponse,
 } from "@/types/convex-responses";
 import {
   updateOrganizationMembershipHelper,
@@ -163,7 +160,7 @@ export const updateUserActiveStatus = mutation({
     userId: v.id("users"),
     isActive: v.boolean(),
   },
-  handler: async (ctx, args): Promise<Id<"users">> => {
+  handler: async (ctx, args): Promise<boolean> => {
     const { userId, isActive } = args;
     await requireAuthenticatedUser(ctx, [
       ClerkRoles.ADMIN,
@@ -176,7 +173,7 @@ export const updateUserActiveStatus = mutation({
 
     await ctx.db.patch(validatedUser._id, { isActive });
 
-    return validatedUser._id;
+    return true;
   },
 });
 
@@ -190,7 +187,7 @@ export const updateUser = action({
       role: v.optional(UserRoleConvex),
     }),
   },
-  handler: async (ctx, args): Promise<Id<"users">> => {
+  handler: async (ctx, args): Promise<boolean> => {
     const { userId, updates } = args;
 
     const identity = await requireAuthenticatedUser(ctx, [
@@ -229,7 +226,7 @@ export const updateUser = action({
       );
     }
 
-    return userId;
+    return true;
   },
 });
 

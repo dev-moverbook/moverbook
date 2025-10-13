@@ -21,8 +21,7 @@ export const useUpdateLabor = () => {
     setUpdateLaborError(null);
 
     try {
-      await updateLaborMutation({ laborId, updates });
-      return true;
+      return await updateLaborMutation({ laborId, updates });
     } catch (error) {
       setErrorFromConvexError(error, setUpdateLaborError);
       return false;

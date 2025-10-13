@@ -32,9 +32,7 @@ export const useCreateOrUpdateQuote = () => {
     setQuoteUpdateError(null);
 
     try {
-      await createOrUpdateMutation({ moveId, updates });
-
-      return true;
+      return await createOrUpdateMutation({ moveId, updates });
     } catch (error) {
       setErrorFromConvexError(error, setQuoteUpdateError);
       return false;

@@ -24,9 +24,7 @@ export const useUpdateRoom = () => {
     setUpdateRoomError(null);
 
     try {
-      await updateRoomMutation({ roomId, updates });
-
-      return true;
+      return await updateRoomMutation({ roomId, updates });
     } catch (error) {
       setErrorFromConvexError(error, setUpdateRoomError);
       return false;

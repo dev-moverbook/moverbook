@@ -32,7 +32,7 @@ export const useUpdateInsurancePolicy = () => {
     setUpdateInsurancePolicyError(null);
 
     try {
-      await updateInsurancePolicyMutation({
+      return await updateInsurancePolicyMutation({
         insurancePolicyId,
         updates: {
           coverageType: updates.coverageType ?? undefined,
@@ -41,8 +41,6 @@ export const useUpdateInsurancePolicy = () => {
           premium: updates.premium ?? undefined,
         },
       });
-
-      return true;
     } catch (error) {
       setErrorFromConvexError(error, setUpdateInsurancePolicyError);
       return false;

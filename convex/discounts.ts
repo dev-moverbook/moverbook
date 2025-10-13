@@ -16,7 +16,7 @@ export const createDiscount = mutation({
     name: v.string(),
     price: v.number(),
   },
-  handler: async (ctx, args): Promise<Id<"discounts">> => {
+  handler: async (ctx, args): Promise<boolean> => {
     const { moveId, name, price } = args;
 
     const identity = await requireAuthenticatedUser(ctx, [
@@ -38,7 +38,7 @@ export const createDiscount = mutation({
       isActive: true,
     });
 
-    return discountId;
+    return true;
   },
 });
 
@@ -51,7 +51,7 @@ export const updateDiscount = mutation({
       isActive: v.optional(v.boolean()),
     }),
   },
-  handler: async (ctx, args): Promise<Id<"discounts">> => {
+  handler: async (ctx, args): Promise<boolean> => {
     const { discountId, updates } = args;
 
     const identity = await requireAuthenticatedUser(ctx, [
@@ -69,6 +69,6 @@ export const updateDiscount = mutation({
 
     await ctx.db.patch(discountId, updates);
 
-    return discountId;
+    return true;
   },
 });

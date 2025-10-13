@@ -15,9 +15,7 @@ export const useDeleteScript = () => {
     setDeleteError(null);
 
     try {
-      await deleteScriptMutation({ scriptId });
-
-      return true;
+      return await deleteScriptMutation({ scriptId });
     } catch (error) {
       setErrorFromConvexError(error, setDeleteError);
       return false;

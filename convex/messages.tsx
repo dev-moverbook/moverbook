@@ -226,24 +226,19 @@ export const internalCreateMessage = internalMutation({
       subject,
     } = args;
 
-    try {
-      const messageId = await ctx.db.insert("messages", {
-        moveId,
-        companyId,
-        method,
-        status,
-        message,
-        resolvedMessage,
-        sid,
-        sentType,
-        resolvedSubject,
-        subject,
-      });
+    const messageId = await ctx.db.insert("messages", {
+      moveId,
+      companyId,
+      method,
+      status,
+      message,
+      resolvedMessage,
+      sid,
+      sentType,
+      resolvedSubject,
+      subject,
+    });
 
-      return messageId;
-    } catch (error) {
-      console.error("Failed to create message:", error);
-      throw new Error(ErrorMessages.MESSAGE_DB_CREATE);
-    }
+    return messageId;
   },
 });

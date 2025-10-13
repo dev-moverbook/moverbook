@@ -23,7 +23,7 @@ export const createOrUpdateQuote = mutation({
       status: v.optional(QuoteStatusConvex),
     }),
   },
-  handler: async (ctx, args): Promise<Id<"quotes">> => {
+  handler: async (ctx, args): Promise<boolean> => {
     const { moveId } = args;
     const updates = { ...args.updates };
 
@@ -66,7 +66,7 @@ export const createOrUpdateQuote = mutation({
         });
       }
 
-      quoteId = await ctx.db.insert("quotes", {
+      await ctx.db.insert("quotes", {
         moveId,
         customerSignature: updates.customerSignature,
         customerSignedAt: updates.customerSignedAt,
@@ -76,6 +76,6 @@ export const createOrUpdateQuote = mutation({
       });
     }
 
-    return quoteId;
+    return true;
   },
 });

@@ -34,8 +34,7 @@ export const useApproveMoveAssignmentHours = () => {
       setApproveAssignmentLoading(true);
       setApproveAssignmentError(null);
       try {
-        await approveMutation({ assignmentId, updates });
-        return true;
+        return await approveMutation({ assignmentId, updates });
       } catch (error) {
         setErrorFromConvexError(error, (msg) => setApproveAssignmentError(msg));
         return false;

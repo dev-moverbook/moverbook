@@ -30,9 +30,7 @@ export const useUpdateAdditionalFee = () => {
     setUpdateFeeError(null);
 
     try {
-      await updateMutation(input);
-
-      return true;
+      return await updateMutation(input);
     } catch (error) {
       setErrorFromConvexError(error, setUpdateFeeError);
       return false;

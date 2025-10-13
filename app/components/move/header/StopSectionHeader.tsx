@@ -19,7 +19,6 @@ const StopSectionHeader: React.FC<StopSectionHeaderProps> = ({
   return (
     <SectionContainer className="pt-0 pb-6 px-0">
       <div className="flex items-center justify-between flex-wrap ">
-        {/* Left side: Title */}
         <Header3
           showCheckmark={false}
           className="pt-0 px-0"

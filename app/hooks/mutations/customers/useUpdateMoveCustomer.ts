@@ -31,8 +31,7 @@ export const useUpdateMoveCustomer = () => {
     setError(null);
 
     try {
-      await updateMoveCustomerMutation(data);
-      return true;
+      return await updateMoveCustomerMutation(data);
     } catch (error) {
       setErrorFromConvexError(error, setError);
       return false;

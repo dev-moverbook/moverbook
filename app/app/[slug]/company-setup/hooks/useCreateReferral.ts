@@ -18,9 +18,7 @@ export const useCreateReferral = () => {
     setCreateError(null);
 
     try {
-      await createReferralMutation({ companyId, name });
-
-      return true;
+      return await createReferralMutation({ companyId, name });
     } catch (error) {
       setErrorFromConvexError(error, setCreateError);
       return false;

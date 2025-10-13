@@ -26,9 +26,7 @@ export const useUpdateScript = () => {
     setUpdateError(null);
 
     try {
-      await updateScriptMutation({ scriptId, updates });
-
-      return true;
+      return await updateScriptMutation({ scriptId, updates });
     } catch (error) {
       console.error(error);
       setUpdateError(FrontEndErrorMessages.GENERIC);

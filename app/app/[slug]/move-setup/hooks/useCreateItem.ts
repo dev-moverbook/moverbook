@@ -27,13 +27,11 @@ export const useCreateItem = () => {
     setCreateItemError(null);
 
     try {
-      await createItemMutation({
+      return await createItemMutation({
         companyId,
         ...itemData,
         categoryId,
       });
-
-      return true;
     } catch (error) {
       setErrorFromConvexError(error, setCreateItemError);
       return false;

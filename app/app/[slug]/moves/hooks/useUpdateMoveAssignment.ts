@@ -37,9 +37,7 @@ export const useUpdateMoveAssignment = () => {
     setAssignmentUpdateError(null);
 
     try {
-      await updateMutation({ assignmentId, updates });
-
-      return true;
+      return await updateMutation({ assignmentId, updates });
     } catch (error) {
       setErrorFromConvexError(error, setAssignmentUpdateError);
       return false;

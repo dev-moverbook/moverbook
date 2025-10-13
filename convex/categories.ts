@@ -7,7 +7,6 @@ import {
   validateCompany,
 } from "./backendUtils/validate";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
-import { Id } from "./_generated/dataModel";
 
 export const updateCategory = mutation({
   args: {
@@ -17,7 +16,7 @@ export const updateCategory = mutation({
       isActive: v.optional(v.boolean()),
     }),
   },
-  handler: async (ctx, args): Promise<Id<"categories">> => {
+  handler: async (ctx, args): Promise<boolean> => {
     const { categoryId, updates } = args;
 
     const identity = await requireAuthenticatedUser(ctx, [
@@ -33,7 +32,7 @@ export const updateCategory = mutation({
 
     await ctx.db.patch(categoryId, updates);
 
-    return categoryId;
+    return true;
   },
 });
 
@@ -43,7 +42,7 @@ export const createCategory = mutation({
     name: v.string(),
     parentCategory: v.optional(v.id("categories")),
   },
-  handler: async (ctx, args): Promise<Id<"categories">> => {
+  handler: async (ctx, args): Promise<boolean> => {
     const { companyId, name, parentCategory } = args;
 
     const identity = await requireAuthenticatedUser(ctx, [
@@ -59,7 +58,7 @@ export const createCategory = mutation({
       validateCategory(await ctx.db.get(parentCategory));
     }
 
-    const categoryId = await ctx.db.insert("categories", {
+    await ctx.db.insert("categories", {
       companyId,
       name,
       parentCategory,
@@ -67,6 +66,6 @@ export const createCategory = mutation({
       isStarter: false,
     });
 
-    return categoryId;
+    return true;
   },
 });

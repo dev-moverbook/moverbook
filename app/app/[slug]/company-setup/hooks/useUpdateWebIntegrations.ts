@@ -29,12 +29,10 @@ export const useUpdateWebIntegrations = () => {
     setUpdateWebIntegrationsError(null);
 
     try {
-      await updateWebIntegrationsMutation({
+      return await updateWebIntegrationsMutation({
         webIntegrationsId,
         updates,
       });
-
-      return true;
     } catch (error) {
       console.error(error);
       setUpdateWebIntegrationsError(FrontEndErrorMessages.GENERIC);

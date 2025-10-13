@@ -27,14 +27,11 @@ export const useUpdateCompliance = () => {
     setUpdateComplianceError(null);
 
     try {
-      await updateComplianceMutation({
+      return await updateComplianceMutation({
         complianceId,
         updates,
       });
-
-      return true;
     } catch (error) {
-      console.error(error);
       setUpdateComplianceError(FrontEndErrorMessages.GENERIC);
       return false;
     } finally {

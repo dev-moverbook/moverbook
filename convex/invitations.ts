@@ -4,10 +4,10 @@ import {
   internalQuery,
   query,
 } from "./_generated/server";
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import { InvitationStatusConvex, UserRoleConvex } from "@/types/convex-enums";
 import { Doc, Id } from "./_generated/dataModel";
-import { ClerkRoles, InvitationStatus, ResponseStatus } from "@/types/enums";
+import { ClerkRoles, InvitationStatus } from "@/types/enums";
 import { ErrorMessages } from "@/types/errors";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import {
@@ -15,7 +15,6 @@ import {
   validateCompany,
   validateInvitation,
 } from "./backendUtils/validate";
-import { RevokeInviteUserResponse } from "@/types/convex-responses";
 import { internal } from "./_generated/api";
 import { revokeOrganizationInvitation } from "./backendUtils/clerk";
 
@@ -73,7 +72,10 @@ export const updateInvitationByClerkId = internalMutation({
       .first();
 
     if (!invitation) {
-      throw new Error(ErrorMessages.INVITATION_NOT_FOUND);
+      throw new ConvexError({
+        code: "NOT_FOUND",
+        message: ErrorMessages.INVITATION_NOT_FOUND,
+      });
     }
 
     await ctx.db.patch(invitation._id, { status: args.status });
@@ -114,51 +116,37 @@ export const revokeInviteUser = action({
   args: {
     invitationId: v.id("invitations"),
   },
-  handler: async (ctx, args): Promise<RevokeInviteUserResponse> => {
+  handler: async (ctx, args): Promise<boolean> => {
     const { invitationId } = args;
 
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-      ]);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+    ]);
 
-      const invitation = await ctx.runQuery(
-        internal.invitations.getInvitationById,
-        { invitationId }
-      );
-      const validatedInvitation = validateInvitation(invitation);
+    const invitation = await ctx.runQuery(
+      internal.invitations.getInvitationById,
+      { invitationId }
+    );
+    const validatedInvitation = validateInvitation(invitation);
 
-      isUserInOrg(identity, validatedInvitation.clerkOrganizationId);
-      await revokeOrganizationInvitation(
+    isUserInOrg(identity, validatedInvitation.clerkOrganizationId);
+    await revokeOrganizationInvitation(
+      validatedInvitation.clerkOrganizationId,
+      validatedInvitation.clerkInvitationId
+    );
+    await Promise.all([
+      revokeOrganizationInvitation(
         validatedInvitation.clerkOrganizationId,
         validatedInvitation.clerkInvitationId
-      );
-      await Promise.all([
-        revokeOrganizationInvitation(
-          validatedInvitation.clerkOrganizationId,
-          validatedInvitation.clerkInvitationId
-        ),
-        ctx.runMutation(internal.invitations.updateInvitationByClerkId, {
-          clerkInvitationId: validatedInvitation.clerkInvitationId,
-          status: InvitationStatus.REVOKED,
-        }),
-      ]);
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { invitationId },
-      };
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
-      console.error(errorMessage, error);
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error: errorMessage,
-      };
-    }
+      ),
+      ctx.runMutation(internal.invitations.updateInvitationByClerkId, {
+        clerkInvitationId: validatedInvitation.clerkInvitationId,
+        status: InvitationStatus.REVOKED,
+      }),
+    ]);
+    return true;
   },
 });
 

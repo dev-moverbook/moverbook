@@ -18,7 +18,7 @@ export const createAdditionalFee = mutation({
     quantity: v.number(),
     feeId: v.optional(v.id("fees")),
   },
-  handler: async (ctx, args): Promise<Id<"additionalFees">> => {
+  handler: async (ctx, args): Promise<boolean> => {
     const { moveId, name, price, quantity, feeId } = args;
 
     const identity = await requireAuthenticatedUser(ctx, [
@@ -33,7 +33,7 @@ export const createAdditionalFee = mutation({
     const company = validateCompany(await ctx.db.get(move.companyId));
     isUserInOrg(identity, company.clerkOrganizationId);
 
-    const additionalFeeId = await ctx.db.insert("additionalFees", {
+    await ctx.db.insert("additionalFees", {
       moveId,
       name,
       price,
@@ -42,7 +42,7 @@ export const createAdditionalFee = mutation({
       isActive: true,
     });
 
-    return additionalFeeId;
+    return true;
   },
 });
 
@@ -57,7 +57,7 @@ export const updateAdditionalFee = mutation({
       isActive: v.optional(v.boolean()),
     }),
   },
-  handler: async (ctx, args): Promise<Id<"additionalFees">> => {
+  handler: async (ctx, args): Promise<boolean> => {
     const { additionalFeeId, updates } = args;
 
     const identity = await requireAuthenticatedUser(ctx, [
@@ -76,6 +76,6 @@ export const updateAdditionalFee = mutation({
 
     await ctx.db.patch(additionalFeeId, updates);
 
-    return additionalFeeId;
+    return true;
   },
 });

@@ -13,8 +13,7 @@ export const useDeleteUser = () => {
     setLoading(true);
     setError(null);
     try {
-      await deleteUserMutation({ userId: id, isActive: false });
-      return true;
+      return await deleteUserMutation({ userId: id, isActive: false });
     } catch (error) {
       setErrorFromConvexError(error, setError);
       return false;

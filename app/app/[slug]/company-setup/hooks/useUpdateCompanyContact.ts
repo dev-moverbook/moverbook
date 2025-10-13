@@ -31,12 +31,10 @@ export const useUpdateCompanyContact = () => {
     setUpdateCompanyContactError(null);
 
     try {
-      await updateCompanyContactMutation({
+      return await updateCompanyContactMutation({
         companyContactId,
         updates,
       });
-
-      return true;
     } catch (error) {
       console.error(error);
       setUpdateCompanyContactError(FrontEndErrorMessages.GENERIC);

@@ -26,15 +26,13 @@ export const useCreateInsurancePolicy = () => {
     setCreateInsurancePolicyError(null);
 
     try {
-      await createInsurancePolicyMutation({
+      return await createInsurancePolicyMutation({
         companyId,
         name: policy.name,
         coverageType: policy.coverageType!,
         coverageAmount: policy.coverageAmount!,
         premium: policy.premium!,
       });
-
-      return true;
     } catch (error) {
       setErrorFromConvexError(error, setCreateInsurancePolicyError);
       return false;

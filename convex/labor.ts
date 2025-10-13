@@ -11,7 +11,7 @@ import {
 } from "./backendUtils/validate";
 import { isUserInOrg } from "./backendUtils/validate";
 import { GetCompanyRatesData } from "@/types/convex-responses";
-import { Doc, Id } from "./_generated/dataModel";
+import { Doc } from "./_generated/dataModel";
 
 export const createLabor = mutation({
   args: {
@@ -25,7 +25,7 @@ export const createLabor = mutation({
     fourMovers: v.number(),
     extra: v.number(),
   },
-  handler: async (ctx, args): Promise<Id<"labor">> => {
+  handler: async (ctx, args): Promise<boolean> => {
     const {
       companyId,
       name,
@@ -49,7 +49,7 @@ export const createLabor = mutation({
 
     validateLaborDateOverlap(ctx, companyId, startDate, endDate);
 
-    const laborId = await ctx.db.insert("labor", {
+    await ctx.db.insert("labor", {
       companyId,
       name,
       isDefault: isDefault ?? false,
@@ -62,7 +62,7 @@ export const createLabor = mutation({
       isActive: true,
     });
 
-    return laborId;
+    return true;
   },
 });
 
@@ -81,7 +81,7 @@ export const updateLabor = mutation({
       isActive: v.optional(v.boolean()),
     }),
   },
-  handler: async (ctx, args): Promise<Id<"labor">> => {
+  handler: async (ctx, args): Promise<boolean> => {
     const { laborId, updates } = args;
 
     const identity = await requireAuthenticatedUser(ctx, [
@@ -104,7 +104,7 @@ export const updateLabor = mutation({
 
     await ctx.db.patch(laborId, updates);
 
-    return laborId;
+    return true;
   },
 });
 

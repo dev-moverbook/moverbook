@@ -1,4 +1,3 @@
-// CustomerForm.tsx
 import React from "react";
 import LabeledInput from "@/app/components/shared/labeled/LabeledInput";
 import PhoneNumberInput from "@/app/components/shared/labeled/PhoneNumberInput";

@@ -32,12 +32,10 @@ export const useUpdateArrivalWindow = () => {
     setUpdateArrivalWindowError(null);
 
     try {
-      await updateArrivalWindowMutation({
+      return await updateArrivalWindowMutation({
         arrivalWindowId,
         updates,
       });
-
-      return true;
     } catch (error) {
       setErrorFromConvexError(error, setUpdateArrivalWindowError);
       return false;

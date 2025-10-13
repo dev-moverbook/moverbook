@@ -7,7 +7,6 @@ import {
   validateCreditCardFee,
 } from "./backendUtils/validate";
 import { isUserInOrg } from "./backendUtils/validate";
-import { Id } from "./_generated/dataModel";
 
 export const updateCreditCardFee = mutation({
   args: {
@@ -16,7 +15,7 @@ export const updateCreditCardFee = mutation({
       rate: v.optional(v.number()),
     }),
   },
-  handler: async (ctx, args): Promise<Id<"creditCardFees">> => {
+  handler: async (ctx, args): Promise<boolean> => {
     const { creditCardFeeId, updates } = args;
 
     const identity = await requireAuthenticatedUser(ctx, [
@@ -34,6 +33,6 @@ export const updateCreditCardFee = mutation({
 
     await ctx.db.patch(creditCardFeeId, updates);
 
-    return creditCardFeeId;
+    return true;
   },
 });

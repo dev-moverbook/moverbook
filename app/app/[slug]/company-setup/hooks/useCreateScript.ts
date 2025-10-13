@@ -33,9 +33,7 @@ export const useCreateScript = () => {
         return false;
       }
 
-      await createScriptMutation(data);
-
-      return true;
+      return await createScriptMutation(data);
     } catch (error) {
       setErrorFromConvexError(error, setCreateError);
       return false;

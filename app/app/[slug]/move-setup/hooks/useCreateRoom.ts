@@ -21,9 +21,7 @@ export const useCreateRoom = () => {
     setCreateRoomError(null);
 
     try {
-      await createRoomMutation({ companyId, ...roomData });
-
-      return true;
+      return await createRoomMutation({ companyId, ...roomData });
     } catch (error) {
       setErrorFromConvexError(error, setCreateRoomError);
       return false;

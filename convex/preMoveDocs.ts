@@ -19,7 +19,7 @@ export const createOrUpdatePreMoveDoc = mutation({
       repSignedAt: v.optional(v.number()),
     }),
   },
-  handler: async (ctx, args): Promise<Id<"preMoveDocs">> => {
+  handler: async (ctx, args): Promise<boolean> => {
     const { moveId } = args;
     const updates = { ...args.updates };
 
@@ -62,6 +62,6 @@ export const createOrUpdatePreMoveDoc = mutation({
       });
     }
 
-    return preMoveDocId;
+    return true;
   },
 });

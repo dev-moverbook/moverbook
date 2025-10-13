@@ -7,7 +7,6 @@ import {
   isUserInOrg,
   validateCompliance,
 } from "./backendUtils/validate";
-import { Id } from "./_generated/dataModel";
 
 export const updateCompliance = mutation({
   args: {
@@ -18,7 +17,7 @@ export const updateCompliance = mutation({
       usDotNumber: v.optional(v.string()),
     }),
   },
-  handler: async (ctx, args): Promise<Id<"compliance">> => {
+  handler: async (ctx, args): Promise<boolean> => {
     const { complianceId, updates } = args;
 
     const identity = await requireAuthenticatedUser(ctx, [
@@ -35,6 +34,6 @@ export const updateCompliance = mutation({
 
     await ctx.db.patch(compliance._id, updates);
 
-    return complianceId;
+    return true;
   },
 });

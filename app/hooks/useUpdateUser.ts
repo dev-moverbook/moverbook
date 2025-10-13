@@ -25,11 +25,10 @@ export const useUpdateUser = () => {
     try {
       const { name, hourlyRate, role } = updatedData;
 
-      await updateUserAction({
+      return await updateUserAction({
         userId: id,
         updates: { name, hourlyRate, role },
       });
-      return true;
     } catch (err) {
       setErrorFromConvexError(err, setError);
       return false;

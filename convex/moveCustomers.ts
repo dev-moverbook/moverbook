@@ -199,7 +199,7 @@ export const updateMoveCustomer = mutation({
       altPhoneNumber: v.optional(v.string()),
     }),
   },
-  handler: async (ctx, args): Promise<Id<"moveCustomers">> => {
+  handler: async (ctx, args): Promise<boolean> => {
     const { moveCustomerId, updates } = args;
 
     const identity = await requireAuthenticatedUser(ctx, [
@@ -247,7 +247,7 @@ export const updateMoveCustomer = mutation({
       ...updates,
     });
 
-    return moveCustomerId;
+    return true;
   },
 });
 

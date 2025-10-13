@@ -68,9 +68,7 @@ export const useUpdateMove = () => {
     setUpdateMoveError(null);
 
     try {
-      await updateMoveMutation(data);
-
-      return true;
+      return await updateMoveMutation(data);
     } catch (error) {
       setErrorFromConvexError(error, setUpdateMoveError);
       return false;

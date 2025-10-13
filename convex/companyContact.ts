@@ -13,7 +13,7 @@ import {
   validateCompanyContact,
 } from "./backendUtils/validate";
 import { AddressConvex } from "./schema";
-import { Doc, Id } from "./_generated/dataModel";
+import { Doc } from "./_generated/dataModel";
 
 export const updateCompanyContact = mutation({
   args: {
@@ -25,7 +25,7 @@ export const updateCompanyContact = mutation({
       website: v.optional(v.string()),
     }),
   },
-  handler: async (ctx, args): Promise<Id<"companyContact">> => {
+  handler: async (ctx, args): Promise<boolean> => {
     const { companyContactId, updates } = args;
 
     const identity = await requireAuthenticatedUser(ctx, [
@@ -59,7 +59,7 @@ export const updateCompanyContact = mutation({
 
     await ctx.db.patch(companyContact._id, finalUpdates);
 
-    return companyContact._id;
+    return true;
   },
 });
 

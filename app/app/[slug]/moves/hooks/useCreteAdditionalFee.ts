@@ -27,8 +27,7 @@ export const useCreateAdditionalFee = () => {
     setCreateFeeError(null);
 
     try {
-      await createMutation(input);
-      return true;
+      return await createMutation(input);
     } catch (error) {
       setErrorFromConvexError(error, setCreateFeeError);
       return false;

@@ -89,7 +89,7 @@ export const createScript = mutation({
     message: v.string(),
     emailTitle: v.optional(v.string()),
   },
-  handler: async (ctx, args): Promise<Id<"scripts">> => {
+  handler: async (ctx, args): Promise<boolean> => {
     const { companyId, title, type, message, emailTitle } = args;
 
     const identity = await requireAuthenticatedUser(ctx, [
@@ -116,7 +116,7 @@ export const createScript = mutation({
     }
     validateScriptFields(type, emailTitle);
 
-    const scriptId = await ctx.db.insert("scripts", {
+    await ctx.db.insert("scripts", {
       companyId,
       title,
       type,
@@ -125,7 +125,7 @@ export const createScript = mutation({
       emailTitle,
     });
 
-    return scriptId;
+    return true;
   },
 });
 
@@ -139,7 +139,7 @@ export const updateScript = mutation({
       emailTitle: v.optional(v.string()),
     }),
   },
-  handler: async (ctx, args): Promise<Id<"scripts">> => {
+  handler: async (ctx, args): Promise<boolean> => {
     const { scriptId, updates } = args;
 
     const identity = await requireAuthenticatedUser(ctx, [
@@ -184,7 +184,7 @@ export const updateScript = mutation({
       emailTitle: finalType === "email" ? finalEmailTitle : undefined,
     });
 
-    return scriptId;
+    return true;
   },
 });
 
@@ -192,7 +192,7 @@ export const deleteScript = mutation({
   args: {
     scriptId: v.id("scripts"),
   },
-  handler: async (ctx, args): Promise<Id<"scripts">> => {
+  handler: async (ctx, args): Promise<boolean> => {
     const { scriptId } = args;
 
     const identity = await requireAuthenticatedUser(ctx, [
@@ -217,6 +217,6 @@ export const deleteScript = mutation({
 
     await ctx.db.patch(scriptId, { isActive: false });
 
-    return scriptId;
+    return true;
   },
 });

@@ -33,10 +33,7 @@ export const updateMoveAssignment = mutation({
       moverId: v.optional(v.id("users")),
     }),
   },
-  handler: async (
-    ctx,
-    { assignmentId, updates }
-  ): Promise<Id<"moveAssignments">> => {
+  handler: async (ctx, { assignmentId, updates }): Promise<boolean> => {
     const identity = await requireAuthenticatedUser(ctx, [
       ClerkRoles.ADMIN,
       ClerkRoles.APP_MODERATOR,
@@ -56,7 +53,7 @@ export const updateMoveAssignment = mutation({
 
     await ctx.db.patch(assignmentId, updates);
 
-    return assignmentId;
+    return true;
   },
 });
 
@@ -69,10 +66,7 @@ export const updateMoveAssignmentHours = mutation({
       breakAmount: v.optional(v.number()),
     }),
   },
-  handler: async (
-    ctx,
-    { assignmentId, updates }
-  ): Promise<Id<"moveAssignments">> => {
+  handler: async (ctx, { assignmentId, updates }): Promise<boolean> => {
     const identity = await requireAuthenticatedUser(ctx, [ClerkRoles.MOVER]);
 
     const assignment = validateMoveAssignment(await ctx.db.get(assignmentId));
@@ -107,7 +101,7 @@ export const updateMoveAssignmentHours = mutation({
 
     await ctx.db.patch(assignmentId, patch);
 
-    return assignmentId;
+    return true;
   },
 });
 
@@ -117,10 +111,7 @@ export const insertMoveAssignment = mutation({
     moverId: v.id("users"),
     isLead: v.boolean(),
   },
-  handler: async (
-    ctx,
-    { moveId, moverId, isLead }
-  ): Promise<Id<"moveAssignments">> => {
+  handler: async (ctx, { moveId, moverId, isLead }): Promise<boolean> => {
     const identity = await requireAuthenticatedUser(ctx, [
       ClerkRoles.ADMIN,
       ClerkRoles.APP_MODERATOR,
@@ -132,7 +123,7 @@ export const insertMoveAssignment = mutation({
     const company = validateCompany(await ctx.db.get(move.companyId));
     isUserInOrg(identity, company.clerkOrganizationId);
 
-    const assignmentId = await ctx.db.insert("moveAssignments", {
+    await ctx.db.insert("moveAssignments", {
       moveId,
       moverId,
       isLead,
@@ -140,7 +131,7 @@ export const insertMoveAssignment = mutation({
       breakAmount: 0,
     });
 
-    return assignmentId;
+    return true;
   },
 });
 
@@ -323,10 +314,7 @@ export const approveMoveAssignmentHours = mutation({
       managerNotes: v.optional(v.string()),
     }),
   },
-  handler: async (
-    ctx,
-    { assignmentId, updates }
-  ): Promise<Id<"moveAssignments">> => {
+  handler: async (ctx, { assignmentId, updates }): Promise<boolean> => {
     const identity = await requireAuthenticatedUser(ctx, [
       ClerkRoles.ADMIN,
       ClerkRoles.APP_MODERATOR,
@@ -365,6 +353,6 @@ export const approveMoveAssignmentHours = mutation({
     } else {
       await ctx.db.patch(assignmentId, updates);
     }
-    return assignmentId;
+    return true;
   },
 });

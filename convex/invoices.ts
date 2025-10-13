@@ -21,7 +21,7 @@ export const createOrUpdateInvoice = mutation({
       status: v.optional(InvoiceStatusConvex),
     }),
   },
-  handler: async (ctx, args): Promise<Id<"invoices">> => {
+  handler: async (ctx, args): Promise<boolean> => {
     const { moveId } = args;
     const updates = { ...args.updates };
 
@@ -65,6 +65,6 @@ export const createOrUpdateInvoice = mutation({
       });
     }
 
-    return invoiceId;
+    return true;
   },
 });

@@ -27,9 +27,7 @@ export const useInsertMoveAssignment = () => {
     setAssignmentError(null);
 
     try {
-      await insertMutation({ moveId, moverId, isLead });
-
-      return true;
+      return await insertMutation({ moveId, moverId, isLead });
     } catch (error) {
       setErrorFromConvexError(error, setAssignmentError);
       return false;

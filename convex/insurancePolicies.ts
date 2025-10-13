@@ -17,7 +17,7 @@ export const createInsurancePolicy = mutation({
     name: v.string(),
     premium: v.number(),
   },
-  handler: async (ctx, args): Promise<Id<"insurancePolicies">> => {
+  handler: async (ctx, args): Promise<boolean> => {
     const { companyId, coverageType, coverageAmount, name, premium } = args;
 
     const identity = await requireAuthenticatedUser(ctx, [
@@ -29,7 +29,7 @@ export const createInsurancePolicy = mutation({
     const company = validateCompany(await ctx.db.get(companyId));
     isUserInOrg(identity, company.clerkOrganizationId);
 
-    const insurancePolicyId = await ctx.db.insert("insurancePolicies", {
+    await ctx.db.insert("insurancePolicies", {
       companyId,
       coverageType,
       coverageAmount,
@@ -39,7 +39,7 @@ export const createInsurancePolicy = mutation({
       premium,
     });
 
-    return insurancePolicyId;
+    return true;
   },
 });
 
@@ -54,7 +54,7 @@ export const updateInsurancePolicy = mutation({
       premium: v.optional(v.number()),
     }),
   },
-  handler: async (ctx, args): Promise<Id<"insurancePolicies">> => {
+  handler: async (ctx, args): Promise<boolean> => {
     const { insurancePolicyId, updates } = args;
 
     const identity = await requireAuthenticatedUser(ctx, [
@@ -74,7 +74,7 @@ export const updateInsurancePolicy = mutation({
 
     await ctx.db.patch(insurancePolicyId, updates);
 
-    return insurancePolicyId;
+    return true;
   },
 });
 
