@@ -24,7 +24,6 @@ interface LabeledSelectProps {
   placeholder?: string;
   error?: string | null;
   loading?: boolean;
-  queryError?: string | null;
 }
 
 const LabeledSelect: React.FC<LabeledSelectProps> = ({
@@ -34,7 +33,6 @@ const LabeledSelect: React.FC<LabeledSelectProps> = ({
   options,
   placeholder = "Select an option",
   error,
-  queryError,
   loading = false,
 }) => {
   const isLabeled = label !== "";
@@ -69,7 +67,7 @@ const LabeledSelect: React.FC<LabeledSelectProps> = ({
           )}
         </SelectContent>
       </Select>
-      <FieldErrorMessage error={error || queryError} />
+      <FieldErrorMessage error={error} />
     </div>
   );
 };

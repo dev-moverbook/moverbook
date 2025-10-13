@@ -43,7 +43,6 @@ const SalesRepSelect: React.FC<SalesRepSelectProps> = (props) => {
   const result = useGetSalesReps(companyId);
 
   let loading = false;
-  let queryError: string | null = null;
   const options: { label: string; value: string }[] = [];
 
   switch (result) {
@@ -86,7 +85,6 @@ const SalesRepSelect: React.FC<SalesRepSelectProps> = (props) => {
       }}
       placeholder={placeholder}
       loading={loading}
-      queryError={queryError}
       error={error}
     />
   );
