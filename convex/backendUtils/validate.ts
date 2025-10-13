@@ -36,11 +36,17 @@ export function validateCompany(
   checkActive: boolean = true
 ): Doc<"companies"> {
   if (!company) {
-    throw new Error(ErrorMessages.COMPANY_NOT_FOUND);
+    throw new ConvexError({
+      code: "NOT_FOUND",
+      message: ErrorMessages.COMPANY_NOT_FOUND,
+    });
   }
 
   if (checkActive && !company.isActive) {
-    throw new Error(ErrorMessages.COMPANY_INACTIVE);
+    throw new ConvexError({
+      code: "BAD_REQUEST",
+      message: ErrorMessages.COMPANY_INACTIVE,
+    });
   }
 
   return company;

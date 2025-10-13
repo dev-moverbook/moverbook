@@ -34,17 +34,12 @@ export const getUserByEmailInternal = internalQuery({
     email: v.string(),
   },
   handler: async (ctx, args): Promise<Doc<"users"> | null> => {
-    try {
-      const user: Doc<"users"> | null = await ctx.db
-        .query("users")
-        .withIndex("by_email", (q) => q.eq("email", args.email))
-        .first();
+    const user: Doc<"users"> | null = await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", args.email))
+      .first();
 
-      return user;
-    } catch (error) {
-      console.error(ErrorMessages.USER_DB_QUERY_BY_EMAIL, error);
-      throw new Error(ErrorMessages.USER_DB_QUERY_BY_EMAIL);
-    }
+    return user;
   },
 });
 
@@ -87,13 +82,9 @@ export const updateUserInternal = internalMutation({
   },
   handler: async (ctx, args): Promise<Id<"users">> => {
     const { userId, updates } = args;
-    try {
-      await ctx.db.patch(userId, updates);
-      return userId;
-    } catch (error) {
-      console.error(ErrorMessages.USER_DB_UPDATE, error);
-      throw new Error(ErrorMessages.USER_DB_UPDATE);
-    }
+
+    await ctx.db.patch(userId, updates);
+    return userId;
   },
 });
 
@@ -172,29 +163,20 @@ export const updateUserActiveStatus = mutation({
     userId: v.id("users"),
     isActive: v.boolean(),
   },
-  handler: async (ctx, args): Promise<UpdateUserActiveStatusResponse> => {
+  handler: async (ctx, args): Promise<Id<"users">> => {
     const { userId, isActive } = args;
-    try {
-      await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-      ]);
+    await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+    ]);
 
-      const user = await ctx.db.get(userId);
-      const validatedUser = validateUser(user, false);
+    const user = await ctx.db.get(userId);
+    const validatedUser = validateUser(user, false);
 
-      await ctx.db.patch(validatedUser._id, { isActive });
+    await ctx.db.patch(validatedUser._id, { isActive });
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: {
-          userId: validatedUser._id,
-        },
-      };
-    } catch (error) {
-      return handleInternalError(error);
-    }
+    return validatedUser._id;
   },
 });
 
@@ -208,52 +190,46 @@ export const updateUser = action({
       role: v.optional(UserRoleConvex),
     }),
   },
-  handler: async (ctx, args): Promise<UpdateUserResponse> => {
+  handler: async (ctx, args): Promise<Id<"users">> => {
     const { userId, updates } = args;
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-      ]);
 
-      const user = await ctx.runQuery(internal.users.getUserByIdInternal, {
-        userId,
-      });
-      const validatedUser = validateUser(user, true, true);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+    ]);
 
-      const company = await ctx.runQuery(
-        internal.companies.getCompanyByIdInternal,
-        { companyId: validatedUser.companyId! }
-      );
-      const validatedCompany = validateCompany(company);
+    const user = await ctx.runQuery(internal.users.getUserByIdInternal, {
+      userId,
+    });
+    const validatedUser = validateUser(user, true, true);
 
-      isUserInOrg(identity, validatedCompany.clerkOrganizationId);
+    const company = await ctx.runQuery(
+      internal.companies.getCompanyByIdInternal,
+      { companyId: validatedUser.companyId! }
+    );
+    const validatedCompany = validateCompany(company);
 
-      await ctx.runMutation(internal.users.updateUserInternal, {
-        userId: validatedUser._id,
-        updates,
-      });
+    isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
-      if (updates.name) {
-        await updateUserNameHelper(validatedUser.clerkUserId, updates.name);
-      }
+    await ctx.runMutation(internal.users.updateUserInternal, {
+      userId: validatedUser._id,
+      updates,
+    });
 
-      if (updates.role) {
-        updateOrganizationMembershipHelper(
-          validatedCompany.clerkOrganizationId,
-          validatedUser.clerkUserId,
-          updates.role
-        );
-      }
-
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { userId },
-      };
-    } catch (error) {
-      return handleInternalError(error);
+    if (updates.name) {
+      await updateUserNameHelper(validatedUser.clerkUserId, updates.name);
     }
+
+    if (updates.role) {
+      updateOrganizationMembershipHelper(
+        validatedCompany.clerkOrganizationId,
+        validatedUser.clerkUserId,
+        updates.role
+      );
+    }
+
+    return userId;
   },
 });
 
@@ -266,32 +242,27 @@ export const updateUserByEmailInternal = internalMutation({
   },
   handler: async (ctx, args): Promise<Id<"users">> => {
     const { email, role, clerkOrganizationId, hourlyRate } = args;
-    try {
-      const user: Doc<"users"> | null = await ctx.db
-        .query("users")
-        .withIndex("by_email", (q) => q.eq("email", email))
-        .first();
 
-      const validatedUser = validateUser(user);
+    const user: Doc<"users"> | null = await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", email))
+      .first();
 
-      const company: Doc<"companies"> | null = await ctx.db
-        .query("companies")
-        .filter((q) =>
-          q.eq(q.field("clerkOrganizationId"), clerkOrganizationId)
-        )
-        .first();
+    const validatedUser = validateUser(user);
 
-      const validatedCompany = validateCompany(company);
+    const company: Doc<"companies"> | null = await ctx.db
+      .query("companies")
+      .filter((q) => q.eq(q.field("clerkOrganizationId"), clerkOrganizationId))
+      .first();
 
-      await ctx.db.patch(validatedUser._id, {
-        role,
-        companyId: validatedCompany._id,
-        hourlyRate,
-      });
-      return validatedUser._id;
-    } catch (error) {
-      throw new Error(ErrorMessages.USER_DB_UPDATE);
-    }
+    const validatedCompany = validateCompany(company);
+
+    await ctx.db.patch(validatedUser._id, {
+      role,
+      companyId: validatedCompany._id,
+      hourlyRate,
+    });
+    return validatedUser._id;
   },
 });
 

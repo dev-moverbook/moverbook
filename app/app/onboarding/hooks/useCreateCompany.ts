@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { ResponseStatus } from "@/types/enums";
-import { FrontEndErrorMessages } from "@/types/errors";
+import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
 export const useCreateCompany = () => {
   const [createCompanyLoading, setCreateCompanyLoading] = useState(false);
@@ -24,15 +23,9 @@ export const useCreateCompany = () => {
     try {
       const response = await createOrganizationAction({ name });
 
-      if (response.status !== ResponseStatus.SUCCESS) {
-        setCreateCompanyError(response.error ?? FrontEndErrorMessages.GENERIC);
-        return { success: false };
-      }
-
-      return { success: true, data: response.data };
+      return { success: true, data: response };
     } catch (error) {
-      console.error("Error creating organization:", error);
-      setCreateCompanyError(FrontEndErrorMessages.GENERIC);
+      setErrorFromConvexError(error, setCreateCompanyError);
       return { success: false };
     } finally {
       setCreateCompanyLoading(false);

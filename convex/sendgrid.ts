@@ -19,48 +19,30 @@ export const createSender = action({
   args: {
     companyContactId: v.id("companyContact"),
   },
-  handler: async (ctx, { companyContactId }): Promise<CreateSenderResponse> => {
-    try {
-      await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.MANAGER,
-      ]);
+  handler: async (ctx, { companyContactId }): Promise<string> => {
+    await requireAuthenticatedUser(ctx, [ClerkRoles.ADMIN, ClerkRoles.MANAGER]);
 
-      const companyContact = await ctx.runQuery(
-        internal.companyContact.getCompanyContactInternal,
-        { companyContactId }
-      );
+    const companyContact = await ctx.runQuery(
+      internal.companyContact.getCompanyContactInternal,
+      { companyContactId }
+    );
 
-      const sendgridSenderId = await createSingleSender({
-        fromEmail: companyContact.email,
-        fromName: "Support",
-        address: parseFullAddressToSendgridFormat(
-          companyContact.address?.formattedAddress ?? ""
-        ),
-      });
+    const sendgridSenderId = await createSingleSender({
+      fromEmail: companyContact.email,
+      fromName: "Support",
+      address: parseFullAddressToSendgridFormat(
+        companyContact.address?.formattedAddress ?? ""
+      ),
+    });
 
-      await ctx.runMutation(internal.companyContact.updateSendgridInfo, {
-        companyContactId,
-        updates: {
-          sendgridSenderId,
-        },
-      });
+    await ctx.runMutation(internal.companyContact.updateSendgridInfo, {
+      companyContactId,
+      updates: {
+        sendgridSenderId,
+      },
+    });
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: {
-          sendgridSenderId,
-        },
-      };
-    } catch (error) {
-      console.error(error);
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error:
-          error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR,
-      };
-    }
+    return sendgridSenderId;
   },
 });
 

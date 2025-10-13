@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { ClerkRoles, ResponseStatus } from "@/types/enums";
-import { FrontEndErrorMessages } from "@/types/errors";
+import { ClerkRoles } from "@/types/enums";
 import { Id } from "@/convex/_generated/dataModel";
+import { setErrorFromConvexError } from "../frontendUtils/errorHelper";
 
 export const useInviteUser = () => {
   const [inviteLoading, setInviteLoading] = useState<boolean>(false);
@@ -23,7 +23,7 @@ export const useInviteUser = () => {
     setInviteError(null);
 
     try {
-      const response = await clerkInviteUserToOrganization({
+      await clerkInviteUserToOrganization({
         companyId,
         email,
         role: role as
@@ -32,15 +32,9 @@ export const useInviteUser = () => {
           | ClerkRoles.SALES_REP,
         hourlyRate,
       });
-
-      if (response.status !== ResponseStatus.SUCCESS) {
-        setInviteError(response.error);
-      }
-
-      return response.status === ResponseStatus.SUCCESS;
+      return true;
     } catch (error) {
-      console.error(FrontEndErrorMessages.INVITE_USER_ERROR, error);
-      setInviteError(FrontEndErrorMessages.GENERIC);
+      setErrorFromConvexError(error, setInviteError);
       return false;
     } finally {
       setInviteLoading(false);

@@ -33,12 +33,15 @@ export async function verifyStripeConnectedWebhook(
 export function getConnectedAccountStatus(
   account: Stripe.Account
 ): StripeAccountStatus {
-  if (account.requirements?.errors && account.requirements.errors.length > 0) {
-    return StripeAccountStatus.PENDING;
-  } else if (account.charges_enabled && account.payouts_enabled) {
-    return StripeAccountStatus.VERIFIED;
-  } else {
-    return StripeAccountStatus.NOT_ONBOARDED;
+  switch (true) {
+    case !!(
+      account.requirements?.errors && account.requirements.errors.length > 0
+    ):
+      return StripeAccountStatus.PENDING;
+    case account.charges_enabled && account.payouts_enabled:
+      return StripeAccountStatus.VERIFIED;
+    default:
+      return StripeAccountStatus.NOT_ONBOARDED;
   }
 }
 

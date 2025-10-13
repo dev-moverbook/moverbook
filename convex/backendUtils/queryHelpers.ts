@@ -1,4 +1,3 @@
-// helpers/resolveMoverContext.ts
 import { ClerkRoles } from "@/types/enums";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { QueryCtx, MutationCtx } from "@/convex/_generated/server";

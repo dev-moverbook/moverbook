@@ -8,7 +8,6 @@ import {
 } from "./_generated/server";
 import { v } from "convex/values";
 import { generateUniqueSlug } from "@/utils/helper";
-import { CompanySchema } from "@/types/convex-schemas";
 import {
   isUserInOrg,
   validateCompany,
@@ -17,20 +16,12 @@ import {
   validateUser,
   validateWebIntegrations,
 } from "./backendUtils/validate";
-import { ClerkRoles, ResponseStatus, StripeAccountStatus } from "@/types/enums";
+import { ClerkRoles, StripeAccountStatus } from "@/types/enums";
 import {
-  GetCompanyClerkUserIdResponse,
   GetCompanyDetailsData,
-  GetCompanyDetailsResponse,
   GetCompanyIdBySlugResponse,
-  UpdateCompanyLogoResponse,
-  UpdateCompanyResponse,
 } from "@/types/convex-responses";
-import {
-  createCompanyRecords,
-  handleInternalError,
-  shouldExposeError,
-} from "./backendUtils/helper";
+import { createCompanyRecords } from "./backendUtils/helper";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import { internal } from "./_generated/api";
 import { updateClerkOrgName } from "./backendUtils/clerk";
@@ -228,51 +219,42 @@ export const updateCompany = action({
       timeZone: v.optional(v.string()),
     }),
   },
-  handler: async (ctx, args): Promise<UpdateCompanyResponse> => {
+  handler: async (
+    ctx,
+    args
+  ): Promise<{ companyId: Id<"companies">; slug?: string }> => {
     const { companyId, updates } = args;
 
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-      ]);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+    ]);
 
-      const company = validateCompany(
-        await ctx.runQuery(internal.companies.getCompanyByIdInternal, {
-          companyId,
-        })
-      );
+    const company = validateCompany(
+      await ctx.runQuery(internal.companies.getCompanyByIdInternal, {
+        companyId,
+      })
+    );
 
-      isUserInOrg(identity, company.clerkOrganizationId);
+    isUserInOrg(identity, company.clerkOrganizationId);
 
-      if (updates.name) {
-        await updateClerkOrgName(company.clerkOrganizationId, updates.name);
-      }
-
-      const result = await ctx.runMutation(
-        internal.companies.updateCompanyInternal,
-        {
-          companyId,
-          updates,
-        }
-      );
-
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: {
-          companyId: result.companyId,
-          slug: result.slug,
-        },
-      };
-    } catch (error) {
-      console.error("Error updating company:", error);
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error: ErrorMessages.GENERIC_ERROR,
-      };
+    if (updates.name) {
+      await updateClerkOrgName(company.clerkOrganizationId, updates.name);
     }
+
+    const result = await ctx.runMutation(
+      internal.companies.updateCompanyInternal,
+      {
+        companyId,
+        updates,
+      }
+    );
+
+    return {
+      companyId: result._id,
+      slug: result.slug,
+    };
   },
 });
 
@@ -284,10 +266,7 @@ export const updateCompanyInternal = internalMutation({
       timeZone: v.optional(v.string()),
     }),
   },
-  handler: async (
-    ctx,
-    args
-  ): Promise<{ companyId: Id<"companies">; slug?: string }> => {
+  handler: async (ctx, args): Promise<Doc<"companies">> => {
     const { companyId, updates } = args;
 
     const updatedFields: { name?: string; timeZone?: string; slug?: string } = {
@@ -302,8 +281,13 @@ export const updateCompanyInternal = internalMutation({
     }
 
     await ctx.db.patch(companyId, updatedFields);
+    const company = await ctx.db.get(companyId);
 
-    return { companyId, slug };
+    if (!company) {
+      throw new Error(ErrorMessages.COMPANY_NOT_FOUND);
+    }
+
+    return company;
   },
 });
 

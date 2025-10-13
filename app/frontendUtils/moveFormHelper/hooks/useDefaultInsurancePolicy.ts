@@ -1,21 +1,9 @@
 import { useEffect } from "react";
-import { Id } from "@/convex/_generated/dataModel";
+import { Doc } from "@/convex/_generated/dataModel";
 import { MoveFormData } from "@/types/form-types";
 
-interface InsurancePolicy {
-  _id: Id<"insurancePolicies">;
-  _creationTime: number;
-  isActive: boolean;
-  name: string;
-  companyId: Id<"companies">;
-  coverageAmount: number;
-  coverageType: number;
-  isDefault: boolean;
-  premium: number;
-}
-
 export function useDefaultInsurancePolicy(
-  insurancePolicyOptions: InsurancePolicy[] | undefined,
+  insurancePolicyOptions: Doc<"insurancePolicies">[] | undefined,
   setMoveFormData: React.Dispatch<React.SetStateAction<MoveFormData>>
 ) {
   useEffect(() => {

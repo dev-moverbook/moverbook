@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { ResponseStatus } from "@/types/enums";
-import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
 import { UpdateCompanyData } from "@/types/form-types";
+import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
 export const useUpdateCompany = () => {
   const [updateCompanyLoading, setUpdateCompanyLoading] =
@@ -25,16 +24,9 @@ export const useUpdateCompany = () => {
     try {
       const response = await updateCompanyAction({ companyId, updates });
 
-      if (response.status === ResponseStatus.SUCCESS) {
-        return { success: true, newSlug: response.data.slug };
-      }
-
-      console.error(response.error);
-      setUpdateCompanyError(response.error || FrontEndErrorMessages.GENERIC);
-      return { success: false };
+      return { success: false, newSlug: response.slug };
     } catch (error) {
-      console.error(error);
-      setUpdateCompanyError(FrontEndErrorMessages.GENERIC);
+      setErrorFromConvexError(error, setUpdateCompanyError);
       return { success: false };
     } finally {
       setUpdateCompanyLoading(false);

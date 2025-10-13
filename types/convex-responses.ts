@@ -12,7 +12,6 @@ import {
   RecentMoveMessageSummary,
   StackedDay,
 } from "./types";
-import { getStackedForecastedRevenueByRep } from "@/convex/move";
 
 export interface ErrorResponse {
   status: ResponseStatus.ERROR;

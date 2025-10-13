@@ -6,8 +6,8 @@ import { useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { ErrorMessages } from "@/types/errors";
 import { isValidEmail } from "@/utils/helper";
-import { ResponseStatus } from "@/types/enums";
 import FormErrorMessage from "../components/shared/error/FormErrorMessage";
+import { setErrorFromConvexError } from "../frontendUtils/errorHelper";
 
 const SignUpPage = () => {
   const [email, setEmail] = useState<string>("");
@@ -17,25 +17,21 @@ const SignUpPage = () => {
   const createCustomerWithSubscription = useAction(
     api.stripe.createCustomerWithSubscription
   );
-  const handleSignUp = async () => {
+  const handleSignUp = async (): Promise<boolean> => {
     setError(null);
     if (!isValidEmail(email)) {
       setError(ErrorMessages.INVALID_EMAIL);
-      return;
+      return false;
     }
 
     setIsLoading(true);
     try {
-      const response = await createCustomerWithSubscription({ email });
-      if (response.status === ResponseStatus.ERROR) {
-        console.error("error signing up subscriber", response.error);
-        setError(response.error);
-      } else {
-        setEmail("");
-      }
+      await createCustomerWithSubscription({ email });
+      return true;
     } catch (error) {
+      setErrorFromConvexError(error, setError);
       console.error("error signing up subscriber", error);
-      setError(ErrorMessages.GENERIC_ERROR);
+      return false;
     } finally {
       setIsLoading(false);
     }

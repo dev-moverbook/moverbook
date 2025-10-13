@@ -1,3 +1,4 @@
+import type { Dispatch, SetStateAction } from "react";
 import { LocationInput } from "@/types/form-types";
 import { SegmentDistance } from "@/types/types";
 import { segmentsEqual, toDistanceRef } from "./helper";
@@ -11,105 +12,136 @@ export const buildDefaultSegments = (): SegmentDistance[] => [
 export function getMiddleRefs(locations: LocationInput[]): string[] {
   return locations
     .map((location) => toDistanceRef(location.address))
-    .filter((ref): ref is string => Boolean(ref));
+    .filter((reference): reference is string => Boolean(reference));
 }
 
 export function getEmptySegments(
-  originRef: string | null,
-  middles: string[]
+  originReference: string | null,
+  middleReferences: string[]
 ): SegmentDistance[] | null {
-  if (!originRef) {
+  if (!originReference) {
     return buildDefaultSegments();
   }
-  if (middles.length === 0) {
+
+  if (middleReferences.length === 0) {
     return buildDefaultSegments();
   }
+
   return null;
 }
 
-export function hopLabel(i: number, count: number): string {
-  if (i === 0) return count === 2 ? "Pickup → Dropoff" : "Pickup → Stop 1";
-  if (i === count - 2) return `Stop ${i} → Dropoff`;
-  return `Stop ${i} → Stop ${i + 1}`;
+export function hopLabel(hopIndex: number, hopCount: number): string {
+  if (hopIndex === 0) {
+    return hopCount === 2 ? "Pickup → Dropoff" : "Pickup → Stop 1";
+  }
+
+  if (hopIndex === hopCount - 2) {
+    return `Stop ${hopIndex} → Dropoff`;
+  }
+
+  return `Stop ${hopIndex} → Stop ${hopIndex + 1}`;
 }
 
 export async function computeSegmentDistances(
-  originRef: string,
-  middles: string[],
+  originReference: string,
+  middleReferences: string[],
   fetchDistance: (args: { origin: string; destination: string }) => Promise<{
     distanceMiles?: number | null;
     durationMinutes?: number | null;
   }>,
-  signal?: AbortSignal
+  abortSignal?: AbortSignal
 ): Promise<SegmentDistance[]> {
-  const check = () => {
-    if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
+  const ensureNotAborted = () => {
+    if (abortSignal?.aborted) {
+      throw new DOMException("Aborted", "AbortError");
+    }
   };
 
-  const legs: SegmentDistance[] = [];
+  const segments: SegmentDistance[] = [];
 
-  check();
-  const rStart = await fetchDistance({
-    origin: originRef,
-    destination: middles[0],
+  ensureNotAborted();
+
+  const startLegResponse = await fetchDistance({
+    origin: originReference,
+    destination: middleReferences[0],
   });
-  legs.push({
+
+  segments.push({
     label: "Office → Pickup",
-    distance: rStart.distanceMiles ?? null,
+    distance: startLegResponse.distanceMiles ?? null,
     duration:
-      rStart.durationMinutes != null ? rStart.durationMinutes / 60 : null,
+      startLegResponse.durationMinutes != null
+        ? startLegResponse.durationMinutes / 60
+        : null,
   });
 
-  const count = middles.length;
-  for (let i = 0; i < count - 1; i++) {
-    check();
-    const r = await fetchDistance({
-      origin: middles[i],
-      destination: middles[i + 1],
+  const middleCount = middleReferences.length;
+
+  for (let hopIndex = 0; hopIndex < middleCount - 1; hopIndex++) {
+    ensureNotAborted();
+
+    const legResponse = await fetchDistance({
+      origin: middleReferences[hopIndex],
+      destination: middleReferences[hopIndex + 1],
     });
-    legs.push({
-      label: hopLabel(i, count),
-      distance: r.distanceMiles ?? null,
-      duration: r.durationMinutes != null ? r.durationMinutes / 60 : null,
+
+    segments.push({
+      label: hopLabel(hopIndex, middleCount),
+      distance: legResponse.distanceMiles ?? null,
+      duration:
+        legResponse.durationMinutes != null
+          ? legResponse.durationMinutes / 60
+          : null,
     });
   }
 
-  check();
-  const rEnd = await fetchDistance({
-    origin: middles[count - 1],
-    destination: originRef,
-  });
-  legs.push({
-    label: "Dropoff → Office",
-    distance: rEnd.distanceMiles ?? null,
-    duration: rEnd.durationMinutes != null ? rEnd.durationMinutes / 60 : null,
+  ensureNotAborted();
+
+  const endLegResponse = await fetchDistance({
+    origin: middleReferences[middleCount - 1],
+    destination: originReference,
   });
 
-  return legs;
+  segments.push({
+    label: "Dropoff → Office",
+    distance: endLegResponse.distanceMiles ?? null,
+    duration:
+      endLegResponse.durationMinutes != null
+        ? endLegResponse.durationMinutes / 60
+        : null,
+  });
+
+  return segments;
 }
 
 export async function updateSegmentDistances(
-  originRef: string,
-  middles: string[],
+  originReference: string,
+  middleReferences: string[],
   fetchDistance: (args: { origin: string; destination: string }) => Promise<{
     distanceMiles?: number | null;
     durationMinutes?: number | null;
   }>,
-  setSegmentDistances: React.Dispatch<React.SetStateAction<SegmentDistance[]>>,
-  signal?: AbortSignal
+  setSegmentDistances: Dispatch<SetStateAction<SegmentDistance[]>>,
+  abortSignal?: AbortSignal
 ) {
   try {
-    const legs = await computeSegmentDistances(
-      originRef,
-      middles,
+    const computedSegments = await computeSegmentDistances(
+      originReference,
+      middleReferences,
       fetchDistance,
-      signal
+      abortSignal
     );
-    setSegmentDistances((prev) => (segmentsEqual(prev, legs) ? prev : legs));
-  } catch (err) {
-    if (err instanceof DOMException && err.name === "AbortError") {
+
+    setSegmentDistances((previousSegments) =>
+      segmentsEqual(previousSegments, computedSegments)
+        ? previousSegments
+        : computedSegments
+    );
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
       return;
     }
-    console.error("Failed to update segment distances:", err);
+
+    console.error("Failed to update segment distances:", error);
   }
 }

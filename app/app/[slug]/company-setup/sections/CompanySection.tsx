@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { CompanySchema } from "@/types/convex-schemas";
 import { UpdateCompanyData } from "@/types/form-types";
-import { Id } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import Image from "next/image";
 import SectionContainer from "@/app/components/shared/SectionContainer";
 import CenteredContainer from "@/app/components/shared/CenteredContainer";
@@ -16,7 +15,7 @@ import SelectFieldRow from "@/app/components/shared/SelectFieldRow";
 import { TIMEZONE_OPTIONS } from "@/types/const";
 
 interface CompanySectionProps {
-  company: CompanySchema;
+  company: Doc<"companies">;
   updateCompany: (
     companyId: Id<"companies">,
     updates: UpdateCompanyData

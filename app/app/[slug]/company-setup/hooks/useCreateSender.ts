@@ -1,9 +1,8 @@
 import { useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { ResponseStatus } from "@/types/enums";
 import { useState } from "react";
-import { FrontEndErrorMessages } from "@/types/errors";
+import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
 interface UseCreateSenderReturn {
   createSender: (companyContactId: Id<"companyContact">) => Promise<boolean>;
@@ -24,17 +23,10 @@ export const useCreateSender = (): UseCreateSenderReturn => {
       setIsLoading(true);
       setError(null);
 
-      const response = await createSenderMutation({ companyContactId });
-      if (response.status === ResponseStatus.SUCCESS) {
-        return true;
-      }
-
-      console.error(response.error);
-      setError(response.error);
-      return false;
+      await createSenderMutation({ companyContactId });
+      return true;
     } catch (error) {
-      console.error(error);
-      setError(FrontEndErrorMessages.GENERIC);
+      setErrorFromConvexError(error, setError);
       return false;
     } finally {
       setIsLoading(false);

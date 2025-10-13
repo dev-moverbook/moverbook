@@ -1,13 +1,12 @@
 "use client";
-import { Id } from "@/convex/_generated/dataModel";
-import { InvitationSchema } from "@/types/convex-schemas";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import React from "react";
 import { Trash2 } from "lucide-react";
 import IconButton from "@/app/components/shared/IconButton";
 import UserCardBorder from "@/app/components/shared/UserCardBorder";
 
 interface InvitationCardProps {
-  invitation: InvitationSchema;
+  invitation: Doc<"invitations">;
   onRevokeClick: (invitationId: Id<"invitations">) => void;
 }
 

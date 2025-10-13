@@ -2,9 +2,8 @@ import { useState } from "react";
 import { useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { ResponseStatus } from "@/types/enums";
-import { FrontEndErrorMessages } from "@/types/errors";
 import { ClerkRoles } from "@/types/enums";
+import { setErrorFromConvexError } from "../frontendUtils/errorHelper";
 
 interface UpdateUserData {
   name?: string;
@@ -26,20 +25,13 @@ export const useUpdateUser = () => {
     try {
       const { name, hourlyRate, role } = updatedData;
 
-      const result = await updateUserAction({
+      await updateUserAction({
         userId: id,
         updates: { name, hourlyRate, role },
       });
-      if (result.status === ResponseStatus.SUCCESS) {
-        return true;
-      } else {
-        console.error(result.error);
-        setError(FrontEndErrorMessages.GENERIC);
-        return false;
-      }
+      return true;
     } catch (err) {
-      console.error(err);
-      setError(FrontEndErrorMessages.GENERIC);
+      setErrorFromConvexError(err, setError);
       return false;
     } finally {
       setLoading(false);

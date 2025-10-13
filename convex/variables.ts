@@ -8,11 +8,7 @@ import {
   isUserInOrg,
   validateVariable,
 } from "./backendUtils/validate";
-import {
-  CreateVariableResponse,
-  UpdateVariableResponse,
-} from "@/types/convex-responses";
-import { VariableSchema } from "@/types/convex-schemas";
+import { CreateVariableResponse } from "@/types/convex-responses";
 import { checkExistingVariable } from "./backendUtils/checkUnique";
 import { Doc, Id } from "./_generated/dataModel";
 
@@ -64,7 +60,7 @@ export const createVariable = mutation({
 
       isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
-      const existingVariable: VariableSchema | null =
+      const existingVariable: Doc<"variables"> | null =
         await checkExistingVariable(ctx, companyId, name);
 
       if (existingVariable) {

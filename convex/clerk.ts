@@ -1,13 +1,9 @@
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import { action, internalAction } from "./_generated/server";
 import { Webhook } from "svix";
 import { WebhookEvent } from "@clerk/clerk-sdk-node";
-import { ClerkRoles, ResponseStatus } from "@/types/enums";
+import { ClerkRoles } from "@/types/enums";
 import { internal } from "./_generated/api";
-import {
-  ClerkInviteUserToOrganizationResponse,
-  CreateOrganizationResponse,
-} from "@/types/convex-responses";
 import { ErrorMessages } from "@/types/errors";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import {
@@ -16,11 +12,19 @@ import {
 } from "./backendUtils/clerk";
 import { CreatableUserRoleConvex } from "@/types/convex-enums";
 import { isUserInOrg, validateCompany } from "./backendUtils/validate";
+import { Id } from "./_generated/dataModel";
 
 export const fulfill = internalAction({
   args: { headers: v.any(), payload: v.string() },
   handler: async (ctx, args) => {
-    const wh = new Webhook(process.env.CLERK_WEBHOOK_SECRET as string);
+    const secret = process.env.CLERK_WEBHOOK_SECRET;
+    if (!secret) {
+      throw new Error(
+        "CLERK_WEBHOOK_SECRET is not set in environment variables"
+      );
+    }
+
+    const wh = new Webhook(secret);
     const payload = wh.verify(args.payload, args.headers) as WebhookEvent;
     return payload;
   },
@@ -30,36 +34,26 @@ export const createOrganization = action({
   args: {
     name: v.string(),
   },
-  handler: async (ctx, args): Promise<CreateOrganizationResponse> => {
+  handler: async (
+    ctx,
+    args
+  ): Promise<{ slug: string; clerkOrganizationId: string }> => {
     const { name } = args;
 
-    try {
-      const identity = await requireAuthenticatedUser(ctx);
-      const clerkUserId = identity.id as string;
-      const clerkOrg = await createClerkOrganization(name, clerkUserId);
+    const identity = await requireAuthenticatedUser(ctx);
+    const clerkUserId = identity.id as string;
+    const clerkOrg = await createClerkOrganization(name, clerkUserId);
 
-      const slug = await ctx.runMutation(internal.companies.createCompany, {
-        clerkOrganizationId: clerkOrg.id,
-        name,
-        clerkUserId,
-      });
+    const slug = await ctx.runMutation(internal.companies.createCompany, {
+      clerkOrganizationId: clerkOrg.id,
+      name,
+      clerkUserId,
+    });
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: {
-          slug,
-          clerkOrganizationId: clerkOrg.id,
-        },
-      };
-    } catch (error) {
-      console.error("Error creating organization:", error);
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error:
-          error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR,
-      };
-    }
+    return {
+      slug,
+      clerkOrganizationId: clerkOrg.id,
+    };
   },
 });
 
@@ -70,66 +64,53 @@ export const clerkInviteUserToOrganization = action({
     role: CreatableUserRoleConvex,
     hourlyRate: v.union(v.number(), v.null()),
   },
-  handler: async (
-    ctx,
-    args
-  ): Promise<ClerkInviteUserToOrganizationResponse> => {
+  handler: async (ctx, args): Promise<Id<"invitations">> => {
     const { companyId, email, role, hourlyRate } = args;
 
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-      ]);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+    ]);
 
-      const existingUser = await ctx.runQuery(
-        internal.users.getUserByEmailInternal,
-        {
-          email,
-        }
-      );
-
-      if (existingUser) {
-        throw new Error(ErrorMessages.USER_WITH_EMAIL_EXISTS);
-      }
-
-      const company = await ctx.runQuery(
-        internal.companies.getCompanyByIdInternal,
-        { companyId }
-      );
-      const validatedCompany = validateCompany(company);
-      isUserInOrg(identity, validatedCompany.clerkOrganizationId);
-
-      const response = await clerkInviteUserToOrganizationHelper(
-        validatedCompany.clerkOrganizationId,
+    const existingUser = await ctx.runQuery(
+      internal.users.getUserByEmailInternal,
+      {
         email,
-        role as string
-      );
+      }
+    );
 
-      const invitationId = await ctx.runMutation(
-        internal.invitations.createInvitationInternal,
-        {
-          clerkInvitationId: response.id,
-          clerkOrganizationId: validatedCompany.clerkOrganizationId,
-          role,
-          email,
-          hourlyRate,
-        }
-      );
-
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { invitationId },
-      };
-    } catch (error) {
-      console.error(error);
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error:
-          error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR,
-      };
+    if (existingUser) {
+      throw new ConvexError({
+        code: "CONFLICT",
+        message: ErrorMessages.USER_WITH_EMAIL_EXISTS,
+      });
     }
+
+    const company = await ctx.runQuery(
+      internal.companies.getCompanyByIdInternal,
+      { companyId }
+    );
+    const validatedCompany = validateCompany(company);
+    isUserInOrg(identity, validatedCompany.clerkOrganizationId);
+
+    const response = await clerkInviteUserToOrganizationHelper(
+      validatedCompany.clerkOrganizationId,
+      email,
+      role as string
+    );
+
+    const invitationId = await ctx.runMutation(
+      internal.invitations.createInvitationInternal,
+      {
+        clerkInvitationId: response.id,
+        clerkOrganizationId: validatedCompany.clerkOrganizationId,
+        role,
+        email,
+        hourlyRate,
+      }
+    );
+
+    return invitationId;
   },
 });
