@@ -153,6 +153,11 @@ export interface SegmentDistance {
   duration: number | null;
 }
 
+export type ArrivalTimes = {
+  arrivalWindowStarts: string;
+  arrivalWindowEnds: string;
+};
+
 export type QuoteStatus = "pending" | "completed" | "customer_change";
 
 export const TRAVEL_FEE_METHOD_OPTIONS: {

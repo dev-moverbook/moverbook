@@ -14,8 +14,8 @@ import {
   SegmentDistance,
   ServiceType,
 } from "@/types/types";
-import { ArrivalTimes } from "@/types/convex-schemas";
 import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
+import { ArrivalTimes } from "@/types/types";
 
 export interface CreateMoveInput {
   arrivalTimes: ArrivalTimes;
