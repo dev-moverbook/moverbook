@@ -2,8 +2,7 @@ import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { ResponseStatus } from "@/types/enums";
-import { FrontEndErrorMessages } from "@/types/errors";
+import { setErrorFromConvexError } from "../frontendUtils/errorHelper";
 
 export const useDeleteUser = () => {
   const deleteUserMutation = useMutation(api.users.updateUserActiveStatus);
@@ -14,16 +13,11 @@ export const useDeleteUser = () => {
     setLoading(true);
     setError(null);
     try {
-      const result = await deleteUserMutation({ userId: id, isActive: false });
-      if (result.status === ResponseStatus.SUCCESS) {
-        return true;
-      } else {
-        console.error(result.error);
-        setError(FrontEndErrorMessages.GENERIC);
-      }
+      await deleteUserMutation({ userId: id, isActive: false });
+      return true;
     } catch (error) {
-      console.error(error);
-      setError(FrontEndErrorMessages.GENERIC);
+      setErrorFromConvexError(error, setError);
+      return false;
     } finally {
       setLoading(false);
     }
