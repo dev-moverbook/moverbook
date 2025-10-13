@@ -144,8 +144,7 @@ const AddLineModal = ({
             }}
             options={feeOptions}
             loading={isLoading}
-            queryError={errorMessage}
-            error={errors.name}
+            error={errors.name || errorMessage}
           />
         )}
       </div>
