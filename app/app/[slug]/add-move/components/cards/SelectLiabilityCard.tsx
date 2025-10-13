@@ -1,7 +1,6 @@
 "use client";
 
-import { InsurancePolicySchema } from "@/types/convex-schemas";
-import { Id } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import CustomCard from "@/app/components/shared/CustomCard";
 import CardHeaderWithActions from "@/app/components/shared/CardHeaderWithActions";
 import CardDetailsWrapper from "@/app/components/shared/CardDetailsWrapper";
@@ -11,10 +10,10 @@ import clsx from "clsx";
 import { formatCurrency } from "@/app/frontendUtils/helper";
 
 interface SelectLiabilityCardProps {
-  policy?: InsurancePolicySchema;
+  policy?: Doc<"insurancePolicies">;
   isSelected?: boolean;
   onSelect?: (policyId: Id<"insurancePolicies">) => void;
-  disabled?: boolean; // NEW
+  disabled?: boolean;
 }
 
 const SelectLiabilityCard: React.FC<SelectLiabilityCardProps> = ({
