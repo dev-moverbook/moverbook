@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Id } from "@/convex/_generated/dataModel";
-import { CategorySchema } from "@/types/convex-schemas";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import { FrontEndErrorMessages } from "@/types/errors";
 import FieldGroup from "@/app/components/shared/FieldGroup";
 import FieldRow from "@/app/components/shared/FieldRow";
@@ -27,7 +26,7 @@ interface CategoryModalProps {
   loading: boolean;
   error: string | null;
   companyId: Id<"companies">;
-  initialData?: CategorySchema | null;
+  initialData?: Doc<"categories"> | null;
 }
 
 const CategoryModal: React.FC<CategoryModalProps> = ({

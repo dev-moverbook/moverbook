@@ -1,16 +1,15 @@
 "use client";
 
 import React from "react";
-import { Id } from "@/convex/_generated/dataModel";
-import { CategorySchema } from "@/types/convex-schemas";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import SelectableCardContainer from "@/app/components/shared/containers/SelectableCardContainer";
 
 interface CategoryTreeProps {
-  category: CategorySchema;
-  allCategories: CategorySchema[];
+  category: Doc<"categories">;
+  allCategories: Doc<"categories">[];
   expandedCategories: Id<"categories">[];
   onCategoryClick: (categoryId: Id<"categories">) => void;
-  onEdit: (category: CategorySchema) => void;
+  onEdit: (category: Doc<"categories">) => void;
   onDelete: (categoryId: Id<"categories">) => void;
   onAddCategory: (parentCategory: Id<"categories">) => void;
   showEditIcon?: boolean;
