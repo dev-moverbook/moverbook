@@ -1,15 +1,15 @@
 import { useState } from "react";
 import CenteredContainer from "@/app/components/shared/CenteredContainer";
 import SectionContainer from "@/app/components/shared/SectionContainer";
-import { VariableSchema } from "@/types/convex-schemas";
 import SectionHeader from "@/app/components/shared/SectionHeader";
 import CardContainer from "@/app/components/shared/CardContainer";
 import FormActions from "@/app/components/shared/FormActions";
 import { useUpdateVariable } from "../hooks/useUpdateVariable";
 import VariableCard from "../components/VariableCard";
+import { Doc } from "@/convex/_generated/dataModel";
 
 interface VariablesSectionProps {
-  variables: VariableSchema[];
+  variables: Doc<"variables">[];
 }
 
 const VariablesSection: React.FC<VariablesSectionProps> = ({ variables }) => {

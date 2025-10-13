@@ -134,7 +134,6 @@ const CompanyContactSection: React.FC<CompanyContactSectionProps> = ({
     setFieldErrors((prev) => ({ ...prev, [name as FieldKey]: "" }));
   };
 
-  // Disable save unless we have the full Google address payload
   const isDisabled =
     !formData.email ||
     !formData.phoneNumber ||

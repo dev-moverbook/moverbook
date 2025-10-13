@@ -20,12 +20,7 @@ const TagLabel: React.FC<TagLabelProps> = ({
       className={clsx("flex items-center justify-between w-full", className)}
     >
       <span className="text-white font-medium">{label}</span>
-      <Button
-        variant="link"
-        type="button"
-        onClick={onToggle}
-        // className="text-white underline hover:opacity-80 transition"
-      >
+      <Button variant="link" type="button" onClick={onToggle}>
         {buttonText}
       </Button>
     </div>

@@ -12,11 +12,11 @@ interface NumberInputProps {
   isEditing?: boolean;
   error?: string | null;
   placeholder?: string;
-  unit?: string; // e.g. "ft³", "kg", "%"
-  alwaysShowUnit?: boolean; // show unit even when empty
+  unit?: string;
+  alwaysShowUnit?: boolean;
   thousandSeparator?: boolean;
-  decimalScale?: number; // default 0
-  allowNegative?: boolean; // default false
+  decimalScale?: number;
+  allowNegative?: boolean;
 }
 
 const NumberInput: React.FC<NumberInputProps> = ({
