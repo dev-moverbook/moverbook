@@ -9,103 +9,173 @@ import { ItemCreateInput } from "../app/[slug]/move-setup/hooks/useCreateItem";
 import { LaborCreateInput } from "../app/[slug]/move-setup/hooks/useCreateLabor";
 
 export const transformToCreateMoveInput = (
-  form: MoveFormData
+  formData: MoveFormData
 ): CreateMoveInput => {
-  if (!form.companyId) throw new Error("Company ID is required.");
-  if (!form.salesRep) throw new Error("Sales Rep is required.");
-  if (!form.moveCustomerId) throw new Error("Customer ID is required.");
-  if (!form.referralId) throw new Error("Referral is required.");
+  if (!formData.companyId) {
+    throw new Error("Company ID is required.");
+  }
+
+  if (!formData.salesRep) {
+    throw new Error("Sales Rep is required.");
+  }
+
+  if (!formData.moveCustomerId) {
+    throw new Error("Customer ID is required.");
+  }
+
+  if (!formData.referralId) {
+    throw new Error("Referral is required.");
+  }
 
   return {
-    arrivalTimes: form.arrivalTimes,
-    companyId: form.companyId,
-    creditCardFee: form.creditCardFee,
-    deposit: form.deposit,
-    paymentMethod: form.paymentMethod,
-    destinationToOrigin: form.destinationToOrigin,
-    endingMoveTime: form.endingMoveTime,
-    jobType: form.jobType,
-    jobTypeRate: form.jobTypeRate,
-    liabilityCoverage: form.liabilityCoverage,
-    locations: form.locations,
-    moveCustomerId: form.moveCustomerId,
-    moveDate: form.moveDate,
-    moveFees: form.moveFees,
-    moveItems: form.moveItems,
-    moveStatus: form.moveStatus,
-    moveWindow: form.moveWindow,
-    movers: form.movers,
-    notes: form.notes
-      ? form.notes.trim() === ""
+    arrivalTimes: formData.arrivalTimes,
+    companyId: formData.companyId,
+    creditCardFee: formData.creditCardFee,
+    deposit: formData.deposit,
+    paymentMethod: formData.paymentMethod,
+    destinationToOrigin: formData.destinationToOrigin,
+    endingMoveTime: formData.endingMoveTime,
+    jobType: formData.jobType,
+    jobTypeRate: formData.jobTypeRate,
+    liabilityCoverage: formData.liabilityCoverage,
+    locations: formData.locations,
+    moveCustomerId: formData.moveCustomerId,
+    moveDate: formData.moveDate,
+    moveFees: formData.moveFees,
+    moveItems: formData.moveItems,
+    moveStatus: formData.moveStatus,
+    moveWindow: formData.moveWindow,
+    movers: formData.movers,
+    notes: formData.notes
+      ? formData.notes.trim() === ""
         ? null
-        : form.notes.trim()
+        : formData.notes.trim()
       : null,
-    officeToOrigin: form.officeToOrigin,
-    referralId: form.referralId,
-    roundTripDrive: form.roundTripDrive,
-    roundTripMiles: form.roundTripMiles,
-    salesRep: form.salesRep,
-    segmentDistances: form.segmentDistances,
-    serviceType: form.serviceType,
-    startingMoveTime: form.startingMoveTime,
-    totalMiles: form.totalMiles,
-    travelFeeRate: form.travelFeeRate,
-    travelFeeMethod: form.travelFeeMethod,
-    trucks: form.trucks,
+    officeToOrigin: formData.officeToOrigin,
+    referralId: formData.referralId,
+    roundTripDrive: formData.roundTripDrive,
+    roundTripMiles: formData.roundTripMiles,
+    salesRep: formData.salesRep,
+    segmentDistances: formData.segmentDistances,
+    serviceType: formData.serviceType,
+    startingMoveTime: formData.startingMoveTime,
+    totalMiles: formData.totalMiles,
+    travelFeeRate: formData.travelFeeRate,
+    travelFeeMethod: formData.travelFeeMethod,
+    trucks: formData.trucks,
   };
 };
 
 type Result<T> = { ok: true; value: T } | { ok: false; error: string };
 
-export const toItemCreateInput = (d: ItemFormData): Result<ItemCreateInput> => {
-  if (d.size == null) return { ok: false, error: "Size is required" };
-  if (d.weight == null) return { ok: false, error: "Weight is required" };
+export const toItemCreateInput = (
+  itemFormData: ItemFormData
+): Result<ItemCreateInput> => {
+  if (itemFormData.size == null) {
+    return {
+      ok: false,
+      error: "Size is required",
+    };
+  }
 
-  return { ok: true, value: { ...d, size: d.size, weight: d.weight } };
-};
-
-const mustNumber = (v: number | null): number =>
-  typeof v === "number" && !Number.isNaN(v) ? v : NaN;
-
-export const buildLaborCreateInput = (
-  d: CreateLaborFormData
-): Result<LaborCreateInput> => {
-  if (!d.name.trim()) return { ok: false, error: "Labor name is required" };
-
-  const startDate = mustNumber(d.startDate);
-  const endDate = mustNumber(d.endDate);
-  const two = mustNumber(d.twoMovers);
-  const three = mustNumber(d.threeMovers);
-  const four = mustNumber(d.fourMovers);
-  const extra = mustNumber(d.extra);
-
-  if (Number.isNaN(startDate))
-    return { ok: false, error: "Start date is required" };
-  if (Number.isNaN(endDate))
-    return { ok: false, error: "End date is required" };
-  if (Number.isNaN(two))
-    return { ok: false, error: "Two movers rate is required" };
-  if (Number.isNaN(three))
-    return { ok: false, error: "Three movers rate is required" };
-  if (Number.isNaN(four))
-    return { ok: false, error: "Four movers rate is required" };
-  if (Number.isNaN(extra))
-    return { ok: false, error: "Extra rate is required" };
-
-  if (startDate > endDate) {
-    return { ok: false, error: "Start date cannot be after end date" };
+  if (itemFormData.weight == null) {
+    return {
+      ok: false,
+      error: "Weight is required",
+    };
   }
 
   return {
     ok: true,
     value: {
-      name: d.name.trim(),
-      startDate,
-      endDate,
-      twoMovers: two,
-      threeMovers: three,
-      fourMovers: four,
-      extra,
+      ...itemFormData,
+      size: itemFormData.size,
+      weight: itemFormData.weight,
+    },
+  };
+};
+
+const coerceToNumber = (possibleNumber: number | null): number =>
+  typeof possibleNumber === "number" && !Number.isNaN(possibleNumber)
+    ? possibleNumber
+    : Number.NaN;
+
+export const buildLaborCreateInput = (
+  createLaborFormData: CreateLaborFormData
+): Result<LaborCreateInput> => {
+  if (!createLaborFormData.name.trim()) {
+    return {
+      ok: false,
+      error: "Labor name is required",
+    };
+  }
+
+  const startDateMs = coerceToNumber(createLaborFormData.startDate);
+  const endDateMs = coerceToNumber(createLaborFormData.endDate);
+  const twoMoversRate = coerceToNumber(createLaborFormData.twoMovers);
+  const threeMoversRate = coerceToNumber(createLaborFormData.threeMovers);
+  const fourMoversRate = coerceToNumber(createLaborFormData.fourMovers);
+  const extraMoverRate = coerceToNumber(createLaborFormData.extra);
+
+  if (Number.isNaN(startDateMs)) {
+    return {
+      ok: false,
+      error: "Start date is required",
+    };
+  }
+
+  if (Number.isNaN(endDateMs)) {
+    return {
+      ok: false,
+      error: "End date is required",
+    };
+  }
+
+  if (Number.isNaN(twoMoversRate)) {
+    return {
+      ok: false,
+      error: "Two movers rate is required",
+    };
+  }
+
+  if (Number.isNaN(threeMoversRate)) {
+    return {
+      ok: false,
+      error: "Three movers rate is required",
+    };
+  }
+
+  if (Number.isNaN(fourMoversRate)) {
+    return {
+      ok: false,
+      error: "Four movers rate is required",
+    };
+  }
+
+  if (Number.isNaN(extraMoverRate)) {
+    return {
+      ok: false,
+      error: "Extra rate is required",
+    };
+  }
+
+  if (startDateMs > endDateMs) {
+    return {
+      ok: false,
+      error: "Start date cannot be after end date",
+    };
+  }
+
+  return {
+    ok: true,
+    value: {
+      name: createLaborFormData.name.trim(),
+      startDate: startDateMs,
+      endDate: endDateMs,
+      twoMovers: twoMoversRate,
+      threeMovers: threeMoversRate,
+      fourMovers: fourMoversRate,
+      extra: extraMoverRate,
     },
   };
 };

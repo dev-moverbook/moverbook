@@ -13,18 +13,20 @@ import { useUpdateLabor } from "../hooks/useUpdateLabor";
 import { useDeleteLabor } from "../hooks/useDeleteLabor";
 import CardContainer from "@/app/components/shared/CardContainer";
 import AddItemButton from "@/app/components/shared/buttons/AddItemButton";
+import { useSlugContext } from "@/app/contexts/SlugContext";
 
 interface LaborSectionProps {
   labor: Doc<"labor">[];
-  companyId: Id<"companies">;
 }
 
-const LaborSection: React.FC<LaborSectionProps> = ({ labor, companyId }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(false);
+const LaborSection: React.FC<LaborSectionProps> = ({ labor }) => {
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [selectedLabor, setSelectedLabor] = useState<Doc<"labor"> | null>(null);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
   const [laborToDelete, setLaborToDelete] = useState<Id<"labor"> | null>(null);
+
+  const { companyId } = useSlugContext();
 
   const {
     createLabor,
@@ -78,9 +80,14 @@ const LaborSection: React.FC<LaborSectionProps> = ({ labor, companyId }) => {
   };
 
   const handleConfirmDelete = async () => {
-    if (!laborToDelete) return;
+    if (!laborToDelete) {
+      return;
+    }
+
     const success = await deleteLabor(laborToDelete);
-    if (success) handleCloseDeleteModal();
+    if (success) {
+      handleCloseDeleteModal();
+    }
   };
 
   return (

@@ -5,6 +5,7 @@ import { CategorySchema } from "@/types/convex-schemas";
 import { Button } from "@/app/components/ui/button";
 import { Id } from "@/convex/_generated/dataModel";
 
+//not used
 interface CategoryCardProps {
   category: CategorySchema;
   onEdit: (category: CategorySchema) => void;

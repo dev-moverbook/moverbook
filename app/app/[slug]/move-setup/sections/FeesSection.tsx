@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Id } from "@/convex/_generated/dataModel";
-import { FeeSchema } from "@/types/convex-schemas";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import ConfirmModal from "@/app/components/shared/ConfirmModal";
 import { useCreateFee } from "../hooks/useCreateFee";
 import { useUpdateFee } from "../hooks/useUpdateFee";
@@ -16,14 +15,14 @@ import CardContainer from "@/app/components/shared/CardContainer";
 import AddItemButton from "@/app/components/shared/buttons/AddItemButton";
 
 interface FeesSectionProps {
-  fees: FeeSchema[];
+  fees: Doc<"fees">[];
   companyId: Id<"companies">;
 }
 
 const FeesSection: React.FC<FeesSectionProps> = ({ fees, companyId }) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
-  const [selectedFee, setSelectedFee] = useState<FeeSchema | null>(null);
+  const [selectedFee, setSelectedFee] = useState<Doc<"fees"> | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
   const [feeToDelete, setFeeToDelete] = useState<Id<"fees"> | null>(null);
 
@@ -43,7 +42,7 @@ const FeesSection: React.FC<FeesSectionProps> = ({ fees, companyId }) => {
     setCreateError(null);
   };
 
-  const handleOpenEditModal = (fee: FeeSchema): void => {
+  const handleOpenEditModal = (fee: Doc<"fees">): void => {
     setIsEditMode(true);
     setSelectedFee(fee);
     setIsModalOpen(true);
@@ -95,7 +94,6 @@ const FeesSection: React.FC<FeesSectionProps> = ({ fees, companyId }) => {
             />
           ))}
         </CardContainer>
-        {/* Create/Edit Modal */}
         <FeeModal
           isOpen={isModalOpen}
           onClose={handleCloseModal}
@@ -107,7 +105,6 @@ const FeesSection: React.FC<FeesSectionProps> = ({ fees, companyId }) => {
           initialData={selectedFee}
         />
 
-        {/* Delete Confirmation Modal */}
         <ConfirmModal
           isOpen={isDeleteModalOpen}
           onClose={handleCloseDeleteModal}

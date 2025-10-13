@@ -1,8 +1,7 @@
 "use client";
 
 import React from "react";
-import { FeeSchema } from "@/types/convex-schemas";
-import { Id } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import IconRow from "@/app/components/shared/IconRow";
 import IconButton from "@/app/components/shared/IconButton";
 import { Pencil, Trash2 } from "lucide-react";
@@ -10,8 +9,8 @@ import ListItemRow from "@/app/components/shared/ListItemRow";
 import { formatCurrency } from "@/app/frontendUtils/helper";
 
 interface FeeCardProps {
-  fee: FeeSchema;
-  onEdit: (fee: FeeSchema) => void;
+  fee: Doc<"fees">;
+  onEdit: (fee: Doc<"fees">) => void;
   onDelete: (feeId: Id<"fees">) => void;
 }
 

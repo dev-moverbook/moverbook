@@ -13,16 +13,15 @@ import { useUpdateInsurancePolicy } from "../hooks/useUpdateInsurancePolicy";
 import { useDeleteInsurancePolicy } from "../hooks/useDeleteInsurancePolicy";
 import CardContainer from "@/app/components/shared/CardContainer";
 import AddItemButton from "@/app/components/shared/buttons/AddItemButton";
+import { useSlugContext } from "@/app/contexts/SlugContext";
 
 interface LiabilitySectionProps {
   policies: Doc<"insurancePolicies">[];
-  companyId: Id<"companies">;
 }
 
-const LiabilitySection: React.FC<LiabilitySectionProps> = ({
-  policies,
-  companyId,
-}) => {
+const LiabilitySection: React.FC<LiabilitySectionProps> = ({ policies }) => {
+  const { companyId } = useSlugContext();
+
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [selectedPolicy, setSelectedPolicy] =

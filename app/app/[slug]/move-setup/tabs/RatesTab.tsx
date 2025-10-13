@@ -27,11 +27,8 @@ const RatesTab = () => {
 
       content = (
         <>
-          <LaborSection labor={labor} companyId={companyId!} />
-          <LiabilitySection
-            policies={insurancePolicies}
-            companyId={companyId!}
-          />
+          <LaborSection labor={labor} />
+          <LiabilitySection policies={insurancePolicies} />
           <TravelFeeSection travelFee={travelFee} />
           <CreditCardFeeSection creditCardFee={creditCardFee} />
           <FeesSection fees={fees} companyId={companyId!} />

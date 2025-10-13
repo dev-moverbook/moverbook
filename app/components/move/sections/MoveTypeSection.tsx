@@ -1,4 +1,3 @@
-// app/components/move/sections/MoveTypeSection.tsx
 "use client";
 
 import React from "react";
@@ -6,6 +5,7 @@ import SectionContainer from "@/app/components/shared/containers/SectionContaine
 import SectionHeader from "@/app/components/shared/SectionHeader";
 import FormActions from "@/app/components/shared/FormActions";
 import {
+  MoveTimes,
   SERVICE_TYPE_OPTIONS,
   START_WINDOW_OPTIONS,
   ServiceType,
@@ -17,74 +17,54 @@ import LabeledRadio from "@/app/components/shared/labeled/LabeledRadio";
 import LabeledTimeInput from "@/app/components/shared/labeled/LabeledTimeInput";
 import TimeSlotSelector from "@/app/components/shared/labeled/TimeSlotSelector";
 
-type MoveWindow = "morning" | "afternoon" | "custom";
-
 export interface MoveTypeSectionProps {
-  // values
   serviceType: ServiceType | null;
   moveDate: string | null;
-  startWindowOption: StartWindowOption; // "available" | "custom"
-  moveWindow: MoveWindow;
+  startWindowOption: StartWindowOption;
+  moveWindow: MoveTimes;
   arrivalTimes: {
     arrivalWindowStarts: string | null;
     arrivalWindowEnds: string | null;
   };
-
-  // time slot data (already formatted)
   timeSlotOptions: { label: string; value: string }[] | null;
   timeSlotsLoading?: boolean;
   timeSlotsError?: string | null;
-
-  // editing + save/cancel
   isEditing: boolean;
   setIsEditing: (v: boolean) => void;
   onSave: () => Promise<boolean> | boolean;
   onCancel: () => void;
   isSaving?: boolean;
   updateError?: string | null;
-
-  // change handlers
   onServiceTypeChange: (v: ServiceType) => void;
   onMoveDateChange: (v: string) => void;
   onStartWindowOptionChange: (v: StartWindowOption) => void;
   onArrivalStartChange: (v: string) => void;
   onArrivalEndChange: (v: string) => void;
   onSelectTimeSlot: (value: string) => void;
-
-  // permissions
-  canEdit?: boolean; // hide edit controls when false (e.g., movers)
+  canEdit?: boolean;
 }
 
 const MoveTypeSection: React.FC<MoveTypeSectionProps> = ({
-  // values
   serviceType,
   moveDate,
   startWindowOption,
   moveWindow,
   arrivalTimes,
-
-  // slot data
   timeSlotOptions,
   timeSlotsLoading,
   timeSlotsError,
-
-  // editing
   isEditing,
   setIsEditing,
   onSave,
   onCancel,
   isSaving,
   updateError,
-
-  // handlers
   onServiceTypeChange,
   onMoveDateChange,
   onStartWindowOptionChange,
   onArrivalStartChange,
   onArrivalEndChange,
   onSelectTimeSlot,
-
-  // perms
   canEdit = true,
 }) => {
   const isCompleted =
@@ -162,8 +142,7 @@ const MoveTypeSection: React.FC<MoveTypeSectionProps> = ({
             options={timeSlotOptions}
             isEditing={isEditing}
             isLoading={!!timeSlotsLoading}
-            isError={!!timeSlotsError}
-            fetchErrorMessage={timeSlotsError ?? null}
+            fetchErrorMessage={timeSlotsError}
           />
         )}
 
@@ -175,7 +154,7 @@ const MoveTypeSection: React.FC<MoveTypeSectionProps> = ({
             }}
             onCancel={onCancel}
             isSaving={!!isSaving}
-            error={updateError ?? null}
+            error={updateError}
           />
         )}
       </SectionContainer>
