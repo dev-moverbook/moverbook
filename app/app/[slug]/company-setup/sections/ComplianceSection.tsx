@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { ComplianceSchema } from "@/types/convex-schemas";
 import { ComplianceFormData } from "@/types/form-types";
-import { Id } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import SectionContainer from "@/app/components/shared/SectionContainer";
 import CenteredContainer from "@/app/components/shared/CenteredContainer";
 import SectionHeader from "@/app/components/shared/SectionHeader";
@@ -12,7 +11,7 @@ import FieldGroup from "@/app/components/shared/FieldGroup";
 import FieldRow from "@/app/components/shared/FieldRow";
 
 interface ComplianceSectionProps {
-  compliance: ComplianceSchema;
+  compliance: Doc<"compliance">;
   updateCompliance: (
     complianceId: Id<"compliance">,
     updates: ComplianceFormData
