@@ -3,12 +3,11 @@ import { useQuery } from "convex/react";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 
 export const useActiveReferrals = (
-  companyId: Id<"companies"> | null
+  companyId: Id<"companies">
 ): Doc<"referrals">[] | undefined => {
-  const response = useQuery(
-    api.referrals.getActiveReferralsByCompanyId,
-    companyId ? { companyId } : "skip"
-  );
+  const response = useQuery(api.referrals.getActiveReferralsByCompanyId, {
+    companyId,
+  });
 
   return response;
 };

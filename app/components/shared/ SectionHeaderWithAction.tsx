@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 interface SectionHeaderWithActionProps {
   title: string;
   action?: React.ReactNode;
-  className?: string; // new prop
+  className?: string;
 }
 
 const SectionHeaderWithAction: React.FC<SectionHeaderWithActionProps> = ({

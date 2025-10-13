@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { useMediaQuery } from "react-responsive";
 import FormActions from "@/app/components/shared/FormActions";
 import FieldGroup from "@/app/components/shared/FieldGroup";
 import FieldRow from "@/app/components/shared/FieldRow";
-import { MOBILE_BREAKPOINT } from "@/types/const";
 import ResponsiveModal from "../modal/ResponsiveModal";
 
 interface CounterModalProps {
@@ -27,8 +25,6 @@ const CounterModal: React.FC<CounterModalProps> = ({
   step = 1,
   inputRef,
 }) => {
-  const isMobile = useMediaQuery({ maxWidth: MOBILE_BREAKPOINT });
-
   const [errors, setErrors] = useState<string | null>(null);
   const [quantity, setQuantity] = useState<string>("");
 

@@ -106,7 +106,6 @@ export const MoveFilterProvider = ({
       setSalesRep,
       moves,
       isLoading,
-
       isList,
       setIsList,
       selectedDate,

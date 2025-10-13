@@ -11,7 +11,9 @@ const MoveContext = createContext<MoveContextValue | undefined>(undefined);
 
 export const useMoveContext = () => {
   const ctx = useContext(MoveContext);
-  if (!ctx) throw new Error("useMoveContext must be used inside MoveProvider");
+  if (!ctx) {
+    throw new Error("useMoveContext must be used inside MoveProvider");
+  }
   return ctx;
 };
 
