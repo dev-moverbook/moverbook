@@ -32,7 +32,7 @@ export const useUpdateInsurancePolicy = () => {
     setUpdateInsurancePolicyError(null);
 
     try {
-      const response = await updateInsurancePolicyMutation({
+      await updateInsurancePolicyMutation({
         insurancePolicyId,
         updates: {
           coverageType: updates.coverageType ?? undefined,

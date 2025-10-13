@@ -25,8 +25,7 @@ type UpdateScriptData = {
 const ScriptsTab = () => {
   const { companyId } = useSlugContext();
 
-  const { createScript, createLoading, createError, setCreateError } =
-    useCreateScript();
+  const { createScript, createLoading, createError } = useCreateScript();
 
   const {
     updateScript,

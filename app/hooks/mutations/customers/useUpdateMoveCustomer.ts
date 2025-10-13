@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { FrontEndErrorMessages } from "@/types/errors";
 import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
 interface UpdateMoveCustomerInput {

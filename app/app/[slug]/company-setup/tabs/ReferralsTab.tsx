@@ -24,8 +24,7 @@ const ReferralsTab = () => {
     name: string;
   } | null>(null);
 
-  const { createReferral, createLoading, createError, setCreateError } =
-    useCreateReferral();
+  const { createReferral, createLoading, createError } = useCreateReferral();
 
   const { updateReferral, updateLoading, updateError, setUpdateError } =
     useUpdateReferral();

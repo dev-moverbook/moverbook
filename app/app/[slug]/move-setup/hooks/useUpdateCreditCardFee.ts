@@ -29,7 +29,7 @@ export const useUpdateCreditCardFee = () => {
     setUpdateCreditCardFeeError(null);
 
     try {
-      const response = await updateCreditCardFeeMutation({
+      await updateCreditCardFeeMutation({
         creditCardFeeId,
         updates,
       });

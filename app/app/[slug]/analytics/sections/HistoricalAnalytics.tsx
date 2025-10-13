@@ -1,8 +1,6 @@
 "use client";
 
-import ErrorComponent from "@/app/components/shared/ErrorComponent";
 import { useSlugContext } from "@/app/contexts/SlugContext";
-import { QueryStatus } from "@/types/enums";
 import type { Id } from "@/convex/_generated/dataModel";
 import { useHistoricalAnalytics } from "@/app/hooks/queries/analytics/useHistoricalAnalytics";
 import HistoricalAnalyticsSuccess from "./HistoricalAnalyticsSuccess";

@@ -1,9 +1,7 @@
 "use client";
 
-import ErrorComponent from "@/app/components/shared/ErrorComponent";
 import { useSlugContext } from "@/app/contexts/SlugContext";
 import { useForecastedAnalytics } from "@/app/hooks/queries/analytics/useForecastedAnalytics";
-import { QueryStatus } from "@/types/enums";
 import type { Id } from "@/convex/_generated/dataModel";
 import ForecastedAnalyticsSuccess from "./ForecastedAnalyticsSuccess";
 import ChartCardSkeletonStatic from "@/app/components/shared/skeleton/ChartCardSkeleton";

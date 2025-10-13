@@ -18,7 +18,7 @@ export const useCreateReferral = () => {
     setCreateError(null);
 
     try {
-      const response = await createReferralMutation({ companyId, name });
+      await createReferralMutation({ companyId, name });
 
       return true;
     } catch (error) {

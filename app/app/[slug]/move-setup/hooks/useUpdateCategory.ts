@@ -27,8 +27,7 @@ export const useUpdateCategory = () => {
     setUpdateCategoryError(null);
 
     try {
-      const response = await updateCategoryMutation({ categoryId, updates });
-
+      await updateCategoryMutation({ categoryId, updates });
       return true;
     } catch (error) {
       setErrorFromConvexError(error, setUpdateCategoryError);

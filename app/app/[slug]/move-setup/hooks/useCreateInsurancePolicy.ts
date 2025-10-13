@@ -26,7 +26,7 @@ export const useCreateInsurancePolicy = () => {
     setCreateInsurancePolicyError(null);
 
     try {
-      const response = await createInsurancePolicyMutation({
+      await createInsurancePolicyMutation({
         companyId,
         name: policy.name,
         coverageType: policy.coverageType!,

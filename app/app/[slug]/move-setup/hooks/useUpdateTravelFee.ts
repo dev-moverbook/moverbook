@@ -30,8 +30,7 @@ export const useUpdateTravelFee = () => {
     setUpdateTravelFeeError(null);
 
     try {
-      const response = await updateTravelFeeMutation({ travelFeeId, updates });
-
+      await updateTravelFeeMutation({ travelFeeId, updates });
       return true;
     } catch (error) {
       setErrorFromConvexError(error, setUpdateTravelFeeError);

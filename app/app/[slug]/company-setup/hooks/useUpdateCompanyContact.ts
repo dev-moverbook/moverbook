@@ -31,7 +31,7 @@ export const useUpdateCompanyContact = () => {
     setUpdateCompanyContactError(null);
 
     try {
-      const response = await updateCompanyContactMutation({
+      await updateCompanyContactMutation({
         companyContactId,
         updates,
       });

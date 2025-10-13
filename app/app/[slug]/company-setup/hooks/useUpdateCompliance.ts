@@ -27,7 +27,7 @@ export const useUpdateCompliance = () => {
     setUpdateComplianceError(null);
 
     try {
-      const response = await updateComplianceMutation({
+      await updateComplianceMutation({
         complianceId,
         updates,
       });

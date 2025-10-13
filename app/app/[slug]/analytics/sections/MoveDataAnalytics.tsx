@@ -1,8 +1,6 @@
 "use client";
 
-import ErrorComponent from "@/app/components/shared/ErrorComponent";
 import { useSlugContext } from "@/app/contexts/SlugContext";
-import { QueryStatus } from "@/types/enums";
 import { useMoveAnalytics } from "@/app/hooks/queries/analytics/useMoveAnalytics";
 import { LocationType, MoveSize, ServiceType } from "@/types/types";
 import MoveDataAnalyticsSuccess from "./MoveDataAnalyticsSuccess";

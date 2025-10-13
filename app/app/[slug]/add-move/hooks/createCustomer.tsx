@@ -4,8 +4,6 @@ import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { ResponseStatus } from "@/types/enums";
-import { FrontEndErrorMessages } from "@/types/errors";
 import { Doc } from "@/convex/_generated/dataModel";
 import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
@@ -41,7 +39,6 @@ export const useCreateMoveCustomer = () => {
       const response = await createMoveCustomerMutation(data);
 
       if (response) {
-        // Return the appropriate result
         if ("moveCustomerId" in response) {
           return {
             success: true,

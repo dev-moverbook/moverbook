@@ -1,8 +1,6 @@
 "use client";
 import React from "react";
 import { useSlugContext } from "@/app/contexts/SlugContext";
-import ErrorMessage from "@/app/components/shared/error/ErrorMessage";
-import { QueryStatus } from "@/types/enums";
 import { useRecentMessagesByCompanyId } from "@/app/hooks/queries/messages/useRecentMessagesByCompanyId";
 import CenteredContainer from "@/app/components/shared/CenteredContainer";
 import MessagesContent from "./MessagesContent";

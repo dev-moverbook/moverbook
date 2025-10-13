@@ -7,7 +7,7 @@ type CustomerId = { customerId: Id<"moveCustomers"> };
 
 const CustomerIdContext = createContext<CustomerId | null>(null);
 
-export function UserIdProvider({
+export function CustomerIdProvider({
   customerId,
   children,
 }: {
