@@ -1,11 +1,8 @@
 import React, { useState } from "react";
-import { useMediaQuery } from "react-responsive";
-import { MOBILE_BREAKPOINT } from "@/types/const";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import FieldGroup from "@/app/components/shared/FieldGroup";
 import FormActions from "@/app/components/shared/FormActions";
 import LabeledInput from "@/app/components/shared/labeled/LabeledInput";
+import ResponsiveModal from "@/app/components/shared/modal/ResponsiveModal";
 
 interface EditItemsModalProps {
   isOpen: boolean;
@@ -14,10 +11,8 @@ interface EditItemsModalProps {
 }
 
 const EditItemsModal = ({ isOpen, onClose, onSubmit }: EditItemsModalProps) => {
-  const isMobile = useMediaQuery({ maxWidth: MOBILE_BREAKPOINT });
   const [quantity, setQuantity] = useState<number>(1);
 
-  // Callback ref to focus and select input when it mounts
   const inputCallbackRef = (node: HTMLInputElement | null) => {
     if (isOpen && node) {
       setTimeout(() => {
@@ -46,7 +41,7 @@ const EditItemsModal = ({ isOpen, onClose, onSubmit }: EditItemsModalProps) => {
           if (val >= 1) setQuantity(val);
         }}
         type="number"
-        inputRef={inputCallbackRef} // Use the callback ref here
+        inputRef={inputCallbackRef}
       />
 
       <FormActions
@@ -58,20 +53,18 @@ const EditItemsModal = ({ isOpen, onClose, onSubmit }: EditItemsModalProps) => {
     </FieldGroup>
   );
 
-  return isMobile ? (
-    <Drawer open={isOpen} onOpenChange={handleClose}>
-      <DrawerContent>
-        <DrawerTitle>{"Update Item(s)"}</DrawerTitle>
-        {formContent}
-      </DrawerContent>
-    </Drawer>
-  ) : (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent>
-        <DialogTitle>{"Update Item(s)"}</DialogTitle>
-        {formContent}
-      </DialogContent>
-    </Dialog>
+  const title = "Update Item(s)";
+  const description = "Update the quantity of the item(s).";
+
+  return (
+    <ResponsiveModal
+      isOpen={isOpen}
+      onClose={handleClose}
+      title={title}
+      description={description}
+    >
+      {formContent}
+    </ResponsiveModal>
   );
 };
 

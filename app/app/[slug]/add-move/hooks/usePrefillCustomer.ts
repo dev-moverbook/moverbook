@@ -1,4 +1,3 @@
-// app/app/[slug]/add-move/hooks/usePrefillCustomer.ts
 "use client";
 
 import { useQuery } from "convex/react";

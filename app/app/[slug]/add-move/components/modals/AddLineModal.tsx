@@ -41,7 +41,6 @@ const AddLineModal = ({
   const [errors, setErrors] = useState<AddLineValidationErrors>({});
   const [isCustomFee, setIsCustomFee] = useState<boolean>(false);
 
-  // Memoize to stabilize dependency identity
   const feeOptions = useMemo(
     () =>
       moveFeeOptions?.map((fee) => ({ label: fee.name, value: fee.name })) ??

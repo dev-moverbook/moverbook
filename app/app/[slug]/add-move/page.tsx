@@ -1,20 +1,33 @@
 import AddMovePage from "@/app/app/[slug]/add-move/AddMovePage";
 
-export default function Page({
+type PageSearchParams = {
+  moveCustomerId?: string | string[];
+  duplicateFrom?: string | string[];
+  fields?: string | string[];
+};
+
+function getFirstStringValue(value?: string | string[]): string | undefined {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+export default async function Page({
   searchParams,
 }: {
-  searchParams: {
-    moveCustomerId?: string;
-    duplicateFrom?: string;
-    fields?: string;
-  };
+  searchParams: Promise<PageSearchParams>;
 }) {
-  const moveCustomerId = searchParams.moveCustomerId ?? null;
-  const duplicateFromId = searchParams.duplicateFrom ?? null;
+  const searchParamsData = await searchParams;
+
+  const moveCustomerId =
+    getFirstStringValue(searchParamsData.moveCustomerId) ?? null;
+
+  const duplicateFromId =
+    getFirstStringValue(searchParamsData.duplicateFrom) ?? null;
+
+  const rawFields = getFirstStringValue(searchParamsData.fields) ?? "";
   const fieldsToDuplicate =
-    searchParams.fields
-      ?.split(",")
-      .map((s) => s.trim())
+    rawFields
+      .split(",")
+      .map((field) => field.trim())
       .filter(Boolean) ?? [];
 
   return (

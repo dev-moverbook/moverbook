@@ -22,7 +22,6 @@ interface ResponsiveModalProps {
   title: string;
   description?: string;
   children: React.ReactNode;
-  /** Height in vh for the DrawerContent (mobile) */
   heightVh?: number;
 }
 

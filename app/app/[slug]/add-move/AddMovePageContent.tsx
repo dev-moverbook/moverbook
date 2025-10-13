@@ -1,4 +1,3 @@
-// app/app/[slug]/add-move/AddMovePageContent.tsx
 "use client";
 
 import React, { useState } from "react";

@@ -1,4 +1,3 @@
-// app/app/[slug]/add-move/hooks/useWizard.ts
 "use client";
 import { useState, useCallback } from "react";
 
