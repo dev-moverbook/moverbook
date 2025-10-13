@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Id } from "@/convex/_generated/dataModel";
-import { InsurancePolicySchema } from "@/types/convex-schemas";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import { InsurancePolicyFormData } from "@/types/form-types";
 import FieldGroup from "@/app/components/shared/FieldGroup";
 import FieldRow from "@/app/components/shared/FieldRow";
@@ -25,7 +24,7 @@ interface LiabilityModalProps {
   loading: boolean;
   error: string | null;
   companyId: Id<"companies">;
-  initialData?: InsurancePolicySchema | null;
+  initialData?: Doc<"insurancePolicies"> | null;
 }
 
 const LiabilityModal: React.FC<LiabilityModalProps> = ({

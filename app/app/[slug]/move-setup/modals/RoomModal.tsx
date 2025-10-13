@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 
-import { Id } from "@/convex/_generated/dataModel";
-import { RoomSchema } from "@/types/convex-schemas";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import { RoomFormData } from "@/types/form-types";
 import { FrontEndErrorMessages } from "@/types/errors";
 import FieldGroup from "@/app/components/shared/FieldGroup";
@@ -22,7 +21,7 @@ interface RoomModalProps {
   loading: boolean;
   error: string | null;
   companyId: Id<"companies">;
-  initialData?: RoomSchema | null;
+  initialData?: Doc<"rooms"> | null;
 }
 
 const RoomModal: React.FC<RoomModalProps> = ({
