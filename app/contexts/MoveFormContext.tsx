@@ -51,10 +51,7 @@ interface AddMoveFormData {
   categoryOptions?: Doc<"categories">[];
   companyId: Id<"companies"> | null;
   deleteMoveFee: (index: number) => void;
-  errorMessage: string | null;
   insurancePolicyOptions?: Doc<"insurancePolicies">[];
-  isError: boolean;
-  isLoading: boolean;
   itemOptions?: Doc<"items">[];
   moveFeeOptions?: Doc<"fees">[];
   salesRepOptions: SelectOption[];
@@ -82,17 +79,13 @@ interface AddMoveFormData {
   segmentDistances: SegmentDistance[];
   travelFeeOptions?: Doc<"travelFee">;
   isAllSectionsComplete: boolean;
+  isLoading: boolean;
 }
 const MoveFormContext = createContext<AddMoveFormData | undefined>(undefined);
 
 export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
-  const {
-    data: moveOptions,
-    isLoading,
-    isError,
-    errorMessage,
-  } = useMoveOptions();
-  const { data: currentUser } = useCurrentUser();
+  const moveOptions = useMoveOptions();
+  const currentUser = useCurrentUser();
   const { companyId } = useSlugContext();
 
   const {
@@ -171,10 +164,10 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
       applyBootstrapDefaults(prev, {
         companyId,
         deposit: policy?.deposit,
-        salesRepId: currentUser?.user._id,
+        salesRepId: currentUser?._id,
       })
     );
-  }, [companyId, policy?.deposit, currentUser?.user._id]);
+  }, [companyId, policy?.deposit, currentUser?._id]);
 
   useEffect(() => {
     setMoveFormData((prev) => applyTravelFeeDefaults(prev, travelFeeOptions));
@@ -193,7 +186,7 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
     moveFormData.jobType,
   ]);
 
-  const salesRepOptions = buildSalesRepOptions(salesReps, currentUser?.user);
+  const salesRepOptions = buildSalesRepOptions(salesReps, currentUser);
 
   const isInfoSectionComplete = selectInfoDone(customer);
   const isLocationSectionComplete = selectLocationsDone(moveFormData.locations);
@@ -206,6 +199,8 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
     return selectLocationDone(location);
   };
 
+  const isLoading = moveOptions === undefined;
+
   return (
     <MoveFormContext.Provider
       value={{
@@ -215,9 +210,7 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
         categoryOptions,
         companyId,
         deleteMoveFee,
-        errorMessage,
         insurancePolicyOptions,
-        isError,
         isLoading,
         itemOptions,
         moveFeeOptions,

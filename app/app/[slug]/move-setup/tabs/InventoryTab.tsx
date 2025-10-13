@@ -5,9 +5,7 @@ import VerticalSectionGroup from "@/app/components/shared/VerticalSectionGroup";
 import RoomSection from "../sections/RoomSection";
 import ItemSection from "../sections/ItemSection";
 import ResetSection from "../sections/ResetSection";
-import ErrorComponent from "@/app/components/shared/ErrorComponent";
 import { useCompanyInventoryData } from "@/app/hooks/queries/useCompanyInventoryData";
-import { QueryStatus } from "@/types/enums";
 
 const InventoryTab = () => {
   const { companyId } = useSlugContext();
@@ -15,17 +13,13 @@ const InventoryTab = () => {
 
   let content: React.ReactNode;
 
-  switch (result.status) {
-    case QueryStatus.LOADING:
+  switch (result) {
+    case undefined:
       content = null;
       break;
 
-    case QueryStatus.ERROR:
-      content = <ErrorComponent message={result.errorMessage} />;
-      break;
-
-    case QueryStatus.SUCCESS: {
-      const { items, categories, rooms } = result.data;
+    default: {
+      const { items, categories, rooms } = result;
       content = (
         <>
           <RoomSection rooms={rooms} companyId={companyId!} />

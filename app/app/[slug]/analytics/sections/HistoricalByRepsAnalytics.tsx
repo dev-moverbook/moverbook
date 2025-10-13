@@ -1,8 +1,6 @@
 "use client";
 
-import ErrorComponent from "@/app/components/shared/ErrorComponent";
 import { useSlugContext } from "@/app/contexts/SlugContext";
-import { QueryStatus } from "@/types/enums";
 import StackedBarChartCard from "@/app/components/shared/graphs/stackedBar/StackedBarChartCard";
 import { useStackedHistoricalRevenueByRep } from "@/app/hooks/queries/analytics/useStackedHistoricalRevenueByRep";
 import {
@@ -31,18 +29,15 @@ const HistoricalByRepsAnalytics = ({
 
   let body: React.ReactNode = null;
 
-  switch (result.status) {
-    case QueryStatus.LOADING:
+  switch (result) {
+    case undefined:
       body = <ChartCardSkeletonStatic />;
       break;
-    case QueryStatus.ERROR:
-      body = <ErrorComponent message={result.errorMessage} />;
-      break;
-    case QueryStatus.SUCCESS:
+    default:
       body = (
         <StackedBarChartCard
           title="Revenue by Rep"
-          series={result.data.series}
+          series={result}
           valueFormatter={formatCurrencyCompact}
           labelFormatter={formatWeekdayShort}
           tooltipValueFormatter={formatCurrency}

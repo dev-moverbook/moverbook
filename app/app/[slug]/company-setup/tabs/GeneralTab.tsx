@@ -11,9 +11,7 @@ import WebIntegrationsSection from "../sections/WebIntegrationsSection";
 import CompanyContactSection from "../sections/CompanyContactSection";
 import { useUpdateOrganizationLogo } from "../hooks/useUpdateOrganizationLogo";
 import VerticalSectionGroup from "@/app/components/shared/VerticalSectionGroup";
-import ErrorMessage from "@/app/components/shared/error/ErrorMessage";
 import { useGetCompanyDetails } from "@/app/hooks/queries/companies/useGetCompanyDetails";
-import { QueryStatus } from "@/types/enums";
 
 const GeneralTab = () => {
   const { companyId } = useSlugContext();
@@ -53,18 +51,13 @@ const GeneralTab = () => {
 
   let content: React.ReactNode;
 
-  switch (result.status) {
-    case QueryStatus.LOADING:
+  switch (result) {
+    case undefined:
       content = null;
       break;
 
-    case QueryStatus.ERROR:
-      content = <ErrorMessage message={result.errorMessage} />;
-      break;
-
-    case QueryStatus.SUCCESS: {
-      const { company, compliance, webIntegrations, companyContact } =
-        result.data;
+    default: {
+      const { company, compliance, webIntegrations, companyContact } = result;
 
       content = (
         <>

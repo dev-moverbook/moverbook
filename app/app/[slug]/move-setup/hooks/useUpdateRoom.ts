@@ -3,9 +3,8 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { ResponseStatus } from "@/types/enums";
-import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
+import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
 interface UpdateRoomData {
   name?: string;
@@ -25,18 +24,11 @@ export const useUpdateRoom = () => {
     setUpdateRoomError(null);
 
     try {
-      const response = await updateRoomMutation({ roomId, updates });
+      await updateRoomMutation({ roomId, updates });
 
-      if (response.status === ResponseStatus.SUCCESS) {
-        return true;
-      }
-
-      console.error(response.error);
-      setUpdateRoomError(response.error);
-      return false;
+      return true;
     } catch (error) {
-      console.error(FrontEndErrorMessages.GENERIC, error);
-      setUpdateRoomError(FrontEndErrorMessages.GENERIC);
+      setErrorFromConvexError(error, setUpdateRoomError);
       return false;
     } finally {
       setUpdateRoomLoading(false);

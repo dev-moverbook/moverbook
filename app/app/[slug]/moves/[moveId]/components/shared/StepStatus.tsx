@@ -6,7 +6,7 @@ interface StepStatusProps {
   items: {
     label: string;
     value: string | null;
-    icon?: React.ReactNode; // ⬅️ New
+    icon?: React.ReactNode;
   }[];
 }
 

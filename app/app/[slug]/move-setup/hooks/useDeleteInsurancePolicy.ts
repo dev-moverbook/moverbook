@@ -3,9 +3,8 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { ResponseStatus } from "@/types/enums";
-import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
+import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
 export const useDeleteInsurancePolicy = () => {
   const [deleteInsurancePolicyLoading, setDeleteInsurancePolicyLoading] =
@@ -25,21 +24,14 @@ export const useDeleteInsurancePolicy = () => {
     setDeleteInsurancePolicyError(null);
 
     try {
-      const response = await deleteInsurancePolicyMutation({
+      await deleteInsurancePolicyMutation({
         insurancePolicyId,
         updates: { isActive: false },
       });
 
-      if (response.status === ResponseStatus.SUCCESS) {
-        return true;
-      }
-
-      console.error(response.error);
-      setDeleteInsurancePolicyError(response.error);
-      return false;
+      return true;
     } catch (error) {
-      console.error(FrontEndErrorMessages.GENERIC, error);
-      setDeleteInsurancePolicyError(FrontEndErrorMessages.GENERIC);
+      setErrorFromConvexError(error, setDeleteInsurancePolicyError);
       return false;
     } finally {
       setDeleteInsurancePolicyLoading(false);

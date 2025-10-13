@@ -4,9 +4,8 @@ import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { ResponseStatus } from "@/types/enums";
-import { FrontEndErrorMessages } from "@/types/errors";
 import { QuoteStatus } from "@/types/types";
+import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
 interface CreateOrUpdateQuoteInput {
   moveId: Id<"move">;
@@ -28,30 +27,17 @@ export const useCreateOrUpdateQuote = () => {
   const createOrUpdateQuote = async ({
     moveId,
     updates,
-  }: CreateOrUpdateQuoteInput): Promise<{
-    success: boolean;
-    quoteId?: Id<"quotes">;
-  }> => {
+  }: CreateOrUpdateQuoteInput): Promise<boolean> => {
     setQuoteUpdateLoading(true);
     setQuoteUpdateError(null);
 
     try {
-      const response = await createOrUpdateMutation({ moveId, updates });
+      await createOrUpdateMutation({ moveId, updates });
 
-      if (response.status === ResponseStatus.SUCCESS) {
-        return {
-          success: true,
-          quoteId: response.data.quoteId,
-        };
-      }
-
-      console.error(response.error);
-      setQuoteUpdateError(response.error);
-      return { success: false };
+      return true;
     } catch (error) {
-      console.error(FrontEndErrorMessages.GENERIC, error);
-      setQuoteUpdateError(FrontEndErrorMessages.GENERIC);
-      return { success: false };
+      setErrorFromConvexError(error, setQuoteUpdateError);
+      return false;
     } finally {
       setQuoteUpdateLoading(false);
     }

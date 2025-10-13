@@ -3,10 +3,9 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { ResponseStatus } from "@/types/enums";
-import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
 import { RoomFormData } from "@/types/form-types";
+import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
 export const useCreateRoom = () => {
   const [createRoomLoading, setCreateRoomLoading] = useState<boolean>(false);
@@ -22,18 +21,11 @@ export const useCreateRoom = () => {
     setCreateRoomError(null);
 
     try {
-      const response = await createRoomMutation({ companyId, ...roomData });
+      await createRoomMutation({ companyId, ...roomData });
 
-      if (response.status === ResponseStatus.SUCCESS) {
-        return true;
-      }
-
-      console.error(response.error);
-      setCreateRoomError(response.error);
-      return false;
+      return true;
     } catch (error) {
-      console.error(FrontEndErrorMessages.GENERIC, error);
-      setCreateRoomError(FrontEndErrorMessages.GENERIC);
+      setErrorFromConvexError(error, setCreateRoomError);
       return false;
     } finally {
       setCreateRoomLoading(false);

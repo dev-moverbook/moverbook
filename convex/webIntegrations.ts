@@ -1,14 +1,13 @@
-import { ClerkRoles, ResponseStatus } from "@/types/enums";
+import { ClerkRoles } from "@/types/enums";
 import { v } from "convex/values";
 import { mutation } from "./_generated/server";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
-import { handleInternalError } from "./backendUtils/helper";
 import {
   validateCompany,
   isUserInOrg,
   validateWebIntegrations,
 } from "./backendUtils/validate";
-import { UpdateWebIntegrationsResponse } from "@/types/convex-responses";
+import { Id } from "./_generated/dataModel";
 
 export const updateWebIntegrations = mutation({
   args: {
@@ -19,34 +18,27 @@ export const updateWebIntegrations = mutation({
       externalReviewUrl: v.optional(v.string()),
     }),
   },
-  handler: async (ctx, args): Promise<UpdateWebIntegrationsResponse> => {
+  handler: async (ctx, args): Promise<Id<"webIntegrations">> => {
     const { webIntegrationsId, updates } = args;
 
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-      ]);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+    ]);
 
-      const webIntegrations = validateWebIntegrations(
-        await ctx.db.get(webIntegrationsId)
-      );
+    const webIntegrations = validateWebIntegrations(
+      await ctx.db.get(webIntegrationsId)
+    );
 
-      const company = validateCompany(
-        await ctx.db.get(webIntegrations.companyId)
-      );
+    const company = validateCompany(
+      await ctx.db.get(webIntegrations.companyId)
+    );
 
-      isUserInOrg(identity, company.clerkOrganizationId);
+    isUserInOrg(identity, company.clerkOrganizationId);
 
-      await ctx.db.patch(webIntegrations._id, updates);
+    await ctx.db.patch(webIntegrations._id, updates);
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { webIntegrationsId: webIntegrations._id },
-      };
-    } catch (error) {
-      return handleInternalError(error);
-    }
+    return webIntegrations._id;
   },
 });

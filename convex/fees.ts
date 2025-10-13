@@ -1,16 +1,10 @@
-import { ClerkRoles, ResponseStatus } from "@/types/enums";
+import { ClerkRoles } from "@/types/enums";
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import { validateCompany, validateFee } from "./backendUtils/validate";
 import { isUserInOrg } from "./backendUtils/validate";
-import { handleInternalError } from "./backendUtils/helper";
-import {
-  CreateFeeResponse,
-  GetFeesResponse,
-  UpdateFeeResponse,
-} from "@/types/convex-responses";
-import { FeeSchema } from "@/types/convex-schemas";
+import { Doc, Id } from "./_generated/dataModel";
 
 export const createFee = mutation({
   args: {
@@ -18,33 +12,26 @@ export const createFee = mutation({
     name: v.string(),
     price: v.number(),
   },
-  handler: async (ctx, args): Promise<CreateFeeResponse> => {
+  handler: async (ctx, args): Promise<Id<"fees">> => {
     const { companyId, name, price } = args;
 
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-      ]);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+    ]);
 
-      const company = validateCompany(await ctx.db.get(companyId));
-      isUserInOrg(identity, company.clerkOrganizationId);
+    const company = validateCompany(await ctx.db.get(companyId));
+    isUserInOrg(identity, company.clerkOrganizationId);
 
-      const feeId = await ctx.db.insert("fees", {
-        companyId,
-        name,
-        price,
-        isActive: true,
-      });
+    const feeId = await ctx.db.insert("fees", {
+      companyId,
+      name,
+      price,
+      isActive: true,
+    });
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { feeId },
-      };
-    } catch (error) {
-      return handleInternalError(error);
-    }
+    return feeId;
   },
 });
 
@@ -57,30 +44,23 @@ export const updateFee = mutation({
       isActive: v.optional(v.boolean()),
     }),
   },
-  handler: async (ctx, args): Promise<UpdateFeeResponse> => {
+  handler: async (ctx, args): Promise<Id<"fees">> => {
     const { feeId, updates } = args;
 
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-      ]);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+    ]);
 
-      const fee = validateFee(await ctx.db.get(feeId));
-      const company = validateCompany(await ctx.db.get(fee.companyId));
+    const fee = validateFee(await ctx.db.get(feeId));
+    const company = validateCompany(await ctx.db.get(fee.companyId));
 
-      isUserInOrg(identity, company.clerkOrganizationId);
+    isUserInOrg(identity, company.clerkOrganizationId);
 
-      await ctx.db.patch(feeId, updates);
+    await ctx.db.patch(feeId, updates);
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { feeId },
-      };
-    } catch (error) {
-      return handleInternalError(error);
-    }
+    return feeId;
   },
 });
 
@@ -88,34 +68,27 @@ export const getFees = query({
   args: {
     companyId: v.id("companies"),
   },
-  handler: async (ctx, args): Promise<GetFeesResponse> => {
+  handler: async (ctx, args): Promise<Doc<"fees">[]> => {
     const { companyId } = args;
 
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-        ClerkRoles.SALES_REP,
-      ]);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+      ClerkRoles.SALES_REP,
+    ]);
 
-      const company = validateCompany(await ctx.db.get(companyId));
-      isUserInOrg(identity, company.clerkOrganizationId);
+    const company = validateCompany(await ctx.db.get(companyId));
+    isUserInOrg(identity, company.clerkOrganizationId);
 
-      const fees: FeeSchema[] = await ctx.db
-        .query("fees")
-        .withIndex("byCompanyId", (q) => q.eq("companyId", companyId))
-        .filter((q) => q.eq(q.field("isActive"), true))
-        .collect();
+    const fees: Doc<"fees">[] = await ctx.db
+      .query("fees")
+      .withIndex("byCompanyId", (q) => q.eq("companyId", companyId))
+      .filter((q) => q.eq(q.field("isActive"), true))
+      .collect();
 
-      const sortedFees = fees.sort((a, b) => a.name.localeCompare(b.name));
+    const sortedFees = fees.sort((a, b) => a.name.localeCompare(b.name));
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { fees: sortedFees },
-      };
-    } catch (error) {
-      return handleInternalError(error);
-    }
+    return sortedFees;
   },
 });

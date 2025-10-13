@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { ResponseStatus } from "@/types/enums";
-import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
+import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
 export const useDeleteScript = () => {
   const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
@@ -16,18 +15,11 @@ export const useDeleteScript = () => {
     setDeleteError(null);
 
     try {
-      const response = await deleteScriptMutation({ scriptId });
+      await deleteScriptMutation({ scriptId });
 
-      if (response.status === ResponseStatus.SUCCESS) {
-        return true;
-      }
-
-      console.error(response.error);
-      setDeleteError(FrontEndErrorMessages.GENERIC);
-      return false;
+      return true;
     } catch (error) {
-      console.error(error);
-      setDeleteError(FrontEndErrorMessages.GENERIC);
+      setErrorFromConvexError(error, setDeleteError);
       return false;
     } finally {
       setDeleteLoading(false);

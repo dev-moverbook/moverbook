@@ -4,8 +4,7 @@ import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { ResponseStatus } from "@/types/enums";
-import { FrontEndErrorMessages } from "@/types/errors";
+import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
 interface UpdateAdditionalFeeInput {
   additionalFeeId: Id<"additionalFees">;
@@ -26,30 +25,17 @@ export const useUpdateAdditionalFee = () => {
 
   const updateAdditionalFee = async (
     input: UpdateAdditionalFeeInput
-  ): Promise<{
-    success: boolean;
-    additionalFeeId?: Id<"additionalFees">;
-  }> => {
+  ): Promise<boolean> => {
     setUpdateFeeLoading(true);
     setUpdateFeeError(null);
 
     try {
-      const response = await updateMutation(input);
+      await updateMutation(input);
 
-      if (response.status === ResponseStatus.SUCCESS) {
-        return {
-          success: true,
-          additionalFeeId: response.data.additionalFeeId,
-        };
-      }
-
-      console.error(response.error);
-      setUpdateFeeError(response.error);
-      return { success: false };
+      return true;
     } catch (error) {
-      console.error(FrontEndErrorMessages.GENERIC, error);
-      setUpdateFeeError(FrontEndErrorMessages.GENERIC);
-      return { success: false };
+      setErrorFromConvexError(error, setUpdateFeeError);
+      return false;
     } finally {
       setUpdateFeeLoading(false);
     }

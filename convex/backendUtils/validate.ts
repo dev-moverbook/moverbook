@@ -1,35 +1,10 @@
-import {
-  AdditionalFeeSchema,
-  ArrivalWindowSchema,
-  CategorySchema,
-  CompanyContactSchema,
-  CompanySchema,
-  ComplianceSchema,
-  CreditCardFeeSchema,
-  DiscountSchema,
-  FeeSchema,
-  InsurancePolicySchema,
-  InvitationSchema,
-  ItemSchema,
-  LaborSchema,
-  MoveAssignmentSchema,
-  MoveCustomerSchema,
-  MoveSchema,
-  PolicySchema,
-  QuoteSchema,
-  ReferralSchema,
-  RoomSchema,
-  ScriptSchema,
-  TravelFeeSchema,
-  VariableSchema,
-  WebIntegrationsSchema,
-} from "@/types/convex-schemas";
 import { InvitationStatus, UserRole } from "@/types/enums";
 import { CommunicationType } from "@/types/types";
 import { ErrorMessages } from "@/types/errors";
 import { UserIdentity } from "convex/server";
 import { MutationCtx } from "../_generated/server";
 import { Doc, Id } from "../_generated/dataModel";
+import { ConvexError } from "convex/values";
 
 export function validateUser(
   user: Doc<"users"> | null,
@@ -72,31 +47,46 @@ export function validateCompany(
 }
 
 export function validateInvitation(
-  invitation: InvitationSchema | null
-): InvitationSchema {
+  invitation: Doc<"invitations"> | null
+): Doc<"invitations"> {
   if (!invitation) {
-    throw new Error(ErrorMessages.INVITATION_NOT_FOUND);
+    throw new ConvexError({
+      code: "NOT_FOUND",
+      message: ErrorMessages.INVITATION_NOT_FOUND,
+    });
   }
 
   if (invitation.status === InvitationStatus.ACCEPTED) {
-    throw new Error(ErrorMessages.INVITATION_ALREADY_ACCEPTED);
+    throw new ConvexError({
+      code: "BAD_REQUEST",
+      message: ErrorMessages.INVITATION_ALREADY_ACCEPTED,
+    });
   }
   if (invitation.status === InvitationStatus.REVOKED) {
-    throw new Error(ErrorMessages.INVITATION_ALREADY_REVOKED);
+    throw new ConvexError({
+      code: "BAD_REQUEST",
+      message: ErrorMessages.INVITATION_ALREADY_REVOKED,
+    });
   }
 
   return invitation;
 }
 
 export function validateReferral(
-  referral: ReferralSchema | null
-): ReferralSchema {
+  referral: Doc<"referrals"> | null
+): Doc<"referrals"> {
   if (!referral) {
-    throw new Error(ErrorMessages.REFERRAL_NOT_FOUND);
+    throw new ConvexError({
+      code: "NOT_FOUND",
+      message: ErrorMessages.REFERRAL_NOT_FOUND,
+    });
   }
 
   if (!referral.isActive) {
-    throw new Error(ErrorMessages.REFERRAL_INACTIVE);
+    throw new ConvexError({
+      code: "BAD_REQUEST",
+      message: ErrorMessages.REFERRAL_INACTIVE,
+    });
   }
 
   return referral;
@@ -113,25 +103,34 @@ export function isUserInOrg(
   }
 
   if (identity.clerk_org_id !== clerkOrgId) {
-    throw new Error(ErrorMessages.FOBIDDEN_COMPANY);
+    throw new ConvexError({
+      code: "FORBIDDEN",
+      message: ErrorMessages.FOBIDDEN_COMPANY,
+    });
   }
 
   return true;
 }
 
 export function validateVariable(
-  variable: VariableSchema | null
-): VariableSchema {
+  variable: Doc<"variables"> | null
+): Doc<"variables"> {
   if (!variable) {
-    throw new Error(ErrorMessages.VARIABLE_NOT_FOUND);
+    throw new ConvexError({
+      code: "NOT_FOUND",
+      message: ErrorMessages.VARIABLE_NOT_FOUND,
+    });
   }
 
   return variable;
 }
 
-export function validateQuote(quote: QuoteSchema | null): QuoteSchema {
+export function validateQuote(quote: Doc<"quotes"> | null): Doc<"quotes"> {
   if (!quote) {
-    throw new Error(ErrorMessages.QUOTE_NOT_FOUND);
+    throw new ConvexError({
+      code: "NOT_FOUND",
+      message: ErrorMessages.QUOTE_NOT_FOUND,
+    });
   }
 
   return quote;
@@ -142,24 +141,36 @@ export const validateScriptFields = (
   emailTitle?: string
 ) => {
   if (type === "email" && (!emailTitle || emailTitle.trim() === "")) {
-    throw new Error(ErrorMessages.EMAIL_TITLE_REQUIRED);
+    throw new ConvexError({
+      code: "BAD_REQUEST",
+      message: ErrorMessages.EMAIL_TITLE_REQUIRED,
+    });
   }
 };
 
 export function validateScript(
-  script: ScriptSchema | null,
+  script: Doc<"scripts"> | null,
   checkActive: boolean = true,
   checkIfPreset?: boolean
-): ScriptSchema {
+): Doc<"scripts"> {
   if (!script) {
-    throw new Error(ErrorMessages.SCRIPT_NOT_FOUND);
+    throw new ConvexError({
+      code: "NOT_FOUND",
+      message: ErrorMessages.SCRIPT_NOT_FOUND,
+    });
   }
 
   if (checkActive && !script.isActive) {
-    throw new Error(ErrorMessages.SCRIPT_INACTIVE);
+    throw new ConvexError({
+      code: "BAD_REQUEST",
+      message: ErrorMessages.SCRIPT_INACTIVE,
+    });
   }
   if (checkIfPreset && script.preSetTypes) {
-    throw new Error(ErrorMessages.SCRIPT_PRESET_CANNOT_BE_DELETED);
+    throw new ConvexError({
+      code: "BAD_REQUEST",
+      message: ErrorMessages.SCRIPT_PRESET_CANNOT_BE_DELETED,
+    });
   }
 
   return script;
@@ -169,7 +180,10 @@ export function validateCompliance(
   compliance: Doc<"compliance"> | null
 ): Doc<"compliance"> {
   if (!compliance) {
-    throw new Error(ErrorMessages.COMPLIANCE_NOT_FOUND);
+    throw new ConvexError({
+      code: "NOT_FOUND",
+      message: ErrorMessages.COMPLIANCE_NOT_FOUND,
+    });
   }
   return compliance;
 }
@@ -178,7 +192,10 @@ export function validateWebIntegrations(
   webIntegrations: Doc<"webIntegrations"> | null
 ): Doc<"webIntegrations"> {
   if (!webIntegrations) {
-    throw new Error(ErrorMessages.WEB_INTEGRATIONS_NOT_FOUND);
+    throw new ConvexError({
+      code: "NOT_FOUND",
+      message: ErrorMessages.WEB_INTEGRATIONS_NOT_FOUND,
+    });
   }
   return webIntegrations;
 }
@@ -187,7 +204,10 @@ export function validateCompanyContact(
   companyContact: Doc<"companyContact"> | null
 ): Doc<"companyContact"> {
   if (!companyContact) {
-    throw new Error(ErrorMessages.COMPANY_CONTACT_NOT_FOUND);
+    throw new ConvexError({
+      code: "NOT_FOUND",
+      message: ErrorMessages.COMPANY_CONTACT_NOT_FOUND,
+    });
   }
   return companyContact;
 }
@@ -196,7 +216,10 @@ export function validateArrivalWindow(
   arrivalWindow: Doc<"arrivalWindow"> | null
 ): Doc<"arrivalWindow"> {
   if (!arrivalWindow) {
-    throw new Error(ErrorMessages.ARRIVAL_WINDOW_NOT_FOUND);
+    throw new ConvexError({
+      code: "NOT_FOUND",
+      message: ErrorMessages.ARRIVAL_WINDOW_NOT_FOUND,
+    });
   }
   return arrivalWindow;
 }
@@ -205,7 +228,10 @@ export function validatePolicy(
   policy: Doc<"policies"> | null
 ): Doc<"policies"> {
   if (!policy) {
-    throw new Error(ErrorMessages.POLICY_NOT_FOUND);
+    throw new ConvexError({
+      code: "NOT_FOUND",
+      message: ErrorMessages.POLICY_NOT_FOUND,
+    });
   }
   return policy;
 }
@@ -221,7 +247,10 @@ export const validateLaborDateOverlap = async (
   }
 
   if (!startDate !== !endDate) {
-    throw new Error(ErrorMessages.LABOR_START_DATES_INCOMPLETE);
+    throw new ConvexError({
+      code: "BAD_REQUEST",
+      message: ErrorMessages.LABOR_START_DATES_INCOMPLETE,
+    });
   }
 
   const existingLabors = await ctx.db
@@ -238,22 +267,31 @@ export const validateLaborDateOverlap = async (
   );
 
   if (hasOverlap) {
-    throw new Error(ErrorMessages.LABOR_OVERLAPS);
+    throw new ConvexError({
+      code: "BAD_REQUEST",
+      message: ErrorMessages.LABOR_OVERLAPS,
+    });
   }
 };
 
-export function validateLabor(labor: LaborSchema | null): LaborSchema {
+export function validateLabor(labor: Doc<"labor"> | null): Doc<"labor"> {
   if (!labor) {
-    throw new Error(ErrorMessages.LABOR_NOT_FOUND);
+    throw new ConvexError({
+      code: "NOT_FOUND",
+      message: ErrorMessages.LABOR_NOT_FOUND,
+    });
   }
   return labor;
 }
 
 export function validateInsurancePolicy(
-  insurancePolicy: InsurancePolicySchema | null
-): InsurancePolicySchema {
+  insurancePolicy: Doc<"insurancePolicies"> | null
+): Doc<"insurancePolicies"> {
   if (!insurancePolicy) {
-    throw new Error(ErrorMessages.INSURANCE_POLICY_NOT_FOUND);
+    throw new ConvexError({
+      code: "NOT_FOUND",
+      message: ErrorMessages.INSURANCE_POLICY_NOT_FOUND,
+    });
   }
   return insurancePolicy;
 }
@@ -262,14 +300,20 @@ export function validateCreditCardFee(
   creditCardFee: Doc<"creditCardFees"> | null
 ): Doc<"creditCardFees"> {
   if (!creditCardFee) {
-    throw new Error(ErrorMessages.CREDIT_CARD_FEE_NOT_FOUND);
+    throw new ConvexError({
+      code: "NOT_FOUND",
+      message: ErrorMessages.CREDIT_CARD_FEE_NOT_FOUND,
+    });
   }
   return creditCardFee;
 }
 
-export function validateFee(fee: FeeSchema | null): FeeSchema {
+export function validateFee(fee: Doc<"fees"> | null): Doc<"fees"> {
   if (!fee) {
-    throw new Error(ErrorMessages.FEE_NOT_FOUND);
+    throw new ConvexError({
+      code: "NOT_FOUND",
+      message: ErrorMessages.FEE_NOT_FOUND,
+    });
   }
   return fee;
 }
@@ -278,7 +322,10 @@ export function validateTravelFee(
   travelFee: Doc<"travelFee"> | null
 ): Doc<"travelFee"> {
   if (!travelFee) {
-    throw new Error(ErrorMessages.TRAVEL_FEE_NOT_FOUND);
+    throw new ConvexError({
+      code: "NOT_FOUND",
+      message: ErrorMessages.TRAVEL_FEE_NOT_FOUND,
+    });
   }
   return travelFee;
 }
@@ -295,76 +342,109 @@ export async function validateUniqueRoomName(
     .first();
 
   if (existingRoom) {
-    throw new Error(ErrorMessages.ROOM_NAME_ALREADY_EXISTS);
+    throw new ConvexError({
+      code: "CONFLICT",
+      message: ErrorMessages.ROOM_NAME_ALREADY_EXISTS,
+    });
   }
 }
 
-export function validateRoom(room: RoomSchema | null): RoomSchema {
+export function validateRoom(room: Doc<"rooms"> | null): Doc<"rooms"> {
   if (!room) {
-    throw new Error(ErrorMessages.ROOM_NOT_FOUND);
+    throw new ConvexError({
+      code: "NOT_FOUND",
+      message: ErrorMessages.ROOM_NOT_FOUND,
+    });
   }
 
   if (!room.isActive) {
-    throw new Error(ErrorMessages.ROOM_INACTIVE);
+    throw new ConvexError({
+      code: "BAD_REQUEST",
+      message: ErrorMessages.ROOM_INACTIVE,
+    });
   }
 
   return room;
 }
 
 export function validateCategory(
-  category: CategorySchema | null
-): CategorySchema {
+  category: Doc<"categories"> | null
+): Doc<"categories"> {
   if (!category) {
-    throw new Error(ErrorMessages.CATEGORY_NOT_FOUND);
+    throw new ConvexError({
+      code: "NOT_FOUND",
+      message: ErrorMessages.CATEGORY_NOT_FOUND,
+    });
   }
 
   if (!category.isActive) {
-    throw new Error(ErrorMessages.CATEGORY_INACTIVE);
+    throw new ConvexError({
+      code: "BAD_REQUEST",
+      message: ErrorMessages.CATEGORY_INACTIVE,
+    });
   }
 
   return category;
 }
 
-export function validateItem(item: ItemSchema | null): ItemSchema {
+export function validateItem(item: Doc<"items"> | null): Doc<"items"> {
   if (!item) {
-    throw new Error(ErrorMessages.ITEM_NOT_FOUND);
+    throw new ConvexError({
+      code: "NOT_FOUND",
+      message: ErrorMessages.ITEM_NOT_FOUND,
+    });
   }
   if (!item.isActive) {
-    throw new Error(ErrorMessages.ITEM_INACTIVE);
+    throw new ConvexError({
+      code: "BAD_REQUEST",
+      message: ErrorMessages.ITEM_INACTIVE,
+    });
   }
   return item;
 }
 
 export function validateMove(move: Doc<"move"> | null): Doc<"move"> {
   if (!move) {
-    throw new Error(ErrorMessages.MOVE_NOT_FOUND);
+    throw new ConvexError({
+      code: "NOT_FOUND",
+      message: ErrorMessages.MOVE_NOT_FOUND,
+    });
   }
   return move;
 }
 
 export function validateMoveAssignment(
-  moveAssignment: MoveAssignmentSchema | null
-): MoveAssignmentSchema {
+  moveAssignment: Doc<"moveAssignments"> | null
+): Doc<"moveAssignments"> {
   if (!moveAssignment) {
-    throw new Error(ErrorMessages.MOVE_ASSIGNMENT_NOT_FOUND);
+    throw new ConvexError({
+      code: "NOT_FOUND",
+      message: ErrorMessages.MOVE_ASSIGNMENT_NOT_FOUND,
+    });
   }
   return moveAssignment;
 }
 
 export function validateAdditionalFee(
-  additionalFee: AdditionalFeeSchema | null
-): AdditionalFeeSchema {
+  additionalFee: Doc<"additionalFees"> | null
+): Doc<"additionalFees"> {
   if (!additionalFee) {
-    throw new Error(ErrorMessages.ADDITIONAL_FEE_NOT_FOUND);
+    throw new ConvexError({
+      code: "NOT_FOUND",
+      message: ErrorMessages.ADDITIONAL_FEE_NOT_FOUND,
+    });
   }
   return additionalFee;
 }
 
 export function validateDiscount(
-  discount: DiscountSchema | null
-): DiscountSchema {
+  discount: Doc<"discounts"> | null
+): Doc<"discounts"> {
   if (!discount) {
-    throw new Error(ErrorMessages.DISCOUNT_NOT_FOUND);
+    throw new ConvexError({
+      code: "NOT_FOUND",
+      message: ErrorMessages.DISCOUNT_NOT_FOUND,
+    });
   }
   return discount;
 }
@@ -373,7 +453,10 @@ export function validateMoveCustomer(
   moveCustomer: Doc<"moveCustomers"> | null
 ): Doc<"moveCustomers"> {
   if (!moveCustomer) {
-    throw new Error(ErrorMessages.MOVE_CUSTOMER_NOT_FOUND);
+    throw new ConvexError({
+      code: "NOT_FOUND",
+      message: ErrorMessages.MOVE_CUSTOMER_NOT_FOUND,
+    });
   }
   return moveCustomer;
 }

@@ -3,10 +3,9 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { ResponseStatus } from "@/types/enums";
-import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
-import { CategoryFormData } from "@/types/form-types"; // Ensure this type exists
+import { CategoryFormData } from "@/types/form-types";
+import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
 export const useCreateCategory = () => {
   const [createCategoryLoading, setCreateCategoryLoading] =
@@ -25,21 +24,14 @@ export const useCreateCategory = () => {
     setCreateCategoryError(null);
 
     try {
-      const response = await createCategoryMutation({
+      await createCategoryMutation({
         companyId,
         ...categoryData,
       });
 
-      if (response.status === ResponseStatus.SUCCESS) {
-        return true;
-      }
-
-      console.error(response.error);
-      setCreateCategoryError(response.error);
-      return false;
+      return true;
     } catch (error) {
-      console.error(FrontEndErrorMessages.GENERIC, error);
-      setCreateCategoryError(FrontEndErrorMessages.GENERIC);
+      setErrorFromConvexError(error, setCreateCategoryError);
       return false;
     } finally {
       setCreateCategoryLoading(false);

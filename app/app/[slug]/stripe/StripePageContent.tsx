@@ -1,15 +1,15 @@
 import CenteredContainer from "@/app/components/shared/CenteredContainer";
 import SectionContainer from "@/app/components/shared/SectionContainer";
 import { Button } from "@/app/components/ui/button";
-import { ConnectedAccountSchema } from "@/types/convex-schemas";
 import { StripeAccountStatus } from "@/types/enums";
 import { useShowOnboardingLink } from "./hooks/useShowOnboardingLink";
 import FieldDisplay from "@/app/components/shared/FieldDisplay";
 import { useStripeDashboardLink } from "./hooks/useStripeDashboardLink";
 import SectionHeaderWithAction from "@/app/components/shared/ SectionHeaderWithAction";
+import { Doc } from "@/convex/_generated/dataModel";
 
 interface StripePageContentProps {
-  connectedAccount: ConnectedAccountSchema | null;
+  connectedAccount: Doc<"connectedAccounts"> | null;
 }
 
 const StripePageContent: React.FC<StripePageContentProps> = ({

@@ -3,9 +3,8 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { ResponseStatus } from "@/types/enums";
-import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
+import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
 interface UpdatePolicyData {
   weekdayHourMinimum?: number;
@@ -33,18 +32,11 @@ export const useUpdatePolicy = () => {
     setUpdatePolicyError(null);
 
     try {
-      const response = await updatePolicyMutation({ policyId, updates });
+      await updatePolicyMutation({ policyId, updates });
 
-      if (response.status === ResponseStatus.SUCCESS) {
-        return true;
-      }
-
-      console.error(response.error);
-      setUpdatePolicyError(response.error);
-      return false;
+      return true;
     } catch (error) {
-      console.error(FrontEndErrorMessages.GENERIC, error);
-      setUpdatePolicyError(FrontEndErrorMessages.GENERIC);
+      setErrorFromConvexError(error, setUpdatePolicyError);
       return false;
     } finally {
       setUpdatePolicyLoading(false);

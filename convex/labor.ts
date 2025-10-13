@@ -1,5 +1,4 @@
-import { ClerkRoles, ResponseStatus } from "@/types/enums";
-import { ErrorMessages } from "@/types/errors";
+import { ClerkRoles } from "@/types/enums";
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
@@ -11,13 +10,8 @@ import {
   validateTravelFee,
 } from "./backendUtils/validate";
 import { isUserInOrg } from "./backendUtils/validate";
-import { handleInternalError, shouldExposeError } from "./backendUtils/helper";
-import {
-  CreateLaborResponse,
-  GetCompanyRatesResponse,
-  UpdateLaborResponse,
-} from "@/types/convex-responses";
-import { Doc } from "./_generated/dataModel";
+import { GetCompanyRatesData } from "@/types/convex-responses";
+import { Doc, Id } from "./_generated/dataModel";
 
 export const createLabor = mutation({
   args: {
@@ -31,7 +25,7 @@ export const createLabor = mutation({
     fourMovers: v.number(),
     extra: v.number(),
   },
-  handler: async (ctx, args): Promise<CreateLaborResponse> => {
+  handler: async (ctx, args): Promise<Id<"labor">> => {
     const {
       companyId,
       name,
@@ -44,48 +38,31 @@ export const createLabor = mutation({
       extra,
     } = args;
 
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-      ]);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+    ]);
 
-      const company = validateCompany(await ctx.db.get(companyId));
-      isUserInOrg(identity, company.clerkOrganizationId);
+    const company = validateCompany(await ctx.db.get(companyId));
+    isUserInOrg(identity, company.clerkOrganizationId);
 
-      validateLaborDateOverlap(ctx, companyId, startDate, endDate);
+    validateLaborDateOverlap(ctx, companyId, startDate, endDate);
 
-      const laborId = await ctx.db.insert("labor", {
-        companyId,
-        name,
-        isDefault: isDefault ?? false,
-        startDate,
-        endDate,
-        twoMovers,
-        threeMovers,
-        fourMovers,
-        extra,
-        isActive: true,
-      });
+    const laborId = await ctx.db.insert("labor", {
+      companyId,
+      name,
+      isDefault: isDefault ?? false,
+      startDate,
+      endDate,
+      twoMovers,
+      threeMovers,
+      fourMovers,
+      extra,
+      isActive: true,
+    });
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { laborId },
-      };
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
-      console.error("Internal Error:", errorMessage, error);
-
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error: shouldExposeError(errorMessage)
-          ? errorMessage
-          : ErrorMessages.GENERIC_ERROR,
-      };
-    }
+    return laborId;
   },
 });
 
@@ -104,121 +81,98 @@ export const updateLabor = mutation({
       isActive: v.optional(v.boolean()),
     }),
   },
-  handler: async (ctx, args): Promise<UpdateLaborResponse> => {
+  handler: async (ctx, args): Promise<Id<"labor">> => {
     const { laborId, updates } = args;
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-      ]);
 
-      const labor = validateLabor(await ctx.db.get(laborId));
-      const company = validateCompany(await ctx.db.get(labor.companyId));
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+    ]);
 
-      isUserInOrg(identity, company.clerkOrganizationId);
+    const labor = validateLabor(await ctx.db.get(laborId));
+    const company = validateCompany(await ctx.db.get(labor.companyId));
 
-      await validateLaborDateOverlap(
-        ctx,
-        labor.companyId,
-        updates.startDate ?? labor.startDate,
-        updates.endDate ?? labor.endDate
-      );
+    isUserInOrg(identity, company.clerkOrganizationId);
 
-      await ctx.db.patch(laborId, updates);
+    await validateLaborDateOverlap(
+      ctx,
+      labor.companyId,
+      updates.startDate ?? labor.startDate,
+      updates.endDate ?? labor.endDate
+    );
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { laborId },
-      };
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
-      console.error("Internal Error:", errorMessage, error);
+    await ctx.db.patch(laborId, updates);
 
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error: shouldExposeError(errorMessage)
-          ? errorMessage
-          : ErrorMessages.GENERIC_ERROR,
-      };
-    }
+    return laborId;
   },
 });
 
 export const getCompanyRates = query({
   args: { companyId: v.id("companies") },
-  handler: async (ctx, args): Promise<GetCompanyRatesResponse> => {
+  handler: async (ctx, args): Promise<GetCompanyRatesData> => {
     const { companyId } = args;
 
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-        ClerkRoles.SALES_REP,
-      ]);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+      ClerkRoles.SALES_REP,
+    ]);
 
-      const company = validateCompany(await ctx.db.get(companyId));
-      isUserInOrg(identity, company.clerkOrganizationId);
+    const company = validateCompany(await ctx.db.get(companyId));
+    isUserInOrg(identity, company.clerkOrganizationId);
 
-      const labor: Doc<"labor">[] = await ctx.db
-        .query("labor")
-        .filter((q) =>
-          q.and(
-            q.eq(q.field("companyId"), companyId),
-            q.eq(q.field("isActive"), true)
-          )
+    const labor: Doc<"labor">[] = await ctx.db
+      .query("labor")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("companyId"), companyId),
+          q.eq(q.field("isActive"), true)
         )
-        .collect();
+      )
+      .collect();
 
-      const insurancePolicies: Doc<"insurancePolicies">[] = await ctx.db
-        .query("insurancePolicies")
-        .filter((q) =>
-          q.and(
-            q.eq(q.field("companyId"), companyId),
-            q.eq(q.field("isActive"), true)
-          )
+    const insurancePolicies: Doc<"insurancePolicies">[] = await ctx.db
+      .query("insurancePolicies")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("companyId"), companyId),
+          q.eq(q.field("isActive"), true)
         )
-        .collect();
+      )
+      .collect();
 
-      const travelFee = validateTravelFee(
-        await ctx.db
-          .query("travelFee")
-          .filter((q) => q.eq(q.field("companyId"), companyId))
-          .first()
-      );
+    const travelFee = validateTravelFee(
+      await ctx.db
+        .query("travelFee")
+        .filter((q) => q.eq(q.field("companyId"), companyId))
+        .first()
+    );
 
-      const creditCardFee = validateCreditCardFee(
-        await ctx.db
-          .query("creditCardFees")
-          .filter((q) => q.eq(q.field("companyId"), companyId))
-          .first()
-      );
+    const creditCardFee = validateCreditCardFee(
+      await ctx.db
+        .query("creditCardFees")
+        .filter((q) => q.eq(q.field("companyId"), companyId))
+        .first()
+    );
 
-      const fees: Doc<"fees">[] = await ctx.db
-        .query("fees")
-        .filter((q) =>
-          q.and(
-            q.eq(q.field("companyId"), companyId),
-            q.eq(q.field("isActive"), true)
-          )
+    const fees: Doc<"fees">[] = await ctx.db
+      .query("fees")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("companyId"), companyId),
+          q.eq(q.field("isActive"), true)
         )
-        .collect();
+      )
+      .collect();
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: {
-          labor,
-          insurancePolicies,
-          travelFee,
-          creditCardFee,
-          fees,
-        },
-      };
-    } catch (error) {
-      return handleInternalError(error);
-    }
+    return {
+      labor,
+      insurancePolicies,
+      travelFee,
+      creditCardFee,
+      fees,
+    };
   },
 });

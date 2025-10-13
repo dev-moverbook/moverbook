@@ -4,38 +4,34 @@ import SectionContainer from "@/app/components/shared/containers/SectionContaine
 import { Button } from "@/app/components/ui/button";
 import CardContainer from "@/app/components/shared/CardContainer";
 import { Plus } from "lucide-react";
-import { Doc } from "@/convex/_generated/dataModel";
-import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import MoveOnlyCard from "@/app/components/move/MoveOnlyCard";
 import { useState } from "react";
 import DuplicateMoveModal from "../modals/DuplicateMoveModal";
 import { useSlugContext } from "@/app/contexts/SlugContext";
 import { isMover } from "@/app/frontendUtils/permissions";
 import { ClerkRoles } from "@/types/enums";
+import type { Doc } from "@/convex/_generated/dataModel";
+import type { EnrichedMoveForMover } from "@/types/convex-responses";
 import SectionHeaderWithAction from "@/app/components/shared/ SectionHeaderWithAction";
-import { EnrichedMoveForMover } from "@/types/convex-responses";
 
 interface CustomerMovesProps {
   moves: EnrichedMoveForMover[];
   moveCustomer: Doc<"moveCustomers">;
 }
 
-const CustomerMoves: React.FC<CustomerMovesProps> = ({
+export default function CustomerMoves({
   moves,
   moveCustomer,
-}) => {
-  const router = useRouter();
-  const { slug } = useParams();
-  const { user } = useSlugContext();
+}: CustomerMovesProps) {
+  const { slug, user } = useSlugContext();
   const isMoverUser = isMover(user.publicMetadata.role as ClerkRoles);
 
   const [isDuplicateMoveModalOpen, setIsDuplicateMoveModalOpen] =
-    useState<boolean>(false);
+    useState(false);
   const [selectedMove, setSelectedMove] = useState<Doc<"move"> | null>(null);
 
-  const handleAddMove = () => {
-    router.push(`/app/${slug}/add-move?moveCustomerId=${moveCustomer._id}`);
-  };
+  const addMoveHref = `/app/${slug}/add-move?moveCustomerId=${moveCustomer._id}`;
 
   const handleDuplicateMove = (move: Doc<"move">) => {
     setSelectedMove(move);
@@ -48,16 +44,18 @@ const CustomerMoves: React.FC<CustomerMovesProps> = ({
   };
 
   const actionNode = isMoverUser ? null : (
-    <Button variant="outline" onClick={handleAddMove}>
-      <div className="flex items-center gap-1">
-        <Plus className="w-5 h-5" />
-        Move
-      </div>
+    <Button asChild variant="outline">
+      <Link href={addMoveHref}>
+        <span className="flex items-center gap-1">
+          <Plus className="w-5 h-5" />
+          Move
+        </span>
+      </Link>
     </Button>
   );
 
   return (
-    <SectionContainer className="px-0 gap-0 pb-20 " showBorder={false}>
+    <SectionContainer className="px-0 gap-0 pb-20" showBorder={false}>
       <SectionHeaderWithAction
         title="Moves"
         action={actionNode}
@@ -66,13 +64,13 @@ const CustomerMoves: React.FC<CustomerMovesProps> = ({
 
       {moves.length > 0 && (
         <CardContainer>
-          {moves.map((move, index) => (
+          {moves.map((move) => (
             <MoveOnlyCard
-              key={`${move.jobId}-${index}`}
+              key={move._id}
               move={move}
               showActions={!isMoverUser}
               onDuplicate={handleDuplicateMove}
-              onNavigate={() => router.push(`/app/${slug}/moves/${move._id}`)}
+              href={`/app/${slug}/moves/${move._id}`}
             />
           ))}
         </CardContainer>
@@ -87,6 +85,4 @@ const CustomerMoves: React.FC<CustomerMovesProps> = ({
       )}
     </SectionContainer>
   );
-};
-
-export default CustomerMoves;
+}

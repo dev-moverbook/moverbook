@@ -2,7 +2,7 @@ import { v } from "convex/values";
 import { action, internalAction } from "./_generated/server";
 import { Webhook } from "svix";
 import { WebhookEvent } from "@clerk/clerk-sdk-node";
-import { ClerkRoles, ResponseStatus, UserRole } from "@/types/enums";
+import { ClerkRoles, ResponseStatus } from "@/types/enums";
 import { internal } from "./_generated/api";
 import {
   ClerkInviteUserToOrganizationResponse,
@@ -14,7 +14,7 @@ import {
   clerkInviteUserToOrganizationHelper,
   createClerkOrganization,
 } from "./backendUtils/clerk";
-import { CreatableUserRoleConvex, UserRoleConvex } from "@/types/convex-enums";
+import { CreatableUserRoleConvex } from "@/types/convex-enums";
 import { isUserInOrg, validateCompany } from "./backendUtils/validate";
 
 export const fulfill = internalAction({

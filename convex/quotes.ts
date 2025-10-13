@@ -1,17 +1,16 @@
-import { mutation, query } from "./_generated/server";
+import { mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { QuoteStatusConvex } from "./schema";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
-import { handleInternalError } from "./backendUtils/helper";
-import { ClerkRoles, ResponseStatus } from "@/types/enums";
+import { ClerkRoles } from "@/types/enums";
 import {
   isUserInOrg,
   validateCompany,
   validateMove,
 } from "./backendUtils/validate";
 import { Doc, Id } from "./_generated/dataModel";
-import { CreateOrUpdateQuoteResponse } from "@/types/convex-responses";
 import { ErrorMessages } from "@/types/errors";
+import { ConvexError } from "convex/values";
 
 export const createOrUpdateQuote = mutation({
   args: {
@@ -24,63 +23,59 @@ export const createOrUpdateQuote = mutation({
       status: v.optional(QuoteStatusConvex),
     }),
   },
-  handler: async (ctx, args): Promise<CreateOrUpdateQuoteResponse> => {
+  handler: async (ctx, args): Promise<Id<"quotes">> => {
     const { moveId } = args;
     const updates = { ...args.updates };
 
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-        ClerkRoles.SALES_REP,
-      ]);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+      ClerkRoles.SALES_REP,
+    ]);
 
-      const move = validateMove(await ctx.db.get(moveId));
-      const company = validateCompany(await ctx.db.get(move.companyId));
-      isUserInOrg(identity, company.clerkOrganizationId);
+    const move = validateMove(await ctx.db.get(moveId));
+    const company = validateCompany(await ctx.db.get(move.companyId));
+    isUserInOrg(identity, company.clerkOrganizationId);
 
-      const now = Date.now();
+    const now = Date.now();
 
-      if (updates.customerSignature && !updates.customerSignedAt) {
-        updates.customerSignedAt = now;
-      }
+    if (updates.customerSignature && !updates.customerSignedAt) {
+      updates.customerSignedAt = now;
+    }
 
-      if (updates.repSignature && !updates.repSignedAt) {
-        updates.repSignedAt = now;
-      }
+    if (updates.repSignature && !updates.repSignedAt) {
+      updates.repSignedAt = now;
+    }
 
-      const existing: Doc<"quotes"> | null = await ctx.db
-        .query("quotes")
-        .withIndex("by_move", (q) => q.eq("moveId", moveId))
-        .unique();
+    const existing: Doc<"quotes"> | null = await ctx.db
+      .query("quotes")
+      .withIndex("by_move", (q) => q.eq("moveId", moveId))
+      .unique();
 
-      let quoteId: Id<"quotes">;
+    let quoteId: Id<"quotes">;
 
-      if (existing) {
-        await ctx.db.patch(existing._id, updates);
-        quoteId = existing._id;
-      } else {
-        if (!updates.status) {
-          throw new Error(ErrorMessages.MISSING_REQUIRED_STATUS);
-        }
-
-        quoteId = await ctx.db.insert("quotes", {
-          moveId,
-          customerSignature: updates.customerSignature,
-          customerSignedAt: updates.customerSignedAt,
-          repSignature: updates.repSignature,
-          repSignedAt: updates.repSignedAt,
-          status: updates.status,
+    if (existing) {
+      await ctx.db.patch(existing._id, updates);
+      quoteId = existing._id;
+    } else {
+      if (!updates.status) {
+        throw new ConvexError({
+          code: "BAD_REQUEST",
+          message: ErrorMessages.MISSING_REQUIRED_STATUS,
         });
       }
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { quoteId },
-      };
-    } catch (error) {
-      return handleInternalError(error);
+      quoteId = await ctx.db.insert("quotes", {
+        moveId,
+        customerSignature: updates.customerSignature,
+        customerSignedAt: updates.customerSignedAt,
+        repSignature: updates.repSignature,
+        repSignedAt: updates.repSignedAt,
+        status: updates.status,
+      });
     }
+
+    return quoteId;
   },
 });

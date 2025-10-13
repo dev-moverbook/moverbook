@@ -4,8 +4,7 @@ import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { ResponseStatus } from "@/types/enums";
-import { FrontEndErrorMessages } from "@/types/errors";
+import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
 interface CreateOrUpdateInvoiceInput {
   moveId: Id<"move">;
@@ -32,30 +31,17 @@ export const useCreateOrUpdateInvoice = () => {
   const createOrUpdateInvoice = async ({
     moveId,
     updates,
-  }: CreateOrUpdateInvoiceInput): Promise<{
-    success: boolean;
-    invoiceId?: Id<"invoices">;
-  }> => {
+  }: CreateOrUpdateInvoiceInput): Promise<boolean> => {
     setInvoiceUpdateLoading(true);
     setInvoiceUpdateError(null);
 
     try {
-      const response = await createOrUpdateMutation({ moveId, updates });
+      await createOrUpdateMutation({ moveId, updates });
 
-      if (response.status === ResponseStatus.SUCCESS) {
-        return {
-          success: true,
-          invoiceId: response.data.invoiceId,
-        };
-      }
-
-      console.error(response.error);
-      setInvoiceUpdateError(response.error);
-      return { success: false };
+      return true;
     } catch (error) {
-      console.error(FrontEndErrorMessages.GENERIC, error);
-      setInvoiceUpdateError(FrontEndErrorMessages.GENERIC);
-      return { success: false };
+      setErrorFromConvexError(error, setInvoiceUpdateError);
+      return false;
     } finally {
       setInvoiceUpdateLoading(false);
     }

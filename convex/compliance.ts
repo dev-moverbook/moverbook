@@ -1,5 +1,4 @@
-import { ResponseStatus, ClerkRoles } from "@/types/enums";
-import { ErrorMessages } from "@/types/errors";
+import { ClerkRoles } from "@/types/enums";
 import { v } from "convex/values";
 import { mutation } from "./_generated/server";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
@@ -8,8 +7,7 @@ import {
   isUserInOrg,
   validateCompliance,
 } from "./backendUtils/validate";
-import { shouldExposeError } from "./backendUtils/helper";
-import { UpdateComplianceResponse } from "@/types/convex-responses";
+import { Id } from "./_generated/dataModel";
 
 export const updateCompliance = mutation({
   args: {
@@ -20,40 +18,23 @@ export const updateCompliance = mutation({
       usDotNumber: v.optional(v.string()),
     }),
   },
-  handler: async (ctx, args): Promise<UpdateComplianceResponse> => {
+  handler: async (ctx, args): Promise<Id<"compliance">> => {
     const { complianceId, updates } = args;
 
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-      ]);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+    ]);
 
-      const compliance = validateCompliance(await ctx.db.get(complianceId));
+    const compliance = validateCompliance(await ctx.db.get(complianceId));
 
-      const company = validateCompany(await ctx.db.get(compliance.companyId));
+    const company = validateCompany(await ctx.db.get(compliance.companyId));
 
-      isUserInOrg(identity, company.clerkOrganizationId);
+    isUserInOrg(identity, company.clerkOrganizationId);
 
-      await ctx.db.patch(compliance._id, updates);
+    await ctx.db.patch(compliance._id, updates);
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { complianceId: compliance._id },
-      };
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
-      console.error("Internal Error:", errorMessage, error);
-
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error: shouldExposeError(errorMessage)
-          ? errorMessage
-          : ErrorMessages.GENERIC_ERROR,
-      };
-    }
+    return complianceId;
   },
 });

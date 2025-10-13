@@ -1,22 +1,27 @@
-// AddMovePage.tsx
-"use client";
+import AddMovePage from "@/app/app/[slug]/add-move/AddMovePage";
 
-import React from "react";
-import { MoveFormProvider } from "@/app/contexts/MoveFormContext";
-import AddMovePageContent from "./AddMovePageContent";
-import { useSlugContext } from "@/app/contexts/SlugContext";
-
-const AddMovePage = () => {
-  const { isCompanyContactComplete, isStripeComplete } = useSlugContext();
-  const isAddMoveDisabled = !isCompanyContactComplete || !isStripeComplete;
-
-  if (isAddMoveDisabled) return null;
+export default function Page({
+  searchParams,
+}: {
+  searchParams: {
+    moveCustomerId?: string;
+    duplicateFrom?: string;
+    fields?: string;
+  };
+}) {
+  const moveCustomerId = searchParams.moveCustomerId ?? null;
+  const duplicateFromId = searchParams.duplicateFrom ?? null;
+  const fieldsToDuplicate =
+    searchParams.fields
+      ?.split(",")
+      .map((s) => s.trim())
+      .filter(Boolean) ?? [];
 
   return (
-    <MoveFormProvider>
-      <AddMovePageContent />
-    </MoveFormProvider>
+    <AddMovePage
+      moveCustomerId={moveCustomerId}
+      duplicateFromId={duplicateFromId}
+      fieldsToDuplicate={fieldsToDuplicate}
+    />
   );
-};
-
-export default AddMovePage;
+}

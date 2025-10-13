@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { cn } from "@/lib/utils"; // optional utility if you're using class merging
+import { cn } from "@/lib/utils";
 
 interface CalendarContainerProps {
   children: React.ReactNode;

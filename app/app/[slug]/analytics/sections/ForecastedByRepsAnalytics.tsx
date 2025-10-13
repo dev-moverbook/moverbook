@@ -1,8 +1,6 @@
 "use client";
 
-import ErrorComponent from "@/app/components/shared/ErrorComponent";
 import { useSlugContext } from "@/app/contexts/SlugContext";
-import { QueryStatus } from "@/types/enums";
 import { useStackedForecastedRevenueByRep } from "@/app/hooks/queries/analytics/useStackedForecastedRevenueByRep";
 import StackedBarChartCard from "@/app/components/shared/graphs/stackedBar/StackedBarChartCard";
 import {
@@ -30,18 +28,15 @@ const ForecastedByRepsAnalytics = ({
   });
   let body: React.ReactNode = null;
 
-  switch (result.status) {
-    case QueryStatus.LOADING:
+  switch (result) {
+    case undefined:
       body = <ChartCardSkeletonStatic />;
       break;
-    case QueryStatus.ERROR:
-      body = <ErrorComponent message={result.errorMessage} />;
-      break;
-    case QueryStatus.SUCCESS:
+    default:
       body = (
         <StackedBarChartCard
           title="Forecasted Revenue by Rep"
-          series={result.data.series}
+          series={result}
           labelFormatter={formatWeekdayShort}
           valueFormatter={formatCurrencyCompact}
           tooltipValueFormatter={formatCurrency}

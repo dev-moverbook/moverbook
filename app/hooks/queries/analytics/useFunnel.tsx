@@ -3,23 +3,10 @@
 import { api } from "@/convex/_generated/api";
 import { useQuery } from "convex/react";
 import { Id } from "@/convex/_generated/dataModel";
-import { QueryStatus, ResponseStatus } from "@/types/enums";
 import { FunnelPoint } from "@/types/types";
 
-type UseFunnelLoading = { status: QueryStatus.LOADING };
-type UseFunnelError = { status: QueryStatus.ERROR; errorMessage: string };
-type UseFunnelSuccess = {
-  status: QueryStatus.SUCCESS;
-  data: { funnel: FunnelPoint[] };
-};
-
-export type UseFunnelResult =
-  | UseFunnelLoading
-  | UseFunnelError
-  | UseFunnelSuccess;
-
 type UseFunnelArgs = {
-  companyId: Id<"companies"> | null;
+  companyId: Id<"companies">;
   startDate: string;
   endDate: string;
   salesRepId: Id<"users"> | null;
@@ -32,35 +19,18 @@ export function useFunnel({
   endDate,
   salesRepId,
   referralId,
-}: UseFunnelArgs): UseFunnelResult {
+}: UseFunnelArgs): FunnelPoint[] | undefined {
   const response = useQuery(
     api.move.getFunnel,
-    companyId
-      ? {
-          companyId,
-          startDate,
-          endDate,
-          salesRepId,
-          referralId,
-        }
-      : "skip"
+
+    {
+      companyId,
+      startDate,
+      endDate,
+      salesRepId,
+      referralId,
+    }
   );
 
-  if (!response || !companyId) {
-    return { status: QueryStatus.LOADING };
-  }
-
-  if (response.status === ResponseStatus.ERROR) {
-    return {
-      status: QueryStatus.ERROR,
-      errorMessage: response.error ?? "Failed to load funnel.",
-    };
-  }
-
-  return {
-    status: QueryStatus.SUCCESS,
-    data: {
-      funnel: response.data.funnel,
-    },
-  };
+  return response;
 }

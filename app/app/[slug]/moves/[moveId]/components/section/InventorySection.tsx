@@ -76,7 +76,7 @@ const InventorySection = ({
   }, []);
 
   const handleSave = useCallback(async () => {
-    const { success } = await updateMove({
+    const success = await updateMove({
       moveId: move._id,
       updates: { moveItems: localMoveItems },
     });
@@ -105,7 +105,6 @@ const InventorySection = ({
       <>
         <AddedItems
           hideTitle={true}
-          // Show live local edits while editing; otherwise show persisted data
           moveItems={isEditing ? localMoveItems : move.moveItems}
           updateMoveItem={updateMoveItem}
           removeMoveItem={removeMoveItem}

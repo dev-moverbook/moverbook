@@ -11,7 +11,7 @@ const AdminAlert: React.FC = () => {
     useSlugContext();
 
   const isSetupStatusReady =
-    companyId !== null && // companyId successfully fetched
+    companyId !== null &&
     typeof isCompanyContactComplete === "boolean" &&
     typeof isStripeComplete === "boolean";
 
@@ -21,17 +21,29 @@ const AdminAlert: React.FC = () => {
   const stripeSetupLink = `/app/${slug}/stripe`;
   const companySetupLink = `/app/${slug}/company-setup`;
 
-  if ((!needsStripe && !needsCompanySetup) || !isSetupStatusReady) return null;
+  if ((!needsStripe && !needsCompanySetup) || !isSetupStatusReady) {
+    return null;
+  }
 
   let alertText = "";
-
-  if (needsStripe && needsCompanySetup) {
-    alertText =
-      "You must complete your Stripe setup and company setup to access all features.";
-  } else if (needsStripe) {
-    alertText = "You must complete your Stripe setup to access all features.";
-  } else if (needsCompanySetup) {
-    alertText = "You must complete your company setup to access all features.";
+  switch (true) {
+    case needsStripe && needsCompanySetup: {
+      alertText =
+        "You must complete your Stripe setup and company setup to access all features.";
+      break;
+    }
+    case needsStripe: {
+      alertText = "You must complete your Stripe setup to access all features.";
+      break;
+    }
+    case needsCompanySetup: {
+      alertText =
+        "You must complete your company setup to access all features.";
+      break;
+    }
+    default: {
+      alertText = "";
+    }
   }
 
   return (

@@ -3,9 +3,8 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { ResponseStatus } from "@/types/enums";
-import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
+import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
 export type LaborCreateInput = {
   name: string;
@@ -32,18 +31,11 @@ export const useCreateLabor = () => {
     setCreateLaborError(null);
 
     try {
-      const response = await createLaborMutation({ companyId, ...laborData });
+      await createLaborMutation({ companyId, ...laborData });
 
-      if (response.status === ResponseStatus.SUCCESS) {
-        return true;
-      }
-
-      console.error(response.error);
-      setCreateLaborError(response.error);
-      return false;
+      return true;
     } catch (error) {
-      console.error(FrontEndErrorMessages.GENERIC, error);
-      setCreateLaborError(FrontEndErrorMessages.GENERIC);
+      setErrorFromConvexError(error, setCreateLaborError);
       return false;
     } finally {
       setCreateLaborLoading(false);

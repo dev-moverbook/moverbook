@@ -6,7 +6,6 @@ import { FrontEndErrorMessages } from "@/types/errors";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { ResponseStatus } from "@/types/enums";
 
 export const useUpdateOrganizationLogo = () => {
   const { organization } = useOrganization();
@@ -28,17 +27,12 @@ export const useUpdateOrganizationLogo = () => {
       }
 
       const updatedOrganization = await organization.setLogo({ file });
-      const response = await updateCompanyLogo({
+      await updateCompanyLogo({
         companyId,
         imageUrl: updatedOrganization.imageUrl,
       });
 
-      if (response.status === ResponseStatus.SUCCESS) {
-        return true;
-      }
-      console.error(response.error);
-      setUploadError(response.error);
-      return false;
+      return true;
     } catch (error) {
       console.error("Error updating organization logo:", error);
       setUploadError(FrontEndErrorMessages.GENERIC);

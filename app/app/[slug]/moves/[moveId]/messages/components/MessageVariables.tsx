@@ -22,8 +22,7 @@ const MessageVariables = ({ target }: MessageVariablesProps) => {
     setShowVariables,
   } = useMessageContext();
 
-  const { variables, isLoading, isError, errorMessage } =
-    useVariablesByCompanyId(companyId);
+  const variables = useVariablesByCompanyId(companyId);
 
   const handleVariableClick = (variable: string) => {
     const formatted = `{{${variable}}}`;
@@ -38,18 +37,10 @@ const MessageVariables = ({ target }: MessageVariablesProps) => {
     setShowVariables(false);
   };
 
-  if (isLoading) {
+  if (!variables) {
     return (
       <div className="text-sm text-muted-foreground text-center py-4">
         Loading variables...
-      </div>
-    );
-  }
-
-  if (isError) {
-    return (
-      <div className="text-sm text-destructive text-center py-4">
-        {errorMessage || "Failed to load variables."}
       </div>
     );
   }

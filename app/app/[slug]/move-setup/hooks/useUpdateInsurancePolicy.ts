@@ -3,9 +3,8 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { ResponseStatus } from "@/types/enums";
-import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
+import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
 interface UpdateInsurancePolicyData {
   coverageType?: number | null;
@@ -43,16 +42,9 @@ export const useUpdateInsurancePolicy = () => {
         },
       });
 
-      if (response.status === ResponseStatus.SUCCESS) {
-        return true;
-      }
-
-      console.error(response.error);
-      setUpdateInsurancePolicyError(response.error);
-      return false;
+      return true;
     } catch (error) {
-      console.error(FrontEndErrorMessages.GENERIC, error);
-      setUpdateInsurancePolicyError(FrontEndErrorMessages.GENERIC);
+      setErrorFromConvexError(error, setUpdateInsurancePolicyError);
       return false;
     } finally {
       setUpdateInsurancePolicyLoading(false);

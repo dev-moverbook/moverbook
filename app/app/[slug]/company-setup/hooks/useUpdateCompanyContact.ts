@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { ResponseStatus } from "@/types/enums";
 import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
 import { AddressInput } from "@/types/form-types";
@@ -37,13 +36,7 @@ export const useUpdateCompanyContact = () => {
         updates,
       });
 
-      if (response.status === ResponseStatus.SUCCESS) {
-        return true;
-      }
-
-      console.error(response.error);
-      setUpdateCompanyContactError(response.error);
-      return false;
+      return true;
     } catch (error) {
       console.error(error);
       setUpdateCompanyContactError(FrontEndErrorMessages.GENERIC);

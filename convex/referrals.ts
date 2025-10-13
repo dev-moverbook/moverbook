@@ -5,53 +5,39 @@ import {
   validateCompany,
   validateReferral,
 } from "./backendUtils/validate";
-import { ErrorMessages } from "@/types/errors";
-import { ClerkRoles, ResponseStatus } from "@/types/enums";
+import { ClerkRoles } from "@/types/enums";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
-import {
-  CreateReferralResponse,
-  GetActiveReferralsByCompanyIdResponse,
-  UpdateReferralResponse,
-} from "@/types/convex-responses";
-import { handleInternalError } from "./backendUtils/helper";
+
+import { Doc, Id } from "./_generated/dataModel";
 
 export const getActiveReferralsByCompanyId = query({
   args: { companyId: v.id("companies") },
-  handler: async (
-    ctx,
-    args
-  ): Promise<GetActiveReferralsByCompanyIdResponse> => {
+  handler: async (ctx, args): Promise<Doc<"referrals">[]> => {
     const { companyId } = args;
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-        ClerkRoles.SALES_REP,
-      ]);
 
-      const company = await ctx.db.get(companyId);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+      ClerkRoles.SALES_REP,
+    ]);
 
-      const validatedCompany = validateCompany(company);
-      isUserInOrg(identity, validatedCompany.clerkOrganizationId);
+    const company = await ctx.db.get(companyId);
 
-      const referrals = await ctx.db
-        .query("referrals")
-        .filter((q) =>
-          q.and(
-            q.eq(q.field("companyId"), validatedCompany._id),
-            q.eq(q.field("isActive"), true)
-          )
+    const validatedCompany = validateCompany(company);
+    isUserInOrg(identity, validatedCompany.clerkOrganizationId);
+
+    const referrals = await ctx.db
+      .query("referrals")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("companyId"), validatedCompany._id),
+          q.eq(q.field("isActive"), true)
         )
-        .collect();
+      )
+      .collect();
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { referrals },
-      };
-    } catch (error) {
-      return handleInternalError(error);
-    }
+    return referrals;
   },
 });
 
@@ -60,42 +46,28 @@ export const createReferral = mutation({
     companyId: v.id("companies"),
     name: v.string(),
   },
-  handler: async (ctx, args): Promise<CreateReferralResponse> => {
+  handler: async (ctx, args): Promise<Id<"referrals">> => {
     const { companyId, name } = args;
 
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-        ClerkRoles.SALES_REP,
-      ]);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+      ClerkRoles.SALES_REP,
+    ]);
 
-      const company = await ctx.db.get(companyId);
+    const company = await ctx.db.get(companyId);
 
-      const validatedCompany = validateCompany(company);
-      isUserInOrg(identity, validatedCompany.clerkOrganizationId);
+    const validatedCompany = validateCompany(company);
+    isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
-      const referralId = await ctx.db.insert("referrals", {
-        companyId,
-        name,
-        isActive: true,
-      });
+    const referralId = await ctx.db.insert("referrals", {
+      companyId,
+      name,
+      isActive: true,
+    });
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { referralId },
-      };
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
-      console.error(errorMessage, error);
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error: errorMessage,
-      };
-    }
+    return referralId;
   },
 });
 
@@ -107,39 +79,25 @@ export const updateReferral = mutation({
       isActive: v.optional(v.boolean()),
     }),
   },
-  handler: async (ctx, args): Promise<UpdateReferralResponse> => {
+  handler: async (ctx, args): Promise<Id<"referrals">> => {
     const { referralId, updates } = args;
 
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-        ClerkRoles.SALES_REP,
-      ]);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+      ClerkRoles.SALES_REP,
+    ]);
 
-      const referral = await ctx.db.get(referralId);
-      const validatedReferral = validateReferral(referral);
+    const referral = await ctx.db.get(referralId);
+    const validatedReferral = validateReferral(referral);
 
-      const company = await ctx.db.get(validatedReferral.companyId);
-      const validatedCompany = validateCompany(company);
-      isUserInOrg(identity, validatedCompany.clerkOrganizationId);
+    const company = await ctx.db.get(validatedReferral.companyId);
+    const validatedCompany = validateCompany(company);
+    isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
-      await ctx.db.patch(referralId, updates);
+    await ctx.db.patch(referralId, updates);
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { referralId },
-      };
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
-      console.error(errorMessage, error);
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error: errorMessage,
-      };
-    }
+    return referralId;
   },
 });

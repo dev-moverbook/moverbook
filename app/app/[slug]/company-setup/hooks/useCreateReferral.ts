@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { ResponseStatus } from "@/types/enums";
-import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
+import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
 export const useCreateReferral = () => {
   const [createLoading, setCreateLoading] = useState(false);
@@ -21,15 +20,9 @@ export const useCreateReferral = () => {
     try {
       const response = await createReferralMutation({ companyId, name });
 
-      if (response.status === ResponseStatus.SUCCESS) {
-        return true;
-      }
-      console.error(response.error);
-      setCreateError(FrontEndErrorMessages.GENERIC);
-      return false;
+      return true;
     } catch (error) {
-      console.error(error);
-      setCreateError(FrontEndErrorMessages.GENERIC);
+      setErrorFromConvexError(error, setCreateError);
       return false;
     } finally {
       setCreateLoading(false);

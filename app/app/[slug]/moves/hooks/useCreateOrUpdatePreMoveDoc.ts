@@ -3,9 +3,8 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { ResponseStatus } from "@/types/enums";
-import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
+import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
 interface PreMoveDocUpdates {
   customerSignature?: string;
@@ -25,24 +24,17 @@ export const useCreateOrUpdatePreMoveDoc = () => {
   const createOrUpdatePreMoveDoc = async (
     moveId: Id<"move">,
     updates: PreMoveDocUpdates
-  ): Promise<{ success: boolean; preMoveDocId?: Id<"preMoveDocs"> }> => {
+  ): Promise<boolean> => {
     setCreateOrUpdatePreMoveDocLoading(true);
     setCreateOrUpdatePreMoveDocError(null);
 
     try {
-      const response = await mutationFn({ moveId, updates });
+      await mutationFn({ moveId, updates });
 
-      if (response.status === ResponseStatus.SUCCESS) {
-        return { success: true, preMoveDocId: response.data.preMoveDocId };
-      }
-
-      console.error(response.error);
-      setCreateOrUpdatePreMoveDocError(response.error);
-      return { success: false };
+      return true;
     } catch (error) {
-      console.error(FrontEndErrorMessages.GENERIC, error);
-      setCreateOrUpdatePreMoveDocError(FrontEndErrorMessages.GENERIC);
-      return { success: false };
+      setErrorFromConvexError(error, setCreateOrUpdatePreMoveDocError);
+      return false;
     } finally {
       setCreateOrUpdatePreMoveDocLoading(false);
     }

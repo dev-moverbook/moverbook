@@ -3,23 +3,18 @@
 import React from "react";
 import StripePageContent from "./StripePageContent";
 import { useStripeConnection } from "@/app/hooks/queries/stripe/useStripeConnection";
-import { QueryStatus } from "@/types/enums";
-import ErrorMessage from "@/app/components/shared/error/ErrorMessage";
 
 const StripePage = () => {
   const result = useStripeConnection();
 
-  switch (result.status) {
-    case QueryStatus.LOADING:
+  switch (result) {
+    case undefined:
       return null;
 
-    case QueryStatus.ERROR:
-      return <ErrorMessage message={result.errorMessage} />;
-
-    case QueryStatus.SUCCESS:
+    default:
       return (
         <main className="min-h-100vh">
-          <StripePageContent connectedAccount={result.connectedAccount} />
+          <StripePageContent connectedAccount={result} />
         </main>
       );
   }

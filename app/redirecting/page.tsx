@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUser, useOrganizationList, useOrganization } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
-import { ResponseStatus, UserRole } from "@/types/enums";
+import { UserRole } from "@/types/enums";
 import NProgress from "nprogress";
 import { api } from "@/convex/_generated/api";
 import FullLoading from "@/app/components/shared/FullLoading";
@@ -36,13 +36,12 @@ const RedirectingPage = () => {
 
       if (!companyResponse || !setActive) return;
 
-      if (companyResponse.status === ResponseStatus.ERROR) {
-        console.error(companyResponse.error);
+      if (!companyResponse) {
         setError(true);
         return;
       }
 
-      const companyData = companyResponse.data?.company;
+      const companyData = companyResponse;
       const orgRole = user?.publicMetadata.role as string;
 
       if (!companyData && pollCount < 6) {
@@ -66,7 +65,7 @@ const RedirectingPage = () => {
           setHasSetActive(true);
           await setActive({ organization: companyData.clerkOrganizationId });
           setTimeout(() => {
-            router.refresh(); // or window.location.reload();
+            router.refresh();
           }, 500);
         }
         return;

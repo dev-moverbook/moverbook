@@ -25,7 +25,7 @@ const ViewTravelFee = () => {
     useState<MoveTravelFeeFormData>(initialFormData);
 
   const handleSave = async () => {
-    const { success } = await updateMove({
+    const success = await updateMove({
       moveId: move._id,
       updates: {
         travelFeeRate: formData.travelFeeRate,
@@ -40,27 +40,42 @@ const ViewTravelFee = () => {
     setIsEditing(false);
   };
 
-  const handleTravelFeeMethodChange = (val: TravelChargingTypes | "None") => {
-    if (val === "None") {
-      setFormData({
-        travelFeeMethod: null,
-        travelFeeRate: null,
-      });
-    } else if (val === TravelChargingTypes.MILEAGE) {
-      setFormData({
-        travelFeeMethod: val,
-        travelFeeRate: travelFeeOptions?.mileageRate ?? null,
-      });
-    } else if (val === TravelChargingTypes.FLAT) {
-      setFormData({
-        travelFeeMethod: val,
-        travelFeeRate: travelFeeOptions?.flatRate ?? null,
-      });
-    } else if (val === TravelChargingTypes.LABOR_HOURS) {
-      setFormData({
-        travelFeeMethod: val,
-        travelFeeRate: move.jobTypeRate ?? null,
-      });
+  const handleTravelFeeMethodChange = (value: TravelChargingTypes | "None") => {
+    switch (value) {
+      case "None": {
+        setFormData({
+          travelFeeMethod: null,
+          travelFeeRate: null,
+        });
+        break;
+      }
+      case TravelChargingTypes.MILEAGE: {
+        setFormData({
+          travelFeeMethod: value,
+          travelFeeRate: travelFeeOptions?.mileageRate ?? null,
+        });
+        break;
+      }
+      case TravelChargingTypes.FLAT: {
+        setFormData({
+          travelFeeMethod: value,
+          travelFeeRate: travelFeeOptions?.flatRate ?? null,
+        });
+        break;
+      }
+      case TravelChargingTypes.LABOR_HOURS: {
+        setFormData({
+          travelFeeMethod: value,
+          travelFeeRate: move.jobTypeRate ?? null,
+        });
+        break;
+      }
+      default: {
+        setFormData({
+          travelFeeMethod: null,
+          travelFeeRate: null,
+        });
+      }
     }
   };
 

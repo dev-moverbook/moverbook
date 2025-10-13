@@ -1,19 +1,17 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
-import { Id } from "@/convex/_generated/dataModel";
+import { useRouter } from "next/navigation";
 import SectionContainer from "@/app/components/shared/SectionContainer";
 import CenteredContainer from "@/app/components/shared/CenteredContainer";
-import ErrorMessage from "@/app/components/shared/error/ErrorMessage";
 import UserIdContent from "./UserIdContent";
 import { useUserById } from "@/app/hooks/queries/users/useUserById";
+import { useUserId } from "@/app/contexts/UserIdContext";
 
 const UserPage: React.FC = () => {
-  const { userId } = useParams();
-  const id = userId as Id<"users">;
+  const { userId } = useUserId();
   const router = useRouter();
 
-  const { user, isLoading, isError, errorMessage } = useUserById(id);
+  const user = useUserById(userId);
 
   const handleBack = () => {
     router.back();
@@ -22,19 +20,11 @@ const UserPage: React.FC = () => {
   let content: React.ReactNode;
 
   switch (true) {
-    case isLoading:
+    case !user:
       content = null;
       break;
-    case isError:
-      content = (
-        <ErrorMessage message={errorMessage ?? "Failed to load user."} />
-      );
-      break;
-    case !user:
-      content = <ErrorMessage message="User not found." />;
-      break;
     default:
-      content = <UserIdContent userData={user!} onBack={handleBack} />;
+      content = <UserIdContent userData={user} onBack={handleBack} />;
       break;
   }
 

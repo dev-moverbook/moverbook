@@ -3,10 +3,9 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { ResponseStatus } from "@/types/enums";
-import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
 import { ItemCreateInput } from "./useCreateItem";
+import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
 export const useUpdateItem = () => {
   const [updateItemLoading, setUpdateItemLoading] = useState<boolean>(false);
@@ -22,18 +21,11 @@ export const useUpdateItem = () => {
     setUpdateItemError(null);
 
     try {
-      const response = await updateItemMutation({ itemId, updates });
+      await updateItemMutation({ itemId, updates });
 
-      if (response.status === ResponseStatus.SUCCESS) {
-        return true;
-      }
-
-      console.error(response.error);
-      setUpdateItemError(response.error);
-      return false;
+      return true;
     } catch (error) {
-      console.error(FrontEndErrorMessages.GENERIC, error);
-      setUpdateItemError(FrontEndErrorMessages.GENERIC);
+      setErrorFromConvexError(error, setUpdateItemError);
       return false;
     } finally {
       setUpdateItemLoading(false);

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { ResponseStatus } from "@/types/enums";
 import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
 
@@ -30,18 +29,12 @@ export const useUpdateWebIntegrations = () => {
     setUpdateWebIntegrationsError(null);
 
     try {
-      const response = await updateWebIntegrationsMutation({
+      await updateWebIntegrationsMutation({
         webIntegrationsId,
         updates,
       });
 
-      if (response.status === ResponseStatus.SUCCESS) {
-        return true;
-      }
-
-      console.error(response.error);
-      setUpdateWebIntegrationsError(response.error);
-      return false;
+      return true;
     } catch (error) {
       console.error(error);
       setUpdateWebIntegrationsError(FrontEndErrorMessages.GENERIC);

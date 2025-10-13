@@ -1,5 +1,4 @@
-import { ClerkRoles, ResponseStatus } from "@/types/enums";
-import { ErrorMessages } from "@/types/errors";
+import { ClerkRoles } from "@/types/enums";
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
@@ -9,86 +8,66 @@ import {
   validateArrivalWindow,
   validatePolicy,
 } from "./backendUtils/validate";
-import { handleInternalError, shouldExposeError } from "./backendUtils/helper";
-import {
-  GetCompanyArrivalAndPoliciesResponse,
-  GetCompanyArrivalResponse,
-  UpdateArrivalWindowResponse,
-} from "@/types/convex-responses";
+import { GetCompanyArrivalAndPoliciesData } from "@/types/convex-responses";
+import { Doc, Id } from "./_generated/dataModel";
 
 export const getCompanyArrivalAndPolicies = query({
   args: { companyId: v.id("companies") },
-  handler: async (ctx, args): Promise<GetCompanyArrivalAndPoliciesResponse> => {
+  handler: async (ctx, args): Promise<GetCompanyArrivalAndPoliciesData> => {
     const { companyId } = args;
 
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-        ClerkRoles.SALES_REP,
-      ]);
-      const company = validateCompany(await ctx.db.get(companyId));
-      isUserInOrg(identity, company.clerkOrganizationId);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+      ClerkRoles.SALES_REP,
+    ]);
+    const company = validateCompany(await ctx.db.get(companyId));
+    isUserInOrg(identity, company.clerkOrganizationId);
 
-      const arrivalWindow = validateArrivalWindow(
-        await ctx.db
-          .query("arrivalWindow")
-          .filter((q) => q.eq(q.field("companyId"), companyId))
-          .first()
-      );
+    const arrivalWindow = validateArrivalWindow(
+      await ctx.db
+        .query("arrivalWindow")
+        .filter((q) => q.eq(q.field("companyId"), companyId))
+        .first()
+    );
 
-      const policy = validatePolicy(
-        await ctx.db
-          .query("policies")
-          .filter((q) => q.eq(q.field("companyId"), companyId))
-          .first()
-      );
+    const policy = validatePolicy(
+      await ctx.db
+        .query("policies")
+        .filter((q) => q.eq(q.field("companyId"), companyId))
+        .first()
+    );
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: {
-          arrivalWindow,
-          policy,
-        },
-      };
-    } catch (error) {
-      return handleInternalError(error);
-    }
+    return {
+      arrivalWindow,
+      policy,
+    };
   },
 });
 
 export const getCompanyArrival = query({
   args: { companyId: v.id("companies") },
-  handler: async (ctx, args): Promise<GetCompanyArrivalResponse> => {
+  handler: async (ctx, args): Promise<Doc<"arrivalWindow">> => {
     const { companyId } = args;
 
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-        ClerkRoles.SALES_REP,
-      ]);
-      const company = validateCompany(await ctx.db.get(companyId));
-      isUserInOrg(identity, company.clerkOrganizationId);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+      ClerkRoles.SALES_REP,
+    ]);
+    const company = validateCompany(await ctx.db.get(companyId));
+    isUserInOrg(identity, company.clerkOrganizationId);
 
-      const arrivalWindow = validateArrivalWindow(
-        await ctx.db
-          .query("arrivalWindow")
-          .filter((q) => q.eq(q.field("companyId"), companyId))
-          .first()
-      );
+    const arrivalWindow = validateArrivalWindow(
+      await ctx.db
+        .query("arrivalWindow")
+        .filter((q) => q.eq(q.field("companyId"), companyId))
+        .first()
+    );
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: {
-          arrivalWindow,
-        },
-      };
-    } catch (error) {
-      return handleInternalError(error);
-    }
+    return arrivalWindow;
   },
 });
 
@@ -102,43 +81,24 @@ export const updateArrivalWindow = mutation({
       afternoonEnd: v.optional(v.string()),
     }),
   },
-  handler: async (ctx, args): Promise<UpdateArrivalWindowResponse> => {
+  handler: async (ctx, args): Promise<Id<"arrivalWindow">> => {
     const { arrivalWindowId, updates } = args;
 
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-      ]);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+    ]);
 
-      const arrivalWindow = validateArrivalWindow(
-        await ctx.db.get(arrivalWindowId)
-      );
-      const company = validateCompany(
-        await ctx.db.get(arrivalWindow.companyId)
-      );
+    const arrivalWindow = validateArrivalWindow(
+      await ctx.db.get(arrivalWindowId)
+    );
+    const company = validateCompany(await ctx.db.get(arrivalWindow.companyId));
 
-      isUserInOrg(identity, company.clerkOrganizationId);
+    isUserInOrg(identity, company.clerkOrganizationId);
 
-      await ctx.db.patch(arrivalWindowId, updates);
+    await ctx.db.patch(arrivalWindowId, updates);
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { arrivalWindowId },
-      };
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
-      console.error("Internal Error:", errorMessage, error);
-
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error: shouldExposeError(errorMessage)
-          ? errorMessage
-          : ErrorMessages.GENERIC_ERROR,
-      };
-    }
+    return arrivalWindowId;
   },
 });

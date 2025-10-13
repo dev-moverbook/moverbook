@@ -6,7 +6,6 @@ import { useRevokeInvite } from "@/app/hooks/useRevokeInvite";
 import SectionContainer from "@/app/components/shared/SectionContainer";
 import CenteredContainer from "@/app/components/shared/CenteredContainer";
 import ContainerUserCard from "@/app/components/shared/ContainerUserCard";
-import ErrorMessage from "@/app/components/shared/error/ErrorMessage";
 import EmptyList from "@/app/components/shared/message/EmptyList";
 import InvitationCard from "./InvitationCard";
 import ResponsiveRevokeModal from "./ResponsiveRevokeModal";
@@ -15,8 +14,7 @@ import { useActiveInvitations } from "@/app/hooks/queries/invitations/useActiveI
 
 const InvitedUsers = () => {
   const { companyId } = useSlugContext();
-  const { invitations, isLoading, isError, errorMessage } =
-    useActiveInvitations(companyId ?? null);
+  const invitations = useActiveInvitations(companyId);
 
   const { revokeInviteUser, revokeLoading, revokeError } = useRevokeInvite();
   const [selectedInvitationId, setSelectedInvitationId] =
@@ -41,17 +39,10 @@ const InvitedUsers = () => {
 
   const renderContent = () => {
     switch (true) {
-      case isLoading:
+      case invitations === undefined:
         return null;
 
-      case isError:
-        return (
-          <ErrorMessage
-            message={errorMessage ?? "Failed to load invitations."}
-          />
-        );
-
-      case invitations.length === 0:
+      case invitations?.length === 0:
         return <EmptyList className="pt-4" message="No invited users." />;
 
       default:

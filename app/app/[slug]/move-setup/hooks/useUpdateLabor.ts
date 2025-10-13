@@ -3,10 +3,9 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { ResponseStatus } from "@/types/enums";
-import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
 import { LaborCreateInput } from "./useCreateLabor";
+import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
 export const useUpdateLabor = () => {
   const [updateLaborLoading, setUpdateLaborLoading] = useState<boolean>(false);
@@ -24,16 +23,9 @@ export const useUpdateLabor = () => {
     try {
       const response = await updateLaborMutation({ laborId, updates });
 
-      if (response.status === ResponseStatus.SUCCESS) {
-        return true;
-      }
-
-      console.error(response.error);
-      setUpdateLaborError(response.error);
-      return false;
+      return true;
     } catch (error) {
-      console.error(FrontEndErrorMessages.GENERIC, error);
-      setUpdateLaborError(FrontEndErrorMessages.GENERIC);
+      setErrorFromConvexError(error, setUpdateLaborError);
       return false;
     } finally {
       setUpdateLaborLoading(false);

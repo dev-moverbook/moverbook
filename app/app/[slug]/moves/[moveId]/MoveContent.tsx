@@ -18,7 +18,7 @@ import SummaryTab from "./components/tabs/SummaryTab";
 
 const MoveContent = () => {
   const router = useRouter();
-  const { cleanSlug, user } = useSlugContext();
+  const { slug, user } = useSlugContext();
   const { moveData } = useMoveContext();
   const { wageDisplay } = moveData;
 
@@ -68,8 +68,8 @@ const MoveContent = () => {
   };
 
   const hrefLink = isMoverUser
-    ? `/app/${cleanSlug}/customer/${moveCustomer?._id}`
-    : `/app/${cleanSlug}/moves/${move._id}`;
+    ? `/app/${slug}/customer/${moveCustomer?._id}`
+    : `/app/${slug}/moves/${move._id}`;
 
   const card = (
     <MoveCard
@@ -82,10 +82,10 @@ const MoveContent = () => {
       hourStatus={moveData.myAssignment?.hourStatus}
       moverWageDisplay={wageDisplay}
       onMessagesClick={() =>
-        router.push(`/app/${cleanSlug}/moves/${move._id}/messages`)
+        router.push(`/app/${slug}/moves/${move._id}/messages`)
       }
       onViewCustomerClick={() =>
-        router.push(`/app/${cleanSlug}/customer/${moveCustomer?._id}`)
+        router.push(`/app/${slug}/customer/${moveCustomer?._id}`)
       }
       onCardClick={() => router.push(hrefLink)}
     />

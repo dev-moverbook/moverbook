@@ -3,9 +3,8 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { ResponseStatus } from "@/types/enums";
-import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
+import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
 export const useDeleteRoom = () => {
   const [deleteRoomLoading, setDeleteRoomLoading] = useState<boolean>(false);
@@ -18,21 +17,14 @@ export const useDeleteRoom = () => {
     setDeleteRoomError(null);
 
     try {
-      const response = await deleteRoomMutation({
+      await deleteRoomMutation({
         roomId,
         updates: { isActive: false },
       });
 
-      if (response.status === ResponseStatus.SUCCESS) {
-        return true;
-      }
-
-      console.error(response.error);
-      setDeleteRoomError(response.error);
-      return false;
+      return true;
     } catch (error) {
-      console.error(FrontEndErrorMessages.GENERIC, error);
-      setDeleteRoomError(FrontEndErrorMessages.GENERIC);
+      setErrorFromConvexError(error, setDeleteRoomError);
       return false;
     } finally {
       setDeleteRoomLoading(false);

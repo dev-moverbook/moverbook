@@ -6,11 +6,9 @@ import InvoiceSummary from "../payment/InvoiceSummary";
 import InvoiceSignature from "../payment/InvoiceSignature";
 import InternalReview from "../payment/InternalReview";
 import ExternalReview from "../payment/ExternalReview";
-import ErrorComponent from "@/app/components/shared/ErrorComponent";
 import StepStatus from "../shared/StepStatus";
 import { getInvoiceStatus } from "@/app/frontendUtils/tsxHelper";
 import { useMoveContext } from "@/app/contexts/MoveContext";
-import { QueryStatus } from "@/types/enums";
 import { useGetPaymentPage } from "@/app/hooks/queries/useGetPaymentPage";
 import { computeFinalMoveCost } from "@/app/frontendUtils/payout";
 import InvoiceNotReady from "../shared/InvoiceNotReady";
@@ -22,21 +20,18 @@ const PaymentStep = () => {
 
   const result = useGetPaymentPage(moveId);
 
-  switch (result.status) {
-    case QueryStatus.LOADING:
+  switch (result) {
+    case undefined:
       return null;
 
-    case QueryStatus.ERROR:
-      return <ErrorComponent message={result.errorMessage} />;
-
-    case QueryStatus.SUCCESS: {
+    default: {
       const {
         additionalFees = [],
         discounts = [],
         invoice = null,
         internalReview = null,
         fees = [],
-      } = result.data ?? {};
+      } = result ?? {};
 
       const invoiceStatus = getInvoiceStatus(invoice, move);
       const {

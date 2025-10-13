@@ -1,12 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
-import { ResponseStatus } from "@/types/enums";
-import { FrontEndErrorMessages } from "@/types/errors";
-import { HourStatus } from "@/types/types";
+import type { Id } from "@/convex/_generated/dataModel";
+import type { HourStatus } from "@/types/types";
+import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
 interface ApproveMoveAssignmentHoursInput {
   assignmentId: Id<"moveAssignments">;
@@ -18,7 +17,7 @@ interface ApproveMoveAssignmentHoursInput {
 
 export const useApproveMoveAssignmentHours = () => {
   const [approveAssignmentLoading, setApproveAssignmentLoading] =
-    useState<boolean>(false);
+    useState(false);
   const [approveAssignmentError, setApproveAssignmentError] = useState<
     string | null
   >(null);
@@ -27,33 +26,25 @@ export const useApproveMoveAssignmentHours = () => {
     api.moveAssignments.approveMoveAssignmentHours
   );
 
-  const approveMoveAssignmentHours = async ({
-    assignmentId,
-    updates,
-  }: ApproveMoveAssignmentHoursInput): Promise<{
-    success: boolean;
-    assignmentId?: Id<"moveAssignments">;
-  }> => {
-    setApproveAssignmentLoading(true);
-    setApproveAssignmentError(null);
-
-    try {
-      const response = await approveMutation({ assignmentId, updates });
-
-      if (response.status === ResponseStatus.SUCCESS) {
-        return { success: true, assignmentId: response.data.assignmentId };
+  const approveMoveAssignmentHours = useCallback(
+    async ({
+      assignmentId,
+      updates,
+    }: ApproveMoveAssignmentHoursInput): Promise<boolean> => {
+      setApproveAssignmentLoading(true);
+      setApproveAssignmentError(null);
+      try {
+        await approveMutation({ assignmentId, updates });
+        return true;
+      } catch (error) {
+        setErrorFromConvexError(error, (msg) => setApproveAssignmentError(msg));
+        return false;
+      } finally {
+        setApproveAssignmentLoading(false);
       }
-
-      setApproveAssignmentError(response.error);
-      return { success: false };
-    } catch (error) {
-      console.error(error);
-      setApproveAssignmentError(FrontEndErrorMessages.GENERIC);
-      return { success: false };
-    } finally {
-      setApproveAssignmentLoading(false);
-    }
-  };
+    },
+    [approveMutation]
+  );
 
   return {
     approveMoveAssignmentHours,

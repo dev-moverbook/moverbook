@@ -5,10 +5,8 @@ import { requireAuthenticatedUser } from "./backendUtils/auth";
 import { validateCompany, validatePolicy } from "./backendUtils/validate";
 import { isUserInOrg } from "./backendUtils/validate";
 import { handleInternalError } from "./backendUtils/helper";
-import {
-  GetPolicyResponse,
-  UpdatePolicyResponse,
-} from "@/types/convex-responses";
+import { GetPolicyResponse } from "@/types/convex-responses";
+import { Doc, Id } from "./_generated/dataModel";
 
 export const updatePolicy = mutation({
   args: {
@@ -22,64 +20,51 @@ export const updatePolicy = mutation({
       additionalTermsAndConditions: v.optional(v.string()),
     }),
   },
-  handler: async (ctx, args): Promise<UpdatePolicyResponse> => {
+  handler: async (ctx, args): Promise<Id<"policies">> => {
     const { policyId, updates } = args;
 
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-      ]);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+    ]);
 
-      const policy = validatePolicy(await ctx.db.get(policyId));
-      const company = validateCompany(await ctx.db.get(policy.companyId));
+    const policy = validatePolicy(await ctx.db.get(policyId));
+    const company = validateCompany(await ctx.db.get(policy.companyId));
 
-      isUserInOrg(identity, company.clerkOrganizationId);
+    isUserInOrg(identity, company.clerkOrganizationId);
 
-      await ctx.db.patch(policyId, updates);
+    await ctx.db.patch(policyId, updates);
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { policyId },
-      };
-    } catch (error) {
-      return handleInternalError(error);
-    }
+    return policyId;
   },
 });
 
+// not used
 export const getPolicy = query({
   args: {
     companyId: v.id("companies"),
   },
-  handler: async (ctx, args): Promise<GetPolicyResponse> => {
+  handler: async (ctx, args): Promise<Doc<"policies">> => {
     const { companyId } = args;
 
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-        ClerkRoles.SALES_REP,
-      ]);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+      ClerkRoles.SALES_REP,
+    ]);
 
-      const company = validateCompany(await ctx.db.get(companyId));
-      isUserInOrg(identity, company.clerkOrganizationId);
+    const company = validateCompany(await ctx.db.get(companyId));
+    isUserInOrg(identity, company.clerkOrganizationId);
 
-      const policy = validatePolicy(
-        await ctx.db
-          .query("policies")
-          .filter((q) => q.eq(q.field("companyId"), companyId))
-          .first()
-      );
+    const policy = validatePolicy(
+      await ctx.db
+        .query("policies")
+        .filter((q) => q.eq(q.field("companyId"), companyId))
+        .first()
+    );
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { policy },
-      };
-    } catch (error) {
-      return handleInternalError(error);
-    }
+    return policy;
   },
 });

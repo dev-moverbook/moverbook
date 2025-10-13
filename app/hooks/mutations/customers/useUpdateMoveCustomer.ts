@@ -4,8 +4,8 @@ import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { ResponseStatus } from "@/types/enums";
 import { FrontEndErrorMessages } from "@/types/errors";
+import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
 interface UpdateMoveCustomerInput {
   moveCustomerId: Id<"moveCustomers">;
@@ -15,11 +15,6 @@ interface UpdateMoveCustomerInput {
     phoneNumber?: string;
     altPhoneNumber?: string;
   };
-}
-
-interface UpdateMoveCustomerResult {
-  success: boolean;
-  moveCustomerId?: Id<"moveCustomers">;
 }
 
 export const useUpdateMoveCustomer = () => {
@@ -32,27 +27,16 @@ export const useUpdateMoveCustomer = () => {
 
   const updateMoveCustomer = async (
     data: UpdateMoveCustomerInput
-  ): Promise<UpdateMoveCustomerResult> => {
+  ): Promise<boolean> => {
     setLoading(true);
     setError(null);
 
     try {
-      const response = await updateMoveCustomerMutation(data);
-
-      if (response.status === ResponseStatus.SUCCESS) {
-        return {
-          success: true,
-          moveCustomerId: response.data.moveCustomerId,
-        };
-      }
-
-      console.error(response.data);
-      setError(FrontEndErrorMessages.GENERIC);
-      return { success: false };
+      await updateMoveCustomerMutation(data);
+      return true;
     } catch (error) {
-      console.error(FrontEndErrorMessages.GENERIC, error);
-      setError(FrontEndErrorMessages.GENERIC);
-      return { success: false };
+      setErrorFromConvexError(error, setError);
+      return false;
     } finally {
       setLoading(false);
     }

@@ -22,7 +22,7 @@ import {
   MessageSentTypeConvex,
   MessageStatusConvex,
 } from "@/types/convex-enums";
-import { Id } from "./_generated/dataModel";
+import { Doc, Id } from "./_generated/dataModel";
 import { ErrorMessages } from "@/types/errors";
 import { internal } from "./_generated/api";
 import {
@@ -34,103 +34,86 @@ export const getMessagesByMoveId = query({
   args: {
     moveId: v.id("move"),
   },
-  handler: async (ctx, args): Promise<GetMessagesByMoveIdResponse> => {
+  handler: async (ctx, args): Promise<Doc<"messages">[]> => {
     const { moveId } = args;
 
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-        ClerkRoles.SALES_REP,
-        ClerkRoles.MOVER,
-      ]);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+      ClerkRoles.SALES_REP,
+      ClerkRoles.MOVER,
+    ]);
 
-      const move = validateMove(await ctx.db.get(moveId));
+    const move = validateMove(await ctx.db.get(moveId));
 
-      const company = validateCompany(await ctx.db.get(move.companyId));
-      isUserInOrg(identity, company.clerkOrganizationId);
+    const company = validateCompany(await ctx.db.get(move.companyId));
+    isUserInOrg(identity, company.clerkOrganizationId);
 
-      const q = ctx.db
-        .query("messages")
-        .withIndex("by_moveId")
-        .filter((q) => q.eq(q.field("moveId"), moveId));
+    const rawMessages = ctx.db
+      .query("messages")
+      .withIndex("by_moveId")
+      .filter((q) => q.eq(q.field("moveId"), moveId));
 
-      const messages: MessageSchema[] = await q.collect();
+    const messages = await rawMessages.collect();
 
-      // Optional: sort newest to oldest if `createdAt` exists
-      messages.sort((a, b) => a._creationTime - b._creationTime);
+    messages.sort((a, b) => a._creationTime - b._creationTime);
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { messages },
-      };
-    } catch (error) {
-      return handleInternalError(error);
-    }
+    return messages;
   },
 });
 
 export const getRecentMessagesByCompanyId = query({
   args: { companyId: v.id("companies") },
-  handler: async (ctx, args): Promise<GetRecentMessagesByCompanyIdResponse> => {
+  handler: async (ctx, args): Promise<RecentMoveMessageSummary[]> => {
     const { companyId } = args;
 
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-        ClerkRoles.SALES_REP,
-        ClerkRoles.MOVER,
-      ]);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+      ClerkRoles.SALES_REP,
+      ClerkRoles.MOVER,
+    ]);
 
-      const company = validateCompany(await ctx.db.get(companyId));
-      isUserInOrg(identity, company.clerkOrganizationId);
+    const company = validateCompany(await ctx.db.get(companyId));
+    isUserInOrg(identity, company.clerkOrganizationId);
 
-      // 1) Fetch moves for the company
-      const moves = await ctx.db
-        .query("move")
-        .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
-        .collect();
+    const moves = await ctx.db
+      .query("move")
+      .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
+      .collect();
 
-      // 2) For each move, get latest message + the moveCustomer name
-      const summaries = await Promise.all(
-        moves.map(async (move) => {
-          const latest = await ctx.db
-            .query("messages")
-            .withIndex("by_moveId", (q) => q.eq("moveId", move._id))
-            .order("desc")
-            .take(1);
+    const summaries = await Promise.all(
+      moves.map(async (move) => {
+        const latest = await ctx.db
+          .query("messages")
+          .withIndex("by_moveId", (q) => q.eq("moveId", move._id))
+          .order("desc")
+          .take(1);
 
-          const latestMessage = latest[0];
-          if (!latestMessage) return null;
+        const latestMessage = latest[0];
+        if (!latestMessage) {
+          return null;
+        }
 
-          // fetch the customer for this move
-          const moveCustomer = await ctx.db.get(move.moveCustomerId);
+        const moveCustomer = await ctx.db.get(move.moveCustomerId);
 
-          return {
-            moveId: move._id,
-            customerName: moveCustomer?.name ?? "(No name)",
-            lastMessage: latestMessage.resolvedMessage || latestMessage.message,
-            timestamp: latestMessage._creationTime,
-            status: move.moveStatus, // note: your schema uses moveStatus
-          } satisfies RecentMoveMessageSummary;
-        })
-      );
+        return {
+          moveId: move._id,
+          customerName: moveCustomer?.name ?? "(No name)",
+          lastMessage: latestMessage.resolvedMessage || latestMessage.message,
+          timestamp: latestMessage._creationTime,
+          status: move.moveStatus,
+        } satisfies RecentMoveMessageSummary;
+      })
+    );
 
-      // 3) Filter nulls and sort by most recent timestamp
-      const messages = (
-        summaries.filter(Boolean) as RecentMoveMessageSummary[]
-      ).sort((a, b) => b.timestamp - a.timestamp);
+    const messages = (
+      summaries.filter(Boolean) as RecentMoveMessageSummary[]
+    ).sort((a, b) => b.timestamp - a.timestamp);
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { messages },
-      };
-    } catch (error) {
-      return handleInternalError(error);
-    }
+    return messages;
   },
 });
 

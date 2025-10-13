@@ -1,4 +1,3 @@
-// CustomerStep.tsx
 "use client";
 
 import { useState } from "react";
@@ -34,7 +33,6 @@ const CustomerStep = ({ onNext, onCancel }: CustomerStepProps) => {
     customerErrors,
     setCustomerErrors,
     isInfoSectionComplete,
-    errorMessage,
     moveFormData,
     setMoveFormData,
   } = useMoveForm();
@@ -75,7 +73,9 @@ const CustomerStep = ({ onNext, onCancel }: CustomerStepProps) => {
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
 
-    if (existingCustomer) return;
+    if (existingCustomer) {
+      return;
+    }
 
     const { isValid, errors } = validateCustomerForm(customer);
     if (!isValid) {
@@ -98,8 +98,9 @@ const CustomerStep = ({ onNext, onCancel }: CustomerStepProps) => {
           altPhoneNumber: customer.altPhoneNumber,
         },
       });
-      if (response.success) onNext();
-      else setUpdateMoveCustomerError(FrontEndErrorMessages.GENERIC);
+      if (response) {
+        onNext();
+      } else setUpdateMoveCustomerError(FrontEndErrorMessages.GENERIC);
       return;
     }
 
@@ -163,9 +164,7 @@ const CustomerStep = ({ onNext, onCancel }: CustomerStepProps) => {
             isSaving={createMoveCustomerLoading || updateMoveCustomerLoading}
             saveLabel="Next"
             cancelLabel="Cancel"
-            error={
-              createMoveCustomerError || updateMoveCustomerError || errorMessage
-            }
+            error={createMoveCustomerError || updateMoveCustomerError}
           />
         </FormActionContainer>
       )}

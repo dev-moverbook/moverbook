@@ -1,12 +1,9 @@
-// app/(whatever)/GuidelinesTab.tsx
 "use client";
 
 import VerticalSectionGroup from "@/app/components/shared/VerticalSectionGroup";
-import ErrorComponent from "@/app/components/shared/ErrorComponent";
 import ArrivalWindowSection from "../sections/ArrivalWindowSection";
 import PolicySection from "../sections/PolicySection";
 import { useSlugContext } from "@/app/contexts/SlugContext";
-import { QueryStatus } from "@/types/enums";
 import { useCompanyArrivalAndPolicies } from "@/app/hooks/queries/arrivalWindow/UseCompanyArrivalAndPolicies";
 
 const GuidelinesTab = () => {
@@ -15,17 +12,13 @@ const GuidelinesTab = () => {
 
   let content: React.ReactNode;
 
-  switch (result.status) {
-    case QueryStatus.LOADING:
+  switch (result) {
+    case undefined:
       content = null;
       break;
 
-    case QueryStatus.ERROR:
-      content = <ErrorComponent message={result.errorMessage} />;
-      break;
-
-    case QueryStatus.SUCCESS: {
-      const { arrivalWindow, policy } = result.data;
+    default: {
+      const { arrivalWindow, policy } = result;
       content = (
         <>
           <ArrivalWindowSection arrivalWindow={arrivalWindow} />

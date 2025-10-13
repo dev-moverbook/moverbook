@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { ResponseStatus } from "@/types/enums";
 import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
 
@@ -33,13 +32,7 @@ export const useUpdateCompliance = () => {
         updates,
       });
 
-      if (response.status === ResponseStatus.SUCCESS) {
-        return true;
-      }
-
-      console.error(response.error);
-      setUpdateComplianceError(response.error);
-      return false;
+      return true;
     } catch (error) {
       console.error(error);
       setUpdateComplianceError(FrontEndErrorMessages.GENERIC);

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { ResponseStatus } from "@/types/enums";
 import { CommunicationType } from "@/types/types";
 import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
@@ -14,7 +13,7 @@ interface UpdateScriptData {
 }
 
 export const useUpdateScript = () => {
-  const [updateLoading, setUpdateLoading] = useState(false);
+  const [updateLoading, setUpdateLoading] = useState<boolean>(false);
   const [updateError, setUpdateError] = useState<string | null>(null);
 
   const updateScriptMutation = useMutation(api.scripts.updateScript);
@@ -27,15 +26,9 @@ export const useUpdateScript = () => {
     setUpdateError(null);
 
     try {
-      const response = await updateScriptMutation({ scriptId, updates });
+      await updateScriptMutation({ scriptId, updates });
 
-      if (response.status === ResponseStatus.SUCCESS) {
-        return true;
-      }
-
-      console.error(response.error);
-      setUpdateError(response.error);
-      return false;
+      return true;
     } catch (error) {
       console.error(error);
       setUpdateError(FrontEndErrorMessages.GENERIC);

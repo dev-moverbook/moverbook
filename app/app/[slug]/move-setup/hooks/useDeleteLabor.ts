@@ -3,9 +3,8 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { ResponseStatus } from "@/types/enums";
-import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
+import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
 export const useDeleteLabor = () => {
   const [deleteLaborLoading, setDeleteLaborLoading] = useState<boolean>(false);
@@ -18,20 +17,13 @@ export const useDeleteLabor = () => {
     setDeleteLaborError(null);
 
     try {
-      const response = await deleteLaborMutation({
+      await deleteLaborMutation({
         laborId,
         updates: { isActive: false },
       });
-      if (response.status === ResponseStatus.SUCCESS) {
-        return true;
-      }
-
-      console.error(response.error);
-      setDeleteLaborError(response.error);
-      return false;
+      return true;
     } catch (error) {
-      console.error(FrontEndErrorMessages.GENERIC, error);
-      setDeleteLaborError(FrontEndErrorMessages.GENERIC);
+      setErrorFromConvexError(error, setDeleteLaborError);
       return false;
     } finally {
       setDeleteLaborLoading(false);

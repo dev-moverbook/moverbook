@@ -6,7 +6,7 @@ import { ServiceType, StartWindowOption } from "@/types/types";
 import { MoveTypeFormData } from "@/types/form-types";
 import { useUpdateMove } from "../../../hooks/useUpdateMove";
 import { useCompanyArrival } from "@/app/hooks/queries/useCompanyArrivalResult";
-import { QueryStatus, ClerkRoles } from "@/types/enums";
+import { ClerkRoles } from "@/types/enums";
 import { formatTime } from "@/app/frontendUtils/helper";
 import { canCreateMove, isMover } from "@/app/frontendUtils/permissions";
 import { useSlugContext } from "@/app/contexts/SlugContext";
@@ -39,12 +39,10 @@ const ViewMoveType: React.FC = () => {
     },
   });
 
-  // Fetch company arrival windows (used to build selectable “available” slots)
   const arrivalRes = useCompanyArrival(move.companyId, {
     enabled: !isMoverUser,
   });
-  const arrivalWindow =
-    arrivalRes.status === QueryStatus.SUCCESS ? arrivalRes.arrivalWindow : null;
+  const arrivalWindow = arrivalRes ? arrivalRes : null;
 
   const timeSlotOptions = arrivalWindow
     ? [
@@ -66,7 +64,7 @@ const ViewMoveType: React.FC = () => {
     : null;
 
   const handleSave = async () => {
-    const { success } = await updateMove({
+    const success = await updateMove({
       moveId: move._id,
       updates: {
         serviceType: formData.serviceType,
@@ -78,7 +76,9 @@ const ViewMoveType: React.FC = () => {
         },
       },
     });
-    if (success) setIsEditing(false);
+    if (success) {
+      setIsEditing(false);
+    }
     return success;
   };
 
@@ -107,10 +107,8 @@ const ViewMoveType: React.FC = () => {
   const handleStartWindowOptionChange = (val: StartWindowOption) => {
     setStartWindowOption(val);
     if (val === "custom") {
-      // When switching to custom, keep current times but force moveWindow to "custom"
       setFormData((prev) => ({ ...prev, moveWindow: "custom" }));
     } else if (val === "available" && arrivalWindow) {
-      // If switching to available without picking a slot yet, clear to avoid stale custom values
       setFormData((prev) => ({
         ...prev,
         arrivalTimes: {
@@ -141,7 +139,6 @@ const ViewMoveType: React.FC = () => {
     }));
   };
 
-  // Called when selecting one of the “available” time slots
   const handleSelectTimeSlot = (value: string) => {
     try {
       const parsed = JSON.parse(value) as {
@@ -149,7 +146,6 @@ const ViewMoveType: React.FC = () => {
         arrivalWindowEnds: string;
       };
 
-      // Determine moveWindow based on which slot was chosen
       let nextWindow: "morning" | "afternoon" | "custom" = "custom";
       if (arrivalWindow) {
         const isMorning =
@@ -175,7 +171,6 @@ const ViewMoveType: React.FC = () => {
         moveWindow: nextWindow,
       }));
     } catch {
-      // Fallback to custom if parsing fails
       setFormData((prev) => ({
         ...prev,
         arrivalTimes: { arrivalWindowStarts: "", arrivalWindowEnds: "" },
@@ -192,9 +187,9 @@ const ViewMoveType: React.FC = () => {
       moveWindow={formData.moveWindow}
       arrivalTimes={formData.arrivalTimes}
       timeSlotOptions={timeSlotOptions}
-      timeSlotsLoading={arrivalRes.status === QueryStatus.LOADING}
+      timeSlotsLoading={arrivalRes ? false : true}
       timeSlotsError={
-        arrivalRes.status === QueryStatus.ERROR ? arrivalRes.errorMessage : null
+        arrivalRes ? null : "Failed to load company arrival window."
       }
       isEditing={isEditing}
       setIsEditing={setIsEditing}

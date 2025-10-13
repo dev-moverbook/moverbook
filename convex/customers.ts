@@ -1,25 +1,18 @@
 import { v } from "convex/values";
 import { internalMutation, internalQuery } from "./_generated/server";
-import { CustomerSchema } from "@/types/convex-schemas";
-import { ErrorMessages } from "@/types/errors";
-import { Id } from "./_generated/dataModel";
+import { Doc, Id } from "./_generated/dataModel";
 
 export const viewCustomerByEmail = internalQuery({
   args: {
     email: v.string(),
   },
-  handler: async (ctx, args): Promise<CustomerSchema | null> => {
-    try {
-      const customer: CustomerSchema | null = await ctx.db
-        .query("customers")
-        .withIndex("by_email", (q) => q.eq("email", args.email))
-        .first();
+  handler: async (ctx, args): Promise<Doc<"customers"> | null> => {
+    const customer: Doc<"customers"> | null = await ctx.db
+      .query("customers")
+      .withIndex("by_email", (q) => q.eq("email", args.email))
+      .first();
 
-      return customer;
-    } catch (error) {
-      console.error(ErrorMessages.CUSTOMER_DB_QUERY_BY_EMAIL_ERROR);
-      throw new Error(ErrorMessages.CUSTOMER_DB_QUERY_BY_EMAIL_ERROR);
-    }
+    return customer;
   },
 });
 
@@ -29,17 +22,12 @@ export const createCustomer = internalMutation({
   },
   handler: async (ctx, args): Promise<Id<"customers">> => {
     const { email } = args;
-    try {
-      const customerId = await ctx.db.insert("customers", {
-        email,
-        isActive: true,
-      });
+    const customerId = await ctx.db.insert("customers", {
+      email,
+      isActive: true,
+    });
 
-      return customerId;
-    } catch (error) {
-      console.error(ErrorMessages.CUSTOMER_DB_CREATE_ERROR, error);
-      throw new Error(ErrorMessages.CUSTOMER_DB_CREATE_ERROR);
-    }
+    return customerId;
   },
 });
 
@@ -53,12 +41,7 @@ export const updateCustomer = internalMutation({
   },
   handler: async (ctx, args): Promise<Id<"customers">> => {
     const { customerId, updates } = args;
-    try {
-      await ctx.db.patch(customerId, updates);
-      return customerId;
-    } catch (error) {
-      console.error(ErrorMessages.CUSTOMER_DB_UPDATE_ERROR, error);
-      throw new Error(ErrorMessages.CUSTOMER_DB_UPDATE_ERROR);
-    }
+    await ctx.db.patch(customerId, updates);
+    return customerId;
   },
 });

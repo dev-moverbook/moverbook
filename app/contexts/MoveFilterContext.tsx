@@ -7,10 +7,10 @@ import { MoveStatus, MoveTimes, PriceOrder } from "@/types/types";
 import { Id } from "@/convex/_generated/dataModel";
 import { getCurrentDate } from "../frontendUtils/helper";
 import { EnrichedMove } from "@/types/convex-responses";
-import { QueryStatus } from "@/types/enums";
 import { useMovesForCalendar } from "@/app/hooks/queries/useGetMovesForCalendar";
 
 export type SalesRepOption = { id: Id<"users">; name: string };
+const EMPTY_MOVES: EnrichedMove[] = [];
 
 interface MoveFilterContextProps {
   selectedStatuses: MoveStatus[];
@@ -25,8 +25,6 @@ interface MoveFilterContextProps {
   setSalesRep: React.Dispatch<React.SetStateAction<SalesRepOption | null>>;
   moves: EnrichedMove[];
   isLoading: boolean;
-  isError: boolean;
-  errorMessage: string | null;
   isList: boolean;
   setIsList: React.Dispatch<React.SetStateAction<boolean>>;
   selectedDate: Date;
@@ -90,28 +88,9 @@ export const MoveFilterProvider = ({
     moveTimeFilter,
   });
 
-  let isLoading = false;
-  let isError = false;
-  let errorMessage: string | null = null;
+  const isLoading = movesResult === undefined;
 
-  switch (movesResult.status) {
-    case QueryStatus.LOADING:
-      isLoading = true;
-      break;
-    case QueryStatus.ERROR:
-      isError = true;
-      errorMessage = movesResult.errorMessage;
-      break;
-    case QueryStatus.SUCCESS:
-      break;
-  }
-
-  const memoizedMoves = useMemo<EnrichedMove[]>(() => {
-    if (movesResult.status === QueryStatus.SUCCESS) {
-      return movesResult.data;
-    }
-    return [];
-  }, [movesResult]);
+  const moves: EnrichedMove[] = movesResult ?? EMPTY_MOVES;
 
   const value = useMemo(
     () => ({
@@ -125,10 +104,9 @@ export const MoveFilterProvider = ({
       setPriceFilter,
       salesRep,
       setSalesRep,
-      moves: memoizedMoves,
+      moves,
       isLoading,
-      isError,
-      errorMessage,
+
       isList,
       setIsList,
       selectedDate,
@@ -145,10 +123,8 @@ export const MoveFilterProvider = ({
       filterEndDate,
       priceFilter,
       salesRep,
-      memoizedMoves,
+      moves,
       isLoading,
-      isError,
-      errorMessage,
       isList,
       selectedDate,
       today,

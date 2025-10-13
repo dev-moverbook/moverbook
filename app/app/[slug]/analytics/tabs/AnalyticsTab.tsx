@@ -1,7 +1,5 @@
-import ErrorComponent from "@/app/components/shared/ErrorComponent";
 import { useSlugContext } from "@/app/contexts/SlugContext";
 import { useSalesRepsAndReferrals } from "@/app/hooks/queries/analytics/useSalesRepsAndReferrals";
-import { QueryStatus } from "@/types/enums";
 import AnalyticsTabSuccess from "./AnalyticsTabSuccess";
 
 interface AnalyticsTabProps {
@@ -15,14 +13,11 @@ const AnalyticsTab = ({ tab }: AnalyticsTabProps) => {
 
   let body: React.ReactNode = null;
 
-  switch (result.status) {
-    case QueryStatus.LOADING:
+  switch (result) {
+    case undefined:
       break;
-    case QueryStatus.ERROR:
-      body = <ErrorComponent message={result.errorMessage} />;
-      break;
-    case QueryStatus.SUCCESS: {
-      const { users, referrals } = result.data;
+    default: {
+      const { users, referrals } = result;
       body = (
         <AnalyticsTabSuccess tab={tab} users={users} referrals={referrals} />
       );

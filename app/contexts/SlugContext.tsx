@@ -1,21 +1,18 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { ErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
-import { useParams } from "next/navigation";
 import FullLoading from "../components/shared/FullLoading";
 import { useUser } from "@clerk/nextjs";
 import ErrorMessage from "../components/shared/error/ErrorMessage";
 import { UserResource } from "@clerk/types";
 
 interface SlugContextType {
-  cleanSlug: string;
-  slug: string | null;
-  setSlug: (slug: string) => void;
-  companyId: Id<"companies"> | null;
+  slug: string;
+  companyId: Id<"companies">;
   timeZone: string;
   isCompanyContactComplete?: boolean;
   isStripeComplete?: boolean;
@@ -24,41 +21,22 @@ interface SlugContextType {
 
 const SlugContext = createContext<SlugContextType | undefined>(undefined);
 
-export const SlugProvider = ({ children }: { children: React.ReactNode }) => {
-  const params = useParams();
-  const rawSlug = typeof params?.slug === "string" ? params.slug : "";
-  const cleanSlug = rawSlug.split("?")[0] || "";
+export const SlugProvider = ({
+  initialSlug: slug,
+  children,
+}: {
+  initialSlug: string;
+  children: React.ReactNode;
+}) => {
   const { isLoaded, user } = useUser();
 
-  const [slug, setSlug] = useState<string | null>(cleanSlug || null);
-  const [companyId, setCompanyId] = useState<Id<"companies"> | null>(null);
-  const [timeZone, setTimeZone] = useState<string>("UTC");
-
-  // Automatically update state if URL param changes
-  useEffect(() => {
-    if (cleanSlug && cleanSlug !== slug) {
-      setSlug(cleanSlug);
-    }
-  }, [cleanSlug, slug]);
-
-  // Fetch companyId when slug changes
-  const companyIdQuery = useQuery(
-    api.companies.getCompanyIdBySlug,
-    slug ? { slug } : "skip"
-  );
+  const companyIdQuery = useQuery(api.companies.getCompanyIdBySlug, { slug });
 
   const isCompanyContactComplete =
-    companyIdQuery?.data?.isCompanyContactComplete ?? false;
-  const isStripeComplete = companyIdQuery?.data?.isStripeComplete ?? false;
+    companyIdQuery?.isCompanyContactComplete ?? false;
+  const isStripeComplete = companyIdQuery?.isStripeComplete ?? false;
 
-  useEffect(() => {
-    if (companyIdQuery?.status === "success") {
-      setCompanyId(companyIdQuery.data.companyId);
-      setTimeZone(companyIdQuery.data.timeZone);
-    }
-  }, [companyIdQuery]);
-
-  if (slug && (!companyIdQuery || !companyIdQuery || !isLoaded)) {
+  if (!companyIdQuery || !isLoaded) {
     return <FullLoading />;
   }
 
@@ -72,13 +50,11 @@ export const SlugProvider = ({ children }: { children: React.ReactNode }) => {
     <SlugContext.Provider
       value={{
         slug,
-        setSlug,
-        companyId,
-        timeZone,
+        companyId: companyIdQuery.companyId,
+        timeZone: companyIdQuery.timeZone,
         isCompanyContactComplete,
         isStripeComplete,
         user,
-        cleanSlug,
       }}
     >
       {children}

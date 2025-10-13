@@ -3,9 +3,8 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { ResponseStatus } from "@/types/enums";
-import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
+import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
 export const useDeleteItem = () => {
   const [deleteItemLoading, setDeleteItemLoading] = useState<boolean>(false);
@@ -18,21 +17,14 @@ export const useDeleteItem = () => {
     setDeleteItemError(null);
 
     try {
-      const response = await deleteItemMutation({
+      await deleteItemMutation({
         itemId,
         updates: { isActive: false },
       });
 
-      if (response.status === ResponseStatus.SUCCESS) {
-        return true;
-      }
-
-      console.error(response.error);
-      setDeleteItemError(response.error);
-      return false;
+      return true;
     } catch (error) {
-      console.error(FrontEndErrorMessages.GENERIC, error);
-      setDeleteItemError(FrontEndErrorMessages.GENERIC);
+      setErrorFromConvexError(error, setDeleteItemError);
       return false;
     } finally {
       setDeleteItemLoading(false);

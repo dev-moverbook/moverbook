@@ -3,13 +3,11 @@
 import React from "react";
 import { useSlugContext } from "@/app/contexts/SlugContext";
 import VerticalSectionGroup from "@/app/components/shared/VerticalSectionGroup";
-import ErrorComponent from "@/app/components/shared/ErrorComponent";
 import LaborSection from "../sections/LaborSection";
 import LiabilitySection from "../sections/LiabilitySection";
 import TravelFeeSection from "../sections/TravelFeeSection";
 import FeesSection from "../sections/FeesSection";
 import CreditCardFeeSection from "../sections/CreditCardFeeSection";
-import { QueryStatus } from "@/types/enums";
 import { useCompanyRates } from "@/app/hooks/queries/labor/useCompanyRates";
 
 const RatesTab = () => {
@@ -18,18 +16,14 @@ const RatesTab = () => {
 
   let content: React.ReactNode;
 
-  switch (result.status) {
-    case QueryStatus.LOADING:
+  switch (result) {
+    case undefined:
       content = null;
       break;
 
-    case QueryStatus.ERROR:
-      content = <ErrorComponent message={result.errorMessage} />;
-      break;
-
-    case QueryStatus.SUCCESS: {
+    default:
       const { labor, insurancePolicies, travelFee, creditCardFee, fees } =
-        result.data;
+        result;
 
       content = (
         <>
@@ -44,7 +38,6 @@ const RatesTab = () => {
         </>
       );
       break;
-    }
   }
 
   return <VerticalSectionGroup>{content}</VerticalSectionGroup>;

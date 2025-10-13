@@ -1,5 +1,6 @@
 import { mutation } from "./_generated/server";
 import { v } from "convex/values";
+import type { Id } from "./_generated/dataModel";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import {
   validateCompany,
@@ -7,12 +8,7 @@ import {
   isUserInOrg,
   validateDiscount,
 } from "./backendUtils/validate";
-import { handleInternalError } from "./backendUtils/helper";
-import { ClerkRoles, ResponseStatus } from "@/types/enums";
-import {
-  CreateDiscountResponse,
-  UpdateDiscountResponse,
-} from "@/types/convex-responses";
+import { ClerkRoles } from "@/types/enums";
 
 export const createDiscount = mutation({
   args: {
@@ -20,36 +16,29 @@ export const createDiscount = mutation({
     name: v.string(),
     price: v.number(),
   },
-  handler: async (ctx, args): Promise<CreateDiscountResponse> => {
+  handler: async (ctx, args): Promise<Id<"discounts">> => {
     const { moveId, name, price } = args;
 
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-        ClerkRoles.SALES_REP,
-        ClerkRoles.MOVER,
-      ]);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+      ClerkRoles.SALES_REP,
+      ClerkRoles.MOVER,
+    ]);
 
-      const move = validateMove(await ctx.db.get(moveId));
-      const company = validateCompany(await ctx.db.get(move.companyId));
-      isUserInOrg(identity, company.clerkOrganizationId);
+    const move = validateMove(await ctx.db.get(moveId));
+    const company = validateCompany(await ctx.db.get(move.companyId));
+    isUserInOrg(identity, company.clerkOrganizationId);
 
-      const discountId = await ctx.db.insert("discounts", {
-        moveId,
-        name,
-        price,
-        isActive: true,
-      });
+    const discountId = await ctx.db.insert("discounts", {
+      moveId,
+      name,
+      price,
+      isActive: true,
+    });
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { discountId },
-      };
-    } catch (error) {
-      return handleInternalError(error);
-    }
+    return discountId;
   },
 });
 
@@ -62,31 +51,24 @@ export const updateDiscount = mutation({
       isActive: v.optional(v.boolean()),
     }),
   },
-  handler: async (ctx, args): Promise<UpdateDiscountResponse> => {
+  handler: async (ctx, args): Promise<Id<"discounts">> => {
     const { discountId, updates } = args;
 
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-        ClerkRoles.SALES_REP,
-        ClerkRoles.MOVER,
-      ]);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+      ClerkRoles.SALES_REP,
+      ClerkRoles.MOVER,
+    ]);
 
-      const discount = validateDiscount(await ctx.db.get(discountId));
-      const move = validateMove(await ctx.db.get(discount.moveId));
-      const company = validateCompany(await ctx.db.get(move.companyId));
-      isUserInOrg(identity, company.clerkOrganizationId);
+    const discount = validateDiscount(await ctx.db.get(discountId));
+    const move = validateMove(await ctx.db.get(discount.moveId));
+    const company = validateCompany(await ctx.db.get(move.companyId));
+    isUserInOrg(identity, company.clerkOrganizationId);
 
-      await ctx.db.patch(discountId, updates);
+    await ctx.db.patch(discountId, updates);
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { discountId },
-      };
-    } catch (error) {
-      return handleInternalError(error);
-    }
+    return discountId;
   },
 });

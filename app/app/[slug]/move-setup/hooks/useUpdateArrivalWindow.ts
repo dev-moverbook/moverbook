@@ -3,9 +3,8 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { ResponseStatus } from "@/types/enums";
-import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
+import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
 interface UpdateArrivalWindowData {
   morningArrival?: string;
@@ -33,21 +32,14 @@ export const useUpdateArrivalWindow = () => {
     setUpdateArrivalWindowError(null);
 
     try {
-      const response = await updateArrivalWindowMutation({
+      await updateArrivalWindowMutation({
         arrivalWindowId,
         updates,
       });
 
-      if (response.status === ResponseStatus.SUCCESS) {
-        return true;
-      }
-
-      console.error(response.error);
-      setUpdateArrivalWindowError(response.error);
-      return false;
+      return true;
     } catch (error) {
-      console.error(FrontEndErrorMessages.GENERIC, error);
-      setUpdateArrivalWindowError(FrontEndErrorMessages.GENERIC);
+      setErrorFromConvexError(error, setUpdateArrivalWindowError);
       return false;
     } finally {
       setUpdateArrivalWindowLoading(false);

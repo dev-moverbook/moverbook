@@ -9,21 +9,13 @@ import PageContainer from "@/app/components/shared/containers/PageContainer";
 import MoveCardContainer from "@/app/components/move/MoveCardContainer";
 import CalendarNav from "./components/CalendarNav";
 import { useMoveFilter } from "@/app/contexts/MoveFilterContext";
-import ErrorComponent from "@/app/components/shared/ErrorComponent";
 import DateRangeFieldsWithFilter from "./components/DateRangerPicker";
 
 const CalendarPageContent = () => {
   const { timeZone } = useSlugContext();
 
-  const {
-    isList,
-    moves,
-    isLoading,
-    isError,
-    errorMessage,
-    selectedDate,
-    isWeekView,
-  } = useMoveFilter();
+  const { isList, moves, isLoading, selectedDate, isWeekView } =
+    useMoveFilter();
 
   const { weekStart, weekEnd } = useMemo(() => {
     const selected = DateTime.fromJSDate(selectedDate).setZone(timeZone);
@@ -57,8 +49,7 @@ const CalendarPageContent = () => {
           <ToggleCalendar />
         </div>
       )}
-      {isError && <ErrorComponent message={errorMessage} />}
-      {!isLoading && !isError && isWeekView && (
+      {!isLoading && isWeekView && (
         <MoveCardContainer
           moves={weeklyMoves}
           isfilterDates={isList}

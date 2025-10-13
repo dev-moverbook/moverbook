@@ -33,7 +33,7 @@ const LocationSection = () => {
   );
   const [showBanner, setShowBanner] = useState<boolean>(false);
 
-  const { data: companyContact } = useCompanyContact(move.companyId);
+  const companyContact = useCompanyContact(move.companyId);
   const { updateMove, updateMoveLoading, updateMoveError } = useUpdateMove();
   const { fetchDistance } = useDistanceMatrix();
 
@@ -67,7 +67,7 @@ const LocationSection = () => {
           !lastPersistedLocationsRef.current ||
           !locationsEqual(lastPersistedLocationsRef.current, next)
         ) {
-          const { success } = await updateMove({
+          const success = await updateMove({
             moveId: move._id,
             updates: { locations: next },
           });
@@ -83,7 +83,7 @@ const LocationSection = () => {
   }, []);
 
   useSegmentDistances(
-    companyContact?.companyContact?.address ?? null,
+    companyContact?.address ?? null,
     editedLocations,
     fetchDistance,
     setLocalSegments
@@ -215,7 +215,7 @@ const LocationSection = () => {
         )}
 
       <LocationSummary
-        companyContact={companyContact?.companyContact}
+        companyContact={companyContact}
         locations={editedLocations}
         segmentDistances={localSegments}
         showBorder={false}

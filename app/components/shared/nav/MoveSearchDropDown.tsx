@@ -6,7 +6,6 @@ import { useSlugContext } from "@/app/contexts/SlugContext";
 import { useSearchContext } from "@/app/contexts/SearchContext";
 import MoveCustomerCard from "../../customer/CustomerCard";
 import MoveOnlyCard from "../../move/MoveOnlyCard";
-import { QueryStatus } from "@/types/enums";
 import { useSearchMoveCustomersAndJobId } from "@/app/hooks/queries/useSearchMoveCustomersAndJobId";
 
 const MoveSearchDropdown = () => {
@@ -43,25 +42,19 @@ const MoveSearchDropdown = () => {
     setVisible(false);
   };
 
-  if (!visible || trimmed === "") return null;
+  if (!visible || trimmed === "") {
+    return null;
+  }
 
   let content: React.ReactNode;
 
-  switch (result.status) {
-    case QueryStatus.LOADING:
+  switch (result) {
+    case undefined:
       content = <p className="p-4 text-grayCustom2 text-sm">Loading...</p>;
       break;
 
-    case QueryStatus.ERROR:
-      content = (
-        <div className="p-4 text-red-400 text-sm">
-          {result.errorMessage ?? "Failed to search customers."}
-        </div>
-      );
-      break;
-
-    case QueryStatus.SUCCESS: {
-      const { moveCustomers, moves } = result.data;
+    default: {
+      const { moveCustomers, moves } = result;
       const hasAny =
         (moveCustomers?.length ?? 0) > 0 || (moves?.length ?? 0) > 0;
 

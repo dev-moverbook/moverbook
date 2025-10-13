@@ -160,7 +160,6 @@ export const hasRequiredMoveFields = (
   move: Doc<"move">,
   moveCustomer: Doc<"moveCustomers">
 ): boolean => {
-  // Info section: email + phone required; altPhone optional; referral required
   const hasInfoSection =
     !!moveCustomer.email?.trim() &&
     !!moveCustomer.phoneNumber?.trim() &&
@@ -168,33 +167,32 @@ export const hasRequiredMoveFields = (
       ? !!moveCustomer.altPhoneNumber.trim()
       : true);
 
-  // Single-location completeness (matches MoveFormProvider logic)
-  const isLocationComplete = (loc: LocationInput): boolean => {
-    if (!loc) return false;
+  const isLocationComplete = (location: LocationInput): boolean => {
+    if (!location) {
+      return false;
+    }
     const baseOk =
-      !!loc.address?.formattedAddress &&
-      loc.locationType != null &&
-      loc.accessType != null &&
-      !!loc.timeDistanceRange &&
-      !!loc.locationRole &&
-      loc.squareFootage !== null &&
-      loc.squareFootage !== undefined;
+      !!location.address?.formattedAddress &&
+      location.locationType != null &&
+      location.accessType != null &&
+      !!location.timeDistanceRange &&
+      !!location.locationRole &&
+      location.squareFootage !== null &&
+      location.squareFootage !== undefined;
 
     const sizeOk =
-      loc.locationRole === "ending"
+      location.locationRole === "ending"
         ? true
-        : loc.moveSize !== null && loc.moveSize !== undefined;
+        : location.moveSize !== null && location.moveSize !== undefined;
 
     return baseOk && sizeOk;
   };
 
-  // Locations section: at least two locations and all complete
   const hasLocationSection =
     Array.isArray(move.locations) &&
     move.locations.length >= 2 &&
     move.locations.every(isLocationComplete);
 
-  // Move details section: serviceType + moveWindow + moveDate + arrival window
   const hasMoveDetailsSection =
     move.serviceType !== null &&
     move.moveWindow !== null &&
@@ -208,7 +206,9 @@ export const hasRequiredMoveFields = (
 export function formatServiceTypeLabel(
   type: ServiceType | null
 ): string | null {
-  if (!type) return null;
+  if (!type) {
+    return null;
+  }
 
   switch (type) {
     case "moving":
@@ -229,7 +229,9 @@ export function formatServiceTypeLabel(
 }
 
 export function formatServiceTypeName(type: ServiceType | null): string | null {
-  if (!type) return null;
+  if (!type) {
+    return null;
+  }
 
   switch (type) {
     case "moving":

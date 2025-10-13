@@ -4,8 +4,7 @@ import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { ResponseStatus } from "@/types/enums";
-import { FrontEndErrorMessages } from "@/types/errors";
+import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
 interface InsertMoveAssignmentInput {
   moveId: Id<"move">;
@@ -23,30 +22,17 @@ export const useInsertMoveAssignment = () => {
     moveId,
     moverId,
     isLead,
-  }: InsertMoveAssignmentInput): Promise<{
-    success: boolean;
-    assignmentId?: Id<"moveAssignments">;
-  }> => {
+  }: InsertMoveAssignmentInput): Promise<boolean> => {
     setAssignmentLoading(true);
     setAssignmentError(null);
 
     try {
-      const response = await insertMutation({ moveId, moverId, isLead });
+      await insertMutation({ moveId, moverId, isLead });
 
-      if (response.status === ResponseStatus.SUCCESS) {
-        return {
-          success: true,
-          assignmentId: response.data.assignmentId,
-        };
-      }
-
-      console.error(response.error);
-      setAssignmentError(response.error);
-      return { success: false };
+      return true;
     } catch (error) {
-      console.error(FrontEndErrorMessages.GENERIC, error);
-      setAssignmentError(FrontEndErrorMessages.GENERIC);
-      return { success: false };
+      setErrorFromConvexError(error, setAssignmentError);
+      return false;
     } finally {
       setAssignmentLoading(false);
     }

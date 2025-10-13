@@ -22,7 +22,7 @@ const ViewCreditCardFee = () => {
     useState<MoveCreditCardFeeFormData>(initialFormData);
 
   const handleSave = async () => {
-    const { success } = await updateMove({
+    const success = await updateMove({
       moveId: move._id,
       updates: {
         creditCardFee: formData.creditCardFeeRate,

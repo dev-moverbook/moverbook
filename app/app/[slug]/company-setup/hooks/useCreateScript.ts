@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { ResponseStatus } from "@/types/enums";
 import { CommunicationType } from "@/types/types";
 import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
+import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
 interface CreateScriptData {
   companyId: Id<"companies">;
@@ -15,7 +15,7 @@ interface CreateScriptData {
 }
 
 export const useCreateScript = () => {
-  const [createLoading, setCreateLoading] = useState(false);
+  const [createLoading, setCreateLoading] = useState<boolean>(false);
   const [createError, setCreateError] = useState<string | null>(null);
 
   const createScriptMutation = useMutation(api.scripts.createScript);
@@ -33,18 +33,11 @@ export const useCreateScript = () => {
         return false;
       }
 
-      const response = await createScriptMutation(data);
+      await createScriptMutation(data);
 
-      if (response.status === ResponseStatus.SUCCESS) {
-        return true;
-      }
-
-      console.error(response.error);
-      setCreateError(response.error);
-      return false;
+      return true;
     } catch (error) {
-      console.error(error);
-      setCreateError(FrontEndErrorMessages.GENERIC);
+      setErrorFromConvexError(error, setCreateError);
       return false;
     } finally {
       setCreateLoading(false);

@@ -9,13 +9,10 @@ import { FrontEndErrorMessages } from "@/types/errors";
 import { useCreateScript } from "../hooks/useCreateScript";
 import CreateScriptModal from "../modals/CreateScriptModal";
 import { useDeleteScript } from "../hooks/useDeleteScript";
-import { Id } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import ConfirmDeleteModal from "../modals/ConfirmDeleteModal";
-import { ScriptSchema } from "@/types/convex-schemas";
 import { useUpdateScript } from "../hooks/useUpdateScript";
-import ErrorMessage from "@/app/components/shared/error/ErrorMessage";
 import { useScriptsAndVariables } from "@/app/hooks/queries/scripts/useScriptsAndVariables";
-import { QueryStatus } from "@/types/enums";
 import VerticalSectionGroup from "@/app/components/shared/VerticalSectionGroup";
 
 type UpdateScriptData = {
@@ -44,11 +41,13 @@ const ScriptsTab = () => {
   const [deleteScriptId, setDeleteScriptId] = useState<Id<"scripts"> | null>(
     null
   );
-  const [isScriptModalOpen, setIsScriptModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [editingScript, setEditingScript] = useState<ScriptSchema | null>(null);
+  const [isScriptModalOpen, setIsScriptModalOpen] = useState<boolean>(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
+  const [editingScript, setEditingScript] = useState<Doc<"scripts"> | null>(
+    null
+  );
 
-  const result = useScriptsAndVariables(companyId ?? null);
+  const result = useScriptsAndVariables(companyId);
 
   const handleCreateScript = async (
     title: string,
@@ -56,11 +55,6 @@ const ScriptsTab = () => {
     message: string,
     emailTitle?: string
   ): Promise<boolean> => {
-    if (!companyId) {
-      console.error(FrontEndErrorMessages.COMPANY_NOT_FOUND);
-      setCreateError(FrontEndErrorMessages.GENERIC);
-      return false;
-    }
     return await createScript({ companyId, title, type, message, emailTitle });
   };
 
@@ -91,7 +85,9 @@ const ScriptsTab = () => {
     message: string,
     emailTitle?: string
   ): Promise<boolean> => {
-    if (!scriptId) return false;
+    if (!scriptId) {
+      return false;
+    }
 
     const updates: UpdateScriptData = { title, type, message, emailTitle };
     const success = await updateScript(scriptId, updates);
@@ -104,16 +100,12 @@ const ScriptsTab = () => {
 
   let content: React.ReactNode;
 
-  switch (result.status) {
-    case QueryStatus.LOADING:
+  switch (result) {
+    case undefined:
       content = null;
       break;
 
-    case QueryStatus.ERROR:
-      content = <ErrorMessage message={result.errorMessage} />;
-      break;
-
-    case QueryStatus.SUCCESS: {
+    default: {
       const { scripts, variables } = result;
 
       content = (

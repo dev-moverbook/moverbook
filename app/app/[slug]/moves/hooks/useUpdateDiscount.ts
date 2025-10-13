@@ -4,8 +4,7 @@ import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { ResponseStatus } from "@/types/enums";
-import { FrontEndErrorMessages } from "@/types/errors";
+import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
 interface UpdateDiscountInput {
   discountId: Id<"discounts">;
@@ -27,30 +26,17 @@ export const useUpdateDiscount = () => {
 
   const updateDiscount = async (
     input: UpdateDiscountInput
-  ): Promise<{
-    success: boolean;
-    discountId?: Id<"discounts">;
-  }> => {
+  ): Promise<boolean> => {
     setUpdateDiscountLoading(true);
     setUpdateDiscountError(null);
 
     try {
-      const response = await updateMutation(input);
+      await updateMutation(input);
 
-      if (response.status === ResponseStatus.SUCCESS) {
-        return {
-          success: true,
-          discountId: response.data.discountId,
-        };
-      }
-
-      console.error(response.error);
-      setUpdateDiscountError(response.error);
-      return { success: false };
+      return true;
     } catch (error) {
-      console.error(FrontEndErrorMessages.GENERIC, error);
-      setUpdateDiscountError(FrontEndErrorMessages.GENERIC);
-      return { success: false };
+      setErrorFromConvexError(error, setUpdateDiscountError);
+      return false;
     } finally {
       setUpdateDiscountLoading(false);
     }

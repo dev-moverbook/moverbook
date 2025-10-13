@@ -1,34 +1,15 @@
 import { api } from "@/convex/_generated/api";
 import { useQuery } from "convex/react";
-import { Id } from "@/convex/_generated/dataModel";
-import { ResponseStatus } from "@/types/enums";
-import { PolicySchema } from "@/types/convex-schemas";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 
-interface UseCompanyPolicyResult {
-  policy: PolicySchema | null;
-  isLoading: boolean;
-  isError: boolean;
-  errorMessage: string | null;
-}
-
+// not used
 export const useCompanyPolicy = (
-  companyId: Id<"companies"> | null
-): UseCompanyPolicyResult => {
+  companyId: Id<"companies">
+): Doc<"policies"> | undefined => {
   const response = useQuery<typeof api.policies.getPolicy>(
     api.policies.getPolicy,
-    companyId ? { companyId } : "skip"
+    { companyId }
   );
 
-  const isLoading = response === undefined;
-  const isError = response?.status === ResponseStatus.ERROR;
-
-  return {
-    policy:
-      response?.status === ResponseStatus.SUCCESS ? response.data.policy : null,
-    isLoading,
-    isError,
-    errorMessage: isError
-      ? (response?.error ?? "Failed to load policy.")
-      : null,
-  };
+  return response;
 };

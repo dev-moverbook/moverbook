@@ -1,5 +1,3 @@
-// convex/companies.ts
-
 import { ErrorMessages } from "@/types/errors";
 import {
   action,
@@ -9,8 +7,8 @@ import {
   query,
 } from "./_generated/server";
 import { v } from "convex/values";
-import { generateSlug, generateUniqueSlug } from "@/utils/helper";
-import { CompanySchema, ConnectedAccountSchema } from "@/types/convex-schemas";
+import { generateUniqueSlug } from "@/utils/helper";
+import { CompanySchema } from "@/types/convex-schemas";
 import {
   isUserInOrg,
   validateCompany,
@@ -22,6 +20,7 @@ import {
 import { ClerkRoles, ResponseStatus, StripeAccountStatus } from "@/types/enums";
 import {
   GetCompanyClerkUserIdResponse,
+  GetCompanyDetailsData,
   GetCompanyDetailsResponse,
   GetCompanyIdBySlugResponse,
   UpdateCompanyLogoResponse,
@@ -47,111 +46,87 @@ export const createCompany = internalMutation({
   handler: async (ctx, args): Promise<string> => {
     const { clerkOrganizationId, name, clerkUserId } = args;
 
-    try {
-      const user = await ctx.db
-        .query("users")
-        .withIndex("by_clerkUserId", (q) => q.eq("clerkUserId", clerkUserId))
-        .first();
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerkUserId", (q) => q.eq("clerkUserId", clerkUserId))
+      .first();
 
-      if (!user) {
-        console.error(ErrorMessages.USER_NOT_FOUND);
-        throw new Error(ErrorMessages.USER_NOT_FOUND);
-      }
-
-      if (!user.isActive) {
-        throw new Error(ErrorMessages.USER_INACTIVE);
-      }
-
-      if (!user.customerId) {
-        throw new Error(ErrorMessages.USER_NOT_CUSTOMER);
-      }
-
-      const slug = await generateUniqueSlug(ctx, name);
-
-      const companyId = await ctx.db.insert("companies", {
-        clerkOrganizationId,
-        customerId: user.customerId,
-        imageUrl: null,
-        isActive: true,
-        name,
-        slug,
-        timeZone: "UTC",
-      });
-
-      Promise.all([
-        ctx.db.patch(user._id, {
-          companyId,
-        }),
-        createCompanyRecords(ctx, companyId),
-      ]);
-      return slug;
-    } catch (error) {
-      console.error(ErrorMessages.COMPANY_DB_CREATE_ERROR, error);
-      throw new Error(ErrorMessages.COMPANY_DB_CREATE_ERROR);
+    if (!user) {
+      console.error(ErrorMessages.USER_NOT_FOUND);
+      throw new Error(ErrorMessages.USER_NOT_FOUND);
     }
+
+    if (!user.isActive) {
+      throw new Error(ErrorMessages.USER_INACTIVE);
+    }
+
+    if (!user.customerId) {
+      throw new Error(ErrorMessages.USER_NOT_CUSTOMER);
+    }
+
+    const slug = await generateUniqueSlug(ctx, name);
+
+    const companyId = await ctx.db.insert("companies", {
+      clerkOrganizationId,
+      customerId: user.customerId,
+      imageUrl: null,
+      isActive: true,
+      name,
+      slug,
+      timeZone: "UTC",
+    });
+
+    Promise.all([
+      ctx.db.patch(user._id, {
+        companyId,
+      }),
+      createCompanyRecords(ctx, companyId),
+    ]);
+    return slug;
   },
 });
 
 export const getCompanyClerkOrgId = query({
   args: { clerkOrgId: v.string() },
-  handler: async (ctx, args): Promise<CompanySchema | null> => {
-    try {
-      const company = await ctx.db
-        .query("companies")
-        .filter((q) => q.eq(q.field("clerkOrganizationId"), args.clerkOrgId))
-        .first();
+  handler: async (ctx, args): Promise<Doc<"companies"> | null> => {
+    const company = await ctx.db
+      .query("companies")
+      .filter((q) => q.eq(q.field("clerkOrganizationId"), args.clerkOrgId))
+      .first();
 
-      return company || null;
-    } catch (error) {
-      console.error("Error finding organization by Clerk ID:", error);
-      return null;
-    }
+    return company;
   },
 });
 
 export const getCompanyClerkOrgIdInternal = internalQuery({
   args: { clerkOrgId: v.string() },
-  handler: async (ctx, args): Promise<CompanySchema | null> => {
-    try {
-      const company = await ctx.db
-        .query("companies")
-        .filter((q) => q.eq(q.field("clerkOrganizationId"), args.clerkOrgId))
-        .first();
+  handler: async (ctx, args): Promise<Doc<"companies"> | null> => {
+    const company = await ctx.db
+      .query("companies")
+      .filter((q) => q.eq(q.field("clerkOrganizationId"), args.clerkOrgId))
+      .first();
 
-      return company || null;
-    } catch (error) {
-      console.error("Error finding organization by Clerk ID:", error);
-      throw new Error(ErrorMessages.COMPANY_DB_QUERY_BY_CLERK_ORG_ID);
-    }
+    return company;
   },
 });
 
 export const getCompanyByIdInternal = internalQuery({
   args: { companyId: v.id("companies") },
-  handler: async (ctx, args): Promise<CompanySchema | null> => {
+  handler: async (ctx, args): Promise<Doc<"companies"> | null> => {
     const { companyId } = args;
-    try {
-      return await ctx.db.get(companyId);
-    } catch (error) {
-      console.error(ErrorMessages.COMPANY_DB_QUERY_BY_ID, error);
-      throw new Error(ErrorMessages.COMPANY_DB_QUERY_BY_ID);
-    }
+
+    return await ctx.db.get(companyId);
   },
 });
 
 export const getCompanyBySlugInternal = internalQuery({
   args: { slug: v.string() },
-  handler: async (ctx, args): Promise<CompanySchema | null> => {
+  handler: async (ctx, args): Promise<Doc<"companies"> | null> => {
     const { slug } = args;
-    try {
-      return await ctx.db
-        .query("companies")
-        .filter((q) => q.eq(q.field("slug"), slug))
-        .first();
-    } catch (error) {
-      console.error(ErrorMessages.COMPANY_DB_QUERY_BY_SLUG, error);
-      throw new Error(ErrorMessages.COMPANY_DB_QUERY_BY_SLUG);
-    }
+    return await ctx.db
+      .query("companies")
+      .filter((q) => q.eq(q.field("slug"), slug))
+      .first();
   },
 });
 
@@ -159,105 +134,89 @@ export const getCompanyIdBySlug = query({
   args: { slug: v.string() },
   handler: async (ctx, args): Promise<GetCompanyIdBySlugResponse> => {
     const { slug } = args;
-    try {
-      const company = await ctx.db
-        .query("companies")
-        .filter((q) => q.eq(q.field("slug"), slug))
-        .first();
 
-      const validatedCompany = validateCompany(company);
+    const identity = await requireAuthenticatedUser(ctx);
 
-      const connectedAccount: Doc<"connectedAccounts"> | null = await ctx.db
-        .query("connectedAccounts")
-        .filter((q) => q.eq(q.field("customerId"), validatedCompany.customerId))
-        .first();
+    const company = await ctx.db
+      .query("companies")
+      .filter((q) => q.eq(q.field("slug"), slug))
+      .first();
 
-      const companyContact: Doc<"companyContact"> = validateCompanyContact(
-        await ctx.db
-          .query("companyContact")
-          .filter((q) => q.eq(q.field("companyId"), validatedCompany._id))
-          .first()
-      );
+    const validatedCompany = validateCompany(company);
+    isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
-      const isCompanyContactComplete =
-        !!companyContact.email &&
-        !!companyContact.phoneNumber &&
-        !!companyContact.address;
+    const connectedAccount: Doc<"connectedAccounts"> | null = await ctx.db
+      .query("connectedAccounts")
+      .filter((q) => q.eq(q.field("customerId"), validatedCompany.customerId))
+      .first();
 
-      const isStripeComplete =
-        connectedAccount?.status === StripeAccountStatus.VERIFIED;
+    const companyContact: Doc<"companyContact"> = validateCompanyContact(
+      await ctx.db
+        .query("companyContact")
+        .filter((q) => q.eq(q.field("companyId"), validatedCompany._id))
+        .first()
+    );
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: {
-          companyId: validatedCompany._id,
-          connectedAccountId: connectedAccount?.stripeAccountId || null,
-          connectedAccountStatus: connectedAccount?.status || null,
-          timeZone: validatedCompany.timeZone,
-          isCompanyContactComplete,
-          isStripeComplete,
-        },
-      };
-    } catch (error) {
-      return handleInternalError(error);
-    }
+    const isCompanyContactComplete =
+      !!companyContact.email &&
+      !!companyContact.phoneNumber &&
+      !!companyContact.address;
+
+    const isStripeComplete =
+      connectedAccount?.status === StripeAccountStatus.VERIFIED;
+
+    return {
+      companyId: validatedCompany._id,
+      connectedAccountId: connectedAccount?.stripeAccountId || null,
+      connectedAccountStatus: connectedAccount?.status || null,
+      timeZone: validatedCompany.timeZone,
+      isCompanyContactComplete,
+      isStripeComplete,
+    };
   },
 });
 
 export const getCompanyDetails = query({
   args: { companyId: v.id("companies") },
-  handler: async (ctx, args): Promise<GetCompanyDetailsResponse> => {
+  handler: async (ctx, args): Promise<GetCompanyDetailsData> => {
     const { companyId } = args;
 
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-      ]);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+    ]);
 
-      const company = validateCompany(await ctx.db.get(companyId));
+    const company = validateCompany(await ctx.db.get(companyId));
 
-      isUserInOrg(identity, company.clerkOrganizationId);
+    isUserInOrg(identity, company.clerkOrganizationId);
 
-      const compliance = validateCompliance(
-        await ctx.db
-          .query("compliance")
-          .filter((q) => q.eq(q.field("companyId"), company._id))
-          .first()
-      );
+    const compliance = validateCompliance(
+      await ctx.db
+        .query("compliance")
+        .filter((q) => q.eq(q.field("companyId"), company._id))
+        .first()
+    );
 
-      const webIntegrations = validateWebIntegrations(
-        await ctx.db
-          .query("webIntegrations")
-          .filter((q) => q.eq(q.field("companyId"), company._id))
-          .first()
-      );
+    const webIntegrations = validateWebIntegrations(
+      await ctx.db
+        .query("webIntegrations")
+        .filter((q) => q.eq(q.field("companyId"), company._id))
+        .first()
+    );
 
-      const companyContact = validateCompanyContact(
-        await ctx.db
-          .query("companyContact")
-          .filter((q) => q.eq(q.field("companyId"), company._id))
-          .first()
-      );
-
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: {
-          company,
-          compliance,
-          webIntegrations,
-          companyContact,
-        },
-      };
-    } catch (error) {
-      console.error(error);
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error: ErrorMessages.GENERIC_ERROR,
-      };
-    }
+    const companyContact = validateCompanyContact(
+      await ctx.db
+        .query("companyContact")
+        .filter((q) => q.eq(q.field("companyId"), company._id))
+        .first()
+    );
+    return {
+      company,
+      compliance,
+      webIntegrations,
+      companyContact,
+    };
   },
 });
 
@@ -331,26 +290,20 @@ export const updateCompanyInternal = internalMutation({
   ): Promise<{ companyId: Id<"companies">; slug?: string }> => {
     const { companyId, updates } = args;
 
-    try {
-      const updatedFields: { name?: string; timeZone?: string; slug?: string } =
-        {
-          ...updates,
-        };
+    const updatedFields: { name?: string; timeZone?: string; slug?: string } = {
+      ...updates,
+    };
 
-      let slug: string | undefined;
+    let slug: string | undefined;
 
-      if (updates.name) {
-        slug = await generateUniqueSlug(ctx, updates.name);
-        updatedFields.slug = slug;
-      }
-
-      await ctx.db.patch(companyId, updatedFields);
-
-      return { companyId, slug };
-    } catch (error) {
-      console.error("Error updating company:", error);
-      throw new Error(ErrorMessages.COMPANY_DB_UPDATE);
+    if (updates.name) {
+      slug = await generateUniqueSlug(ctx, updates.name);
+      updatedFields.slug = slug;
     }
+
+    await ctx.db.patch(companyId, updatedFields);
+
+    return { companyId, slug };
   },
 });
 
@@ -359,71 +312,43 @@ export const updateCompanyLogo = mutation({
     companyId: v.id("companies"),
     imageUrl: v.string(),
   },
-  handler: async (ctx, args): Promise<UpdateCompanyLogoResponse> => {
+  handler: async (ctx, args): Promise<Id<"companies">> => {
     const { companyId, imageUrl } = args;
 
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-      ]);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+    ]);
 
-      const company = validateCompany(await ctx.db.get(companyId));
+    const company = validateCompany(await ctx.db.get(companyId));
 
-      isUserInOrg(identity, company.clerkOrganizationId);
+    isUserInOrg(identity, company.clerkOrganizationId);
 
-      await ctx.db.patch(companyId, { imageUrl });
+    await ctx.db.patch(companyId, { imageUrl });
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { companyId },
-      };
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
-      console.error("Internal Error:", errorMessage, error);
-
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error: shouldExposeError(errorMessage)
-          ? errorMessage
-          : ErrorMessages.GENERIC_ERROR,
-      };
-    }
+    return companyId;
   },
 });
 
 export const getCompanyClerkUserId = query({
   args: { clerkUserId: v.string() },
-  handler: async (ctx, args): Promise<GetCompanyClerkUserIdResponse> => {
+  handler: async (ctx, args): Promise<Doc<"companies"> | null> => {
     const { clerkUserId } = args;
-    try {
-      const user = validateUser(
-        await ctx.db
-          .query("users")
-          .filter((q) => q.eq(q.field("clerkUserId"), clerkUserId))
-          .first()
-      );
 
-      if (!user.companyId) {
-        return {
-          status: ResponseStatus.SUCCESS,
-          data: null,
-        };
-      }
+    const user = validateUser(
+      await ctx.db
+        .query("users")
+        .filter((q) => q.eq(q.field("clerkUserId"), clerkUserId))
+        .first()
+    );
 
-      const company: CompanySchema | null = await ctx.db.get(user.companyId);
-
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: {
-          company,
-        },
-      };
-    } catch (error) {
-      return handleInternalError(error);
+    if (!user.companyId) {
+      return null;
     }
+
+    const company = await ctx.db.get(user.companyId);
+
+    return company;
   },
 });

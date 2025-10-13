@@ -3,10 +3,9 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { ResponseStatus } from "@/types/enums";
-import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
 import { ItemFormData } from "@/types/form-types";
+import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
 export type ItemCreateInput = Omit<ItemFormData, "size" | "weight"> & {
   size: number;
@@ -14,7 +13,7 @@ export type ItemCreateInput = Omit<ItemFormData, "size" | "weight"> & {
 };
 
 export const useCreateItem = () => {
-  const [createItemLoading, setCreateItemLoading] = useState(false);
+  const [createItemLoading, setCreateItemLoading] = useState<boolean>(false);
   const [createItemError, setCreateItemError] = useState<string | null>(null);
 
   const createItemMutation = useMutation(api.items.createItem);
@@ -28,20 +27,15 @@ export const useCreateItem = () => {
     setCreateItemError(null);
 
     try {
-      const response = await createItemMutation({
+      await createItemMutation({
         companyId,
         ...itemData,
         categoryId,
       });
 
-      if (response.status === ResponseStatus.SUCCESS) return true;
-
-      console.error(response.error);
-      setCreateItemError(response.error);
-      return false;
+      return true;
     } catch (error) {
-      console.error(FrontEndErrorMessages.GENERIC, error);
-      setCreateItemError(FrontEndErrorMessages.GENERIC);
+      setErrorFromConvexError(error, setCreateItemError);
       return false;
     } finally {
       setCreateItemLoading(false);

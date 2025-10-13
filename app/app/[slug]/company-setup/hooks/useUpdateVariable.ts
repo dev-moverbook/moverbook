@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { ResponseStatus } from "@/types/enums";
-import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
+import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
 export const useUpdateVariable = () => {
   const [updateLoading, setUpdateLoading] = useState<boolean>(false);
@@ -19,18 +18,11 @@ export const useUpdateVariable = () => {
     setUpdateError(null);
 
     try {
-      const response = await updateVariableMutation({ variableId, updates });
+      await updateVariableMutation({ variableId, updates });
 
-      if (response.status === ResponseStatus.SUCCESS) {
-        return true;
-      }
-
-      console.error(response.error);
-      setUpdateError(response.error);
-      return false;
+      return true;
     } catch (error) {
-      console.error(error);
-      setUpdateError(FrontEndErrorMessages.GENERIC);
+      setErrorFromConvexError(error, setUpdateError);
       return false;
     } finally {
       setUpdateLoading(false);

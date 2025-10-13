@@ -12,15 +12,13 @@ import SectionHeader from "@/app/components/shared/SectionHeader";
 import CardListContainer from "@/app/components/shared/CardListContainer";
 import { Id } from "@/convex/_generated/dataModel";
 import { useUpdateReferral } from "../hooks/useUpdateReferral";
-import ErrorMessage from "@/app/components/shared/error/ErrorMessage";
 import AddItemButton from "@/app/components/shared/buttons/AddItemButton";
 import { useActiveReferrals } from "@/app/hooks/queries/referrals/useActiveReferrals";
-import { QueryStatus } from "@/types/enums";
 
 const ReferralsTab = () => {
   const { companyId } = useSlugContext();
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [editingReferral, setEditingReferral] = useState<{
     id: Id<"referrals">;
     name: string;
@@ -35,11 +33,6 @@ const ReferralsTab = () => {
   const result = useActiveReferrals(companyId);
 
   const handleCreateReferral = async (name: string): Promise<boolean> => {
-    if (!companyId) {
-      console.error(FrontEndErrorMessages.COMPANY_NOT_FOUND);
-      setCreateError(FrontEndErrorMessages.GENERIC);
-      return false;
-    }
     return await createReferral(companyId, name);
   };
 
@@ -59,18 +52,10 @@ const ReferralsTab = () => {
   };
 
   switch (true) {
-    case !companyId:
-      return <ErrorMessage message={"Failed to load referrals."} />;
-
-    case result.status === QueryStatus.LOADING:
+    case result === undefined:
       return null;
 
-    case result.status === QueryStatus.ERROR:
-      return <ErrorMessage message={result.errorMessage} />;
-
     default: {
-      const { referrals } = result;
-
       return (
         <SectionContainer isLast>
           <CenteredContainer>
@@ -85,11 +70,11 @@ const ReferralsTab = () => {
               className="px-0 pb-4"
             />
 
-            {referrals.length === 0 ? (
+            {result.length === 0 ? (
               <p className="text-gray-500">No active referrals found.</p>
             ) : (
               <CardListContainer>
-                {referrals.map((referral) => (
+                {result.map((referral) => (
                   <ReferralItem
                     key={referral._id}
                     referralId={referral._id}
@@ -100,7 +85,6 @@ const ReferralsTab = () => {
               </CardListContainer>
             )}
 
-            {/* Create */}
             <CreateReferralModal
               isOpen={isModalOpen}
               onClose={() => setIsModalOpen(false)}
@@ -109,7 +93,6 @@ const ReferralsTab = () => {
               error={createError}
             />
 
-            {/* Edit (reuses the same modal) */}
             {editingReferral && (
               <CreateReferralModal
                 isOpen={!!editingReferral}

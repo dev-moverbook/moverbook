@@ -1,7 +1,7 @@
 import { StripeAccountStatusConvex } from "@/types/convex-enums";
 import { ErrorMessages } from "@/types/errors";
 import { v } from "convex/values";
-import { Id } from "./_generated/dataModel";
+import { Doc, Id } from "./_generated/dataModel";
 import {
   action,
   internalAction,
@@ -13,10 +13,7 @@ import { ConnectedAccountSchema } from "@/types/convex-schemas";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import { ClerkRoles, ResponseStatus, StripeAccountStatus } from "@/types/enums";
 import { validateUser } from "./backendUtils/validate";
-import {
-  GetStripeConnectionResponse,
-  GetStripeDashboardLinkResponse,
-} from "@/types/convex-responses";
+import { GetStripeDashboardLinkResponse } from "@/types/convex-responses";
 import { internal } from "./_generated/api";
 import {
   createStripeConnectedAccount,
@@ -25,7 +22,6 @@ import {
 } from "./backendUtils/stripe";
 import { handleAccountUpdated } from "./backendUtils/connectedAccountWebhook";
 import Stripe from "stripe";
-import { handleInternalError } from "./backendUtils/helper";
 
 export const saveConnectedAccount = internalMutation({
   args: {
@@ -69,36 +65,27 @@ export const saveConnectedAccount = internalMutation({
 
 export const getStripeConnection = query({
   args: {},
-  handler: async (ctx): Promise<GetStripeConnectionResponse> => {
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [ClerkRoles.ADMIN]);
+  handler: async (ctx): Promise<Doc<"connectedAccounts"> | null> => {
+    const identity = await requireAuthenticatedUser(ctx, [ClerkRoles.ADMIN]);
 
-      const clerkUserId = identity.id as string;
+    const clerkUserId = identity.id as string;
 
-      const user = validateUser(
-        await ctx.db
-          .query("users")
-          .withIndex("by_clerkUserId", (q) => q.eq("clerkUserId", clerkUserId))
-          .unique(),
-        true,
-        true,
-        true
-      );
+    const user = validateUser(
+      await ctx.db
+        .query("users")
+        .withIndex("by_clerkUserId", (q) => q.eq("clerkUserId", clerkUserId))
+        .unique(),
+      true,
+      true,
+      true
+    );
 
-      const account = await ctx.db
-        .query("connectedAccounts")
-        .withIndex("by_customerId", (q) => q.eq("customerId", user.customerId!))
-        .unique();
+    const account = await ctx.db
+      .query("connectedAccounts")
+      .withIndex("by_customerId", (q) => q.eq("customerId", user.customerId!))
+      .unique();
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: {
-          stripeConnected: account,
-        },
-      };
-    } catch (error) {
-      return handleInternalError(error);
-    }
+    return account;
   },
 });
 
@@ -210,7 +197,6 @@ export const getStripeDashboardLink = action({
         };
       }
 
-      // Generate a login link for the Stripe dashboard
       const loginLink = await stripe.accounts.createLoginLink(
         existingAccount.stripeAccountId
       );
@@ -251,7 +237,6 @@ export const fulfill = internalAction({
           await handleAccountUpdated(ctx, account);
           break;
         }
-        // You can handle more event types here if needed
         default:
           console.log(`Unhandled event type: ${event.type}`);
       }

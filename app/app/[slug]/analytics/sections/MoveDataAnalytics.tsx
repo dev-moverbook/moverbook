@@ -39,8 +39,8 @@ const MoveDataAnalytics = ({
 
   let body: React.ReactNode = null;
 
-  switch (result.status) {
-    case QueryStatus.LOADING:
+  switch (result) {
+    case undefined:
       body = (
         <div className="flex flex-col gap-4">
           <ChartCardSkeletonStatic />
@@ -48,11 +48,8 @@ const MoveDataAnalytics = ({
         </div>
       );
       break;
-    case QueryStatus.ERROR:
-      body = <ErrorComponent message={result.errorMessage} />;
-      break;
-    case QueryStatus.SUCCESS:
-      body = <MoveDataAnalyticsSuccess series={result.data.series} />;
+    default:
+      body = <MoveDataAnalyticsSuccess series={result} />;
       break;
   }
 

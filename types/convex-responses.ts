@@ -168,16 +168,7 @@ export interface UpdateReferralData {
   referralId: Id<"referrals">;
 }
 
-export type GetCompanyIdBySlugResponse =
-  | GetCompanyIdBySlugSuccess
-  | ErrorResponse;
-
-export interface GetCompanyIdBySlugSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetCompanyIdBySlugData;
-}
-
-export interface GetCompanyIdBySlugData {
+export interface GetCompanyIdBySlugResponse {
   companyId: Id<"companies">;
   connectedAccountId: string | null;
   connectedAccountStatus: StripeAccountStatus | null;
@@ -1165,7 +1156,7 @@ export interface GetCustomerAndMovesSuccess {
 
 export interface GetCustomerAndMovesData {
   moveCustomer: Doc<"moveCustomers">;
-  moves: EnrichedMoveForMover[];
+  moves: EnrichedMoveForMover[] | Doc<"move">[];
 }
 
 export type GetMoveCustomerResponse = GetMoveCustomerSuccess | ErrorResponse;

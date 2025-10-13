@@ -1,8 +1,6 @@
 "use client";
 
-import ErrorComponent from "@/app/components/shared/ErrorComponent";
 import { useSlugContext } from "@/app/contexts/SlugContext";
-import { QueryStatus } from "@/types/enums";
 import type { Id } from "@/convex/_generated/dataModel";
 import { useFunnel } from "@/app/hooks/queries/analytics/useFunnel";
 import FunnelAnalyticsSuccess from "./FunnelAnalyticsSuccess";
@@ -33,15 +31,12 @@ const FunnelAnalytics = ({
 
   let body: React.ReactNode = null;
 
-  switch (result.status) {
-    case QueryStatus.LOADING:
+  switch (result) {
+    case undefined:
       body = <ChartCardSkeletonStatic />;
       break;
-    case QueryStatus.ERROR:
-      body = <ErrorComponent message={result.errorMessage} />;
-      break;
-    case QueryStatus.SUCCESS:
-      body = <FunnelAnalyticsSuccess series={result.data.funnel} />;
+    default:
+      body = <FunnelAnalyticsSuccess series={result} />;
       break;
   }
 

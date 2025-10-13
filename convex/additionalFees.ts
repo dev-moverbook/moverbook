@@ -7,12 +7,8 @@ import {
   isUserInOrg,
   validateAdditionalFee,
 } from "./backendUtils/validate";
-import { handleInternalError } from "./backendUtils/helper";
-import { ClerkRoles, ResponseStatus } from "@/types/enums";
-import {
-  CreateAdditionalFeeResponse,
-  UpdateAdditionalFeeResponse,
-} from "@/types/convex-responses";
+import { ClerkRoles } from "@/types/enums";
+import { Id } from "./_generated/dataModel";
 
 export const createAdditionalFee = mutation({
   args: {
@@ -22,38 +18,31 @@ export const createAdditionalFee = mutation({
     quantity: v.number(),
     feeId: v.optional(v.id("fees")),
   },
-  handler: async (ctx, args): Promise<CreateAdditionalFeeResponse> => {
+  handler: async (ctx, args): Promise<Id<"additionalFees">> => {
     const { moveId, name, price, quantity, feeId } = args;
 
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-        ClerkRoles.SALES_REP,
-        ClerkRoles.MOVER,
-      ]);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+      ClerkRoles.SALES_REP,
+      ClerkRoles.MOVER,
+    ]);
 
-      const move = validateMove(await ctx.db.get(moveId));
-      const company = validateCompany(await ctx.db.get(move.companyId));
-      isUserInOrg(identity, company.clerkOrganizationId);
+    const move = validateMove(await ctx.db.get(moveId));
+    const company = validateCompany(await ctx.db.get(move.companyId));
+    isUserInOrg(identity, company.clerkOrganizationId);
 
-      const additionalFeeId = await ctx.db.insert("additionalFees", {
-        moveId,
-        name,
-        price,
-        quantity,
-        feeId,
-        isActive: true,
-      });
+    const additionalFeeId = await ctx.db.insert("additionalFees", {
+      moveId,
+      name,
+      price,
+      quantity,
+      feeId,
+      isActive: true,
+    });
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { additionalFeeId },
-      };
-    } catch (error) {
-      return handleInternalError(error);
-    }
+    return additionalFeeId;
   },
 });
 
@@ -68,32 +57,25 @@ export const updateAdditionalFee = mutation({
       isActive: v.optional(v.boolean()),
     }),
   },
-  handler: async (ctx, args): Promise<UpdateAdditionalFeeResponse> => {
+  handler: async (ctx, args): Promise<Id<"additionalFees">> => {
     const { additionalFeeId, updates } = args;
 
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-        ClerkRoles.SALES_REP,
-        ClerkRoles.MOVER,
-      ]);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+      ClerkRoles.SALES_REP,
+      ClerkRoles.MOVER,
+    ]);
 
-      const fee = validateAdditionalFee(await ctx.db.get(additionalFeeId));
-      const move = validateMove(await ctx.db.get(fee.moveId));
-      const company = validateCompany(await ctx.db.get(move.companyId));
+    const fee = validateAdditionalFee(await ctx.db.get(additionalFeeId));
+    const move = validateMove(await ctx.db.get(fee.moveId));
+    const company = validateCompany(await ctx.db.get(move.companyId));
 
-      isUserInOrg(identity, company.clerkOrganizationId);
+    isUserInOrg(identity, company.clerkOrganizationId);
 
-      await ctx.db.patch(additionalFeeId, updates);
+    await ctx.db.patch(additionalFeeId, updates);
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { additionalFeeId },
-      };
-    } catch (error) {
-      return handleInternalError(error);
-    }
+    return additionalFeeId;
   },
 });

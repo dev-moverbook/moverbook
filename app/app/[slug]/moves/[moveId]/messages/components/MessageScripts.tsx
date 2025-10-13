@@ -5,16 +5,15 @@ import BadgeButtonGroup from "@/app/components/shared/containers/ BadgeButtonGro
 import { useMessageContext } from "@/app/contexts/MessageContext";
 import { useSlugContext } from "@/app/contexts/SlugContext";
 import { useScriptsByCompanyId } from "@/app/hooks/queries/useScriptsByCompanyId";
-import { ScriptSchema } from "@/types/convex-schemas";
+import { Doc } from "@/convex/_generated/dataModel";
 
 const MessageScripts = () => {
   const { companyId } = useSlugContext();
   const { method, setInput, setShowOptions, setShowScripts, setSubject } =
     useMessageContext();
-  const { scripts, isLoading, isError, errorMessage } =
-    useScriptsByCompanyId(companyId);
+  const scripts = useScriptsByCompanyId(companyId);
 
-  const handleScriptClick = (script: ScriptSchema) => {
+  const handleScriptClick = (script: Doc<"scripts">) => {
     setInput(script.message);
     if (script.emailTitle) {
       setSubject(script.emailTitle);
@@ -23,18 +22,10 @@ const MessageScripts = () => {
     setShowScripts(false);
   };
 
-  if (isLoading) {
+  if (!scripts) {
     return (
       <div className="text-sm text-muted-foreground text-center py-4">
         Loading scripts...
-      </div>
-    );
-  }
-
-  if (isError) {
-    return (
-      <div className="text-sm text-destructive text-center py-4">
-        {errorMessage || "Failed to load scripts."}
       </div>
     );
   }

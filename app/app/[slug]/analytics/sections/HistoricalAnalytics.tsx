@@ -33,15 +33,12 @@ const HistoricalAnalytics = ({
 
   let body: React.ReactNode = null;
 
-  switch (result.status) {
-    case QueryStatus.LOADING:
+  switch (result) {
+    case undefined:
       body = <ChartCardSkeletonStatic />;
       break;
-    case QueryStatus.ERROR:
-      body = <ErrorComponent message={result.errorMessage} />;
-      break;
-    case QueryStatus.SUCCESS:
-      body = <HistoricalAnalyticsSuccess series={result.data.series} />;
+    default:
+      body = <HistoricalAnalyticsSuccess series={result} />;
       break;
   }
 

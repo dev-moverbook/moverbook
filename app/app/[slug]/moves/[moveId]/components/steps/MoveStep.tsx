@@ -2,12 +2,10 @@ import React from "react";
 import AssignMovers from "../move/AssignMovers";
 import { useGetMoveAssignmentsPage } from "@/app/hooks/queries/useGetMoveAssignmentsPage";
 import PreMove from "../move/PreMove";
-import ErrorComponent from "@/app/components/shared/ErrorComponent";
 import AdditionalLiabilityCoverage from "../move/AdditionalLiabilityCoverage";
 import { getMoveStatus } from "@/app/frontendUtils/tsxHelper";
 import StepStatus from "../shared/StepStatus";
 import { useMoveContext } from "@/app/contexts/MoveContext";
-import { QueryStatus } from "@/types/enums";
 import MoverScheduleCalendar from "../move/MoverScheduleCalendar";
 import ViewMoverSectionAsRep from "../move/ViewMoverSectionAsRep";
 import { isSameDayOrLater } from "@/app/frontendUtils/luxonUtils";
@@ -20,18 +18,16 @@ const MoveStep = () => {
 
   const result = useGetMoveAssignmentsPage(move._id);
 
-  switch (result.status) {
-    case QueryStatus.LOADING:
+  switch (result) {
+    case undefined:
       return null;
-    case QueryStatus.ERROR:
-      return <ErrorComponent message={result.errorMessage} />;
-    case QueryStatus.SUCCESS: {
+    default:
       const {
         assignments,
         allMovers,
         preMoveDoc,
         additionalLiabilityCoverage,
-      } = result.data;
+      } = result;
       const moveStatus = getMoveStatus(
         move,
         assignments.length,
@@ -65,9 +61,6 @@ const MoveStep = () => {
           <ViewMoverSectionAsRep />
         </div>
       );
-    }
-    default:
-      return null;
   }
 };
 

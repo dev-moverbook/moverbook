@@ -7,6 +7,7 @@ import { Id } from "@/convex/_generated/dataModel";
 import { ResponseStatus } from "@/types/enums";
 import { FrontEndErrorMessages } from "@/types/errors";
 import { Doc } from "@/convex/_generated/dataModel";
+import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
 interface CreateMoveCustomerInput {
   companyId: Id<"companies">;
@@ -39,28 +40,25 @@ export const useCreateMoveCustomer = () => {
     try {
       const response = await createMoveCustomerMutation(data);
 
-      if (response.status === ResponseStatus.SUCCESS) {
+      if (response) {
         // Return the appropriate result
-        if ("moveCustomerId" in response.data) {
+        if ("moveCustomerId" in response) {
           return {
             success: true,
-            moveCustomerId: response.data.moveCustomerId,
+            moveCustomerId: response,
           };
         }
 
-        if ("moveCustomer" in response.data) {
+        if ("moveCustomer" in response) {
           return {
             success: true,
-            existingCustomer: response.data.moveCustomer,
+            moveCustomerId: response,
           };
         }
       }
-      console.error(response.data);
-      setError(FrontEndErrorMessages.GENERIC);
       return { success: false };
     } catch (error) {
-      console.error(FrontEndErrorMessages.GENERIC, error);
-      setError(FrontEndErrorMessages.GENERIC);
+      setErrorFromConvexError(error, setError);
       return { success: false };
     } finally {
       setLoading(false);

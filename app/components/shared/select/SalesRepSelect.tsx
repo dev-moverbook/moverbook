@@ -10,7 +10,7 @@ import { QueryStatus } from "@/types/enums";
 import { SalesRepOption } from "@/app/contexts/MoveFilterContext";
 
 type BaseProps = {
-  companyId: Id<"companies"> | null;
+  companyId: Id<"companies">;
   label?: string;
   isEditing?: boolean;
   placeholder?: string;
@@ -50,16 +50,14 @@ const SalesRepSelect: React.FC<SalesRepSelectProps> = (props) => {
   let queryError: string | null = null;
   const options: { label: string; value: string }[] = [];
 
-  switch (result.status) {
-    case QueryStatus.LOADING:
+  switch (result) {
+    case undefined:
       loading = true;
       break;
-    case QueryStatus.ERROR:
-      queryError = result.errorMessage ?? "Failed to load sales reps.";
-      break;
-    case QueryStatus.SUCCESS:
-      for (const u of result.data) {
-        options.push({ label: u.name, value: u._id });
+
+    default:
+      for (const user of result) {
+        options.push({ label: user.name, value: user._id });
       }
       break;
   }

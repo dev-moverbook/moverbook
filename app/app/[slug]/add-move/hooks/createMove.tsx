@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import { useMutation } from "convex/react";
-import { ResponseStatus, TravelChargingTypes } from "@/types/enums";
-import { FrontEndErrorMessages } from "@/types/errors";
+import { TravelChargingTypes } from "@/types/enums";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { LocationInput, MoveFeeInput, MoveItemInput } from "@/types/form-types"; // <-- Define these based on your form shape
 import { api } from "@/convex/_generated/api";
@@ -16,6 +15,7 @@ import {
   ServiceType,
 } from "@/types/types";
 import { ArrivalTimes } from "@/types/convex-schemas";
+import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
 export interface CreateMoveInput {
   arrivalTimes: ArrivalTimes;
@@ -59,32 +59,17 @@ export const useCreateMove = () => {
 
   const createMove = async (
     data: CreateMoveInput
-  ): Promise<{
-    success: boolean;
-    moveId?: Id<"move">;
-    companyId?: Id<"companies">;
-  }> => {
+  ): Promise<Id<"move"> | null> => {
     setCreateMoveLoading(true);
     setCreateMoveError(null);
 
     try {
-      const response = await createMoveMutation(data);
+      const moveId = await createMoveMutation(data);
 
-      if (response.status === ResponseStatus.SUCCESS) {
-        return {
-          success: true,
-          moveId: response.data.moveId,
-          companyId: data.companyId,
-        };
-      }
-
-      console.error(response.error);
-      setCreateMoveError(response.error);
-      return { success: false };
+      return moveId;
     } catch (error) {
-      console.error(FrontEndErrorMessages.GENERIC, error);
-      setCreateMoveError(FrontEndErrorMessages.GENERIC);
-      return { success: false };
+      setErrorFromConvexError(error, setCreateMoveError);
+      return null;
     } finally {
       setCreateMoveLoading(false);
     }

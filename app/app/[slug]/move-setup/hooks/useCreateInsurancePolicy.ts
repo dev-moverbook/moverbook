@@ -3,10 +3,9 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { ResponseStatus } from "@/types/enums";
-import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
 import { InsurancePolicyFormData } from "@/types/form-types";
+import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
 export const useCreateInsurancePolicy = () => {
   const [createInsurancePolicyLoading, setCreateInsurancePolicyLoading] =
@@ -35,16 +34,9 @@ export const useCreateInsurancePolicy = () => {
         premium: policy.premium!,
       });
 
-      if (response.status === ResponseStatus.SUCCESS) {
-        return true;
-      }
-
-      console.error(response.error);
-      setCreateInsurancePolicyError(response.error);
-      return false;
+      return true;
     } catch (error) {
-      console.error(FrontEndErrorMessages.GENERIC, error);
-      setCreateInsurancePolicyError(FrontEndErrorMessages.GENERIC);
+      setErrorFromConvexError(error, setCreateInsurancePolicyError);
       return false;
     } finally {
       setCreateInsurancePolicyLoading(false);

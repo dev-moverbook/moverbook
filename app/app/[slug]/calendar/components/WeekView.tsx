@@ -1,4 +1,3 @@
-// components/calendar/WeekView.tsx
 "use client";
 
 import { useSlugContext } from "@/app/contexts/SlugContext";

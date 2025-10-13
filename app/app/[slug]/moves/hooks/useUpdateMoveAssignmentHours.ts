@@ -4,8 +4,7 @@ import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { ResponseStatus } from "@/types/enums";
-import { FrontEndErrorMessages } from "@/types/errors";
+import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
 interface UpdateMoveAssignmentHoursInput {
   assignmentId: Id<"moveAssignments">;
@@ -30,28 +29,17 @@ export const useUpdateMoveAssignmentHours = () => {
   const updateMoveAssignmentHours = async ({
     assignmentId,
     updates,
-  }: UpdateMoveAssignmentHoursInput): Promise<{
-    success: boolean;
-  }> => {
+  }: UpdateMoveAssignmentHoursInput): Promise<boolean> => {
     setAssignmentUpdateLoading(true);
     setAssignmentUpdateError(null);
 
     try {
-      const response = await updateMutation({ assignmentId, updates });
+      await updateMutation({ assignmentId, updates });
 
-      if (response.status === ResponseStatus.SUCCESS) {
-        return {
-          success: true,
-        };
-      }
-
-      console.error(response.error);
-      setAssignmentUpdateError(response.error);
-      return { success: false };
+      return true;
     } catch (error) {
-      console.error(FrontEndErrorMessages.GENERIC, error);
-      setAssignmentUpdateError(FrontEndErrorMessages.GENERIC);
-      return { success: false };
+      setErrorFromConvexError(error, setAssignmentUpdateError);
+      return false;
     } finally {
       setAssignmentUpdateLoading(false);
     }

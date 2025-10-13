@@ -8,15 +8,12 @@ import {
   validateRoom,
   validateUniqueRoomName,
 } from "./backendUtils/validate";
-import {
-  CreateRoomResponse,
-  GetActiveRoomsResponse,
-  ResetRoomsAndCategoriesAndItemsResponse,
-  UpdateRoomResponse,
-} from "@/types/convex-responses";
+import { GetActiveRoomsResponse } from "@/types/convex-responses";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import { shouldExposeError } from "./backendUtils/helper";
+import { Id } from "./_generated/dataModel";
 
+// not used
 export const getActiveRoomsByCompany = query({
   args: { companyId: v.id("companies") },
   handler: async (ctx, args): Promise<GetActiveRoomsResponse> => {
@@ -66,45 +63,28 @@ export const createRoom = mutation({
     companyId: v.id("companies"),
     name: v.string(),
   },
-  handler: async (ctx, args): Promise<CreateRoomResponse> => {
+  handler: async (ctx, args): Promise<Id<"rooms">> => {
     const { companyId, name } = args;
 
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-      ]);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+    ]);
 
-      const company = validateCompany(await ctx.db.get(companyId));
-      isUserInOrg(identity, company.clerkOrganizationId);
+    const company = validateCompany(await ctx.db.get(companyId));
+    isUserInOrg(identity, company.clerkOrganizationId);
 
-      await validateUniqueRoomName(ctx, companyId, name);
+    await validateUniqueRoomName(ctx, companyId, name);
 
-      const roomId = await ctx.db.insert("rooms", {
-        companyId,
-        name,
-        isActive: true,
-        isStarter: false,
-      });
+    const roomId = await ctx.db.insert("rooms", {
+      companyId,
+      name,
+      isActive: true,
+      isStarter: false,
+    });
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { roomId },
-      };
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
-      console.error("Internal Error:", errorMessage, error);
-
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error: shouldExposeError(errorMessage)
-          ? errorMessage
-          : ErrorMessages.GENERIC_ERROR,
-      };
-    }
+    return roomId;
   },
 });
 
@@ -116,44 +96,27 @@ export const updateRoom = mutation({
       isActive: v.optional(v.boolean()),
     }),
   },
-  handler: async (ctx, args): Promise<UpdateRoomResponse> => {
+  handler: async (ctx, args): Promise<Id<"rooms">> => {
     const { roomId, updates } = args;
 
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-      ]);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+    ]);
 
-      const room = validateRoom(await ctx.db.get(roomId));
-      const company = validateCompany(await ctx.db.get(room.companyId));
+    const room = validateRoom(await ctx.db.get(roomId));
+    const company = validateCompany(await ctx.db.get(room.companyId));
 
-      isUserInOrg(identity, company.clerkOrganizationId);
+    isUserInOrg(identity, company.clerkOrganizationId);
 
-      if (updates.name) {
-        await validateUniqueRoomName(ctx, room.companyId, updates.name);
-      }
-
-      await ctx.db.patch(roomId, updates);
-
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { roomId },
-      };
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
-      console.error("Internal Error:", errorMessage, error);
-
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error: shouldExposeError(errorMessage)
-          ? errorMessage
-          : ErrorMessages.GENERIC_ERROR,
-      };
+    if (updates.name) {
+      await validateUniqueRoomName(ctx, room.companyId, updates.name);
     }
+
+    await ctx.db.patch(roomId, updates);
+
+    return roomId;
   },
 });
 
@@ -161,71 +124,51 @@ export const resetRoomsAndCategoriesAndItems = mutation({
   args: {
     companyId: v.id("companies"),
   },
-  handler: async (
-    ctx,
-    args
-  ): Promise<ResetRoomsAndCategoriesAndItemsResponse> => {
+  handler: async (ctx, args): Promise<Id<"companies">> => {
     const { companyId } = args;
 
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-      ]);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+    ]);
 
-      const company = validateCompany(await ctx.db.get(companyId));
-      isUserInOrg(identity, company.clerkOrganizationId);
+    const company = validateCompany(await ctx.db.get(companyId));
+    isUserInOrg(identity, company.clerkOrganizationId);
 
-      const rooms = await ctx.db
-        .query("rooms")
-        .filter((q) => q.eq(q.field("companyId"), companyId))
-        .collect();
+    const rooms = await ctx.db
+      .query("rooms")
+      .filter((q) => q.eq(q.field("companyId"), companyId))
+      .collect();
 
-      const roomUpdatePromises = rooms.map((room) =>
-        ctx.db.patch(room._id, { isActive: room.isStarter })
-      );
+    const roomUpdatePromises = rooms.map((room) =>
+      ctx.db.patch(room._id, { isActive: room.isStarter })
+    );
 
-      await Promise.all(roomUpdatePromises);
+    await Promise.all(roomUpdatePromises);
 
-      const categories = await ctx.db
-        .query("categories")
-        .filter((q) => q.eq(q.field("companyId"), companyId))
-        .collect();
+    const categories = await ctx.db
+      .query("categories")
+      .filter((q) => q.eq(q.field("companyId"), companyId))
+      .collect();
 
-      const categoryUpdatePromises = categories.map((category) =>
-        ctx.db.patch(category._id, { isActive: category.isStarter })
-      );
+    const categoryUpdatePromises = categories.map((category) =>
+      ctx.db.patch(category._id, { isActive: category.isStarter })
+    );
 
-      await Promise.all(categoryUpdatePromises);
+    await Promise.all(categoryUpdatePromises);
 
-      const items = await ctx.db
-        .query("items")
-        .filter((q) => q.eq(q.field("companyId"), companyId))
-        .collect();
+    const items = await ctx.db
+      .query("items")
+      .filter((q) => q.eq(q.field("companyId"), companyId))
+      .collect();
 
-      const itemUpdatePromises = items.map((item) =>
-        ctx.db.patch(item._id, { isActive: item.isStarter })
-      );
+    const itemUpdatePromises = items.map((item) =>
+      ctx.db.patch(item._id, { isActive: item.isStarter })
+    );
 
-      await Promise.all(itemUpdatePromises);
+    await Promise.all(itemUpdatePromises);
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { companyId },
-      };
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
-      console.error("Internal Error:", errorMessage, error);
-
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error: shouldExposeError(errorMessage)
-          ? errorMessage
-          : ErrorMessages.GENERIC_ERROR,
-      };
-    }
+    return companyId;
   },
 });

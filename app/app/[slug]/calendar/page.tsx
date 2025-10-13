@@ -1,21 +1,19 @@
 "use client";
 
 import React from "react";
-import { MoveFilterProvider } from "@/app/contexts/MoveFilterContext";
 import { useSlugContext } from "@/app/contexts/SlugContext";
+import ErrorComponent from "@/app/components/shared/ErrorComponent";
 import CalendarPageContent from "./CalendarPageContent";
 
-const CalendarPage = () => {
+export default function CalendarPage() {
   const { isCompanyContactComplete, isStripeComplete } = useSlugContext();
-  const isAddMoveDisabled = !isCompanyContactComplete || !isStripeComplete;
+  const isCalendarBlocked = !isCompanyContactComplete || !isStripeComplete;
 
-  if (isAddMoveDisabled) return null;
+  if (isCalendarBlocked) {
+    return (
+      <ErrorComponent message="You must complete your company contact and Stripe setup to access the calendar." />
+    );
+  }
 
-  return (
-    <MoveFilterProvider>
-      <CalendarPageContent />
-    </MoveFilterProvider>
-  );
-};
-
-export default CalendarPage;
+  return <CalendarPageContent />;
+}

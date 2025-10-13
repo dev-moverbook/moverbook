@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import { useMutation } from "convex/react";
-import { ResponseStatus, TravelChargingTypes } from "@/types/enums";
-import { FrontEndErrorMessages } from "@/types/errors";
+import { TravelChargingTypes } from "@/types/enums";
 import { Id } from "@/convex/_generated/dataModel";
 import { api } from "@/convex/_generated/api";
 import { LocationInput, MoveFeeInput, MoveItemInput } from "@/types/form-types";
@@ -16,6 +15,7 @@ import {
   SegmentDistance,
 } from "@/types/types";
 import { ArrivalTimes, InsurancePolicySchema } from "@/types/convex-schemas";
+import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
 export interface UpdateMoveInput {
   moveId: Id<"move">;
@@ -62,26 +62,17 @@ export const useUpdateMove = () => {
 
   const updateMoveMutation = useMutation(api.move.updateMove);
 
-  const updateMove = async (
-    data: UpdateMoveInput
-  ): Promise<{ success: boolean }> => {
+  const updateMove = async (data: UpdateMoveInput): Promise<boolean> => {
     setUpdateMoveLoading(true);
     setUpdateMoveError(null);
 
     try {
-      const response = await updateMoveMutation(data);
+      await updateMoveMutation(data);
 
-      if (response.status === ResponseStatus.SUCCESS) {
-        return { success: true };
-      }
-
-      console.error(response.error);
-      setUpdateMoveError(response.error);
-      return { success: false };
+      return true;
     } catch (error) {
-      console.error(FrontEndErrorMessages.GENERIC, error);
-      setUpdateMoveError(FrontEndErrorMessages.GENERIC);
-      return { success: false };
+      setErrorFromConvexError(error, setUpdateMoveError);
+      return false;
     } finally {
       setUpdateMoveLoading(false);
     }

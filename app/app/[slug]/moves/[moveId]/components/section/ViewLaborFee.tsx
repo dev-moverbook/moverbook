@@ -61,8 +61,10 @@ const ViewLaborFee = () => {
       moveId: move._id,
       updates: normalizeForUpdate(laborData),
     });
-    if (result.success) setIsEditing(false);
-    return result.success;
+    if (result) {
+      setIsEditing(false);
+    }
+    return result;
   };
 
   const handleCancel = () => {

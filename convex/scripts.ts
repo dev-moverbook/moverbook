@@ -1,5 +1,5 @@
 import { mutation, query } from "./_generated/server";
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import {
   validateCompany,
@@ -7,54 +7,40 @@ import {
   validateScriptFields,
   validateScript,
 } from "./backendUtils/validate";
-import { ResponseStatus, ClerkRoles, CommunicationType } from "@/types/enums";
+import { ClerkRoles } from "@/types/enums";
 import { ErrorMessages } from "@/types/errors";
-import {
-  CreateScriptResponse,
-  DeleteScriptResponse,
-  GetActiveScriptsAndVariablesByCompanyIdResponse,
-  GetActiveScriptsByCompanyIdResponse,
-  UpdateScriptResponse,
-} from "@/types/convex-responses";
+
 import { CommunicationTypeConvex } from "@/types/convex-enums";
 import { checkExistingScript } from "./backendUtils/checkUnique";
-import { ScriptSchema, VariableSchema } from "@/types/convex-schemas";
-import { handleInternalError } from "./backendUtils/helper";
-import { Doc } from "./_generated/dataModel";
+import { Doc, Id } from "./_generated/dataModel";
 
 export const getScriptsByCompanyId = query({
   args: { companyId: v.id("companies") },
-  handler: async (ctx, args): Promise<GetActiveScriptsByCompanyIdResponse> => {
+  handler: async (ctx, args): Promise<Doc<"scripts">[]> => {
     const { companyId } = args;
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-        ClerkRoles.SALES_REP,
-      ]);
 
-      const company = await ctx.db.get(companyId);
-      const validatedCompany = validateCompany(company);
-      isUserInOrg(identity, validatedCompany.clerkOrganizationId);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+      ClerkRoles.SALES_REP,
+    ]);
 
-      const scripts = await ctx.db
-        .query("scripts")
-        .filter((q) =>
-          q.and(
-            q.eq(q.field("companyId"), validatedCompany._id),
-            q.eq(q.field("isActive"), true)
-          )
+    const company = await ctx.db.get(companyId);
+    const validatedCompany = validateCompany(company);
+    isUserInOrg(identity, validatedCompany.clerkOrganizationId);
+
+    const scripts = await ctx.db
+      .query("scripts")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("companyId"), validatedCompany._id),
+          q.eq(q.field("isActive"), true)
         )
-        .collect();
+      )
+      .collect();
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { scripts },
-      };
-    } catch (error) {
-      return handleInternalError(error);
-    }
+    return scripts;
   },
 });
 
@@ -63,41 +49,35 @@ export const getActiveScriptsAndVariablesByCompanyId = query({
   handler: async (
     ctx,
     args
-  ): Promise<GetActiveScriptsAndVariablesByCompanyIdResponse> => {
+  ): Promise<{ scripts: Doc<"scripts">[]; variables: Doc<"variables">[] }> => {
     const { companyId } = args;
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-        ClerkRoles.SALES_REP,
-      ]);
 
-      const company = await ctx.db.get(companyId);
-      const validatedCompany = validateCompany(company);
-      isUserInOrg(identity, validatedCompany.clerkOrganizationId);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+      ClerkRoles.SALES_REP,
+    ]);
 
-      const scripts: Doc<"scripts">[] = await ctx.db
-        .query("scripts")
-        .filter((q) =>
-          q.and(
-            q.eq(q.field("companyId"), validatedCompany._id),
-            q.eq(q.field("isActive"), true)
-          )
+    const company = await ctx.db.get(companyId);
+    const validatedCompany = validateCompany(company);
+    isUserInOrg(identity, validatedCompany.clerkOrganizationId);
+
+    const scripts: Doc<"scripts">[] = await ctx.db
+      .query("scripts")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("companyId"), validatedCompany._id),
+          q.eq(q.field("isActive"), true)
         )
-        .collect();
+      )
+      .collect();
 
-      const variables: Doc<"variables">[] = await ctx.db
-        .query("variables")
-        .filter((q) => q.eq(q.field("companyId"), validatedCompany._id))
-        .collect();
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { scripts, variables },
-      };
-    } catch (error) {
-      return handleInternalError(error);
-    }
+    const variables: Doc<"variables">[] = await ctx.db
+      .query("variables")
+      .filter((q) => q.eq(q.field("companyId"), validatedCompany._id))
+      .collect();
+    return { scripts, variables };
   },
 });
 
@@ -109,54 +89,43 @@ export const createScript = mutation({
     message: v.string(),
     emailTitle: v.optional(v.string()),
   },
-  handler: async (ctx, args): Promise<CreateScriptResponse> => {
+  handler: async (ctx, args): Promise<Id<"scripts">> => {
     const { companyId, title, type, message, emailTitle } = args;
 
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-      ]);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+    ]);
 
-      const company = await ctx.db.get(companyId);
-      const validatedCompany = validateCompany(company);
-      isUserInOrg(identity, validatedCompany.clerkOrganizationId);
+    const company = await ctx.db.get(companyId);
+    const validatedCompany = validateCompany(company);
+    isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
-      const existingScript = await checkExistingScript(
-        ctx,
-        companyId,
-        title,
-        type
-      );
-      if (existingScript) {
-        throw new Error(ErrorMessages.SCRIPT_WITH_TITLE_EXITS);
-      }
-      validateScriptFields(type, emailTitle);
-
-      const scriptId = await ctx.db.insert("scripts", {
-        companyId,
-        title,
-        type,
-        message,
-        isActive: true,
-        emailTitle,
+    const existingScript = await checkExistingScript(
+      ctx,
+      companyId,
+      title,
+      type
+    );
+    if (existingScript) {
+      throw new ConvexError({
+        code: "BAD_REQUEST",
+        message: ErrorMessages.SCRIPT_WITH_TITLE_EXITS,
       });
-
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { scriptId },
-      };
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
-      console.error(errorMessage, error);
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error: errorMessage,
-      };
     }
+    validateScriptFields(type, emailTitle);
+
+    const scriptId = await ctx.db.insert("scripts", {
+      companyId,
+      title,
+      type,
+      message,
+      isActive: true,
+      emailTitle,
+    });
+
+    return scriptId;
   },
 });
 
@@ -170,63 +139,52 @@ export const updateScript = mutation({
       emailTitle: v.optional(v.string()),
     }),
   },
-  handler: async (ctx, args): Promise<UpdateScriptResponse> => {
+  handler: async (ctx, args): Promise<Id<"scripts">> => {
     const { scriptId, updates } = args;
 
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-      ]);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+    ]);
 
-      const script = await ctx.db.get(scriptId);
-      const validatedScript = validateScript(script);
+    const script = await ctx.db.get(scriptId);
+    const validatedScript = validateScript(script);
 
-      const company = await ctx.db.get(validatedScript.companyId);
-      const validatedCompany = validateCompany(company);
-      isUserInOrg(identity, validatedCompany.clerkOrganizationId);
+    const company = await ctx.db.get(validatedScript.companyId);
+    const validatedCompany = validateCompany(company);
+    isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
-      if (updates.title || updates.type) {
-        const newTitle = updates.title ?? validatedScript.title;
-        const newType = updates.type ?? validatedScript.type;
+    if (updates.title || updates.type) {
+      const newTitle = updates.title ?? validatedScript.title;
+      const newType = updates.type ?? validatedScript.type;
 
-        const scriptExists = await checkExistingScript(
-          ctx,
-          validatedScript.companyId,
-          newTitle,
-          newType,
-          scriptId
-        );
+      const scriptExists = await checkExistingScript(
+        ctx,
+        validatedScript.companyId,
+        newTitle,
+        newType,
+        scriptId
+      );
 
-        if (scriptExists) {
-          throw new Error(ErrorMessages.SCRIPT_WITH_TITLE_EXITS);
-        }
+      if (scriptExists) {
+        throw new ConvexError({
+          code: "BAD_REQUEST",
+          message: ErrorMessages.SCRIPT_WITH_TITLE_EXITS,
+        });
       }
-
-      const finalType = updates.type ?? validatedScript.type;
-      const finalEmailTitle = updates.emailTitle ?? validatedScript.emailTitle;
-      validateScriptFields(finalType, finalEmailTitle);
-
-      await ctx.db.patch(scriptId, {
-        ...updates,
-        emailTitle: finalType === "email" ? finalEmailTitle : undefined,
-      });
-
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { scriptId },
-      };
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR;
-      console.error(errorMessage, error);
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error: errorMessage,
-      };
     }
+
+    const finalType = updates.type ?? validatedScript.type;
+    const finalEmailTitle = updates.emailTitle ?? validatedScript.emailTitle;
+    validateScriptFields(finalType, finalEmailTitle);
+
+    await ctx.db.patch(scriptId, {
+      ...updates,
+      emailTitle: finalType === "email" ? finalEmailTitle : undefined,
+    });
+
+    return scriptId;
   },
 });
 
@@ -234,40 +192,31 @@ export const deleteScript = mutation({
   args: {
     scriptId: v.id("scripts"),
   },
-  handler: async (ctx, args): Promise<DeleteScriptResponse> => {
+  handler: async (ctx, args): Promise<Id<"scripts">> => {
     const { scriptId } = args;
 
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-      ]);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+    ]);
 
-      const script = await ctx.db.get(scriptId);
-      const validatedScript = validateScript(script, true, true);
+    const script = await ctx.db.get(scriptId);
+    const validatedScript = validateScript(script, true, true);
 
-      if (validatedScript.preSetTypes) {
-        throw new Error(ErrorMessages.SCRIPT_PRESET_CANNOT_BE_DELETED);
-      }
-
-      const company = await ctx.db.get(validatedScript.companyId);
-      const validatedCompany = validateCompany(company);
-      isUserInOrg(identity, validatedCompany.clerkOrganizationId);
-
-      await ctx.db.patch(scriptId, { isActive: false });
-
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { scriptId },
-      };
-    } catch (error) {
-      console.error(error);
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error: ErrorMessages.GENERIC_ERROR,
-      };
+    if (validatedScript.preSetTypes) {
+      throw new ConvexError({
+        code: "BAD_REQUEST",
+        message: ErrorMessages.SCRIPT_PRESET_CANNOT_BE_DELETED,
+      });
     }
+
+    const company = await ctx.db.get(validatedScript.companyId);
+    const validatedCompany = validateCompany(company);
+    isUserInOrg(identity, validatedCompany.clerkOrganizationId);
+
+    await ctx.db.patch(scriptId, { isActive: false });
+
+    return scriptId;
   },
 });

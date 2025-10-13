@@ -1,35 +1,15 @@
 import { api } from "@/convex/_generated/api";
 import { useQuery } from "convex/react";
-import { Id } from "@/convex/_generated/dataModel";
-import { ResponseStatus } from "@/types/enums";
-import { GetCompanyContactData } from "@/types/convex-responses";
-
-interface UseCompanyContactResult {
-  data?: GetCompanyContactData | null;
-  isLoading: boolean;
-  isError: boolean;
-  errorMessage: string | null;
-}
+import { Doc, Id } from "@/convex/_generated/dataModel";
 
 export const useCompanyContact = (
   companyId: Id<"companies">,
   { enabled = true }: { enabled?: boolean } = {}
-): UseCompanyContactResult => {
+): Doc<"companyContact"> | undefined => {
   const response = useQuery(
     api.companyContact.getCompanyContact,
     enabled ? { companyId } : "skip"
   );
 
-  const isLoading = response === undefined;
-  const isError = response?.status === ResponseStatus.ERROR;
-  const data = response?.data;
-
-  return {
-    data,
-    isLoading,
-    isError,
-    errorMessage: isError
-      ? (response?.error ?? "Failed to load company contact.")
-      : null,
-  };
+  return response;
 };

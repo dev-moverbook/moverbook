@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { ResponseStatus, TravelChargingTypes } from "@/types/enums";
-import { FrontEndErrorMessages } from "@/types/errors";
+import { TravelChargingTypes } from "@/types/enums";
 import { Id } from "@/convex/_generated/dataModel";
+import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
 interface UpdateTravelFeeData {
   mileageRate?: number;
@@ -32,16 +32,9 @@ export const useUpdateTravelFee = () => {
     try {
       const response = await updateTravelFeeMutation({ travelFeeId, updates });
 
-      if (response.status === ResponseStatus.SUCCESS) {
-        return true;
-      }
-
-      console.error(response.error);
-      setUpdateTravelFeeError(response.error);
-      return false;
+      return true;
     } catch (error) {
-      console.error(FrontEndErrorMessages.GENERIC, error);
-      setUpdateTravelFeeError(FrontEndErrorMessages.GENERIC);
+      setErrorFromConvexError(error, setUpdateTravelFeeError);
       return false;
     } finally {
       setUpdateTravelFeeLoading(false);

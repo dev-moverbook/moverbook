@@ -1,4 +1,3 @@
-// app/app/[slug]/moves/components/nav/CalendarNav.tsx
 "use client";
 
 import { isMover } from "@/app/frontendUtils/permissions";

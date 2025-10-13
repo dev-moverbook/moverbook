@@ -1,5 +1,5 @@
 import { mutation, query } from "./_generated/server";
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import {
   isUserInOrg,
@@ -8,17 +8,15 @@ import {
   validateMoveAssignment,
   validateUser,
 } from "./backendUtils/validate";
-import { handleInternalError } from "./backendUtils/helper";
-import { ClerkRoles, ResponseStatus } from "@/types/enums";
+import { ClerkRoles } from "@/types/enums";
 import { HourStatusConvex } from "./schema";
 import {
-  CreateMoveAssignmentResponse,
-  GetMoveAssignmentsPageResponse,
-  GetMoveAssignmentsResponse,
-  GetMovePageForMoverResponse,
-  UpdateMoveAssignmentResponse,
+  EnrichedMoveAssignment,
+  GetMoveAssignmentsPageData,
+  GetMovePageForMoverLeadData,
+  GetMovePageForMoverMemberData,
 } from "@/types/convex-responses";
-import { Doc } from "./_generated/dataModel";
+import { Doc, Id } from "./_generated/dataModel";
 import { computeApprovedPayout } from "./backendUtils/calculations";
 import { buildMoverWageForMoveDisplay } from "./backendUtils/queryHelpers";
 
@@ -38,34 +36,27 @@ export const updateMoveAssignment = mutation({
   handler: async (
     ctx,
     { assignmentId, updates }
-  ): Promise<UpdateMoveAssignmentResponse> => {
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-        ClerkRoles.SALES_REP,
-        ClerkRoles.MOVER,
-      ]);
+  ): Promise<Id<"moveAssignments">> => {
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+      ClerkRoles.SALES_REP,
+      ClerkRoles.MOVER,
+    ]);
 
-      const assignment = validateMoveAssignment(await ctx.db.get(assignmentId));
-      const move = validateMove(await ctx.db.get(assignment.moveId));
-      const company = validateCompany(await ctx.db.get(move.companyId));
-      isUserInOrg(identity, company.clerkOrganizationId);
+    const assignment = validateMoveAssignment(await ctx.db.get(assignmentId));
+    const move = validateMove(await ctx.db.get(assignment.moveId));
+    const company = validateCompany(await ctx.db.get(move.companyId));
+    isUserInOrg(identity, company.clerkOrganizationId);
 
-      if (updates.endTime !== undefined) {
-        updates.hourStatus = "pending";
-      }
-
-      await ctx.db.patch(assignmentId, updates);
-
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { assignmentId },
-      };
-    } catch (error) {
-      return handleInternalError(error);
+    if (updates.endTime !== undefined) {
+      updates.hourStatus = "pending";
     }
+
+    await ctx.db.patch(assignmentId, updates);
+
+    return assignmentId;
   },
 });
 
@@ -81,49 +72,42 @@ export const updateMoveAssignmentHours = mutation({
   handler: async (
     ctx,
     { assignmentId, updates }
-  ): Promise<UpdateMoveAssignmentResponse> => {
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [ClerkRoles.MOVER]);
+  ): Promise<Id<"moveAssignments">> => {
+    const identity = await requireAuthenticatedUser(ctx, [ClerkRoles.MOVER]);
 
-      const assignment = validateMoveAssignment(await ctx.db.get(assignmentId));
+    const assignment = validateMoveAssignment(await ctx.db.get(assignmentId));
 
-      const move = validateMove(await ctx.db.get(assignment.moveId));
-      const company = validateCompany(await ctx.db.get(move.companyId));
-      isUserInOrg(identity, company.clerkOrganizationId);
+    const move = validateMove(await ctx.db.get(assignment.moveId));
+    const company = validateCompany(await ctx.db.get(move.companyId));
+    isUserInOrg(identity, company.clerkOrganizationId);
 
-      type AssignmentPatch = Partial<
-        Pick<
-          Doc<"moveAssignments">,
-          "startTime" | "endTime" | "breakAmount" | "hourStatus"
-        >
-      >;
+    type AssignmentPatch = Partial<
+      Pick<
+        Doc<"moveAssignments">,
+        "startTime" | "endTime" | "breakAmount" | "hourStatus"
+      >
+    >;
 
-      const nextStart =
-        typeof updates.startTime === "number"
-          ? updates.startTime
-          : assignment.startTime;
-      const nextEnd =
-        typeof updates.endTime === "number"
-          ? updates.endTime
-          : assignment.endTime;
+    const nextStart =
+      typeof updates.startTime === "number"
+        ? updates.startTime
+        : assignment.startTime;
+    const nextEnd =
+      typeof updates.endTime === "number"
+        ? updates.endTime
+        : assignment.endTime;
 
-      const hasAnyTime =
-        typeof nextStart === "number" && typeof nextEnd === "number";
+    const hasAnyTime =
+      typeof nextStart === "number" && typeof nextEnd === "number";
 
-      const patch: AssignmentPatch = { ...updates };
-      if (hasAnyTime) {
-        patch.hourStatus = "pending";
-      }
-
-      await ctx.db.patch(assignmentId, patch);
-
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { assignmentId },
-      };
-    } catch (error) {
-      return handleInternalError(error);
+    const patch: AssignmentPatch = { ...updates };
+    if (hasAnyTime) {
+      patch.hourStatus = "pending";
     }
+
+    await ctx.db.patch(assignmentId, patch);
+
+    return assignmentId;
   },
 });
 
@@ -136,34 +120,27 @@ export const insertMoveAssignment = mutation({
   handler: async (
     ctx,
     { moveId, moverId, isLead }
-  ): Promise<CreateMoveAssignmentResponse> => {
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-        ClerkRoles.SALES_REP,
-      ]);
+  ): Promise<Id<"moveAssignments">> => {
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+      ClerkRoles.SALES_REP,
+    ]);
 
-      const move = validateMove(await ctx.db.get(moveId));
-      const company = validateCompany(await ctx.db.get(move.companyId));
-      isUserInOrg(identity, company.clerkOrganizationId);
+    const move = validateMove(await ctx.db.get(moveId));
+    const company = validateCompany(await ctx.db.get(move.companyId));
+    isUserInOrg(identity, company.clerkOrganizationId);
 
-      const assignmentId = await ctx.db.insert("moveAssignments", {
-        moveId,
-        moverId,
-        isLead,
-        hourStatus: "incomplete",
-        breakAmount: 0,
-      });
+    const assignmentId = await ctx.db.insert("moveAssignments", {
+      moveId,
+      moverId,
+      isLead,
+      hourStatus: "incomplete",
+      breakAmount: 0,
+    });
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { assignmentId },
-      };
-    } catch (error) {
-      return handleInternalError(error);
-    }
+    return assignmentId;
   },
 });
 
@@ -171,58 +148,51 @@ export const getMoveAssignmentsPage = query({
   args: {
     moveId: v.id("move"),
   },
-  handler: async (ctx, { moveId }): Promise<GetMoveAssignmentsPageResponse> => {
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-        ClerkRoles.SALES_REP,
-      ]);
+  handler: async (ctx, { moveId }): Promise<GetMoveAssignmentsPageData> => {
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+      ClerkRoles.SALES_REP,
+    ]);
 
-      const move = validateMove(await ctx.db.get(moveId));
-      const company = validateCompany(await ctx.db.get(move.companyId));
-      isUserInOrg(identity, company.clerkOrganizationId);
+    const move = validateMove(await ctx.db.get(moveId));
+    const company = validateCompany(await ctx.db.get(move.companyId));
+    isUserInOrg(identity, company.clerkOrganizationId);
 
-      const assignments: Doc<"moveAssignments">[] = await ctx.db
-        .query("moveAssignments")
-        .withIndex("by_move", (q) => q.eq("moveId", moveId))
-        .collect();
+    const assignments: Doc<"moveAssignments">[] = await ctx.db
+      .query("moveAssignments")
+      .withIndex("by_move", (q) => q.eq("moveId", moveId))
+      .collect();
 
-      const users = await ctx.db
-        .query("users")
-        .filter((q) => q.eq(q.field("companyId"), company._id))
-        .filter((q) => q.eq(q.field("isActive"), true))
-        .collect();
+    const users = await ctx.db
+      .query("users")
+      .filter((q) => q.eq(q.field("companyId"), company._id))
+      .filter((q) => q.eq(q.field("isActive"), true))
+      .collect();
 
-      const sortedUsers = users.sort((a, b) => a.name.localeCompare(b.name));
-      const allMovers = sortedUsers.filter(
-        (user) => user.role === ClerkRoles.MOVER
-      );
+    const sortedUsers = users.sort((a, b) => a.name.localeCompare(b.name));
+    const allMovers = sortedUsers.filter(
+      (user) => user.role === ClerkRoles.MOVER
+    );
 
-      const preMoveDoc: Doc<"preMoveDocs"> | null = await ctx.db
-        .query("preMoveDocs")
+    const preMoveDoc: Doc<"preMoveDocs"> | null = await ctx.db
+      .query("preMoveDocs")
+      .withIndex("by_move", (q) => q.eq("moveId", moveId))
+      .unique();
+
+    const additionalLiabilityCoverage: Doc<"additionalLiabilityCoverage"> | null =
+      await ctx.db
+        .query("additionalLiabilityCoverage")
         .withIndex("by_move", (q) => q.eq("moveId", moveId))
         .unique();
 
-      const additionalLiabilityCoverage: Doc<"additionalLiabilityCoverage"> | null =
-        await ctx.db
-          .query("additionalLiabilityCoverage")
-          .withIndex("by_move", (q) => q.eq("moveId", moveId))
-          .unique();
-
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: {
-          assignments,
-          allMovers,
-          preMoveDoc,
-          additionalLiabilityCoverage,
-        },
-      };
-    } catch (error) {
-      return handleInternalError(error);
-    }
+    return {
+      assignments,
+      allMovers,
+      preMoveDoc,
+      additionalLiabilityCoverage,
+    };
   },
 });
 
@@ -230,83 +200,79 @@ export const getMovePageForMover = query({
   args: {
     moveId: v.id("move"),
   },
-  handler: async (ctx, { moveId }): Promise<GetMovePageForMoverResponse> => {
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [ClerkRoles.MOVER]);
+  handler: async (
+    ctx,
+    { moveId }
+  ): Promise<GetMovePageForMoverMemberData | GetMovePageForMoverLeadData> => {
+    const identity = await requireAuthenticatedUser(ctx, [ClerkRoles.MOVER]);
 
-      const move = validateMove(await ctx.db.get(moveId));
-      const company = validateCompany(await ctx.db.get(move.companyId));
-      isUserInOrg(identity, company.clerkOrganizationId);
+    const move = validateMove(await ctx.db.get(moveId));
+    const company = validateCompany(await ctx.db.get(move.companyId));
+    isUserInOrg(identity, company.clerkOrganizationId);
 
-      const user = validateUser(
-        await ctx.db
-          .query("users")
-          .filter((q) => q.eq(q.field("clerkUserId"), identity.id))
-          .first()
-      );
+    const user = validateUser(
+      await ctx.db
+        .query("users")
+        .filter((q) => q.eq(q.field("clerkUserId"), identity.id))
+        .first()
+    );
 
-      const assignment: Doc<"moveAssignments"> = validateMoveAssignment(
-        await ctx.db
-          .query("moveAssignments")
-          .withIndex("by_move", (q) => q.eq("moveId", moveId))
-          .filter((q) => q.eq(q.field("moverId"), user._id))
-          .first()
-      );
+    const assignment: Doc<"moveAssignments"> = validateMoveAssignment(
+      await ctx.db
+        .query("moveAssignments")
+        .withIndex("by_move", (q) => q.eq("moveId", moveId))
+        .filter((q) => q.eq(q.field("moverId"), user._id))
+        .first()
+    );
 
-      if (!assignment.isLead) {
-        return {
-          status: ResponseStatus.SUCCESS,
-          data: { isLead: false, assignment },
-        };
-      }
+    if (!assignment.isLead) {
+      return {
+        isLead: false,
+        assignment,
+      };
+    }
 
-      const preMoveDoc: Doc<"preMoveDocs"> | null = await ctx.db
-        .query("preMoveDocs")
+    const preMoveDoc: Doc<"preMoveDocs"> | null = await ctx.db
+      .query("preMoveDocs")
+      .withIndex("by_move", (q) => q.eq("moveId", moveId))
+      .unique();
+
+    const discounts: Doc<"discounts">[] = await ctx.db
+      .query("discounts")
+      .withIndex("by_move", (q) => q.eq("moveId", moveId))
+      .collect();
+
+    const additionalFees: Doc<"additionalFees">[] = await ctx.db
+      .query("additionalFees")
+      .withIndex("by_move", (q) => q.eq("moveId", moveId))
+      .collect();
+
+    const invoice: Doc<"invoices"> | null = await ctx.db
+      .query("invoices")
+      .withIndex("by_move", (q) => q.eq("moveId", moveId))
+      .first();
+
+    const additionalLiabilityCoverage: Doc<"additionalLiabilityCoverage"> | null =
+      await ctx.db
+        .query("additionalLiabilityCoverage")
         .withIndex("by_move", (q) => q.eq("moveId", moveId))
         .unique();
 
-      const discounts: Doc<"discounts">[] = await ctx.db
-        .query("discounts")
-        .withIndex("by_move", (q) => q.eq("moveId", moveId))
-        .collect();
+    const fees: Doc<"fees">[] = await ctx.db
+      .query("fees")
+      .withIndex("byCompanyId", (q) => q.eq("companyId", company._id))
+      .collect();
 
-      const additionalFees: Doc<"additionalFees">[] = await ctx.db
-        .query("additionalFees")
-        .withIndex("by_move", (q) => q.eq("moveId", moveId))
-        .collect();
-
-      const invoice: Doc<"invoices"> | null = await ctx.db
-        .query("invoices")
-        .withIndex("by_move", (q) => q.eq("moveId", moveId))
-        .first();
-
-      const additionalLiabilityCoverage: Doc<"additionalLiabilityCoverage"> | null =
-        await ctx.db
-          .query("additionalLiabilityCoverage")
-          .withIndex("by_move", (q) => q.eq("moveId", moveId))
-          .unique();
-
-      const fees: Doc<"fees">[] = await ctx.db
-        .query("fees")
-        .withIndex("byCompanyId", (q) => q.eq("companyId", company._id))
-        .collect();
-
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: {
-          isLead: true,
-          assignment,
-          preMoveDoc,
-          discounts,
-          additionalFees,
-          invoice,
-          additionalLiabilityCoverage,
-          fees,
-        },
-      };
-    } catch (error) {
-      return handleInternalError(error);
-    }
+    return {
+      isLead: true,
+      assignment,
+      preMoveDoc,
+      discounts,
+      additionalFees,
+      invoice,
+      additionalLiabilityCoverage,
+      fees,
+    };
   },
 });
 
@@ -314,49 +280,38 @@ export const getMoveAssignments = query({
   args: {
     moveId: v.id("move"),
   },
-  handler: async (ctx, { moveId }): Promise<GetMoveAssignmentsResponse> => {
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-      ]);
+  handler: async (ctx, { moveId }): Promise<EnrichedMoveAssignment[]> => {
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+    ]);
 
-      const move = validateMove(await ctx.db.get(moveId));
-      const company = validateCompany(await ctx.db.get(move.companyId));
-      isUserInOrg(identity, company.clerkOrganizationId);
+    const move = validateMove(await ctx.db.get(moveId));
+    const company = validateCompany(await ctx.db.get(move.companyId));
+    isUserInOrg(identity, company.clerkOrganizationId);
 
-      const assignments = await ctx.db
-        .query("moveAssignments")
-        .withIndex("by_move", (q) => q.eq("moveId", moveId))
-        .collect();
+    const assignments = await ctx.db
+      .query("moveAssignments")
+      .withIndex("by_move", (q) => q.eq("moveId", moveId))
+      .collect();
 
-      const enrichedAssignments = await Promise.all(
-        assignments.map(async (assignment) => {
-          const mover = validateUser(await ctx.db.get(assignment.moverId));
-          const hourlyRate = mover?.hourlyRate ?? null;
-          const wage = buildMoverWageForMoveDisplay(
-            move,
-            assignment,
-            hourlyRate
-          );
-          return {
-            ...assignment,
-            moverName: mover.name,
-            hourlyRate,
-            pendingHours: wage.pendingHours,
-            pendingPayout: wage.pendingPayout,
-          };
-        })
-      );
+    const enrichedAssignments = await Promise.all(
+      assignments.map(async (assignment) => {
+        const mover = validateUser(await ctx.db.get(assignment.moverId));
+        const hourlyRate = mover?.hourlyRate ?? null;
+        const wage = buildMoverWageForMoveDisplay(move, assignment, hourlyRate);
+        return {
+          ...assignment,
+          moverName: mover.name,
+          hourlyRate,
+          pendingHours: wage.pendingHours,
+          pendingPayout: wage.pendingPayout,
+        };
+      })
+    );
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { assignments: enrichedAssignments },
-      };
-    } catch (error) {
-      return handleInternalError(error);
-    }
+    return enrichedAssignments;
   },
 });
 
@@ -371,50 +326,45 @@ export const approveMoveAssignmentHours = mutation({
   handler: async (
     ctx,
     { assignmentId, updates }
-  ): Promise<UpdateMoveAssignmentResponse> => {
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-      ]);
+  ): Promise<Id<"moveAssignments">> => {
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+    ]);
 
-      const assignment = validateMoveAssignment(await ctx.db.get(assignmentId));
-      const move = validateMove(await ctx.db.get(assignment.moveId));
-      const company = validateCompany(await ctx.db.get(move.companyId));
-      isUserInOrg(identity, company.clerkOrganizationId);
+    const assignment = validateMoveAssignment(await ctx.db.get(assignmentId));
+    const move = validateMove(await ctx.db.get(assignment.moveId));
+    const company = validateCompany(await ctx.db.get(move.companyId));
+    isUserInOrg(identity, company.clerkOrganizationId);
 
-      if (updates.hourStatus === "approved") {
-        if (
-          typeof assignment.startTime !== "number" ||
-          typeof assignment.endTime !== "number"
-        ) {
-          throw new Error("Start and end times are required to approve hours.");
-        }
-
-        const mover = await ctx.db.get(assignment.moverId);
-        const { hours, pay } = computeApprovedPayout({
-          startTime: assignment.startTime,
-          endTime: assignment.endTime,
-          breakAmount: assignment.breakAmount ?? 0,
-          hourlyRate: mover?.hourlyRate ?? 0,
+    if (updates.hourStatus === "approved") {
+      if (
+        typeof assignment.startTime !== "number" ||
+        typeof assignment.endTime !== "number"
+      ) {
+        throw new ConvexError({
+          code: "BAD_REQUEST",
+          message: "Start and end times are required to approve hours.",
         });
-
-        await ctx.db.patch(assignmentId, {
-          ...updates,
-          approvedHours: hours,
-          approvedPay: pay,
-        });
-      } else {
-        await ctx.db.patch(assignmentId, updates);
       }
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { assignmentId },
-      };
-    } catch (error) {
-      return handleInternalError(error);
+      const mover = await ctx.db.get(assignment.moverId);
+      const { hours, pay } = computeApprovedPayout({
+        startTime: assignment.startTime,
+        endTime: assignment.endTime,
+        breakAmount: assignment.breakAmount ?? 0,
+        hourlyRate: mover?.hourlyRate ?? 0,
+      });
+
+      await ctx.db.patch(assignmentId, {
+        ...updates,
+        approvedHours: hours,
+        approvedPay: pay,
+      });
+    } else {
+      await ctx.db.patch(assignmentId, updates);
     }
+    return assignmentId;
   },
 });

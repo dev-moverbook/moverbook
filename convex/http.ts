@@ -1,15 +1,6 @@
 import { httpRouter } from "convex/server";
 import { httpAction } from "./_generated/server";
 import { internal } from "./_generated/api";
-import {
-  ClerkRoles,
-  InvitationStatus,
-  UserRole,
-  StripeAccountStatus,
-} from "@/types/enums";
-import { validateCompany } from "./backendUtils/validate";
-import { stripe } from "./backendUtils/stripe";
-import Stripe from "stripe";
 import { WebhookHandlerResponse } from "@/types/convex-responses";
 import {
   handleOrganizationInvitationAccepted,

@@ -11,7 +11,7 @@ const MoveLineItemsSection = () => {
   const move = moveData.move;
   const { updateMove, updateMoveError, updateMoveLoading } = useUpdateMove();
 
-  const { data: companyFees } = useCompanyFees(move.companyId);
+  const companyFees = useCompanyFees(move.companyId);
 
   const handleAddMoveFee = (fee: MoveFeeInput) => {
     updateMove({
@@ -42,7 +42,7 @@ const MoveLineItemsSection = () => {
       onAdd={handleAddMoveFee}
       onUpdate={handleUpdateMoveFee}
       onDelete={handleDeleteMoveFee}
-      moveFeeOptions={companyFees?.fees ?? []}
+      moveFeeOptions={companyFees ?? []}
       isLoading={updateMoveLoading}
       errorMessage={updateMoveError}
     />

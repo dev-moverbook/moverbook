@@ -24,7 +24,7 @@ const InternalNotesSection = () => {
   const [formData, setFormData] = useState<InternalNotesFormData>({
     notes: move.notes,
     moveStatus: move.moveStatus,
-    salesRep: move.salesRep, // stores user id
+    salesRep: move.salesRep,
   });
 
   const handleEditClick = () => setIsEditing(true);
@@ -65,20 +65,18 @@ const InternalNotesSection = () => {
             placeholder="Add internal notes here"
           />
 
-          {/* Sales Rep (fetches internally) */}
           <SalesRepSelect
             companyId={move.companyId}
             label="Sales Rep"
             valueId={formData.salesRep}
             onChangeId={(id) => {
-              if (!id) return; // salesRep is non-nullable; ignore clear
+              if (!id) return;
               setFormData((prev) => ({ ...prev, salesRep: id as Id<"users"> }));
             }}
             isEditing={isEditing}
             placeholder="Select a sales rep"
           />
 
-          {/* Move Status */}
           <SelectFieldRow
             label="Move Status"
             name="status"

@@ -1,4 +1,3 @@
-// components/summary/ViewSummary.tsx
 "use client";
 
 import { EnrichedMoveAssignment } from "@/types/convex-responses";
@@ -21,7 +20,7 @@ const ViewSummary = ({ assignments }: ViewSummaryProps) => {
   const handleApproveHours = async (
     assignmentId: Id<"moveAssignments">
   ): Promise<boolean> => {
-    const { success } = await approveMoveAssignmentHours({
+    const success = await approveMoveAssignmentHours({
       assignmentId,
       updates: { hourStatus: "approved", managerNotes: "" },
     });
@@ -32,7 +31,7 @@ const ViewSummary = ({ assignments }: ViewSummaryProps) => {
     assignmentId: Id<"moveAssignments">,
     notes: string
   ): Promise<boolean> => {
-    const { success } = await approveMoveAssignmentHours({
+    const success = await approveMoveAssignmentHours({
       assignmentId,
       updates: { hourStatus: "rejected", managerNotes: notes },
     });

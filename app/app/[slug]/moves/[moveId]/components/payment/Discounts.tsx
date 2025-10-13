@@ -57,7 +57,7 @@ const Discounts = ({ discounts, moveId }: DiscountsProps) => {
         name,
         price,
       });
-      if (response.success) {
+      if (response) {
         handleCloseDiscountModal();
       }
     } else {
@@ -68,7 +68,7 @@ const Discounts = ({ discounts, moveId }: DiscountsProps) => {
           price,
         },
       });
-      if (response.success) {
+      if (response) {
         handleCloseDiscountModal();
       }
     }
@@ -112,7 +112,7 @@ const Discounts = ({ discounts, moveId }: DiscountsProps) => {
         isActive: false,
       },
     });
-    if (response.success) {
+    if (response) {
       handleCloseDeleteModal();
     }
   };

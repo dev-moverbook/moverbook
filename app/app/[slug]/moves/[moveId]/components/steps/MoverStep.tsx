@@ -1,7 +1,5 @@
 import React from "react";
-import ErrorComponent from "@/app/components/shared/ErrorComponent";
 import { useMoveContext } from "@/app/contexts/MoveContext";
-import { QueryStatus } from "@/types/enums";
 import { useMovePageForMover } from "@/app/hooks/queries/movers/useMovePageForMover";
 import ViewMoverSection from "../section/ViewMoverSection";
 
@@ -11,34 +9,27 @@ const MoverStep = () => {
 
   const result = useMovePageForMover(move._id);
 
-  switch (result.status) {
-    case QueryStatus.LOADING:
+  switch (result) {
+    case undefined:
       return null;
-    case QueryStatus.ERROR:
-      return <ErrorComponent message={result.errorMessage} />;
-    case QueryStatus.SUCCESS: {
-      const isLead = result.data.isLead;
+    default:
+      const isLead = result.isLead;
 
       if (isLead) {
         return (
           <ViewMoverSection
-            preMoveDoc={result.data.preMoveDoc}
-            discounts={result.data.discounts}
-            additionalFees={result.data.additionalFees}
-            invoice={result.data.invoice}
-            additionalLiabilityCoverage={
-              result.data.additionalLiabilityCoverage
-            }
-            fees={result.data.fees}
-            assignment={result.data.assignment}
+            preMoveDoc={result.preMoveDoc}
+            discounts={result.discounts}
+            additionalFees={result.additionalFees}
+            invoice={result.invoice}
+            additionalLiabilityCoverage={result.additionalLiabilityCoverage}
+            fees={result.fees}
+            assignment={result.assignment}
           />
         );
       } else {
         return null;
       }
-    }
-    default:
-      return null;
   }
 };
 

@@ -18,12 +18,8 @@ import {
 } from "./backendUtils/validate";
 import { internal } from "./_generated/api";
 import {
-  GetAllUsersByCompanyIdResponse,
   GetMoversByCompanyIdResponse,
-  GetSalesRepsAndReferralByCompanyIdResponse,
-  GetSalesRepsByCompanyIdResponse,
-  GetUserByClerkIdResponse,
-  GetUserByIdResponse,
+  GetSalesRepsAndReferralByCompanyIdData,
   UpdateUserActiveStatusResponse,
   UpdateUserResponse,
 } from "@/types/convex-responses";
@@ -57,30 +53,24 @@ export const getAllUsersByCompanyId = query({
     companyId: v.id("companies"),
     isActive: v.boolean(),
   },
-  handler: async (ctx, args): Promise<GetAllUsersByCompanyIdResponse> => {
+  handler: async (ctx, args): Promise<Doc<"users">[]> => {
     const { companyId, isActive } = args;
-    try {
-      const identity = await requireAuthenticatedUser(ctx);
 
-      const company = await ctx.db.get(companyId);
+    const identity = await requireAuthenticatedUser(ctx);
 
-      const validatedCompany = validateCompany(company);
+    const company = await ctx.db.get(companyId);
 
-      isUserInOrg(identity, validatedCompany.clerkOrganizationId);
+    const validatedCompany = validateCompany(company);
 
-      const users: Doc<"users">[] = await ctx.db
-        .query("users")
-        .filter((q) => q.eq(q.field("companyId"), validatedCompany._id))
-        .filter((q) => q.eq(q.field("isActive"), isActive))
-        .collect();
+    isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { users },
-      };
-    } catch (error) {
-      return handleInternalError(error);
-    }
+    const users: Doc<"users">[] = await ctx.db
+      .query("users")
+      .filter((q) => q.eq(q.field("companyId"), validatedCompany._id))
+      .filter((q) => q.eq(q.field("isActive"), isActive))
+      .collect();
+
+    return users;
   },
 });
 
@@ -113,12 +103,8 @@ export const getUserByIdInternal = internalQuery({
   },
   handler: async (ctx, args): Promise<Doc<"users"> | null> => {
     const { userId } = args;
-    try {
-      return await ctx.db.get(userId);
-    } catch (error) {
-      console.error(ErrorMessages.USER_DB_QUERY_BY_ID, error);
-      throw new Error(ErrorMessages.USER_DB_QUERY_BY_ID);
-    }
+
+    return await ctx.db.get(userId);
   },
 });
 
@@ -126,25 +112,19 @@ export const getUserById = query({
   args: {
     userId: v.id("users"),
   },
-  handler: async (ctx, args): Promise<GetUserByIdResponse> => {
+  handler: async (ctx, args): Promise<Doc<"users">> => {
     const { userId } = args;
-    try {
-      const identity = await requireAuthenticatedUser(ctx);
-      const user = await ctx.db.get(userId);
-      const validatedUser = validateUser(user, false, true);
 
-      const company = await ctx.db.get(validatedUser.companyId!);
-      const validatedCompany = validateCompany(company);
+    const identity = await requireAuthenticatedUser(ctx);
+    const user = await ctx.db.get(userId);
+    const validatedUser = validateUser(user, false, true);
 
-      isUserInOrg(identity, validatedCompany.clerkOrganizationId);
+    const company = await ctx.db.get(validatedUser.companyId!);
+    const validatedCompany = validateCompany(company);
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { user: validatedUser },
-      };
-    } catch (error) {
-      return handleInternalError(error);
-    }
+    isUserInOrg(identity, validatedCompany.clerkOrganizationId);
+
+    return validatedUser;
   },
 });
 
@@ -171,24 +151,19 @@ export const createUser = internalMutation({
       imageUrl,
     } = args;
 
-    try {
-      const userId = await ctx.db.insert("users", {
-        clerkUserId,
-        email,
-        name,
-        role,
-        companyId,
-        customerId,
-        hourlyRate,
-        imageUrl,
-        isActive: true,
-      });
+    const userId = await ctx.db.insert("users", {
+      clerkUserId,
+      email,
+      name,
+      role,
+      companyId,
+      customerId,
+      hourlyRate,
+      imageUrl,
+      isActive: true,
+    });
 
-      return userId;
-    } catch (error) {
-      console.error(ErrorMessages.USER_DB_CREATE, error);
-      throw new Error(ErrorMessages.USER_DB_CREATE);
-    }
+    return userId;
   },
 });
 
@@ -324,71 +299,59 @@ export const getSalesRepsByCompanyId = query({
   args: {
     companyId: v.id("companies"),
   },
-  handler: async (ctx, args): Promise<GetSalesRepsByCompanyIdResponse> => {
+  handler: async (ctx, args): Promise<Doc<"users">[]> => {
     const { companyId } = args;
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-        ClerkRoles.SALES_REP,
-      ]);
 
-      const company = validateCompany(await ctx.db.get(companyId));
-      isUserInOrg(identity, company.clerkOrganizationId);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+      ClerkRoles.SALES_REP,
+    ]);
 
-      const users = await ctx.db
-        .query("users")
-        .filter((q) => q.eq(q.field("companyId"), companyId))
-        .filter((q) => q.eq(q.field("isActive"), true))
-        .collect();
+    const company = validateCompany(await ctx.db.get(companyId));
+    isUserInOrg(identity, company.clerkOrganizationId);
 
-      const sortedUsers = users.sort((a, b) => a.name.localeCompare(b.name));
-      const moveReps = sortedUsers.filter(
-        (user) =>
-          user.role === ClerkRoles.SALES_REP ||
-          user.role === ClerkRoles.ADMIN ||
-          user.role === ClerkRoles.MANAGER
-      );
+    const users = await ctx.db
+      .query("users")
+      .filter((q) => q.eq(q.field("companyId"), companyId))
+      .filter((q) => q.eq(q.field("isActive"), true))
+      .collect();
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { users: moveReps },
-      };
-    } catch (error) {
-      return handleInternalError(error);
-    }
+    const sortedUsers = users.sort((a, b) => a.name.localeCompare(b.name));
+    const moveReps = sortedUsers.filter(
+      (user) =>
+        user.role === ClerkRoles.SALES_REP ||
+        user.role === ClerkRoles.ADMIN ||
+        user.role === ClerkRoles.MANAGER
+    );
+
+    return moveReps;
   },
 });
 
 export const getUserByClerkId = query({
   args: {},
-  handler: async (ctx): Promise<GetUserByClerkIdResponse> => {
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-        ClerkRoles.SALES_REP,
-      ]);
+  handler: async (ctx): Promise<Doc<"users">> => {
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+      ClerkRoles.SALES_REP,
+    ]);
 
-      const clerkId = identity.id as string;
-      const user = validateUser(
-        await ctx.db
-          .query("users")
-          .withIndex("by_clerkUserId", (q) => q.eq("clerkUserId", clerkId))
-          .first()
-      );
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { user },
-      };
-    } catch (error) {
-      return handleInternalError(error);
-    }
+    const clerkId = identity.id as string;
+    const user = validateUser(
+      await ctx.db
+        .query("users")
+        .withIndex("by_clerkUserId", (q) => q.eq("clerkUserId", clerkId))
+        .first()
+    );
+    return user;
   },
 });
 
+// not used
 export const getMoversByCompanyId = query({
   args: {
     companyId: v.id("companies"),
@@ -434,46 +397,43 @@ export const getSalesRepsAndReferralByCompanyId = query({
   handler: async (
     ctx,
     args
-  ): Promise<GetSalesRepsAndReferralByCompanyIdResponse> => {
+  ): Promise<GetSalesRepsAndReferralByCompanyIdData> => {
     const { companyId } = args;
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-        ClerkRoles.SALES_REP,
-      ]);
 
-      const company = validateCompany(await ctx.db.get(companyId));
-      isUserInOrg(identity, company.clerkOrganizationId);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+      ClerkRoles.SALES_REP,
+    ]);
 
-      const users = await ctx.db
-        .query("users")
-        .filter((q) => q.eq(q.field("companyId"), companyId))
-        .filter((q) => q.eq(q.field("isActive"), true))
-        .filter((q) =>
-          q.or(
-            q.eq(q.field("role"), ClerkRoles.SALES_REP),
-            q.eq(q.field("role"), ClerkRoles.ADMIN),
-            q.eq(q.field("role"), ClerkRoles.MANAGER)
-          )
+    const company = validateCompany(await ctx.db.get(companyId));
+    isUserInOrg(identity, company.clerkOrganizationId);
+
+    const users = await ctx.db
+      .query("users")
+      .filter((q) => q.eq(q.field("companyId"), companyId))
+      .filter((q) => q.eq(q.field("isActive"), true))
+      .filter((q) =>
+        q.or(
+          q.eq(q.field("role"), ClerkRoles.SALES_REP),
+          q.eq(q.field("role"), ClerkRoles.ADMIN),
+          q.eq(q.field("role"), ClerkRoles.MANAGER)
         )
-        .collect();
+      )
+      .collect();
 
-      const sortedUsers = users.sort((a, b) => a.name.localeCompare(b.name));
+    const sortedUsers = users.sort((a, b) => a.name.localeCompare(b.name));
 
-      const referrals = await ctx.db
-        .query("referrals")
-        .filter((q) => q.eq(q.field("companyId"), companyId))
-        .filter((q) => q.eq(q.field("isActive"), true))
-        .collect();
+    const referrals = await ctx.db
+      .query("referrals")
+      .filter((q) => q.eq(q.field("companyId"), companyId))
+      .filter((q) => q.eq(q.field("isActive"), true))
+      .collect();
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { users: sortedUsers, referrals },
-      };
-    } catch (error) {
-      return handleInternalError(error);
-    }
+    return {
+      users: sortedUsers,
+      referrals,
+    };
   },
 });

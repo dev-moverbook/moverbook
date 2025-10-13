@@ -6,11 +6,8 @@ import {
   validateCompany,
   validateMove,
 } from "./backendUtils/validate";
-import { handleInternalError } from "./backendUtils/helper";
-import { ClerkRoles, ResponseStatus } from "@/types/enums";
-import { Id } from "./_generated/dataModel";
-import { CreateOrUpdatePreMoveDocResponse } from "@/types/convex-responses";
-import { PreMoveDocSchema } from "@/types/convex-schemas";
+import { ClerkRoles } from "@/types/enums";
+import { Doc, Id } from "./_generated/dataModel";
 
 export const createOrUpdatePreMoveDoc = mutation({
   args: {
@@ -22,56 +19,49 @@ export const createOrUpdatePreMoveDoc = mutation({
       repSignedAt: v.optional(v.number()),
     }),
   },
-  handler: async (ctx, args): Promise<CreateOrUpdatePreMoveDocResponse> => {
+  handler: async (ctx, args): Promise<Id<"preMoveDocs">> => {
     const { moveId } = args;
     const updates = { ...args.updates };
 
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-        ClerkRoles.SALES_REP,
-        ClerkRoles.MOVER,
-      ]);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+      ClerkRoles.SALES_REP,
+      ClerkRoles.MOVER,
+    ]);
 
-      const move = validateMove(await ctx.db.get(moveId));
-      const company = validateCompany(await ctx.db.get(move.companyId));
-      isUserInOrg(identity, company.clerkOrganizationId);
+    const move = validateMove(await ctx.db.get(moveId));
+    const company = validateCompany(await ctx.db.get(move.companyId));
+    isUserInOrg(identity, company.clerkOrganizationId);
 
-      const now = Date.now();
+    const now = Date.now();
 
-      if (updates.customerSignature && !updates.customerSignedAt) {
-        updates.customerSignedAt = now;
-      }
-
-      if (updates.repSignature && !updates.repSignedAt) {
-        updates.repSignedAt = now;
-      }
-
-      const existing: PreMoveDocSchema | null = await ctx.db
-        .query("preMoveDocs")
-        .withIndex("by_move", (q) => q.eq("moveId", moveId))
-        .unique();
-
-      let preMoveDocId: Id<"preMoveDocs">;
-
-      if (existing) {
-        await ctx.db.patch(existing._id, updates);
-        preMoveDocId = existing._id;
-      } else {
-        preMoveDocId = await ctx.db.insert("preMoveDocs", {
-          moveId,
-          ...updates,
-        });
-      }
-
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { preMoveDocId },
-      };
-    } catch (error) {
-      return handleInternalError(error);
+    if (updates.customerSignature && !updates.customerSignedAt) {
+      updates.customerSignedAt = now;
     }
+
+    if (updates.repSignature && !updates.repSignedAt) {
+      updates.repSignedAt = now;
+    }
+
+    const existing: Doc<"preMoveDocs"> | null = await ctx.db
+      .query("preMoveDocs")
+      .withIndex("by_move", (q) => q.eq("moveId", moveId))
+      .unique();
+
+    let preMoveDocId: Id<"preMoveDocs">;
+
+    if (existing) {
+      await ctx.db.patch(existing._id, updates);
+      preMoveDocId = existing._id;
+    } else {
+      preMoveDocId = await ctx.db.insert("preMoveDocs", {
+        moveId,
+        ...updates,
+      });
+    }
+
+    return preMoveDocId;
   },
 });

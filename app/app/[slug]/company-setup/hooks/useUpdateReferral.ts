@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { ResponseStatus } from "@/types/enums";
-import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
+import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
 export const useUpdateReferral = () => {
-  const [updateLoading, setUpdateLoading] = useState(false);
+  const [updateLoading, setUpdateLoading] = useState<boolean>(false);
   const [updateError, setUpdateError] = useState<string | null>(null);
 
   const updateReferralMutation = useMutation(api.referrals.updateReferral);
@@ -19,18 +18,11 @@ export const useUpdateReferral = () => {
     setUpdateError(null);
 
     try {
-      const response = await updateReferralMutation({ referralId, updates });
+      await updateReferralMutation({ referralId, updates });
 
-      if (response.status === ResponseStatus.SUCCESS) {
-        return true;
-      }
-
-      console.error(response.error);
-      setUpdateError(FrontEndErrorMessages.GENERIC);
-      return false;
+      return true;
     } catch (error) {
-      console.error(error);
-      setUpdateError(FrontEndErrorMessages.GENERIC);
+      setErrorFromConvexError(error, setUpdateError);
       return false;
     } finally {
       setUpdateLoading(false);

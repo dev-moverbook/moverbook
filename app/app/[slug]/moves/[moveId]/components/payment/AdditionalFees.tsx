@@ -87,7 +87,7 @@ const AdditionalFees = ({
           feeId: fee?.feeId,
         },
       });
-      if (response.success) {
+      if (response) {
         handleCloseAddLineItemModal();
       }
     } else {
@@ -99,7 +99,7 @@ const AdditionalFees = ({
         feeId: fee?.feeId,
       });
 
-      if (response.success) {
+      if (response) {
         handleCloseAddLineItemModal();
       }
     }
@@ -128,7 +128,7 @@ const AdditionalFees = ({
         isActive: false,
       },
     });
-    if (response.success) {
+    if (response) {
       handleCloseDeleteModal();
     }
   };

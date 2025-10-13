@@ -1,4 +1,3 @@
-// app/app/[slug]/moves/[moveId]/messages/components/MessageThread.tsx
 "use client";
 
 import React, { useEffect, useRef } from "react";
@@ -7,9 +6,7 @@ import { useSlugContext } from "@/app/contexts/SlugContext";
 import MessageContainer from "./MessageContainer";
 import MessageBubble from "./MessageBubble";
 import LoadingInline from "@/app/components/shared/ui/LoadingInline";
-import ErrorComponent from "@/app/components/shared/ErrorComponent";
 import { formatTimestamp } from "@/app/frontendUtils/helper";
-import { QueryStatus } from "@/types/enums";
 import { useMessagesByMoveId } from "@/app/hooks/queries/useMessagesByMoveId";
 
 const MessageThread = () => {
@@ -18,27 +15,24 @@ const MessageThread = () => {
 
   const result = useMessagesByMoveId(moveData.move._id);
 
-  // Bottom sentinel to scroll into view
   const bottomRef = useRef<HTMLDivElement | null>(null);
-  // Track previous message count to decide smooth vs instant scroll
   const prevCountRef = useRef(0);
 
-  const msgCount =
-    result.status === QueryStatus.SUCCESS ? result.messages.length : 0;
+  const msgCount = result?.length ?? 0;
 
   useEffect(() => {
-    if (result.status !== QueryStatus.SUCCESS) return;
-
+    if (!result) {
+      return;
+    }
     const behavior: ScrollBehavior =
       prevCountRef.current === 0
-        ? "auto" // first paint: jump to bottom without animation
+        ? "auto"
         : msgCount > prevCountRef.current
-          ? "smooth" // a new message arrived: smooth scroll
-          : "auto"; // same count or fewer: just ensure we're at bottom
+          ? "smooth"
+          : "auto";
 
     prevCountRef.current = msgCount;
 
-    // Let the DOM paint before scrolling
     const id = requestAnimationFrame(() => {
       bottomRef.current?.scrollIntoView({
         behavior,
@@ -46,33 +40,24 @@ const MessageThread = () => {
       });
     });
     return () => cancelAnimationFrame(id);
-  }, [result.status, msgCount]);
+  }, [result, msgCount]);
 
   let inner: React.ReactNode;
 
-  switch (result.status) {
-    case QueryStatus.LOADING:
+  switch (result) {
+    case undefined:
       inner = <LoadingInline />;
       break;
 
-    case QueryStatus.ERROR:
-      inner = (
-        <ErrorComponent
-          message={result.errorMessage ?? "Failed to load messages"}
-        />
-      );
-      break;
-
-    case QueryStatus.SUCCESS: {
-      const messages = result.messages; // already oldest -> newest
+    default: {
       inner =
-        messages.length === 0 ? (
+        result.length === 0 ? (
           <div className="text-center text-sm text-muted-foreground mt-8">
             No messages yet
           </div>
         ) : (
           <>
-            {messages.map((msg) => (
+            {result.map((msg) => (
               <MessageBubble
                 key={msg._id}
                 text={msg.resolvedMessage}

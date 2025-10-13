@@ -8,19 +8,14 @@ import UsersListContent from "./UsersListContent";
 
 const ActiveUsers = () => {
   const { companyId } = useSlugContext();
-  const { users, isLoading, isError, errorMessage } = useUsersByStatus(
-    companyId ?? null,
-    true
-  );
+  const users = useUsersByStatus(companyId, true);
 
   return (
     <SectionContainer isLast>
       <CenteredContainer className="px-0 md:px-0">
         <UsersListContent
           users={users}
-          isLoading={isLoading}
-          isError={isError}
-          errorMessage={errorMessage}
+          isLoading={!users}
           emptyMessage="No active users."
         />
       </CenteredContainer>

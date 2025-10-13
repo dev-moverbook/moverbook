@@ -5,17 +5,14 @@ import { useMoveContext } from "@/app/hooks/queries/useMoveContext";
 import { Id } from "@/convex/_generated/dataModel";
 import { MoveProvider } from "@/app/contexts/MoveContext";
 import FullLoading from "@/app/components/shared/FullLoading";
-import ErrorComponent from "@/app/components/shared/ErrorComponent";
 
 const MoveLayout = ({ children }: { children: React.ReactNode }) => {
   const { moveId } = useParams();
-  const { data, isLoading, isError, errorMessage } = useMoveContext(
-    moveId as Id<"move">
-  );
+  const data = useMoveContext(moveId as Id<"move">);
 
-  if (isLoading) return <FullLoading />;
-  if (isError || !data)
-    return <ErrorComponent message={errorMessage ?? "Move not found"} />;
+  if (!data) {
+    return <FullLoading />;
+  }
 
   return <MoveProvider value={{ moveData: data }}>{children}</MoveProvider>;
 };

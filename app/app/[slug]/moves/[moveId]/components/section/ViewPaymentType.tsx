@@ -23,7 +23,7 @@ const ViewPaymentType = () => {
     useState<MovePaymentTypeFormData>(initialFormData);
 
   const handleSave = async () => {
-    const { success } = await updateMove({
+    const success = await updateMove({
       moveId: move._id,
       updates: {
         paymentMethod: formData.paymentMethod,

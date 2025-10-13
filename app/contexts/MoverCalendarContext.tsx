@@ -5,7 +5,6 @@ import { DateTime } from "luxon";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { useSlugContext } from "@/app/contexts/SlugContext";
 import { getCurrentDate } from "../frontendUtils/helper";
-import { QueryStatus } from "@/types/enums";
 import { useMovesForMoverCalendar } from "../hooks/queries/moves/useMovesForMoverCalendar";
 
 export type MoverOption = { id: Id<"users">; name: string };
@@ -21,8 +20,6 @@ interface MoverCalendarContextProps {
   today: Date;
   moves: Doc<"move">[];
   isLoading: boolean;
-  isError: boolean;
-  errorMessage: string | null;
 }
 
 const MoverCalendarContext = createContext<
@@ -42,9 +39,9 @@ export const MoverCalendarProvider = ({
 
   const moverOptions = useMemo<MoverOption[]>(
     () =>
-      allMovers.map((m) => ({
-        id: m._id as Id<"users">,
-        name: m.name || "Unnamed",
+      allMovers.map((mover) => ({
+        id: mover._id as Id<"users">,
+        name: mover.name || "Unnamed",
       })),
     [allMovers]
   );
@@ -78,14 +75,9 @@ export const MoverCalendarProvider = ({
     }
   );
 
-  const isLoading = movesResult.status === QueryStatus.LOADING;
-  const isError = movesResult.status === QueryStatus.ERROR;
-  const errorMessage = isError ? movesResult.errorMessage : null;
+  const isLoading = movesResult === undefined;
 
-  const moves = useMemo<Doc<"move">[]>(
-    () => (movesResult.status === QueryStatus.SUCCESS ? movesResult.data : []),
-    [movesResult]
-  );
+  const moves = useMemo<Doc<"move">[]>(() => movesResult ?? [], [movesResult]);
 
   const value: MoverCalendarContextProps = {
     mover,
@@ -98,8 +90,6 @@ export const MoverCalendarProvider = ({
     today,
     moves,
     isLoading,
-    isError,
-    errorMessage,
   };
 
   return (
