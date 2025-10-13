@@ -13,8 +13,6 @@ const MessageSubject = () => {
       <div className=" items-end gap-2 w-full  px-10">
         <Label className="text-sm text-white  block">Title</Label>
 
-        {/* Invisible IconButton to reserve left space */}
-
         <Input
           type="text"
           value={subject ?? ""}
@@ -22,7 +20,6 @@ const MessageSubject = () => {
           placeholder="Subject"
           className="flex-1 h-8"
         />
-        {/* Invisible IconButton to reserve right space */}
       </div>
       <span className="w-10" aria-hidden="true" />
     </div>

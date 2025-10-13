@@ -19,7 +19,6 @@ export const useUpdateVariable = () => {
 
     try {
       await updateVariableMutation({ variableId, updates });
-
       return true;
     } catch (error) {
       setErrorFromConvexError(error, setUpdateError);

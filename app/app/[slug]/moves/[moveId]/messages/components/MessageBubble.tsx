@@ -4,7 +4,7 @@ import { Mail, MessageSquare } from "lucide-react";
 
 interface MessageBubbleProps {
   text: string;
-  time: string | null; // already formatted like "2:00pm"
+  time: string | null;
   type: MessageSentType;
   method: CommunicationType;
 }

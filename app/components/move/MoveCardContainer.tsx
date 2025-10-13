@@ -23,7 +23,7 @@ const MoveCardContainer: React.FC<MoveCardContainerProps> = ({
   weekEnd,
 }) => {
   const router = useRouter();
-  const { user, cleanSlug } = useSlugContext();
+  const { user, slug } = useSlugContext();
   const { selectedStatuses } = useMoveFilter();
   const isMoverUser = isMover(user.publicMetadata.role as ClerkRoles);
   const isCompleted = selectedStatuses.includes("Completed");
@@ -34,7 +34,7 @@ const MoveCardContainer: React.FC<MoveCardContainerProps> = ({
     : "No moves this week.";
 
   const handleCardClick = (moveId: Id<"move">) => {
-    router.push(`/app/${cleanSlug}/moves/${moveId}`);
+    router.push(`/app/${slug}/moves/${moveId}`);
   };
 
   return (
