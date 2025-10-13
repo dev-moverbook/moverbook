@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { CreateLaborFormData } from "@/types/form-types";
-import { Id } from "@/convex/_generated/dataModel";
-import { LaborSchema } from "@/types/convex-schemas";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import FieldGroup from "@/app/components/shared/FieldGroup";
 import FormActions from "@/app/components/shared/FormActions";
 import FieldRow from "@/app/components/shared/FieldRow";
@@ -24,7 +23,7 @@ interface LaborModalProps {
   loading: boolean;
   error: string | null;
   companyId: Id<"companies">;
-  initialData?: LaborSchema | null;
+  initialData?: Doc<"labor"> | null;
 }
 
 const LaborModal: React.FC<LaborModalProps> = ({

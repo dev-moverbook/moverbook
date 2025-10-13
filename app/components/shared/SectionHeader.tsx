@@ -1,4 +1,3 @@
-// SectionHeader.tsx
 import { Pencil, Trash2, X, CircleCheckBig, AlertTriangle } from "lucide-react";
 import IconButton from "@/app/components/shared/IconButton";
 import { ReactNode } from "react";

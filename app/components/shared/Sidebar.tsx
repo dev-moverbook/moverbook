@@ -1,5 +1,3 @@
-"use client";
-
 import SidebarContent from "./SidebarContent";
 
 const Sidebar = () => {

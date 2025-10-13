@@ -1,4 +1,3 @@
-// lib/generateJobId.ts
 import { customAlphabet } from "nanoid";
 const nanoid = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 6);
 
