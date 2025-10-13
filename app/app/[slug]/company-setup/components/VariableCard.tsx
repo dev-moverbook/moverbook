@@ -1,10 +1,10 @@
 "use client";
 
-import { VariableSchema } from "@/types/convex-schemas";
 import { Input } from "@/app/components/ui/input";
+import { Doc } from "@/convex/_generated/dataModel";
 
 interface VariableCardProps {
-  variable: VariableSchema;
+  variable: Doc<"variables">;
   value: string;
   onChange: (id: string, value: string) => void;
   isEditing: boolean;
