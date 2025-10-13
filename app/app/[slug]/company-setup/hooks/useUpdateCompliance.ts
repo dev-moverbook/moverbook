@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
+import { setErrorFromConvexError } from "@/app/frontendUtils/errorHelper";
 
 interface UpdateComplianceData {
   statePucPermitNumber?: string;
@@ -32,7 +32,7 @@ export const useUpdateCompliance = () => {
         updates,
       });
     } catch (error) {
-      setUpdateComplianceError(FrontEndErrorMessages.GENERIC);
+      setErrorFromConvexError(error, setUpdateComplianceError);
       return false;
     } finally {
       setUpdateComplianceLoading(false);
