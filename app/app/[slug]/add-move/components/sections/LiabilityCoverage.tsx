@@ -20,7 +20,7 @@ const LiabilityCoverage: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
 
   const selectedPolicy = insurancePolicyOptions?.find(
-    (p) => p.name === moveFormData.liabilityCoverage?.name
+    (policy) => policy.name === moveFormData.liabilityCoverage?.name
   );
 
   return (

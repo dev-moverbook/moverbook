@@ -71,8 +71,8 @@ const ViewMoveType: React.FC = () => {
         moveDate: formData.moveDate,
         moveWindow: formData.moveWindow,
         arrivalTimes: {
-          arrivalWindowStarts: formData.arrivalTimes.arrivalWindowStarts,
-          arrivalWindowEnds: formData.arrivalTimes.arrivalWindowEnds,
+          arrivalWindowStarts: formData.arrivalTimes.arrivalWindowStarts || "",
+          arrivalWindowEnds: formData.arrivalTimes.arrivalWindowEnds || "",
         },
       },
     });
