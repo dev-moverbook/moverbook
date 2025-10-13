@@ -1,14 +1,13 @@
 "use client";
 
 import React from "react";
-import { CategorySchema } from "@/types/convex-schemas";
 import { Button } from "@/app/components/ui/button";
-import { Id } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 
 //not used
 interface CategoryCardProps {
-  category: CategorySchema;
-  onEdit: (category: CategorySchema) => void;
+  category: Doc<"categories">;
+  onEdit: (category: Doc<"categories">) => void;
   onDelete: (categoryId: Id<"categories">) => void;
 }
 
