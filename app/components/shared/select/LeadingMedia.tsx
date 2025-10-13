@@ -9,7 +9,6 @@ export type LeadingMediaProps = {
   allIcon?: React.ReactNode;
   image?: string;
   altText?: string;
-  /** Tailwind size (default h-8 w-8). Override with e.g. "h-6 w-6". */
   sizeClassName?: string;
   className?: string;
 };
@@ -36,7 +35,6 @@ export default function LeadingMedia({
     );
   }
 
-  // image case (parent ensures one of these is present)
   return (
     <div
       className={cn(

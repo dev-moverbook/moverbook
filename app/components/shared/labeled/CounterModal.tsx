@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useMediaQuery } from "react-responsive";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import FormActions from "@/app/components/shared/FormActions";
 import FieldGroup from "@/app/components/shared/FieldGroup";
 import FieldRow from "@/app/components/shared/FieldRow";
 import { MOBILE_BREAKPOINT } from "@/types/const";
+import ResponsiveModal from "../modal/ResponsiveModal";
 
 interface CounterModalProps {
   isOpen: boolean;
@@ -85,20 +84,15 @@ const CounterModal: React.FC<CounterModalProps> = ({
     </FieldGroup>
   );
 
-  return isMobile ? (
-    <Drawer open={isOpen} onOpenChange={onClose}>
-      <DrawerContent>
-        <DrawerTitle>{title}</DrawerTitle>
-        {formContent}
-      </DrawerContent>
-    </Drawer>
-  ) : (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
-        <DialogTitle>{title}</DialogTitle>
-        {formContent}
-      </DialogContent>
-    </Dialog>
+  return (
+    <ResponsiveModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={title}
+      description={`Enter the ${label}`}
+    >
+      {formContent}
+    </ResponsiveModal>
   );
 };
 

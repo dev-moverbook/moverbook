@@ -69,7 +69,9 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
       }
     }
 
-    if (hasError) return;
+    if (hasError) {
+      return;
+    }
 
     const success = await onInvite(email, role, hourlyRate);
     if (success) {
@@ -85,7 +87,6 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
 
   const formContent = (
     <SectionLabeled>
-      {/* Email Input */}
       <LabeledInput
         label="Email"
         type="email"
@@ -98,7 +99,6 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
         error={emailError}
       />
 
-      {/* Role Selection */}
       <LabeledSelect
         label="Role"
         value={role}

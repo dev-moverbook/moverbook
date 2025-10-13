@@ -2,7 +2,6 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import FieldDisplay from "@/app/components/shared/FieldDisplay";
 import clsx from "clsx";
-import FieldErrorMessage from "./FieldErrorMessage";
 
 interface TimeSlotOption {
   label: string;

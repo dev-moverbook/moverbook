@@ -150,7 +150,6 @@ const CounterInput: React.FC<CounterInputProps> = ({
           </div>
         )}
 
-        {/* Plus button */}
         <button
           type="button"
           onClick={increment}
