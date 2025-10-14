@@ -3,7 +3,7 @@ import { OrganizationInvitationJSON, UserJSON } from "@clerk/backend";
 import { ErrorMessages } from "@/types/errors";
 import { internal } from "../_generated/api";
 import { ClerkRoles, InvitationStatus } from "@/types/enums";
-import { validateCompany, validateUser } from "../backendUtils/validate";
+import { validateDocExists, validateUser } from "../backendUtils/validate";
 import { updateClerkUserPublicMetadata } from "../backendUtils/clerk";
 
 export const handleOrganizationInvitationAccepted = async (
@@ -23,10 +23,18 @@ export const handleOrganizationInvitationAccepted = async (
         email: data.email_address,
       })
     );
-    const company = validateCompany(
-      await ctx.runQuery(internal.companies.getCompanyClerkOrgIdInternal, {
+
+    const company = await ctx.runQuery(
+      internal.companies.getCompanyClerkOrgIdInternal,
+      {
         clerkOrgId: data.organization_id,
-      })
+      }
+    );
+
+    const validatedCompany = validateDocExists(
+      "companies",
+      company,
+      ErrorMessages.COMPANY_NOT_FOUND
     );
 
     await Promise.all([
@@ -35,7 +43,7 @@ export const handleOrganizationInvitationAccepted = async (
         updates: {
           role: data.public_metadata.role as ClerkRoles,
           hourlyRate: invitation.hourlyRate || null,
-          companyId: company._id,
+          companyId: validatedCompany._id,
         },
       }),
       updateClerkUserPublicMetadata(user.clerkUserId, {
