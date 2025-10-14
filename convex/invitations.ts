@@ -13,6 +13,7 @@ import { requireAuthenticatedUser } from "./backendUtils/auth";
 import {
   isUserInOrg,
   validateCompany,
+  validateDocExists,
   validateInvitation,
 } from "./backendUtils/validate";
 import { internal } from "./_generated/api";
@@ -94,9 +95,8 @@ export const getActiveInvitationsByCompanyId = query({
       ClerkRoles.APP_MODERATOR,
       ClerkRoles.MANAGER,
     ]);
-    const company = await ctx.db.get(companyId);
 
-    const validatedCompany = validateCompany(company);
+    const validatedCompany = await validateCompany(ctx.db, companyId);
 
     isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
@@ -129,7 +129,11 @@ export const revokeInviteUser = action({
       internal.invitations.getInvitationById,
       { invitationId }
     );
-    const validatedInvitation = validateInvitation(invitation);
+    const validatedInvitation = validateDocExists(
+      "invitations",
+      invitation,
+      ErrorMessages.INVITATION_NOT_FOUND
+    );
 
     isUserInOrg(identity, validatedInvitation.clerkOrganizationId);
     await revokeOrganizationInvitation(

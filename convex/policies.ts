@@ -2,9 +2,11 @@ import { ClerkRoles } from "@/types/enums";
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
-import { validateCompany, validatePolicy } from "./backendUtils/validate";
+import { validateCompany, validateDocument } from "./backendUtils/validate";
 import { isUserInOrg } from "./backendUtils/validate";
 import { Doc } from "./_generated/dataModel";
+import { ErrorMessages } from "@/types/errors";
+import { getFirstByCompanyId } from "./backendUtils/queries";
 
 export const updatePolicy = mutation({
   args: {
@@ -27,8 +29,13 @@ export const updatePolicy = mutation({
       ClerkRoles.MANAGER,
     ]);
 
-    const policy = validatePolicy(await ctx.db.get(policyId));
-    const company = validateCompany(await ctx.db.get(policy.companyId));
+    const policy = await validateDocument(
+      ctx.db,
+      "policies",
+      policyId,
+      ErrorMessages.POLICY_NOT_FOUND
+    );
+    const company = await validateCompany(ctx.db, policy.companyId);
 
     isUserInOrg(identity, company.clerkOrganizationId);
 
@@ -53,14 +60,14 @@ export const getPolicy = query({
       ClerkRoles.SALES_REP,
     ]);
 
-    const company = validateCompany(await ctx.db.get(companyId));
+    const company = await validateCompany(ctx.db, companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
-    const policy = validatePolicy(
-      await ctx.db
-        .query("policies")
-        .filter((q) => q.eq(q.field("companyId"), companyId))
-        .first()
+    const policy = await getFirstByCompanyId(
+      ctx.db,
+      "policies",
+      companyId,
+      ErrorMessages.POLICY_NOT_FOUND
     );
 
     return policy;

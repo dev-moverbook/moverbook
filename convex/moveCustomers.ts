@@ -10,6 +10,7 @@ import { Doc, Id } from "./_generated/dataModel";
 import {
   isUserInOrg,
   validateCompany,
+  validateDocument,
   validateMoveCustomer,
 } from "./backendUtils/validate";
 import { ErrorMessages } from "@/types/errors";
@@ -38,7 +39,7 @@ export const createMoveCustomer = mutation({
       ClerkRoles.SALES_REP,
     ]);
 
-    const company = validateCompany(await ctx.db.get(args.companyId));
+    const company = await validateCompany(ctx.db, args.companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
     const byEmail: Doc<"moveCustomers"> | null = await ctx.db
@@ -91,7 +92,7 @@ export const searchMoveCustomersAndJobId = query({
       ClerkRoles.MOVER,
     ]);
 
-    const company = validateCompany(await ctx.db.get(companyId));
+    const company = await validateCompany(ctx.db, companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
     const {
@@ -208,9 +209,14 @@ export const updateMoveCustomer = mutation({
       ClerkRoles.MANAGER,
       ClerkRoles.SALES_REP,
     ]);
-    const existing = validateMoveCustomer(await ctx.db.get(moveCustomerId));
+    const existing = await validateDocument(
+      ctx.db,
+      "moveCustomers",
+      moveCustomerId,
+      ErrorMessages.MOVE_CUSTOMER_NOT_FOUND
+    );
 
-    const company = validateCompany(await ctx.db.get(existing.companyId));
+    const company = await validateCompany(ctx.db, existing.companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
     if (updates.email && updates.email !== existing.email) {
@@ -267,8 +273,13 @@ export const getCustomerAndMoves = query({
       ClerkRoles.MOVER,
     ]);
 
-    const moveCustomer = validateMoveCustomer(await ctx.db.get(moveCustomerId));
-    const company = validateCompany(await ctx.db.get(moveCustomer.companyId));
+    const moveCustomer = await validateDocument(
+      ctx.db,
+      "moveCustomers",
+      moveCustomerId,
+      ErrorMessages.MOVE_CUSTOMER_NOT_FOUND
+    );
+    const company = await validateCompany(ctx.db, moveCustomer.companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
     const {
@@ -326,8 +337,13 @@ export const getMoveCustomer = query({
       ClerkRoles.SALES_REP,
     ]);
 
-    const moveCustomer = validateMoveCustomer(await ctx.db.get(moveCustomerId));
-    const company = validateCompany(await ctx.db.get(moveCustomer.companyId));
+    const moveCustomer = await validateDocument(
+      ctx.db,
+      "moveCustomers",
+      moveCustomerId,
+      ErrorMessages.MOVE_CUSTOMER_NOT_FOUND
+    );
+    const company = await validateCompany(ctx.db, moveCustomer.companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
     return moveCustomer;

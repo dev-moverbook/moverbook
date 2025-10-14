@@ -8,15 +8,13 @@ import {
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import { ClerkRoles } from "@/types/enums";
 import {
-  validateArrivalWindow,
   validateCompany,
-  validateCompanyContact,
-  validateCreditCardFee,
-  validateMove,
+  validateDocument,
   validateMoveCustomer,
   validatePolicy,
   validateTravelFee,
   validateUser,
+  validateCompanyContact,
 } from "./backendUtils/validate";
 import { isUserInOrg } from "./backendUtils/validate";
 import {
@@ -78,11 +76,13 @@ import {
   scopeToMoverIfNeeded,
   buildReferenceMaps,
 } from "./backendUtils/moveHelper";
+import { getFirstByCompanyId } from "./backendUtils/queries";
 
 export const getMoveOptions = query({
   args: { companyId: v.id("companies") },
   handler: async (ctx, args): Promise<GetMoveOptionsData> => {
     const { companyId } = args;
+
     const identity = await requireAuthenticatedUser(ctx, [
       ClerkRoles.ADMIN,
       ClerkRoles.APP_MODERATOR,
@@ -90,93 +90,97 @@ export const getMoveOptions = query({
       ClerkRoles.SALES_REP,
     ]);
 
-    const company = validateCompany(await ctx.db.get(companyId));
+    const company = await validateCompany(ctx.db, companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
     const [
-      rawArrivalWindow,
-      labor,
-      fees,
-      insurancePolicies,
-      rawTravelFee,
-      rawUsers,
-      rawReferrals,
-      laborRates,
-      rawCreditCardFees,
-      rooms,
-      categories,
-      items,
-      rawPolicy,
-      rawCompanyContact,
+      arrivalWindow,
+      laborList,
+      feeList,
+      insurancePolicyList,
+      travelFee,
+      activeUsers,
+      activeReferrals,
+      creditCardFee,
+      roomList,
+      categoryList,
+      itemList,
+      policy,
+      companyContact,
     ] = await Promise.all([
-      ctx.db
-        .query("arrivalWindow")
-        .withIndex("by_company", (q) => q.eq("companyId", companyId))
-        .first(),
+      getFirstByCompanyId(
+        ctx.db,
+        "arrivalWindow",
+        companyId,
+        ErrorMessages.ARRIVAL_WINDOW_NOT_FOUND
+      ),
       ctx.db
         .query("labor")
-        .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
-        .filter((q) => q.eq(q.field("isActive"), true))
+        .withIndex("by_companyId", (index) => index.eq("companyId", companyId))
+        .filter((qb) => qb.eq(qb.field("isActive"), true))
         .collect(),
       ctx.db
         .query("fees")
-        .withIndex("byCompanyId", (q) => q.eq("companyId", companyId))
-        .filter((q) => q.eq(q.field("isActive"), true))
+        .withIndex("byCompanyId", (index) => index.eq("companyId", companyId))
+        .filter((qb) => qb.eq(qb.field("isActive"), true))
         .collect(),
       ctx.db
         .query("insurancePolicies")
-        .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
-        .filter((q) => q.eq(q.field("isActive"), true))
+        .withIndex("by_companyId", (index) => index.eq("companyId", companyId))
+        .filter((qb) => qb.eq(qb.field("isActive"), true))
         .collect(),
-      ctx.db
-        .query("travelFee")
-        .filter((q) => q.eq(q.field("companyId"), companyId))
-        .first(),
+      getFirstByCompanyId(
+        ctx.db,
+        "travelFee",
+        companyId,
+        ErrorMessages.TRAVEL_FEE_NOT_FOUND
+      ),
       ctx.db
         .query("users")
-        .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
-        .filter((q) => q.eq(q.field("isActive"), true))
+        .withIndex("by_companyId", (index) => index.eq("companyId", companyId))
+        .filter((qb) => qb.eq(qb.field("isActive"), true))
         .collect(),
       ctx.db
         .query("referrals")
-        .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
-        .filter((q) => q.eq(q.field("isActive"), true))
+        .withIndex("by_companyId", (index) => index.eq("companyId", companyId))
+        .filter((qb) => qb.eq(qb.field("isActive"), true))
         .collect(),
-      ctx.db
-        .query("labor")
-        .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
-        .filter((q) => q.eq(q.field("isActive"), true))
-        .collect(),
-      ctx.db
-        .query("creditCardFees")
-        .filter((q) => q.eq(q.field("companyId"), companyId))
-        .first(),
+      getFirstByCompanyId(
+        ctx.db,
+        "creditCardFees",
+        companyId,
+        ErrorMessages.CREDIT_CARD_FEE_NOT_FOUND
+      ),
       ctx.db
         .query("rooms")
-        .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
-        .filter((q) => q.eq(q.field("isActive"), true))
+        .withIndex("by_companyId", (index) => index.eq("companyId", companyId))
+        .filter((qb) => qb.eq(qb.field("isActive"), true))
         .collect(),
       ctx.db
         .query("categories")
-        .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
-        .filter((q) => q.eq(q.field("isActive"), true))
+        .withIndex("by_companyId", (index) => index.eq("companyId", companyId))
+        .filter((qb) => qb.eq(qb.field("isActive"), true))
         .collect(),
       ctx.db
         .query("items")
-        .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
-        .filter((q) => q.eq(q.field("isActive"), true))
+        .withIndex("by_companyId", (index) => index.eq("companyId", companyId))
+        .filter((qb) => qb.eq(qb.field("isActive"), true))
         .collect(),
-      ctx.db
-        .query("policies")
-        .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
-        .first(),
-      ctx.db
-        .query("companyContact")
-        .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
-        .first(),
+      getFirstByCompanyId(
+        ctx.db,
+        "policies",
+        companyId,
+        ErrorMessages.POLICY_NOT_FOUND
+      ),
+      getFirstByCompanyId(
+        ctx.db,
+        "companyContact",
+        companyId,
+        ErrorMessages.COMPANY_CONTACT_NOT_FOUND
+      ),
     ]);
 
-    const salesReps = rawUsers
+    const salesReps = activeUsers
       .filter((user) =>
         [ClerkRoles.ADMIN, ClerkRoles.MANAGER, ClerkRoles.SALES_REP].includes(
           user.role as ClerkRoles
@@ -184,26 +188,23 @@ export const getMoveOptions = query({
       )
       .sort((a, b) => a.name.localeCompare(b.name));
 
-    const referrals = rawReferrals.sort((a, b) => a.name.localeCompare(b.name));
-    const arrivalWindow = validateArrivalWindow(rawArrivalWindow);
-    const travelFee = validateTravelFee(rawTravelFee);
-    const creditCardFee = validateCreditCardFee(rawCreditCardFees);
-    const policy = validatePolicy(rawPolicy);
-    const companyContact = validateCompanyContact(rawCompanyContact);
+    const referrals = activeReferrals.sort((a, b) =>
+      a.name.localeCompare(b.name)
+    );
 
     return {
       arrivalWindow,
-      labor,
-      fees,
-      insurancePolicies,
+      labor: laborList,
+      fees: feeList,
+      insurancePolicies: insurancePolicyList,
       travelFee,
       salesReps,
       referrals,
-      laborRates,
+      laborRates: laborList,
       creditCardFee,
-      rooms,
-      categories,
-      items,
+      rooms: roomList,
+      categories: categoryList,
+      items: itemList,
       policy,
       companyContact,
     };
@@ -252,7 +253,7 @@ export const createMove = mutation({
       ClerkRoles.SALES_REP,
     ]);
 
-    const company = validateCompany(await ctx.db.get(args.companyId));
+    const company = await validateCompany(ctx.db, args.companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
     const jobId = generateJobId(args.companyId);
@@ -271,58 +272,97 @@ export const getMoveContext = query({
   handler: async (ctx, args): Promise<GetMoveData> => {
     const { moveId } = args;
 
-    const normalizedId = ctx.db.normalizeId("move", moveId);
-    if (!normalizedId) {
+    const normalizedMoveId = ctx.db.normalizeId("move", moveId);
+    if (!normalizedMoveId) {
       throw new ConvexError({
         code: "NOT_FOUND",
         message: ErrorMessages.INVALID_MOVE_ID,
       });
     }
 
-    const identity = await requireAuthenticatedUser(ctx);
+    const [identity, move] = await Promise.all([
+      requireAuthenticatedUser(ctx),
+      validateDocument(
+        ctx.db,
+        "move",
+        normalizedMoveId,
+        ErrorMessages.MOVE_NOT_FOUND
+      ),
+    ]);
 
-    const move = validateMove(await ctx.db.get(normalizedId));
-    const company = validateCompany(await ctx.db.get(move.companyId));
+    const company = await validateCompany(ctx.db, move.companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
-    const quote = await ctx.db
-      .query("quotes")
-      .withIndex("by_move", (q) => q.eq("moveId", normalizedId))
-      .first();
+    const moverContextPromise = resolveMoverContext(ctx, identity);
 
-    const salesRepUser = validateUser(await ctx.db.get(move.salesRep));
-
-    const companyContact = validateCompanyContact(
-      await ctx.db
+    const [
+      quote,
+      salesRepUserDoc,
+      companyContactDoc,
+      moveCustomerDoc,
+      travelFeeDoc,
+      policyDoc,
+      additionalFees,
+      discounts,
+      moverContext,
+    ] = await Promise.all([
+      ctx.db
+        .query("quotes")
+        .withIndex("by_move", (q) => q.eq("moveId", normalizedMoveId))
+        .first(),
+      ctx.db.get(move.salesRep),
+      ctx.db
         .query("companyContact")
+        .filter((q) => q.eq(q.field("companyId"), move.companyId))
+        .first(),
+      ctx.db.get(move.moveCustomerId),
+      ctx.db
+        .query("travelFee")
+        .filter((q) => q.eq(q.field("companyId"), move.companyId))
+        .first(),
+      ctx.db
+        .query("policies")
         .withIndex("by_companyId", (q) => q.eq("companyId", move.companyId))
-        .first()
-    );
+        .first(),
+      ctx.db
+        .query("additionalFees")
+        .withIndex("by_move", (q) => q.eq("moveId", normalizedMoveId))
+        .collect(),
+      ctx.db
+        .query("discounts")
+        .withIndex("by_move", (q) => q.eq("moveId", normalizedMoveId))
+        .collect(),
+      moverContextPromise,
+    ]);
 
-    const moveCustomer = validateMoveCustomer(
-      await ctx.db.get(move.moveCustomerId)
-    );
+    const salesRepUser = validateUser(salesRepUserDoc);
+    const companyContact = validateCompanyContact(companyContactDoc);
+    const moveCustomer = validateMoveCustomer(moveCustomerDoc);
+    const travelFee = validateTravelFee(travelFeeDoc);
+    const policy = validatePolicy(policyDoc);
 
+    let myAssignment: Doc<"moveAssignments"> | null = null;
     let wageDisplay: MoverWageForMove | null = null;
 
     const {
       isMover,
       moverId: selfMoverId,
       hourlyRate: selfHourlyRate,
-    } = await resolveMoverContext(ctx, identity);
-
-    let myAssignment: Doc<"moveAssignments"> | null = null;
+    } = moverContext;
 
     if (isMover && selfMoverId) {
       myAssignment = await ctx.db
         .query("moveAssignments")
         .withIndex("by_move_mover", (q) =>
-          q.eq("moveId", normalizedId).eq("moverId", selfMoverId)
+          q.eq("moveId", normalizedMoveId).eq("moverId", selfMoverId)
         )
         .first();
 
       if (!myAssignment) {
-        throw new Error(ErrorMessages.MOVE_ASSIGNMENT_NOT_FOUND);
+        throw new ConvexError({
+          code: "NOT_FOUND",
+          message: ErrorMessages.MOVE_ASSIGNMENT_NOT_FOUND,
+        });
       }
 
       wageDisplay = buildMoverWageForMoveDisplay(
@@ -331,30 +371,6 @@ export const getMoveContext = query({
         selfHourlyRate
       );
     }
-
-    const travelFee = validateTravelFee(
-      await ctx.db
-        .query("travelFee")
-        .filter((q) => q.eq(q.field("companyId"), move.companyId))
-        .first()
-    );
-
-    const policy = validatePolicy(
-      await ctx.db
-        .query("policies")
-        .withIndex("by_companyId", (q) => q.eq("companyId", move.companyId))
-        .first()
-    );
-
-    const additionalFees = await ctx.db
-      .query("additionalFees")
-      .withIndex("by_move", (q) => q.eq("moveId", normalizedId))
-      .collect();
-
-    const discounts = await ctx.db
-      .query("discounts")
-      .withIndex("by_move", (q) => q.eq("moveId", normalizedId))
-      .collect();
 
     return {
       additionalFees,
@@ -425,11 +441,15 @@ export const updateMove = mutation({
       ClerkRoles.MOVER,
     ]);
 
-    const moveRecord = validateMove(await ctx.db.get(moveId));
-    const company = validateCompany(await ctx.db.get(moveRecord.companyId));
+    const moveRecord = await validateDocument(
+      ctx.db,
+      "move",
+      moveId,
+      ErrorMessages.MOVE_NOT_FOUND
+    );
+    const company = await validateCompany(ctx.db, moveRecord.companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
-    // If status is changing, stamp first-seen timestamp (idempotent)
     let statusPatch: Partial<Doc<"move">> = {};
     if (updates.moveStatus) {
       const desiredStatus = updates.moveStatus;
@@ -477,7 +497,7 @@ export const getMovesForCalendar = query({
       ClerkRoles.MOVER,
     ]);
 
-    const company = validateCompany(await ctx.db.get(companyId));
+    const company = await validateCompany(ctx.db, companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
     const {
@@ -552,8 +572,13 @@ export const getMove = query({
       throw new Error(ErrorMessages.INVALID_MOVE_ID);
     }
 
-    const move = validateMove(await ctx.db.get(normalizedId));
-    const company = validateCompany(await ctx.db.get(move.companyId));
+    const move = await validateDocument(
+      ctx.db,
+      "move",
+      normalizedId,
+      ErrorMessages.MOVE_NOT_FOUND
+    );
+    const company = await validateCompany(ctx.db, move.companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
     return move;
@@ -577,7 +602,7 @@ export const getMovesForMoverCalendar = query({
       ClerkRoles.MOVER,
     ]);
 
-    const company = validateCompany(await ctx.db.get(companyId));
+    const company = await validateCompany(ctx.db, companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
     if (!moverId) {
@@ -626,7 +651,7 @@ export const getHistoricalAnalytics = query({
       ClerkRoles.SALES_REP,
     ]);
 
-    const company = validateCompany(await ctx.db.get(companyId));
+    const company = await validateCompany(ctx.db, companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
     const timeZone = company.timeZone;
 
@@ -676,7 +701,7 @@ export const getForecastedAnalytics = query({
       ClerkRoles.SALES_REP,
     ]);
 
-    const company = validateCompany(await ctx.db.get(companyId));
+    const company = await validateCompany(ctx.db, companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
     const timeZone = company.timeZone;
 
@@ -726,7 +751,7 @@ export const getMoveAnalytics = query({
       ClerkRoles.SALES_REP,
     ]);
 
-    const company = validateCompany(await ctx.db.get(companyId));
+    const company = await validateCompany(ctx.db, companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
     const timeZone = company.timeZone;
@@ -769,7 +794,7 @@ export const getFunnel = query({
       ClerkRoles.SALES_REP,
     ]);
 
-    const company = validateCompany(await ctx.db.get(companyId));
+    const company = await validateCompany(ctx.db, companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
     const { startMs, endMs } = toEpochRangeForDates(
@@ -839,7 +864,7 @@ export const getStackedForecastedRevenueByRep = query({
       ClerkRoles.SALES_REP,
     ]);
 
-    const company = validateCompany(await ctx.db.get(companyId));
+    const company = await validateCompany(ctx.db, companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
     const timeZone = company.timeZone;
@@ -901,7 +926,7 @@ export const getStackedForecastedRevenueBySource = query({
       ClerkRoles.SALES_REP,
     ]);
 
-    const company = validateCompany(await ctx.db.get(companyId));
+    const company = await validateCompany(ctx.db, companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
     const timeZone = company.timeZone;
@@ -956,7 +981,7 @@ export const getStackedHistoricalRevenueByRep = query({
       ClerkRoles.SALES_REP,
     ]);
 
-    const company = validateCompany(await ctx.db.get(companyId));
+    const company = await validateCompany(ctx.db, companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
     const timeZone = company.timeZone;
@@ -1018,7 +1043,7 @@ export const getStackedHistoricalRevenueBySource = query({
       ClerkRoles.SALES_REP,
     ]);
 
-    const company = validateCompany(await ctx.db.get(companyId));
+    const company = await validateCompany(ctx.db, companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
     const timeZone = company.timeZone;

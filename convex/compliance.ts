@@ -5,8 +5,9 @@ import { requireAuthenticatedUser } from "./backendUtils/auth";
 import {
   validateCompany,
   isUserInOrg,
-  validateCompliance,
+  validateDocument,
 } from "./backendUtils/validate";
+import { ErrorMessages } from "@/types/errors";
 
 export const updateCompliance = mutation({
   args: {
@@ -26,9 +27,14 @@ export const updateCompliance = mutation({
       ClerkRoles.MANAGER,
     ]);
 
-    const compliance = validateCompliance(await ctx.db.get(complianceId));
+    const compliance = await validateDocument(
+      ctx.db,
+      "compliance",
+      complianceId,
+      ErrorMessages.COMPLIANCE_NOT_FOUND
+    );
 
-    const company = validateCompany(await ctx.db.get(compliance.companyId));
+    const company = await validateCompany(ctx.db, compliance.companyId);
 
     isUserInOrg(identity, company.clerkOrganizationId);
 

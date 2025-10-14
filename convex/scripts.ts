@@ -26,8 +26,7 @@ export const getScriptsByCompanyId = query({
       ClerkRoles.SALES_REP,
     ]);
 
-    const company = await ctx.db.get(companyId);
-    const validatedCompany = validateCompany(company);
+    const validatedCompany = await validateCompany(ctx.db, companyId);
     isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
     const scripts = await ctx.db
@@ -59,8 +58,7 @@ export const getActiveScriptsAndVariablesByCompanyId = query({
       ClerkRoles.SALES_REP,
     ]);
 
-    const company = await ctx.db.get(companyId);
-    const validatedCompany = validateCompany(company);
+    const validatedCompany = await validateCompany(ctx.db, companyId);
     isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
     const scripts: Doc<"scripts">[] = await ctx.db
@@ -98,8 +96,7 @@ export const createScript = mutation({
       ClerkRoles.MANAGER,
     ]);
 
-    const company = await ctx.db.get(companyId);
-    const validatedCompany = validateCompany(company);
+    const validatedCompany = await validateCompany(ctx.db, companyId);
     isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
     const existingScript = await checkExistingScript(
@@ -151,8 +148,10 @@ export const updateScript = mutation({
     const script = await ctx.db.get(scriptId);
     const validatedScript = validateScript(script);
 
-    const company = await ctx.db.get(validatedScript.companyId);
-    const validatedCompany = validateCompany(company);
+    const validatedCompany = await validateCompany(
+      ctx.db,
+      validatedScript.companyId
+    );
     isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
     if (updates.title || updates.type) {
@@ -211,8 +210,10 @@ export const deleteScript = mutation({
       });
     }
 
-    const company = await ctx.db.get(validatedScript.companyId);
-    const validatedCompany = validateCompany(company);
+    const validatedCompany = await validateCompany(
+      ctx.db,
+      validatedScript.companyId
+    );
     isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
     await ctx.db.patch(scriptId, { isActive: false });

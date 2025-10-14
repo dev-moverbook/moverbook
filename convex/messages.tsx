@@ -6,6 +6,8 @@ import { requireAuthenticatedUser } from "./backendUtils/auth";
 import {
   isUserInOrg,
   validateCompany,
+  validateDocExists,
+  validateDocument,
   validateMove,
   validateMoveCustomer,
 } from "./backendUtils/validate";
@@ -40,9 +42,14 @@ export const getMessagesByMoveId = query({
       ClerkRoles.MOVER,
     ]);
 
-    const move = validateMove(await ctx.db.get(moveId));
+    const move = await validateDocument(
+      ctx.db,
+      "move",
+      moveId,
+      ErrorMessages.MOVE_NOT_FOUND
+    );
 
-    const company = validateCompany(await ctx.db.get(move.companyId));
+    const company = await validateCompany(ctx.db, move.companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
     const rawMessages = ctx.db
@@ -71,7 +78,7 @@ export const getRecentMessagesByCompanyId = query({
       ClerkRoles.MOVER,
     ]);
 
-    const company = validateCompany(await ctx.db.get(companyId));
+    const company = await validateCompany(ctx.db, companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
     const moves = await ctx.db
@@ -135,10 +142,17 @@ export const createMessage = action({
         await ctx.runQuery(internal.move.getMoveByIdInternal, { id: moveId })
       );
 
-      const company = validateCompany(
-        await ctx.runQuery(internal.companies.getCompanyByIdInternal, {
+      const company = await ctx.runQuery(
+        internal.companies.getCompanyByIdInternal,
+        {
           companyId: move.companyId,
-        })
+        }
+      );
+
+      const validatedCompany = validateDocExists(
+        "companies",
+        company,
+        ErrorMessages.COMPANY_NOT_FOUND
       );
 
       const moveCustomer = validateMoveCustomer(
@@ -147,7 +161,7 @@ export const createMessage = action({
         })
       );
 
-      isUserInOrg(identity, company.clerkOrganizationId);
+      isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
       const templateValues = buildTemplateValues(move, moveCustomer.name);
 

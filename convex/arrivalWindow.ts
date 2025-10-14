@@ -5,11 +5,12 @@ import { requireAuthenticatedUser } from "./backendUtils/auth";
 import {
   validateCompany,
   isUserInOrg,
-  validateArrivalWindow,
-  validatePolicy,
+  validateDocument,
 } from "./backendUtils/validate";
 import { GetCompanyArrivalAndPoliciesData } from "@/types/convex-responses";
 import { Doc } from "./_generated/dataModel";
+import { ErrorMessages } from "@/types/errors";
+import { getFirstByCompanyId } from "./backendUtils/queries";
 
 export const getCompanyArrivalAndPolicies = query({
   args: { companyId: v.id("companies") },
@@ -22,21 +23,21 @@ export const getCompanyArrivalAndPolicies = query({
       ClerkRoles.MANAGER,
       ClerkRoles.SALES_REP,
     ]);
-    const company = validateCompany(await ctx.db.get(companyId));
+    const company = await validateCompany(ctx.db, companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
-    const arrivalWindow = validateArrivalWindow(
-      await ctx.db
-        .query("arrivalWindow")
-        .filter((q) => q.eq(q.field("companyId"), companyId))
-        .first()
+    const arrivalWindow = await getFirstByCompanyId(
+      ctx.db,
+      "arrivalWindow",
+      companyId,
+      ErrorMessages.ARRIVAL_WINDOW_NOT_FOUND
     );
 
-    const policy = validatePolicy(
-      await ctx.db
-        .query("policies")
-        .filter((q) => q.eq(q.field("companyId"), companyId))
-        .first()
+    const policy = await getFirstByCompanyId(
+      ctx.db,
+      "policies",
+      companyId,
+      ErrorMessages.POLICY_NOT_FOUND
     );
 
     return {
@@ -57,14 +58,14 @@ export const getCompanyArrival = query({
       ClerkRoles.MANAGER,
       ClerkRoles.SALES_REP,
     ]);
-    const company = validateCompany(await ctx.db.get(companyId));
+    const company = await validateCompany(ctx.db, companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
-    const arrivalWindow = validateArrivalWindow(
-      await ctx.db
-        .query("arrivalWindow")
-        .filter((q) => q.eq(q.field("companyId"), companyId))
-        .first()
+    const arrivalWindow = await getFirstByCompanyId(
+      ctx.db,
+      "arrivalWindow",
+      companyId,
+      ErrorMessages.ARRIVAL_WINDOW_NOT_FOUND
     );
 
     return arrivalWindow;
@@ -90,10 +91,13 @@ export const updateArrivalWindow = mutation({
       ClerkRoles.MANAGER,
     ]);
 
-    const arrivalWindow = validateArrivalWindow(
-      await ctx.db.get(arrivalWindowId)
+    const arrivalWindow = await validateDocument(
+      ctx.db,
+      "arrivalWindow",
+      arrivalWindowId,
+      ErrorMessages.ARRIVAL_WINDOW_NOT_FOUND
     );
-    const company = validateCompany(await ctx.db.get(arrivalWindow.companyId));
+    const company = await validateCompany(ctx.db, arrivalWindow.companyId);
 
     isUserInOrg(identity, company.clerkOrganizationId);
 

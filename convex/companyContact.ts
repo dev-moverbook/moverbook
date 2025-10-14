@@ -11,9 +11,12 @@ import {
   validateCompany,
   isUserInOrg,
   validateCompanyContact,
+  validateDocument,
 } from "./backendUtils/validate";
 import { AddressConvex } from "./schema";
 import { Doc } from "./_generated/dataModel";
+import { ErrorMessages } from "@/types/errors";
+import { getFirstByCompanyId } from "./backendUtils/queries";
 
 export const updateCompanyContact = mutation({
   args: {
@@ -34,11 +37,14 @@ export const updateCompanyContact = mutation({
       ClerkRoles.MANAGER,
     ]);
 
-    const companyContact = validateCompanyContact(
-      await ctx.db.get(companyContactId)
+    const companyContact = await validateDocument(
+      ctx.db,
+      "companyContact",
+      companyContactId,
+      ErrorMessages.COMPANY_CONTACT_NOT_FOUND
     );
 
-    const company = validateCompany(await ctx.db.get(companyContact.companyId));
+    const company = await validateCompany(ctx.db, companyContact.companyId);
 
     isUserInOrg(identity, company.clerkOrganizationId);
 
@@ -108,14 +114,14 @@ export const getCompanyContact = query({
       ClerkRoles.MOVER,
     ]);
 
-    const company = validateCompany(await ctx.db.get(companyId));
+    const company = await validateCompany(ctx.db, companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
-    const companyContact = validateCompanyContact(
-      await ctx.db
-        .query("companyContact")
-        .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
-        .first()
+    const companyContact = await getFirstByCompanyId(
+      ctx.db,
+      "companyContact",
+      companyId,
+      ErrorMessages.COMPANY_CONTACT_NOT_FOUND
     );
 
     return companyContact;

@@ -5,8 +5,10 @@ import {
   isUserInOrg,
   validateCategory,
   validateCompany,
+  validateDocument,
 } from "./backendUtils/validate";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
+import { ErrorMessages } from "@/types/errors";
 
 export const updateCategory = mutation({
   args: {
@@ -25,8 +27,13 @@ export const updateCategory = mutation({
       ClerkRoles.MANAGER,
     ]);
 
-    const category = validateCategory(await ctx.db.get(categoryId));
-    const company = validateCompany(await ctx.db.get(category.companyId));
+    const category = await validateDocument(
+      ctx.db,
+      "categories",
+      categoryId,
+      ErrorMessages.CATEGORY_NOT_FOUND
+    );
+    const company = await validateCompany(ctx.db, category.companyId);
 
     isUserInOrg(identity, company.clerkOrganizationId);
 
@@ -51,7 +58,7 @@ export const createCategory = mutation({
       ClerkRoles.MANAGER,
     ]);
 
-    const company = validateCompany(await ctx.db.get(companyId));
+    const company = await validateCompany(ctx.db, companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
     if (parentCategory) {

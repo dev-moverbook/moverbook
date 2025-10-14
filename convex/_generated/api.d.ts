@@ -26,6 +26,7 @@ import type * as backendUtils_helper from "../backendUtils/helper.js";
 import type * as backendUtils_luxonHelper from "../backendUtils/luxonHelper.js";
 import type * as backendUtils_moveHelper from "../backendUtils/moveHelper.js";
 import type * as backendUtils_nano from "../backendUtils/nano.js";
+import type * as backendUtils_queries from "../backendUtils/queries.js";
 import type * as backendUtils_queryHelpers from "../backendUtils/queryHelpers.js";
 import type * as backendUtils_sendGrid from "../backendUtils/sendGrid.js";
 import type * as backendUtils_stripe from "../backendUtils/stripe.js";
@@ -90,6 +91,7 @@ declare const fullApi: ApiFromModules<{
   "backendUtils/luxonHelper": typeof backendUtils_luxonHelper;
   "backendUtils/moveHelper": typeof backendUtils_moveHelper;
   "backendUtils/nano": typeof backendUtils_nano;
+  "backendUtils/queries": typeof backendUtils_queries;
   "backendUtils/queryHelpers": typeof backendUtils_queryHelpers;
   "backendUtils/sendGrid": typeof backendUtils_sendGrid;
   "backendUtils/stripe": typeof backendUtils_stripe;

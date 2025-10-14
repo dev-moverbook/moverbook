@@ -5,7 +5,7 @@ import { ErrorMessages } from "@/types/errors";
 import {
   isUserInOrg,
   validateCompany,
-  validateRoom,
+  validateDocument,
   validateUniqueRoomName,
 } from "./backendUtils/validate";
 import { GetActiveRoomsResponse } from "@/types/convex-responses";
@@ -27,7 +27,7 @@ export const getActiveRoomsByCompany = query({
         ClerkRoles.SALES_REP,
       ]);
 
-      const company = validateCompany(await ctx.db.get(companyId));
+      const company = await validateCompany(ctx.db, companyId);
       isUserInOrg(identity, company.clerkOrganizationId);
 
       const activeRooms = await ctx.db
@@ -72,7 +72,7 @@ export const createRoom = mutation({
       ClerkRoles.MANAGER,
     ]);
 
-    const company = validateCompany(await ctx.db.get(companyId));
+    const company = await validateCompany(ctx.db, companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
     await validateUniqueRoomName(ctx, companyId, name);
@@ -105,8 +105,13 @@ export const updateRoom = mutation({
       ClerkRoles.MANAGER,
     ]);
 
-    const room = validateRoom(await ctx.db.get(roomId));
-    const company = validateCompany(await ctx.db.get(room.companyId));
+    const room = await validateDocument(
+      ctx.db,
+      "rooms",
+      roomId,
+      ErrorMessages.ROOM_NOT_FOUND
+    );
+    const company = await validateCompany(ctx.db, room.companyId);
 
     isUserInOrg(identity, company.clerkOrganizationId);
 
@@ -133,7 +138,7 @@ export const resetRoomsAndCategoriesAndItems = mutation({
       ClerkRoles.MANAGER,
     ]);
 
-    const company = validateCompany(await ctx.db.get(companyId));
+    const company = await validateCompany(ctx.db, companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
     const rooms = await ctx.db

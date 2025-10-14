@@ -13,6 +13,7 @@ import { ClerkRoles, ResponseStatus } from "@/types/enums";
 import {
   isUserInOrg,
   validateCompany,
+  validateDocExists,
   validateUser,
 } from "./backendUtils/validate";
 import { internal } from "./_generated/api";
@@ -25,6 +26,7 @@ import {
   updateUserNameHelper,
 } from "./backendUtils/clerk";
 import { handleInternalError } from "./backendUtils/helper";
+import { ErrorMessages } from "@/types/errors";
 
 export const getUserByEmailInternal = internalQuery({
   args: {
@@ -50,9 +52,7 @@ export const getAllUsersByCompanyId = query({
 
     const identity = await requireAuthenticatedUser(ctx);
 
-    const company = await ctx.db.get(companyId);
-
-    const validatedCompany = validateCompany(company);
+    const validatedCompany = await validateCompany(ctx.db, companyId);
 
     isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
@@ -107,10 +107,9 @@ export const getUserById = query({
     const user = await ctx.db.get(userId);
     const validatedUser = validateUser(user, false, true);
 
-    const company = await ctx.db.get(validatedUser.companyId!);
-    const validatedCompany = validateCompany(company);
+    const company = await validateCompany(ctx.db, validatedUser.companyId!);
 
-    isUserInOrg(identity, validatedCompany.clerkOrganizationId);
+    isUserInOrg(identity, company.clerkOrganizationId);
 
     return validatedUser;
   },
@@ -205,7 +204,11 @@ export const updateUser = action({
       internal.companies.getCompanyByIdInternal,
       { companyId: validatedUser.companyId! }
     );
-    const validatedCompany = validateCompany(company);
+    const validatedCompany = validateDocExists(
+      "companies",
+      company,
+      ErrorMessages.COMPANY_NOT_FOUND
+    );
 
     isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
@@ -252,7 +255,11 @@ export const updateUserByEmailInternal = internalMutation({
       .filter((q) => q.eq(q.field("clerkOrganizationId"), clerkOrganizationId))
       .first();
 
-    const validatedCompany = validateCompany(company);
+    const validatedCompany = validateDocExists(
+      "companies",
+      company,
+      ErrorMessages.COMPANY_NOT_FOUND
+    );
 
     await ctx.db.patch(validatedUser._id, {
       role,
@@ -277,7 +284,7 @@ export const getSalesRepsByCompanyId = query({
       ClerkRoles.SALES_REP,
     ]);
 
-    const company = validateCompany(await ctx.db.get(companyId));
+    const company = await validateCompany(ctx.db, companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
     const users = await ctx.db
@@ -334,7 +341,7 @@ export const getMoversByCompanyId = query({
         ClerkRoles.SALES_REP,
       ]);
 
-      const company = validateCompany(await ctx.db.get(companyId));
+      const company = await validateCompany(ctx.db, companyId);
       isUserInOrg(identity, company.clerkOrganizationId);
 
       const users = await ctx.db
@@ -375,8 +382,8 @@ export const getSalesRepsAndReferralByCompanyId = query({
       ClerkRoles.SALES_REP,
     ]);
 
-    const company = validateCompany(await ctx.db.get(companyId));
-    isUserInOrg(identity, company.clerkOrganizationId);
+    const validatedCompany = await validateCompany(ctx.db, companyId);
+    isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
     const users = await ctx.db
       .query("users")

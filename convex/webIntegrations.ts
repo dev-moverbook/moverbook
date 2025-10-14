@@ -5,8 +5,9 @@ import { requireAuthenticatedUser } from "./backendUtils/auth";
 import {
   validateCompany,
   isUserInOrg,
-  validateWebIntegrations,
+  validateDocument,
 } from "./backendUtils/validate";
+import { ErrorMessages } from "@/types/errors";
 
 export const updateWebIntegrations = mutation({
   args: {
@@ -26,16 +27,15 @@ export const updateWebIntegrations = mutation({
       ClerkRoles.MANAGER,
     ]);
 
-    const webIntegrations = validateWebIntegrations(
-      await ctx.db.get(webIntegrationsId)
+    const webIntegrations = await validateDocument(
+      ctx.db,
+      "webIntegrations",
+      webIntegrationsId,
+      ErrorMessages.WEB_INTEGRATIONS_NOT_FOUND
     );
 
-    const company = validateCompany(
-      await ctx.db.get(webIntegrations.companyId)
-    );
-
+    const company = await validateCompany(ctx.db, webIntegrations.companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
-
     await ctx.db.patch(webIntegrations._id, updates);
 
     return true;

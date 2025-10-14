@@ -12,9 +12,8 @@ import {
   isUserInOrg,
   validateCompany,
   validateCompanyContact,
-  validateCompliance,
+  validateDocExists,
   validateUser,
-  validateWebIntegrations,
 } from "./backendUtils/validate";
 import { ClerkRoles, StripeAccountStatus } from "@/types/enums";
 import {
@@ -26,6 +25,7 @@ import { requireAuthenticatedUser } from "./backendUtils/auth";
 import { internal } from "./_generated/api";
 import { updateClerkOrgName } from "./backendUtils/clerk";
 import { Doc, Id } from "./_generated/dataModel";
+import { getFirstByCompanyId } from "./backendUtils/queries";
 
 export const createCompany = internalMutation({
   args: {
@@ -133,7 +133,11 @@ export const getCompanyIdBySlug = query({
       .filter((q) => q.eq(q.field("slug"), slug))
       .first();
 
-    const validatedCompany = validateCompany(company);
+    const validatedCompany = validateDocExists(
+      "companies",
+      company,
+      ErrorMessages.COMPANY_NOT_FOUND
+    );
     isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
     const connectedAccount: Doc<"connectedAccounts"> | null = await ctx.db
@@ -178,29 +182,29 @@ export const getCompanyDetails = query({
       ClerkRoles.MANAGER,
     ]);
 
-    const company = validateCompany(await ctx.db.get(companyId));
+    const company = await validateCompany(ctx.db, companyId);
 
     isUserInOrg(identity, company.clerkOrganizationId);
 
-    const compliance = validateCompliance(
-      await ctx.db
-        .query("compliance")
-        .filter((q) => q.eq(q.field("companyId"), company._id))
-        .first()
+    const compliance = await getFirstByCompanyId(
+      ctx.db,
+      "compliance",
+      companyId,
+      ErrorMessages.COMPLIANCE_NOT_FOUND
     );
 
-    const webIntegrations = validateWebIntegrations(
-      await ctx.db
-        .query("webIntegrations")
-        .filter((q) => q.eq(q.field("companyId"), company._id))
-        .first()
+    const webIntegrations = await getFirstByCompanyId(
+      ctx.db,
+      "webIntegrations",
+      companyId,
+      ErrorMessages.WEB_INTEGRATIONS_NOT_FOUND
     );
 
-    const companyContact = validateCompanyContact(
-      await ctx.db
-        .query("companyContact")
-        .filter((q) => q.eq(q.field("companyId"), company._id))
-        .first()
+    const companyContact = await getFirstByCompanyId(
+      ctx.db,
+      "companyContact",
+      companyId,
+      ErrorMessages.COMPANY_CONTACT_NOT_FOUND
     );
     return {
       company,
@@ -231,16 +235,25 @@ export const updateCompany = action({
       ClerkRoles.MANAGER,
     ]);
 
-    const company = validateCompany(
-      await ctx.runQuery(internal.companies.getCompanyByIdInternal, {
+    const company = await ctx.runQuery(
+      internal.companies.getCompanyByIdInternal,
+      {
         companyId,
-      })
+      }
+    );
+    const validatedCompany = validateDocExists(
+      "companies",
+      company,
+      ErrorMessages.COMPANY_NOT_FOUND
     );
 
-    isUserInOrg(identity, company.clerkOrganizationId);
+    isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
     if (updates.name) {
-      await updateClerkOrgName(company.clerkOrganizationId, updates.name);
+      await updateClerkOrgName(
+        validatedCompany.clerkOrganizationId,
+        updates.name
+      );
     }
 
     const result = await ctx.runMutation(
@@ -305,7 +318,7 @@ export const updateCompanyLogo = mutation({
       ClerkRoles.MANAGER,
     ]);
 
-    const company = validateCompany(await ctx.db.get(companyId));
+    const company = await validateCompany(ctx.db, companyId);
 
     isUserInOrg(identity, company.clerkOrganizationId);
 

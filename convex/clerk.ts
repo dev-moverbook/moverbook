@@ -11,7 +11,7 @@ import {
   createClerkOrganization,
 } from "./backendUtils/clerk";
 import { CreatableUserRoleConvex } from "@/types/convex-enums";
-import { isUserInOrg, validateCompany } from "./backendUtils/validate";
+import { isUserInOrg, validateDocExists } from "./backendUtils/validate";
 import { Id } from "./_generated/dataModel";
 
 export const fulfill = internalAction({
@@ -91,7 +91,11 @@ export const clerkInviteUserToOrganization = action({
       internal.companies.getCompanyByIdInternal,
       { companyId }
     );
-    const validatedCompany = validateCompany(company);
+    const validatedCompany = validateDocExists(
+      "companies",
+      company,
+      ErrorMessages.COMPANY_NOT_FOUND
+    );
     isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
     const response = await clerkInviteUserToOrganizationHelper(

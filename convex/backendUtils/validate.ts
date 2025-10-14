@@ -2,8 +2,8 @@ import { InvitationStatus, UserRole } from "@/types/enums";
 import { CommunicationType } from "@/types/types";
 import { ErrorMessages } from "@/types/errors";
 import { UserIdentity } from "convex/server";
-import { MutationCtx } from "../_generated/server";
-import { Doc, Id } from "../_generated/dataModel";
+import { DatabaseReader, MutationCtx } from "../_generated/server";
+import { Doc, Id, TableNames } from "../_generated/dataModel";
 import { ConvexError } from "convex/values";
 
 export function validateUser(
@@ -31,24 +31,24 @@ export function validateUser(
   return user;
 }
 
-export function validateCompany(
-  company: Doc<"companies"> | null,
+export async function validateCompany(
+  db: DatabaseReader,
+  companyId: Id<"companies">,
   checkActive: boolean = true
-): Doc<"companies"> {
+): Promise<Doc<"companies">> {
+  const company = await db.get(companyId);
   if (!company) {
     throw new ConvexError({
       code: "NOT_FOUND",
       message: ErrorMessages.COMPANY_NOT_FOUND,
     });
   }
-
   if (checkActive && !company.isActive) {
     throw new ConvexError({
       code: "BAD_REQUEST",
       message: ErrorMessages.COMPANY_INACTIVE,
     });
   }
-
   return company;
 }
 
@@ -465,4 +465,38 @@ export function validateMoveCustomer(
     });
   }
   return moveCustomer;
+}
+
+export async function validateDocument<T extends TableNames>(
+  db: DatabaseReader,
+  table: T,
+  id: Id<T>,
+  errorMessage: string,
+  additionalValidation?: (doc: Doc<T>) => void
+): Promise<Doc<T>> {
+  const doc = await db.get(id);
+  if (!doc) {
+    throw new ConvexError({
+      code: "NOT_FOUND",
+      message: errorMessage,
+    });
+  }
+  if (additionalValidation) {
+    additionalValidation(doc);
+  }
+  return doc as Doc<T>;
+}
+
+export function validateDocExists<T extends TableNames>(
+  table: T,
+  doc: Doc<T> | null,
+  errorMessage: string
+): Doc<T> {
+  if (!doc) {
+    throw new ConvexError({
+      code: "NOT_FOUND",
+      message: errorMessage,
+    });
+  }
+  return doc;
 }

@@ -2,9 +2,10 @@ import { ClerkRoles } from "@/types/enums";
 import { v } from "convex/values";
 import { mutation } from "./_generated/server";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
-import { validateCompany, validateTravelFee } from "./backendUtils/validate";
+import { validateCompany, validateDocument } from "./backendUtils/validate";
 import { isUserInOrg } from "./backendUtils/validate";
 import { TravelChargingTypesConvex } from "@/types/convex-enums";
+import { ErrorMessages } from "@/types/errors";
 
 export const updateTravelFee = mutation({
   args: {
@@ -24,8 +25,13 @@ export const updateTravelFee = mutation({
       ClerkRoles.MANAGER,
     ]);
 
-    const travelFee = validateTravelFee(await ctx.db.get(travelFeeId));
-    const company = validateCompany(await ctx.db.get(travelFee.companyId));
+    const travelFee = await validateDocument(
+      ctx.db,
+      "travelFee",
+      travelFeeId,
+      ErrorMessages.TRAVEL_FEE_NOT_FOUND
+    );
+    const company = await validateCompany(ctx.db, travelFee.companyId);
 
     isUserInOrg(identity, company.clerkOrganizationId);
 

@@ -3,12 +3,13 @@ import { v } from "convex/values";
 import {
   isUserInOrg,
   validateCompany,
-  validateReferral,
+  validateDocument,
 } from "./backendUtils/validate";
 import { ClerkRoles } from "@/types/enums";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 
 import { Doc, Id } from "./_generated/dataModel";
+import { ErrorMessages } from "@/types/errors";
 
 export const getActiveReferralsByCompanyId = query({
   args: { companyId: v.id("companies") },
@@ -22,9 +23,7 @@ export const getActiveReferralsByCompanyId = query({
       ClerkRoles.SALES_REP,
     ]);
 
-    const company = await ctx.db.get(companyId);
-
-    const validatedCompany = validateCompany(company);
+    const validatedCompany = await validateCompany(ctx.db, companyId);
     isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
     const referrals = await ctx.db
@@ -56,9 +55,7 @@ export const createReferral = mutation({
       ClerkRoles.SALES_REP,
     ]);
 
-    const company = await ctx.db.get(companyId);
-
-    const validatedCompany = validateCompany(company);
+    const validatedCompany = await validateCompany(ctx.db, companyId);
     isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
     await ctx.db.insert("referrals", {
@@ -89,11 +86,14 @@ export const updateReferral = mutation({
       ClerkRoles.SALES_REP,
     ]);
 
-    const referral = await ctx.db.get(referralId);
-    const validatedReferral = validateReferral(referral);
+    const referral = await validateDocument(
+      ctx.db,
+      "referrals",
+      referralId,
+      ErrorMessages.REFERRAL_NOT_FOUND
+    );
 
-    const company = await ctx.db.get(validatedReferral.companyId);
-    const validatedCompany = validateCompany(company);
+    const validatedCompany = await validateCompany(ctx.db, referral.companyId);
     isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
     await ctx.db.patch(referralId, updates);

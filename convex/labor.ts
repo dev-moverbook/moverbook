@@ -4,14 +4,14 @@ import { mutation, query } from "./_generated/server";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import {
   validateCompany,
-  validateCreditCardFee,
-  validateLabor,
+  validateDocument,
   validateLaborDateOverlap,
-  validateTravelFee,
 } from "./backendUtils/validate";
 import { isUserInOrg } from "./backendUtils/validate";
 import { GetCompanyRatesData } from "@/types/convex-responses";
 import { Doc } from "./_generated/dataModel";
+import { ErrorMessages } from "@/types/errors";
+import { getFirstByCompanyId } from "./backendUtils/queries";
 
 export const createLabor = mutation({
   args: {
@@ -44,7 +44,7 @@ export const createLabor = mutation({
       ClerkRoles.MANAGER,
     ]);
 
-    const company = validateCompany(await ctx.db.get(companyId));
+    const company = await validateCompany(ctx.db, companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
     validateLaborDateOverlap(ctx, companyId, startDate, endDate);
@@ -90,8 +90,13 @@ export const updateLabor = mutation({
       ClerkRoles.MANAGER,
     ]);
 
-    const labor = validateLabor(await ctx.db.get(laborId));
-    const company = validateCompany(await ctx.db.get(labor.companyId));
+    const labor = await validateDocument(
+      ctx.db,
+      "labor",
+      laborId,
+      ErrorMessages.LABOR_NOT_FOUND
+    );
+    const company = await validateCompany(ctx.db, labor.companyId);
 
     isUserInOrg(identity, company.clerkOrganizationId);
 
@@ -120,7 +125,7 @@ export const getCompanyRates = query({
       ClerkRoles.SALES_REP,
     ]);
 
-    const company = validateCompany(await ctx.db.get(companyId));
+    const company = await validateCompany(ctx.db, companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
     const labor: Doc<"labor">[] = await ctx.db
@@ -143,18 +148,18 @@ export const getCompanyRates = query({
       )
       .collect();
 
-    const travelFee = validateTravelFee(
-      await ctx.db
-        .query("travelFee")
-        .filter((q) => q.eq(q.field("companyId"), companyId))
-        .first()
+    const travelFee = await getFirstByCompanyId(
+      ctx.db,
+      "travelFee",
+      companyId,
+      ErrorMessages.TRAVEL_FEE_NOT_FOUND
     );
 
-    const creditCardFee = validateCreditCardFee(
-      await ctx.db
-        .query("creditCardFees")
-        .filter((q) => q.eq(q.field("companyId"), companyId))
-        .first()
+    const creditCardFee = await getFirstByCompanyId(
+      ctx.db,
+      "creditCardFees",
+      companyId,
+      ErrorMessages.CREDIT_CARD_FEE_NOT_FOUND
     );
 
     const fees: Doc<"fees">[] = await ctx.db

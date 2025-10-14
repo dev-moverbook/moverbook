@@ -5,6 +5,7 @@ import {
   isUserInOrg,
   validateCategory,
   validateCompany,
+  validateDocument,
   validateItem,
 } from "./backendUtils/validate";
 import {
@@ -14,6 +15,7 @@ import {
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import { handleInternalError } from "./backendUtils/helper";
 import { Id } from "./_generated/dataModel";
+import { ErrorMessages } from "@/types/errors";
 
 // To be deleted
 export const getItemsByCategory = query({
@@ -29,7 +31,7 @@ export const getItemsByCategory = query({
         ClerkRoles.SALES_REP,
       ]);
 
-      const company = validateCompany(await ctx.db.get(companyId));
+      const company = await validateCompany(ctx.db, companyId);
       isUserInOrg(identity, company.clerkOrganizationId);
 
       const items = await ctx.db
@@ -71,8 +73,13 @@ export const updateItem = mutation({
       ClerkRoles.MANAGER,
     ]);
 
-    const item = validateItem(await ctx.db.get(itemId));
-    const company = validateCompany(await ctx.db.get(item.companyId));
+    const item = await validateDocument(
+      ctx.db,
+      "items",
+      itemId,
+      ErrorMessages.ITEM_NOT_FOUND
+    );
+    const company = await validateCompany(ctx.db, item.companyId);
 
     isUserInOrg(identity, company.clerkOrganizationId);
 
@@ -100,7 +107,7 @@ export const createItem = mutation({
       ClerkRoles.MANAGER,
     ]);
 
-    const company = validateCompany(await ctx.db.get(companyId));
+    const company = await validateCompany(ctx.db, companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
     if (categoryId) {
@@ -138,7 +145,7 @@ export const getItemsAndCategoriesAndRoomsByCompany = query({
       ClerkRoles.SALES_REP,
     ]);
 
-    const company = validateCompany(await ctx.db.get(companyId));
+    const company = await validateCompany(ctx.db, companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
     const items = await ctx.db

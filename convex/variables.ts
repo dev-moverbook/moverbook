@@ -6,7 +6,7 @@ import { requireAuthenticatedUser } from "./backendUtils/auth";
 import {
   validateCompany,
   isUserInOrg,
-  validateVariable,
+  validateDocument,
 } from "./backendUtils/validate";
 import { CreateVariableResponse } from "@/types/convex-responses";
 import { checkExistingVariable } from "./backendUtils/checkUnique";
@@ -24,9 +24,7 @@ export const getVariablesByCompanyId = query({
       ClerkRoles.SALES_REP,
     ]);
 
-    const company = await ctx.db.get(companyId);
-
-    const validatedCompany = validateCompany(company);
+    const validatedCompany = await validateCompany(ctx.db, companyId);
     isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
     const variables = await ctx.db
@@ -55,8 +53,7 @@ export const createVariable = mutation({
         ClerkRoles.MANAGER,
       ]);
 
-      const company = await ctx.db.get(companyId);
-      const validatedCompany = validateCompany(company);
+      const validatedCompany = await validateCompany(ctx.db, companyId);
 
       isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
@@ -109,11 +106,14 @@ export const updateVariable = mutation({
       ClerkRoles.MANAGER,
     ]);
 
-    const variable = await ctx.db.get(variableId);
-    const validatedVariable = validateVariable(variable);
+    const variable = await validateDocument(
+      ctx.db,
+      "variables",
+      variableId,
+      ErrorMessages.VARIABLE_NOT_FOUND
+    );
 
-    const company = await ctx.db.get(validatedVariable.companyId);
-    const validatedCompany = validateCompany(company);
+    const validatedCompany = await validateCompany(ctx.db, variable.companyId);
     isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
     await ctx.db.patch(variableId, updates);

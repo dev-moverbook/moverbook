@@ -27,7 +27,7 @@ export const updateCreditCardFee = mutation({
     const creditCardFee = validateCreditCardFee(
       await ctx.db.get(creditCardFeeId)
     );
-    const company = validateCompany(await ctx.db.get(creditCardFee.companyId));
+    const company = await validateCompany(ctx.db, creditCardFee.companyId);
 
     isUserInOrg(identity, company.clerkOrganizationId);
 

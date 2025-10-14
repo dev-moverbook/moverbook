@@ -2,12 +2,10 @@ import { ClerkRoles } from "@/types/enums";
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
-import {
-  validateCompany,
-  validateInsurancePolicy,
-} from "./backendUtils/validate";
+import { validateCompany, validateDocument } from "./backendUtils/validate";
 import { isUserInOrg } from "./backendUtils/validate";
-import { Doc, Id } from "./_generated/dataModel";
+import { Doc } from "./_generated/dataModel";
+import { ErrorMessages } from "@/types/errors";
 
 export const createInsurancePolicy = mutation({
   args: {
@@ -26,7 +24,7 @@ export const createInsurancePolicy = mutation({
       ClerkRoles.MANAGER,
     ]);
 
-    const company = validateCompany(await ctx.db.get(companyId));
+    const company = await validateCompany(ctx.db, companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
     await ctx.db.insert("insurancePolicies", {
@@ -63,12 +61,14 @@ export const updateInsurancePolicy = mutation({
       ClerkRoles.MANAGER,
     ]);
 
-    const insurancePolicy = validateInsurancePolicy(
-      await ctx.db.get(insurancePolicyId)
+    const insurancePolicy = await validateDocument(
+      ctx.db,
+      "insurancePolicies",
+      insurancePolicyId,
+      ErrorMessages.INSURANCE_POLICY_NOT_FOUND
     );
-    const company = validateCompany(
-      await ctx.db.get(insurancePolicy.companyId)
-    );
+
+    const company = await validateCompany(ctx.db, insurancePolicy.companyId);
 
     isUserInOrg(identity, company.clerkOrganizationId);
 
@@ -92,7 +92,7 @@ export const getInsurancePolicies = query({
       ClerkRoles.SALES_REP,
     ]);
 
-    const company = validateCompany(await ctx.db.get(companyId));
+    const company = await validateCompany(ctx.db, companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
     const insurancePolicies = await ctx.db

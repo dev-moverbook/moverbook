@@ -1,12 +1,12 @@
 import { requireAuthenticatedUser } from "./backendUtils/auth";
-import { isUserInOrg } from "./backendUtils/validate";
+import { isUserInOrg, validateDocument } from "./backendUtils/validate";
 import { GetPaymentPageData } from "@/types/convex-responses";
 import { query } from "./_generated/server";
 import { validateCompany } from "./backendUtils/validate";
 import { v } from "convex/values";
 import { ClerkRoles } from "@/types/enums";
-import { validateMove } from "./backendUtils/validate";
 import { Doc } from "./_generated/dataModel";
+import { ErrorMessages } from "@/types/errors";
 
 export const getPaymentPage = query({
   args: {
@@ -20,8 +20,13 @@ export const getPaymentPage = query({
       ClerkRoles.SALES_REP,
     ]);
 
-    const move = validateMove(await ctx.db.get(moveId));
-    const company = validateCompany(await ctx.db.get(move.companyId));
+    const move = await validateDocument(
+      ctx.db,
+      "move",
+      moveId,
+      ErrorMessages.MOVE_NOT_FOUND
+    );
+    const company = await validateCompany(ctx.db, move.companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
     const additionalFees: Doc<"additionalFees">[] = await ctx.db

@@ -4,6 +4,7 @@ import { requireAuthenticatedUser } from "./backendUtils/auth";
 import {
   isUserInOrg,
   validateCompany,
+  validateDocument,
   validateMove,
   validateMoveAssignment,
   validateUser,
@@ -19,6 +20,7 @@ import {
 import { Doc, Id } from "./_generated/dataModel";
 import { computeApprovedPayout } from "./backendUtils/calculations";
 import { buildMoverWageForMoveDisplay } from "./backendUtils/queryHelpers";
+import { ErrorMessages } from "@/types/errors";
 
 export const updateMoveAssignment = mutation({
   args: {
@@ -42,9 +44,19 @@ export const updateMoveAssignment = mutation({
       ClerkRoles.MOVER,
     ]);
 
-    const assignment = validateMoveAssignment(await ctx.db.get(assignmentId));
-    const move = validateMove(await ctx.db.get(assignment.moveId));
-    const company = validateCompany(await ctx.db.get(move.companyId));
+    const assignment = await validateDocument(
+      ctx.db,
+      "moveAssignments",
+      assignmentId,
+      ErrorMessages.MOVE_ASSIGNMENT_NOT_FOUND
+    );
+    const move = await validateDocument(
+      ctx.db,
+      "move",
+      assignment.moveId,
+      ErrorMessages.MOVE_NOT_FOUND
+    );
+    const company = await validateCompany(ctx.db, move.companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
     if (updates.endTime !== undefined) {
@@ -69,10 +81,20 @@ export const updateMoveAssignmentHours = mutation({
   handler: async (ctx, { assignmentId, updates }): Promise<boolean> => {
     const identity = await requireAuthenticatedUser(ctx, [ClerkRoles.MOVER]);
 
-    const assignment = validateMoveAssignment(await ctx.db.get(assignmentId));
+    const assignment = await validateDocument(
+      ctx.db,
+      "moveAssignments",
+      assignmentId,
+      ErrorMessages.MOVE_ASSIGNMENT_NOT_FOUND
+    );
 
-    const move = validateMove(await ctx.db.get(assignment.moveId));
-    const company = validateCompany(await ctx.db.get(move.companyId));
+    const move = await validateDocument(
+      ctx.db,
+      "move",
+      assignment.moveId,
+      ErrorMessages.MOVE_NOT_FOUND
+    );
+    const company = await validateCompany(ctx.db, move.companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
     type AssignmentPatch = Partial<
@@ -119,8 +141,13 @@ export const insertMoveAssignment = mutation({
       ClerkRoles.SALES_REP,
     ]);
 
-    const move = validateMove(await ctx.db.get(moveId));
-    const company = validateCompany(await ctx.db.get(move.companyId));
+    const move = await validateDocument(
+      ctx.db,
+      "move",
+      moveId,
+      ErrorMessages.MOVE_NOT_FOUND
+    );
+    const company = await validateCompany(ctx.db, move.companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
     await ctx.db.insert("moveAssignments", {
@@ -147,8 +174,13 @@ export const getMoveAssignmentsPage = query({
       ClerkRoles.SALES_REP,
     ]);
 
-    const move = validateMove(await ctx.db.get(moveId));
-    const company = validateCompany(await ctx.db.get(move.companyId));
+    const move = await validateDocument(
+      ctx.db,
+      "move",
+      moveId,
+      ErrorMessages.MOVE_NOT_FOUND
+    );
+    const company = await validateCompany(ctx.db, move.companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
     const assignments: Doc<"moveAssignments">[] = await ctx.db
@@ -197,8 +229,13 @@ export const getMovePageForMover = query({
   ): Promise<GetMovePageForMoverMemberData | GetMovePageForMoverLeadData> => {
     const identity = await requireAuthenticatedUser(ctx, [ClerkRoles.MOVER]);
 
-    const move = validateMove(await ctx.db.get(moveId));
-    const company = validateCompany(await ctx.db.get(move.companyId));
+    const move = await validateDocument(
+      ctx.db,
+      "move",
+      moveId,
+      ErrorMessages.MOVE_NOT_FOUND
+    );
+    const company = await validateCompany(ctx.db, move.companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
     const user = validateUser(
@@ -278,8 +315,13 @@ export const getMoveAssignments = query({
       ClerkRoles.MANAGER,
     ]);
 
-    const move = validateMove(await ctx.db.get(moveId));
-    const company = validateCompany(await ctx.db.get(move.companyId));
+    const move = await validateDocument(
+      ctx.db,
+      "move",
+      moveId,
+      ErrorMessages.MOVE_NOT_FOUND
+    );
+    const company = await validateCompany(ctx.db, move.companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
     const assignments = await ctx.db
@@ -321,9 +363,19 @@ export const approveMoveAssignmentHours = mutation({
       ClerkRoles.MANAGER,
     ]);
 
-    const assignment = validateMoveAssignment(await ctx.db.get(assignmentId));
-    const move = validateMove(await ctx.db.get(assignment.moveId));
-    const company = validateCompany(await ctx.db.get(move.companyId));
+    const assignment = await validateDocument(
+      ctx.db,
+      "moveAssignments",
+      assignmentId,
+      ErrorMessages.MOVE_ASSIGNMENT_NOT_FOUND
+    );
+    const move = await validateDocument(
+      ctx.db,
+      "move",
+      assignment.moveId,
+      ErrorMessages.MOVE_NOT_FOUND
+    );
+    const company = await validateCompany(ctx.db, move.companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
     if (updates.hourStatus === "approved") {

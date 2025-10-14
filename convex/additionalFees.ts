@@ -3,12 +3,11 @@ import { v } from "convex/values";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import {
   validateCompany,
-  validateMove,
   isUserInOrg,
-  validateAdditionalFee,
+  validateDocument,
 } from "./backendUtils/validate";
 import { ClerkRoles } from "@/types/enums";
-import { Id } from "./_generated/dataModel";
+import { ErrorMessages } from "@/types/errors";
 
 export const createAdditionalFee = mutation({
   args: {
@@ -29,8 +28,13 @@ export const createAdditionalFee = mutation({
       ClerkRoles.MOVER,
     ]);
 
-    const move = validateMove(await ctx.db.get(moveId));
-    const company = validateCompany(await ctx.db.get(move.companyId));
+    const move = await validateDocument(
+      ctx.db,
+      "move",
+      moveId,
+      ErrorMessages.MOVE_NOT_FOUND
+    );
+    const company = await validateCompany(ctx.db, move.companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
     await ctx.db.insert("additionalFees", {
@@ -68,9 +72,19 @@ export const updateAdditionalFee = mutation({
       ClerkRoles.MOVER,
     ]);
 
-    const fee = validateAdditionalFee(await ctx.db.get(additionalFeeId));
-    const move = validateMove(await ctx.db.get(fee.moveId));
-    const company = validateCompany(await ctx.db.get(move.companyId));
+    const fee = await validateDocument(
+      ctx.db,
+      "additionalFees",
+      additionalFeeId,
+      ErrorMessages.ADDITIONAL_FEE_NOT_FOUND
+    );
+    const move = await validateDocument(
+      ctx.db,
+      "move",
+      fee.moveId,
+      ErrorMessages.MOVE_NOT_FOUND
+    );
+    const company = await validateCompany(ctx.db, move.companyId);
 
     isUserInOrg(identity, company.clerkOrganizationId);
 

@@ -2,9 +2,10 @@ import { ClerkRoles } from "@/types/enums";
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
-import { validateCompany, validateFee } from "./backendUtils/validate";
+import { validateCompany, validateDocument } from "./backendUtils/validate";
 import { isUserInOrg } from "./backendUtils/validate";
-import { Doc, Id } from "./_generated/dataModel";
+import { Doc } from "./_generated/dataModel";
+import { ErrorMessages } from "@/types/errors";
 
 export const createFee = mutation({
   args: {
@@ -21,7 +22,7 @@ export const createFee = mutation({
       ClerkRoles.MANAGER,
     ]);
 
-    const company = validateCompany(await ctx.db.get(companyId));
+    const company = await validateCompany(ctx.db, companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
     await ctx.db.insert("fees", {
@@ -44,7 +45,7 @@ export const updateFee = mutation({
       isActive: v.optional(v.boolean()),
     }),
   },
-  handler: async (ctx, args): Promise<Id<"fees">> => {
+  handler: async (ctx, args): Promise<boolean> => {
     const { feeId, updates } = args;
 
     const identity = await requireAuthenticatedUser(ctx, [
@@ -53,14 +54,19 @@ export const updateFee = mutation({
       ClerkRoles.MANAGER,
     ]);
 
-    const fee = validateFee(await ctx.db.get(feeId));
-    const company = validateCompany(await ctx.db.get(fee.companyId));
+    const fee = await validateDocument(
+      ctx.db,
+      "fees",
+      feeId,
+      ErrorMessages.FEE_NOT_FOUND
+    );
+    const company = await validateCompany(ctx.db, fee.companyId);
 
     isUserInOrg(identity, company.clerkOrganizationId);
 
     await ctx.db.patch(feeId, updates);
 
-    return feeId;
+    return true;
   },
 });
 
@@ -78,7 +84,7 @@ export const getFees = query({
       ClerkRoles.SALES_REP,
     ]);
 
-    const company = validateCompany(await ctx.db.get(companyId));
+    const company = await validateCompany(ctx.db, companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
     const fees: Doc<"fees">[] = await ctx.db
