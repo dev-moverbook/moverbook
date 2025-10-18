@@ -1,4 +1,5 @@
-// MoveAddress.tsx
+"use client";
+
 import React, { useEffect, useState } from "react";
 import SectionContainer from "@/components/shared/containers/SectionContainer";
 import LabeledInput from "@/components/shared/labeled/LabeledInput";
@@ -22,7 +23,7 @@ import {
 } from "@/types/types";
 import { LocationInput } from "@/types/form-types";
 import LabeledPlacesAutocomplete from "@/components/shared/labeled/LabeledPlacesAutoComplete";
-import FormActions from "@/components/shared/FormActions";
+import FormActions from "@/components/shared/buttons/FormActions";
 import IconRow from "@/components/shared/buttons/IconRow";
 import { cn } from "@/lib/utils";
 import NumberInput from "@/components/shared/labeled/NumberInput";
@@ -40,8 +41,7 @@ interface MoveAddressProps {
   isAdding?: boolean;
   onSaved?: () => void;
   onCancelAdd?: () => void;
-  /** NEW: when false, component is read-only and hides all edit/delete controls */
-  canEdit?: boolean; // default true
+  canEdit?: boolean;
 }
 
 const MoveAddress = ({
@@ -61,7 +61,6 @@ const MoveAddress = ({
   const [isEditing, setIsEditing] = useState<boolean>(canEdit && isAdding);
   const [formData, setFormData] = useState<LocationInput>(location);
 
-  // ---- helpers for safe address merges ----
   type AddressObj = {
     formattedAddress: string;
     placeId: string | null;
@@ -86,10 +85,8 @@ const MoveAddress = ({
     };
     handleChange({ address: next });
   };
-  // -----------------------------------------
 
   useEffect(() => {
-    // if add-mode toggles while read-only, stay read-only
     setIsEditing(canEdit && isAdding);
   }, [isAdding, canEdit]);
 
@@ -100,7 +97,9 @@ const MoveAddress = ({
   }, [isEditing, location]);
 
   const handleChange = (partial: Partial<LocationInput>) => {
-    if (!canEdit) return; // block edits in read-only mode
+    if (!canEdit) {
+      return;
+    }
     setFormData((prev) => ({ ...prev, ...partial }));
 
     if (isAdding) {
@@ -108,7 +107,6 @@ const MoveAddress = ({
       return;
     }
     if (showEditButton) {
-      // defer commit until Save
       return;
     }
     updateLocation?.(index, partial);
@@ -125,7 +123,6 @@ const MoveAddress = ({
     setIsEditing(false);
   };
 
-  // read-only if cannot edit OR (has explicit edit button and not actively editing)
   const showEditInput = canEdit && (isEditing || !showEditButton);
 
   const isComplete =
@@ -135,7 +132,6 @@ const MoveAddress = ({
     location.squareFootage !== null &&
     (location.locationRole !== "starting" || location.moveSize !== null);
 
-  // build header action buttons (hidden entirely when cannot edit)
   const headerButtons = !canEdit ? undefined : showEditButton ? (
     isEditing ? (
       <IconButton

@@ -1,4 +1,3 @@
-// hooks/useIsMobile.ts
 "use client";
 
 import { useEffect, useState } from "react";
@@ -11,10 +10,8 @@ export const useIsMobile = (breakpoint = 1024) => {
       setIsMobile(window.innerWidth < breakpoint);
     };
 
-    // Initial check
     checkScreen();
 
-    // Listen for window resize
     window.addEventListener("resize", checkScreen);
     return () => window.removeEventListener("resize", checkScreen);
   }, [breakpoint]);
