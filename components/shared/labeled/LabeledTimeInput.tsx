@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import FieldErrorMessage from "./FieldErrorMessage";
@@ -9,11 +8,11 @@ import { formatTime } from "@/frontendUtils/helper";
 
 interface LabeledTimeInputProps {
   label: string;
-  value: string; // Format: "HH:mm"
+  value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   error?: string | null;
-  min?: string; // Optional min time
-  max?: string; // Optional max time
+  min?: string;
+  max?: string;
   isEditing?: boolean;
 }
 

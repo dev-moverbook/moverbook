@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import SelectDrawer from "./SelectDrawer";
 import { useMediaQuery } from "react-responsive";
 import SelectPopover from "./SelectPopover";

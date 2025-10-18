@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { formatNarrowWeekday } from "@/frontendUtils/helper";
 
 interface WeekdayHeaderProps {

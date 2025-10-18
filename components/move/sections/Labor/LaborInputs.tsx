@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import ToggleButtonGroup from "@/components/shared/labeled/ToggleButtonGroup";
 import CurrencyInput from "@/components/shared/labeled/CurrencyInput";
 import { JobType } from "@/types/types";

@@ -1,6 +1,6 @@
 "use client";
+
 import { Doc, Id } from "@/convex/_generated/dataModel";
-import React from "react";
 import { Trash2 } from "lucide-react";
 import IconButton from "@/components/shared/buttons/IconButton";
 import UserCardBorder from "@/components/shared/card/UserCardBorder";

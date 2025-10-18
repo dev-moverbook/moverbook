@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { formatDateToLong, formatLocationType } from "@/frontendUtils/helper";
 import { Doc, Id } from "@/convex/_generated/dataModel";

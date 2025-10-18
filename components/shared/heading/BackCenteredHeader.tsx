@@ -1,8 +1,8 @@
 "use client";
 
-import clsx from "clsx";
 import { ArrowLeft, Pencil, Trash, X } from "lucide-react";
 import IconButton from "@/components/shared/buttons/IconButton";
+import { cn } from "@/lib/utils";
 
 type BackCenteredHeaderProps = {
   title: string;
@@ -31,13 +31,13 @@ const BackCenteredHeader: React.FC<BackCenteredHeaderProps> = ({
 }) => {
   return (
     <div
-      className={clsx(
+      className={cn(
         "flex items-center justify-between px-0 pt-2 w-full",
         className
       )}
     >
       <div
-        className={clsx(
+        className={cn(
           "shrink-0 flex items-center justify-start",
           fixedSideWidth
         )}
@@ -51,7 +51,7 @@ const BackCenteredHeader: React.FC<BackCenteredHeaderProps> = ({
       </div>
 
       <h2
-        className={clsx(
+        className={cn(
           "flex-1 text-center text-2xl font-semibold leading-tight",
           titleClassName
         )}
@@ -60,7 +60,7 @@ const BackCenteredHeader: React.FC<BackCenteredHeaderProps> = ({
       </h2>
 
       <div
-        className={clsx(
+        className={cn(
           "shrink-0 flex items-center justify-end gap-2",
           fixedSideWidth
         )}

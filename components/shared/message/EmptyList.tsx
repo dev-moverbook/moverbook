@@ -1,5 +1,3 @@
-import React from "react";
-
 interface EmptyListProps {
   message: string;
   className?: string;

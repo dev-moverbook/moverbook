@@ -1,7 +1,7 @@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import FieldDisplay from "@/components/shared/field/FieldDisplay";
-import clsx from "clsx";
+import { cn } from "@/lib/utils";
 
 interface TimeSlotOption {
   label: string;
@@ -61,7 +61,7 @@ const TimeSlotSelector: React.FC<TimeSlotSelectorProps> = ({
           />
           <Label
             htmlFor={`timeslot-${option.value}`}
-            className={clsx(
+            className={cn(
               "block cursor-pointer rounded-full px-6 py-2 text-center border text-sm font-medium transition-all w-full hover:border-greenCustom80 hover:text-[#ffffffcc]",
               value === option.value
                 ? "border-greenCustom text-white font-semibold"

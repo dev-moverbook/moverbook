@@ -1,9 +1,7 @@
 "use client";
 
-import * as React from "react";
-
 type ChartCardSkeletonProps = {
-  heightClass?: string; // e.g., "h-56", "h-64", "h-[220px]"
+  heightClass?: string;
 };
 
 export default function ChartCardSkeleton({

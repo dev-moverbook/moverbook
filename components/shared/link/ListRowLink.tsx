@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import React from "react";
-import clsx from "clsx";
+import { cn } from "@/lib/utils";
 
 interface ListRowLinkProps {
   href: string;
@@ -23,7 +22,7 @@ const ListRowLink: React.FC<ListRowLinkProps> = ({
     <Link
       href={href}
       prefetch={prefetch}
-      className={clsx(
+      className={cn(
         "items-center justify-between p-4 border-b border-grayCustom hover:bg-background2  transition-colors duration-20 flex w-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 hover:rounded-lg",
         className
       )}

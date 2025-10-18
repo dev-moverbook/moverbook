@@ -1,6 +1,5 @@
 import SectionContainer from "@/components/shared/containers/SectionContainer";
 import FieldDisplay from "@/components/shared/field/FieldDisplay";
-import React from "react";
 
 interface MoveHeadingProps {
   moveStatus: string;

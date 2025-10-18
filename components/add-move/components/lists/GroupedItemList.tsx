@@ -1,6 +1,7 @@
+"use client";
+
 import { MoveItemInput } from "@/types/form-types";
 import { Checkbox } from "@/components/ui/checkbox";
-import React from "react";
 import { formatDisplayNumber } from "@/frontendUtils/helper";
 
 interface GroupedItemsListProps {

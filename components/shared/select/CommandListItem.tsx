@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { CommandItem } from "@/components/ui/command";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";

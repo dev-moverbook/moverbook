@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { Label } from "@/components/ui/label";
 import SelectableCardContainer from "../containers/SelectableCardContainer";
 import { CategorySizeLabels } from "@/types/enums";

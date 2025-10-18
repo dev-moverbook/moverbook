@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { RechartsTooltipProps, TooltipRowPayload } from "@/types/types";
 import {
   buildTooltipRows,

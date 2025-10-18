@@ -1,7 +1,6 @@
 "use client";
 
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
-import React from "react";
 import IconButton from "../../buttons/IconButton";
 
 type DateRangeControlsProps = {

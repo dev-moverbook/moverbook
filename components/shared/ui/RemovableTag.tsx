@@ -1,4 +1,3 @@
-import React from "react";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -6,7 +5,7 @@ interface RemovableTagProps {
   label: React.ReactNode;
   onRemove: () => void;
   className?: string;
-  dotColor?: string; // optional
+  dotColor?: string;
 }
 
 const RemovableTag: React.FC<RemovableTagProps> = ({

@@ -1,6 +1,7 @@
+"use client";
+
 import SectionContainer from "@/components/shared/containers/SectionContainer";
 import Header3 from "@/components/shared/heading/Header3";
-import React from "react";
 import LocationCard from "@/components/move/LocationCard";
 import { AddressProvider } from "@/components/move/AddressContext";
 import RouteMap from "@/components/move/RouteMap";

@@ -1,6 +1,6 @@
 "use client";
+
 import CustomerInfo from "@/components/customer/CustomerInfo";
-import React from "react";
 import { useCustomerId } from "@/contexts/CustomerIdContext";
 import CustomerMoves from "./CustomerMoves";
 

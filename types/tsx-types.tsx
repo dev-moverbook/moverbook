@@ -1,9 +1,6 @@
-// types/tsx-types.ts
-import React from "react";
 import { ArrowUp, ArrowDown } from "lucide-react";
 
-export type PriceOrder = "desc" | "asc"; // desc = highest→lowest, asc = lowest→highest
-
+export type PriceOrder = "desc" | "asc";
 export const PRICE_FILTER_OPTIONS: {
   label: React.ReactNode;
   value: PriceOrder;

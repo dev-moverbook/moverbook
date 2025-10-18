@@ -1,8 +1,7 @@
 "use client";
 
 import { User } from "lucide-react";
-import clsx from "clsx";
-import React from "react";
+import { cn } from "@/lib/utils";
 
 interface MoverOption {
   value: number;
@@ -50,7 +49,7 @@ const MoverSelector: React.FC<MoverSelectorProps> = ({
               key={option.value}
               onClick={() => onChange(option.value)}
               type="button"
-              className={clsx(
+              className={cn(
                 "w-16 h-[5.5rem] border rounded-xl flex flex-col items-center text-white transition relative py-1",
                 isSelected
                   ? "border-greenCustom"

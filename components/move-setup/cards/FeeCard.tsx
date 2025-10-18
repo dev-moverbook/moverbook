@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import IconRow from "@/components/shared/buttons/IconRow";
 import IconButton from "@/components/shared/buttons/IconButton";

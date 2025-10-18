@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+
 import { RecentMoveMessageSummary } from "@/types/types";
 import EmptyList from "@/components/shared/message/EmptyList";
 import MessageCard from "@/components/messages/MessageCard";

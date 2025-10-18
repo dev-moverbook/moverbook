@@ -14,7 +14,6 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { MOBILE_BREAKPOINT } from "@/types/const";
-import React from "react";
 
 interface ResponsiveModalProps {
   isOpen: boolean;

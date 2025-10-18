@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import ListRowContainer from "@/components/shared/containers/ListRowContainer";
 import ListRow from "@/components/shared/ui/ListRow";
 import {

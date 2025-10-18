@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { Option } from "@/types/types";
 import AdaptiveSelectOptionsList from "./AdaptiveSelectOptionsList";
 import AdaptiveSelectTrigger from "./AdaptiveSelectTrigger";

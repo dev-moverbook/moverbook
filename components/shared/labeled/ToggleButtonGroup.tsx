@@ -1,7 +1,6 @@
 "use client";
 
-import React from "react";
-import clsx from "clsx";
+import { cn } from "@/lib/utils";
 import FieldDisplay from "@/components/shared/field/FieldDisplay";
 
 interface ToggleOption<T extends string> {
@@ -41,7 +40,7 @@ const ToggleButtonGroup = <T extends string>({
             key={option.value}
             type="button"
             onClick={() => onChange(option.value)}
-            className={clsx(
+            className={cn(
               "px-6 text-sm py-2 rounded-xl border  font-medium transition-all min-w-[80px] hover:bg-white/10",
               value === option.value
                 ? "bg-greenCustom  border-greenCustom "

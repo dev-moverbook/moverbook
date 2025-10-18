@@ -1,4 +1,4 @@
-import clsx from "clsx";
+import { cn } from "@/lib/utils";
 import UserCardBorder from "@/components/shared/card/UserCardBorder";
 
 interface UserCardSkeletonProps {
@@ -7,7 +7,7 @@ interface UserCardSkeletonProps {
 
 const UserCardSkeleton: React.FC<UserCardSkeletonProps> = ({ className }) => {
   return (
-    <div className={clsx("space-y-3", className)}>
+    <div className={cn("space-y-3", className)}>
       {[...Array(2)].map((_, i) => (
         <UserCardBorder key={i}>
           <div className="flex items-center gap-4">

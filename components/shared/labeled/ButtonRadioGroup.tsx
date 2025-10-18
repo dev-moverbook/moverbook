@@ -1,10 +1,9 @@
 "use client";
 
-import React from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import FieldErrorMessage from "./FieldErrorMessage";
-import clsx from "clsx";
+import { cn } from "@/lib/utils";
 import FieldDisplay from "../field/FieldDisplay";
 
 interface Option {
@@ -59,7 +58,7 @@ const ButtonRadioGroup: React.FC<ButtonRadioGroupProps> = ({
       <RadioGroup
         value={value ?? ""}
         onValueChange={(val) => onChange(val === value ? null : val)}
-        className={clsx("mb-4 flex gap-3", responsiveLayoutClass)}
+        className={cn("mb-4 flex gap-3", responsiveLayoutClass)}
         aria-labelledby={label ? `${name}-label` : undefined}
       >
         {options.map((option) => (
@@ -71,7 +70,7 @@ const ButtonRadioGroup: React.FC<ButtonRadioGroupProps> = ({
             />
             <Label
               htmlFor={`${name}-${option.value}`}
-              className={clsx(
+              className={cn(
                 "flex items-center justify-center gap-2 cursor-pointer rounded-full px-6 py-2 text-center border text-sm font-medium w-full hover:bg-background2 transition-all duration-200",
                 value === option.value ? selectedClassName : unselectedClassName
               )}

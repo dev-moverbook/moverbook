@@ -1,5 +1,3 @@
-import React from "react";
-
 interface MessageContainerProps {
   children: React.ReactNode;
 }

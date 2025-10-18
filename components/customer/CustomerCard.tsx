@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+
 import { Mail, Phone } from "lucide-react";
 import { Doc } from "@/convex/_generated/dataModel";
 import { formatPhoneNumber } from "@/frontendUtils/helper";

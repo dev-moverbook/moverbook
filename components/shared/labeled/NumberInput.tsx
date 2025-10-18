@@ -3,7 +3,6 @@ import FieldErrorMessage from "./FieldErrorMessage";
 import FieldDisplay from "../field/FieldDisplay";
 import { Label } from "@radix-ui/react-label";
 import { Input } from "@/components/ui/input";
-import React from "react";
 
 interface NumberInputProps {
   label?: string;

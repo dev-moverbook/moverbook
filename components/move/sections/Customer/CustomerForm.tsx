@@ -1,4 +1,3 @@
-import React from "react";
 import LabeledInput from "@/components/shared/labeled/LabeledInput";
 import PhoneNumberInput from "@/components/shared/labeled/PhoneNumberInput";
 import { CustomerFormData, CustomerFormErrors } from "@/types/form-types";

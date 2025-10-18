@@ -1,7 +1,6 @@
 import { Slot } from "@radix-ui/react-slot";
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
-import React from "react";
 
 type IconButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   icon: React.ReactNode;

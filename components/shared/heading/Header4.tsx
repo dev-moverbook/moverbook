@@ -1,4 +1,4 @@
-import clsx from "clsx";
+import { cn } from "@/lib/utils";
 
 interface Header4Props {
   children: React.ReactNode;
@@ -14,10 +14,8 @@ const Header4: React.FC<Header4Props> = ({
   button,
 }) => {
   return (
-    <div
-      className={clsx("flex justify-between items-center", wrapperClassName)}
-    >
-      <h4 className={clsx("text-white text-2xl font-medium", className)}>
+    <div className={cn("flex justify-between items-center", wrapperClassName)}>
+      <h4 className={cn("text-white text-2xl font-medium", className)}>
         {children}
       </h4>
       {button}

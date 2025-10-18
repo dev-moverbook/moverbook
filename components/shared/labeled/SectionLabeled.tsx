@@ -1,5 +1,3 @@
-import React from "react";
-
 interface SectionLabeledProps {
   children: React.ReactNode;
   className?: string;

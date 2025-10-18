@@ -1,4 +1,3 @@
-import React from "react";
 import RemovableTag from "@/components/shared/ui/RemovableTag"; // update path as needed
 
 interface SectionHeaderWithTagProps {

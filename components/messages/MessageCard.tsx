@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { RecentMoveMessageSummary } from "@/types/types";
 import {
   formatMonthDayTimestamp,

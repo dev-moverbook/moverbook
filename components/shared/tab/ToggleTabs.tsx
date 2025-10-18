@@ -1,6 +1,3 @@
-// components/ui/ToggleTabs.tsx
-
-import React from "react";
 import { Label } from "@/components/ui/label";
 
 interface ToggleTabsProps<T> {

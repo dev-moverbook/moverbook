@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+
 import MoveCard from "./MoveCard";
 import { EnrichedMove } from "@/types/convex-responses";
 import PayOutSummary from "../calendar/components/PayOutSummary";

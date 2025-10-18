@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { usePathname } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 import Image from "next/image";

@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+
 import { useSlugContext } from "@/contexts/SlugContext";
 import { useRecentMessagesByCompanyId } from "@/hooks/messages/useRecentMessagesByCompanyId";
 import MessagesContent from "./MessagesContent";

@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import SelectableCardContainer from "@/components/shared/containers/SelectableCardContainer";
 

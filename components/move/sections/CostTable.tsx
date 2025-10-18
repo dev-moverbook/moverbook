@@ -1,9 +1,8 @@
 "use client";
 
-import React from "react";
 import ListRow from "@/components/shared/ui/ListRow";
 import ListRowContainer from "@/components/shared/containers/ListRowContainer";
-import clsx from "clsx";
+import { cn } from "@/lib/utils";
 import SectionHeader from "../../shared/section/SectionHeader";
 import { formatCurrency, ListRowType } from "@/frontendUtils/helper";
 
@@ -42,7 +41,7 @@ const CostTable: React.FC<CostTableProps> = ({
                       ? `${formatCurrency(Number(row.right))}`
                       : row.right
                 }
-                className={clsx(
+                className={cn(
                   i === 0 && "border-t border-grayCustom",
                   i % 2 === 0 && "bg-background2",
                   boldLastRow && isLast && "font-semibold"

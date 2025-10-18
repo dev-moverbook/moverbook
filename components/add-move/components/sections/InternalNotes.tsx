@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+
 import SectionContainer from "@/components/shared/containers/SectionContainer";
 import LabeledTextarea from "@/components/shared/labeled/LabeledTextarea";
 import LabeledSelect from "@/components/shared/labeled/LabeledSelect";

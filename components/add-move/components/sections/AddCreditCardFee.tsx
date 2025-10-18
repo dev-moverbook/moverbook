@@ -1,6 +1,7 @@
+"use client";
+
 import MoveCreditCardFeeSection from "@/components/move/sections/MoveCreditCardSection";
 import { useMoveForm } from "@/contexts/MoveFormContext";
-import React from "react";
 
 const AddCreditCardFee = () => {
   const { moveFormData, setMoveFormData } = useMoveForm();

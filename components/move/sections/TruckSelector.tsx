@@ -1,8 +1,7 @@
 "use client";
 
 import { Check, AlertTriangle, Truck } from "lucide-react";
-import clsx from "clsx";
-import React from "react";
+import { cn } from "@/lib/utils";
 
 interface TruckOption {
   value: number | "custom";
@@ -48,7 +47,7 @@ const TruckSelector: React.FC<TruckSelectorProps> = ({
             <button
               key={option.value}
               onClick={() => onChange(option.value)}
-              className={clsx(
+              className={cn(
                 "w-16 h-[5.5rem] border rounded-xl flex flex-col items-center   text-white transition relative",
                 isSelected
                   ? "border-greenCustom"

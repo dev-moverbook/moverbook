@@ -1,7 +1,6 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import * as React from "react";
 
 type TooltipContainerProps = {
   className?: string;

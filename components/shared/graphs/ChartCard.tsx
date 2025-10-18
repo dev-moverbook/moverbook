@@ -1,5 +1,3 @@
-import * as React from "react";
-
 type ChartCardProps = {
   title: React.ReactNode;
   className?: string;

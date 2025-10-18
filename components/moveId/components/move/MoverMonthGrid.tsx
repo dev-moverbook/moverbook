@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { DateTime } from "luxon";
 import { useSlugContext } from "@/contexts/SlugContext";
 import { useMoverCalendar } from "@/contexts/MoverCalendarContext";

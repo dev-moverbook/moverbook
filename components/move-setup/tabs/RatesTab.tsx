@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { useSlugContext } from "@/contexts/SlugContext";
 import VerticalSectionGroup from "@/components/shared/section/VerticalSectionGroup";
 import LaborSection from "../sections/LaborSection";

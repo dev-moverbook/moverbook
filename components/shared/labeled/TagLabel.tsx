@@ -1,5 +1,4 @@
-import React from "react";
-import clsx from "clsx";
+import { cn } from "@/lib/utils";
 import { Button } from "../../ui/button";
 
 interface TagLabelProps {
@@ -16,9 +15,7 @@ const TagLabel: React.FC<TagLabelProps> = ({
   className,
 }) => {
   return (
-    <div
-      className={clsx("flex items-center justify-between w-full", className)}
-    >
+    <div className={cn("flex items-center justify-between w-full", className)}>
       <span className="text-white font-medium">{label}</span>
       <Button variant="link" type="button" onClick={onToggle}>
         {buttonText}

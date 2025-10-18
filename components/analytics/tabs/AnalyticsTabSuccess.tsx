@@ -1,5 +1,6 @@
+"use client";
+
 import { Doc } from "@/convex/_generated/dataModel";
-import React from "react";
 import Forecasted from "./Forecasted";
 import Historical from "./Historical";
 import { Option } from "@/types/types";
@@ -7,6 +8,7 @@ import ForecastedByReps from "./sections/ForecastedByReps";
 import ForecastedBySource from "./sections/ForecastedBySource";
 import HistoricalByReps from "./sections/HistoricalByReps";
 import HistoricalBySource from "./sections/HistoricalBySource";
+import { useMemo } from "react";
 
 function AnalyticsTabSuccess({
   tab,
@@ -17,7 +19,7 @@ function AnalyticsTabSuccess({
   users: Doc<"users">[];
   referrals: Doc<"referrals">[];
 }) {
-  const userOptions: Option[] = React.useMemo(
+  const userOptions: Option[] = useMemo(
     () =>
       users.map((userRecord) => ({
         value: String(userRecord._id),
@@ -27,7 +29,7 @@ function AnalyticsTabSuccess({
     [users]
   );
 
-  const sourceOptions: Option[] = React.useMemo(
+  const sourceOptions: Option[] = useMemo(
     () =>
       referrals.map((referralRecord) => {
         const name = referralRecord.name!.trim();

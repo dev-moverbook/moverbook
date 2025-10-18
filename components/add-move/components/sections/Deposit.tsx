@@ -1,8 +1,9 @@
+"use client";
+
 import SectionContainer from "@/components/shared/containers/SectionContainer";
 import Header3 from "@/components/shared/heading/Header3";
 import CurrencyInput from "@/components/shared/labeled/CurrencyInput";
 import { useMoveForm } from "@/contexts/MoveFormContext";
-import React from "react";
 
 const Deposit = () => {
   const { moveFormData, setMoveFormData, moveFormErrors, setMoveFormErrors } =

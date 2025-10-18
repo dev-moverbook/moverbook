@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import TagLabel from "@/components/shared/labeled/TagLabel";
 import CounterInput from "@/components/shared/labeled/CounterInput";
 import FieldDisplay from "@/components/shared/field/FieldDisplay";

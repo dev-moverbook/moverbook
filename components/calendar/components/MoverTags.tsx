@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { useMoveFilter } from "@/contexts/MoveFilterContext";
 import { Badge } from "@/components/ui/badge";
 import { MoveTimes, MoveStatus, WINDOW_LABEL } from "@/types/types";

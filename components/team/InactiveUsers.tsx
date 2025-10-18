@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+
 import { useSlugContext } from "@/contexts/SlugContext";
 import CenteredContainer from "@/components/shared/containers/CenteredContainer";
 import SectionContainer from "@/components/shared/section/SectionContainer";
