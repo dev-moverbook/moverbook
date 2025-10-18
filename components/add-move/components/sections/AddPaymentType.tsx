@@ -1,10 +1,8 @@
-// AddPaymentType.tsx
 "use client";
 
 import PaymentTypeSection from "@/components/move/sections/Payment/PaymentTypeSection";
 import { useMoveForm } from "@/contexts/MoveFormContext";
 import { PaymentMethod } from "@/types/types";
-import React from "react";
 
 const AddPaymentType = () => {
   const { moveFormData, setMoveFormData } = useMoveForm();

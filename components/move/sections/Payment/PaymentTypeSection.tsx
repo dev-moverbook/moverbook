@@ -1,4 +1,3 @@
-// PaymentTypeSection.tsx
 "use client";
 
 import React, { useMemo } from "react";
@@ -8,7 +7,7 @@ import EditToggleButton from "@/components/shared/buttons/EditToggleButton";
 import ButtonRadioGroup from "@/components/shared/labeled/ButtonRadioGroup";
 import LabeledInput from "@/components/shared/labeled/LabeledInput";
 import { PAYMENT_METHOD_OPTIONS, PaymentMethod } from "@/types/types";
-import FormActions from "@/components/shared/FormActions";
+import FormActions from "@/components/shared/buttons/FormActions";
 
 type PaymentTypeSectionProps = {
   paymentMethod: PaymentMethod | null;
