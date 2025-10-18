@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import { use } from "react";
 import { normalizeUserId } from "@/frontendUtils/normalizeParams";
 import { UserIdProvider } from "@/contexts/UserIdContext";
 import ErrorMessage from "@/components/shared/error/ErrorMessage";

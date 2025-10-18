@@ -17,7 +17,6 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import SearchInput from "./SearchInput";
 import { useSlugContext } from "@/contexts/SlugContext";
 import { canCreateMove, isMover } from "@/frontendUtils/permissions";
-import { ClerkRoles } from "@/types/enums";
 
 const Navbar = () => {
   const { slug, isCompanyContactComplete, isStripeComplete, user } =

@@ -4,7 +4,7 @@ import { auth } from "@clerk/nextjs/server";
 import ErrorMessage from "@/components/shared/error/ErrorMessage";
 import StripePage from "@/components/stripe/StripePage";
 
-export default async function Page({}: {}) {
+export default async function Page() {
   const { userId, getToken } = await auth();
   if (!userId) {
     return (
@@ -21,7 +21,7 @@ export default async function Page({}: {}) {
   }
   const connectedAccount = await fetchQuery(
     api.connectedAccount.getStripeConnection,
-    undefined,
+    {},
     { token }
   );
 
