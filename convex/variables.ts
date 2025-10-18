@@ -8,7 +8,6 @@ import {
   isUserInOrg,
   validateDocument,
 } from "./backendUtils/validate";
-import { CreateVariableResponse } from "@/types/convex-responses";
 import { checkExistingVariable } from "./backendUtils/checkUnique";
 import { Doc, Id } from "./_generated/dataModel";
 
@@ -33,59 +32,6 @@ export const getVariablesByCompanyId = query({
       .collect();
 
     return variables;
-  },
-});
-
-// not used
-export const createVariable = mutation({
-  args: {
-    companyId: v.id("companies"),
-    name: v.string(),
-    defaultValue: v.string(),
-  },
-  handler: async (ctx, args): Promise<CreateVariableResponse> => {
-    const { companyId, name, defaultValue } = args;
-
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-      ]);
-
-      const validatedCompany = await validateCompany(ctx.db, companyId);
-
-      isUserInOrg(identity, validatedCompany.clerkOrganizationId);
-
-      const existingVariable: Doc<"variables"> | null =
-        await checkExistingVariable(ctx, companyId, name);
-
-      if (existingVariable) {
-        return {
-          status: ResponseStatus.ERROR,
-          error: ErrorMessages.VARIABLE_NAME_EXISTS,
-          data: null,
-        };
-      }
-
-      const variableId = await ctx.db.insert("variables", {
-        companyId,
-        name,
-        defaultValue,
-      });
-
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { variableId },
-      };
-    } catch (error) {
-      console.error(error);
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error: ErrorMessages.GENERIC_ERROR,
-      };
-    }
   },
 });
 

@@ -9,6 +9,7 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
+  SheetDescription,
   SheetTrigger,
 } from "@/components/ui/sheet";
 import SidebarContent from "./SidebarContent";
@@ -27,7 +28,6 @@ const Navbar = () => {
   const userRole = user.role;
   const canCreateMoveUser = canCreateMove(userRole);
   const moverUser = isMover(userRole);
-
   const isAddMoveDisabled = !isCompanyContactComplete || !isStripeComplete;
 
   const handleAddMove = () => {
@@ -42,7 +42,6 @@ const Navbar = () => {
 
   return (
     <nav className="fixed top-0 left-0 w-full h-14 bg-black flex items-center px-2 z-40 shadow-md border-grayCustom">
-      {/* Mobile Hamburger */}
       <div className="lg:hidden">
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
           <SheetTrigger asChild>
@@ -50,6 +49,8 @@ const Navbar = () => {
               icon={isOpen ? <X size={24} /> : <Menu size={24} />}
               variant="ghost"
               iconClassName="text-white"
+              title={isOpen ? "Close navigation" : "Open navigation"}
+              aria-label={isOpen ? "Close navigation" : "Open navigation"}
             />
           </SheetTrigger>
           <SheetContent
@@ -60,13 +61,17 @@ const Navbar = () => {
               <VisuallyHidden>
                 <SheetTitle>Sidebar Navigation</SheetTitle>
               </VisuallyHidden>
+              <VisuallyHidden>
+                <SheetDescription>
+                  Drawer with application navigation links.
+                </SheetDescription>
+              </VisuallyHidden>
             </SheetHeader>
             <SidebarContent onNavigate={() => setIsOpen(false)} />
           </SheetContent>
         </Sheet>
       </div>
 
-      {/* Search */}
       <div className="flex-1 lg:ml-64">
         <div className="flex items-center justify-between px-1">
           <SearchInput />
