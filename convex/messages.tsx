@@ -1,7 +1,7 @@
 // "use node";
 import { action, internalMutation, query } from "./_generated/server";
 import { v } from "convex/values";
-import { ClerkRoles, ResponseStatus } from "@/types/enums";
+import { ClerkRoles } from "@/types/enums";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import {
   isUserInOrg,
@@ -11,8 +11,6 @@ import {
   validateMove,
   validateMoveCustomer,
 } from "./backendUtils/validate";
-import { handleInternalError } from "./backendUtils/helper";
-import { CreateMessageResponse } from "@/types/convex-responses";
 import { RecentMoveMessageSummary } from "@/types/types";
 import {
   CommunicationTypeConvex,
@@ -127,89 +125,79 @@ export const createMessage = action({
     subject: v.optional(v.union(v.string(), v.null())),
     sentType: MessageSentTypeConvex,
   },
-  handler: async (ctx, args): Promise<CreateMessageResponse> => {
+  handler: async (ctx, args): Promise<boolean> => {
     const { moveId, method, message, subject, sentType } = args;
 
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-        ClerkRoles.SALES_REP,
-      ]);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+      ClerkRoles.SALES_REP,
+    ]);
 
-      const move = validateMove(
-        await ctx.runQuery(internal.move.getMoveByIdInternal, { id: moveId })
-      );
+    const move = validateMove(
+      await ctx.runQuery(internal.move.getMoveByIdInternal, { id: moveId })
+    );
 
-      const company = await ctx.runQuery(
-        internal.companies.getCompanyByIdInternal,
-        {
-          companyId: move.companyId,
-        }
-      );
+    const company = await ctx.runQuery(
+      internal.companies.getCompanyByIdInternal,
+      {
+        companyId: move.companyId,
+      }
+    );
 
-      const validatedCompany = validateDocExists(
-        "companies",
-        company,
-        ErrorMessages.COMPANY_NOT_FOUND
-      );
+    const validatedCompany = validateDocExists(
+      "companies",
+      company,
+      ErrorMessages.COMPANY_NOT_FOUND
+    );
 
-      const moveCustomer = validateMoveCustomer(
-        await ctx.runQuery(internal.moveCustomers.getMoveCustomerByIdInternal, {
-          moveCustomerId: move.moveCustomerId,
-        })
-      );
+    const moveCustomer = validateMoveCustomer(
+      await ctx.runQuery(internal.moveCustomers.getMoveCustomerByIdInternal, {
+        moveCustomerId: move.moveCustomerId,
+      })
+    );
 
-      isUserInOrg(identity, validatedCompany.clerkOrganizationId);
+    isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
-      const templateValues = buildTemplateValues(move, moveCustomer.name);
+    const templateValues = buildTemplateValues(move, moveCustomer.name);
 
-      const resolvedMessage = injectTemplateValues(message, templateValues);
-      const resolvedSubject = subject
-        ? injectTemplateValues(subject, templateValues)
-        : null;
+    const resolvedMessage = injectTemplateValues(message, templateValues);
+    const resolvedSubject = subject
+      ? injectTemplateValues(subject, templateValues)
+      : null;
 
-      let deliveryStatus: "sent" | "failed" = "sent";
-      let sid: string | undefined;
+    let deliveryStatus: "sent" | "failed" = "sent";
+    let sid: string | undefined;
 
-      //   if (method === "sms") {
-      //     if (!move.phoneNumber) {
-      //       throw new Error(ErrorMessages.MOVE_PHONE_NUMBER_NOT_FOUND);
-      //     }
-      //     const result = await sendTwilioSms(move.phoneNumber, resolvedMessage);
-      //     if (!result.success) deliveryStatus = "failed";
-      //     sid = result.sid;
-      //   } else if (method === "email") {
-      //     if (!move.email) {
-      //       throw new Error(ErrorMessages.MOVE_EMAIL_NOT_FOUND);
-      //     }
-      //     sid = await sendSendGridEmail(move.email, resolvedMessage, subject);
-      //   }
+    //   if (method === "sms") {
+    //     if (!move.phoneNumber) {
+    //       throw new Error(ErrorMessages.MOVE_PHONE_NUMBER_NOT_FOUND);
+    //     }
+    //     const result = await sendTwilioSms(move.phoneNumber, resolvedMessage);
+    //     if (!result.success) deliveryStatus = "failed";
+    //     sid = result.sid;
+    //   } else if (method === "email") {
+    //     if (!move.email) {
+    //       throw new Error(ErrorMessages.MOVE_EMAIL_NOT_FOUND);
+    //     }
+    //     sid = await sendSendGridEmail(move.email, resolvedMessage, subject);
+    //   }
 
-      const messageId = await ctx.runMutation(
-        internal.messages.internalCreateMessage,
-        {
-          moveId,
-          companyId: move.companyId,
-          method,
-          status: deliveryStatus,
-          message,
-          resolvedMessage,
-          sid, // pass to mutation
-          sentType,
-          resolvedSubject,
-          subject,
-        }
-      );
+    await ctx.runMutation(internal.messages.internalCreateMessage, {
+      moveId,
+      companyId: move.companyId,
+      method,
+      status: deliveryStatus,
+      message,
+      resolvedMessage,
+      sid, // pass to mutation
+      sentType,
+      resolvedSubject,
+      subject,
+    });
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { messageId },
-      };
-    } catch (error) {
-      return handleInternalError(error);
-    }
+    return true;
   },
 });
 

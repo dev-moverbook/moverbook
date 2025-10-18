@@ -1,4 +1,3 @@
-import React from "react";
 import OnboardingPage from "@/components/onboarding/OnboardingPage";
 
 const Page = () => {

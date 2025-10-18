@@ -335,23 +335,17 @@ export const updateCompanyLogo = mutation({
 });
 
 export const getCompanyClerkUserId = query({
-  args: { clerkUserId: v.string() },
-  handler: async (ctx, args): Promise<Doc<"companies"> | null> => {
-    const { clerkUserId } = args;
-
+  args: v.object({ clerkUserId: v.string() }),
+  handler: async (ctx, { clerkUserId }): Promise<Doc<"companies"> | null> => {
     const user = validateUser(
       await ctx.db
         .query("users")
         .filter((q) => q.eq(q.field("clerkUserId"), clerkUserId))
         .first()
     );
-
     if (!user.companyId) {
       return null;
     }
-
-    const company = await ctx.db.get(user.companyId);
-
-    return company;
+    return await ctx.db.get(user.companyId);
   },
 });

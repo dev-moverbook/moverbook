@@ -224,7 +224,6 @@ export default defineSchema({
     price: v.number(),
     quantity: v.number(),
   }).index("by_move", ["moveId"]),
-
   additionalLiabilityCoverage: defineTable({
     customerSignature: v.optional(v.string()),
     customerSignedAt: v.optional(v.number()),
@@ -232,7 +231,6 @@ export default defineSchema({
     repSignature: v.optional(v.string()),
     repSignedAt: v.optional(v.number()),
   }).index("by_move", ["moveId"]),
-
   arrivalWindow: defineTable({
     afternoonArrival: v.string(),
     afternoonEnd: v.string(),
@@ -240,7 +238,6 @@ export default defineSchema({
     morningArrival: v.string(),
     morningEnd: v.string(),
   }).index("by_company", ["companyId"]),
-
   categories: defineTable({
     companyId: v.id("companies"),
     isActive: v.boolean(),
@@ -248,7 +245,6 @@ export default defineSchema({
     name: v.string(),
     parentCategory: v.optional(v.id("categories")),
   }).index("by_companyId", ["companyId"]),
-
   companies: defineTable({
     clerkOrganizationId: v.string(),
     customerId: v.id("customers"),
@@ -258,7 +254,6 @@ export default defineSchema({
     slug: v.string(),
     timeZone: v.string(),
   }).index("by_slug", ["slug"]),
-
   companyContact: defineTable({
     address: v.union(AddressConvex, v.null()),
     companyId: v.id("companies"),
@@ -269,14 +264,12 @@ export default defineSchema({
     sendgridVerified: v.optional(v.boolean()),
     website: v.string(),
   }).index("by_companyId", ["companyId"]),
-
   compliance: defineTable({
     companyId: v.id("companies"),
     dmvNumber: v.string(),
     statePucPermitNumber: v.string(),
     usDotNumber: v.string(),
   }),
-
   connectedAccounts: defineTable({
     chargesEnabled: v.optional(v.boolean()),
     customerId: v.id("customers"),
@@ -287,12 +280,10 @@ export default defineSchema({
   })
     .index("by_customerId", ["customerId"])
     .index("by_stripeAccountId", ["stripeAccountId"]),
-
   creditCardFees: defineTable({
     companyId: v.id("companies"),
     rate: v.number(),
   }),
-
   customers: defineTable({
     email: v.string(),
     isActive: v.boolean(),
@@ -301,14 +292,12 @@ export default defineSchema({
     stripeCustomerId: v.optional(v.string()),
     subscriptionStatus: v.optional(SubscriptionStatusConvex),
   }).index("by_email", ["email"]),
-
   discounts: defineTable({
     isActive: v.boolean(),
     moveId: v.id("move"),
     name: v.string(),
     price: v.number(),
   }).index("by_move", ["moveId"]),
-
   fees: defineTable({
     companyId: v.id("companies"),
     isActive: v.boolean(),
@@ -325,7 +314,6 @@ export default defineSchema({
     name: v.string(),
     premium: v.number(),
   }).index("by_companyId", ["companyId"]),
-
   invitations: defineTable({
     clerkInvitationId: v.string(),
     clerkOrganizationId: v.string(),
@@ -338,7 +326,6 @@ export default defineSchema({
     .index("status", ["status"])
     .index("by_clerkInvitationId", ["clerkInvitationId"])
     .index("by_clerkOrganizationId", ["clerkOrganizationId"]),
-
   invoices: defineTable({
     customerSignature: v.optional(v.string()),
     customerSignedAt: v.optional(v.number()),
@@ -347,12 +334,10 @@ export default defineSchema({
     repSignedAt: v.optional(v.number()),
     status: InvoiceStatusConvex,
   }).index("by_move", ["moveId"]),
-
   internalReview: defineTable({
     moveId: v.id("move"),
     rating: v.number(),
   }).index("by_move", ["moveId"]),
-
   items: defineTable({
     categoryId: v.optional(v.id("categories")),
     companyId: v.id("companies"),
@@ -363,7 +348,6 @@ export default defineSchema({
     size: v.number(),
     weight: v.number(),
   }).index("by_companyId", ["companyId"]),
-
   labor: defineTable({
     companyId: v.id("companies"),
     endDate: v.union(v.number(), v.null()),
@@ -376,7 +360,6 @@ export default defineSchema({
     threeMovers: v.number(),
     twoMovers: v.number(),
   }).index("by_companyId", ["companyId"]),
-
   messages: defineTable({
     companyId: v.id("companies"),
     message: v.string(),
@@ -389,7 +372,6 @@ export default defineSchema({
     status: MessageStatusConvex,
     subject: v.optional(v.union(v.string(), v.null())),
   }).index("by_moveId", ["moveId"]),
-
   move: defineTable({
     actualArrivalTime: v.optional(v.number()),
     actualBreakTime: v.optional(v.number()),
@@ -437,7 +419,6 @@ export default defineSchema({
     .index("by_moveDate", ["moveDate"])
     .index("by_companyId", ["companyId"])
     .index("by_moveCustomerId", ["moveCustomerId"]),
-
   moveAssignments: defineTable({
     approvedHours: v.optional(v.number()),
     approvedPay: v.optional(v.number()),
@@ -453,7 +434,6 @@ export default defineSchema({
     .index("by_move", ["moveId"])
     .index("by_move_mover", ["moveId", "moverId"])
     .index("by_mover", ["moverId"]),
-
   moveCustomers: defineTable({
     altPhoneNumber: v.string(),
     companyId: v.id("companies"),
@@ -464,7 +444,6 @@ export default defineSchema({
     .index("by_email", ["email"])
     .index("by_phone", ["phoneNumber"])
     .index("by_name", ["name"]),
-
   policies: defineTable({
     additionalTermsAndConditions: v.optional(v.string()),
     cancellationCutoffHour: v.number(),
@@ -474,7 +453,6 @@ export default defineSchema({
     weekdayHourMinimum: v.number(),
     weekendHourMinimum: v.number(),
   }).index("by_companyId", ["companyId"]),
-
   preMoveDocs: defineTable({
     customerSignature: v.optional(v.string()),
     customerSignedAt: v.optional(v.number()),
@@ -482,7 +460,6 @@ export default defineSchema({
     repSignature: v.optional(v.string()),
     repSignedAt: v.optional(v.number()),
   }).index("by_move", ["moveId"]),
-
   quotes: defineTable({
     customerSignature: v.optional(v.string()),
     customerSignedAt: v.optional(v.number()),
@@ -491,20 +468,17 @@ export default defineSchema({
     repSignedAt: v.optional(v.number()),
     status: QuoteStatusConvex,
   }).index("by_move", ["moveId"]),
-
   referrals: defineTable({
     companyId: v.id("companies"),
     isActive: v.boolean(),
     name: v.string(),
   }).index("by_companyId", ["companyId"]),
-
   rooms: defineTable({
     companyId: v.id("companies"),
     isActive: v.boolean(),
     isStarter: v.boolean(),
     name: v.string(),
   }).index("by_companyId", ["companyId"]),
-
   scripts: defineTable({
     companyId: v.id("companies"),
     emailTitle: v.optional(v.string()),
@@ -514,14 +488,12 @@ export default defineSchema({
     title: v.string(),
     type: CommunicationTypeConvex,
   }),
-
   travelFee: defineTable({
     companyId: v.id("companies"),
     defaultMethod: v.union(v.null(), TravelChargingTypesConvex),
     flatRate: v.optional(v.number()),
     mileageRate: v.optional(v.number()),
   }),
-
   users: defineTable({
     clerkUserId: v.string(),
     companyId: v.optional(v.id("companies")),
@@ -536,13 +508,11 @@ export default defineSchema({
     .index("by_email", ["email"])
     .index("by_clerkUserId", ["clerkUserId"])
     .index("by_companyId", ["companyId"]),
-
   variables: defineTable({
     companyId: v.id("companies"),
     defaultValue: v.string(),
     name: v.string(),
   }),
-
   webIntegrations: defineTable({
     companyId: v.id("companies"),
     externalReviewUrl: v.string(),

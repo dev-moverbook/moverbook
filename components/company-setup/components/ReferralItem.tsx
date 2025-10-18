@@ -3,11 +3,11 @@
 import { useState } from "react";
 import { Id } from "@/convex/_generated/dataModel";
 import { useDeleteReferral } from "@/hooks/referrals";
-import ConfirmDeleteModal from "@/components/company-setup/modals/ConfirmDeleteModal";
 import { Pencil, Trash2 } from "lucide-react";
 import IconButton from "@/components/shared/IconButton";
 import IconRow from "@/components/shared/IconRow";
 import ListItemRow from "@/components/shared/ListItemRow";
+import ConfirmModal from "@/components/shared/ConfirmModal";
 
 interface ReferralItemProps {
   referralId: Id<"referrals">;
@@ -53,12 +53,16 @@ const ReferralItem: React.FC<ReferralItemProps> = ({
         </IconRow>
       </ListItemRow>
 
-      <ConfirmDeleteModal
+      <ConfirmModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDeleteConfirm}
         deleteLoading={deleteLoading}
         deleteError={deleteError}
+        title="Confirm Delete"
+        description="Are you sure you want to delete this referral?"
+        confirmButtonText="Delete"
+        cancelButtonText="Cancel"
       />
     </>
   );

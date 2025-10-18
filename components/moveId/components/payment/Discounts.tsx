@@ -8,10 +8,10 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useCreateDiscount } from "../../../../hooks/discounts/useCreateDiscount";
 import { useUpdateDiscount } from "../../../../hooks/discounts/useUpdateDiscount";
-import ConfirmDeleteModal from "@/components/company-setup/modals/ConfirmDeleteModal";
 import DiscountModal, { DiscountFormData } from "../modals/DiscountModal";
 import CardContainer from "@/components/shared/CardContainer";
 import DiscountCard from "../card/DiscountCard";
+import ConfirmModal from "@/components/shared/ConfirmModal";
 
 interface DiscountsProps {
   discounts: Doc<"discounts">[];
@@ -149,13 +149,18 @@ const Discounts = ({ discounts, moveId }: DiscountsProps) => {
           <p className="text-grayCustom2">No discounts added.</p>
         )}
       </SectionContainer>
-      <ConfirmDeleteModal
+      <ConfirmModal
         isOpen={showDeleteModal}
         onClose={handleCloseDeleteModal}
         onConfirm={handleConfirmDeleteDiscount}
         deleteLoading={updateDiscountLoading}
         deleteError={updateDiscountError}
+        title="Confirm Delete"
+        description="Are you sure you want to delete this discount?"
+        confirmButtonText="Delete"
+        cancelButtonText="Cancel"
       />
+
       <DiscountModal
         isOpen={showDiscountModal}
         onClose={handleCloseDiscountModal}

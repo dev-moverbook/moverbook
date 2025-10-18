@@ -162,7 +162,6 @@ const ItemModal: React.FC<ItemModalProps> = ({
         unit="lbs"
       />
 
-      {/* Popular Checkbox */}
       <CheckboxField
         id="isPopular"
         label="Mark as Popular Item"

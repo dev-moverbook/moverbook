@@ -10,10 +10,10 @@ import { useCreateScript } from "@/hooks/stripe";
 import CreateScriptModal from "../modals/CreateScriptModal";
 import { useDeleteScript } from "@/hooks/scripts";
 import { Doc, Id } from "@/convex/_generated/dataModel";
-import ConfirmDeleteModal from "../modals/ConfirmDeleteModal";
 import { useUpdateScript } from "@/hooks/scripts";
 import { useScriptsAndVariables } from "@/hooks/scripts/useScriptsAndVariables";
 import VerticalSectionGroup from "@/components/shared/VerticalSectionGroup";
+import ConfirmModal from "@/components/shared/ConfirmModal";
 
 type UpdateScriptData = {
   title?: string;
@@ -132,7 +132,11 @@ const ScriptsTab = () => {
             editingScript={editingScript}
           />
 
-          <ConfirmDeleteModal
+          <ConfirmModal
+            title="Confirm Delete"
+            description="Are you sure you want to delete this script?"
+            confirmButtonText="Delete"
+            cancelButtonText="Cancel"
             isOpen={isDeleteModalOpen}
             onClose={handleDeleteModalClose}
             onConfirm={handleConfirmDelete}

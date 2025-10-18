@@ -9,11 +9,11 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useCreateAdditionalFee } from "@/hooks/additionalFees";
 import { useUpdateAdditionalFee } from "@/hooks/additionalFees";
-import ConfirmDeleteModal from "@/components/company-setup/modals/ConfirmDeleteModal";
 import AdditionalFeeCard from "../card/AdditionalFeeCard";
 import AdditionalFeeModal, {
   AdditionalFeeFormData,
 } from "../modals/AdditionalFeeModal";
+import ConfirmModal from "@/components/shared/ConfirmModal";
 
 interface AdditionalFeesProps {
   additionalFees: Doc<"additionalFees">[];
@@ -176,13 +176,16 @@ const AdditionalFees = ({
         isLoading={editFee ? updateFeeLoading : createFeeLoading}
         errorMessage={editFee ? updateFeeError : createFeeError}
       />
-      <ConfirmDeleteModal
+      <ConfirmModal
         isOpen={showDeleteModal}
         onClose={handleCloseDeleteModal}
         onConfirm={handleConfirmDeleteFee}
         deleteLoading={updateFeeLoading}
         deleteError={updateFeeError}
-        message="Are you sure you want to delete this fee?"
+        title="Confirm Delete"
+        description="Are you sure you want to delete this fee?"
+        confirmButtonText="Delete"
+        cancelButtonText="Cancel"
       />
     </div>
   );

@@ -66,19 +66,16 @@ const LaborSection: React.FC<LaborSectionProps> = ({
     4: [4, 5],
   };
 
-  // Remove a specific error by setting it to undefined (no unused destructure bindings)
   const clearError = (field: keyof MoveFormErrors) => {
     if (errors[field] && setErrors) {
       setErrors({ ...errors, [field]: undefined });
     }
   };
 
-  // Use the parameter so it's not flagged as unused
   const handleMoverChangeWithEstimate = (val: number) => {
     onChange("movers", val);
     setTagMoversType("custom");
     clearError("movers");
-    // optional: could use hourEstimates[val] to prefill time ranges, etc.
   };
 
   const handleSave = () => {

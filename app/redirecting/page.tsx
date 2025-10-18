@@ -1,103 +1,44 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useUser, useOrganizationList, useOrganization } from "@clerk/nextjs";
-import { useQuery } from "convex/react";
-import { UserRole } from "@/types/enums";
-import NProgress from "nprogress";
+import { auth } from "@clerk/nextjs/server";
+import { fetchQuery } from "convex/nextjs";
 import { api } from "@/convex/_generated/api";
-import FullLoading from "@/components/shared/FullLoading";
+import { redirect } from "next/navigation";
 import ErrorMessage from "@/components/shared/error/ErrorMessage";
+import { UserRole } from "@/types/enums";
+import RedirectingPage from "@/components/redirecting/RedirectingPage";
 
-const RedirectingPage = () => {
-  const router = useRouter();
-  const { user, isLoaded: userLoaded } = useUser();
-  const { setActive } = useOrganizationList();
-  const { organization, isLoaded: organizationLoaded } = useOrganization();
-  const [error, setError] = useState<boolean>(false);
-  const [hasSetActive, setHasSetActive] = useState<boolean>(false);
-  const [pollCount, setPollCount] = useState<number>(0);
+export default async function Page() {
+  const { userId, orgRole, getToken } = await auth();
 
-  const companyResponse = useQuery(
-    api.companies.getCompanyClerkUserId,
-    user && userLoaded ? { clerkUserId: user.id } : "skip"
-  );
-
-  useEffect(() => {
-    const redirect = async () => {
-      if (!userLoaded || !organizationLoaded) return;
-
-      if (!user) {
-        NProgress.start();
-        router.push("/sign-in");
-        return;
-      }
-
-      if (!companyResponse || !setActive) return;
-
-      if (!companyResponse) {
-        setError(true);
-        return;
-      }
-
-      const companyData = companyResponse;
-      const orgRole = user?.publicMetadata.role as string;
-
-      if (!companyData && pollCount < 6) {
-        setTimeout(() => setPollCount((c) => c + 1), 500);
-        return;
-      }
-
-      if (!companyData) {
-        if (orgRole === UserRole.ADMIN) {
-          NProgress.start();
-          router.push("/app/onboarding");
-        }
-        return;
-      }
-
-      if (
-        !companyData ||
-        companyData.clerkOrganizationId !== organization?.id
-      ) {
-        if (!hasSetActive) {
-          setHasSetActive(true);
-          await setActive({ organization: companyData.clerkOrganizationId });
-          setTimeout(() => {
-            router.refresh();
-          }, 500);
-        }
-        return;
-      }
-
-      NProgress.start();
-
-      if (orgRole === UserRole.APP_MODERATOR) {
-        router.push(`app/${companyData.slug}/companies`);
-      } else {
-        router.push(`app/${companyData.slug}`);
-      }
-    };
-
-    redirect();
-  }, [
-    user,
-    userLoaded,
-    organizationLoaded,
-    companyResponse,
-    setActive,
-    organization,
-    router,
-    hasSetActive,
-    pollCount,
-  ]);
-
-  if (error) {
-    return <ErrorMessage message="error" />;
+  if (!userId) {
+    redirect("/sign-in");
   }
 
-  return <FullLoading />;
-};
+  const token = await getToken({ template: "convex" });
+  if (!token) {
+    return <ErrorMessage message="You must be signed in to view this page." />;
+  }
 
-export default RedirectingPage;
+  const companyData = await fetchQuery(
+    api.companies.getCompanyClerkUserId,
+    { clerkUserId: userId },
+    { token }
+  );
+
+  if (!companyData) {
+    if (orgRole === UserRole.ADMIN) {
+      redirect("/app/onboarding");
+    }
+    return <ErrorMessage message="No company found for this account." />;
+  }
+
+  if (orgRole === UserRole.APP_MODERATOR) {
+    redirect(`/app/admin/companies`);
+  }
+
+  return (
+    <RedirectingPage
+      desiredOrgId={companyData.clerkOrganizationId}
+      slug={companyData.slug}
+    />
+  );
+}
