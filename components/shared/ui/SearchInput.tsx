@@ -11,11 +11,8 @@ interface SearchInputProps {
   placeholder?: string;
   className?: string;
   debounceMs?: number;
-  /** Scroll the input to the top of the viewport on focus (mobile only) */
   scrollOnFocus?: boolean;
-  /** Max width (px) to consider as mobile */
   mobileBreakpoint?: number;
-  /** Offset (px) from the very top when scrolling (e.g., fixed header height) */
   scrollOffset?: number;
 }
 
@@ -44,13 +41,16 @@ const SearchInput: React.FC<SearchInputProps> = ({
   }, [internalValue, onChange, debounceMs]);
 
   const handleFocus = () => {
-    if (!scrollOnFocus || typeof window === "undefined") return;
+    if (!scrollOnFocus || typeof window === "undefined") {
+      return;
+    }
     const isMobile = window.matchMedia(
       `(max-width: ${mobileBreakpoint}px)`
     ).matches;
-    if (!isMobile) return;
+    if (!isMobile) {
+      return;
+    }
 
-    // small delay improves reliability on iOS when the keyboard opens
     setTimeout(() => {
       const el = wrapperRef.current;
       if (!el) return;
