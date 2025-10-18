@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { Button } from "@/app/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   toUiError,
   pickPrimaryCta,
   type RouteError,
-} from "@/app/frontendUtils/errorHelper";
+} from "@/frontendUtils/errorHelper";
 
 export default function Error({
   error,

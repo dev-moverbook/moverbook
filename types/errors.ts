@@ -87,6 +87,7 @@ export enum ErrorMessages {
   STRIPE_CONNECTED_DB_CREATE = "Db error creating stripe connected account",
   STRIPE_CREATE = "Stripe connected error creating account",
   STRIPE_CONNECTED_ONBOARDING_LINK = "Stripe connected error generating onboarding link",
+  STRIPE_CONNECTED_LOGIN_LINK = "Stripe connected error generating login link",
   SENDGRID_SENDER_CREATION_ERROR = "SendGrid sender creation failed",
   SENDGRID_SENDER_VERIFICATION_ERROR = "SendGrid sender verification failed",
   COMPANY_CONTACT_UPDATE = "DB error updating company contact",

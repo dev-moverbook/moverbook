@@ -1,13 +1,13 @@
 "use client";
 import { useState } from "react";
-import { Button } from "@/app/components/ui/button";
-import { Input } from "@/app/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { ErrorMessages } from "@/types/errors";
 import { isValidEmail } from "@/utils/helper";
-import FormErrorMessage from "../components/shared/error/FormErrorMessage";
-import { setErrorFromConvexError } from "../frontendUtils/errorHelper";
+import FormErrorMessage from "../../components/shared/error/FormErrorMessage";
+import { setErrorFromConvexError } from "../../frontendUtils/errorHelper";
 
 const SignUpPage = () => {
   const [email, setEmail] = useState<string>("");

@@ -7,7 +7,7 @@ import {
   getMoveCostRange,
   roundToTwoDecimals,
   sumSegments,
-} from "@/app/frontendUtils/helper";
+} from "@/frontendUtils/helper";
 import { EnrichedMove } from "@/types/convex-responses";
 import { HourStatus, MoveStatus } from "@/types/types";
 

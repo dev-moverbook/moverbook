@@ -174,11 +174,8 @@ export interface GetCompanyIdBySlugResponse {
   timeZone: string;
   isCompanyContactComplete: boolean;
   isStripeComplete: boolean;
+  user: Doc<"users">;
 }
-
-export type GetActiveVariablesByCompanyIdResponse =
-  | GetActiveVariablesByCompanyIdSuccess
-  | ErrorResponse;
 
 export interface GetActiveVariablesByCompanyIdSuccess {
   status: ResponseStatus.SUCCESS;

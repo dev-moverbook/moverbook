@@ -20,6 +20,65 @@ import {
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
+export const ActivityEventTypeConvex = v.union(
+  v.literal("ASSIGN_MOVER"),
+  v.literal("CLOCK_IN"),
+  v.literal("CLOCK_OUT"),
+  v.literal("CONTRACT_SENT"),
+  v.literal("CUSTOMER_CREATED"),
+  v.literal("CUSTOMER_MOVE_UPDATED"),
+  v.literal("CUSTOMER_SIGNED_CONTRACT_DOC"),
+  v.literal("CUSTOMER_SIGNED_PROPOSAL"),
+  v.literal("CUSTOMER_UPDATED"),
+  v.literal("DISCOUNT_ADDED"),
+  v.literal("DISCOUNT_REMOVED"),
+  v.literal("DISCOUNT_UPDATED"),
+  v.literal("FEE_ADDED"),
+  v.literal("FEE_REMOVED"),
+  v.literal("FEE_UPDATED"),
+  v.literal("HOURS_UPDATED"),
+  v.literal("INTERNAL_REVIEW_COMPLETED"),
+  v.literal("INTERNAL_REVIEW_SENT"),
+  v.literal("INVOICE_MARKED_COMPLETE"),
+  v.literal("INVOICE_PAYMENT"),
+  v.literal("INVOICE_SENT"),
+  v.literal("MESSAGE_INCOMING"),
+  v.literal("MESSAGE_OUTGOING"),
+  v.literal("MOVE_COMPLETED"),
+  v.literal("MOVE_CREATED"),
+  v.literal("MOVE_STARTED"),
+  v.literal("MOVE_STATUS_UPDATED"),
+  v.literal("MOVE_UPDATED"),
+  v.literal("REMOVE_MOVER"),
+  v.literal("SALES_REP_MARKED_BOOKED"),
+  v.literal("SALES_REP_SEND_PROPOSAL"),
+  v.literal("WAIVER_SENT"),
+  v.literal("WAIVER_SIGNED")
+);
+
+export const ActivityEventContextConvex = v.object({
+  amount: v.optional(v.number()),
+  approvedPay: v.optional(v.number()),
+  customerId: v.optional(v.id("moveCustomers")),
+  customerName: v.optional(v.string()),
+  deliveryType: v.optional(CommunicationTypeConvex),
+  discountId: v.optional(v.id("discounts")),
+  discountName: v.optional(v.string()),
+  feeId: v.optional(v.id("additionalFees")),
+  feeName: v.optional(v.string()),
+  invoiceId: v.optional(v.id("invoices")),
+  messageId: v.optional(v.id("messages")),
+  moveAssignmentId: v.optional(v.id("moveAssignments")),
+  moveDate: v.optional(v.string()),
+  moveId: v.optional(v.id("move")),
+  moveStatus: v.optional(v.string()),
+  moverId: v.optional(v.id("users")),
+  paymentType: v.optional(v.string()),
+  rating: v.optional(v.number()),
+  salesRepId: v.optional(v.id("users")),
+  timeLabel: v.optional(v.string()),
+});
+
 export const MoveFeeConvex = v.object({
   name: v.string(),
   price: v.number(),
@@ -97,6 +156,31 @@ export const PaymentMethodConvex = v.union(
   v.object({ kind: v.literal("other"), label: v.string() })
 );
 
+export const ActivityIconKeyConvex = v.union(
+  v.literal("bust_silhouette"),
+  v.literal("pencil"),
+  v.literal("package"),
+  v.literal("arrows_counter_clockwise"),
+  v.literal("envelope"),
+  v.literal("nib"),
+  v.literal("check"),
+  v.literal("construction_worker"),
+  v.literal("x_mark"),
+  v.literal("contract"),
+  v.literal("waiver"),
+  v.literal("hot_beverage"),
+  v.literal("dollar"),
+  v.literal("money_with_wings"),
+  v.literal("lorry"),
+  v.literal("clock_in"),
+  v.literal("clock_out")
+);
+
+export const ActivityEventVisibilityConvex = v.object({
+  audienceRoles: v.array(UserRoleConvex),
+  moversAssignedOnly: v.optional(v.boolean()),
+});
+
 export const QuoteStatusConvex = v.union(
   v.literal("pending"),
   v.literal("completed"),
@@ -116,6 +200,22 @@ export const InvoiceStatusConvex = v.union(
 );
 
 export default defineSchema({
+  activities: defineTable({
+    actorCustomerId: v.optional(v.id("moveCustomers")),
+    actorMoveId: v.optional(v.id("move")),
+    actorUserId: v.optional(v.id("users")),
+    body: v.string(),
+    companyId: v.id("companies"),
+    context: ActivityEventContextConvex,
+    iconKey: ActivityIconKeyConvex,
+    title: v.string(),
+    type: ActivityEventTypeConvex,
+    visibility: ActivityEventVisibilityConvex,
+  })
+    .index("by_companyId", ["companyId"])
+    .index("by_type_companyId", ["type", "companyId"])
+    .index("by_moveId", ["context.moveId"])
+    .index("by_customerId", ["context.customerId"]),
   additionalFees: defineTable({
     feeId: v.optional(v.id("fees")),
     isActive: v.boolean(),

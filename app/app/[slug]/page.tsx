@@ -1,8 +1,8 @@
-"use client";
 import React from "react";
+import HomePage from "@/components/home/HomePage";
 
-const TeamPage = () => {
-  return <div>Team Page for company: </div>;
+const Page = () => {
+  return <HomePage />;
 };
 
-export default TeamPage;
+export default Page;

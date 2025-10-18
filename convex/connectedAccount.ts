@@ -1,6 +1,6 @@
 import { StripeAccountStatusConvex } from "@/types/convex-enums";
 import { ErrorMessages } from "@/types/errors";
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import { Doc, Id } from "./_generated/dataModel";
 import {
   action,
@@ -17,6 +17,7 @@ import { internal } from "./_generated/api";
 import {
   createStripeConnectedAccount,
   generateStripeAccountLink,
+  generateStripeAccountLoginLink,
   stripe,
 } from "./backendUtils/stripe";
 import { handleAccountUpdated } from "./backendUtils/connectedAccountWebhook";
@@ -97,120 +98,88 @@ export const getConnectedAccountInternal = internalQuery({
 
 export const createStripeOnboardingLink = action({
   args: { origin: v.string() },
-  handler: async (ctx, { origin }) => {
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [ClerkRoles.ADMIN]);
-      const email = identity.email as string;
+  handler: async (ctx, { origin }): Promise<string> => {
+    const identity = await requireAuthenticatedUser(ctx, [ClerkRoles.ADMIN]);
+    const email = identity.email as string;
 
-      const user = validateUser(
-        await ctx.runQuery(internal.users.getUserByEmailInternal, {
-          email,
-        }),
-        true,
-        true,
-        true
-      );
+    const user = validateUser(
+      await ctx.runQuery(internal.users.getUserByEmailInternal, {
+        email,
+      }),
+      true,
+      true,
+      true
+    );
 
-      const existingAccount = await ctx.runQuery(
-        internal.connectedAccount.getConnectedAccountInternal,
-        {
-          customerId: user.customerId!,
-        }
-      );
-
-      let stripeAccountId = existingAccount?.stripeAccountId;
-
-      if (!stripeAccountId) {
-        const account = await createStripeConnectedAccount({
-          email: user.email,
-          customerId: user.customerId!,
-        });
-
-        stripeAccountId = account.id;
-
-        ctx.runMutation(internal.connectedAccount.saveConnectedAccount, {
-          customerId: user.customerId!,
-          stripeAccountId: account.id,
-          status: StripeAccountStatus.NOT_ONBOARDED,
-        });
+    const existingAccount = await ctx.runQuery(
+      internal.connectedAccount.getConnectedAccountInternal,
+      {
+        customerId: user.customerId!,
       }
+    );
 
-      const url = await generateStripeAccountLink({
-        accountId: stripeAccountId,
-        type: "account_onboarding",
-        returnUrl: origin,
-        refreshUrl: origin,
+    let stripeAccountId = existingAccount?.stripeAccountId;
+
+    if (!stripeAccountId) {
+      const account = await createStripeConnectedAccount({
+        email: user.email,
+        customerId: user.customerId!,
       });
 
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: {
-          url,
-        },
-      };
-    } catch (error) {
-      console.error(error);
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error:
-          error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR,
-      };
+      stripeAccountId = account.id;
+
+      ctx.runMutation(internal.connectedAccount.saveConnectedAccount, {
+        customerId: user.customerId!,
+        stripeAccountId: account.id,
+        status: StripeAccountStatus.NOT_ONBOARDED,
+      });
     }
+
+    const url = await generateStripeAccountLink({
+      accountId: stripeAccountId,
+      type: "account_onboarding",
+      returnUrl: origin,
+      refreshUrl: origin,
+    });
+
+    return url;
   },
 });
 
 export const getStripeDashboardLink = action({
   args: {},
-  handler: async (ctx): Promise<GetStripeDashboardLinkResponse> => {
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [ClerkRoles.ADMIN]);
-      const email = identity.email as string;
+  handler: async (ctx): Promise<string> => {
+    const identity = await requireAuthenticatedUser(ctx, [ClerkRoles.ADMIN]);
+    const email = identity.email as string;
 
-      const user = validateUser(
-        await ctx.runQuery(internal.users.getUserByEmailInternal, {
-          email,
-        }),
-        true,
-        true,
-        true
-      );
+    const user = validateUser(
+      await ctx.runQuery(internal.users.getUserByEmailInternal, {
+        email,
+      }),
+      true,
+      true,
+      true
+    );
 
-      const existingAccount: Doc<"connectedAccounts"> | null =
-        await ctx.runQuery(
-          internal.connectedAccount.getConnectedAccountInternal,
-          {
-            customerId: user.customerId!,
-          }
-        );
-
-      if (!existingAccount || !existingAccount.stripeAccountId) {
-        return {
-          status: ResponseStatus.ERROR,
-          data: null,
-          error: "No Stripe account found. Please complete onboarding first.",
-        };
+    const existingAccount: Doc<"connectedAccounts"> | null = await ctx.runQuery(
+      internal.connectedAccount.getConnectedAccountInternal,
+      {
+        customerId: user.customerId!,
       }
+    );
 
-      const loginLink = await stripe.accounts.createLoginLink(
-        existingAccount.stripeAccountId
-      );
-
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: {
-          url: loginLink.url,
-        },
-      };
-    } catch (error) {
-      console.error(error);
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error:
-          error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR,
-      };
+    if (!existingAccount || !existingAccount.stripeAccountId) {
+      throw new ConvexError({
+        code: "NOT_FOUND",
+        message: ErrorMessages.CONNECTED_ACCOUNT_NO_CUSTOMER_ID,
+      });
     }
+
+    const loginLink = await generateStripeAccountLoginLink({
+      accountId: existingAccount.stripeAccountId,
+    });
+
+    return loginLink;
   },
 });
 

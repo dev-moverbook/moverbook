@@ -7,8 +7,8 @@ import { useQuery } from "convex/react";
 import { UserRole } from "@/types/enums";
 import NProgress from "nprogress";
 import { api } from "@/convex/_generated/api";
-import FullLoading from "@/app/components/shared/FullLoading";
-import ErrorMessage from "@/app/components/shared/error/ErrorMessage";
+import FullLoading from "@/components/shared/FullLoading";
+import ErrorMessage from "@/components/shared/error/ErrorMessage";
 
 const RedirectingPage = () => {
   const router = useRouter();

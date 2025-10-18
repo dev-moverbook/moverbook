@@ -1,4 +1,4 @@
-import AddMovePage from "@/app/app/[slug]/add-move/AddMovePage";
+import AddMovePage from "@/components/add-move/AddMovePage";
 
 type PageSearchParams = {
   moveCustomerId?: string | string[];

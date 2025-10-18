@@ -9,7 +9,7 @@ import {
 } from "@/types/types";
 import { Doc, Id } from "../_generated/dataModel";
 import { enumerateDaysInclusive, toIsoDateInTimeZone } from "./helper";
-import { computeMoveTotal } from "@/app/frontendUtils/helper";
+import { computeMoveTotal } from "@/frontendUtils/helper";
 import { UNKNOWN_NAME } from "@/types/const";
 import { StackedSegment } from "@/types/types";
 

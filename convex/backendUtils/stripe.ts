@@ -60,6 +60,20 @@ export async function generateStripeAccountLink({
   }
 }
 
+export async function generateStripeAccountLoginLink({
+  accountId,
+}: {
+  accountId: string;
+}): Promise<string> {
+  try {
+    const loginLink = await stripe.accounts.createLoginLink(accountId);
+    return loginLink.url;
+  } catch (error) {
+    console.error(ErrorMessages.STRIPE_CONNECTED_LOGIN_LINK, error);
+    throw new Error(ErrorMessages.STRIPE_CONNECTED_LOGIN_LINK);
+  }
+}
+
 // export async function deactivateStripeConnectedAccount(
 //   stripeAccountId: string
 // ): Promise<void> {

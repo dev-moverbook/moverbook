@@ -1,4 +1,4 @@
-import { formatDateToLong } from "@/app/frontendUtils/helper";
+import { formatDateToLong } from "@/frontendUtils/helper";
 import { Doc } from "@/convex/_generated/dataModel";
 
 export const buildTemplateValues = (

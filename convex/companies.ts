@@ -132,7 +132,6 @@ export const getCompanyIdBySlug = query({
       .query("companies")
       .filter((q) => q.eq(q.field("slug"), slug))
       .first();
-
     const validatedCompany = validateDocExists(
       "companies",
       company,
@@ -140,6 +139,14 @@ export const getCompanyIdBySlug = query({
     );
     isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
+    const users = await ctx.db
+      .query("users")
+      .filter((q) => q.eq(q.field("clerkUserId"), identity.id as string))
+      .first();
+
+    console.log("users", users);
+
+    const user = validateUser(users, true);
     const connectedAccount: Doc<"connectedAccounts"> | null = await ctx.db
       .query("connectedAccounts")
       .filter((q) => q.eq(q.field("customerId"), validatedCompany.customerId))
@@ -167,6 +174,7 @@ export const getCompanyIdBySlug = query({
       timeZone: validatedCompany.timeZone,
       isCompanyContactComplete,
       isStripeComplete,
+      user,
     };
   },
 });
