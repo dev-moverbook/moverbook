@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { CommunicationType } from "@/types/types";
-import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
+import { setErrorFromConvexError } from "@/frontendUtils/errorHelper";
 
 interface UpdateScriptData {
   title?: string;
@@ -28,8 +28,7 @@ export const useUpdateScript = () => {
     try {
       return await updateScriptMutation({ scriptId, updates });
     } catch (error) {
-      console.error(error);
-      setUpdateError(FrontEndErrorMessages.GENERIC);
+      setErrorFromConvexError(error, setUpdateError);
       return false;
     } finally {
       setUpdateLoading(false);

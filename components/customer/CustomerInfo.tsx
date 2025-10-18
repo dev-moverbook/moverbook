@@ -11,7 +11,6 @@ import { useUpdateMoveCustomer } from "@/hooks/moveCustomers/useUpdateMoveCustom
 import { cn } from "@/lib/utils";
 import SectionHeader from "../shared/SectionHeader";
 import { isValidEmail, isValidPhoneNumber } from "@/utils/helper";
-import { ClerkRoles } from "@/types/enums";
 import { useSlugContext } from "@/contexts/SlugContext";
 import { canCreateMove, isMover } from "@/frontendUtils/permissions";
 
