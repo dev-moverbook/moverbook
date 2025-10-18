@@ -10,9 +10,8 @@ import {
   query,
 } from "./_generated/server";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
-import { ClerkRoles, ResponseStatus, StripeAccountStatus } from "@/types/enums";
+import { ClerkRoles, StripeAccountStatus } from "@/types/enums";
 import { validateUser } from "./backendUtils/validate";
-import { GetStripeDashboardLinkResponse } from "@/types/convex-responses";
 import { internal } from "./_generated/api";
 import {
   createStripeConnectedAccount,

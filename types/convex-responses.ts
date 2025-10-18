@@ -1,17 +1,7 @@
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { ResponseStatus, StripeAccountStatus } from "./enums";
 import { ErrorMessages } from "./errors";
-
-import {
-  ForecastPoint,
-  FunnelPoint,
-  HistoricalPoint,
-  HourStatus,
-  MoveAnalyticsPoint,
-  MoverWageForMove,
-  RecentMoveMessageSummary,
-  StackedDay,
-} from "./types";
+import { HourStatus, MoverWageForMove } from "./types";
 
 export interface ErrorResponse {
   status: ResponseStatus.ERROR;
@@ -19,152 +9,9 @@ export interface ErrorResponse {
   error: ErrorMessages | string;
 }
 
-export type CreateCustomerWithSubscriptionResponse =
-  | CreateCustomerWithSubscriptionSuccess
-  | ErrorResponse;
-
-export interface CreateCustomerWithSubscriptionSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: CreateCustomerWithSubscriptionData;
-}
-
 export interface CreateCustomerWithSubscriptionData {
   customerId: Id<"customers">;
   status: "Created" | "Reactivated";
-}
-
-export type CreateOrganizationResponse =
-  | CreateOrganizationSuccess
-  | ErrorResponse;
-
-export interface CreateOrganizationSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: CreateOrganizationData;
-}
-
-export interface CreateOrganizationData {
-  slug: string;
-  clerkOrganizationId: string;
-}
-
-export type UpdateUserActiveStatusResponse =
-  | UpdateUserActiveStatusSuccess
-  | ErrorResponse;
-
-export interface UpdateUserActiveStatusSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: UpdateUserActiveStatusData;
-}
-
-export interface UpdateUserActiveStatusData {
-  userId: Id<"users">;
-}
-
-export type UpdateUserResponse = UpdateUserSuccess | ErrorResponse;
-
-export interface UpdateUserSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: UpdateUserData;
-}
-
-export interface UpdateUserData {
-  userId: Id<"users">;
-}
-
-export type ClerkInviteUserToOrganizationResponse =
-  | ClerkInviteUserToOrganizationSuccess
-  | ErrorResponse;
-
-export interface ClerkInviteUserToOrganizationSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: ClerkInviteUserToOrganizationData;
-}
-
-export interface ClerkInviteUserToOrganizationData {
-  invitationId: Id<"invitations">;
-}
-
-export type GetAllUsersByCompanyIdResponse =
-  | GetAllUsersByCompanyIdSuccess
-  | ErrorResponse;
-
-export interface GetAllUsersByCompanyIdSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetAllUsersByCompanyIdData;
-}
-
-export interface GetAllUsersByCompanyIdData {
-  users: Doc<"users">[];
-}
-
-export type GetActiveInvitationsByCompanyIdResponse =
-  | GetActiveInvitationsByCompanyIdSuccess
-  | ErrorResponse;
-
-export interface GetActiveInvitationsByCompanyIdSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetActiveInvitationsByCompanyIdData;
-}
-
-export interface GetActiveInvitationsByCompanyIdData {
-  invitations: Doc<"invitations">[];
-}
-
-export type RevokeInviteUserResponse = RevokeInviteUserSuccess | ErrorResponse;
-
-export interface RevokeInviteUserSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: RevokeInviteUserData;
-}
-
-export interface RevokeInviteUserData {
-  invitationId: Id<"invitations">;
-}
-
-export type GetUserByIdResponse = GetUserByIdSuccess | ErrorResponse;
-
-export interface GetUserByIdSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetUserByIdData;
-}
-
-export interface GetUserByIdData {
-  user: Doc<"users">;
-}
-
-export type GetActiveReferralsByCompanyIdResponse =
-  | GetActiveReferralsByCompanyIdSuccess
-  | ErrorResponse;
-
-export interface GetActiveReferralsByCompanyIdSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetActiveReferralsByCompanyIdData;
-}
-
-export interface GetActiveReferralsByCompanyIdData {
-  referrals: Doc<"referrals">[];
-}
-
-export type CreateReferralResponse = CreateReferralSuccess | ErrorResponse;
-
-export interface CreateReferralSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: CreateReferralData;
-}
-
-export interface CreateReferralData {
-  referralId: Id<"referrals">;
-}
-
-export type UpdateReferralResponse = UpdateReferralSuccess | ErrorResponse;
-
-export interface UpdateReferralSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: UpdateReferralData;
-}
-
-export interface UpdateReferralData {
-  referralId: Id<"referrals">;
 }
 
 export interface GetCompanyIdBySlugResponse {
@@ -177,106 +24,6 @@ export interface GetCompanyIdBySlugResponse {
   user: Doc<"users">;
 }
 
-export interface GetActiveVariablesByCompanyIdSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetActiveVariablesByCompanyIdData;
-}
-
-export interface GetActiveVariablesByCompanyIdData {
-  variables: Doc<"variables">[];
-}
-
-export type CreateVariableResponse = CreateVariableSuccess | ErrorResponse;
-
-export interface CreateVariableSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: CreateVariableData;
-}
-
-export interface CreateVariableData {
-  variableId: Id<"variables">;
-}
-
-export type UpdateVariableResponse = UpdateVariableSuccess | ErrorResponse;
-
-export interface UpdateVariableSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: UpdateVariableData;
-}
-
-export interface UpdateVariableData {
-  variableId: Id<"variables">;
-}
-
-export type GetActiveScriptsByCompanyIdResponse =
-  | GetActiveScriptsByCompanyIdSuccess
-  | ErrorResponse;
-
-export interface GetActiveScriptsByCompanyIdSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetActiveScriptsByCompanyIdData;
-}
-
-export interface GetActiveScriptsByCompanyIdData {
-  scripts: Doc<"scripts">[];
-}
-
-export type CreateScriptResponse = CreateScriptResponseSuccess | ErrorResponse;
-
-export interface CreateScriptResponseSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: CreateScriptResponseData;
-}
-
-export interface CreateScriptResponseData {
-  scriptId: Id<"scripts">;
-}
-
-export type UpdateScriptResponse = UpdateScriptResponseSuccess | ErrorResponse;
-
-export interface UpdateScriptResponseSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: UpdateScriptResponseData;
-}
-
-export interface UpdateScriptResponseData {
-  scriptId: Id<"scripts">;
-}
-
-export type DeleteScriptResponse = DeleteScriptResponseSuccess | ErrorResponse;
-
-export interface DeleteScriptResponseSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: DeleteScriptResponseData;
-}
-
-export interface DeleteScriptResponseData {
-  scriptId: Id<"scripts">;
-}
-
-export type GetActiveScriptsAndVariablesByCompanyIdResponse =
-  | GetActiveScriptsAndVariablesByCompanyIdSuccess
-  | ErrorResponse;
-
-export interface GetActiveScriptsAndVariablesByCompanyIdSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetActiveScriptsAndVariablesByCompanyIdData;
-}
-
-export interface GetActiveScriptsAndVariablesByCompanyIdData {
-  scripts: Doc<"scripts">[];
-  variables: Doc<"variables">[];
-}
-
-export type GetCompanyDetailsResponse =
-  | GetCompanyDetailsSuccess
-  | ErrorResponse;
-
-export interface GetCompanyDetailsSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetCompanyDetailsData;
-}
-
 export interface GetCompanyDetailsData {
   company: Doc<"companies">;
   compliance: Doc<"compliance">;
@@ -284,233 +31,9 @@ export interface GetCompanyDetailsData {
   companyContact: Doc<"companyContact">;
 }
 
-export type UpdateComplianceResponse = UpdateComplianceSuccess | ErrorResponse;
-
-export interface UpdateComplianceSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: UpdateComplianceData;
-}
-
-export interface UpdateComplianceData {
-  complianceId: Id<"compliance">;
-}
-
-export type UpdateWebIntegrationsResponse =
-  | UpdateWebIntegrationsSuccess
-  | ErrorResponse;
-
-export interface UpdateWebIntegrationsSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: UpdateWebIntegrationsData;
-}
-
-export interface UpdateWebIntegrationsData {
-  webIntegrationsId: Id<"webIntegrations">;
-}
-
-export type UpdateCompanyContactResponse =
-  | UpdateCompanyContactSuccess
-  | ErrorResponse;
-
-export interface UpdateCompanyContactSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: UpdateCompanyContactData;
-}
-
-export interface UpdateCompanyContactData {
-  companyContactId: Id<"companyContact">;
-}
-
-export type UpdateCompanyResponse = UpdateCompanySuccess | ErrorResponse;
-
-export interface UpdateCompanySuccess {
-  status: ResponseStatus.SUCCESS;
-  data: UpdateCompanyData;
-}
-
-export interface UpdateCompanyData {
-  companyId: Id<"companies">;
-  slug?: string;
-}
-
-export type UpdateCompanyLogoResponse =
-  | UpdateCompanyLogoSuccess
-  | ErrorResponse;
-
-export interface UpdateCompanyLogoSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: UpdateCompanyLogoData;
-}
-
-export interface UpdateCompanyLogoData {
-  companyId: Id<"companies">;
-}
-
-export type GetCompanyArrivalAndPoliciesResponse =
-  | GetCompanyArrivalAndPoliciesSuccess
-  | ErrorResponse;
-
-export interface GetCompanyArrivalAndPoliciesSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetCompanyArrivalAndPoliciesData;
-}
-
 export interface GetCompanyArrivalAndPoliciesData {
   arrivalWindow: Doc<"arrivalWindow">;
   policy: Doc<"policies">;
-}
-
-export type UpdateArrivalWindowResponse =
-  | UpdateArrivalWindowSuccess
-  | ErrorResponse;
-
-export interface UpdateArrivalWindowSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: UpdateArrivalWindowData;
-}
-
-export interface UpdateArrivalWindowData {
-  arrivalWindowId: Id<"arrivalWindow">;
-}
-
-export type UpdatePolicyResponse = UpdatePolicySuccess | ErrorResponse;
-
-export interface UpdatePolicySuccess {
-  status: ResponseStatus.SUCCESS;
-  data: UpdatePolicyData;
-}
-
-export interface UpdatePolicyData {
-  policyId: Id<"policies">;
-}
-
-export type GetPolicyResponse = GetPolicySuccess | ErrorResponse;
-
-export interface GetPolicySuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetPolicyData;
-}
-
-export interface GetPolicyData {
-  policy: Doc<"policies">;
-}
-
-export type CreateLaborResponse = CreateLaborSuccess | ErrorResponse;
-
-export interface CreateLaborSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: CreateLaborData;
-}
-
-export interface CreateLaborData {
-  laborId: Id<"labor">;
-}
-
-export type UpdateLaborResponse = UpdateLaborSuccess | ErrorResponse;
-
-export interface UpdateLaborSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: UpdateLaborData;
-}
-
-export interface UpdateLaborData {
-  laborId: Id<"labor">;
-}
-
-export type CreateInsurancePolicyResponse =
-  | CreateInsurancePolicySuccess
-  | ErrorResponse;
-
-export interface CreateInsurancePolicySuccess {
-  status: ResponseStatus.SUCCESS;
-  data: CreateInsurancePolicyData;
-}
-
-export interface CreateInsurancePolicyData {
-  insurancePolicyId: Id<"insurancePolicies">;
-}
-
-export type UpdateInsurancePolicyResponse =
-  | UpdateInsurancePolicySuccess
-  | ErrorResponse;
-
-export interface UpdateInsurancePolicySuccess {
-  status: ResponseStatus.SUCCESS;
-  data: UpdateInsurancePolicyData;
-}
-
-export interface UpdateInsurancePolicyData {
-  insurancePolicyId: Id<"insurancePolicies">;
-}
-
-export type GetInsurancePoliciesResponse =
-  | GetInsurancePoliciesSuccess
-  | ErrorResponse;
-
-export interface GetInsurancePoliciesSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetInsurancePoliciesData;
-}
-
-export interface GetInsurancePoliciesData {
-  insurancePolicies: Doc<"insurancePolicies">[];
-}
-
-export type UpdateCreditCardFeeResponse =
-  | UpdateCreditCardFeeSuccess
-  | ErrorResponse;
-
-export interface UpdateCreditCardFeeSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: UpdateCreditCardFeeData;
-}
-
-export interface UpdateCreditCardFeeData {
-  creditCardFeeId: Id<"creditCardFees">;
-}
-
-export type CreateFeeResponse = CreateFeeSuccess | ErrorResponse;
-
-export interface CreateFeeSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: CreateFeeData;
-}
-
-export interface CreateFeeData {
-  feeId: Id<"fees">;
-}
-
-export type UpdateFeeResponse = UpdateFeeSuccess | ErrorResponse;
-
-export interface UpdateFeeSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: UpdateFeeData;
-}
-
-export interface UpdateFeeData {
-  feeId: Id<"fees">;
-}
-
-export type GetFeesResponse = GetFeesSuccess | ErrorResponse;
-
-export interface GetFeesSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetFeesData;
-}
-
-export interface GetFeesData {
-  fees: Doc<"fees">[];
-}
-
-export type UpdateTravelFeeResponse = UpdateTravelFeeSuccess | ErrorResponse;
-
-export interface UpdateTravelFeeSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: UpdateTravelFeeData;
-}
-
-export interface UpdateTravelFeeData {
-  travelFeeId: Id<"travelFee">;
 }
 
 export type GetActiveRoomsResponse = GetActiveRoomsSuccess | ErrorResponse;
@@ -522,63 +45,6 @@ export interface GetActiveRoomsSuccess {
 
 export interface GetActiveRoomsData {
   rooms: Doc<"rooms">[];
-}
-
-export type CreateRoomResponse = CreateRoomSuccess | ErrorResponse;
-
-export interface CreateRoomSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: CreateRoomData;
-}
-
-export interface CreateRoomData {
-  roomId: Id<"rooms">;
-}
-
-export type UpdateRoomResponse = UpdateRoomSuccess | ErrorResponse;
-
-export interface UpdateRoomSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: UpdateRoomData;
-}
-
-export interface UpdateRoomData {
-  roomId: Id<"rooms">;
-}
-
-export type ResetRoomsAndCategoriesAndItemsResponse =
-  | ResetRoomsAndCategoriesAndItemsSuccess
-  | ErrorResponse;
-
-export interface ResetRoomsAndCategoriesAndItemsSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: ResetRoomsAndCategoriesAndItemsData;
-}
-
-export interface ResetRoomsAndCategoriesAndItemsData {
-  companyId: Id<"companies">;
-}
-
-export type GetCategoriesResponse = GetCategoriesSuccess | ErrorResponse;
-
-export interface GetCategoriesSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetCategoriesData;
-}
-
-export interface GetCategoriesData {
-  categories: Doc<"categories">[];
-}
-
-export type UpdateCategoryResponse = UpdateCategorySuccess | ErrorResponse;
-
-export interface UpdateCategorySuccess {
-  status: ResponseStatus.SUCCESS;
-  data: UpdateCategoryData;
-}
-
-export interface UpdateCategoryData {
-  categoryId: Id<"categories">;
 }
 
 export type GetItemsByCategoryResponse =
@@ -594,24 +60,6 @@ export interface GetItemsByCategoryData {
   items: Doc<"items">[];
 }
 
-export type UpdateItemResponse = UpdateItemSuccess | ErrorResponse;
-
-export interface UpdateItemSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: UpdateItemData;
-}
-
-export interface UpdateItemData {
-  itemId: Id<"items">;
-}
-
-export type GetCompanyRatesResponse = GetCompanyRatesSuccess | ErrorResponse;
-
-export interface GetCompanyRatesSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetCompanyRatesData;
-}
-
 export interface GetCompanyRatesData {
   labor: Doc<"labor">[];
   insurancePolicies: Doc<"insurancePolicies">[];
@@ -620,60 +68,8 @@ export interface GetCompanyRatesData {
   fees: Doc<"fees">[];
 }
 
-export type GetConnectedAccountByCompanyIdResponse =
-  | GetConnectedAccountByCompanyIdSuccess
-  | ErrorResponse;
-
-export interface GetConnectedAccountByCompanyIdSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetConnectedAccountByCompanyIdData;
-}
-
-export interface GetConnectedAccountByCompanyIdData {
-  labor: Doc<"labor">[];
-  insurancePolicies: Doc<"insurancePolicies">[];
-  travelFee: Doc<"travelFee">;
-  creditCardFee: Doc<"creditCardFees">;
-  fees: Doc<"fees">[];
-}
-
-export type GetStripeConnectionResponse =
-  | GetStripeConnectionSuccess
-  | ErrorResponse;
-
-export interface GetStripeConnectionSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetStripeConnectionData;
-}
-
-export interface GetStripeConnectionData {
-  stripeConnected: Doc<"connectedAccounts"> | null;
-}
-
-export type CreateStripeOnboardingLinkResponse =
-  | CreateStripeOnboardingLinkSuccess
-  | ErrorResponse;
-
-export interface CreateStripeOnboardingLinkSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: CreateStripeOnboardingLinkData;
-}
-
-export interface CreateStripeOnboardingLinkData {
-  url: string;
-}
-
 export interface GetStripeDashboardLinkData {
   url: string;
-}
-
-export type GetStripeDashboardLinkResponse =
-  | GetStripeDashboardLinkSuccess
-  | ErrorResponse;
-
-export interface GetStripeDashboardLinkSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetStripeDashboardLinkData;
 }
 
 export interface WebhookHandlerResponse {
@@ -703,78 +99,10 @@ export interface CheckSenderData {
   isVerified: boolean;
 }
 
-export type GetCompanyClerkUserIdResponse =
-  | GetCompanyClerkUserIdSuccess
-  | ErrorResponse;
-
-export interface GetCompanyClerkUserIdSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetCompanyClerkUserIdData | null;
-}
-
-export interface GetCompanyClerkUserIdData {
-  company: Doc<"companies"> | null;
-}
-
-export type GetCompanyArrivalResponse =
-  | GetCompanyArrivalSuccess
-  | ErrorResponse;
-
-export interface GetCompanyArrivalSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetCompanyArrivalData;
-}
-
-export interface GetCompanyArrivalData {
-  arrivalWindow: Doc<"arrivalWindow">;
-}
-
-export type GetItemsByCompanyResponse =
-  | GetItemsByCompanySuccess
-  | ErrorResponse;
-
-export interface GetItemsByCompanySuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetItemsByCompanyData;
-}
-
-export interface GetItemsByCompanyData {
-  items: Doc<"items">[];
-}
-
-export type GetItemsAndCategoriesAndRoomsByCompanyResponse =
-  | GetItemsAndCategoriesAndRoomsByCompanySuccess
-  | ErrorResponse;
-
-export interface GetItemsAndCategoriesAndRoomsByCompanySuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetItemsAndCategoriesAndRoomsByCompanyData;
-}
-
 export interface GetItemsAndCategoriesAndRoomsByCompanyData {
   items: Doc<"items">[];
   categories: Doc<"categories">[];
   rooms: Doc<"rooms">[];
-}
-
-export type GetSalesRepsByCompanyIdResponse =
-  | GetSalesRepsByCompanyIdSuccess
-  | ErrorResponse;
-
-export interface GetSalesRepsByCompanyIdSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetSalesRepsByCompanyIdData;
-}
-
-export interface GetSalesRepsByCompanyIdData {
-  users: Doc<"users">[];
-}
-
-export type GetMoveOptionsResponse = GetMoveOptionsSuccess | ErrorResponse;
-
-export interface GetMoveOptionsSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetMoveOptionsData;
 }
 
 export interface GetMoveOptionsData {
@@ -794,34 +122,6 @@ export interface GetMoveOptionsData {
   companyContact: Doc<"companyContact">;
 }
 
-export type CreateMoveResponse = CreateMoveSuccess | ErrorResponse;
-
-export interface CreateMoveSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: CreateMoveData;
-}
-
-export interface CreateMoveData {
-  moveId: Id<"move">;
-}
-
-export type GetUserByClerkIdResponse = GetUserByClerkIdSuccess | ErrorResponse;
-
-export interface GetUserByClerkIdSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetUserByClerkIdData;
-}
-
-export interface GetUserByClerkIdData {
-  user: Doc<"users">;
-}
-export type GetMoveContextResponse = GetMoveContextSuccess | ErrorResponse;
-
-export interface GetMoveContextSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetMoveData;
-}
-
 export interface GetMoveData {
   additionalFees: Doc<"additionalFees">[];
   discounts: Doc<"discounts">[];
@@ -835,17 +135,6 @@ export interface GetMoveData {
   wageDisplay: MoverWageForMove | null;
   travelFee: Doc<"travelFee">;
   policy: Doc<"policies">;
-}
-
-export type UpdateMoveResponse = UpdateMoveSuccess | ErrorResponse;
-
-export interface UpdateMoveSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: UpdateMoveData;
-}
-
-export interface UpdateMoveData {
-  moveId: Id<"move">;
 }
 
 export type GetDistanceMatrixResponse =
@@ -862,105 +151,11 @@ export interface GetDistanceMatrixData {
   durationMinutes: number;
 }
 
-export type GetCompanyContactResponse =
-  | GetCompanyContactSuccess
-  | ErrorResponse;
-
-export interface GetCompanyContactSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetCompanyContactData;
-}
-
-export interface GetCompanyContactData {
-  companyContact: Doc<"companyContact">;
-}
-
-export type CreateOrUpdateQuoteResponse =
-  | CreateOrUpdateQuoteSuccess
-  | ErrorResponse;
-
-export interface CreateOrUpdateQuoteSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: CreateOrUpdateQuoteData;
-}
-
-export interface CreateOrUpdateQuoteData {
-  quoteId: Id<"quotes">;
-}
-
-export type GetMoversByCompanyIdResponse =
-  | GetMoversByCompanyIdSuccess
-  | ErrorResponse;
-
-export interface GetMoversByCompanyIdSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetMoversByCompanyIdData;
-}
-
-export interface GetMoversByCompanyIdData {
-  users: Doc<"users">[];
-}
-
-export type UpdateMoveAssignmentResponse =
-  | UpdateMoveAssignmentSuccess
-  | ErrorResponse;
-
-export interface UpdateMoveAssignmentSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: UpdateMoveAssignmentData;
-}
-
-export interface UpdateMoveAssignmentData {
-  assignmentId: Id<"moveAssignments">;
-}
-
-export type CreateMoveAssignmentResponse =
-  | CreateMoveAssignmentSuccess
-  | ErrorResponse;
-
-export interface CreateMoveAssignmentSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: CreateMoveAssignmentData;
-}
-
-export interface CreateMoveAssignmentData {
-  assignmentId: Id<"moveAssignments">;
-}
-
-export type GetMoveAssignmentsPageResponse =
-  | GetMoveAssignmentsPageSuccess
-  | ErrorResponse;
-
-export interface GetMoveAssignmentsPageSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetMoveAssignmentsPageData;
-}
-
 export interface GetMoveAssignmentsPageData {
   assignments: Doc<"moveAssignments">[];
   allMovers: Doc<"users">[];
   preMoveDoc: Doc<"preMoveDocs"> | null;
   additionalLiabilityCoverage: Doc<"additionalLiabilityCoverage"> | null;
-}
-
-export type CreateOrUpdatePreMoveDocResponse =
-  | CreateOrUpdatePreMoveDocSuccess
-  | ErrorResponse;
-
-export interface CreateOrUpdatePreMoveDocSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: CreateOrUpdatePreMoveDocData;
-}
-
-export interface CreateOrUpdatePreMoveDocData {
-  preMoveDocId: Id<"preMoveDocs">;
-}
-
-export type GetPaymentPageResponse = GetPaymentPageSuccess | ErrorResponse;
-
-export interface GetPaymentPageSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetPaymentPageData;
 }
 
 export interface GetPaymentPageData {
@@ -971,122 +166,11 @@ export interface GetPaymentPageData {
   fees: Doc<"fees">[];
 }
 
-export type CreateAdditionalFeeResponse =
-  | CreateAdditionalFeeSuccess
-  | ErrorResponse;
-
-export interface CreateAdditionalFeeSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: CreateAdditionalFeeData;
-}
-
-export interface CreateAdditionalFeeData {
-  additionalFeeId: Id<"additionalFees">;
-}
-
-export type UpdateAdditionalFeeResponse =
-  | UpdateAdditionalFeeSuccess
-  | ErrorResponse;
-
-export interface UpdateAdditionalFeeSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: UpdateAdditionalFeeData;
-}
-
-export interface UpdateAdditionalFeeData {
-  additionalFeeId: Id<"additionalFees">;
-}
-
-export type CreateDiscountResponse = CreateDiscountSuccess | ErrorResponse;
-
-export interface CreateDiscountSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: CreateDiscountData;
-}
-
-export interface CreateDiscountData {
-  discountId: Id<"discounts">;
-}
-
-export type UpdateDiscountResponse = UpdateDiscountSuccess | ErrorResponse;
-
-export interface UpdateDiscountSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: UpdateDiscountData;
-}
-
-export interface UpdateDiscountData {
-  discountId: Id<"discounts">;
-}
-
-export type CreateOrUpdateInvoiceResponse =
-  | CreateOrUpdateInvoiceSuccess
-  | ErrorResponse;
-
-export interface CreateOrUpdateInvoiceSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: CreateOrUpdateInvoiceData;
-}
-
-export interface CreateOrUpdateInvoiceData {
-  invoiceId: Id<"invoices">;
-}
-
-export type GetMovesForCalendarResponse =
-  | GetMovesForCalendarSuccess
-  | ErrorResponse;
-
-export interface GetMovesForCalendarSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetMovesForCalendarData;
-}
-
-export interface GetMovesForCalendarData {
-  moves: EnrichedMove[];
-}
-
-export type GetMovesByNameResponse = GetMovesByNameSuccess | ErrorResponse;
-
-export interface GetMovesByNameSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetMovesByNameData;
-}
-
 export interface EnrichedMove extends Doc<"move"> {
   moveCustomer: Doc<"moveCustomers"> | null;
   salesRepUser: Doc<"users"> | null;
   moverWageForMove?: MoverWageForMove;
   hourStatus?: HourStatus;
-}
-
-export interface GetMovesByNameData {
-  moves: EnrichedMove[];
-}
-
-export type GetMessagesByMoveIdResponse =
-  | GetMessagesByMoveIdSuccess
-  | ErrorResponse;
-
-export interface GetMessagesByMoveIdSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetMessagesByMoveIdData;
-}
-
-export interface GetMessagesByMoveIdData {
-  messages: Doc<"messages">[];
-}
-
-export type GetRecentMessagesByCompanyIdResponse =
-  | GetRecentMessagesByCompanyIdSuccess
-  | ErrorResponse;
-
-export interface GetRecentMessagesByCompanyIdSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetRecentMessagesByCompanyIdData;
-}
-
-export interface GetRecentMessagesByCompanyIdData {
-  messages: RecentMoveMessageSummary[];
 }
 
 export type CreateMessageResponse = CreateMessageSuccess | ErrorResponse;
@@ -1100,98 +184,9 @@ export interface CreateMessageData {
   messageId: Id<"messages">;
 }
 
-export type CreateMoveCustomerResponse =
-  | CreateMoveCustomerSuccess
-  | ErrorResponse;
-
-export interface CreateMoveCustomerSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: CreateMoveCustomerData;
-}
-
-export interface CreateMoveCustomerData {
-  moveCustomerId?: Id<"moveCustomers">;
-  moveCustomer?: Doc<"moveCustomers">;
-}
-
-export type SearchMoveCustomersAndJobIdResponse =
-  | SearchMoveCustomersAndJobIdSuccess
-  | ErrorResponse;
-
-export interface SearchMoveCustomersAndJobIdSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: SearchMoveCustomersAndJobIdData;
-}
-
-export interface SearchMoveCustomersAndJobIdData {
-  moveCustomers: Doc<"moveCustomers">[];
-  moves: EnrichedMoveForMover[];
-}
-
-export type UpdateMoveCustomerResponse =
-  | UpdateMoveCustomerSuccess
-  | ErrorResponse;
-
-export interface UpdateMoveCustomerSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: UpdateMoveCustomerData;
-}
-
-export interface UpdateMoveCustomerData {
-  moveCustomerId: Id<"moveCustomers">;
-}
-
-export type GetCustomerAndMovesResponse =
-  | GetCustomerAndMovesSuccess
-  | ErrorResponse;
-
-export interface GetCustomerAndMovesSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetCustomerAndMovesData;
-}
-
 export interface GetCustomerAndMovesData {
   moveCustomer: Doc<"moveCustomers">;
   moves: EnrichedMoveForMover[] | Doc<"move">[];
-}
-
-export type GetMoveCustomerResponse = GetMoveCustomerSuccess | ErrorResponse;
-
-export interface GetMoveCustomerSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetMoveCustomerData;
-}
-
-export interface GetMoveCustomerData {
-  moveCustomer: Doc<"moveCustomers">;
-}
-
-export type CreateOrUpdateAdditionalLiabilityCoverageResponse =
-  | CreateOrUpdateAdditionalLiabilityCoverageSuccess
-  | ErrorResponse;
-
-export interface CreateOrUpdateAdditionalLiabilityCoverageSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: CreateOrUpdateAdditionalLiabilityCoverageData;
-}
-
-export interface CreateOrUpdateAdditionalLiabilityCoverageData {
-  additionalLiabilityCoverageId: Id<"additionalLiabilityCoverage">;
-}
-
-export type GetMovePageForMoverResponse =
-  | GetMovePageForMoverLeadSuccess
-  | GetMovePageForMoverMemberSuccess
-  | ErrorResponse;
-
-export interface GetMovePageForMoverLeadSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetMovePageForMoverLeadData;
-}
-
-export interface GetMovePageForMoverMemberSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetMovePageForMoverMemberData;
 }
 
 export interface GetMovePageForMoverLeadData {
@@ -1210,26 +205,6 @@ export interface GetMovePageForMoverMemberData {
   assignment: Doc<"moveAssignments">;
 }
 
-export type GetMoveResponse = GetMoveSuccess | ErrorResponse;
-
-export interface GetMoveSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetSingleMoveData;
-}
-
-export interface GetSingleMoveData {
-  move: Doc<"move">;
-}
-
-export type GetMoveAssignmentsResponse =
-  | GetMoveAssignmentsSuccess
-  | ErrorResponse;
-
-export interface GetMoveAssignmentsSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetMoveAssignmentsData;
-}
-
 export interface EnrichedMoveAssignment extends Doc<"moveAssignments"> {
   moverName: string | null;
   hourlyRate: number | null;
@@ -1237,138 +212,12 @@ export interface EnrichedMoveAssignment extends Doc<"moveAssignments"> {
   pendingPayout: number | null;
 }
 
-export interface GetMoveAssignmentsData {
-  assignments: EnrichedMoveAssignment[];
-}
-
-export type GetMovesForMoverCalendarResponse =
-  | GetMovesForMoverCalendarSuccess
-  | ErrorResponse;
-
-export interface GetMovesForMoverCalendarSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetMovesForMoverCalendarData;
-}
-
-export interface GetMovesForMoverCalendarData {
-  moves: Doc<"move">[];
-}
-
 export interface EnrichedMoveForMover extends Doc<"move"> {
   moverWageForMove?: MoverWageForMove;
   hourStatus?: HourStatus;
 }
 
-export type GetSalesRepsAndReferralByCompanyIdResponse =
-  | GetSalesRepsAndReferralByCompanyIdSuccess
-  | ErrorResponse;
-
-export interface GetSalesRepsAndReferralByCompanyIdSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetSalesRepsAndReferralByCompanyIdData;
-}
-
 export interface GetSalesRepsAndReferralByCompanyIdData {
   users: Doc<"users">[];
   referrals: Doc<"referrals">[];
-}
-
-export type GetHistoricalAnalyticsResponse =
-  | GetHistoricalAnalyticsSuccess
-  | ErrorResponse;
-
-export interface GetHistoricalAnalyticsSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetHistoricalAnalyticsData;
-}
-
-export interface GetHistoricalAnalyticsData {
-  series: HistoricalPoint[];
-}
-
-export type GetForecastedAnalyticsResponse =
-  | GetForecastedAnalyticsSuccess
-  | ErrorResponse;
-
-export interface GetForecastedAnalyticsSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetForecastedAnalyticsData;
-}
-
-export interface GetForecastedAnalyticsData {
-  series: ForecastPoint[];
-}
-
-export type GetMoveAnalyticsResponse = GetMoveAnalyticsSuccess | ErrorResponse;
-
-export interface GetMoveAnalyticsSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetMoveAnalyticsData;
-}
-
-export interface GetMoveAnalyticsData {
-  series: MoveAnalyticsPoint[];
-}
-
-export type GetFunnelResponse = GetFunnelSuccess | ErrorResponse;
-
-export interface GetFunnelSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetFunnelData;
-}
-
-export interface GetFunnelData {
-  funnel: FunnelPoint[];
-}
-
-export type GetStackedForecastedRevenueBySourceResponse =
-  | GetStackedForecastedRevenueBySourceSuccess
-  | ErrorResponse;
-
-export interface GetStackedForecastedRevenueBySourceSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetStackedForecastedRevenueBySourceData;
-}
-
-export interface GetStackedForecastedRevenueBySourceData {
-  series: StackedDay[];
-}
-
-export type GetStackedForecastedRevenueByRepResponse =
-  | GetStackedForecastedRevenueByRepSuccess
-  | ErrorResponse;
-
-export interface GetStackedForecastedRevenueByRepSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetStackedForecastedRevenueByRepData;
-}
-
-export interface GetStackedForecastedRevenueByRepData {
-  series: StackedDay[];
-}
-
-export type GetStackedHistoricalRevenueByRepResponse =
-  | GetStackedHistoricalRevenueByRepSuccess
-  | ErrorResponse;
-
-export interface GetStackedHistoricalRevenueByRepSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetStackedHistoricalRevenueByRepData;
-}
-
-export interface GetStackedHistoricalRevenueByRepData {
-  series: StackedDay[];
-}
-
-export type GetStackedHistoricalRevenueBySourceResponse =
-  | GetStackedHistoricalRevenueBySourceSuccess
-  | ErrorResponse;
-
-export interface GetStackedHistoricalRevenueBySourceSuccess {
-  status: ResponseStatus.SUCCESS;
-  data: GetStackedHistoricalRevenueBySourceData;
-}
-
-export interface GetStackedHistoricalRevenueBySourceData {
-  series: StackedDay[];
 }

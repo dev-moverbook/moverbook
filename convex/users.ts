@@ -9,7 +9,7 @@ import {
 import { UserRoleConvex } from "@/types/convex-enums";
 import { Doc, Id } from "./_generated/dataModel";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
-import { ClerkRoles, ResponseStatus } from "@/types/enums";
+import { ClerkRoles } from "@/types/enums";
 import {
   isUserInOrg,
   validateCompany,
@@ -17,15 +17,11 @@ import {
   validateUser,
 } from "./backendUtils/validate";
 import { internal } from "./_generated/api";
-import {
-  GetMoversByCompanyIdResponse,
-  GetSalesRepsAndReferralByCompanyIdData,
-} from "@/types/convex-responses";
+import { GetSalesRepsAndReferralByCompanyIdData } from "@/types/convex-responses";
 import {
   updateOrganizationMembershipHelper,
   updateUserNameHelper,
 } from "./backendUtils/clerk";
-import { handleInternalError } from "./backendUtils/helper";
 import { ErrorMessages } from "@/types/errors";
 
 export const getUserByEmailInternal = internalQuery({
@@ -323,45 +319,6 @@ export const getUserByClerkId = query({
         .first()
     );
     return user;
-  },
-});
-
-// not used
-export const getMoversByCompanyId = query({
-  args: {
-    companyId: v.id("companies"),
-  },
-  handler: async (ctx, args): Promise<GetMoversByCompanyIdResponse> => {
-    const { companyId } = args;
-    try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-        ClerkRoles.SALES_REP,
-      ]);
-
-      const company = await validateCompany(ctx.db, companyId);
-      isUserInOrg(identity, company.clerkOrganizationId);
-
-      const users = await ctx.db
-        .query("users")
-        .filter((q) => q.eq(q.field("companyId"), companyId))
-        .filter((q) => q.eq(q.field("isActive"), true))
-        .collect();
-
-      const sortedUsers = users.sort((a, b) => a.name.localeCompare(b.name));
-      const movers = sortedUsers.filter(
-        (user) => user.role === ClerkRoles.MOVER
-      );
-
-      return {
-        status: ResponseStatus.SUCCESS,
-        data: { users: movers },
-      };
-    } catch (error) {
-      return handleInternalError(error);
-    }
   },
 });
 

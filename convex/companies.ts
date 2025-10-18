@@ -144,8 +144,6 @@ export const getCompanyIdBySlug = query({
       .filter((q) => q.eq(q.field("clerkUserId"), identity.id as string))
       .first();
 
-    console.log("users", users);
-
     const user = validateUser(users, true);
     const connectedAccount: Doc<"connectedAccounts"> | null = await ctx.db
       .query("connectedAccounts")
