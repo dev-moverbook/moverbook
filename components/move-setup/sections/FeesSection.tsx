@@ -3,9 +3,9 @@
 import React, { useState } from "react";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import ConfirmModal from "@/components/shared/ConfirmModal";
-import { useCreateFee } from "../hooks/useCreateFee";
-import { useUpdateFee } from "../hooks/useUpdateFee";
-import { useDeleteFee } from "../hooks/useDeleteFee";
+import { useCreateFee } from "@/hooks/fees";
+import { useUpdateFee } from "@/hooks/fees";
+import { useDeleteFee } from "@/hooks/fees";
 import FeeModal from "../modals/FeeModal";
 import FeeCard from "../cards/FeeCard";
 import CenteredContainer from "@/components/shared/CenteredContainer";

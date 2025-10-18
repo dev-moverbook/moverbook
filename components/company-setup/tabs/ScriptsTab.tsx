@@ -6,12 +6,12 @@ import VariablesSection from "../sections/VariablesSection";
 import { useSlugContext } from "@/contexts/SlugContext";
 import { CommunicationType } from "@/types/types";
 import { FrontEndErrorMessages } from "@/types/errors";
-import { useCreateScript } from "../hooks/useCreateScript";
+import { useCreateScript } from "../../../hooks/stripe/useCreateScript";
 import CreateScriptModal from "../modals/CreateScriptModal";
-import { useDeleteScript } from "../hooks/useDeleteScript";
+import { useDeleteScript } from "../../../hooks/scripts/useDeleteScript";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import ConfirmDeleteModal from "../modals/ConfirmDeleteModal";
-import { useUpdateScript } from "../hooks/useUpdateScript";
+import { useUpdateScript } from "../../../hooks/scripts/useUpdateScript";
 import { useScriptsAndVariables } from "@/hooks/scripts/useScriptsAndVariables";
 import VerticalSectionGroup from "@/components/shared/VerticalSectionGroup";
 

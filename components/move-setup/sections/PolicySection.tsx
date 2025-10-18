@@ -7,7 +7,7 @@ import SectionHeader from "@/components/shared/SectionHeader";
 import FormActions from "@/components/shared/FormActions";
 import FieldGroup from "@/components/shared/FieldGroup";
 import { PolicyFormData } from "@/types/form-types";
-import { useUpdatePolicy } from "../hooks/useUpdatePolicy";
+import { useUpdatePolicy } from "@/hooks/policies";
 import FieldTextAreaRow from "@/components/shared/FieldTextAreaRow";
 import { validatePrice } from "@/frontendUtils/validation";
 import CurrencyInput from "@/components/shared/labeled/CurrencyInput";

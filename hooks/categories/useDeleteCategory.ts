@@ -22,12 +22,10 @@ export const useDeleteCategory = () => {
     setDeleteCategoryError(null);
 
     try {
-      await deleteCategoryMutation({
+      return await deleteCategoryMutation({
         categoryId,
         updates: { isActive: false },
       });
-
-      return true;
     } catch (error) {
       setErrorFromConvexError(error, setDeleteCategoryError);
       return false;

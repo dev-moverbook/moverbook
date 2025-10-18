@@ -11,8 +11,8 @@ import FieldRow from "@/components/shared/FieldRow";
 import FieldGroup from "@/components/shared/FieldGroup";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, XCircle, Loader2, Mail } from "lucide-react";
-import { useCreateSender } from "../hooks/useCreateSender";
-import { useCheckSenderVerified } from "../hooks/useCheckSenderVerified";
+import { useCreateSender } from "../../../hooks/sendGrid/useCreateSender";
+import { useCheckSenderVerified } from "../../../hooks/sendGrid/useCheckSenderVerified";
 import PhoneNumberInput from "@/components/shared/labeled/PhoneNumberInput";
 import LabeledPlacesAutocomplete from "@/components/shared/labeled/LabeledPlacesAutoComplete";
 

@@ -4,7 +4,7 @@ import VerticalSectionGroup from "@/components/shared/VerticalSectionGroup";
 import ArrivalWindowSection from "../sections/ArrivalWindowSection";
 import PolicySection from "../sections/PolicySection";
 import { useSlugContext } from "@/contexts/SlugContext";
-import { useCompanyArrivalAndPolicies } from "@/hooks/arrivalWindow/UseCompanyArrivalAndPolicies";
+import { useCompanyArrivalAndPolicies } from "@/hooks/arrivalWindow";
 
 const GuidelinesTab = () => {
   const { companyId } = useSlugContext();

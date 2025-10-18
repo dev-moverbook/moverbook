@@ -12,8 +12,9 @@ import { calculateWeightFromSize } from "@/utils/helper";
 import FieldRow from "@/components/shared/FieldRow";
 import NumberInput from "@/components/shared/labeled/NumberInput";
 import ResponsiveModal from "@/components/shared/modal/ResponsiveModal";
-import { ItemCreateInput } from "../hooks/useCreateItem";
+
 import { toItemCreateInput } from "@/frontendUtils/transform";
+import { ItemCreateInput } from "@/hooks/items";
 
 interface ItemModalProps {
   isOpen: boolean;

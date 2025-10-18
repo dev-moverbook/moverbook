@@ -6,7 +6,7 @@ import CenteredContainer from "@/components/shared/CenteredContainer";
 import SectionHeader from "@/components/shared/SectionHeader";
 import FormActions from "@/components/shared/FormActions";
 import FieldGroup from "@/components/shared/FieldGroup";
-import { useUpdateCreditCardFee } from "../hooks/useUpdateCreditCardFee";
+import { useUpdateCreditCardFee } from "@/hooks/creditCardFee";
 import { Doc } from "@/convex/_generated/dataModel";
 import PercentageInput from "@/components/shared/labeled/PercentageInput";
 

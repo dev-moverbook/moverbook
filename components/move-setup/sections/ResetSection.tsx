@@ -2,7 +2,7 @@ import ConfirmModal from "@/components/shared/ConfirmModal";
 import SectionContainer from "@/components/shared/SectionContainer";
 import { Button } from "@/components/ui/button";
 import React, { useState } from "react";
-import { useResetRoomsCategoriesItems } from "../hooks/useResetRoomsCategoriesItems";
+import { useResetRoomsCategoriesItems } from "@/hooks/rooms";
 import { Id } from "@/convex/_generated/dataModel";
 import CenteredContainer from "@/components/shared/CenteredContainer";
 import SectionHeader from "@/components/shared/SectionHeader";

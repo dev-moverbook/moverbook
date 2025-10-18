@@ -7,7 +7,7 @@ import SectionHeader from "@/components/shared/SectionHeader";
 import FormActions from "@/components/shared/FormActions";
 import FieldGroup from "@/components/shared/FieldGroup";
 import { TravelChargingTypes } from "@/types/enums";
-import { useUpdateTravelFee } from "../hooks/useUpdateTravelFee";
+import { useUpdateTravelFee } from "@/hooks/travelFee";
 import CurrencyInput from "@/components/shared/labeled/CurrencyInput";
 import { Doc } from "@/convex/_generated/dataModel";
 import { TRAVEL_FEE_METHOD_OPTIONS } from "@/types/types";

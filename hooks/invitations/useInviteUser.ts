@@ -3,7 +3,7 @@ import { useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { ClerkRoles } from "@/types/enums";
 import { Id } from "@/convex/_generated/dataModel";
-import { setErrorFromConvexError } from "../frontendUtils/errorHelper";
+import { setErrorFromConvexError } from "@/frontendUtils/errorHelper";
 
 export const useInviteUser = () => {
   const [inviteLoading, setInviteLoading] = useState<boolean>(false);

@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { useSlugContext } from "@/contexts/SlugContext";
 import { Doc, Id } from "@/convex/_generated/dataModel";
-import { useRevokeInvite } from "@/hooks/useRevokeInvite";
+import { useRevokeInvite } from "@/hooks/invitations";
 import SectionContainer from "@/components/shared/SectionContainer";
 import CenteredContainer from "@/components/shared/CenteredContainer";
 import ContainerUserCard from "@/components/shared/ContainerUserCard";

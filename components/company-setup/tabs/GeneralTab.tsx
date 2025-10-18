@@ -1,15 +1,15 @@
 "use client";
 
 import { useSlugContext } from "@/contexts/SlugContext";
-import { useUpdateCompany } from "../hooks/useUpdateCompany";
-import { useUpdateCompliance } from "../hooks/useUpdateCompliance";
-import { useUpdateWebIntegrations } from "../hooks/useUpdateWebIntegrations";
-import { useUpdateCompanyContact } from "../hooks/useUpdateCompanyContact";
+import { useUpdateCompany } from "../../../hooks/companies/useUpdateCompany";
+import { useUpdateCompliance } from "../../../hooks/compliance/useUpdateCompliance";
+import { useUpdateWebIntegrations } from "../../../hooks/webIntegrations/useUpdateWebIntegrations";
+import { useUpdateCompanyContact } from "../../../hooks/companyContact/useUpdateCompanyContact";
 import CompanySection from "../sections/CompanySection";
 import ComplianceSection from "../sections/ComplianceSection";
 import WebIntegrationsSection from "../sections/WebIntegrationsSection";
 import CompanyContactSection from "../sections/CompanyContactSection";
-import { useUpdateOrganizationLogo } from "../hooks/useUpdateOrganizationLogo";
+import { useUpdateOrganizationLogo } from "../../../hooks/companies/useUpdateOrganizationLogo";
 import VerticalSectionGroup from "@/components/shared/VerticalSectionGroup";
 import { useGetCompanyDetails } from "@/hooks/companies/useGetCompanyDetails";
 

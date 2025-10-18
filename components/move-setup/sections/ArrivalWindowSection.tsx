@@ -7,7 +7,7 @@ import SectionHeader from "@/components/shared/SectionHeader";
 import FormActions from "@/components/shared/FormActions";
 import FieldGroup from "@/components/shared/FieldGroup";
 import { ArrivalWindowFormData } from "@/types/form-types";
-import { useUpdateArrivalWindow } from "../hooks/useUpdateArrivalWindow";
+import { useUpdateArrivalWindow } from "@/hooks/arrivalWindow";
 import TimeRangeFieldRow from "@/components/shared/TimeFieldRow";
 import FormActionContainer from "@/components/shared/containers/FormActionContainer";
 import { Doc } from "@/convex/_generated/dataModel";

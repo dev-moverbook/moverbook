@@ -9,7 +9,7 @@ import FieldRow from "@/components/shared/FieldRow";
 import MonthDayPicker from "@/components/shared/MonthDayPicker";
 import CurrencyInput from "@/components/shared/labeled/CurrencyInput";
 import ResponsiveModal from "@/components/shared/modal/ResponsiveModal";
-import { LaborCreateInput } from "../hooks/useCreateLabor";
+import { LaborCreateInput } from "@/hooks/labor";
 import { buildLaborCreateInput } from "@/frontendUtils/transform";
 
 interface LaborModalProps {

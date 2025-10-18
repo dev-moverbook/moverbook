@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useDeleteReferral } from "../../../../../components/company-setup/hooks/useDeleteReferral";
 import { Id } from "@/convex/_generated/dataModel";
-import ConfirmDeleteModal from "../../../../../components/company-setup/modals/ConfirmDeleteModal";
+import { useDeleteReferral } from "@/hooks/referrals";
+import ConfirmDeleteModal from "@/components/company-setup/modals/ConfirmDeleteModal";
 import { Pencil, Trash2 } from "lucide-react";
 import IconButton from "@/components/shared/IconButton";
 import IconRow from "@/components/shared/IconRow";

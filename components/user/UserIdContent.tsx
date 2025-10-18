@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { ClerkRoles } from "@/types/enums";
-import { useUpdateUser } from "@/hooks/useUpdateUser";
-import { useDeleteUser } from "@/hooks/useDeleteUser";
-import { useReactivateUser } from "@/hooks/useReactivateUser";
+import { useUpdateUser } from "@/hooks/users";
+import { useDeleteUser } from "@/hooks/users";
+import { useReactivateUser } from "@/hooks/users";
 import FormActions from "@/components/shared/FormActions";
 import FieldGroup from "@/components/shared/FieldGroup";
 import FieldRow from "@/components/shared/FieldRow";

@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import InviteUserModal from "@/components/team/InviteUserModal";
-import { useInviteUser } from "@/hooks/useInviteUser";
+import { useInviteUser } from "@/hooks/invitations/";
 import { ClerkRoles } from "@/types/enums";
 import { useSlugContext } from "@/contexts/SlugContext";
 import TabContentContainer from "@/components/shared/TabContentContainer";
