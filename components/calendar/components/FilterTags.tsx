@@ -1,6 +1,6 @@
 "use client";
 
-import IconButton from "@/components/shared/IconButton";
+import IconButton from "@/components/shared/buttons/IconButton";
 import RemovableTag from "@/components/shared/ui/RemovableTag";
 import { Filter } from "lucide-react";
 import { getStatusColor } from "@/frontendUtils/helper";

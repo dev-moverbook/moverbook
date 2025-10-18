@@ -1,7 +1,7 @@
 "use client";
 
-import FormActions from "./FormActions";
-import ResponsiveModal from "./modal/ResponsiveModal";
+import ResponsiveModal from "./ResponsiveModal";
+import FormActions from "../buttons/FormActions";
 
 interface ConfirmModalProps {
   isOpen: boolean;

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { EnrichedMoveAssignment } from "@/types/convex-responses";
 import ReusableCard from "./ReusableCard";
-import FormActions from "@/components/shared/FormActions";
+import FormActions from "@/components/shared/buttons/FormActions";
 import { Id } from "@/convex/_generated/dataModel";
 import EditToggleButton from "@/components/shared/buttons/EditToggleButton";
 import { buildMoverHoursTexts } from "@/frontendUtils/moveHelper";

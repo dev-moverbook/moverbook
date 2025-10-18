@@ -2,7 +2,7 @@
 
 import SectionContainer from "@/components/shared/containers/SectionContainer";
 import { Button } from "@/components/ui/button";
-import CardContainer from "@/components/shared/CardContainer";
+import CardContainer from "@/components/shared/card/CardContainer";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import MoveOnlyCard from "@/components/move/MoveOnlyCard";
@@ -13,7 +13,7 @@ import { isMover } from "@/frontendUtils/permissions";
 import { ClerkRoles } from "@/types/enums";
 import type { Doc } from "@/convex/_generated/dataModel";
 import type { EnrichedMoveForMover } from "@/types/convex-responses";
-import SectionHeaderWithAction from "@/components/shared/ SectionHeaderWithAction";
+import SectionHeaderWithAction from "@/components/shared/section/SectionHeaderWithAction";
 
 interface CustomerMovesProps {
   moves: EnrichedMoveForMover[];

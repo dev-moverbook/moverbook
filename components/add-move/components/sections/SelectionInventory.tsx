@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from "react";
-import SingleCardContainer from "@/components/shared/SingleCardContainer";
+import SingleCardContainer from "@/components/shared/containers/SingleCardContainer";
 import SelectableCardContainer from "@/components/shared/containers/SelectableCardContainer";
 import ItemContainer from "./ItemContainer";
 import SectionHeaderWithTag from "@/components/shared/heading/SectionHeaderWithTag";
 import SectionContainer from "@/components/shared/containers/SectionContainer";
 import Header3 from "@/components/shared/heading/Header3";
 import AddRoomModal from "../modals/AddRoomModal";
-import IconButton from "@/components/shared/IconButton";
+import IconButton from "@/components/shared/buttons/IconButton";
 import { Trash2, X } from "lucide-react";
 import CounterInput from "@/components/shared/labeled/CounterInput";
 import Header4 from "@/components/shared/heading/Header4";
-import IconRow from "@/components/shared/IconRow";
-import ConfirmModal from "@/components/shared/ConfirmModal";
+import IconRow from "@/components/shared/buttons/IconRow";
+import ConfirmModal from "@/components/shared/modal/ConfirmModal";
 import { MoveItemInput } from "@/types/form-types";
 import { Doc } from "@/convex/_generated/dataModel";
 

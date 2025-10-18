@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState, useCallback, useEffect } from "react";
-import SectionHeader from "@/components/shared/SectionHeader";
+import SectionHeader from "@/components/shared/section/SectionHeader";
 import AddedItems from "@/components/add-move/components/sections/AddedItems";
 import SelectionInventory from "@/components/add-move/components/sections/SelectionInventory";
 import { useMoveContext } from "@/contexts/MoveContext";
 import { Doc } from "@/convex/_generated/dataModel";
 import { MoveItemInput } from "@/types/form-types";
-import { useUpdateMove } from "../../../../hooks/moves/useUpdateMove";
-import FormActions from "@/components/shared/FormActions";
+import { useUpdateMove } from "@/hooks/moves";
+import FormActions from "@/components/shared/buttons/FormActions";
 import FormActionContainer from "@/components/shared/containers/FormActionContainer";
 import SectionContainer from "@/components/shared/containers/SectionContainer";
 

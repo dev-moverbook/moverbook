@@ -8,7 +8,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import FieldDisplay from "../FieldDisplay";
+import FieldDisplay from "../field/FieldDisplay";
 import FieldErrorMessage from "./FieldErrorMessage";
 
 interface EditableIconSelectFieldProps {

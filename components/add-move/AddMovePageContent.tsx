@@ -3,8 +3,8 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import PageHeader from "@/components/shared/heading/NavigationHeader";
-import ConfirmModal from "@/components/shared/ConfirmModal";
-import Stepper from "@/components/shared/Stepper";
+import ConfirmModal from "@/components/shared/modal/ConfirmModal";
+import Stepper from "@/components/shared/stepper/Stepper";
 import PageContainer from "@/components/shared/containers/PageContainer";
 import { useMoveForm } from "@/contexts/MoveFormContext";
 import InventoryStep from "./components/steps/InventoryStep";

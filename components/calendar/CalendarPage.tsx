@@ -1,9 +1,8 @@
 "use client";
 import { MoveFilterProvider } from "@/contexts/MoveFilterContext";
-import React from "react";
 import CalendarContent from "./CalendarContent";
 import { useSlugContext } from "@/contexts/SlugContext";
-import ErrorComponent from "../shared/ErrorComponent";
+import ErrorComponent from "../shared/error/ErrorComponent";
 
 const CalendarPage = () => {
   const { isCompanyContactComplete, isStripeComplete } = useSlugContext();

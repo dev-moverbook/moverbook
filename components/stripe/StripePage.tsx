@@ -1,12 +1,12 @@
 "use client";
-import CenteredContainer from "@/components/shared/CenteredContainer";
-import SectionContainer from "@/components/shared/SectionContainer";
+import CenteredContainer from "@/components/shared/containers/CenteredContainer";
+import SectionContainer from "@/components/shared/section/SectionContainer";
 import { Button } from "@/components/ui/button";
 import { StripeAccountStatus } from "@/types/enums";
 import { useShowOnboardingLink } from "@/hooks/connectedAccount";
-import FieldDisplay from "@/components/shared/FieldDisplay";
+import FieldDisplay from "@/components/shared/field/FieldDisplay";
 import { useStripeDashboardLink } from "../../hooks/connectedAccount/useStripeDashboardLink";
-import SectionHeaderWithAction from "@/components/shared/ SectionHeaderWithAction";
+import SectionHeaderWithAction from "@/components/shared/section/SectionHeaderWithAction";
 import { Doc } from "@/convex/_generated/dataModel";
 
 interface StripeContentProps {

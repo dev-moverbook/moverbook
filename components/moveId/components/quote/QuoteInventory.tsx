@@ -1,8 +1,7 @@
 "use client";
 
-import React from "react";
 import SectionContainer from "@/components/shared/containers/SectionContainer";
-import SectionHeader from "@/components/shared/SectionHeader";
+import SectionHeader from "@/components/shared/section/SectionHeader";
 import { groupItemsByRoom } from "@/frontendUtils/helper";
 import RoomCard from "../card/RoomCard";
 import EmptyList from "@/components/shared/message/EmptyList";

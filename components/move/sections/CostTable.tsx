@@ -4,7 +4,7 @@ import React from "react";
 import ListRow from "@/components/shared/ui/ListRow";
 import ListRowContainer from "@/components/shared/containers/ListRowContainer";
 import clsx from "clsx";
-import SectionHeader from "../../shared/SectionHeader";
+import SectionHeader from "../../shared/section/SectionHeader";
 import { formatCurrency, ListRowType } from "@/frontendUtils/helper";
 
 interface CostTableProps {

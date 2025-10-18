@@ -2,22 +2,22 @@
 
 import React, { useState } from "react";
 import { Doc, Id } from "@/convex/_generated/dataModel";
-import ConfirmModal from "@/components/shared/ConfirmModal";
+import ConfirmModal from "@/components/shared/modal/ConfirmModal";
 import ItemModal from "../modals/ItemModal";
 import { useCreateItem } from "@/hooks/items";
 import { useUpdateItem } from "@/hooks/items";
 import { useDeleteItem } from "@/hooks/items";
-import SectionContainer from "@/components/shared/SectionContainer";
-import SectionHeader from "@/components/shared/SectionHeader";
-import TabSelector from "@/components/shared/TabSelector";
+import SectionContainer from "@/components/shared/section/SectionContainer";
+import SectionHeader from "@/components/shared/section/SectionHeader";
+import TabSelector from "@/components/shared/tab/TabSelector";
 import SearchTab from "../tabs/SearchTab";
 import PopularTab from "../tabs/PopularTab";
 import CategoryTab from "../tabs/CategoryTab";
 import { Trash2 } from "lucide-react";
 import { Pencil } from "lucide-react";
-import IconButton from "@/components/shared/IconButton";
+import IconButton from "@/components/shared/buttons/IconButton";
 import { X } from "lucide-react";
-import CenteredContainer from "@/components/shared/CenteredContainer";
+import CenteredContainer from "@/components/shared/containers/CenteredContainer";
 
 interface ItemSectionProps {
   companyId: Id<"companies">;

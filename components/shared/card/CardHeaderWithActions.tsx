@@ -1,6 +1,5 @@
-import React from "react";
-import IconRow from "./IconRow"; // adjust path as needed
 import { cn } from "@/lib/utils";
+import IconRow from "@/components/shared/buttons/IconRow";
 
 interface CardHeaderWithActionsProps {
   title: React.ReactNode;

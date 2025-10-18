@@ -2,16 +2,16 @@
 
 import React, { useState } from "react";
 import { Doc, Id } from "@/convex/_generated/dataModel";
-import ConfirmModal from "@/components/shared/ConfirmModal";
+import ConfirmModal from "@/components/shared/modal/ConfirmModal";
 import { useCreateCategory } from "@/hooks/categories";
 import { useUpdateCategory } from "@/hooks/categories";
 import { useDeleteCategory } from "@/hooks/categories";
 import CategoryModal from "../modals/CategoryModal";
 import { FrontEndErrorMessages } from "@/types/errors";
 import CategoryTree from "../sections/CategoryTree";
-import CenteredContainer from "@/components/shared/CenteredContainer";
-import SectionContainer from "@/components/shared/SectionContainer";
-import SingleCardContainer from "@/components/shared/SingleCardContainer";
+import CenteredContainer from "@/components/shared/containers/CenteredContainer";
+import SectionContainer from "@/components/shared/section/SectionContainer";
+import SingleCardContainer from "@/components/shared/containers/SingleCardContainer";
 import SelectableCardContainer from "@/components/shared/containers/SelectableCardContainer";
 
 interface CategoryTabProps {

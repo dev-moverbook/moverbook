@@ -1,5 +1,3 @@
-import React from "react";
-
 interface VerticalSectionGroupProps {
   children: React.ReactNode;
   className?: string;

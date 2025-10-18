@@ -2,7 +2,7 @@ import React from "react";
 import { Input } from "@/components/ui/input";
 import FieldErrorMessage from "./FieldErrorMessage";
 import { formatPhoneNumber } from "@/frontendUtils/helper";
-import FieldDisplay from "../FieldDisplay";
+import FieldDisplay from "../field/FieldDisplay";
 import { PatternFormat } from "react-number-format";
 
 interface EditableIconFieldProps {

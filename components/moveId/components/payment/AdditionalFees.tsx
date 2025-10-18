@@ -1,7 +1,7 @@
 "use client";
 
 import { Doc, Id } from "@/convex/_generated/dataModel";
-import CardContainer from "@/components/shared/CardContainer";
+import CardContainer from "@/components/shared/card/CardContainer";
 import SectionContainer from "@/components/shared/containers/SectionContainer";
 import Header3 from "@/components/shared/heading/Header3";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,7 @@ import AdditionalFeeCard from "../card/AdditionalFeeCard";
 import AdditionalFeeModal, {
   AdditionalFeeFormData,
 } from "../modals/AdditionalFeeModal";
-import ConfirmModal from "@/components/shared/ConfirmModal";
+import ConfirmModal from "@/components/shared/modal/ConfirmModal";
 
 interface AdditionalFeesProps {
   additionalFees: Doc<"additionalFees">[];

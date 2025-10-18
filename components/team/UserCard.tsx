@@ -4,7 +4,7 @@ import React from "react";
 import { usePathname } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 import Image from "next/image";
-import UserCardBorder from "@/components/shared/UserCardBorder";
+import UserCardBorder from "@/components/shared/card/UserCardBorder";
 import Link from "next/link";
 import NProgress from "nprogress";
 import { Doc } from "@/convex/_generated/dataModel";

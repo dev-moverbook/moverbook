@@ -10,7 +10,7 @@ import ComplianceSection from "../sections/ComplianceSection";
 import WebIntegrationsSection from "../sections/WebIntegrationsSection";
 import CompanyContactSection from "../sections/CompanyContactSection";
 import { useUpdateOrganizationLogo } from "@/hooks/companies";
-import VerticalSectionGroup from "@/components/shared/VerticalSectionGroup";
+import VerticalSectionGroup from "@/components/shared/section/VerticalSectionGroup";
 import { useGetCompanyDetails } from "@/hooks/companies";
 
 const GeneralTab = () => {

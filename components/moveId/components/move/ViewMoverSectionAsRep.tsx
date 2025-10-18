@@ -1,13 +1,12 @@
 "use client";
 
-import React from "react";
 import { useMoveContext } from "@/contexts/MoveContext";
-import { useUpdateMove } from "../../../../hooks/moves/useUpdateMove";
 import StartMoveSection from "@/components/move/movers/StartMoveSection";
 import { useSlugContext } from "@/contexts/SlugContext";
 import ArriveOriginSection from "@/components/move/movers/ArriveOriginSection";
 import EndMoveSection from "@/components/move/movers/EndMoveSectiont";
 import BreakMoveSection from "@/components/move/movers/BreakMoveSection";
+import { useUpdateMove } from "@/hooks/moves";
 
 const ViewMoverSectionAsRep = () => {
   const { moveData } = useMoveContext();

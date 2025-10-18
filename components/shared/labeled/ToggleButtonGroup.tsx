@@ -2,7 +2,7 @@
 
 import React from "react";
 import clsx from "clsx";
-import FieldDisplay from "@/components/shared/FieldDisplay";
+import FieldDisplay from "@/components/shared/field/FieldDisplay";
 
 interface ToggleOption<T extends string> {
   label: string;

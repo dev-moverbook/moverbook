@@ -5,7 +5,7 @@ import { RefreshCcw, Plus } from "lucide-react";
 import { useMessageContext } from "@/contexts/MessageContext";
 import { BadgeButton } from "@/components/shared/buttons/BadgeButton";
 import { MessageVariablesTarget } from "@/types/types";
-import BadgeButtonGroup from "@/components/shared/containers/ BadgeButtonGroup";
+import BadgeButtonGroup from "@/components/shared/containers/BadgeButtonGroup";
 
 interface Props {
   showScripts: () => void;

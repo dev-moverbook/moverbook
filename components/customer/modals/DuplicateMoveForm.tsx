@@ -1,6 +1,6 @@
 "use client";
 
-import FieldGroup from "@/components/shared/FieldGroup";
+import FieldGroup from "@/components/shared/field/FieldGroup";
 import FormActions from "@/components/shared/FormActions";
 import LabeledMoveCheckboxGroup from "@/components/shared/labeled/LabeledMoveCheckboxGroup";
 import { Doc } from "@/convex/_generated/dataModel";

@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import IconRow from "@/components/shared/IconRow";
-import IconButton from "@/components/shared/IconButton";
+import IconRow from "@/components/shared/buttons/IconRow";
+import IconButton from "@/components/shared/buttons/IconButton";
 import { Pencil, Trash2 } from "lucide-react";
-import ListItemRow from "@/components/shared/ListItemRow";
+import ListItemRow from "@/components/shared/row/ListItemRow";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { formatCurrency } from "@/frontendUtils/helper";
 

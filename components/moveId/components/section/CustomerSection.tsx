@@ -1,15 +1,15 @@
 "use client";
 
 import SectionContainer from "@/components/shared/containers/SectionContainer";
-import SectionHeader from "@/components/shared/SectionHeader";
+import SectionHeader from "@/components/shared/section/SectionHeader";
 import React, { useState } from "react";
-import FormActions from "@/components/shared/FormActions";
+import FormActions from "@/components/shared/buttons/FormActions";
 import { CustomerFormData, CustomerFormErrors } from "@/types/form-types";
 import LabeledInput from "@/components/shared/labeled/LabeledInput";
 import { cn } from "@/lib/utils";
 import { validateCustomerForm } from "@/frontendUtils/validation";
 import { useMoveContext } from "@/contexts/MoveContext";
-import { useUpdateMoveCustomer } from "@/hooks/moveCustomers/useUpdateMoveCustomer";
+import { useUpdateMoveCustomer } from "@/hooks/moveCustomers";
 
 const CustomerSection: React.FC = () => {
   const { moveData } = useMoveContext();

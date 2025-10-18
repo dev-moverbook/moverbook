@@ -3,8 +3,8 @@
 import React, { useState } from "react";
 import { FrontEndErrorMessages } from "@/types/errors";
 import LabeledInput from "@/components/shared/labeled/LabeledInput";
-import FieldGroup from "@/components/shared/FieldGroup";
-import FormActions from "@/components/shared/FormActions";
+import FieldGroup from "@/components/shared/field/FieldGroup";
+import FormActions from "@/components/shared/buttons/FormActions";
 import ResponsiveModal from "@/components/shared/modal/ResponsiveModal";
 
 interface CreateVariableModalProps {

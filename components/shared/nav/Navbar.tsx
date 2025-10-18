@@ -12,10 +12,10 @@ import {
   SheetDescription,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import SidebarContent from "./SidebarContent";
-import IconButton from "./IconButton";
+import SidebarContent from "../side/SidebarContent";
+import IconButton from "../buttons/IconButton";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import SearchInput from "./SearchInput";
+import SearchInput from "../search/SearchInput";
 import { useSlugContext } from "@/contexts/SlugContext";
 import { canCreateMove, isMover } from "@/frontendUtils/permissions";
 

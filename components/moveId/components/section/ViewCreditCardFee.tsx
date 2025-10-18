@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useMoveContext } from "@/contexts/MoveContext";
 import { MoveCreditCardFeeFormData } from "@/types/form-types";
-import { useUpdateMove } from "../../../../hooks/moves/useUpdateMove";
+import { useUpdateMove } from "@/hooks/moves";
 import MoveCreditCardFeeSection from "@/components/move/sections/MoveCreditCardSection";
 
 const ViewCreditCardFee = () => {

@@ -1,4 +1,4 @@
-import FieldDisplay from "../../shared/FieldDisplay";
+import FieldDisplay from "../../shared/field/FieldDisplay";
 import CounterInput from "../../shared/labeled/CounterInput";
 import FieldErrorMessage from "../../shared/labeled/FieldErrorMessage";
 import TagLabel from "../../shared/labeled/TagLabel";

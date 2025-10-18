@@ -2,12 +2,12 @@
 
 import { Pencil, Trash2 } from "lucide-react";
 import { Doc, Id } from "@/convex/_generated/dataModel";
-import CustomCard from "@/components/shared/CustomCard";
-import IconButton from "@/components/shared/IconButton";
-import CardHeaderWithActions from "@/components/shared/CardHeaderWithActions";
-import CardDetailsWrapper from "@/components/shared/CardDetailsWrapper";
-import CardDetailRow from "@/components/shared/CardDetailRow";
-import TitleWithBadge from "@/components/shared/TitleWithBadge";
+import CustomCard from "@/components/shared/card/CustomCard";
+import IconButton from "@/components/shared/buttons/IconButton";
+import CardHeaderWithActions from "@/components/shared/card/CardHeaderWithActions";
+import CardDetailsWrapper from "@/components/shared/card/CardDetailsWrapper";
+import CardDetailRow from "@/components/shared/card/CardDetailRow";
+import TitleWithBadge from "@/components/shared/heading/TitleWithBadge";
 import { formatCurrency } from "@/frontendUtils/helper";
 
 interface LiabilityCardProps {

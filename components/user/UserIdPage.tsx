@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import SectionContainer from "@/components/shared/SectionContainer";
-import CenteredContainer from "@/components/shared/CenteredContainer";
+import SectionContainer from "@/components/shared/section/SectionContainer";
+import CenteredContainer from "@/components/shared/containers/CenteredContainer";
 import UserIdContent from "./UserIdContent";
 
 const UserIdPage: React.FC = () => {

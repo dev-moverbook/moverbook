@@ -1,4 +1,4 @@
-import IconButton from "@/components/shared/IconButton";
+import IconButton from "@/components/shared/buttons/IconButton";
 import { formatLongDate, getStatusColor } from "@/frontendUtils/helper";
 import { Doc } from "@/convex/_generated/dataModel";
 import { ChevronLeft, Phone, Truck } from "lucide-react";

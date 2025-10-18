@@ -3,7 +3,7 @@ import { FrontEndErrorMessages } from "@/types/errors";
 import { isValidEmail } from "@/utils/helper";
 import { ClerkRoles } from "@/types/enums";
 import { isValidHourlyRate } from "@/frontendUtils/helper";
-import FormActions from "@/components/shared/FormActions";
+import FormActions from "../shared/buttons/FormActions";
 import LabeledInput from "../shared/labeled/LabeledInput";
 import LabeledSelect from "../shared/labeled/LabeledSelect";
 import SectionLabeled from "../shared/labeled/SectionLabeled";

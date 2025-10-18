@@ -11,7 +11,7 @@ import {
   Briefcase,
   Truck,
 } from "lucide-react";
-import NavLink from "./buttons/NavLink";
+import NavLink from "@/components/shared/buttons/NavLink";
 import {
   canCreateMove,
   canManageCompany,

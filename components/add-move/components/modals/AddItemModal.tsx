@@ -2,12 +2,12 @@
 
 import React, { useEffect, useState } from "react";
 import { FormMoveItemInput, MoveItemInput } from "@/types/form-types";
-import FieldGroup from "@/components/shared/FieldGroup";
-import FormActions from "@/components/shared/FormActions";
+import FieldGroup from "@/components/shared/field/FieldGroup";
+import FormActions from "@/components/shared/buttons/FormActions";
 import SizeSelector from "@/components/shared/labeled/SizeSelector";
 import { calculateWeightFromSize } from "@/utils/helper";
 import { validateMoveItemForm } from "@/frontendUtils/validation";
-import FieldRow from "@/components/shared/FieldRow";
+import FieldRow from "@/components/shared/field/FieldRow";
 import CounterInput from "@/components/shared/labeled/CounterInput";
 import ResponsiveModal from "@/components/shared/modal/ResponsiveModal";
 import NumberInput from "@/components/shared/labeled/NumberInput";

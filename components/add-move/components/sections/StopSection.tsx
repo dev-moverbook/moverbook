@@ -5,7 +5,7 @@ import React, { useState } from "react";
 import MoveAddress from "./MoveAddress";
 import StopSectionHeader from "@/components/move/header/StopSectionHeader";
 import { LocationInput } from "@/types/form-types";
-import ConfirmModal from "@/components/shared/ConfirmModal";
+import ConfirmModal from "@/components/shared/modal/ConfirmModal";
 
 interface StopSectionProps {
   locations: LocationInput[];

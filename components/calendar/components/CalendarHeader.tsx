@@ -1,11 +1,10 @@
 "use client";
 
-import React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { DateTime } from "luxon";
 import { useMoveFilter } from "@/contexts/MoveFilterContext";
 import { useSlugContext } from "@/contexts/SlugContext";
-import IconButton from "@/components/shared/IconButton";
+import IconButton from "@/components/shared/buttons/IconButton";
 
 interface CalendarHeaderProps {
   label: string;

@@ -1,9 +1,8 @@
 "use client";
 
-import React from "react";
 import ListRow from "@/components/shared/ui/ListRow";
 import ListRowContainer from "@/components/shared/containers/ListRowContainer";
-import SectionHeader from "@/components/shared/SectionHeader";
+import SectionHeader from "@/components/shared/section/SectionHeader";
 import { EnrichedMoveAssignment } from "@/types/convex-responses";
 import { formatCurrency } from "@/frontendUtils/helper";
 import { computeProfit, sumMoverExpense } from "@/frontendUtils/payout";

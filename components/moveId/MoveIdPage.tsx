@@ -4,7 +4,7 @@ import React, { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import MoveCard from "@/components/move/MoveCard";
-import TabSelector from "@/components/shared/TabSelector";
+import TabSelector from "@/components/shared/tab/TabSelector";
 import { useMoveContext } from "@/contexts/MoveContext";
 import { Doc } from "@/convex/_generated/dataModel";
 import { useSlugContext } from "@/contexts/SlugContext";

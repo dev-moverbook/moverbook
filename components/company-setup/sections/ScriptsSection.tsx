@@ -1,10 +1,10 @@
 "use client";
 
 import { Doc, Id } from "@/convex/_generated/dataModel";
-import SectionContainer from "@/components/shared/SectionContainer";
-import CenteredContainer from "@/components/shared/CenteredContainer";
-import SectionHeader from "@/components/shared/SectionHeader";
-import CardContainer from "@/components/shared/CardContainer";
+import SectionContainer from "@/components/shared/section/SectionContainer";
+import CenteredContainer from "@/components/shared/containers/CenteredContainer";
+import SectionHeader from "@/components/shared/section/SectionHeader";
+import CardContainer from "@/components/shared/card/CardContainer";
 import AddItemButton from "@/components/shared/buttons/AddItemButton";
 import ScriptCard from "@/components/company-setup/components/ScriptCard";
 

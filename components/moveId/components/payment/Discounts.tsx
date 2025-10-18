@@ -9,9 +9,9 @@ import { useState } from "react";
 import { useCreateDiscount } from "../../../../hooks/discounts/useCreateDiscount";
 import { useUpdateDiscount } from "../../../../hooks/discounts/useUpdateDiscount";
 import DiscountModal, { DiscountFormData } from "../modals/DiscountModal";
-import CardContainer from "@/components/shared/CardContainer";
+import CardContainer from "@/components/shared/card/CardContainer";
 import DiscountCard from "../card/DiscountCard";
-import ConfirmModal from "@/components/shared/ConfirmModal";
+import ConfirmModal from "@/components/shared/modal/ConfirmModal";
 
 interface DiscountsProps {
   discounts: Doc<"discounts">[];

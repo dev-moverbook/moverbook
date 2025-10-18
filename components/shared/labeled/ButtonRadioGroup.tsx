@@ -5,7 +5,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import FieldErrorMessage from "./FieldErrorMessage";
 import clsx from "clsx";
-import FieldDisplay from "../FieldDisplay";
+import FieldDisplay from "../field/FieldDisplay";
 
 interface Option {
   label: React.ReactNode;

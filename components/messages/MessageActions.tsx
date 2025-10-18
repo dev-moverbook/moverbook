@@ -3,7 +3,7 @@
 import { Plus, X, MessageSquare, Mail, SendHorizontal } from "lucide-react";
 import { RefObject } from "react";
 import { useMessageContext } from "@/contexts/MessageContext";
-import IconButton from "@/components/shared/IconButton";
+import IconButton from "@/components/shared/buttons/IconButton";
 import { Textarea } from "@/components/ui/textarea";
 import { useMoveContext } from "@/contexts/MoveContext";
 import { useCreateMessage } from "@/hooks/messages";

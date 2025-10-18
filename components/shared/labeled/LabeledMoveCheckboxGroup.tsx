@@ -4,7 +4,7 @@ import React from "react";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Doc } from "@/convex/_generated/dataModel";
-import FieldDisplay from "../FieldDisplay";
+import FieldDisplay from "../field/FieldDisplay";
 import FieldErrorMessage from "./FieldErrorMessage";
 import { Repeat } from "lucide-react";
 import { Button } from "../../ui/button";

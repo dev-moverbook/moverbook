@@ -1,6 +1,6 @@
 import SectionContainer from "@/components/shared/containers/SectionContainer";
 import React, { useState } from "react";
-import TabSelector from "@/components/shared/TabSelector";
+import TabSelector from "@/components/shared/tab/TabSelector";
 import PopularItems from "./PopularItems";
 import CategoryInventory from "./CategoryInventory";
 import SearchInventory from "./SearchInventory";

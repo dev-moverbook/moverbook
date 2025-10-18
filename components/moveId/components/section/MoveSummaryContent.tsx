@@ -1,5 +1,6 @@
-// components/summary/MoveSummaryContent.tsx
-import SectionHeader from "@/components/shared/SectionHeader";
+"use client";
+
+import SectionHeader from "@/components/shared/section/SectionHeader";
 import { Id } from "@/convex/_generated/dataModel";
 import { EnrichedMoveAssignment } from "@/types/convex-responses";
 import React, { useState } from "react";

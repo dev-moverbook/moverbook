@@ -1,5 +1,4 @@
-import React from "react";
-import { cn } from "@/lib/utils"; // if you're using tailwind `cn` helper
+import { cn } from "@/lib/utils";
 
 interface CustomCardProps {
   children: React.ReactNode;

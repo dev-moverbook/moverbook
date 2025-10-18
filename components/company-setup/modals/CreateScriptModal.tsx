@@ -4,12 +4,12 @@ import React, { useEffect, useState } from "react";
 import { FrontEndErrorMessages } from "@/types/errors";
 import { CommunicationType } from "@/types/types";
 import { Doc, Id } from "@/convex/_generated/dataModel";
-import FormActions from "@/components/shared/FormActions";
-import ToggleTabs from "@/components/shared/ToggleTabs";
+import FormActions from "@/components/shared/buttons/FormActions";
+import ToggleTabs from "@/components/shared/tab/ToggleTabs";
 import LabeledInput from "@/components/shared/labeled/LabeledInput";
 import LabeledTextarea from "@/components/shared/labeled/LabeledTextarea";
-import VariableInsertButtons from "@/components/shared/VariableInsertButtons";
-import FieldGroup from "@/components/shared/FieldGroup";
+import VariableInsertButtons from "@/components/shared/buttons/VariableInsertButtons";
+import FieldGroup from "@/components/shared/field/FieldGroup";
 import ResponsiveModal from "@/components/shared/modal/ResponsiveModal";
 import FormActionContainer from "@/components/shared/containers/FormActionContainer";
 

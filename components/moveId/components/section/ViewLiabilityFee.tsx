@@ -2,9 +2,9 @@
 
 import { useMoveContext } from "@/contexts/MoveContext";
 import { Doc } from "@/convex/_generated/dataModel";
-import { useUpdateMove } from "../../../../hooks/moves/useUpdateMove";
+import { useUpdateMove } from "@/hooks/moves";
 import LiabilityCoverageSection from "@/components/move/sections/LiabilityCoverageSection";
-import { useCompanyInsurance } from "@/hooks/insurancePolicies/useCompanyInsurance";
+import { useCompanyInsurance } from "@/hooks/insurancePolicies";
 
 const ViewLiabilityFee = () => {
   const { moveData } = useMoveContext();

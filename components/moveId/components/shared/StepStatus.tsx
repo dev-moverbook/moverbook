@@ -1,6 +1,5 @@
 import SectionContainer from "@/components/shared/containers/SectionContainer";
-import FieldDisplay from "@/components/shared/FieldDisplay";
-import React from "react";
+import FieldDisplay from "@/components/shared/field/FieldDisplay";
 
 interface StepStatusProps {
   items: {

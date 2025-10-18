@@ -1,3 +1,5 @@
+"use client";
+
 import LocationSection from "../section/LocationSection";
 import CostSection from "../section/CostSection";
 import InternalNotesSection from "../section/InternalNotes";

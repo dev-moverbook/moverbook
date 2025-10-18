@@ -3,13 +3,13 @@ import React, { useState } from "react";
 import { useSlugContext } from "@/contexts/SlugContext";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { useRevokeInvite } from "@/hooks/invitations";
-import SectionContainer from "@/components/shared/SectionContainer";
-import CenteredContainer from "@/components/shared/CenteredContainer";
-import ContainerUserCard from "@/components/shared/ContainerUserCard";
+import SectionContainer from "@/components/shared/section/SectionContainer";
+import CenteredContainer from "@/components/shared/containers/CenteredContainer";
+import ContainerUserCard from "@/components/shared/card/ContainerUserCard";
 import EmptyList from "@/components/shared/message/EmptyList";
 import InvitationCard from "./InvitationCard";
 import { useActiveInvitations } from "@/hooks/invitations/useActiveInvitations";
-import ConfirmModal from "../shared/ConfirmModal";
+import ConfirmModal from "../shared/modal/ConfirmModal";
 
 const InvitedUsers = () => {
   const { companyId } = useSlugContext();

@@ -2,17 +2,17 @@
 
 import React, { useState } from "react";
 import { Doc, Id } from "@/convex/_generated/dataModel";
-import SectionContainer from "@/components/shared/SectionContainer";
-import CenteredContainer from "@/components/shared/CenteredContainer";
-import SectionHeader from "@/components/shared/SectionHeader";
-import ConfirmModal from "@/components/shared/ConfirmModal";
+import SectionContainer from "@/components/shared/section/SectionContainer";
+import CenteredContainer from "@/components/shared/containers/CenteredContainer";
+import SectionHeader from "@/components/shared/section/SectionHeader";
+import ConfirmModal from "@/components/shared/modal/ConfirmModal";
 import RoomModal from "../modals/RoomModal";
 import { useCreateRoom } from "@/hooks/rooms";
 import { useUpdateRoom } from "@/hooks/rooms";
 import { useDeleteRoom } from "@/hooks/rooms";
-import SingleCardContainer from "@/components/shared/SingleCardContainer";
+import SingleCardContainer from "@/components/shared/containers/SingleCardContainer";
 import SelectableCardContainer from "@/components/shared/containers/SelectableCardContainer";
-import IconButton from "@/components/shared/IconButton";
+import IconButton from "@/components/shared/buttons/IconButton";
 import { Pencil, Trash2, X } from "lucide-react";
 
 interface RoomSectionProps {

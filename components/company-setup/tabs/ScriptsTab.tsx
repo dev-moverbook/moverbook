@@ -12,8 +12,8 @@ import { useDeleteScript } from "@/hooks/scripts";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { useUpdateScript } from "@/hooks/scripts";
 import { useScriptsAndVariables } from "@/hooks/scripts/useScriptsAndVariables";
-import VerticalSectionGroup from "@/components/shared/VerticalSectionGroup";
-import ConfirmModal from "@/components/shared/ConfirmModal";
+import VerticalSectionGroup from "@/components/shared/section/VerticalSectionGroup";
+import ConfirmModal from "@/components/shared/modal/ConfirmModal";
 
 type UpdateScriptData = {
   title?: string;

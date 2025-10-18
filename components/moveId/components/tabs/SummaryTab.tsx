@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+
 import { useMoveContext } from "@/contexts/MoveContext";
 import { useMoveAssignments } from "@/hooks/moveAssignments";
 import ViewSummary from "../section/ViewSummary";

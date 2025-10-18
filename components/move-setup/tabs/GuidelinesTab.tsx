@@ -1,6 +1,6 @@
 "use client";
 
-import VerticalSectionGroup from "@/components/shared/VerticalSectionGroup";
+import VerticalSectionGroup from "@/components/shared/section/VerticalSectionGroup";
 import ArrivalWindowSection from "../sections/ArrivalWindowSection";
 import PolicySection from "../sections/PolicySection";
 import { useSlugContext } from "@/contexts/SlugContext";

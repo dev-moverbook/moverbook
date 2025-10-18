@@ -1,8 +1,7 @@
 "use client";
 
-import React from "react";
 import LabeledDateTime from "../../shared/labeled/LabeledDateTime";
-import FormActions from "../../shared/FormActions";
+import FormActions from "@/components/shared/buttons/FormActions";
 import BreakTimeInput from "../../shared/labeled/BreakTimeInput";
 
 interface MoverSectionContentProps {

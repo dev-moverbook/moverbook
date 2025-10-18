@@ -1,5 +1,6 @@
-import React from "react";
-import { useCompanyInventoryData } from "@/hooks/items/useCompanyInventoryData";
+"use client";
+
+import { useCompanyInventoryData } from "@/hooks/items";
 import { useMoveContext } from "@/contexts/MoveContext";
 import InventorySection from "./InventorySection";
 

@@ -1,9 +1,9 @@
 import { useState } from "react";
-import CenteredContainer from "@/components/shared/CenteredContainer";
-import SectionContainer from "@/components/shared/SectionContainer";
-import SectionHeader from "@/components/shared/SectionHeader";
-import CardContainer from "@/components/shared/CardContainer";
-import FormActions from "@/components/shared/FormActions";
+import CenteredContainer from "@/components/shared/containers/CenteredContainer";
+import SectionContainer from "@/components/shared/section/SectionContainer";
+import SectionHeader from "@/components/shared/section/SectionHeader";
+import CardContainer from "@/components/shared/card/CardContainer";
+import FormActions from "@/components/shared/buttons/FormActions";
 import { useUpdateVariable } from "@/hooks/variables";
 import { Doc } from "@/convex/_generated/dataModel";
 import VariableCard from "@/components/company-setup/components/VariableCard";

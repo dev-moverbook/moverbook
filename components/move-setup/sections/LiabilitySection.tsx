@@ -2,16 +2,16 @@
 
 import React, { useState } from "react";
 import { Doc, Id } from "@/convex/_generated/dataModel";
-import SectionContainer from "@/components/shared/SectionContainer";
-import CenteredContainer from "@/components/shared/CenteredContainer";
-import SectionHeader from "@/components/shared/SectionHeader";
-import ConfirmModal from "@/components/shared/ConfirmModal";
+import SectionContainer from "@/components/shared/section/SectionContainer";
+import CenteredContainer from "@/components/shared/containers/CenteredContainer";
+import SectionHeader from "@/components/shared/section/SectionHeader";
+import ConfirmModal from "@/components/shared/modal/ConfirmModal";
 import LiabilityModal from "../modals/LiabilityModal";
 import LiabilityCard from "../cards/LiablilityCard";
 import { useCreateInsurancePolicy } from "@/hooks/insurancePolicies";
 import { useUpdateInsurancePolicy } from "@/hooks/insurancePolicies";
 import { useDeleteInsurancePolicy } from "@/hooks/insurancePolicies";
-import CardContainer from "@/components/shared/CardContainer";
+import CardContainer from "@/components/shared/card/CardContainer";
 import AddItemButton from "@/components/shared/buttons/AddItemButton";
 import { useSlugContext } from "@/contexts/SlugContext";
 

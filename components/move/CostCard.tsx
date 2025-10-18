@@ -1,6 +1,6 @@
-import CustomCard from "../shared/CustomCard";
-import CardDetailRow from "../shared/CardDetailRow";
-import CardDetailsWrapper from "../shared/CardDetailsWrapper";
+import CustomCard from "../shared/card/CustomCard";
+import CardDetailRow from "../shared/card/CardDetailRow";
+import CardDetailsWrapper from "../shared/card/CardDetailsWrapper";
 
 const CostCard = () => {
   return (

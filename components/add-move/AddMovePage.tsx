@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { MoveFormProvider } from "@/contexts/MoveFormContext";
 import { useSlugContext } from "@/contexts/SlugContext";
 import ErrorMessage from "@/components/shared/error/ErrorMessage";

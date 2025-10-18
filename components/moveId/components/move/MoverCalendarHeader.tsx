@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { DateTime } from "luxon";
 import { useSlugContext } from "@/contexts/SlugContext";
 import { useMoverCalendar } from "@/contexts/MoverCalendarContext";
-import IconButton from "@/components/shared/IconButton";
+import IconButton from "@/components/shared/buttons/IconButton";
 import { formatMonthYear } from "@/frontendUtils/helper";
 
 const MoverCalendarHeader: React.FC = () => {

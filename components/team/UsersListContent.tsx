@@ -1,6 +1,6 @@
 import React from "react";
 import EmptyList from "@/components/shared/message/EmptyList";
-import ContainerUserCard from "@/components/shared/ContainerUserCard";
+import ContainerUserCard from "@/components/shared/card/ContainerUserCard";
 import { Doc } from "@/convex/_generated/dataModel";
 import UserCard from "./UserCard";
 

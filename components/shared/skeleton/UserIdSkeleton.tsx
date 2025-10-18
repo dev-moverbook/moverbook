@@ -1,4 +1,3 @@
-// app/components/shared/skeleton/UserIdContentSkeleton.tsx
 "use client";
 
 import React from "react";
@@ -59,13 +58,6 @@ const UserIdContentSkeleton: React.FC<Props> = ({ className }) => {
           <div className="h-5 w-20 bg-zinc-700 animate-pulse rounded" />
         </div>
       </div>
-
-      {/* Optional: form actions skeleton (Save / Cancel) */}
-      {/* Show this block only when you expect editing state skeleton */}
-      {/* <div className="mt-6 flex gap-3">
-        <div className="h-9 w-24 bg-zinc-700 animate-pulse rounded-lg" />
-        <div className="h-9 w-24 bg-zinc-700 animate-pulse rounded-lg" />
-      </div> */}
     </div>
   );
 };

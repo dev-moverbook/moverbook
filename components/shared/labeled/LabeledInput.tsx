@@ -2,7 +2,7 @@ import React from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import FieldErrorMessage from "./FieldErrorMessage";
-import FieldDisplay from "@/components/shared/FieldDisplay";
+import FieldDisplay from "@/components/shared/field/FieldDisplay";
 import { formatCurrency, formatPhoneNumber } from "@/frontendUtils/helper";
 
 interface LabeledInputProps {

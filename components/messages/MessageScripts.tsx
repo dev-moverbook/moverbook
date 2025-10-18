@@ -1,7 +1,7 @@
 "use client";
 
 import { BadgeButton } from "@/components/shared/buttons/BadgeButton";
-import BadgeButtonGroup from "@/components/shared/containers/ BadgeButtonGroup";
+import BadgeButtonGroup from "@/components/shared/containers/BadgeButtonGroup";
 import { useMessageContext } from "@/contexts/MessageContext";
 import { useSlugContext } from "@/contexts/SlugContext";
 import { useScriptsByCompanyId } from "@/hooks/scripts/useScriptsByCompanyId";

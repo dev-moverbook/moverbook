@@ -1,9 +1,9 @@
+"use client";
 import CalendarContainer from "@/components/calendar/components/CalendarContainer";
 import MoverSelect from "@/components/move/movers/MoverSelect";
 import { useMoverCalendar } from "@/contexts/MoverCalendarContext";
 import { useSlugContext } from "@/contexts/SlugContext";
 import { getWeekdays, shouldDimDateForMonth } from "@/frontendUtils/helper";
-import React from "react";
 import MoverCalendarHeader from "./MoverCalendarHeader";
 import SectionContainer from "@/components/shared/containers/SectionContainer";
 import WeekdayHeader from "@/components/calendar/components/WeekdayHeader";

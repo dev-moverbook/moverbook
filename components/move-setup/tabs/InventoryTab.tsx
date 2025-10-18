@@ -1,7 +1,7 @@
 "use client";
 
 import { useSlugContext } from "@/contexts/SlugContext";
-import VerticalSectionGroup from "@/components/shared/VerticalSectionGroup";
+import VerticalSectionGroup from "@/components/shared/section/VerticalSectionGroup";
 import RoomSection from "../sections/RoomSection";
 import ItemSection from "../sections/ItemSection";
 import ResetSection from "../sections/ResetSection";

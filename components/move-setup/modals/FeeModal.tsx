@@ -3,9 +3,9 @@
 import React, { useState, useEffect } from "react";
 import { Id, Doc } from "@/convex/_generated/dataModel";
 import { CreateFeeData, FeeFormData } from "@/types/form-types";
-import FormActions from "@/components/shared/FormActions";
-import FieldGroup from "@/components/shared/FieldGroup";
-import FieldRow from "@/components/shared/FieldRow";
+import FormActions from "@/components/shared/buttons/FormActions";
+import FieldGroup from "@/components/shared/field/FieldGroup";
+import FieldRow from "@/components/shared/field/FieldRow";
 import CurrencyInput from "@/components/shared/labeled/CurrencyInput";
 import { validatePrice } from "@/frontendUtils/validation";
 import ResponsiveModal from "@/components/shared/modal/ResponsiveModal";

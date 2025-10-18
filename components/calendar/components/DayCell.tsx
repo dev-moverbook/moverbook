@@ -1,7 +1,5 @@
 "use client";
 
-import React from "react";
-
 interface DayCellProps {
   day: Date;
   isToday: boolean;

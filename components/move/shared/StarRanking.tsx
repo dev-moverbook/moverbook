@@ -1,10 +1,9 @@
 "use client";
 
 import { Star } from "lucide-react";
-import React from "react";
 
 interface StarRatingProps {
-  value: number | null; // allow null
+  value: number | null;
   onChange?: (value: number) => void;
   readOnly?: boolean;
 }
@@ -14,7 +13,7 @@ const StarRating: React.FC<StarRatingProps> = ({
   onChange,
   readOnly,
 }) => {
-  const safeValue = value ?? 0; // default to 0 if null or undefined
+  const safeValue = value ?? 0;
 
   return (
     <div className="flex gap-1 bg-black p-2 rounded w-full">

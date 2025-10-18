@@ -2,16 +2,16 @@
 
 import React, { useState } from "react";
 import { Doc, Id } from "@/convex/_generated/dataModel";
-import ConfirmModal from "@/components/shared/ConfirmModal";
+import ConfirmModal from "@/components/shared/modal/ConfirmModal";
 import { useCreateFee } from "@/hooks/fees";
 import { useUpdateFee } from "@/hooks/fees";
 import { useDeleteFee } from "@/hooks/fees";
 import FeeModal from "../modals/FeeModal";
 import FeeCard from "../cards/FeeCard";
-import CenteredContainer from "@/components/shared/CenteredContainer";
-import SectionContainer from "@/components/shared/SectionContainer";
-import SectionHeader from "@/components/shared/SectionHeader";
-import CardContainer from "@/components/shared/CardContainer";
+import CenteredContainer from "@/components/shared/containers/CenteredContainer";
+import SectionContainer from "@/components/shared/section/SectionContainer";
+import SectionHeader from "@/components/shared/section/SectionHeader";
+import CardContainer from "@/components/shared/card/CardContainer";
 import AddItemButton from "@/components/shared/buttons/AddItemButton";
 
 interface FeesSectionProps {

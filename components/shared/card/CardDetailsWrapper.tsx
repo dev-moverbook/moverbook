@@ -1,5 +1,5 @@
 import React from "react";
-import { cn } from "@/lib/utils"; // optional if you're using `cn` helper
+import { cn } from "@/lib/utils";
 
 interface CardDetailsWrapperProps {
   children: React.ReactNode;

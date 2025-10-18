@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useSlugContext } from "@/contexts/SlugContext";
-import SectionHeaderWithAction from "@/components/shared/ SectionHeaderWithAction";
+import SectionHeaderWithAction from "@/components/shared/section/SectionHeaderWithAction";
 import ErrorMessage from "@/components/shared/error/ErrorMessage";
 import RecentMessagesQuery from "./RecentMessagesQuery";
 

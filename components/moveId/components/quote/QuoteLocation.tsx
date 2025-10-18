@@ -1,9 +1,8 @@
 "use client";
 
-import React from "react";
 import SectionContainer from "@/components/shared/containers/SectionContainer";
-import SectionHeader from "@/components/shared/SectionHeader";
-import CardContainer from "@/components/shared/CardContainer";
+import SectionHeader from "@/components/shared/section/SectionHeader";
+import CardContainer from "@/components/shared/card/CardContainer";
 import QuoteLocationCard from "@/components/moveId/components/card/QuoteLocationCard";
 import { useMoveContext } from "@/contexts/MoveContext";
 

@@ -1,8 +1,7 @@
-import React from "react";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import FieldDisplay from "../FieldDisplay";
+import FieldDisplay from "./FieldDisplay";
 import FormErrorMessage from "../error/FormErrorMessage";
 
 interface RadioOption {

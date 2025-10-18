@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import SingleCardContainer from "@/components/shared/SingleCardContainer";
+import SingleCardContainer from "@/components/shared/containers/SingleCardContainer";
 import SelectableCardContainer from "@/components/shared/containers/SelectableCardContainer";
 import SearchInput from "@/components/shared/ui/SearchInput";
 import AddItemModal from "../modals/AddItemModal";

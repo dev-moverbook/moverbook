@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import Stepper from "@/components/shared/Stepper";
+import Stepper from "@/components/shared/stepper/Stepper";
 import { useMoveContext } from "@/contexts/MoveContext";
 import LeadStep from "../steps/LeadStep";
 import QuoteStep from "../steps/QuoteStep";

@@ -1,5 +1,4 @@
-import FormActions from "@/components/shared/FormActions";
-import React from "react";
+import FormActions from "@/components/shared/buttons/FormActions";
 import Deposit from "../sections/Deposit";
 import InternalNotes from "../sections/InternalNotes";
 import FormContainer from "@/components/shared/containers/FormContainer";

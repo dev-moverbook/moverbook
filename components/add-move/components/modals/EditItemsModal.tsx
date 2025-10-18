@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import FieldGroup from "@/components/shared/FieldGroup";
-import FormActions from "@/components/shared/FormActions";
+import FieldGroup from "@/components/shared/field/FieldGroup";
+import FormActions from "@/components/shared/buttons/FormActions";
 import LabeledInput from "@/components/shared/labeled/LabeledInput";
 import ResponsiveModal from "@/components/shared/modal/ResponsiveModal";
 

@@ -1,8 +1,9 @@
+"use client";
 import React, { FormEvent, useState } from "react";
 import TripleFormAction from "@/components/shared/buttons/TripleFormAction";
-import { useCreateOrUpdateQuote } from "../../../../hooks/quote/useCreateOrUpdateQuote";
+import { useCreateOrUpdateQuote } from "@/hooks/quote";
 import FormActionContainer from "@/components/shared/containers/FormActionContainer";
-import { useUpdateMove } from "../../../../hooks/moves/useUpdateMove";
+import { useUpdateMove } from "@/hooks/moves";
 import { useMoveContext } from "@/contexts/MoveContext";
 
 interface QuoteActionsProps {

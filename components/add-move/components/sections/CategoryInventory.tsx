@@ -1,5 +1,5 @@
 import SelectableCardContainer from "@/components/shared/containers/SelectableCardContainer";
-import SingleCardContainer from "@/components/shared/SingleCardContainer";
+import SingleCardContainer from "@/components/shared/containers/SingleCardContainer";
 import { Doc } from "@/convex/_generated/dataModel";
 
 interface CategoryInventoryProps {

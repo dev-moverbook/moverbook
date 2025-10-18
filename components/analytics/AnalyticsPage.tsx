@@ -1,6 +1,6 @@
 "use client";
 
-import TabSelector from "@/components/shared/TabSelector";
+import TabSelector from "@/components/shared/tab/TabSelector";
 import React, { useState } from "react";
 import AnalyticsMoves from "./tabs/AnalyticsMoves";
 import AnalyticsTab from "./tabs/AnalyticsTab";

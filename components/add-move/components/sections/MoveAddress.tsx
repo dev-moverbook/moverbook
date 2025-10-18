@@ -5,8 +5,8 @@ import LabeledInput from "@/components/shared/labeled/LabeledInput";
 import LabeledRadio from "@/components/shared/labeled/LabeledRadio";
 import LabeledCheckboxGroup from "@/components/shared/labeled/LabeledCheckboxGroup";
 import Header3 from "@/components/shared/heading/Header3";
-import FieldDisplay from "@/components/shared/FieldDisplay";
-import IconButton from "@/components/shared/IconButton";
+import FieldDisplay from "@/components/shared/field/FieldDisplay";
+import IconButton from "@/components/shared/buttons/IconButton";
 import { Pencil, Trash, X } from "lucide-react";
 import {
   ACCESS_TYPE_OPTIONS,
@@ -23,7 +23,7 @@ import {
 import { LocationInput } from "@/types/form-types";
 import LabeledPlacesAutocomplete from "@/components/shared/labeled/LabeledPlacesAutoComplete";
 import FormActions from "@/components/shared/FormActions";
-import IconRow from "@/components/shared/IconRow";
+import IconRow from "@/components/shared/buttons/IconRow";
 import { cn } from "@/lib/utils";
 import NumberInput from "@/components/shared/labeled/NumberInput";
 import { Button } from "@/components/ui/button";

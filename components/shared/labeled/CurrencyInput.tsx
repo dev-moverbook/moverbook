@@ -1,6 +1,6 @@
 import { NumericFormat } from "react-number-format";
 import FieldErrorMessage from "./FieldErrorMessage";
-import FieldDisplay from "../FieldDisplay";
+import FieldDisplay from "../field/FieldDisplay";
 import { formatCurrency } from "@/frontendUtils/helper";
 import { Label } from "@radix-ui/react-label";
 

@@ -1,5 +1,3 @@
-import React from "react";
-
 interface SectionTitleProps {
   children: React.ReactNode;
   className?: string;

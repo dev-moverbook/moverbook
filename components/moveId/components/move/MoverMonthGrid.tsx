@@ -5,7 +5,7 @@ import { DateTime } from "luxon";
 import { useSlugContext } from "@/contexts/SlugContext";
 import { useMoverCalendar } from "@/contexts/MoverCalendarContext";
 import { getMonthGrid } from "@/frontendUtils/helper";
-import { getStatusColor } from "@/frontendUtils/helper"; // import your helper
+import { getStatusColor } from "@/frontendUtils/helper";
 
 type Props = {
   today: Date;

@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useMoveContext } from "@/contexts/MoveContext";
 import { MovePaymentTypeFormData } from "@/types/form-types";
-import { useUpdateMove } from "../../../../hooks/moves/useUpdateMove";
+import { useUpdateMove } from "@/hooks/moves";
 import PaymentTypeSection from "@/components/move/sections/Payment/PaymentTypeSection";
 import { PaymentMethod } from "@/types/types";
 

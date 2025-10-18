@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+
 import { useMoveContext } from "@/contexts/MoveContext";
 import { useMovePageForMover } from "@/hooks/movers/useMovePageForMover";
 import ViewMoverSection from "../section/ViewMoverSection";

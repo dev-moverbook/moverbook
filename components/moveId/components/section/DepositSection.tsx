@@ -1,11 +1,11 @@
 "use client";
 
 import SectionContainer from "@/components/shared/containers/SectionContainer";
-import SectionHeader from "@/components/shared/SectionHeader";
+import SectionHeader from "@/components/shared/section/SectionHeader";
 import React, { useState } from "react";
-import FieldGroup from "@/components/shared/FieldGroup";
-import FormActions from "@/components/shared/FormActions";
-import { useUpdateMove } from "../../../../hooks/moves/useUpdateMove";
+import FieldGroup from "@/components/shared/field/FieldGroup";
+import FormActions from "@/components/shared/buttons/FormActions";
+import { useUpdateMove } from "@/hooks/moves";
 import { DepositFormData } from "@/types/form-types";
 import { useMoveContext } from "@/contexts/MoveContext";
 import CurrencyInput from "@/components/shared/labeled/CurrencyInput";

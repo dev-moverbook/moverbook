@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils"; // assuming you're using a utility like Tailwind's `clsx`
+import { cn } from "@/lib/utils";
 
 interface CenteredContainerProps {
   children: React.ReactNode;

@@ -5,11 +5,11 @@ import SectionContainer from "@/components/shared/containers/SectionContainer";
 import DisplaySignature from "@/components/move/shared/DisplaySignature";
 import Signature from "@/components/move/shared/Signature";
 import PreMoveTerms from "../copy/PreMoveTerms";
-import FormActions from "@/components/shared/FormActions";
+import FormActions from "@/components/shared/buttons/FormActions";
 import CollapsibleSection from "@/components/shared/buttons/CollapsibleSection";
-import { useCreateOrUpdatePreMoveDoc } from "../../../../hooks/contracts/useCreateOrUpdatePreMoveDoc";
 import { Doc } from "@/convex/_generated/dataModel";
 import { useMoveContext } from "@/contexts/MoveContext";
+import { useCreateOrUpdatePreMoveDoc } from "@/hooks/contracts";
 
 interface PreMoveProps {
   preMoveDoc: Doc<"preMoveDocs"> | null;

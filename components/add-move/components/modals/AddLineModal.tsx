@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { AddMoveLineItemInput, MoveFeeInput } from "@/types/form-types";
-import FieldGroup from "@/components/shared/FieldGroup";
-import FieldRow from "@/components/shared/FieldRow";
-import FormActions from "@/components/shared/FormActions";
+import FieldGroup from "@/components/shared/field/FieldGroup";
+import FieldRow from "@/components/shared/field/FieldRow";
+import FormActions from "@/components/shared/buttons/FormActions";
 import LabeledSelect from "@/components/shared/labeled/LabeledSelect";
 import CounterInput from "@/components/shared/labeled/CounterInput";
 import {

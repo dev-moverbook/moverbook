@@ -1,8 +1,8 @@
 "use client";
 
 import SectionContainer from "@/components/shared/containers/SectionContainer";
-import FormActions from "@/components/shared/FormActions";
-import SectionHeader from "@/components/shared/SectionHeader";
+import FormActions from "@/components/shared/buttons/FormActions";
+import SectionHeader from "@/components/shared/section/SectionHeader";
 import { Doc } from "@/convex/_generated/dataModel";
 
 interface ExternalReviewProps {

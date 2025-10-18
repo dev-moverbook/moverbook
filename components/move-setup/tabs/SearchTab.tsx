@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import SearchInput from "@/components/shared/ui/SearchInput";
 import SelectableCardContainer from "@/components/shared/containers/SelectableCardContainer";
-import SingleCardContainer from "@/components/shared/SingleCardContainer";
+import SingleCardContainer from "@/components/shared/containers/SingleCardContainer";
 import { Doc, Id } from "@/convex/_generated/dataModel";
-import SectionContainer from "@/components/shared/SectionContainer";
+import SectionContainer from "@/components/shared/section/SectionContainer";
 
 interface SearchTabProps {
   items: Doc<"items">[];

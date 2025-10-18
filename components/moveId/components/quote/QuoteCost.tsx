@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import SectionContainer from "@/components/shared/containers/SectionContainer";
 import ReusableCard from "../card/ReusableCard";
 import { getMoveDisplayRows } from "@/frontendUtils/helper";

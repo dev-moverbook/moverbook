@@ -3,10 +3,10 @@
 import React, { useState, useEffect } from "react";
 import { CreateLaborFormData } from "@/types/form-types";
 import { Doc, Id } from "@/convex/_generated/dataModel";
-import FieldGroup from "@/components/shared/FieldGroup";
-import FormActions from "@/components/shared/FormActions";
-import FieldRow from "@/components/shared/FieldRow";
-import MonthDayPicker from "@/components/shared/MonthDayPicker";
+import FieldGroup from "@/components/shared/field/FieldGroup";
+import FormActions from "@/components/shared/buttons/FormActions";
+import FieldRow from "@/components/shared/field/FieldRow";
+import MonthDayPicker from "@/components/shared/calendar/MonthDayPicker";
 import CurrencyInput from "@/components/shared/labeled/CurrencyInput";
 import ResponsiveModal from "@/components/shared/modal/ResponsiveModal";
 import { LaborCreateInput } from "@/hooks/labor";

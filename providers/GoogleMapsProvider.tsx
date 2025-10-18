@@ -2,7 +2,7 @@
 
 import { LoadScript } from "@react-google-maps/api";
 import { ErrorMessages } from "@/types/errors";
-import FullLoading from "@/components/shared/FullLoading";
+import FullLoading from "@/components/shared/skeleton/FullLoading";
 
 interface GoogleMapsProviderProps {
   children: React.ReactNode;

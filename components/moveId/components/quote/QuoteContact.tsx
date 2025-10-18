@@ -1,7 +1,7 @@
 "use client";
 
 import SectionContainer from "@/components/shared/containers/SectionContainer";
-import SectionHeader from "@/components/shared/SectionHeader";
+import SectionHeader from "@/components/shared/section/SectionHeader";
 import ContactCard from "../card/ContactCard";
 import CustomerCard from "../card/CustomerCard";
 import { useMoveContext } from "@/contexts/MoveContext";

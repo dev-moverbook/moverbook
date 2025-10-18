@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { cn } from "@/lib/utils";
 
 interface Step {
@@ -9,10 +8,10 @@ interface Step {
 
 interface StepperProps {
   steps: Step[];
-  currentStep: number; // starts at 1
+  currentStep: number;
   onStepClick?: (stepNumber: number) => void;
   className?: string;
-  disabledSteps?: number[]; // new: list of step numbers to disable
+  disabledSteps?: number[];
 }
 
 const Stepper: React.FC<StepperProps> = ({

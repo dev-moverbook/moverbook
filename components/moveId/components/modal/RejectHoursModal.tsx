@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import FieldGroup from "@/components/shared/FieldGroup";
-import FormActions from "@/components/shared/FormActions";
+import FieldGroup from "@/components/shared/field/FieldGroup";
 import ResponsiveModal from "@/components/shared/modal/ResponsiveModal";
 import LabeledTextarea from "@/components/shared/labeled/LabeledTextarea";
+import FormActions from "@/components/shared/buttons/FormActions";
 
 interface RejectHoursModalProps {
   isOpen: boolean;

@@ -1,4 +1,4 @@
-import FormActions from "@/components/shared/FormActions";
+import FormActions from "@/components/shared/buttons/FormActions";
 import React, { useState } from "react";
 import SelectionInventory from "../sections/SelectionInventory";
 import { useMoveForm } from "@/contexts/MoveFormContext";

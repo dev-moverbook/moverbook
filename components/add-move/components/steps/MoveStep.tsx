@@ -1,4 +1,4 @@
-import FormActions from "@/components/shared/FormActions";
+import FormActions from "@/components/shared/buttons/FormActions";
 import MoveAddress from "../sections/MoveAddress";
 import { useMoveForm } from "@/contexts/MoveFormContext";
 import FormContainer from "@/components/shared/containers/FormContainer";

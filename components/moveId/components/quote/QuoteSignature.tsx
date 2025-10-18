@@ -1,11 +1,11 @@
 "use client";
 
-import React from "react";
 import SectionContainer from "@/components/shared/containers/SectionContainer";
-import SectionHeader from "@/components/shared/SectionHeader";
+import SectionHeader from "@/components/shared/section/SectionHeader";
 import Signature from "@/components/move/shared/Signature";
 import DisplaySignature from "@/components/move/shared/DisplaySignature";
 import { useMoveContext } from "@/contexts/MoveContext";
+
 interface QuoteSignatureProps {
   setSignatureDataUrl: (dataUrl: string | null) => void;
 }

@@ -1,5 +1,5 @@
-import { Button } from "../ui/button";
-import FormErrorMessage from "./error/FormErrorMessage";
+import { Button } from "@/components/ui/button";
+import FormErrorMessage from "@/components/shared/error/FormErrorMessage";
 
 interface FormActionsProps {
   onSave: (e: React.FormEvent) => void | (() => void);

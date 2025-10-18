@@ -1,4 +1,3 @@
-import React from "react";
 import { SegmentDistance } from "@/types/types";
 import ListRowContainer from "../shared/containers/ListRowContainer";
 import ListRow from "../shared/ui/ListRow";

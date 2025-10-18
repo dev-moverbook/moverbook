@@ -1,8 +1,5 @@
-"use client";
-
-import React from "react";
 import clsx from "clsx";
-import UserCardBorder from "@/components/shared/UserCardBorder";
+import UserCardBorder from "@/components/shared/card/UserCardBorder";
 
 interface UserCardSkeletonProps {
   className?: string;

@@ -2,7 +2,7 @@
 
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import React from "react";
-import IconButton from "../../IconButton";
+import IconButton from "../../buttons/IconButton";
 
 type DateRangeControlsProps = {
   startDate: string;

@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import SectionContainer from "@/components/shared/SectionContainer";
-import CenteredContainer from "@/components/shared/CenteredContainer";
-import SectionHeader from "@/components/shared/SectionHeader";
-import FormActions from "@/components/shared/FormActions";
-import FieldGroup from "@/components/shared/FieldGroup";
+import SectionContainer from "@/components/shared/section/SectionContainer";
+import CenteredContainer from "@/components/shared/containers/CenteredContainer";
+import SectionHeader from "@/components/shared/section/SectionHeader";
+import FormActions from "@/components/shared/buttons/FormActions";
+import FieldGroup from "@/components/shared/field/FieldGroup";
+import TimeRangeFieldRow from "@/components/shared/field/TimeFieldRow";
 import { ArrivalWindowFormData } from "@/types/form-types";
 import { useUpdateArrivalWindow } from "@/hooks/arrivalWindow";
-import TimeRangeFieldRow from "@/components/shared/TimeFieldRow";
 import FormActionContainer from "@/components/shared/containers/FormActionContainer";
 import { Doc } from "@/convex/_generated/dataModel";
 

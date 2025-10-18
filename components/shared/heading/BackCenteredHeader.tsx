@@ -1,26 +1,22 @@
 "use client";
 
-import React from "react";
 import clsx from "clsx";
 import { ArrowLeft, Pencil, Trash, X } from "lucide-react";
-import IconButton from "@/components/shared/IconButton";
+import IconButton from "@/components/shared/buttons/IconButton";
 
 type BackCenteredHeaderProps = {
   title: string;
   onBack: () => void;
-  // Right-side standard actions
   onEditClick?: () => void;
   onDeleteClick?: () => void;
-  // Optional extra right element
   rightExtra?: React.ReactNode;
-  // Editing state (swap Edit/Delete with Cancel)
   isEditing?: boolean;
   onCancelEdit?: () => void;
   className?: string;
   titleClassName?: string;
 };
 
-const fixedSideWidth = "w-20"; // Adjust width to fit your buttons comfortably
+const fixedSideWidth = "w-20";
 
 const BackCenteredHeader: React.FC<BackCenteredHeaderProps> = ({
   title,
@@ -40,7 +36,6 @@ const BackCenteredHeader: React.FC<BackCenteredHeaderProps> = ({
         className
       )}
     >
-      {/* Left: Back with fixed width */}
       <div
         className={clsx(
           "shrink-0 flex items-center justify-start",
@@ -55,7 +50,6 @@ const BackCenteredHeader: React.FC<BackCenteredHeaderProps> = ({
         />
       </div>
 
-      {/* Center: Title */}
       <h2
         className={clsx(
           "flex-1 text-center text-2xl font-semibold leading-tight",
@@ -65,7 +59,6 @@ const BackCenteredHeader: React.FC<BackCenteredHeaderProps> = ({
         {title}
       </h2>
 
-      {/* Right: Actions with fixed width */}
       <div
         className={clsx(
           "shrink-0 flex items-center justify-end gap-2",

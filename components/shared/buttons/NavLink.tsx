@@ -5,7 +5,7 @@ import NProgress from "nprogress";
 import { useCallback, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "../../ui/button";
-import ConfirmModal from "../ConfirmModal";
+import ConfirmModal from "../modal/ConfirmModal";
 
 interface NavLinkProps {
   href: string;

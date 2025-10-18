@@ -1,8 +1,7 @@
 "use client";
 
-import React from "react";
 import { Calendar, List } from "lucide-react";
-import IconButton from "@/components/shared/IconButton";
+import IconButton from "@/components/shared/buttons/IconButton";
 import { cn } from "@/lib/utils";
 import { useMoveFilter } from "@/contexts/MoveFilterContext";
 

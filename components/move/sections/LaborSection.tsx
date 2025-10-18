@@ -7,7 +7,7 @@ import { MoveFormErrors } from "@/types/form-types";
 import LaborInputs from "./Labor/LaborInputs";
 import LaborSummary from "./Labor/LaborSummary";
 import EditToggleButton from "../../shared/buttons/EditToggleButton";
-import FormActions from "../../shared/FormActions";
+import FormActions from "@/components/shared/buttons/FormActions";
 import { JobType } from "@/types/types";
 import FormActionContainer from "../../shared/containers/FormActionContainer";
 

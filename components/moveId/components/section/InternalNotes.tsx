@@ -1,13 +1,13 @@
 "use client";
 
 import SectionContainer from "@/components/shared/containers/SectionContainer";
-import SectionHeader from "@/components/shared/SectionHeader";
+import SectionHeader from "@/components/shared/section/SectionHeader";
 import React, { useState } from "react";
-import FieldGroup from "@/components/shared/FieldGroup";
-import FormActions from "@/components/shared/FormActions";
+import FieldGroup from "@/components/shared/field/FieldGroup";
+import FormActions from "@/components/shared/buttons/FormActions";
 import { MOVE_STATUS_OPTIONS, MoveStatus } from "@/types/types";
-import SelectFieldRow from "@/components/shared/SelectFieldRow";
-import { useUpdateMove } from "../../../../hooks/moves/useUpdateMove";
+import SelectFieldRow from "@/components/shared/field/SelectFieldRow";
+import { useUpdateMove } from "@/hooks/moves";
 import { InternalNotesFormData } from "@/types/form-types";
 import LabeledTextarea from "@/components/shared/labeled/LabeledTextarea";
 import { useMoveContext } from "@/contexts/MoveContext";

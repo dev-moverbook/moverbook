@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import SectionContainer from "@/components/shared/SectionContainer";
-import CenteredContainer from "@/components/shared/CenteredContainer";
-import SectionHeader from "@/components/shared/SectionHeader";
-import FormActions from "@/components/shared/FormActions";
-import FieldGroup from "@/components/shared/FieldGroup";
+import SectionContainer from "@/components/shared/section/SectionContainer";
+import CenteredContainer from "@/components/shared/containers/CenteredContainer";
+import SectionHeader from "@/components/shared/section/SectionHeader";
+import FormActions from "@/components/shared/buttons/FormActions";
+import FieldGroup from "@/components/shared/field/FieldGroup";
 import { TravelChargingTypes } from "@/types/enums";
 import { useUpdateTravelFee } from "@/hooks/travelFee";
 import CurrencyInput from "@/components/shared/labeled/CurrencyInput";

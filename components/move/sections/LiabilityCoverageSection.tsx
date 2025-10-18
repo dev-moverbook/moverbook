@@ -2,9 +2,9 @@
 
 import React, { useState } from "react";
 import SectionContainer from "@/components/shared/containers/SectionContainer";
-import CardContainer from "@/components/shared/CardContainer";
+import CardContainer from "@/components/shared/card/CardContainer";
 import Header3 from "@/components/shared/heading/Header3";
-import IconButton from "@/components/shared/IconButton";
+import IconButton from "@/components/shared/buttons/IconButton";
 import { Pencil, X } from "lucide-react";
 import FieldErrorMessage from "@/components/shared/labeled/FieldErrorMessage";
 import SelectLiabilityCard from "@/components/add-move/components/cards/SelectLiabilityCard";

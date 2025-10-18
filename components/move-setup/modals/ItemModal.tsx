@@ -4,12 +4,12 @@ import React, { useState, useEffect } from "react";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { ItemFormData } from "@/types/form-types";
 import { FrontEndErrorMessages } from "@/types/errors";
-import FieldGroup from "@/components/shared/FieldGroup";
-import FormActions from "@/components/shared/FormActions";
-import CheckboxField from "@/components/shared/CheckboxField";
+import FieldGroup from "@/components/shared/field/FieldGroup";
+import FormActions from "@/components/shared/buttons/FormActions";
+import CheckboxField from "@/components/shared/checkbox/CheckboxField";
 import SizeSelector from "@/components/shared/labeled/SizeSelector";
 import { calculateWeightFromSize } from "@/utils/helper";
-import FieldRow from "@/components/shared/FieldRow";
+import FieldRow from "@/components/shared/field/FieldRow";
 import NumberInput from "@/components/shared/labeled/NumberInput";
 import ResponsiveModal from "@/components/shared/modal/ResponsiveModal";
 

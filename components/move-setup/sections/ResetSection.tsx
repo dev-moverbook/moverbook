@@ -1,11 +1,11 @@
-import ConfirmModal from "@/components/shared/ConfirmModal";
-import SectionContainer from "@/components/shared/SectionContainer";
+import ConfirmModal from "@/components/shared/modal/ConfirmModal";
+import SectionContainer from "@/components/shared/section/SectionContainer";
 import { Button } from "@/components/ui/button";
 import React, { useState } from "react";
 import { useResetRoomsCategoriesItems } from "@/hooks/rooms";
 import { Id } from "@/convex/_generated/dataModel";
-import CenteredContainer from "@/components/shared/CenteredContainer";
-import SectionHeader from "@/components/shared/SectionHeader";
+import CenteredContainer from "@/components/shared/containers/CenteredContainer";
+import SectionHeader from "@/components/shared/section/SectionHeader";
 
 interface ResetSectionProps {
   companyId: Id<"companies">;

@@ -1,6 +1,5 @@
-import React from "react";
-import CustomCard from "@/components/shared/CustomCard";
-import CardHeaderWithActions from "@/components/shared/CardHeaderWithActions";
+import CustomCard from "@/components/shared/card/CustomCard";
+import CardHeaderWithActions from "@/components/shared/card/CardHeaderWithActions";
 import { formatCurrency } from "@/frontendUtils/helper";
 import { cn } from "@/lib/utils";
 

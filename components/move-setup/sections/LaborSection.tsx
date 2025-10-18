@@ -2,16 +2,16 @@
 
 import React, { useState } from "react";
 import { Doc, Id } from "@/convex/_generated/dataModel";
-import SectionContainer from "@/components/shared/SectionContainer";
-import CenteredContainer from "@/components/shared/CenteredContainer";
-import SectionHeader from "@/components/shared/SectionHeader";
-import ConfirmModal from "@/components/shared/ConfirmModal";
+import SectionContainer from "@/components/shared/section/SectionContainer";
+import CenteredContainer from "@/components/shared/containers/CenteredContainer";
+import SectionHeader from "@/components/shared/section/SectionHeader";
+import ConfirmModal from "@/components/shared/modal/ConfirmModal";
 import LaborCard from "../cards/LaborCard";
 import LaborModal from "../modals/LaborModal";
 import { useCreateLabor } from "@/hooks/labor";
 import { useUpdateLabor } from "@/hooks/labor";
 import { useDeleteLabor } from "@/hooks/labor";
-import CardContainer from "@/components/shared/CardContainer";
+import CardContainer from "@/components/shared/card/CardContainer";
 import AddItemButton from "@/components/shared/buttons/AddItemButton";
 import { useSlugContext } from "@/contexts/SlugContext";
 

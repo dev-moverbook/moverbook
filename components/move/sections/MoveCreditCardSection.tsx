@@ -4,7 +4,7 @@ import React from "react";
 import SectionContainer from "@/components/shared/containers/SectionContainer";
 import Header3 from "@/components/shared/heading/Header3";
 import EditToggleButton from "../../shared/buttons/EditToggleButton";
-import FormActions from "../../shared/FormActions";
+import FormActions from "@/components/shared/buttons/FormActions";
 import PercentageInput from "../../shared/labeled/PercentageInput";
 
 interface MoveCreditCardFeeProps {

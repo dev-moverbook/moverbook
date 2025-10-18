@@ -1,4 +1,4 @@
-import { BadgeButton } from "./buttons/BadgeButton";
+import { BadgeButton } from "./BadgeButton";
 import { Doc } from "@/convex/_generated/dataModel";
 
 interface VariableInsertButtonsProps {

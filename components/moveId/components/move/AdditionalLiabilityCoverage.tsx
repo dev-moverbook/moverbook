@@ -1,10 +1,10 @@
 "use client";
 
-import React from "react";
+import { useState } from "react";
 import SectionContainer from "@/components/shared/containers/SectionContainer";
 import DisplaySignature from "@/components/move/shared/DisplaySignature";
 import Signature from "@/components/move/shared/Signature";
-import FormActions from "@/components/shared/FormActions";
+import FormActions from "@/components/shared/buttons/FormActions";
 import { Doc } from "@/convex/_generated/dataModel";
 import { useCreateOrUpdateAdditionalLiabilityCoverage } from "../../../../hooks/waiver/useCreateOrUpdateAdditionalLiabilityCoverage";
 import AdditionalLiabilityTerms from "../copy/AdditionalLiabilityTerms";
@@ -25,11 +25,9 @@ const AdditionalLiabilityCoverage = ({
   const { customerSignature, repSignature, customerSignedAt, repSignedAt } =
     additionalLiabilityCoverage ?? {};
 
-  const [signatureDataUrl, setSignatureDataUrl] = React.useState<string | null>(
-    null
-  );
-  const [isSendingSMS, setIsSendingSMS] = React.useState(false);
-  const [isSendingEmail, setIsSendingEmail] = React.useState(false);
+  const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
+  const [isSendingSMS, setIsSendingSMS] = useState<boolean>(false);
+  const [isSendingEmail, setIsSendingEmail] = useState<boolean>(false);
 
   const { createOrUpdateAdditionalLiabilityCoverage, error, setError } =
     useCreateOrUpdateAdditionalLiabilityCoverage();

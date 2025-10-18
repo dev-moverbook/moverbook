@@ -4,11 +4,11 @@ import React, { useState } from "react";
 import DisplaySignature from "@/components/move/shared/DisplaySignature";
 import Signature from "@/components/move/shared/Signature";
 import SectionContainer from "@/components/shared/containers/SectionContainer";
-import SectionHeader from "@/components/shared/SectionHeader";
+import SectionHeader from "@/components/shared/section/SectionHeader";
 import TripleFormAction from "@/components/shared/buttons/TripleFormAction";
 import FormActionContainer from "@/components/shared/containers/FormActionContainer";
-import { useCreateOrUpdateInvoice } from "../../../../hooks/invoice/useCreateOrUpdateInvoice";
-import { useUpdateMove } from "../../../../hooks/moves/useUpdateMove";
+import { useCreateOrUpdateInvoice } from "@/hooks/invoice";
+import { useUpdateMove } from "@/hooks/moves";
 import { Doc } from "@/convex/_generated/dataModel";
 
 interface InvoiceSignatureProps {

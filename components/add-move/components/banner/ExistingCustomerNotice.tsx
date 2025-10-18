@@ -1,9 +1,8 @@
-import React from "react";
 import MoveCustomerCard from "@/components/customer/CustomerCard";
 import { Doc } from "@/convex/_generated/dataModel";
 import { useSlugContext } from "@/contexts/SlugContext";
 import FormActionContainer from "@/components/shared/containers/FormActionContainer";
-import FormActions from "@/components/shared/FormActions";
+import FormActions from "@/components/shared/buttons/FormActions";
 import { useRouter } from "next/navigation";
 
 interface Props {

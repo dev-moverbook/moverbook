@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import { FrontEndErrorMessages } from "@/types/errors";
-import FormActions from "@/components/shared/FormActions";
-import FieldGroup from "@/components/shared/FieldGroup";
+import FormActions from "@/components/shared/buttons/FormActions";
+import FieldGroup from "@/components/shared/field/FieldGroup";
 import LabeledInput from "@/components/shared/labeled/LabeledInput";
 import ResponsiveModal from "@/components/shared/modal/ResponsiveModal";
 

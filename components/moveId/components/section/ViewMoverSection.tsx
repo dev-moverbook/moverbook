@@ -1,8 +1,7 @@
 "use client";
 
 import { useSlugContext } from "@/contexts/SlugContext";
-import React from "react";
-import { useUpdateMove } from "../../../../hooks/moves/useUpdateMove";
+import { useUpdateMove } from "@/hooks/moves";
 import StartMoveSection from "@/components/move/movers/StartMoveSection";
 import ArriveOriginSection from "@/components/move/movers/ArriveOriginSection";
 import EndMoveSection from "@/components/move/movers/EndMoveSectiont";

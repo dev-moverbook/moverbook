@@ -2,13 +2,13 @@
 
 import React, { useState } from "react";
 import SectionContainer from "@/components/shared/containers/SectionContainer";
-import CardContainer from "@/components/shared/CardContainer";
+import CardContainer from "@/components/shared/card/CardContainer";
 import AddLineModal from "../modals/AddLineModal";
 import LineItemFeeCard from "../cards/LineItemFeeCard";
 import Header3 from "@/components/shared/heading/Header3";
 import { MoveFeeInput } from "@/types/form-types";
 import { useMoveForm } from "@/contexts/MoveFormContext";
-import ConfirmModal from "@/components/shared/ConfirmModal";
+import ConfirmModal from "@/components/shared/modal/ConfirmModal";
 import AddItemButton from "@/components/shared/buttons/AddItemButton";
 
 const LineItems: React.FC = () => {

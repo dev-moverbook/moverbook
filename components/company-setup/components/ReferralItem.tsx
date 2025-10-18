@@ -4,10 +4,10 @@ import { useState } from "react";
 import { Id } from "@/convex/_generated/dataModel";
 import { useDeleteReferral } from "@/hooks/referrals";
 import { Pencil, Trash2 } from "lucide-react";
-import IconButton from "@/components/shared/IconButton";
-import IconRow from "@/components/shared/IconRow";
-import ListItemRow from "@/components/shared/ListItemRow";
-import ConfirmModal from "@/components/shared/ConfirmModal";
+import IconButton from "@/components/shared/buttons/IconButton";
+import IconRow from "@/components/shared/buttons/IconRow";
+import ListItemRow from "@/components/shared/row/ListItemRow";
+import ConfirmModal from "@/components/shared/modal/ConfirmModal";
 
 interface ReferralItemProps {
   referralId: Id<"referrals">;

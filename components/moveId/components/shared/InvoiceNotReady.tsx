@@ -1,5 +1,4 @@
 import SectionContainer from "@/components/shared/containers/SectionContainer";
-import React from "react";
 
 const InvoiceNotReady = () => {
   return (

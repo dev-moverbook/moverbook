@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import FieldDisplay from "./FieldDisplay";
-import FieldErrorMessage from "./labeled/FieldErrorMessage";
+import FieldErrorMessage from "../labeled/FieldErrorMessage";
 
 interface SelectFieldRowProps {
   label: string;

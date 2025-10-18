@@ -2,7 +2,7 @@ import Header3 from "@/components/shared/heading/Header3";
 import React, { useState } from "react";
 import SectionContainer from "@/components/shared/containers/SectionContainer";
 import GroupedItemsList from "../lists/GroupedItemList";
-import ConfirmModal from "@/components/shared/ConfirmModal";
+import ConfirmModal from "@/components/shared/modal/ConfirmModal";
 import EditItemsModal from "../modals/EditItemsModal";
 import { Button } from "@/components/ui/button";
 import AddItemModal from "../modals/AddItemModal";

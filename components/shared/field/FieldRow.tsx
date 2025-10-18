@@ -2,8 +2,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import FieldDisplay from "./FieldDisplay";
-import FormErrorMessage from "./error/FormErrorMessage";
-import React from "react"; // Needed for `React.Ref`
+import FormErrorMessage from "../error/FormErrorMessage";
 
 interface FieldRowProps {
   label: string;
@@ -17,7 +16,7 @@ interface FieldRowProps {
   placeholder?: string;
   min?: number;
   step?: number;
-  inputRef?: React.Ref<HTMLInputElement>; // ← Add this line
+  inputRef?: React.Ref<HTMLInputElement>;
 }
 
 const FieldRow: React.FC<FieldRowProps> = ({
@@ -32,7 +31,7 @@ const FieldRow: React.FC<FieldRowProps> = ({
   placeholder,
   min,
   step,
-  inputRef, // ← Destructure it
+  inputRef,
 }) => {
   const isLabeled = label !== "";
   if (isEditing) {
@@ -40,7 +39,7 @@ const FieldRow: React.FC<FieldRowProps> = ({
       <div>
         {isLabeled && <Label htmlFor={name}>{label}</Label>}
         <Input
-          ref={inputRef} // ← Use it here
+          ref={inputRef}
           id={name}
           name={name}
           value={value ?? ""}

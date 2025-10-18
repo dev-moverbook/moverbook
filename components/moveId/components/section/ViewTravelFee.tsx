@@ -5,7 +5,7 @@ import MoveTravelFeeSection from "@/components/move/sections/MoveTravelFeeSectio
 import { useMoveContext } from "@/contexts/MoveContext";
 import { TravelChargingTypes } from "@/types/enums";
 import { MoveTravelFeeFormData } from "@/types/form-types";
-import { useUpdateMove } from "../../../../hooks/moves/useUpdateMove";
+import { useUpdateMove } from "@/hooks/moves";
 
 const ViewTravelFee = () => {
   const { moveData } = useMoveContext();

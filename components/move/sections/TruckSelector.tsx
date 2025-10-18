@@ -63,7 +63,6 @@ const TruckSelector: React.FC<TruckSelectorProps> = ({
                 <Truck className="w-6 h-6" />
               </div>
 
-              {/* Icons */}
               {option.isRecommended && (
                 <Check className="text-green-500 w-4 h-4 absolute bottom-1" />
               )}

@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import { useState } from "react";
 import { formatServiceTypeLabel } from "@/frontendUtils/helper";
 import QuoteSummary from "../quote/QuoteSummary";
 import QuoteContact from "../quote/QuoteContact";
@@ -22,9 +24,7 @@ const QuoteStep = ({ quote, onEditQuote }: QuoteStepProps) => {
   const { moveData } = useMoveContext();
   const { move } = moveData;
   const title = formatServiceTypeLabel(move.serviceType);
-  const [signatureDataUrl, setSignatureDataUrl] = React.useState<string | null>(
-    null
-  );
+  const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
 
   const quoteStatus = getQuoteStatusInfo(quote);
 

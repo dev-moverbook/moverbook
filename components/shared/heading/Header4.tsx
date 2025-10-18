@@ -1,13 +1,10 @@
-"use client";
-
-import React from "react";
 import clsx from "clsx";
 
 interface Header4Props {
   children: React.ReactNode;
-  className?: string; // class for h4
-  wrapperClassName?: string; // optional outer div class
-  button?: React.ReactNode; // optional right-side button
+  className?: string;
+  wrapperClassName?: string;
+  button?: React.ReactNode;
 }
 
 const Header4: React.FC<Header4Props> = ({

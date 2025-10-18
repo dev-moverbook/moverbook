@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { useMoveFilter } from "@/contexts/MoveFilterContext";
 import { useSlugContext } from "@/contexts/SlugContext";
 import { formatCurrencyCompact } from "@/frontendUtils/helper";

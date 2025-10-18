@@ -1,7 +1,7 @@
 "use client";
 
-import { useUpdateMove } from "../../../../hooks/moves/useUpdateMove";
-import { useCompanyFees } from "@/hooks/fees/useCompanyFees";
+import { useUpdateMove } from "@/hooks/moves";
+import { useCompanyFees } from "@/hooks/fees";
 import { MoveFeeInput } from "@/types/form-types";
 import { useMoveContext } from "@/contexts/MoveContext";
 import LineItemsSection from "@/components/move/sections/LineItemSection";

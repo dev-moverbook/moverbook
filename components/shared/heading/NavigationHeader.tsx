@@ -1,6 +1,6 @@
 "use client";
 import { ArrowLeft, X } from "lucide-react";
-import IconButton from "../IconButton";
+import IconButton from "../buttons/IconButton";
 
 interface HeaderProps {
   title: string;

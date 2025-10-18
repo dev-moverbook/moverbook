@@ -4,7 +4,7 @@ import * as React from "react";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import FieldErrorMessage from "./FieldErrorMessage";
-import FieldDisplay from "@/components/shared/FieldDisplay";
+import FieldDisplay from "@/components/shared/field/FieldDisplay";
 
 interface CheckboxOption {
   label: string;

@@ -1,15 +1,16 @@
-import React from "react";
-import AssignMovers from "../move/AssignMovers";
+"use client";
+
 import { useGetMoveAssignmentsPage } from "@/hooks/moveAssignments";
+import { useMoveContext } from "@/contexts/MoveContext";
+import { useSlugContext } from "@/contexts/SlugContext";
+import { getMoveStatus } from "@/frontendUtils/tsxHelper";
+import { isSameDayOrLater } from "@/frontendUtils/luxonUtils";
+import AssignMovers from "../move/AssignMovers";
 import PreMove from "../move/PreMove";
 import AdditionalLiabilityCoverage from "../move/AdditionalLiabilityCoverage";
-import { getMoveStatus } from "@/frontendUtils/tsxHelper";
 import StepStatus from "../shared/StepStatus";
-import { useMoveContext } from "@/contexts/MoveContext";
 import MoverScheduleCalendar from "../move/MoverScheduleCalendar";
 import ViewMoverSectionAsRep from "../move/ViewMoverSectionAsRep";
-import { isSameDayOrLater } from "@/frontendUtils/luxonUtils";
-import { useSlugContext } from "@/contexts/SlugContext";
 
 const MoveStep = () => {
   const { moveData } = useMoveContext();

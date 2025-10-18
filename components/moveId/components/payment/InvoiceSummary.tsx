@@ -2,7 +2,7 @@
 
 import ListRowContainer from "@/components/shared/containers/ListRowContainer";
 import SectionContainer from "@/components/shared/containers/SectionContainer";
-import SectionHeader from "@/components/shared/SectionHeader";
+import SectionHeader from "@/components/shared/section/SectionHeader";
 import ListRow from "@/components/shared/ui/ListRow";
 import ReusableCard from "../card/ReusableCard";
 import { cn } from "@/lib/utils";

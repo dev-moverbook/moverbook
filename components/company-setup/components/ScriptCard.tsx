@@ -1,8 +1,8 @@
 "use client";
 
 import { Pencil, Trash2, Mail, MessageSquare } from "lucide-react";
-import IconButton from "@/components/shared/IconButton";
-import IconRow from "@/components/shared/IconRow";
+import IconButton from "@/components/shared/buttons/IconButton";
+import IconRow from "@/components/shared/buttons/IconRow";
 import { Doc } from "@/convex/_generated/dataModel";
 
 interface ScriptCardProps {

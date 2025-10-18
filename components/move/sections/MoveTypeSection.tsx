@@ -1,9 +1,8 @@
 "use client";
 
-import React from "react";
 import SectionContainer from "@/components/shared/containers/SectionContainer";
-import SectionHeader from "@/components/shared/SectionHeader";
-import FormActions from "@/components/shared/FormActions";
+import SectionHeader from "@/components/shared/section/SectionHeader";
+import FormActions from "@/components/shared/buttons/FormActions";
 import {
   MoveTimes,
   SERVICE_TYPE_OPTIONS,

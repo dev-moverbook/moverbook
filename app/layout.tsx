@@ -7,7 +7,7 @@ import { ConvexClientProvider } from "@/providers/ConvexClientProvider";
 import { GoogleMapsProvider } from "@/providers/GoogleMapsProvider";
 import RouteChangeProgress from "../components/layout/Nprogress";
 import { Suspense } from "react";
-import FullLoading from "../components/shared/FullLoading";
+import FullLoading from "../components/shared/skeleton/FullLoading";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

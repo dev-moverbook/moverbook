@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Header2 from "@/components/shared/heading/Header2";
 import FormContainer from "@/components/shared/containers/FormContainer";
-import FormActions from "@/components/shared/FormActions";
+import FormActions from "@/components/shared/buttons/FormActions";
 import FormActionContainer from "@/components/shared/containers/FormActionContainer";
 import { useMoveForm } from "@/contexts/MoveFormContext";
 import { useSlugContext } from "@/contexts/SlugContext";

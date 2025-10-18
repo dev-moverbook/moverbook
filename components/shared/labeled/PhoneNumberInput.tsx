@@ -3,7 +3,7 @@ import { PatternFormat } from "react-number-format";
 import { Label } from "@/components/ui/label";
 import FieldErrorMessage from "./FieldErrorMessage";
 import { formatPhoneNumber } from "@/frontendUtils/helper";
-import FieldDisplay from "../FieldDisplay";
+import FieldDisplay from "../field/FieldDisplay";
 
 interface PhoneNumberInputProps {
   label?: string;

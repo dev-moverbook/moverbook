@@ -1,10 +1,9 @@
-// app/components/shared/skeleton/FormSkeleton.tsx
 "use client";
 
 import React from "react";
 import clsx from "clsx";
-import SectionContainer from "../SectionContainer";
-import CenteredContainer from "../CenteredContainer";
+import SectionContainer from "../section/SectionContainer";
+import CenteredContainer from "../containers/CenteredContainer";
 
 const FormSkeleton: React.FC<{ className?: string }> = ({ className }) => {
   return (

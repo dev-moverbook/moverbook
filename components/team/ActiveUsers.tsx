@@ -1,7 +1,7 @@
 "use client";
-import React from "react";
-import SectionContainer from "@/components/shared/SectionContainer";
-import CenteredContainer from "@/components/shared/CenteredContainer";
+
+import SectionContainer from "@/components/shared/section/SectionContainer";
+import CenteredContainer from "@/components/shared/containers/CenteredContainer";
 import { useSlugContext } from "@/contexts/SlugContext";
 import { useUsersByStatus } from "@/hooks/users/useActiveUsers";
 import UsersListContent from "./UsersListContent";

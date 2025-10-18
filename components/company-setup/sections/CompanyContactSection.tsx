@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { AddressInput, CompanyContactFormData } from "@/types/form-types";
 import { Doc, Id } from "@/convex/_generated/dataModel";
-import SectionContainer from "@/components/shared/SectionContainer";
-import CenteredContainer from "@/components/shared/CenteredContainer";
-import SectionHeader from "@/components/shared/SectionHeader";
-import FormActions from "@/components/shared/FormActions";
-import FieldRow from "@/components/shared/FieldRow";
-import FieldGroup from "@/components/shared/FieldGroup";
+import SectionContainer from "@/components/shared/section/SectionContainer";
+import CenteredContainer from "@/components/shared/containers/CenteredContainer";
+import SectionHeader from "@/components/shared/section/SectionHeader";
+import FormActions from "@/components/shared/buttons/FormActions";
+import FieldRow from "@/components/shared/field/FieldRow";
+import FieldGroup from "@/components/shared/field/FieldGroup";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, XCircle, Loader2, Mail } from "lucide-react";
 import { useCreateSender } from "../../../hooks/sendGrid/useCreateSender";

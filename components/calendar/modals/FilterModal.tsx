@@ -7,8 +7,8 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import FieldGroup from "@/components/shared/FieldGroup";
-import FormActions from "@/components/shared/FormActions";
+import FieldGroup from "@/components/shared/field/FieldGroup";
+import FormActions from "@/components/shared/buttons/FormActions";
 import { MOVE_STATUS_OPTIONS, MoveStatus } from "@/types/types";
 import LabeledCheckboxGroup from "@/components/shared/labeled/LabeledCheckboxGroup";
 import ButtonRadioGroup from "@/components/shared/labeled/ButtonRadioGroup";
@@ -91,8 +91,8 @@ const FilterModal: React.FC<FilterModalProps> = ({ isOpen, onClose }) => {
               name="priceOrder"
               label="Price Filter"
               layout="vertical"
-              options={PRICE_FILTER_OPTIONS} // "desc" | "asc"
-              value={tempPriceFilter} // "desc" | "asc" | null
+              options={PRICE_FILTER_OPTIONS}
+              value={tempPriceFilter}
               onChange={(val) => setTempPriceFilter(val as PriceOrder)}
             />
 

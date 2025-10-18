@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import FormActions from "@/components/shared/FormActions";
-import FieldGroup from "@/components/shared/FieldGroup";
-import FieldRow from "@/components/shared/FieldRow";
+import FieldGroup from "@/components/shared/field/FieldGroup";
+import FieldRow from "@/components/shared/field/FieldRow";
 import ResponsiveModal from "../modal/ResponsiveModal";
 
 interface CounterModalProps {

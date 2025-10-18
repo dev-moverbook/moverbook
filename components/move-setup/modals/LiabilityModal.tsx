@@ -3,9 +3,9 @@
 import React, { useState, useEffect } from "react";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { InsurancePolicyFormData } from "@/types/form-types";
-import FieldGroup from "@/components/shared/FieldGroup";
-import FieldRow from "@/components/shared/FieldRow";
-import FormActions from "@/components/shared/FormActions";
+import FieldGroup from "@/components/shared/field/FieldGroup";
+import FieldRow from "@/components/shared/field/FieldRow";
+import FormActions from "@/components/shared/buttons/FormActions";
 import CurrencyInput from "@/components/shared/labeled/CurrencyInput";
 import ResponsiveModal from "@/components/shared/modal/ResponsiveModal";
 import { validatePrice } from "@/frontendUtils/validation";

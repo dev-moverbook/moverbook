@@ -1,7 +1,7 @@
 import { SignOutButton, SignedIn, SignedOut } from "@clerk/nextjs";
 import Link from "next/link";
 import { ClerkLoaded, ClerkLoading } from "@clerk/nextjs";
-import FullLoading from "../components/shared/FullLoading";
+import FullLoading from "../components/shared/skeleton/FullLoading";
 
 export default function AuthButtons() {
   return (

@@ -3,7 +3,7 @@
 import React from "react";
 import TagLabel from "@/components/shared/labeled/TagLabel";
 import CounterInput from "@/components/shared/labeled/CounterInput";
-import FieldDisplay from "@/components/shared/FieldDisplay";
+import FieldDisplay from "@/components/shared/field/FieldDisplay";
 import MoverSelector from "./MoveSelector";
 
 interface EditableMoverFieldProps {

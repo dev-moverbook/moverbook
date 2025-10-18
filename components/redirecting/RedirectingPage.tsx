@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { useOrganizationList, useOrganization } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import NProgress from "nprogress";
-import FullLoading from "@/components/shared/FullLoading";
+import FullLoading from "@/components/shared/skeleton/FullLoading";
 
 type Props = {
   desiredOrgId: string;

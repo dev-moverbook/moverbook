@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { ComplianceFormData } from "@/types/form-types";
 import { Doc, Id } from "@/convex/_generated/dataModel";
-import SectionContainer from "@/components/shared/SectionContainer";
-import CenteredContainer from "@/components/shared/CenteredContainer";
-import SectionHeader from "@/components/shared/SectionHeader";
-import FormActions from "@/components/shared/FormActions";
-import FieldGroup from "@/components/shared/FieldGroup";
-import FieldRow from "@/components/shared/FieldRow";
+import SectionContainer from "@/components/shared/section/SectionContainer";
+import CenteredContainer from "@/components/shared/containers/CenteredContainer";
+import SectionHeader from "@/components/shared/section/SectionHeader";
+import FieldGroup from "@/components/shared/field/FieldGroup";
+import FieldRow from "@/components/shared/field/FieldRow";
+import FormActions from "@/components/shared/buttons/FormActions";
 
 interface ComplianceSectionProps {
   compliance: Doc<"compliance">;

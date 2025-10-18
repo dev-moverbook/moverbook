@@ -1,9 +1,8 @@
 "use client";
 
-import React from "react";
 import { useMoveContext } from "@/contexts/MoveContext";
 import MoverSection from "@/components/move/movers/MoverSection";
-import { useUpdateMoveAssignmentHours } from "../../../../hooks/moveAssignments/useUpdateMoveAssignmentHours";
+import { useUpdateMoveAssignmentHours } from "@/hooks/moveAssignments";
 import { useSlugContext } from "@/contexts/SlugContext";
 
 const ShiftStep = () => {

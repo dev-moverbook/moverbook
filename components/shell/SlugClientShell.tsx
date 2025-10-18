@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import Navbar from "@/components/shared/Navbar";
-import Sidebar from "@/components/shared/Sidebar";
+import Navbar from "@/components/shared/nav/Navbar";
+import Sidebar from "@/components/shared/side/Sidebar";
 import { SearchProvider } from "@/contexts/SearchContext";
 import MoveSearchDropDown from "@/components/shared/nav/MoveSearchDropDown";
 import { useIsMobile } from "@/hooks/utils/useIsMobile";

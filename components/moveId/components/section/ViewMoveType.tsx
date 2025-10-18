@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useMoveContext } from "@/contexts/MoveContext";
 import { ServiceType, StartWindowOption } from "@/types/types";
 import { MoveTypeFormData } from "@/types/form-types";
-import { useUpdateMove } from "../../../../hooks/moves/useUpdateMove";
+import { useUpdateMove } from "@/hooks/moves";
 import { useCompanyArrival } from "@/hooks/arrivalWindow/useCompanyArrivalResult";
 import { formatTime } from "@/frontendUtils/helper";
 import { canCreateMove, isMover } from "@/frontendUtils/permissions";

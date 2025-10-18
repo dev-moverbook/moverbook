@@ -1,11 +1,11 @@
 "use client";
 
 import { Doc, Id } from "@/convex/_generated/dataModel";
-import CustomCard from "@/components/shared/CustomCard";
-import CardHeaderWithActions from "@/components/shared/CardHeaderWithActions";
-import CardDetailsWrapper from "@/components/shared/CardDetailsWrapper";
-import CardDetailRow from "@/components/shared/CardDetailRow";
-import TitleWithBadge from "@/components/shared/TitleWithBadge";
+import CustomCard from "@/components/shared/card/CustomCard";
+import CardHeaderWithActions from "@/components/shared/card/CardHeaderWithActions";
+import CardDetailsWrapper from "@/components/shared/card/CardDetailsWrapper";
+import CardDetailRow from "@/components/shared/card/CardDetailRow";
+import TitleWithBadge from "@/components/shared/heading/TitleWithBadge";
 import clsx from "clsx";
 import { formatCurrency } from "@/frontendUtils/helper";
 

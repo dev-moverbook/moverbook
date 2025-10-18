@@ -3,9 +3,9 @@
 import React, { useState, useEffect } from "react";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { FrontEndErrorMessages } from "@/types/errors";
-import FieldGroup from "@/components/shared/FieldGroup";
-import FieldRow from "@/components/shared/FieldRow";
-import FormActions from "@/components/shared/FormActions";
+import FieldGroup from "@/components/shared/field/FieldGroup";
+import FieldRow from "@/components/shared/field/FieldRow";
+import FormActions from "@/components/shared/buttons/FormActions";
 import ResponsiveModal from "@/components/shared/modal/ResponsiveModal";
 
 interface CategoryFormData {

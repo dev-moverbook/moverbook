@@ -2,7 +2,7 @@
 
 import React, { useMemo, useEffect, useState } from "react";
 import { useMoveContext } from "@/contexts/MoveContext";
-import { useUpdateMove } from "../../../../hooks/moves/useUpdateMove";
+import { useUpdateMove } from "@/hooks/moves";
 import LaborSection, {
   LaborFormData,
 } from "@/components/move/sections/LaborSection";

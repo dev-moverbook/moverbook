@@ -1,8 +1,8 @@
 import React from "react";
-import CustomCard from "@/components/shared/CustomCard";
+import CustomCard from "@/components/shared/card/CustomCard";
 import { Phone, Mail } from "lucide-react";
 import Image from "next/image";
-import CardHeaderWithActions from "@/components/shared/CardHeaderWithActions";
+import CardHeaderWithActions from "@/components/shared/card/CardHeaderWithActions";
 import { Doc } from "@/convex/_generated/dataModel";
 import { formatPhoneNumber } from "@/frontendUtils/helper";
 

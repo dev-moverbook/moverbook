@@ -1,5 +1,5 @@
 import { Pencil, Trash2, X, CircleCheckBig, AlertTriangle } from "lucide-react";
-import IconButton from "@/components/shared/IconButton";
+import IconButton from "@/components/shared/buttons/IconButton";
 import { ReactNode } from "react";
 import { Id } from "@/convex/_generated/dataModel";
 import { cn } from "@/lib/utils";

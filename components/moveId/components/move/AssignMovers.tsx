@@ -2,7 +2,7 @@
 
 import React from "react";
 import SectionContainer from "@/components/shared/containers/SectionContainer";
-import SectionHeader from "@/components/shared/SectionHeader";
+import SectionHeader from "@/components/shared/section/SectionHeader";
 import { Label } from "@/components/ui/label";
 import {
   Select,

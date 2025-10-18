@@ -1,4 +1,3 @@
-import React from "react";
 import { Button } from "../ui/button";
 import { CopyPlus, Eye, MessageSquare } from "lucide-react";
 import { Doc } from "@/convex/_generated/dataModel";
