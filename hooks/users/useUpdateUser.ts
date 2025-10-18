@@ -3,7 +3,7 @@ import { useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { ClerkRoles } from "@/types/enums";
-import { setErrorFromConvexError } from "../frontendUtils/errorHelper";
+import { setErrorFromConvexError } from "@/frontendUtils/errorHelper";
 
 interface UpdateUserData {
   name?: string;

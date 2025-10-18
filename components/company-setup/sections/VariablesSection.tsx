@@ -4,7 +4,7 @@ import SectionContainer from "@/components/shared/SectionContainer";
 import SectionHeader from "@/components/shared/SectionHeader";
 import CardContainer from "@/components/shared/CardContainer";
 import FormActions from "@/components/shared/FormActions";
-import { useUpdateVariable } from "../../../hooks/variables/useUpdateVariable";
+import { useUpdateVariable } from "@/hooks/variables";
 import { Doc } from "@/convex/_generated/dataModel";
 import VariableCard from "@/components/company-setup/components/VariableCard";
 
