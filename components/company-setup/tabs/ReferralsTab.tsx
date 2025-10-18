@@ -9,11 +9,10 @@ import CenteredContainer from "@/components/shared/CenteredContainer";
 import SectionHeader from "@/components/shared/SectionHeader";
 import CardListContainer from "@/components/shared/CardListContainer";
 import { Id } from "@/convex/_generated/dataModel";
-import { useUpdateReferral } from "../../../hooks/referrals/useUpdateReferral";
 import AddItemButton from "@/components/shared/buttons/AddItemButton";
 import { useActiveReferrals } from "@/hooks/referrals/useActiveReferrals";
 import ReferralItem from "@/components/company-setup/components/ReferralItem";
-import { useCreateReferral } from "@/hooks/referrals";
+import { useCreateReferral, useUpdateReferral } from "@/hooks/referrals";
 
 const ReferralsTab = () => {
   const { companyId } = useSlugContext();

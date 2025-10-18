@@ -1,5 +1,5 @@
 import { useSlugContext } from "@/contexts/SlugContext";
-import { useSalesRepsAndReferrals } from "@/hooks/analytics/useSalesRepsAndReferrals";
+import { useSalesRepsAndReferrals } from "@/hooks/analytics";
 import AnalyticsTabSuccess from "./AnalyticsTabSuccess";
 
 interface AnalyticsTabProps {
