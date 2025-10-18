@@ -64,7 +64,7 @@ export const clerkInviteUserToOrganization = action({
     role: CreatableUserRoleConvex,
     hourlyRate: v.union(v.number(), v.null()),
   },
-  handler: async (ctx, args): Promise<Id<"invitations">> => {
+  handler: async (ctx, args): Promise<boolean> => {
     const { companyId, email, role, hourlyRate } = args;
 
     const identity = await requireAuthenticatedUser(ctx, [
@@ -115,6 +115,6 @@ export const clerkInviteUserToOrganization = action({
       }
     );
 
-    return invitationId;
+    return true;
   },
 });

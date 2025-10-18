@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { setErrorFromConvexError } from "../frontendUtils/errorHelper";
+import { setErrorFromConvexError } from "@/frontendUtils/errorHelper";
 
 export const useRevokeInvite = () => {
   const [revokeLoading, setRevokeLoading] = useState<boolean>(false);

@@ -23,7 +23,7 @@ export const useInviteUser = () => {
     setInviteError(null);
 
     try {
-      await clerkInviteUserToOrganization({
+      return await clerkInviteUserToOrganization({
         companyId,
         email,
         role: role as
@@ -32,7 +32,6 @@ export const useInviteUser = () => {
           | ClerkRoles.SALES_REP,
         hourlyRate,
       });
-      return true;
     } catch (error) {
       setErrorFromConvexError(error, setInviteError);
       return false;
