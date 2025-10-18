@@ -3,9 +3,9 @@
 import React, { useState } from "react";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import ConfirmModal from "@/components/shared/ConfirmModal";
-import { useCreateCategory } from "../../../hooks/categories/useCreateCategory";
-import { useUpdateCategory } from "../../../hooks/categories/useUpdateCategory";
-import { useDeleteCategory } from "../../../hooks/categories/useDeleteCategory";
+import { useCreateCategory } from "@/hooks/categories";
+import { useUpdateCategory } from "@/hooks/categories";
+import { useDeleteCategory } from "@/hooks/categories";
 import CategoryModal from "../modals/CategoryModal";
 import { FrontEndErrorMessages } from "@/types/errors";
 import CategoryTree from "../sections/CategoryTree";

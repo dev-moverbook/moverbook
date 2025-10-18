@@ -5,7 +5,7 @@ import VerticalSectionGroup from "@/components/shared/VerticalSectionGroup";
 import RoomSection from "../sections/RoomSection";
 import ItemSection from "../sections/ItemSection";
 import ResetSection from "../sections/ResetSection";
-import { useCompanyInventoryData } from "@/hooks/items/useCompanyInventoryData";
+import { useCompanyInventoryData } from "@/hooks/items";
 
 const InventoryTab = () => {
   const { companyId } = useSlugContext();
