@@ -3,10 +3,9 @@
 import { useState } from "react";
 import { useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { ResponseStatus } from "@/types/enums";
-import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
 import { CommunicationType } from "@/types/types";
+import { setErrorFromConvexError } from "@/frontendUtils/errorHelper";
 
 interface CreateMessageArgs {
   moveId: Id<"move">;
@@ -35,24 +34,15 @@ export const useCreateMessage = () => {
     setCreateMessageError(null);
 
     try {
-      const response = await createMessageMutation({
+      return await createMessageMutation({
         moveId,
         method,
         message,
         subject,
         sentType: "outgoing",
       });
-
-      if (response.status === ResponseStatus.SUCCESS) {
-        return true;
-      }
-
-      console.error(response.error);
-      setCreateMessageError(response.error);
-      return false;
     } catch (error) {
-      console.error(FrontEndErrorMessages.GENERIC, error);
-      setCreateMessageError(FrontEndErrorMessages.GENERIC);
+      setErrorFromConvexError(error, setCreateMessageError);
       return false;
     } finally {
       setCreateMessageLoading(false);

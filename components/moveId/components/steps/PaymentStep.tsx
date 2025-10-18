@@ -9,7 +9,7 @@ import ExternalReview from "../payment/ExternalReview";
 import StepStatus from "../shared/StepStatus";
 import { getInvoiceStatus } from "@/frontendUtils/tsxHelper";
 import { useMoveContext } from "@/contexts/MoveContext";
-import { useGetPaymentPage } from "@/hooks/paymentPage/useGetPaymentPage";
+import { useGetPaymentPage } from "@/hooks/paymentPage";
 import { computeFinalMoveCost } from "@/frontendUtils/payout";
 import InvoiceNotReady from "../shared/InvoiceNotReady";
 
