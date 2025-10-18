@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -24,8 +26,8 @@ const LabeledDateInput: React.FC<LabeledDateInputProps> = ({
   max,
   isEditing = true,
 }) => {
-  const [focused, setFocused] = useState(false);
-  const [isIphone, setIsIphone] = useState(false);
+  const [focused, setFocused] = useState<boolean>(false);
+  const [isIphone, setIsIphone] = useState<boolean>(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {

@@ -1,3 +1,5 @@
+"use client";
+
 import { PatternFormat } from "react-number-format";
 import { Label } from "@/components/ui/label";
 import FieldErrorMessage from "./FieldErrorMessage";

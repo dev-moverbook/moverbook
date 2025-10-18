@@ -1,3 +1,5 @@
+"use client";
+
 import { NumericFormat } from "react-number-format";
 import FieldErrorMessage from "./FieldErrorMessage";
 import FieldDisplay from "../field/FieldDisplay";

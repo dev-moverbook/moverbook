@@ -1,3 +1,5 @@
+"use client";
+
 interface SectionLabeledProps {
   children: React.ReactNode;
   className?: string;
