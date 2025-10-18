@@ -1,4 +1,3 @@
-import React from "react";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -36,12 +35,7 @@ const EditableIconSelectField: React.FC<EditableIconSelectFieldProps> = ({
 }) => {
   if (!isEditing) {
     return (
-      <FieldDisplay
-        icon={icon}
-        value={value}
-        fallback={fallback}
-        label="" // Hide label in view mode
-      />
+      <FieldDisplay icon={icon} value={value} fallback={fallback} label="" />
     );
   }
 

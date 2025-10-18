@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import IconRow from "@/components/shared/buttons/IconRow";
 import IconButton from "@/components/shared/buttons/IconButton";
 import { Pencil, Trash2 } from "lucide-react";

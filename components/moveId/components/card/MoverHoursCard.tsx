@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import { EnrichedMoveAssignment } from "@/types/convex-responses";
 import ReusableCard from "./ReusableCard";

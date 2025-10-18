@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import FieldErrorMessage from "./FieldErrorMessage";
@@ -14,7 +13,7 @@ interface CheckboxOption {
 interface LabeledCheckboxGroupProps {
   label: string;
   name: string;
-  values: string[]; // selected values
+  values: string[];
   options: CheckboxOption[];
   onChange: (newValues: string[]) => void;
   disabled?: boolean;

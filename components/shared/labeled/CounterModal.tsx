@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from "react";
-import FormActions from "@/components/shared/FormActions";
+"use client";
+
+import { useEffect, useState } from "react";
+import FormActions from "@/components/shared/buttons/FormActions";
 import FieldGroup from "@/components/shared/field/FieldGroup";
 import FieldRow from "@/components/shared/field/FieldRow";
 import ResponsiveModal from "../modal/ResponsiveModal";

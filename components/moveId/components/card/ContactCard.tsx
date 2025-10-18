@@ -1,4 +1,3 @@
-import React from "react";
 import CustomCard from "@/components/shared/card/CustomCard";
 import { Phone, Mail } from "lucide-react";
 import Image from "next/image";

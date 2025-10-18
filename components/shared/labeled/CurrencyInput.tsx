@@ -41,7 +41,7 @@ const CurrencyInput: React.FC<CurrencyInputProps> = ({
         value={value === null ? "" : value}
         onValueChange={(values) => {
           if (values.value === "") {
-            onChange(null); // handle empty input
+            onChange(null);
           } else {
             const numericValue = values.floatValue ?? 0;
             onChange(numericValue);

@@ -1,4 +1,3 @@
-import React from "react";
 import CustomCard from "@/components/shared/card/CustomCard";
 import { Doc } from "@/convex/_generated/dataModel";
 import {
