@@ -1,3 +1,5 @@
+"use client";
+
 import Header3 from "@/components/shared/heading/Header3";
 import SectionContainer from "@/components/shared/containers/SectionContainer";
 import GroupedItemsList from "@/components/add-move/components/lists/GroupedItemList";

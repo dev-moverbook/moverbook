@@ -87,7 +87,10 @@ const LocationSection = () => {
   );
 
   useEffect(() => {
-    if (!locationsEqual(move.locations, editedLocations)) {
+    if (
+      !locationsEqual(move.locations, editedLocations) &&
+      !locationsEqual(move.locations, lastPersistedLocationsRef.current ?? [])
+    ) {
       setEditedLocations(move.locations);
       lastPersistedLocationsRef.current = move.locations;
     }
@@ -100,6 +103,14 @@ const LocationSection = () => {
   useEffect(() => {
     const current = move.segmentDistances ?? [];
     const next = localSegments;
+
+    const hasNullValues = next.some(
+      (segment) => segment.distance === null || segment.duration === null
+    );
+
+    if (hasNullValues) {
+      return;
+    }
 
     const sameAsMove = segmentsEqual(current, next);
     const sameAsLastSent = lastSentSegmentsRef.current

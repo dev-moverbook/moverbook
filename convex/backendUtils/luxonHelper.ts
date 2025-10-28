@@ -16,3 +16,8 @@ export function toEpochRangeForDates(
 
   return { startMs, endMs };
 }
+
+export const formatTimeLower = (ms: number, timeZone: string): string => {
+  const dt = DateTime.fromMillis(ms, { zone: timeZone });
+  return dt.isValid ? dt.toFormat("h:mma").toLowerCase() : "";
+};

@@ -5,9 +5,12 @@ import {
   validateCompany,
   isUserInOrg,
   validateDocument,
+  validateUser,
+  validateMoveCustomer,
 } from "./backendUtils/validate";
 import { ClerkRoles } from "@/types/enums";
 import { ErrorMessages } from "@/types/errors";
+import { formatMonthDayLabelStrict } from "@/frontendUtils/luxonUtils";
 
 export const createDiscount = mutation({
   args: {
@@ -35,6 +38,22 @@ export const createDiscount = mutation({
     const company = await validateCompany(ctx.db, move.companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
+    const user = validateUser(
+      await ctx.db
+        .query("users")
+        .withIndex("by_clerkUserId", (q) =>
+          q.eq("clerkUserId", identity.id as string)
+        )
+        .first()
+    );
+
+    const moveCustomer = validateMoveCustomer(
+      await ctx.db.get(move.moveCustomerId)
+    );
+
+    const moveDate = move.moveDate
+      ? formatMonthDayLabelStrict(move.moveDate)
+      : "TBD";
     await ctx.db.insert("discounts", {
       moveId,
       name,
@@ -42,6 +61,20 @@ export const createDiscount = mutation({
       isActive: true,
     });
 
+    const amount = price * -1;
+
+    await ctx.db.insert("newsFeed", {
+      body: `**${user.name}** added discount **${name}** to **${moveCustomer.name}** **(${moveDate})**.`,
+      companyId: company._id,
+      type: "DISCOUNT_ADDED",
+      userId: user._id,
+      context: {
+        customerName: moveCustomer.name,
+        moveDate: moveDate,
+        discountName: name,
+      },
+      amount,
+    });
     return true;
   },
 });
@@ -81,8 +114,54 @@ export const updateDiscount = mutation({
     const company = await validateCompany(ctx.db, move.companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
+    const user = validateUser(
+      await ctx.db
+        .query("users")
+        .withIndex("by_clerkUserId", (q) =>
+          q.eq("clerkUserId", identity.id as string)
+        )
+        .first()
+    );
+
+    const moveCustomer = validateMoveCustomer(
+      await ctx.db.get(move.moveCustomerId)
+    );
+
+    const moveDate = move.moveDate
+      ? formatMonthDayLabelStrict(move.moveDate)
+      : "TBD";
+
+    const amount =
+      updates.price !== undefined ? updates.price * -1 : discount.price * -1;
     await ctx.db.patch(discountId, updates);
 
+    if (updates.isActive === false) {
+      await ctx.db.insert("newsFeed", {
+        body: `**${user.name}** removed discount **${discount.name}** from **${moveCustomer.name}** **(${moveDate})**.`,
+        companyId: company._id,
+        type: "DISCOUNT_REMOVED",
+        userId: user._id,
+        context: {
+          customerName: moveCustomer.name,
+          moveDate: moveDate,
+          discountName: discount.name,
+        },
+        amount,
+      });
+    } else {
+      await ctx.db.insert("newsFeed", {
+        body: `**${user.name}** updated discount **${discount.name}** for **${moveCustomer.name}** **(${moveDate})**.`,
+        companyId: company._id,
+        type: "DISCOUNT_UPDATED",
+        userId: user._id,
+        context: {
+          customerName: moveCustomer.name,
+          moveDate: moveDate,
+          discountName: discount.name,
+        },
+        amount,
+      });
+    }
     return true;
   },
 });

@@ -1,4 +1,4 @@
-import { Id } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import { TravelChargingTypes } from "./enums";
 
 export interface SelectOption {
@@ -380,4 +380,9 @@ export type MoveItem = {
   quantity: number;
   weight: number;
   size: number;
+};
+
+export type EnrichedNewsFeed = {
+  newsFeedItem: Doc<"newsFeed">;
+  userImageUrl?: string | null;
 };

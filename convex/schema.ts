@@ -53,17 +53,20 @@ export const ActivityEventTypeConvex = v.union(
   v.literal("SALES_REP_MARKED_BOOKED"),
   v.literal("SALES_REP_SEND_PROPOSAL"),
   v.literal("WAIVER_SENT"),
-  v.literal("WAIVER_SIGNED")
+  v.literal("WAIVER_SIGNED"),
+  v.literal("WORK_BREAK_UPDATE")
 );
 
 export const ActivityEventContextConvex = v.object({
   amount: v.optional(v.number()),
   approvedPay: v.optional(v.number()),
+  breakAmount: v.optional(v.number()),
   customerId: v.optional(v.id("moveCustomers")),
   customerName: v.optional(v.string()),
   deliveryType: v.optional(CommunicationTypeConvex),
   discountId: v.optional(v.id("discounts")),
   discountName: v.optional(v.string()),
+  feeAmount: v.optional(v.number()),
   feeId: v.optional(v.id("additionalFees")),
   feeName: v.optional(v.string()),
   invoiceId: v.optional(v.id("invoices")),
@@ -72,11 +75,13 @@ export const ActivityEventContextConvex = v.object({
   moveDate: v.optional(v.string()),
   moveId: v.optional(v.id("move")),
   moveStatus: v.optional(v.string()),
-  moverId: v.optional(v.id("users")),
+  moverName: v.optional(v.string()),
   paymentType: v.optional(v.string()),
   rating: v.optional(v.number()),
-  salesRepId: v.optional(v.id("users")),
+  salesRepName: v.optional(v.string()),
   timeLabel: v.optional(v.string()),
+  workStartTime: v.optional(v.number()),
+  workEndTime: v.optional(v.number()),
 });
 
 export const MoveFeeConvex = v.object({
@@ -156,26 +161,6 @@ export const PaymentMethodConvex = v.union(
   v.object({ kind: v.literal("other"), label: v.string() })
 );
 
-export const ActivityIconKeyConvex = v.union(
-  v.literal("bust_silhouette"),
-  v.literal("pencil"),
-  v.literal("package"),
-  v.literal("arrows_counter_clockwise"),
-  v.literal("envelope"),
-  v.literal("nib"),
-  v.literal("check"),
-  v.literal("construction_worker"),
-  v.literal("x_mark"),
-  v.literal("contract"),
-  v.literal("waiver"),
-  v.literal("hot_beverage"),
-  v.literal("dollar"),
-  v.literal("money_with_wings"),
-  v.literal("lorry"),
-  v.literal("clock_in"),
-  v.literal("clock_out")
-);
-
 export const ActivityEventVisibilityConvex = v.object({
   audienceRoles: v.array(UserRoleConvex),
   moversAssignedOnly: v.optional(v.boolean()),
@@ -200,22 +185,6 @@ export const InvoiceStatusConvex = v.union(
 );
 
 export default defineSchema({
-  activities: defineTable({
-    actorCustomerId: v.optional(v.id("moveCustomers")),
-    actorMoveId: v.optional(v.id("move")),
-    actorUserId: v.optional(v.id("users")),
-    body: v.string(),
-    companyId: v.id("companies"),
-    context: ActivityEventContextConvex,
-    iconKey: ActivityIconKeyConvex,
-    title: v.string(),
-    type: ActivityEventTypeConvex,
-    visibility: ActivityEventVisibilityConvex,
-  })
-    .index("by_companyId", ["companyId"])
-    .index("by_type_companyId", ["type", "companyId"])
-    .index("by_moveId", ["context.moveId"])
-    .index("by_customerId", ["context.customerId"]),
   additionalFees: defineTable({
     feeId: v.optional(v.id("fees")),
     isActive: v.boolean(),
@@ -444,6 +413,21 @@ export default defineSchema({
     .index("by_email", ["email"])
     .index("by_phone", ["phoneNumber"])
     .index("by_name", ["name"]),
+  newsFeed: defineTable({
+    amount: v.optional(v.number()),
+    body: v.string(),
+    companyId: v.id("companies"),
+    context: ActivityEventContextConvex,
+    moveCustomerId: v.optional(v.id("moveCustomers")),
+    moveId: v.optional(v.id("move")),
+    type: ActivityEventTypeConvex,
+    userId: v.optional(v.id("users")),
+  })
+    .index("by_moveId", ["moveId"])
+    .index("by_moveCustomerId", ["moveCustomerId"])
+    .index("by_userId", ["userId"])
+    .index("by_companyId", ["companyId"])
+    .index("by_moveId_userId", ["moveId", "userId"]),
   policies: defineTable({
     additionalTermsAndConditions: v.optional(v.string()),
     cancellationCutoffHour: v.number(),

@@ -5,9 +5,12 @@ import {
   validateCompany,
   isUserInOrg,
   validateDocument,
+  validateUser,
+  validateMoveCustomer,
 } from "./backendUtils/validate";
 import { ClerkRoles } from "@/types/enums";
 import { ErrorMessages } from "@/types/errors";
+import { formatMonthDayLabelStrict } from "@/frontendUtils/luxonUtils";
 
 export const createAdditionalFee = mutation({
   args: {
@@ -37,7 +40,24 @@ export const createAdditionalFee = mutation({
     const company = await validateCompany(ctx.db, move.companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
-    await ctx.db.insert("additionalFees", {
+    const user = validateUser(
+      await ctx.db
+        .query("users")
+        .withIndex("by_clerkUserId", (q) =>
+          q.eq("clerkUserId", identity.id as string)
+        )
+        .first()
+    );
+
+    const moveCustomer = validateMoveCustomer(
+      await ctx.db.get(move.moveCustomerId)
+    );
+
+    const moveDate = move.moveDate
+      ? formatMonthDayLabelStrict(move.moveDate)
+      : "TBD";
+
+    const additionalFeeId = await ctx.db.insert("additionalFees", {
       moveId,
       name,
       price,
@@ -46,6 +66,22 @@ export const createAdditionalFee = mutation({
       isActive: true,
     });
 
+    const amount = price * quantity;
+
+    await ctx.db.insert("newsFeed", {
+      body: `**${user.name}** added fee **${name}** to **${moveCustomer.name}** **(${moveDate})**.`,
+      companyId: company._id,
+      type: "FEE_ADDED",
+      userId: user._id,
+      amount,
+      context: {
+        customerName: moveCustomer.name,
+        moveDate: moveDate,
+        feeName: name,
+        feeAmount: amount,
+        feeId: additionalFeeId,
+      },
+    });
     return true;
   },
 });
@@ -88,7 +124,62 @@ export const updateAdditionalFee = mutation({
 
     isUserInOrg(identity, company.clerkOrganizationId);
 
+    const user = validateUser(
+      await ctx.db
+        .query("users")
+        .withIndex("by_clerkUserId", (q) =>
+          q.eq("clerkUserId", identity.id as string)
+        )
+        .first()
+    );
+    const moveCustomer = validateMoveCustomer(
+      await ctx.db.get(move.moveCustomerId)
+    );
+
+    const moveDate = move.moveDate
+      ? formatMonthDayLabelStrict(move.moveDate)
+      : "TBD";
+
     await ctx.db.patch(additionalFeeId, updates);
+
+    const updatedFee = await validateDocument(
+      ctx.db,
+      "additionalFees",
+      additionalFeeId,
+      ErrorMessages.ADDITIONAL_FEE_NOT_FOUND
+    );
+
+    if (updates.isActive === false) {
+      await ctx.db.insert("newsFeed", {
+        body: `**${user.name}** removed fee **${fee.name}** from **${moveCustomer.name}** **(${moveDate})**.`,
+        companyId: company._id,
+        type: "FEE_REMOVED",
+        userId: user._id,
+        context: {
+          customerName: moveCustomer.name,
+          moveDate: moveDate,
+          feeName: fee.name,
+          feeAmount: fee.price * fee.quantity,
+          feeId: additionalFeeId,
+        },
+        amount: fee.price * fee.quantity * -1,
+      });
+    } else {
+      await ctx.db.insert("newsFeed", {
+        body: `**${user.name}** updated fee **${updatedFee.name}** for **${moveCustomer.name}** **(${moveDate})**.`,
+        companyId: company._id,
+        type: "FEE_UPDATED",
+        userId: user._id,
+        context: {
+          customerName: moveCustomer.name,
+          moveDate: moveDate,
+          feeName: updatedFee.name,
+          feeAmount: updatedFee.price * updatedFee.quantity,
+          feeId: additionalFeeId,
+        },
+        amount: updatedFee.price * updatedFee.quantity,
+      });
+    }
 
     return true;
   },

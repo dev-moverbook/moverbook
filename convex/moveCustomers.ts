@@ -68,6 +68,19 @@ export const createMoveCustomer = mutation({
       companyId,
     });
 
+    const salesRepName = identity.name ?? "Unknown";
+
+    await ctx.db.insert("newsFeed", {
+      body: `**${salesRepName}** created a new customer, **${name}**`,
+      companyId,
+      type: "CUSTOMER_CREATED",
+      moveCustomerId,
+      context: {
+        customerName: name,
+        salesRepName,
+      },
+    });
+
     return moveCustomerId;
   },
 });
@@ -203,21 +216,12 @@ export const updateMoveCustomer = mutation({
   handler: async (ctx, args): Promise<boolean> => {
     const { moveCustomerId, updates } = args;
 
-    const identity = await requireAuthenticatedUser(ctx, [
-      ClerkRoles.ADMIN,
-      ClerkRoles.APP_MODERATOR,
-      ClerkRoles.MANAGER,
-      ClerkRoles.SALES_REP,
-    ]);
     const existing = await validateDocument(
       ctx.db,
       "moveCustomers",
       moveCustomerId,
       ErrorMessages.MOVE_CUSTOMER_NOT_FOUND
     );
-
-    const company = await validateCompany(ctx.db, existing.companyId);
-    isUserInOrg(identity, company.clerkOrganizationId);
 
     if (updates.email && updates.email !== existing.email) {
       const emailTaken = await ctx.db
@@ -251,6 +255,43 @@ export const updateMoveCustomer = mutation({
 
     await ctx.db.patch(moveCustomerId, {
       ...updates,
+    });
+
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+      await ctx.db.insert("newsFeed", {
+        body: `**${existing.name}** updated their details.`,
+        companyId: existing.companyId,
+        type: "CUSTOMER_UPDATED",
+        moveCustomerId,
+        context: {
+          customerName: existing.name,
+        },
+      });
+
+      return true;
+    }
+
+    const identityVerified = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+      ClerkRoles.SALES_REP,
+    ]);
+
+    const company = await validateCompany(ctx.db, existing.companyId);
+    isUserInOrg(identityVerified, company.clerkOrganizationId);
+
+    await ctx.db.insert("newsFeed", {
+      body: `**${identityVerified.name}** updated customer details for **${existing.name}**.`,
+      companyId: existing.companyId,
+      type: "CUSTOMER_UPDATED",
+      moveCustomerId,
+      context: {
+        customerName: existing.name,
+        salesRepName: identityVerified.name,
+      },
     });
 
     return true;

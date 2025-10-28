@@ -822,17 +822,23 @@ export const toDistanceRef = (addr?: AddressInput | null): string | null => {
   return fa && fa.length > 0 ? fa : null;
 };
 
-/** Shallow, order-sensitive comparison for SegmentDistance arrays. */
 export const segmentsEqual = (a: SegmentDistance[], b: SegmentDistance[]) => {
   if (a.length !== b.length) return false;
   for (let i = 0; i < a.length; i++) {
     const x = a[i];
     const y = b[i];
+
+    const round2 = (num: number | null) =>
+      num === null ? null : Math.round(num * 100) / 100;
+
     if (
       x.label !== y.label ||
-      x.distance !== y.distance ||
-      x.duration !== y.duration
+      round2(x.distance) !== round2(y.distance) ||
+      round2(x.duration) !== round2(y.duration)
     ) {
+      console.log("not equal");
+      console.log("a", a);
+      console.log("b", b);
       return false;
     }
   }

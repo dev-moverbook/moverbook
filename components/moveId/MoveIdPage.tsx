@@ -14,6 +14,7 @@ import InfoTab from "./components/tabs/InfoTab";
 import ShiftStep from "./components/steps/ShiftStep";
 import SummaryTab from "./components/tabs/SummaryTab";
 import DuplicateMoveModal from "../customer/modals/DuplicateMoveModal";
+import FeedLoader from "./components/newsFeed/FeedContainer";
 
 const MoveIdPage = () => {
   const router = useRouter();
@@ -105,6 +106,7 @@ const MoveIdPage = () => {
       {activeTab === "SHIFT" && <ShiftStep />}
       {activeTab === "MOVE" && isLeadMover && <MoverStep />}
       {activeTab === "SUMMARY" && isManagement && <SummaryTab />}
+      {activeTab === "FEED" && <FeedLoader />}
 
       {selectedMove && isDuplicateMoveModalOpen && (
         <DuplicateMoveModal

@@ -70,13 +70,17 @@ import {
   buildStackedForecastedRevenueSeriesByName,
   buildStackedHistoricalRevenueSeriesByName,
 } from "./backendUtils/analyticsHelper";
-import { toEpochRangeForDates } from "./backendUtils/luxonHelper";
+import {
+  formatTimeLower,
+  toEpochRangeForDates,
+} from "./backendUtils/luxonHelper";
 import { UNKNOWN_NAME } from "@/types/const";
 import {
   scopeToMoverIfNeeded,
   buildReferenceMaps,
 } from "./backendUtils/moveHelper";
 import { getFirstByCompanyId } from "./backendUtils/queries";
+import { formatMonthDayLabelStrict } from "@/frontendUtils/luxonUtils";
 
 export const getMoveOptions = query({
   args: { companyId: v.id("companies") },
@@ -258,9 +262,32 @@ export const createMove = mutation({
 
     const jobId = generateJobId(args.companyId);
 
+    const moveCustomer = await validateMoveCustomer(
+      await ctx.db.get(args.moveCustomerId)
+    );
+
     const moveId = await ctx.db.insert("move", {
       ...args,
       jobId,
+    });
+
+    const moveDate = args.moveDate
+      ? formatMonthDayLabelStrict(args.moveDate)
+      : "TBD";
+
+    // ToDo calculate amount
+
+    await ctx.db.insert("newsFeed", {
+      body: `**${identity.name}** booked a move **${moveCustomer.name}** **${moveDate}**.`,
+      companyId: args.companyId,
+      type: "MOVE_CREATED",
+      moveId,
+      context: {
+        moveId,
+        customerName: moveCustomer.name,
+        moveDate,
+        // amount: args.amount,
+      },
     });
 
     return moveId;
@@ -440,6 +467,7 @@ export const updateMove = mutation({
       ClerkRoles.SALES_REP,
       ClerkRoles.MOVER,
     ]);
+    console.log("updates", updates);
 
     const moveRecord = await validateDocument(
       ctx.db,
@@ -461,7 +489,85 @@ export const updateMove = mutation({
       );
     }
 
+    const moveCustomer = await validateMoveCustomer(
+      await ctx.db.get(moveRecord.moveCustomerId)
+    );
+    const user = validateUser(
+      await ctx.db
+        .query("users")
+        .withIndex("by_clerkUserId", (q) =>
+          q.eq("clerkUserId", identity.id as string)
+        )
+        .first()
+    );
     await ctx.db.patch(moveId, { ...updates, ...statusPatch });
+
+    let moveDate: string;
+    if (updates.moveDate) {
+      moveDate = formatMonthDayLabelStrict(updates.moveDate);
+    } else if (moveRecord.moveDate) {
+      moveDate = formatMonthDayLabelStrict(new Date(moveRecord.moveDate));
+    } else {
+      moveDate = "TBD";
+    }
+
+    const events: Promise<Id<"newsFeed">>[] = [];
+
+    // if(updates.actualStartTime !== undefined) {
+    //   events.push(
+    //     ctx.db.insert("newsFeed", {
+    //       companyId: moveRecord.companyId,
+    //       userId: user._id,
+    //       moveId,
+    //     })
+    //   );
+    // }
+
+    if (updates.actualArrivalTime !== undefined) {
+      events.push(
+        ctx.db.insert("newsFeed", {
+          companyId: moveRecord.companyId,
+          userId: user._id,
+          moveId,
+          type: "MOVE_STARTED",
+          body: `**${user.name}** arrived at **${formatTimeLower(updates.actualArrivalTime, company.timeZone)}** for **${moveCustomer.name}**.
+          `,
+          context: {
+            moveId,
+            customerName: moveCustomer.name,
+            moveDate,
+            workStartTime: updates.actualArrivalTime,
+          },
+        })
+      );
+    }
+
+    await ctx.db.insert("newsFeed", {
+      body: `**${identity.name}** updated move for **${moveCustomer.name}**  (**${moveDate}**).`,
+      companyId: moveRecord.companyId,
+      type: "MOVE_UPDATED",
+      moveId,
+      context: {
+        moveId,
+        customerName: moveCustomer.name,
+        moveDate,
+      },
+    });
+
+    if (updates.moveStatus) {
+      await ctx.db.insert("newsFeed", {
+        body: `**${moveCustomer.name}** (**${moveDate}**) is now marked as **${updates.moveStatus}**.`,
+        companyId: moveRecord.companyId,
+        type: "MOVE_STATUS_UPDATED",
+        moveId,
+        context: {
+          moveId,
+          customerName: moveCustomer.name,
+          moveDate,
+          moveStatus: updates.moveStatus,
+        },
+      });
+    }
 
     return true;
   },

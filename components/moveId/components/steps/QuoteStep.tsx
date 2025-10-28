@@ -14,6 +14,7 @@ import { Doc } from "@/convex/_generated/dataModel";
 import StepStatus from "../shared/StepStatus";
 import { getQuoteStatusInfo } from "@/frontendUtils/tsxHelper";
 import { useMoveContext } from "@/contexts/MoveContext";
+import SectionContainer from "@/components/shared/containers/SectionContainer";
 
 interface QuoteStepProps {
   quote: Doc<"quotes"> | null;
@@ -29,7 +30,7 @@ const QuoteStep = ({ quote, onEditQuote }: QuoteStepProps) => {
   const quoteStatus = getQuoteStatusInfo(quote);
 
   return (
-    <div>
+    <SectionContainer>
       <StepStatus
         items={[
           {
@@ -53,7 +54,7 @@ const QuoteStep = ({ quote, onEditQuote }: QuoteStepProps) => {
           signatureDataUrl={signatureDataUrl}
         />
       </>
-    </div>
+    </SectionContainer>
   );
 };
 

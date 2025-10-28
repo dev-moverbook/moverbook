@@ -5,8 +5,8 @@ import {
   isUserInOrg,
   validateCompany,
   validateDocument,
-  validateMove,
   validateMoveAssignment,
+  validateMoveCustomer,
   validateUser,
 } from "./backendUtils/validate";
 import { ClerkRoles } from "@/types/enums";
@@ -21,6 +21,9 @@ import { Doc, Id } from "./_generated/dataModel";
 import { computeApprovedPayout } from "./backendUtils/calculations";
 import { buildMoverWageForMoveDisplay } from "./backendUtils/queryHelpers";
 import { ErrorMessages } from "@/types/errors";
+import { formatMonthDayLabelStrict } from "@/frontendUtils/luxonUtils";
+import { formatTime } from "@/frontendUtils/helper";
+import { formatTimeLower } from "./backendUtils/luxonHelper";
 
 export const updateMoveAssignment = mutation({
   args: {
@@ -63,7 +66,42 @@ export const updateMoveAssignment = mutation({
       updates.hourStatus = "pending";
     }
 
+    const previousMover = validateUser(await ctx.db.get(assignment.moverId));
+
     await ctx.db.patch(assignmentId, updates);
+
+    if (updates.moverId) {
+      const newMover = validateUser(await ctx.db.get(updates.moverId!));
+      const moveCustomer = validateMoveCustomer(
+        await ctx.db.get(move.moveCustomerId)
+      );
+      const moveDate = move.moveDate
+        ? formatMonthDayLabelStrict(move.moveDate)
+        : "TBD";
+      await ctx.db.insert("newsFeed", {
+        body: `**${newMover.name}** was assigned to move **${moveCustomer.name}** (**${moveDate}**).`,
+        companyId: company._id,
+        type: "ASSIGN_MOVER",
+        userId: updates.moverId,
+        context: {
+          moverName: previousMover.name,
+          customerName: moveCustomer.name,
+          moveDate: moveDate,
+        },
+      });
+
+      await ctx.db.insert("newsFeed", {
+        body: `**${previousMover.name}** was removed from move **${moveCustomer.name}** (**${moveDate}**).`,
+        companyId: company._id,
+        type: "REMOVE_MOVER",
+        userId: previousMover._id,
+        context: {
+          moverName: previousMover.name,
+          customerName: moveCustomer.name,
+          moveDate: moveDate,
+        },
+      });
+    }
 
     return true;
   },
@@ -104,6 +142,10 @@ export const updateMoveAssignmentHours = mutation({
       >
     >;
 
+    const hasStartTime =
+      typeof updates.startTime === "number" && updates.startTime;
+    const hasEndTime = typeof updates.endTime === "number";
+
     const nextStart =
       typeof updates.startTime === "number"
         ? updates.startTime
@@ -122,7 +164,51 @@ export const updateMoveAssignmentHours = mutation({
     }
 
     await ctx.db.patch(assignmentId, patch);
+    const mover = validateUser(await ctx.db.get(assignment.moverId));
+    const moveCustomer = validateMoveCustomer(
+      await ctx.db.get(move.moveCustomerId)
+    );
 
+    if (hasStartTime && updates.startTime) {
+      await ctx.db.insert("newsFeed", {
+        body: `**${mover.name}** clocked in at ${formatTimeLower(updates.startTime, company.timeZone)} for **${moveCustomer.name}**.`,
+        companyId: company._id,
+        type: "CLOCK_IN",
+        userId: mover._id,
+        context: {
+          customerName: moveCustomer.name,
+          workStartTime: updates.startTime,
+          moverName: mover.name,
+        },
+      });
+    }
+
+    if (hasEndTime && updates.endTime) {
+      await ctx.db.insert("newsFeed", {
+        body: `**${mover.name}** clocked out at ${formatTimeLower(updates.endTime, company.timeZone)} for **${moveCustomer.name}**.`,
+        companyId: company._id,
+        type: "CLOCK_OUT",
+        userId: mover._id,
+        context: {
+          customerName: moveCustomer.name,
+          workEndTime: updates.endTime,
+          moverName: mover.name,
+        },
+      });
+    }
+    if (updates.breakAmount !== undefined) {
+      await ctx.db.insert("newsFeed", {
+        body: `**${mover.name}** updated ${updates.breakAmount} hour work break for **${moveCustomer.name}**.`,
+        companyId: company._id,
+        type: "WORK_BREAK_UPDATE",
+        userId: mover._id,
+        context: {
+          customerName: moveCustomer.name,
+          breakAmount: updates.breakAmount,
+          moverName: mover.name,
+        },
+      });
+    }
     return true;
   },
 });
@@ -150,12 +236,35 @@ export const insertMoveAssignment = mutation({
     const company = await validateCompany(ctx.db, move.companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
+    const mover = validateUser(await ctx.db.get(moverId));
+    const moveCustomer = validateMoveCustomer(
+      await ctx.db.get(move.moveCustomerId)
+    );
+
     await ctx.db.insert("moveAssignments", {
       moveId,
       moverId,
       isLead,
       hourStatus: "incomplete",
       breakAmount: 0,
+    });
+
+    const moveDate = move.moveDate
+      ? formatMonthDayLabelStrict(move.moveDate)
+      : "TBD";
+
+    await ctx.db.insert("newsFeed", {
+      body: `**${mover.name}** was assigned to move **${moveCustomer.name}** (**${moveDate}**).`,
+      companyId: company._id,
+      type: "ASSIGN_MOVER",
+      userId: moverId,
+      moveId,
+      moveCustomerId: move.moveCustomerId,
+      context: {
+        moverName: mover.name,
+        customerName: moveCustomer.name,
+        moveDate: moveDate,
+      },
     });
 
     return true;
