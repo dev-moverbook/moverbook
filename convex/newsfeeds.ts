@@ -148,6 +148,7 @@ const newsFeedEntryUnion = v.union(
       moverName: v.string(),
       workStartTime: v.number(),
     }),
+    moveId: v.id("moves"),
     userId: v.id("users"),
   }),
   v.object({
@@ -160,6 +161,7 @@ const newsFeedEntryUnion = v.union(
       moveAssignmentId: v.id("moveAssignments"),
       workEndTime: v.number(),
     }),
+    moveId: v.id("moves"),
     userId: v.id("users"),
   }),
   v.object({
