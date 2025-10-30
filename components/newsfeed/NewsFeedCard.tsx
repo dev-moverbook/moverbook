@@ -7,6 +7,7 @@ import { parseBoldMarkdown } from "@/frontendUtils/pareseUtils";
 import { EnrichedNewsFeed } from "@/types/types";
 import { getEventEmojis } from "@/frontendUtils/newsFeedHelper";
 import UserAvatar from "./NewsFeedAvatar";
+import Image from "next/image";
 
 interface NewsFeedCardProps {
   newsFeedEvent: EnrichedNewsFeed;
@@ -41,7 +42,13 @@ const NewsFeedCard: React.FC<NewsFeedCardProps> = ({ newsFeedEvent, href }) => {
         </div>
         <div className="absolute right-4 bottom-4 flex gap-1">
           {emojis.map((emojiSrc, i) => (
-            <img key={i} src={emojiSrc} alt="event emoji" className="w-8 h-8" />
+            <Image
+              key={i}
+              src={emojiSrc}
+              alt="event emoji"
+              width={32}
+              height={32}
+            />
           ))}
         </div>
       </div>
