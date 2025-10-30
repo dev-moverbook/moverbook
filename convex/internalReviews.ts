@@ -76,16 +76,18 @@ export const createInternalReview = mutation({
       : "Unkown Date";
 
     await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
-      type: "INTERNAL_REVIEW_COMPLETED",
-      companyId: move.companyId,
-      body: `**${moveCustomer.name}** **${moveDate}** left a ${rating} star review.`,
-      moveId,
-      context: {
-        customerName: moveCustomer.name,
-        moveDate,
-        rating,
+      entry: {
+        type: "INTERNAL_REVIEW_COMPLETED",
+        companyId: move.companyId,
+        body: `**${moveCustomer.name}** **${moveDate}** left a ${rating} star review.`,
+        moveId,
+        context: {
+          customerName: moveCustomer.name,
+          moveDate,
+          rating,
+        },
+        moveCustomerId: move.moveCustomerId,
       },
-      moveCustomerId: move.moveCustomerId,
     });
 
     return true;
@@ -93,7 +95,7 @@ export const createInternalReview = mutation({
 });
 ``;
 
-export const sendInternalReviewNotification = action({
+export const sendInternalReview = action({
   args: {
     moveId: v.id("moves"),
     channel: v.union(v.literal("email"), v.literal("sms")),
@@ -169,20 +171,21 @@ export const sendInternalReviewNotification = action({
       ? formatMonthDayLabelStrict(validatedMove.moveDate)
       : "TBD";
     await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
-      type: "INTERNAL_REVIEW_SENT",
-      companyId: validatedCompany._id,
-      body: `**${user.name}** sent internal review to **${validatedMoveCustomer.name}** **${moveDate}** via ${args.channel}`,
-      moveId: validatedMove._id,
-      context: {
-        customerName: validatedMoveCustomer.name,
-        deliveryType: args.channel,
-        moveDate,
-        salesRepName: user.name,
-        internalReviewId: validatedInternalReview._id,
+      entry: {
+        type: "INTERNAL_REVIEW_SENT",
+        companyId: validatedCompany._id,
+        body: `**${user.name}** sent internal review to **${validatedMoveCustomer.name}** **${moveDate}** via ${args.channel}`,
+        moveId: validatedMove._id,
+        context: {
+          customerName: validatedMoveCustomer.name,
+          deliveryType: args.channel,
+          moveDate,
+          salesRepName: user.name,
+          internalReviewId: validatedInternalReview._id,
+        },
+        userId: user._id,
       },
-      userId: user._id,
     });
-
     return true;
   },
 });

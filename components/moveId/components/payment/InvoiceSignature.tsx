@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import DisplaySignature from "@/components/move/shared/DisplaySignature";
 import Signature from "@/components/move/shared/Signature";
 import SectionContainer from "@/components/shared/containers/SectionContainer";
@@ -10,6 +10,7 @@ import FormActionContainer from "@/components/shared/containers/FormActionContai
 import { useCreateOrUpdateInvoice } from "@/hooks/invoices";
 import { useUpdateMove } from "@/hooks/moves";
 import { Doc } from "@/convex/_generated/dataModel";
+import { useSendInvoice } from "@/hooks/invoices";
 
 interface InvoiceSignatureProps {
   invoice: Doc<"invoices"> | null;
@@ -27,6 +28,8 @@ const InvoiceSignature = ({ invoice, move, total }: InvoiceSignatureProps) => {
   const { createOrUpdateInvoice, invoiceUpdateError } =
     useCreateOrUpdateInvoice();
   const { updateMove, updateMoveError } = useUpdateMove();
+  const { sendInvoice, sendInvoiceError, setSendInvoiceError } =
+    useSendInvoice();
 
   const { repSignature, repSignedAt } = invoice || {};
   const showRepSignature = !!repSignature;
@@ -51,6 +54,7 @@ const InvoiceSignature = ({ invoice, move, total }: InvoiceSignatureProps) => {
         updates: { repSignature: signatureDataUrl },
       });
     }
+    await sendInvoice(move._id, "email");
     setIsEmailing(false);
   };
 
@@ -62,10 +66,12 @@ const InvoiceSignature = ({ invoice, move, total }: InvoiceSignatureProps) => {
         updates: { repSignature: signatureDataUrl },
       });
     }
+    await sendInvoice(move._id, "sms");
     setIsTexting(false);
   };
 
   const handleMarkAsComplete = async () => {
+    setSendInvoiceError(null);
     setIsMarkingAsComplete(true);
 
     const updates: Partial<Doc<"invoices">> = {
@@ -102,13 +108,13 @@ const InvoiceSignature = ({ invoice, move, total }: InvoiceSignatureProps) => {
 
         <FormActionContainer>
           <TripleFormAction
-            onPrimary={handleTextInvoice}
-            onSecondary={handleEmailInvoice}
+            onPrimary={handleEmailInvoice}
+            onSecondary={handleTextInvoice}
             onTertiary={handleMarkAsComplete}
-            primaryLoading={isTexting}
-            secondaryLoading={isEmailing}
+            primaryLoading={isEmailing}
+            secondaryLoading={isTexting}
             tertiaryLoading={isMarkingAsComplete}
-            error={invoiceUpdateError || updateMoveError}
+            error={invoiceUpdateError || updateMoveError || sendInvoiceError}
             disabled={isDisabled}
             primaryDisabled={isDisabled}
             secondaryDisabled={isDisabled}

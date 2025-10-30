@@ -5,6 +5,7 @@ import { useCreateOrUpdateQuote } from "@/hooks/quotes";
 import FormActionContainer from "@/components/shared/containers/FormActionContainer";
 import { useUpdateMove } from "@/hooks/moves";
 import { useMoveContext } from "@/contexts/MoveContext";
+import { useSendQuote } from "@/hooks/quotes/useSendQuote";
 
 interface QuoteActionsProps {
   onEditQuote: () => void;
@@ -16,6 +17,8 @@ const QuoteActions = ({ onEditQuote, signatureDataUrl }: QuoteActionsProps) => {
     "send" | "complete" | null
   >(null);
   const { createOrUpdateQuote, quoteUpdateError } = useCreateOrUpdateQuote();
+  const { sendQuote, sendQuoteLoading, sendQuoteError, setSendQuoteError } =
+    useSendQuote();
   const { updateMove, updateMoveError } = useUpdateMove();
 
   const { moveData } = useMoveContext();
@@ -42,8 +45,9 @@ const QuoteActions = ({ onEditQuote, signatureDataUrl }: QuoteActionsProps) => {
     }
   };
 
-  const handleSendQuote = async (e: FormEvent) => {
+  const handleEmailQuote = async (e: FormEvent) => {
     e.preventDefault();
+    setSendQuoteError(null);
     setActiveLoading("send");
     await createOrUpdateQuote({
       moveId,
@@ -53,14 +57,25 @@ const QuoteActions = ({ onEditQuote, signatureDataUrl }: QuoteActionsProps) => {
       },
     });
     handleUpdateMoveStatusToQuoted();
+    await sendQuote(moveId, "email");
     setActiveLoading(null);
   };
 
-  const handleEditQuote = () => {
-    onEditQuote();
+  const handleSmsQuote = async () => {
+    setSendQuoteError(null);
+    setActiveLoading("send");
+    await createOrUpdateQuote({
+      moveId,
+      updates: {
+        status: "pending",
+        ...(signatureDataUrl && { repSignature: signatureDataUrl }),
+      },
+    });
+    await sendQuote(moveId, "sms");
   };
 
   const handleMarkAsComplete = async () => {
+    setSendQuoteError(null);
     setActiveLoading("complete");
     await createOrUpdateQuote({
       moveId,
@@ -85,12 +100,12 @@ const QuoteActions = ({ onEditQuote, signatureDataUrl }: QuoteActionsProps) => {
         tertiaryLabel="Mark as Booked"
         secondaryVariant="outline"
         tertiaryVariant="outline"
-        onPrimary={(e) => void handleSendQuote(e)}
-        onSecondary={handleEditQuote}
+        onPrimary={(e) => void handleEmailQuote(e)}
+        onSecondary={handleSmsQuote}
         onTertiary={() => void handleMarkAsComplete()}
         primaryLoading={activeLoading === "send"}
         tertiaryLoading={activeLoading === "complete"}
-        error={quoteUpdateError || updateMoveError}
+        error={quoteUpdateError || updateMoveError || sendQuoteError}
         primaryDisabled={isPrimaryDisabled}
         secondaryDisabled={isSecondaryDisabled}
         tertiaryDisabled={isTertiaryDisabled}

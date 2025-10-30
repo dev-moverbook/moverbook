@@ -56,6 +56,8 @@ export function getEventEmojis(
       return [openmojiCrossMark, openmojiMoneyWings];
     case "DISCOUNT_UPDATED":
       return [openmojiExchange, openmojiMoneyWings];
+    case "EXTERNAL_REVIEW_SENT":
+      return [openmojiEnvelope, openmojiStar];
     case "FEE_ADDED":
       return [openmojiPlus, openmojiBankNote];
     case "FEE_REMOVED":

@@ -1,16 +1,19 @@
-import { mutation } from "./_generated/server";
+import { action, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import {
   isUserInOrg,
   validateCompany,
+  validateDocExists,
   validateDocument,
   validateMoveCustomer,
+  validateUser,
 } from "./backendUtils/validate";
 import { ClerkRoles } from "@/types/enums";
 import { Doc, Id } from "./_generated/dataModel";
 import { ErrorMessages } from "@/types/errors";
 import { internal } from "./_generated/api";
+import { formatMonthDayLabelStrict } from "@/frontendUtils/luxonUtils";
 
 export const createOrUpdateContract = mutation({
   args: {
@@ -76,16 +79,101 @@ export const createOrUpdateContract = mutation({
 
     if (updates.customerSignature) {
       await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
-        type: "CUSTOMER_SIGNED_CONTRACT_DOC",
-        companyId: company._id,
-        body: `**${moveCustomer.name}** signed contract.`,
-        moveId,
-        moveCustomerId: move.moveCustomerId,
-        context: {
-          customerName: moveCustomer.name,
+        entry: {
+          type: "CUSTOMER_SIGNED_CONTRACT_DOC",
+          companyId: company._id,
+          body: `**${moveCustomer.name}** signed contract.`,
+          moveId,
+          moveCustomerId: move.moveCustomerId,
+          context: {
+            customerName: moveCustomer.name,
+          },
         },
       });
     }
+
+    return true;
+  },
+});
+
+export const sendContract = action({
+  args: {
+    moveId: v.id("moves"),
+    channel: v.union(v.literal("email"), v.literal("sms")),
+  },
+  handler: async (ctx, args): Promise<boolean> => {
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+      ClerkRoles.SALES_REP,
+      ClerkRoles.MOVER,
+    ]);
+
+    const move = await ctx.runQuery(internal.moves.getMoveByIdInternal, {
+      moveId: args.moveId,
+    });
+    const validatedMove = validateDocExists(
+      "moves",
+      move,
+      ErrorMessages.MOVE_NOT_FOUND
+    );
+
+    const company = await ctx.runQuery(
+      internal.companies.getCompanyByIdInternal,
+      {
+        companyId: validatedMove.companyId,
+      }
+    );
+    const validatedCompany = validateDocExists(
+      "companies",
+      company,
+      ErrorMessages.COMPANY_NOT_FOUND
+    );
+
+    isUserInOrg(identity, validatedCompany.clerkOrganizationId);
+
+    const user = validateUser(
+      await ctx.runQuery(internal.users.getUserByClerkIdInternal, {
+        clerkUserId: identity.id as string,
+      })
+    );
+
+    const moveCustomer = await ctx.runQuery(
+      internal.moveCustomers.getMoveCustomerByIdInternal,
+      {
+        moveCustomerId: validatedMove.moveCustomerId,
+      }
+    );
+
+    const validatedMoveCustomer = validateDocExists(
+      "moveCustomers",
+      moveCustomer,
+      ErrorMessages.MOVE_CUSTOMER_NOT_FOUND
+    );
+
+    if (args.channel === "email") {
+      // TODO: Send waiver email
+    } else if (args.channel === "sms") {
+      // TODO: Send waiver SMS
+    }
+    const moveDate = validatedMove.moveDate
+      ? formatMonthDayLabelStrict(validatedMove.moveDate)
+      : "TBD";
+    await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
+      entry: {
+        type: "CONTRACT_SENT",
+        companyId: validatedCompany._id,
+        body: `**${user.name}** sent contract to **${validatedMoveCustomer.name}** via ${args.channel}`,
+        moveId: validatedMove._id,
+        context: {
+          customerName: validatedMoveCustomer.name,
+          deliveryType: args.channel,
+          salesRepName: user.name,
+        },
+        userId: user._id,
+      },
+    });
 
     return true;
   },

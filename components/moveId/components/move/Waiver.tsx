@@ -10,6 +10,7 @@ import AdditionalLiabilityTerms from "../copy/AdditionalLiabilityTerms";
 import { useMoveContext } from "@/contexts/MoveContext";
 import CollapsibleSection from "@/components/shared/buttons/CollapsibleSection";
 import { useCreateOrUpdateWaiver } from "@/hooks/waivers/useCreateOrUpdateWaiver";
+import { useSendWaiver } from "@/hooks/waivers/useSendWaiver";
 
 interface WaiverProps {
   waiver: Doc<"waivers"> | null;
@@ -24,36 +25,32 @@ const Waiver = ({ waiver }: WaiverProps) => {
     waiver ?? {};
 
   const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
-  const [isSendingSMS, setIsSendingSMS] = useState<boolean>(false);
-  const [isSendingEmail, setIsSendingEmail] = useState<boolean>(false);
 
-  const { createOrUpdateWaiver, error, setError } = useCreateOrUpdateWaiver();
-
+  const {
+    createOrUpdateWaiver,
+    isLoading: createOrUpdateWaiverLoading,
+    error,
+    setError,
+  } = useCreateOrUpdateWaiver();
+  const { sendWaiver, sendWaiverLoading, sendWaiverError, setSendWaiverError } =
+    useSendWaiver();
   const showRepSignature = !!repSignature && repSignedAt;
   const showCustomerSignature = !!customerSignature && customerSignedAt;
   const isDisabled = !signatureDataUrl;
   const isCompleted = !!showRepSignature && !!showCustomerSignature;
 
   const handleSMS = async () => {
-    setError(null);
     if (signatureDataUrl) {
-      setIsSendingSMS(true);
-      await createOrUpdateWaiver(moveId, {
-        repSignature: signatureDataUrl,
-      });
-      setIsSendingSMS(false);
+      await createOrUpdateWaiver(moveId, { repSignature: signatureDataUrl });
     }
+    await sendWaiver(moveId, "sms");
   };
 
   const handleEmail = async () => {
-    setError(null);
     if (signatureDataUrl) {
-      setIsSendingEmail(true);
-      await createOrUpdateWaiver(moveId, {
-        repSignature: signatureDataUrl,
-      });
-      setIsSendingEmail(false);
+      await createOrUpdateWaiver(moveId, { repSignature: signatureDataUrl });
     }
+    await sendWaiver(moveId, "email");
   };
 
   return (
@@ -95,10 +92,12 @@ const Waiver = ({ waiver }: WaiverProps) => {
           onCancel={handleEmail}
           saveLabel="Email"
           cancelLabel="Text"
-          isSaving={isSendingSMS}
-          isCanceling={isSendingEmail}
-          error={error}
-          cancelDisabled={isSendingEmail || isDisabled}
+          isSaving={createOrUpdateWaiverLoading || sendWaiverLoading}
+          isCanceling={createOrUpdateWaiverLoading || sendWaiverLoading}
+          error={error || sendWaiverError}
+          cancelDisabled={
+            isDisabled || createOrUpdateWaiverLoading || sendWaiverLoading
+          }
         />
       </SectionContainer>
     </CollapsibleSection>

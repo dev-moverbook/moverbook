@@ -99,15 +99,17 @@ export const createOrUpdateQuote = mutation({
       const depositAmount = formatCurrency(move.deposit ?? 0);
 
       await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
-        type: "QUOTE_SIGNED",
-        companyId: company._id,
-        body: `**${moveCustomer.name}** signed proposal for  **${moveDate}** (deposit paid ${depositAmount}).`,
-        moveId,
-        moveCustomerId: move.moveCustomerId,
-        context: {
-          customerName: moveCustomer.name,
-          moveDate,
-          depositAmount,
+        entry: {
+          type: "QUOTE_SIGNED",
+          companyId: company._id,
+          body: `**${moveCustomer.name}** signed proposal for  **${moveDate}** (deposit paid ${depositAmount}).`,
+          moveId,
+          moveCustomerId: move.moveCustomerId,
+          context: {
+            customerName: moveCustomer.name,
+            moveDate,
+            depositAmount,
+          },
         },
       });
     }
@@ -116,7 +118,7 @@ export const createOrUpdateQuote = mutation({
   },
 });
 
-export const sendWaiverNotification = action({
+export const sendQuote = action({
   args: {
     moveId: v.id("moves"),
     channel: v.union(v.literal("email"), v.literal("sms")),
@@ -181,17 +183,19 @@ export const sendWaiverNotification = action({
       ? formatMonthDayLabelStrict(validatedMove.moveDate)
       : "TBD";
     await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
-      type: "QUOTE_SENT",
-      companyId: validatedCompany._id,
-      body: `**${user.name}** sent proposal to **${validatedMoveCustomer.name}** via ${args.channel}`,
-      moveId: validatedMove._id,
-      context: {
-        customerName: validatedMoveCustomer.name,
-        deliveryType: args.channel,
-        moveDate,
-        salesRepName: user.name,
+      entry: {
+        type: "QUOTE_SENT",
+        companyId: validatedCompany._id,
+        body: `**${user.name}** sent proposal to **${validatedMoveCustomer.name}** via ${args.channel}`,
+        moveId: validatedMove._id,
+        context: {
+          customerName: validatedMoveCustomer.name,
+          deliveryType: args.channel,
+          moveDate,
+          salesRepName: user.name,
+        },
+        userId: user._id,
       },
-      userId: user._id,
     });
 
     return true;

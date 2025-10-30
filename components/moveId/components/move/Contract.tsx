@@ -9,7 +9,7 @@ import FormActions from "@/components/shared/buttons/FormActions";
 import CollapsibleSection from "@/components/shared/buttons/CollapsibleSection";
 import { Doc } from "@/convex/_generated/dataModel";
 import { useMoveContext } from "@/contexts/MoveContext";
-import { useCreateOrUpdateContract } from "@/hooks/contracts";
+import { useCreateOrUpdateContract, useSendContract } from "@/hooks/contracts";
 
 interface ContractProps {
   contract: Doc<"contracts"> | null;
@@ -24,14 +24,13 @@ const Contract = ({ contract }: ContractProps) => {
     contract ?? {};
 
   const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
-  const [isSendingSMS, setIsSendingSMS] = useState(false);
-  const [isSendingEmail, setIsSendingEmail] = useState(false);
+  const [isSmsLoading, setIsSmsLoading] = useState<boolean>(false);
+  const [isEmailLoading, setIsEmailLoading] = useState<boolean>(false);
 
-  const {
-    createOrUpdateContract,
-    createOrUpdateContractError,
-    setCreateOrUpdateContractError,
-  } = useCreateOrUpdateContract();
+  const { createOrUpdateContract, createOrUpdateContractError } =
+    useCreateOrUpdateContract();
+
+  const { sendContract, sendContractError } = useSendContract();
 
   const showRepSignature = !!repSignature && repSignedAt;
   const showCustomerSignature = !!customerSignature && customerSignedAt;
@@ -39,25 +38,25 @@ const Contract = ({ contract }: ContractProps) => {
   const isCompleted = !!repSignature && !!customerSignature;
 
   const handleSMS = async () => {
-    setCreateOrUpdateContractError(null);
+    setIsSmsLoading(true);
     if (signatureDataUrl) {
-      setIsSendingSMS(true);
       await createOrUpdateContract(moveId, {
         repSignature: signatureDataUrl,
       });
-      setIsSendingSMS(false);
     }
+    await sendContract(moveId, "sms");
+    setIsSmsLoading(false);
   };
 
   const handleEmail = async () => {
-    setCreateOrUpdateContractError(null);
+    setIsEmailLoading(true);
     if (signatureDataUrl) {
-      setIsSendingEmail(true);
       await createOrUpdateContract(moveId, {
         repSignature: signatureDataUrl,
       });
-      setIsSendingEmail(false);
     }
+    await sendContract(moveId, "email");
+    setIsEmailLoading(false);
   };
 
   const collapsePreMove = !isCompleted;
@@ -101,10 +100,10 @@ const Contract = ({ contract }: ContractProps) => {
           onCancel={handleEmail}
           saveLabel="Email"
           cancelLabel="Text"
-          isSaving={isSendingSMS}
-          isCanceling={isSendingEmail}
-          error={createOrUpdateContractError}
-          cancelDisabled={isSendingEmail || isDisabled}
+          isSaving={isEmailLoading}
+          isCanceling={isSmsLoading}
+          error={createOrUpdateContractError || sendContractError}
+          cancelDisabled={isDisabled}
         />
       </SectionContainer>
     </CollapsibleSection>

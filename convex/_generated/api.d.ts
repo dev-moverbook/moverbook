@@ -43,6 +43,7 @@ import type * as contracts from "../contracts.js";
 import type * as creditCardFees from "../creditCardFees.js";
 import type * as customers from "../customers.js";
 import type * as discounts from "../discounts.js";
+import type * as externalReviews from "../externalReviews.js";
 import type * as fees from "../fees.js";
 import type * as google from "../google.js";
 import type * as http from "../http.js";
@@ -111,6 +112,7 @@ declare const fullApi: ApiFromModules<{
   creditCardFees: typeof creditCardFees;
   customers: typeof customers;
   discounts: typeof discounts;
+  externalReviews: typeof externalReviews;
   fees: typeof fees;
   google: typeof google;
   http: typeof http;

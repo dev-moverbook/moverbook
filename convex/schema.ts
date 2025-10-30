@@ -42,6 +42,7 @@ export const ActivityEventTypeConvex = v.union(
   v.literal("DISCOUNT_ADDED"),
   v.literal("DISCOUNT_REMOVED"),
   v.literal("DISCOUNT_UPDATED"),
+  v.literal("EXTERNAL_REVIEW_SENT"),
   v.literal("FEE_ADDED"),
   v.literal("FEE_REMOVED"),
   v.literal("FEE_UPDATED"),

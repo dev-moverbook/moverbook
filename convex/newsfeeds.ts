@@ -123,7 +123,7 @@ export const getActivitiesByMoveId = query({
   },
 });
 
-const newsFeedEntryValidator = v.union(
+const newsFeedEntryUnion = v.union(
   v.object({
     type: v.literal("ASSIGN_MOVER"),
     body: v.string(),
@@ -162,7 +162,6 @@ const newsFeedEntryValidator = v.union(
     }),
     userId: v.id("users"),
   }),
-  // To Do
   v.object({
     type: v.literal("CONTRACT_SENT"),
     body: v.string(),
@@ -284,6 +283,19 @@ const newsFeedEntryValidator = v.union(
     userId: v.id("users"),
   }),
   v.object({
+    type: v.literal("EXTERNAL_REVIEW_SENT"),
+    body: v.string(),
+    companyId: v.id("companies"),
+    context: v.object({
+      customerName: v.string(),
+      deliveryType: CommunicationTypeConvex,
+      moveDate: v.string(),
+      salesRepName: v.string(),
+    }),
+    moveId: v.id("moves"),
+    userId: v.id("users"),
+  }),
+  v.object({
     type: v.literal("FEE_ADDED"),
     amount: v.number(),
     body: v.string(),
@@ -369,7 +381,6 @@ const newsFeedEntryValidator = v.union(
     moveCustomerId: v.id("moveCustomers"),
     moveId: v.id("moves"),
   }),
-  // To do now
   v.object({
     type: v.literal("INTERNAL_REVIEW_SENT"),
     body: v.string(),
@@ -550,7 +561,7 @@ const newsFeedEntryValidator = v.union(
     moveId: v.id("moves"),
     userId: v.id("users"),
   }),
-  // To do
+  // To do, might not need
   v.object({
     type: v.literal("SALES_REP_MARKED_BOOKED"),
     body: v.string(),
@@ -625,9 +636,13 @@ const newsFeedEntryValidator = v.union(
   })
 );
 
+const newsFeedEntryValidator = v.object({
+  entry: newsFeedEntryUnion,
+});
+
 export const createNewsFeedEntry = internalMutation({
-  args: v.any(),
+  args: newsFeedEntryValidator,
   handler: async (ctx, args): Promise<Id<"newsFeeds">> => {
-    return await ctx.db.insert("newsFeeds", args);
+    return await ctx.db.insert("newsFeeds", args.entry);
   },
 });

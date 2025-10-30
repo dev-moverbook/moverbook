@@ -99,16 +99,18 @@ export const createOrUpdateInvoice = mutation({
 
     if (updates.status === "completed") {
       await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
-        type: "INVOICE_MARKED_COMPLETE",
-        companyId: company._id,
-        userId: user._id,
-        body: `**${user.name}** marked invoice as complete for **${validatedMoveCustomer.name}** **${moveDate}**`,
-        moveId,
-        context: {
-          customerName: validatedMoveCustomer.name,
-          moveDate,
-          invoiceId,
-          moverName: user.name,
+        entry: {
+          type: "INVOICE_MARKED_COMPLETE",
+          companyId: company._id,
+          userId: user._id,
+          body: `**${user.name}** marked invoice as complete for **${validatedMoveCustomer.name}** **${moveDate}**`,
+          moveId,
+          context: {
+            customerName: validatedMoveCustomer.name,
+            moveDate,
+            invoiceId,
+            moverName: user.name,
+          },
         },
       });
     }
@@ -117,7 +119,7 @@ export const createOrUpdateInvoice = mutation({
   },
 });
 
-export const sendWaiverNotification = action({
+export const sendInvoice = action({
   args: {
     moveId: v.id("moves"),
     channel: v.union(v.literal("email"), v.literal("sms")),
@@ -194,19 +196,21 @@ export const sendWaiverNotification = action({
       ? formatMonthDayLabelStrict(validatedMove.moveDate)
       : "TBD";
     await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
-      type: "INVOICE_SENT",
-      companyId: validatedCompany._id,
-      body: `**${user.name}** sent invoice to **${validatedMoveCustomer.name}** **${moveDate}** via ${args.channel}`,
-      moveId: validatedMove._id,
-      context: {
-        customerName: validatedMoveCustomer.name,
-        deliveryType: args.channel,
-        moveDate,
-        invoiceId: validatedInvoice._id,
-        moverName: user.name,
-        salesRepName: user.name,
+      entry: {
+        type: "INVOICE_SENT",
+        companyId: validatedCompany._id,
+        body: `**${user.name}** sent invoice to **${validatedMoveCustomer.name}** **${moveDate}** via ${args.channel}`,
+        moveId: validatedMove._id,
+        context: {
+          customerName: validatedMoveCustomer.name,
+          deliveryType: args.channel,
+          moveDate,
+          invoiceId: validatedInvoice._id,
+          moverName: user.name,
+          salesRepName: user.name,
+        },
+        userId: user._id,
       },
-      userId: user._id,
     });
 
     return true;

@@ -78,14 +78,16 @@ export const createOrUpdateWaiver = mutation({
 
     if (updates.customerSignature) {
       await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
-        type: "WAIVER_SIGNED",
-        companyId: company._id,
-        body: `**${moveCustomer.name}** signed waiver`,
-        moveCustomerId: move.moveCustomerId,
-        context: {
-          customerName: moveCustomer.name,
+        entry: {
+          type: "WAIVER_SIGNED",
+          companyId: company._id,
+          body: `**${moveCustomer.name}** signed waiver`,
+          moveCustomerId: move.moveCustomerId,
+          context: {
+            customerName: moveCustomer.name,
+          },
+          moveId,
         },
-        moveId,
       });
     }
 
@@ -93,7 +95,7 @@ export const createOrUpdateWaiver = mutation({
   },
 });
 
-export const sendWaiverNotification = action({
+export const sendWaiver = action({
   args: {
     moveId: v.id("moves"),
     channel: v.union(v.literal("email"), v.literal("sms")),
@@ -155,16 +157,18 @@ export const sendWaiverNotification = action({
       // TODO: Send waiver SMS
     }
     await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
-      type: "WAIVER_SENT",
-      companyId: validatedCompany._id,
-      body: `**${user.name}** sent waiver to **${validatedMoveCustomer.name}** via ${args.channel}`,
-      moveId: validatedMove._id,
-      context: {
-        customerName: validatedMoveCustomer.name,
-        deliveryType: args.channel,
-        salesRepName: user.name,
+      entry: {
+        type: "WAIVER_SENT",
+        companyId: validatedCompany._id,
+        body: `**${user.name}** sent waiver to **${validatedMoveCustomer.name}** via ${args.channel}`,
+        moveId: validatedMove._id,
+        context: {
+          customerName: validatedMoveCustomer.name,
+          deliveryType: args.channel,
+          salesRepName: user.name,
+        },
+        userId: user._id,
       },
-      userId: user._id,
     });
 
     return true;

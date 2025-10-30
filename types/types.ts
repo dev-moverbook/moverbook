@@ -386,3 +386,5 @@ export type EnrichedNewsFeed = {
   newsFeedItem: Doc<"newsFeeds">;
   userImageUrl?: string | null;
 };
+
+export type DeliveryType = "email" | "sms";
