@@ -203,7 +203,7 @@ export type PriceOrder = "asc" | "desc";
 export type MessageStatus = "pending" | "sent" | "failed";
 
 export interface RecentMoveMessageSummary {
-  moveId: Id<"move">;
+  moveId: Id<"moves">;
   customerName: string;
   lastMessage: string;
   timestamp: number;
@@ -383,6 +383,6 @@ export type MoveItem = {
 };
 
 export type EnrichedNewsFeed = {
-  newsFeedItem: Doc<"newsFeed">;
+  newsFeedItem: Doc<"newsFeeds">;
   userImageUrl?: string | null;
 };

@@ -6,8 +6,8 @@ import { useSlugContext } from "@/contexts/SlugContext";
 export const useMoveOptions = (): GetMoveOptionsData | undefined => {
   const { companyId } = useSlugContext();
 
-  const response = useQuery<typeof api.move.getMoveOptions>(
-    api.move.getMoveOptions,
+  const response = useQuery<typeof api.moves.getMoveOptions>(
+    api.moves.getMoveOptions,
     { companyId }
   );
 

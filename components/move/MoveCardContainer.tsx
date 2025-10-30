@@ -33,7 +33,7 @@ const MoveCardContainer: React.FC<MoveCardContainerProps> = ({
     ? "No moves for custom date range."
     : "No moves this week.";
 
-  const handleCardClick = (moveId: Id<"move">) => {
+  const handleCardClick = (moveId: Id<"moves">) => {
     router.push(`/app/${slug}/moves/${moveId}`);
   };
 

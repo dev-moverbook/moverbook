@@ -25,8 +25,8 @@ export const useMovesForCalendar = ({
   salesRepId,
   priceOrder,
 }: UseMovesForCalendarParams): EnrichedMove[] | undefined => {
-  const response = useQuery<typeof api.move.getMovesForCalendar>(
-    api.move.getMovesForCalendar,
+  const response = useQuery<typeof api.moves.getMovesForCalendar>(
+    api.moves.getMovesForCalendar,
     {
       start,
       end,

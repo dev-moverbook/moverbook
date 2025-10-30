@@ -183,8 +183,8 @@ export function validateScript(
 }
 
 export function validateCompliance(
-  compliance: Doc<"compliance"> | null
-): Doc<"compliance"> {
+  compliance: Doc<"compliances"> | null
+): Doc<"compliances"> {
   if (!compliance) {
     throw new ConvexError({
       code: "NOT_FOUND",
@@ -207,8 +207,8 @@ export function validateWebIntegrations(
 }
 
 export function validateCompanyContact(
-  companyContact: Doc<"companyContact"> | null
-): Doc<"companyContact"> {
+  companyContact: Doc<"companyContacts"> | null
+): Doc<"companyContacts"> {
   if (!companyContact) {
     throw new ConvexError({
       code: "NOT_FOUND",
@@ -219,8 +219,8 @@ export function validateCompanyContact(
 }
 
 export function validateArrivalWindow(
-  arrivalWindow: Doc<"arrivalWindow"> | null
-): Doc<"arrivalWindow"> {
+  arrivalWindow: Doc<"arrivalWindows"> | null
+): Doc<"arrivalWindows"> {
   if (!arrivalWindow) {
     throw new ConvexError({
       code: "NOT_FOUND",
@@ -260,7 +260,7 @@ export const validateLaborDateOverlap = async (
   }
 
   const existingLabors = await ctx.db
-    .query("labor")
+    .query("labors")
     .filter((q) => q.eq(q.field("companyId"), companyId))
     .collect();
 
@@ -280,7 +280,7 @@ export const validateLaborDateOverlap = async (
   }
 };
 
-export function validateLabor(labor: Doc<"labor"> | null): Doc<"labor"> {
+export function validateLabor(labor: Doc<"labors"> | null): Doc<"labors"> {
   if (!labor) {
     throw new ConvexError({
       code: "NOT_FOUND",
@@ -325,8 +325,8 @@ export function validateFee(fee: Doc<"fees"> | null): Doc<"fees"> {
 }
 
 export function validateTravelFee(
-  travelFee: Doc<"travelFee"> | null
-): Doc<"travelFee"> {
+  travelFee: Doc<"travelFees"> | null
+): Doc<"travelFees"> {
   if (!travelFee) {
     throw new ConvexError({
       code: "NOT_FOUND",
@@ -409,7 +409,7 @@ export function validateItem(item: Doc<"items"> | null): Doc<"items"> {
   return item;
 }
 
-export function validateMove(move: Doc<"move"> | null): Doc<"move"> {
+export function validateMove(move: Doc<"moves"> | null): Doc<"moves"> {
   if (!move) {
     throw new ConvexError({
       code: "NOT_FOUND",

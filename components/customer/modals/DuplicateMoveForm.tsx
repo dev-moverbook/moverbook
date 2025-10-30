@@ -7,7 +7,7 @@ import { Doc } from "@/convex/_generated/dataModel";
 import { DuplicateOption } from "./duplicateMove.types";
 
 interface DuplicateMoveFormProps {
-  move: Doc<"move">;
+  move: Doc<"moves">;
   options: DuplicateOption[];
   selectedSections: string[];
   onChangeSelected: (next: string[]) => void;
@@ -35,7 +35,7 @@ export default function DuplicateMoveForm({
         values={selectedSections}
         options={options.map((option) => ({
           ...option,
-          getValue: (currentMove: Doc<"move">) => option.getValue(currentMove),
+          getValue: (currentMove: Doc<"moves">) => option.getValue(currentMove),
         }))}
         move={move}
         onChange={onChangeSelected}

@@ -9,7 +9,7 @@ import FieldRow from "@/components/shared/field/FieldRow";
 import MonthDayPicker from "@/components/shared/calendar/MonthDayPicker";
 import CurrencyInput from "@/components/shared/labeled/CurrencyInput";
 import ResponsiveModal from "@/components/shared/modal/ResponsiveModal";
-import { LaborCreateInput } from "@/hooks/labor";
+import { LaborCreateInput } from "@/hooks/labors";
 import { buildLaborCreateInput } from "@/frontendUtils/transform";
 
 interface LaborModalProps {
@@ -19,11 +19,11 @@ interface LaborModalProps {
     companyId: Id<"companies">,
     labor: LaborCreateInput
   ) => Promise<boolean>;
-  onEdit: (laborId: Id<"labor">, labor: LaborCreateInput) => Promise<boolean>;
+  onEdit: (laborId: Id<"labors">, labor: LaborCreateInput) => Promise<boolean>;
   loading: boolean;
   error: string | null;
   companyId: Id<"companies">;
-  initialData?: Doc<"labor"> | null;
+  initialData?: Doc<"labors"> | null;
 }
 
 const LaborModal: React.FC<LaborModalProps> = ({

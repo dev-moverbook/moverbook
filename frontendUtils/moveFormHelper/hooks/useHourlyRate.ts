@@ -3,7 +3,7 @@ import { MoveFormData } from "@/types/form-types";
 import { Doc } from "@/convex/_generated/dataModel";
 
 export function useHourlyRate(
-  laborRates: Doc<"labor">[] | undefined,
+  laborRates: Doc<"labors">[] | undefined,
   movers: number,
   jobType: MoveFormData["jobType"],
   setMoveFormData: React.Dispatch<React.SetStateAction<MoveFormData>>,

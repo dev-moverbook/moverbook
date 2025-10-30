@@ -17,9 +17,9 @@ import PhoneNumberInput from "@/components/shared/labeled/PhoneNumberInput";
 import LabeledPlacesAutocomplete from "@/components/shared/labeled/LabeledPlacesAutoComplete";
 
 interface CompanyContactSectionProps {
-  companyContact: Doc<"companyContact">;
+  companyContact: Doc<"companyContacts">;
   updateCompanyContact: (
-    companyContactId: Id<"companyContact">,
+    companyContactId: Id<"companyContacts">,
     updates: CompanyContactFormData
   ) => Promise<boolean>;
   updateLoading: boolean;
@@ -208,7 +208,9 @@ const CompanyContactSection: React.FC<CompanyContactSectionProps> = ({
       setVerificationError(null);
       setVerificationStatus("verifying");
 
-      const isVerified = await checkSenderVerified(companyContact._id);
+      const isVerified = await checkSenderVerified(
+        companyContact._id as Id<"companyContacts">
+      );
       setVerificationStatus(isVerified ? "verified" : "pending");
 
       if (!isVerified) {

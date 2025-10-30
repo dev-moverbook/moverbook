@@ -6,42 +6,42 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { setErrorFromConvexError } from "@/frontendUtils/errorHelper";
 
-interface PreMoveDocUpdates {
+interface ContractUpdates {
   customerSignature?: string;
   customerSignedAt?: number;
   repSignature?: string;
   repSignedAt?: number;
 }
 
-export const useCreateOrUpdatePreMoveDoc = () => {
-  const [createOrUpdatePreMoveDocLoading, setCreateOrUpdatePreMoveDocLoading] =
+export const useCreateOrUpdateContract = () => {
+  const [createOrUpdateContractLoading, setCreateOrUpdateContractLoading] =
     useState<boolean>(false);
-  const [createOrUpdatePreMoveDocError, setCreateOrUpdatePreMoveDocError] =
+  const [createOrUpdateContractError, setCreateOrUpdateContractError] =
     useState<string | null>(null);
 
-  const mutationFn = useMutation(api.preMoveDocs.createOrUpdatePreMoveDoc);
+  const mutationFn = useMutation(api.contracts.createOrUpdateContract);
 
-  const createOrUpdatePreMoveDoc = async (
-    moveId: Id<"move">,
-    updates: PreMoveDocUpdates
+  const createOrUpdateContract = async (
+    moveId: Id<"moves">,
+    updates: ContractUpdates
   ): Promise<boolean> => {
-    setCreateOrUpdatePreMoveDocLoading(true);
-    setCreateOrUpdatePreMoveDocError(null);
+    setCreateOrUpdateContractLoading(true);
+    setCreateOrUpdateContractError(null);
 
     try {
       return await mutationFn({ moveId, updates });
     } catch (error) {
-      setErrorFromConvexError(error, setCreateOrUpdatePreMoveDocError);
+      setErrorFromConvexError(error, setCreateOrUpdateContractError);
       return false;
     } finally {
-      setCreateOrUpdatePreMoveDocLoading(false);
+      setCreateOrUpdateContractLoading(false);
     }
   };
 
   return {
-    createOrUpdatePreMoveDoc,
-    createOrUpdatePreMoveDocLoading,
-    createOrUpdatePreMoveDocError,
-    setCreateOrUpdatePreMoveDocError,
+    createOrUpdateContract,
+    createOrUpdateContractLoading,
+    createOrUpdateContractError,
+    setCreateOrUpdateContractError,
   };
 };

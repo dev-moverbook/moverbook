@@ -6,7 +6,7 @@ import SectionHeader from "@/components/shared/section/SectionHeader";
 import { Doc } from "@/convex/_generated/dataModel";
 
 interface ExternalReviewProps {
-  move: Doc<"move">;
+  move: Doc<"moves">;
 }
 const ExternalReview = ({ move }: ExternalReviewProps) => {
   const isDisabled = move.moveStatus !== "Completed";

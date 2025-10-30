@@ -11,9 +11,9 @@ import FieldRow from "@/components/shared/field/FieldRow";
 import FormActions from "@/components/shared/buttons/FormActions";
 
 interface ComplianceSectionProps {
-  compliance: Doc<"compliance">;
+  compliance: Doc<"compliances">;
   updateCompliance: (
-    complianceId: Id<"compliance">,
+    complianceId: Id<"compliances">,
     updates: ComplianceFormData
   ) => Promise<boolean>;
   updateLoading: boolean;

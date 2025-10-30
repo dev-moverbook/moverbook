@@ -8,23 +8,25 @@ import SectionHeader from "@/components/shared/section/SectionHeader";
 import ConfirmModal from "@/components/shared/modal/ConfirmModal";
 import LaborCard from "../cards/LaborCard";
 import LaborModal from "../modals/LaborModal";
-import { useCreateLabor } from "@/hooks/labor";
-import { useUpdateLabor } from "@/hooks/labor";
-import { useDeleteLabor } from "@/hooks/labor";
+import { useCreateLabor } from "@/hooks/labors";
+import { useUpdateLabor } from "@/hooks/labors";
+import { useDeleteLabor } from "@/hooks/labors";
 import CardContainer from "@/components/shared/card/CardContainer";
 import AddItemButton from "@/components/shared/buttons/AddItemButton";
 import { useSlugContext } from "@/contexts/SlugContext";
 
 interface LaborSectionProps {
-  labor: Doc<"labor">[];
+  labor: Doc<"labors">[];
 }
 
 const LaborSection: React.FC<LaborSectionProps> = ({ labor }) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
-  const [selectedLabor, setSelectedLabor] = useState<Doc<"labor"> | null>(null);
+  const [selectedLabor, setSelectedLabor] = useState<Doc<"labors"> | null>(
+    null
+  );
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
-  const [laborToDelete, setLaborToDelete] = useState<Id<"labor"> | null>(null);
+  const [laborToDelete, setLaborToDelete] = useState<Id<"labors"> | null>(null);
 
   const { companyId } = useSlugContext();
 
@@ -56,7 +58,7 @@ const LaborSection: React.FC<LaborSectionProps> = ({ labor }) => {
     setCreateLaborError(null);
   };
 
-  const handleOpenEditModal = (laborItem: Doc<"labor">) => {
+  const handleOpenEditModal = (laborItem: Doc<"labors">) => {
     setIsEditMode(true);
     setSelectedLabor(laborItem);
     setIsModalOpen(true);
@@ -68,7 +70,7 @@ const LaborSection: React.FC<LaborSectionProps> = ({ labor }) => {
     setSelectedLabor(null);
   };
 
-  const handleOpenDeleteModal = (laborId: Id<"labor">) => {
+  const handleOpenDeleteModal = (laborId: Id<"labors">) => {
     setIsDeleteModalOpen(true);
     setLaborToDelete(laborId);
     setDeleteLaborError(null);

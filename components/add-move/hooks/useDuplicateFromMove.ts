@@ -26,8 +26,8 @@ export function useDuplicateFromMove(
   const selectedFields = new Set(fieldsToDuplicate as DuplicateField[]);
 
   const duplicateSourceMove = useQuery(
-    api.move.getMove,
-    duplicateFromId ? { moveId: duplicateFromId as Id<"move"> } : "skip"
+    api.moves.getMove,
+    duplicateFromId ? { moveId: duplicateFromId as Id<"moves"> } : "skip"
   );
 
   useRunOnceWhen(

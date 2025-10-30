@@ -11,10 +11,11 @@ import {
 import { ClerkRoles } from "@/types/enums";
 import { ErrorMessages } from "@/types/errors";
 import { formatMonthDayLabelStrict } from "@/frontendUtils/luxonUtils";
+import { internal } from "./_generated/api";
 
 export const createDiscount = mutation({
   args: {
-    moveId: v.id("move"),
+    moveId: v.id("moves"),
     name: v.string(),
     price: v.number(),
   },
@@ -31,7 +32,7 @@ export const createDiscount = mutation({
 
     const move = await validateDocument(
       ctx.db,
-      "move",
+      "moves",
       moveId,
       ErrorMessages.MOVE_NOT_FOUND
     );
@@ -54,7 +55,7 @@ export const createDiscount = mutation({
     const moveDate = move.moveDate
       ? formatMonthDayLabelStrict(move.moveDate)
       : "TBD";
-    await ctx.db.insert("discounts", {
+    const discountId = await ctx.db.insert("discounts", {
       moveId,
       name,
       price,
@@ -63,17 +64,20 @@ export const createDiscount = mutation({
 
     const amount = price * -1;
 
-    await ctx.db.insert("newsFeed", {
-      body: `**${user.name}** added discount **${name}** to **${moveCustomer.name}** **(${moveDate})**.`,
-      companyId: company._id,
+    await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
       type: "DISCOUNT_ADDED",
+      companyId: company._id,
       userId: user._id,
+      body: `**${user.name}** added discount **${name}** to **${moveCustomer.name}** **(${moveDate})**.`,
+      amount,
       context: {
         customerName: moveCustomer.name,
-        moveDate: moveDate,
+        moveDate,
+        discountId,
         discountName: name,
+        moverName: user.name,
       },
-      amount,
+      moveId,
     });
     return true;
   },
@@ -107,7 +111,7 @@ export const updateDiscount = mutation({
     );
     const move = await validateDocument(
       ctx.db,
-      "move",
+      "moves",
       discount.moveId,
       ErrorMessages.MOVE_NOT_FOUND
     );
@@ -136,30 +140,36 @@ export const updateDiscount = mutation({
     await ctx.db.patch(discountId, updates);
 
     if (updates.isActive === false) {
-      await ctx.db.insert("newsFeed", {
+      await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
+        type: "DISCOUNT_REMOVED",
         body: `**${user.name}** removed discount **${discount.name}** from **${moveCustomer.name}** **(${moveDate})**.`,
         companyId: company._id,
-        type: "DISCOUNT_REMOVED",
         userId: user._id,
+        amount,
         context: {
           customerName: moveCustomer.name,
-          moveDate: moveDate,
+          moveDate,
           discountName: discount.name,
+          discountId,
+          moverName: user.name,
         },
-        amount,
+        moveId: move._id,
       });
     } else {
-      await ctx.db.insert("newsFeed", {
+      await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
+        type: "DISCOUNT_UPDATED",
         body: `**${user.name}** updated discount **${discount.name}** for **${moveCustomer.name}** **(${moveDate})**.`,
         companyId: company._id,
-        type: "DISCOUNT_UPDATED",
         userId: user._id,
         context: {
           customerName: moveCustomer.name,
           moveDate: moveDate,
           discountName: discount.name,
+          discountId,
+          moverName: user.name,
         },
         amount,
+        moveId: move._id,
       });
     }
     return true;

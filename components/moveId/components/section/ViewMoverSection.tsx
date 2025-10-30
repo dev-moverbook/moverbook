@@ -7,8 +7,8 @@ import ArriveOriginSection from "@/components/move/movers/ArriveOriginSection";
 import EndMoveSection from "@/components/move/movers/EndMoveSectiont";
 import BreakMoveSection from "@/components/move/movers/BreakMoveSection";
 import { Doc } from "@/convex/_generated/dataModel";
-import PreMove from "../move/PreMove";
-import AdditionalLiabilityCoverage from "../move/AdditionalLiabilityCoverage";
+import Contract from "../move/Contract";
+import Waiver from "../move/Waiver";
 import Discounts from "../payment/Discounts";
 import AdditionalFees from "../payment/AdditionalFees";
 import InvoiceSignature from "../payment/InvoiceSignature";
@@ -20,21 +20,21 @@ import { isSameDayOrLater } from "@/frontendUtils/luxonUtils";
 
 interface ViewMoverSectionProps {
   assignment: Doc<"moveAssignments">;
-  preMoveDoc: Doc<"preMoveDocs"> | null;
+  contract: Doc<"contracts"> | null;
   discounts: Doc<"discounts">[];
   additionalFees: Doc<"additionalFees">[];
   invoice: Doc<"invoices"> | null;
-  additionalLiabilityCoverage: Doc<"additionalLiabilityCoverage"> | null;
+  waiver: Doc<"waivers"> | null;
   fees: Doc<"fees">[];
 }
 
 const ViewMoverSection: React.FC<ViewMoverSectionProps> = ({
   assignment,
-  preMoveDoc,
+  contract,
   discounts,
   additionalFees,
   invoice,
-  additionalLiabilityCoverage,
+  waiver,
   fees,
 }) => {
   const { timeZone } = useSlugContext();
@@ -130,7 +130,7 @@ const ViewMoverSection: React.FC<ViewMoverSectionProps> = ({
   const showInvoice =
     !!actualStartTime && !!actualArrivalTime && !!actualEndTime;
 
-  const showPreMove = isSameDayOrLater(move.moveDate, timeZone);
+  const showContract = isSameDayOrLater(move.moveDate, timeZone);
 
   return (
     <>
@@ -174,10 +174,8 @@ const ViewMoverSection: React.FC<ViewMoverSectionProps> = ({
         />
       )}
 
-      {showPreMove && <PreMove preMoveDoc={preMoveDoc} />}
-      <AdditionalLiabilityCoverage
-        additionalLiabilityCoverage={additionalLiabilityCoverage}
-      />
+      {showContract && <Contract contract={contract} />}
+      <Waiver waiver={waiver} />
       <Discounts discounts={discounts} moveId={move._id} />
       <AdditionalFees
         additionalFees={additionalFees}

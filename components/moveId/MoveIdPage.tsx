@@ -24,7 +24,7 @@ const MoveIdPage = () => {
 
   const [isDuplicateMoveModalOpen, setIsDuplicateMoveModalOpen] =
     useState<boolean>(false);
-  const [selectedMove, setSelectedMove] = useState<Doc<"move"> | null>(null);
+  const [selectedMove, setSelectedMove] = useState<Doc<"moves"> | null>(null);
 
   const { move, moveCustomer, salesRepUser } = moveData;
   const role = user.role;
@@ -57,8 +57,8 @@ const MoveIdPage = () => {
 
   const handleTabChange = (tab: string) => setActiveTab(tab);
 
-  const handleDuplicateMove = (m: Doc<"move">) => {
-    setSelectedMove(m);
+  const handleDuplicateMove = (move: Doc<"moves">) => {
+    setSelectedMove(move);
     setIsDuplicateMoveModalOpen(true);
   };
 

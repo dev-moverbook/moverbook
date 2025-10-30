@@ -17,7 +17,7 @@ import ConfirmModal from "@/components/shared/modal/ConfirmModal";
 
 interface AdditionalFeesProps {
   additionalFees: Doc<"additionalFees">[];
-  moveId: Id<"move">;
+  moveId: Id<"moves">;
   fees: Doc<"fees">[];
 }
 

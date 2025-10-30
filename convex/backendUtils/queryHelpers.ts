@@ -48,10 +48,10 @@ export type MoveQueryFilters = {
   statuses?: MoveStatus[];
   salesRepId?: Id<"users"> | null;
   referralId?: Id<"referrals"> | null;
-  serviceType?: Doc<"move">["serviceType"] | null;
-  moveSize?: Doc<"move">["locations"][number]["moveSize"] | null;
+  serviceType?: Doc<"moves">["serviceType"] | null;
+  moveSize?: Doc<"moves">["locations"][number]["moveSize"] | null;
   numberOfMovers?: number | null;
-  locationType?: Doc<"move">["locations"][number]["locationType"] | null;
+  locationType?: Doc<"moves">["locations"][number]["locationType"] | null;
 };
 
 export async function getCompanyMoves(
@@ -68,9 +68,9 @@ export async function getCompanyMoves(
     numberOfMovers,
     locationType,
   }: MoveQueryFilters
-): Promise<Doc<"move">[]> {
+): Promise<Doc<"moves">[]> {
   let moveQuery = context.db
-    .query("move")
+    .query("moves")
     .withIndex("by_moveDate", (range) =>
       range.gte("moveDate", start).lte("moveDate", end)
     )
@@ -133,12 +133,12 @@ export async function getCompanyMoves(
   return filteredByFirstLocation;
 }
 
-type MoveWindow = Doc<"move">["moveWindow"];
+type MoveWindow = Doc<"moves">["moveWindow"];
 
 export function filterByMoveWindow(
-  moves: Doc<"move">[],
+  moves: Doc<"moves">[],
   windows?: MoveWindow[]
-): Doc<"move">[] {
+): Doc<"moves">[] {
   if (!windows || windows.length === 0) {
     return moves;
   }
@@ -147,9 +147,9 @@ export function filterByMoveWindow(
 }
 
 export function sortByPriceOrder(
-  moves: Doc<"move">[],
+  moves: Doc<"moves">[],
   priceOrder?: "asc" | "desc" | null
-): Doc<"move">[] {
+): Doc<"moves">[] {
   if (!priceOrder) {
     return moves;
   }
@@ -194,12 +194,12 @@ export async function getUsersMapByIds(
 export async function applyMoverScopeAndEstimateWages(
   ctx: QueryCtx,
   params: {
-    moves: Doc<"move">[];
+    moves: Doc<"moves">[];
     moverId: Id<"users"> | null;
     hourlyRate: number | null;
   }
 ): Promise<{
-  moves: Doc<"move">[];
+  moves: Doc<"moves">[];
   estimatedWageByMoveId: Map<string, number>;
 }> {
   const { moves, moverId, hourlyRate } = params;
@@ -253,7 +253,7 @@ export async function applyMoverScopeAndEstimateWages(
 }
 
 export function enrichMoves(
-  moves: Doc<"move">[],
+  moves: Doc<"moves">[],
   opts: {
     moveCustomerMap: Record<string, Doc<"moveCustomers">>;
     salesRepMap: Record<string, Doc<"users">>;
@@ -274,10 +274,10 @@ export function enrichMoves(
 }
 export async function scopeMovesToMover(
   ctx: QueryCtx,
-  moves: Doc<"move">[],
+  moves: Doc<"moves">[],
   moverId: Id<"users"> | null
 ): Promise<{
-  moves: Doc<"move">[];
+  moves: Doc<"moves">[];
   assignmentMap: Map<string, Doc<"moveAssignments">>;
 }> {
   if (!moverId || moves.length === 0) {
@@ -312,7 +312,7 @@ export async function scopeMovesToMover(
 export type WageRange = { min: number; max: number };
 export type WageRangeMap = Map<string, WageRange>;
 
-function getTravelHours(move: Doc<"move">): number {
+function getTravelHours(move: Doc<"moves">): number {
   if (
     !Array.isArray(move.segmentDistances) ||
     move.segmentDistances.length === 0
@@ -329,7 +329,7 @@ function getTravelHours(move: Doc<"move">): number {
 }
 
 export function buildEstimatedWageRangeMap(
-  moves: Doc<"move">[],
+  moves: Doc<"moves">[],
   assignmentMap: Map<string, Doc<"moveAssignments">>,
   hourlyRate: number | null
 ): WageRangeMap {
@@ -461,7 +461,7 @@ function computeCompletedAssignmentHours(
   return clampNonNegative(endHours - startHours - breakHours);
 }
 
-function computeFlatTotal(move: Doc<"move">, hourlyRate: number): number {
+function computeFlatTotal(move: Doc<"moves">, hourlyRate: number): number {
   const travelHours = getTravelHours(move);
   const flatBase = Number((move.jobTypeRate ?? 0).toFixed(2));
   const travelPay = Number((travelHours * hourlyRate).toFixed(2));
@@ -477,7 +477,7 @@ function computeHourlyCompletedTotal(
 }
 
 function computeHourlyRangeEstimated(
-  move: Doc<"move">,
+  move: Doc<"moves">,
   assignment: Doc<"moveAssignments"> | undefined,
   hourlyRate: number
 ): WageRange {
@@ -519,7 +519,7 @@ function computeHourlyRangeEstimated(
 }
 
 export function buildEstimatedWageAndStatusMaps(
-  moves: Doc<"move">[],
+  moves: Doc<"moves">[],
   assignmentMap: Map<string, Doc<"moveAssignments">>,
   hourlyRateInput: number | null
 ): { wageMap: WageRangeMap; hourStatusMap: HourStatusMap } {
@@ -571,7 +571,7 @@ export function buildEstimatedWageAndStatusMaps(
 }
 
 export function buildWageAndStatusForMove(
-  move: Doc<"move">,
+  move: Doc<"moves">,
   assignment: Doc<"moveAssignments">,
   hourlyRateInput: number | null
 ): { wage: WageRange; hourStatus?: HourStatus } {
@@ -608,7 +608,7 @@ export function buildWageAndStatusForMove(
 }
 
 export function toMyWage(
-  moveStatus: Doc<"move">["moveStatus"],
+  moveStatus: Doc<"moves">["moveStatus"],
   wage: WageRange
 ): MyWage {
   const isFinal = moveStatus === "Completed";
@@ -645,7 +645,7 @@ const workedHoursFromAssignment = (a: {
 };
 
 export function buildMoverWageForMoveDisplay(
-  move: Doc<"move">,
+  move: Doc<"moves">,
   assignment: Doc<"moveAssignments">,
   hourlyRateInput: number | null
 ): MoverWageForMove {
@@ -735,7 +735,7 @@ function fillPending(
 
 function fillEstimate(
   summary: MoverWageForMove,
-  move: Doc<"move">,
+  move: Doc<"moves">,
   assignment: Doc<"moveAssignments">,
   hourlyRate: number
 ): MoverWageForMove {
@@ -758,7 +758,7 @@ function hasBothTimes(assignment: Doc<"moveAssignments">): boolean {
 }
 
 export function matchesFilters(
-  moveRecord: Doc<"move">,
+  moveRecord: Doc<"moves">,
   salesRepId: Id<"users"> | null,
   referralId: Id<"referrals"> | null
 ): boolean {
@@ -784,8 +784,8 @@ function isWithinRange(
 }
 
 export function countByTimestamp(
-  moves: Doc<"move">[],
-  timestampSelector: (m: Doc<"move">) => number | null | undefined,
+  moves: Doc<"moves">[],
+  timestampSelector: (m: Doc<"moves">) => number | null | undefined,
   startTime: number,
   endTime: number
 ): number {
@@ -798,11 +798,11 @@ export function countByTimestamp(
 }
 
 export function buildStatusTimestampPatch(
-  currentMove: Doc<"move">,
+  currentMove: Doc<"moves">,
   newStatus: MoveStatus,
   effectiveAtMs: number
-): Partial<Doc<"move">> {
-  const patch: Partial<Doc<"move">> = {};
+): Partial<Doc<"moves">> {
+  const patch: Partial<Doc<"moves">> = {};
 
   switch (newStatus) {
     case "Quoted":

@@ -4,7 +4,7 @@ import { useSlugContext } from "@/contexts/SlugContext";
 import { useUpdateCompany } from "@/hooks/companies";
 import { useUpdateCompliance } from "@/hooks/compliance";
 import { useUpdateWebIntegrations } from "@/hooks/webIntegrations";
-import { useUpdateCompanyContact } from "@/hooks/companyContact";
+import { useUpdateCompanyContact } from "@/hooks/companyContacts";
 import CompanySection from "../sections/CompanySection";
 import ComplianceSection from "../sections/ComplianceSection";
 import WebIntegrationsSection from "../sections/WebIntegrationsSection";

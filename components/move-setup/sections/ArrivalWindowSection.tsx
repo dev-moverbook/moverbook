@@ -8,12 +8,12 @@ import FormActions from "@/components/shared/buttons/FormActions";
 import FieldGroup from "@/components/shared/field/FieldGroup";
 import TimeRangeFieldRow from "@/components/shared/field/TimeFieldRow";
 import { ArrivalWindowFormData } from "@/types/form-types";
-import { useUpdateArrivalWindow } from "@/hooks/arrivalWindow";
+import { useUpdateArrivalWindow } from "@/hooks/arrivalWindows";
 import FormActionContainer from "@/components/shared/containers/FormActionContainer";
 import { Doc } from "@/convex/_generated/dataModel";
 
 interface ArrivalWindowSectionProps {
-  arrivalWindow: Doc<"arrivalWindow">;
+  arrivalWindow: Doc<"arrivalWindows">;
 }
 
 const ArrivalWindowSection: React.FC<ArrivalWindowSectionProps> = ({

@@ -11,9 +11,9 @@ import TitleWithBadge from "@/components/shared/heading/TitleWithBadge";
 import { formatCurrency, formatMonthDay } from "@/frontendUtils/helper";
 
 interface LaborCardProps {
-  laborItem: Doc<"labor">;
-  onEdit: (laborItem: Doc<"labor">) => void;
-  onDelete: (laborId: Id<"labor">) => void;
+  laborItem: Doc<"labors">;
+  onEdit: (laborItem: Doc<"labors">) => void;
+  onDelete: (laborId: Id<"labors">) => void;
 }
 
 const LaborCard: React.FC<LaborCardProps> = ({

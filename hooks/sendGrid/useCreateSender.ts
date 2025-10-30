@@ -5,7 +5,7 @@ import { useState } from "react";
 import { setErrorFromConvexError } from "@/frontendUtils/errorHelper";
 
 interface UseCreateSenderReturn {
-  createSender: (companyContactId: Id<"companyContact">) => Promise<boolean>;
+  createSender: (companyContactId: Id<"companyContacts">) => Promise<boolean>;
   isLoading: boolean;
   error: string | null;
 }
@@ -17,7 +17,7 @@ export const useCreateSender = (): UseCreateSenderReturn => {
   const createSenderMutation = useAction(api.sendgrid.createSender);
 
   const createSender = async (
-    companyContactId: Id<"companyContact">
+    companyContactId: Id<"companyContacts">
   ): Promise<boolean> => {
     try {
       setIsLoading(true);

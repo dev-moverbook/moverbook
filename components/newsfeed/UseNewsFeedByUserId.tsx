@@ -1,7 +1,7 @@
 "use client";
 
 import { useSlugContext } from "@/contexts/SlugContext";
-import { useNewsFeedByUserId } from "@/hooks/newsfeed/useActivitesByUserId";
+import { useNewsFeedByUserId } from "@/hooks/newsfeeds/useActivitesByUserId";
 import NewsFeedContainer from "./NewsFeedContainer";
 
 const UseNewsFeedByUserId = () => {

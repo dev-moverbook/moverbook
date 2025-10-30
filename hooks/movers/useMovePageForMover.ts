@@ -7,7 +7,7 @@ import {
 } from "@/types/convex-responses";
 
 export const useMovePageForMover = (
-  moveId: Id<"move">
+  moveId: Id<"moves">
 ): GetMovePageForMoverMemberData | GetMovePageForMoverLeadData | undefined => {
   const response = useQuery(api.moveAssignments.getMovePageForMover, {
     moveId,

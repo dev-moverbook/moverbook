@@ -6,7 +6,7 @@ import { Id } from "@/convex/_generated/dataModel";
 import { GetPaymentPageData } from "@/types/convex-responses";
 
 export const useGetPaymentPage = (
-  moveId: Id<"move">
+  moveId: Id<"moves">
 ): GetPaymentPageData | undefined => {
   const response = useQuery<typeof api.paymentStep.getPaymentPage>(
     api.paymentStep.getPaymentPage,

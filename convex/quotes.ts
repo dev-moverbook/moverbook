@@ -1,4 +1,4 @@
-import { mutation } from "./_generated/server";
+import { action, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { QuoteStatusConvex } from "./schema";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
@@ -6,15 +6,21 @@ import { ClerkRoles } from "@/types/enums";
 import {
   isUserInOrg,
   validateCompany,
+  validateDocExists,
   validateDocument,
+  validateMoveCustomer,
+  validateUser,
 } from "./backendUtils/validate";
 import { Doc, Id } from "./_generated/dataModel";
 import { ErrorMessages } from "@/types/errors";
 import { ConvexError } from "convex/values";
+import { internal } from "./_generated/api";
+import { formatMonthDayLabelStrict } from "@/frontendUtils/luxonUtils";
+import { formatCurrency } from "@/frontendUtils/helper";
 
 export const createOrUpdateQuote = mutation({
   args: {
-    moveId: v.id("move"),
+    moveId: v.id("moves"),
     updates: v.object({
       customerSignature: v.optional(v.string()),
       customerSignedAt: v.optional(v.number()),
@@ -36,7 +42,7 @@ export const createOrUpdateQuote = mutation({
 
     const move = await validateDocument(
       ctx.db,
-      "move",
+      "moves",
       moveId,
       ErrorMessages.MOVE_NOT_FOUND
     );
@@ -60,6 +66,10 @@ export const createOrUpdateQuote = mutation({
 
     let quoteId: Id<"quotes">;
 
+    const moveCustomer = validateMoveCustomer(
+      await ctx.db.get(move.moveCustomerId)
+    );
+
     if (existing) {
       await ctx.db.patch(existing._id, updates);
       quoteId = existing._id;
@@ -80,6 +90,109 @@ export const createOrUpdateQuote = mutation({
         status: updates.status,
       });
     }
+
+    if (updates.customerSignature) {
+      const moveDate = move.moveDate
+        ? formatMonthDayLabelStrict(move.moveDate)
+        : "TBD";
+
+      const depositAmount = formatCurrency(move.deposit ?? 0);
+
+      await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
+        type: "QUOTE_SIGNED",
+        companyId: company._id,
+        body: `**${moveCustomer.name}** signed proposal for  **${moveDate}** (deposit paid ${depositAmount}).`,
+        moveId,
+        moveCustomerId: move.moveCustomerId,
+        context: {
+          customerName: moveCustomer.name,
+          moveDate,
+          depositAmount,
+        },
+      });
+    }
+
+    return true;
+  },
+});
+
+export const sendWaiverNotification = action({
+  args: {
+    moveId: v.id("moves"),
+    channel: v.union(v.literal("email"), v.literal("sms")),
+  },
+  handler: async (ctx, args): Promise<boolean> => {
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+      ClerkRoles.SALES_REP,
+      ClerkRoles.MOVER,
+    ]);
+
+    const move = await ctx.runQuery(internal.moves.getMoveByIdInternal, {
+      moveId: args.moveId,
+    });
+    const validatedMove = validateDocExists(
+      "moves",
+      move,
+      ErrorMessages.MOVE_NOT_FOUND
+    );
+
+    const company = await ctx.runQuery(
+      internal.companies.getCompanyByIdInternal,
+      {
+        companyId: validatedMove.companyId,
+      }
+    );
+    const validatedCompany = validateDocExists(
+      "companies",
+      company,
+      ErrorMessages.COMPANY_NOT_FOUND
+    );
+
+    isUserInOrg(identity, validatedCompany.clerkOrganizationId);
+
+    const user = validateUser(
+      await ctx.runQuery(internal.users.getUserByClerkIdInternal, {
+        clerkUserId: identity.id as string,
+      })
+    );
+
+    const moveCustomer = await ctx.runQuery(
+      internal.moveCustomers.getMoveCustomerByIdInternal,
+      {
+        moveCustomerId: validatedMove.moveCustomerId,
+      }
+    );
+
+    const validatedMoveCustomer = validateDocExists(
+      "moveCustomers",
+      moveCustomer,
+      ErrorMessages.MOVE_CUSTOMER_NOT_FOUND
+    );
+
+    if (args.channel === "email") {
+      // TODO: Send waiver email
+    } else if (args.channel === "sms") {
+      // TODO: Send waiver SMS
+    }
+    const moveDate = validatedMove.moveDate
+      ? formatMonthDayLabelStrict(validatedMove.moveDate)
+      : "TBD";
+    await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
+      type: "QUOTE_SENT",
+      companyId: validatedCompany._id,
+      body: `**${user.name}** sent proposal to **${validatedMoveCustomer.name}** via ${args.channel}`,
+      moveId: validatedMove._id,
+      context: {
+        customerName: validatedMoveCustomer.name,
+        deliveryType: args.channel,
+        moveDate,
+        salesRepName: user.name,
+      },
+      userId: user._id,
+    });
 
     return true;
   },

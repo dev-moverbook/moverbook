@@ -28,12 +28,12 @@ export default function CustomerMoves({
   const isMoverUser = isMover(user.role as ClerkRoles);
 
   const [isDuplicateMoveModalOpen, setIsDuplicateMoveModalOpen] =
-    useState(false);
-  const [selectedMove, setSelectedMove] = useState<Doc<"move"> | null>(null);
+    useState<boolean>(false);
+  const [selectedMove, setSelectedMove] = useState<Doc<"moves"> | null>(null);
 
   const addMoveHref = `/app/${slug}/add-move?moveCustomerId=${moveCustomer._id}`;
 
-  const handleDuplicateMove = (move: Doc<"move">) => {
+  const handleDuplicateMove = (move: Doc<"moves">) => {
     setSelectedMove(move);
     setIsDuplicateMoveModalOpen(true);
   };

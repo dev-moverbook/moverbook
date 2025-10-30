@@ -19,7 +19,7 @@ import {
 import { setErrorFromConvexError } from "@/frontendUtils/errorHelper";
 
 export interface UpdateMoveInput {
-  moveId: Id<"move">;
+  moveId: Id<"moves">;
   updates: {
     actualArrivalTime?: number;
     actualBreakTime?: number;
@@ -61,7 +61,7 @@ export const useUpdateMove = () => {
   const [updateMoveLoading, setUpdateMoveLoading] = useState<boolean>(false);
   const [updateMoveError, setUpdateMoveError] = useState<string | null>(null);
 
-  const updateMoveMutation = useMutation(api.move.updateMove);
+  const updateMoveMutation = useMutation(api.moves.updateMove);
 
   const updateMove = async (data: UpdateMoveInput): Promise<boolean> => {
     setUpdateMoveLoading(true);

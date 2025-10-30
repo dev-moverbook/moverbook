@@ -26,13 +26,13 @@ export interface GetCompanyIdBySlugResponse {
 
 export interface GetCompanyDetailsData {
   company: Doc<"companies">;
-  compliance: Doc<"compliance">;
+  compliance: Doc<"compliances">;
   webIntegrations: Doc<"webIntegrations">;
-  companyContact: Doc<"companyContact">;
+  companyContact: Doc<"companyContacts">;
 }
 
 export interface GetCompanyArrivalAndPoliciesData {
-  arrivalWindow: Doc<"arrivalWindow">;
+  arrivalWindow: Doc<"arrivalWindows">;
   policy: Doc<"policies">;
 }
 
@@ -61,9 +61,9 @@ export interface GetItemsByCategoryData {
 }
 
 export interface GetCompanyRatesData {
-  labor: Doc<"labor">[];
+  labor: Doc<"labors">[];
   insurancePolicies: Doc<"insurancePolicies">[];
-  travelFee: Doc<"travelFee">;
+  travelFee: Doc<"travelFees">;
   creditCardFee: Doc<"creditCardFees">;
   fees: Doc<"fees">[];
 }
@@ -106,34 +106,34 @@ export interface GetItemsAndCategoriesAndRoomsByCompanyData {
 }
 
 export interface GetMoveOptionsData {
-  arrivalWindow: Doc<"arrivalWindow">;
-  labor: Doc<"labor">[];
-  travelFee: Doc<"travelFee">;
+  arrivalWindow: Doc<"arrivalWindows">;
+  labor: Doc<"labors">[];
+  travelFee: Doc<"travelFees">;
   insurancePolicies: Doc<"insurancePolicies">[];
   fees: Doc<"fees">[];
   salesReps: Doc<"users">[];
   referrals: Doc<"referrals">[];
-  laborRates: Doc<"labor">[];
+  laborRates: Doc<"labors">[];
   creditCardFee: Doc<"creditCardFees">;
   rooms: Doc<"rooms">[];
   categories: Doc<"categories">[];
   items: Doc<"items">[];
   policy: Doc<"policies">;
-  companyContact: Doc<"companyContact">;
+  companyContact: Doc<"companyContacts">;
 }
 
 export interface GetMoveData {
   additionalFees: Doc<"additionalFees">[];
   discounts: Doc<"discounts">[];
-  move: Doc<"move">;
+  move: Doc<"moves">;
   quote: Doc<"quotes"> | null;
   company: Doc<"companies">;
-  companyContact: Doc<"companyContact">;
+  companyContact: Doc<"companyContacts">;
   moveCustomer: Doc<"moveCustomers">;
   salesRepUser: Doc<"users"> | null;
   myAssignment: Doc<"moveAssignments"> | null;
   wageDisplay: MoverWageForMove | null;
-  travelFee: Doc<"travelFee">;
+  travelFee: Doc<"travelFees">;
   policy: Doc<"policies">;
 }
 
@@ -154,19 +154,19 @@ export interface GetDistanceMatrixData {
 export interface GetMoveAssignmentsPageData {
   assignments: Doc<"moveAssignments">[];
   allMovers: Doc<"users">[];
-  preMoveDoc: Doc<"preMoveDocs"> | null;
-  additionalLiabilityCoverage: Doc<"additionalLiabilityCoverage"> | null;
+  contract: Doc<"contracts"> | null;
+  waiver: Doc<"waivers"> | null;
 }
 
 export interface GetPaymentPageData {
   additionalFees: Doc<"additionalFees">[];
   discounts: Doc<"discounts">[];
   invoice: Doc<"invoices"> | null;
-  internalReview: Doc<"internalReview"> | null;
+  internalReview: Doc<"internalReviews"> | null;
   fees: Doc<"fees">[];
 }
 
-export interface EnrichedMove extends Doc<"move"> {
+export interface EnrichedMove extends Doc<"moves"> {
   moveCustomer: Doc<"moveCustomers"> | null;
   salesRepUser: Doc<"users"> | null;
   moverWageForMove?: MoverWageForMove;
@@ -186,17 +186,17 @@ export interface CreateMessageData {
 
 export interface GetCustomerAndMovesData {
   moveCustomer: Doc<"moveCustomers">;
-  moves: EnrichedMoveForMover[] | Doc<"move">[];
+  moves: EnrichedMoveForMover[] | Doc<"moves">[];
 }
 
 export interface GetMovePageForMoverLeadData {
   isLead: true;
   assignment: Doc<"moveAssignments">;
-  preMoveDoc: Doc<"preMoveDocs"> | null;
+  contract: Doc<"contracts"> | null;
   discounts: Doc<"discounts">[];
   additionalFees: Doc<"additionalFees">[];
   invoice: Doc<"invoices"> | null;
-  additionalLiabilityCoverage: Doc<"additionalLiabilityCoverage"> | null;
+  waiver: Doc<"waivers"> | null;
   fees: Doc<"fees">[];
 }
 
@@ -212,7 +212,7 @@ export interface EnrichedMoveAssignment extends Doc<"moveAssignments"> {
   pendingPayout: number | null;
 }
 
-export interface EnrichedMoveForMover extends Doc<"move"> {
+export interface EnrichedMoveForMover extends Doc<"moves"> {
   moverWageForMove?: MoverWageForMove;
   hourStatus?: HourStatus;
 }

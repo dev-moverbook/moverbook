@@ -7,13 +7,13 @@ import SectionContainer from "@/components/shared/containers/SectionContainer";
 import SectionHeader from "@/components/shared/section/SectionHeader";
 import TripleFormAction from "@/components/shared/buttons/TripleFormAction";
 import FormActionContainer from "@/components/shared/containers/FormActionContainer";
-import { useCreateOrUpdateInvoice } from "@/hooks/invoice";
+import { useCreateOrUpdateInvoice } from "@/hooks/invoices";
 import { useUpdateMove } from "@/hooks/moves";
 import { Doc } from "@/convex/_generated/dataModel";
 
 interface InvoiceSignatureProps {
   invoice: Doc<"invoices"> | null;
-  move: Doc<"move">;
+  move: Doc<"moves">;
   total: number;
 }
 

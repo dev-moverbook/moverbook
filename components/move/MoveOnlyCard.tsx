@@ -18,12 +18,13 @@ import {
   getHourStatusClass,
   getStatusDisplay,
 } from "@/frontendUtils/moveHelper";
+import NProgress from "nprogress";
 
 interface MoveOnlyCardProps {
   move: EnrichedMoveForMover;
   href?: string;
   showActions?: boolean;
-  onDuplicate?: (move: Doc<"move">) => void;
+  onDuplicate?: (move: Doc<"moves">) => void;
   showOnlyJobIdTag?: boolean;
   className?: string;
   linkDisabled?: boolean;
@@ -98,19 +99,17 @@ export default function MoveOnlyCard({
 
       {showActions && (
         <div className="flex gap-4 mt-2 justify-between sm:justify-start">
-          <Button
-            size="auto"
-            variant="link"
+          <Link
+            href={href ?? "#"}
+            className="inline-flex items-center gap-1 text-link underline"
             onClick={(e) => {
               e.stopPropagation();
-              onNavigate?.();
+              NProgress.start();
             }}
           >
-            <div className="flex items-center gap-1">
-              <Eye className="w-4 h-4" />
-              <span>View</span>
-            </div>
-          </Button>
+            <Eye className="w-4 h-4" />
+            <span>View</span>
+          </Link>
 
           <Button
             size="auto"

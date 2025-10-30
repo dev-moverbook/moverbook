@@ -19,11 +19,11 @@ const MoverStep = () => {
       if (isLead) {
         return (
           <ViewMoverSection
-            preMoveDoc={result.preMoveDoc}
+            contract={result.contract}
             discounts={result.discounts}
             additionalFees={result.additionalFees}
             invoice={result.invoice}
-            additionalLiabilityCoverage={result.additionalLiabilityCoverage}
+            waiver={result.waiver}
             fees={result.fees}
             assignment={result.assignment}
           />

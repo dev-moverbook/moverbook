@@ -12,7 +12,7 @@ export const useForecastedAnalytics = (
   salesRepId: Id<"users"> | null,
   referralId: Id<"referrals"> | null
 ): ForecastPoint[] | undefined => {
-  const response = useQuery(api.move.getForecastedAnalytics, {
+  const response = useQuery(api.moves.getForecastedAnalytics, {
     companyId,
     startDate,
     endDate,

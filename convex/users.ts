@@ -92,6 +92,20 @@ export const getUserByIdInternal = internalQuery({
   },
 });
 
+export const getUserByClerkIdInternal = internalQuery({
+  args: {
+    clerkUserId: v.string(),
+  },
+  handler: async (ctx, args): Promise<Doc<"users"> | null> => {
+    const { clerkUserId } = args;
+
+    return await ctx.db
+      .query("users")
+      .withIndex("by_clerkUserId", (q) => q.eq("clerkUserId", clerkUserId))
+      .first();
+  },
+});
+
 export const getUserById = query({
   args: {
     userId: v.id("users"),

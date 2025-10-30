@@ -13,17 +13,17 @@ import { RepAvatar } from "../shared/avatars/RepAvatar";
 import { MoveCardActions } from "./MoveCardActions";
 
 interface MoveCardProps {
-  move: Doc<"move">;
+  move: Doc<"moves">;
   moveCustomer: Doc<"moveCustomers"> | null;
   showActions?: boolean;
-  onDuplicate?: (move: Doc<"move">) => void;
+  onDuplicate?: (move: Doc<"moves">) => void;
   salesRep: Doc<"users"> | null;
   isMover?: boolean;
   hourStatus?: HourStatus;
   moverWageDisplay?: MoverWageForMove | null;
   onMessagesClick?: () => void;
   onViewCustomerClick?: () => void;
-  onCardClick?: (moveId: Id<"move">) => void;
+  onCardClick?: (moveId: Id<"moves">) => void;
 }
 
 const MoveCard: React.FC<MoveCardProps> = ({

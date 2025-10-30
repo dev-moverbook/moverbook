@@ -11,7 +11,7 @@ import { Button } from "../../ui/button";
 interface MoveCheckboxOption {
   label: string;
   value: string;
-  getValue?: (move: Doc<"move">) => string | null;
+  getValue?: (move: Doc<"moves">) => string | null;
   onSwap?: () => void;
 }
 
@@ -20,7 +20,7 @@ interface LabeledMoveCheckboxGroupProps {
   name: string;
   values: string[];
   options: MoveCheckboxOption[];
-  move: Doc<"move">;
+  move: Doc<"moves">;
   onChange: (newValues: string[]) => void;
   disabled?: boolean;
   error?: string | null;

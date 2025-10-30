@@ -7,7 +7,7 @@ import MoveAddress from "@/components/add-move/components/sections/MoveAddress";
 import LocationSummary from "@/components/add-move/components/sections/LocationSummary";
 import StopSection from "@/components/add-move/components/sections/StopSection";
 import { useUpdateMove } from "@/hooks/moves";
-import { useCompanyContact } from "@/hooks/companyContact";
+import { useCompanyContact } from "@/hooks/companyContacts";
 import { nanoid } from "nanoid";
 import { useMoveContext } from "@/contexts/MoveContext";
 import { canCreateMove } from "@/frontendUtils/permissions";

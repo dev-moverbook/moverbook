@@ -7,7 +7,7 @@ import { formatPhoneNumber } from "@/frontendUtils/helper";
 
 interface ContactCardProps {
   salesRep: Doc<"users"> | null;
-  companyContact: Doc<"companyContact">;
+  companyContact: Doc<"companyContacts">;
 }
 
 const ContactCard = ({ salesRep, companyContact }: ContactCardProps) => {

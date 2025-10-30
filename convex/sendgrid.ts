@@ -17,13 +17,13 @@ import { parseFullAddressToSendgridFormat } from "./backendUtils/helper";
 
 export const createSender = action({
   args: {
-    companyContactId: v.id("companyContact"),
+    companyContactId: v.id("companyContacts"),
   },
   handler: async (ctx, { companyContactId }): Promise<string> => {
     await requireAuthenticatedUser(ctx, [ClerkRoles.ADMIN, ClerkRoles.MANAGER]);
 
     const companyContact = await ctx.runQuery(
-      internal.companyContact.getCompanyContactInternal,
+      internal.companyContacts.getCompanyContactInternal,
       { companyContactId }
     );
 
@@ -35,7 +35,7 @@ export const createSender = action({
       ),
     });
 
-    await ctx.runMutation(internal.companyContact.updateSendgridInfo, {
+    await ctx.runMutation(internal.companyContacts.updateSendgridInfo, {
       companyContactId,
       updates: {
         sendgridSenderId,
@@ -48,7 +48,7 @@ export const createSender = action({
 
 export const checkSender = action({
   args: {
-    companyContactId: v.id("companyContact"),
+    companyContactId: v.id("companyContacts"),
   },
   handler: async (ctx, { companyContactId }): Promise<CheckSenderResponse> => {
     try {
@@ -58,7 +58,7 @@ export const checkSender = action({
       ]);
 
       const companyContact = await ctx.runQuery(
-        internal.companyContact.getCompanyContactInternal,
+        internal.companyContacts.getCompanyContactInternal,
         { companyContactId }
       );
 
@@ -71,7 +71,7 @@ export const checkSender = action({
       }
       const isVerified = await checkSenderVerified(senderId);
 
-      await ctx.runMutation(internal.companyContact.updateSendgridInfo, {
+      await ctx.runMutation(internal.companyContacts.updateSendgridInfo, {
         companyContactId,
         updates: {
           sendgridVerified: isVerified,

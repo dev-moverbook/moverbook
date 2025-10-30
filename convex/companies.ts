@@ -150,9 +150,9 @@ export const getCompanyIdBySlug = query({
       .filter((q) => q.eq(q.field("customerId"), validatedCompany.customerId))
       .first();
 
-    const companyContact: Doc<"companyContact"> = validateCompanyContact(
+    const companyContact: Doc<"companyContacts"> = validateCompanyContact(
       await ctx.db
-        .query("companyContact")
+        .query("companyContacts")
         .filter((q) => q.eq(q.field("companyId"), validatedCompany._id))
         .first()
     );
@@ -194,7 +194,7 @@ export const getCompanyDetails = query({
 
     const compliance = await getFirstByCompanyId(
       ctx.db,
-      "compliance",
+      "compliances",
       companyId,
       ErrorMessages.COMPLIANCE_NOT_FOUND
     );
@@ -208,7 +208,7 @@ export const getCompanyDetails = query({
 
     const companyContact = await getFirstByCompanyId(
       ctx.db,
-      "companyContact",
+      "companyContacts",
       companyId,
       ErrorMessages.COMPANY_CONTACT_NOT_FOUND
     );

@@ -34,7 +34,7 @@ export const createCompanyRecords = async (
   companyId: Id<"companies">
 ): Promise<void> => {
   try {
-    await ctx.db.insert("compliance", {
+    await ctx.db.insert("compliances", {
       companyId,
       statePucPermitNumber: "",
       dmvNumber: "",
@@ -48,7 +48,7 @@ export const createCompanyRecords = async (
       externalReviewUrl: "",
     });
 
-    await ctx.db.insert("companyContact", {
+    await ctx.db.insert("companyContacts", {
       companyId,
       email: "",
       phoneNumber: "",
@@ -56,7 +56,7 @@ export const createCompanyRecords = async (
       website: "",
     });
 
-    await ctx.db.insert("arrivalWindow", {
+    await ctx.db.insert("arrivalWindows", {
       companyId,
       morningArrival: "08:00",
       morningEnd: "11:00",
@@ -74,7 +74,7 @@ export const createCompanyRecords = async (
       additionalTermsAndConditions: DEFAULT_ADDITIONAL_TERMS_AND_CONDITIONS,
     });
 
-    await ctx.db.insert("labor", {
+    await ctx.db.insert("labors", {
       companyId,
       name: DEFAULT_PRICING_NAME,
       isDefault: DEFAULT_IS_DEFAULT,
@@ -102,12 +102,11 @@ export const createCompanyRecords = async (
       rate: DEFAULT_CREDIT_CARD_FEE_RATE,
     });
 
-    await ctx.db.insert("travelFee", {
+    await ctx.db.insert("travelFees", {
       companyId,
       defaultMethod: DEFAULT_TRAVEL_CHARGING_METHOD,
     });
 
-    // Create Default Variables
     const defaultVariables = [
       {
         name: "customer_name",
@@ -116,7 +115,6 @@ export const createCompanyRecords = async (
       { name: "move_date", defaultValue: "move date" },
     ];
 
-    // Insert default starter rooms
     for (const name of DEFAULT_ROOMS) {
       await ctx.db.insert("rooms", {
         companyId,
@@ -264,8 +262,8 @@ function initializeTotalsByDay(
 }
 
 function addMoveToTotals(
-  move: Doc<"move">,
-  expenseByMoveId: Map<Id<"move">, MoveExpenseInfo>,
+  move: Doc<"moves">,
+  expenseByMoveId: Map<Id<"moves">, MoveExpenseInfo>,
   timeZone: string,
   totals: Record<string, IncomeTotals>
 ) {
@@ -304,9 +302,9 @@ function formatHistoricalSeries(
 export function buildHistoricalSeries(
   startDay: string,
   endDay: string,
-  moves: Doc<"move">[],
+  moves: Doc<"moves">[],
   timeZone: string,
-  expenseByMoveId: Map<Id<"move">, MoveExpenseInfo>
+  expenseByMoveId: Map<Id<"moves">, MoveExpenseInfo>
 ): HistoricalPoint[] {
   const totals = initializeTotalsByDay(startDay, endDay);
   for (const move of moves)
@@ -316,9 +314,9 @@ export function buildHistoricalSeries(
 
 export async function getApprovedPayTotalsForMoves(
   context: QueryCtx,
-  moveIds: Id<"move">[]
-): Promise<Map<Id<"move">, MoveExpenseInfo>> {
-  const entries: Array<readonly [Id<"move">, MoveExpenseInfo]> =
+  moveIds: Id<"moves">[]
+): Promise<Map<Id<"moves">, MoveExpenseInfo>> {
+  const entries: Array<readonly [Id<"moves">, MoveExpenseInfo]> =
     await Promise.all(
       moveIds.map(async (moveId) => {
         const assignments = await context.db

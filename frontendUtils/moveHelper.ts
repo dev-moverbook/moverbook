@@ -13,7 +13,7 @@ import { EnrichedMoveAssignment } from "@/types/convex-responses";
 import { formatLongDateTime } from "./luxonUtils";
 
 export function getDisplayedPrice(
-  move: Doc<"move">,
+  move: Doc<"moves">,
   isMover: boolean | undefined,
   hourStatus: HourStatus | undefined,
   moverWageDisplay?: MoverWageForMove | null
@@ -61,7 +61,7 @@ export function getDisplayedPrice(
 }
 
 export function getStatusDisplay(
-  move: Doc<"move">,
+  move: Doc<"moves">,
   isMover: boolean | undefined
 ): { label: string; color: string } {
   const isCompleted = move.moveStatus === "Completed";

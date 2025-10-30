@@ -8,7 +8,7 @@ import { CommunicationType } from "@/types/types";
 import { setErrorFromConvexError } from "@/frontendUtils/errorHelper";
 
 interface CreateMessageArgs {
-  moveId: Id<"move">;
+  moveId: Id<"moves">;
   method: CommunicationType;
   message: string;
   subject?: string | null;

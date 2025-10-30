@@ -4,7 +4,7 @@ import { Doc } from "@/convex/_generated/dataModel";
 import { ChevronLeft, Phone, Truck } from "lucide-react";
 
 interface MessageHeaderProps {
-  move: Doc<"move">;
+  move: Doc<"moves">;
   onBack: () => void;
   onCall: () => void;
   moveCustomer: Doc<"moveCustomers">;

@@ -13,7 +13,7 @@ export const useHistoricalAnalytics = (
   referralId: Id<"referrals"> | null
 ): HistoricalPoint[] | undefined => {
   const response = useQuery(
-    api.move.getHistoricalAnalytics,
+    api.moves.getHistoricalAnalytics,
 
     {
       companyId,

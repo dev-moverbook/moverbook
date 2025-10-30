@@ -21,7 +21,7 @@ export function useFunnel({
   referralId,
 }: UseFunnelArgs): FunnelPoint[] | undefined {
   const response = useQuery(
-    api.move.getFunnel,
+    api.moves.getFunnel,
 
     {
       companyId,

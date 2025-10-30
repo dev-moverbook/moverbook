@@ -5,7 +5,7 @@ import {
 } from "@/types/form-types";
 import { CreateMoveInput } from "@/hooks/moves";
 import { ItemCreateInput } from "@/hooks/items";
-import { LaborCreateInput } from "@/hooks/labor";
+import { LaborCreateInput } from "@/hooks/labors";
 export const transformToCreateMoveInput = (
   formData: MoveFormData
 ): CreateMoveInput => {

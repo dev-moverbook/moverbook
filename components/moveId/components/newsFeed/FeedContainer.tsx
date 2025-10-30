@@ -1,7 +1,7 @@
 "use client";
 
 import { useMoveContext } from "@/contexts/MoveContext";
-import { useNewsFeedByMoveId } from "@/hooks/newsfeed/useActivitiesByMoveId";
+import { useNewsFeedByMoveId } from "@/hooks/newsfeeds/useActivitiesByMoveId";
 import NewsFeedMoveContainer from "./NewsFeedMoveContainer";
 
 const FeedLoader = () => {

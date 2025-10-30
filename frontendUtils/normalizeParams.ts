@@ -32,6 +32,6 @@ export function normalizeCustomerId(
 
 export function normalizeMoveId(
   raw: string | string[] | undefined
-): Id<"move"> | undefined {
-  return normalizeParam<Id<"move">>(raw);
+): Id<"moves"> | undefined {
+  return normalizeParam<Id<"moves">>(raw);
 }

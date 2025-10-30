@@ -6,6 +6,7 @@ import { formatMonthDayLabelStrict } from "@/frontendUtils/luxonUtils";
 import { parseBoldMarkdown } from "@/frontendUtils/pareseUtils";
 import { EnrichedNewsFeed } from "@/types/types";
 import { getEventEmojis } from "@/frontendUtils/newsFeedHelper";
+import UserAvatar from "./NewsFeedAvatar";
 
 interface NewsFeedCardProps {
   newsFeedEvent: EnrichedNewsFeed;
@@ -24,17 +25,7 @@ const NewsFeedCard: React.FC<NewsFeedCardProps> = ({ newsFeedEvent, href }) => {
   const cardContent = (
     <div className="flex items-start gap-4 py-3 border-b border-grayCustom w-full px-4  relative">
       <div className="flex flex-col items-center w-10 text-center">
-        <div className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 text-gray-700 font-bold text-lg">
-          {userImageUrl ? (
-            <img
-              src={userImageUrl}
-              alt="user"
-              className="w-full h-full rounded-full"
-            />
-          ) : (
-            <span>MR</span>
-          )}
-        </div>
+        <UserAvatar userImageUrl={userImageUrl} altText="user" />
         <div className="text-xs text-grayCustom2 mt-1">
           {creationDateFormatted}
         </div>
@@ -59,7 +50,10 @@ const NewsFeedCard: React.FC<NewsFeedCardProps> = ({ newsFeedEvent, href }) => {
 
   if (href) {
     return (
-      <Link href={href} className="block hover:bg-background2 cursor-pointer">
+      <Link
+        href={href}
+        className="block hover:bg-background2 hover:rounded-md cursor-pointer"
+      >
         {cardContent}
       </Link>
     );

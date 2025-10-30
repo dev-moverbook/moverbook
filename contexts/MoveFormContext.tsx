@@ -47,7 +47,7 @@ import { useDefaultInsurancePolicy } from "../frontendUtils/moveFormHelper/hooks
 interface AddMoveFormData {
   addMoveFee: (fee: MoveFeeInput) => void;
   addStopLocation: () => void;
-  arrivalWindowOptions?: Doc<"arrivalWindow">;
+  arrivalWindowOptions?: Doc<"arrivalWindows">;
   categoryOptions?: Doc<"categories">[];
   companyId: Id<"companies"> | null;
   deleteMoveFee: (index: number) => void;
@@ -67,7 +67,7 @@ interface AddMoveFormData {
   isLocationSectionComplete: boolean;
   isLocationComplete: (index: number) => boolean;
   isMoveDetailsComplete: boolean;
-  companyContact?: Doc<"companyContact">;
+  companyContact?: Doc<"companyContacts">;
   customer: CustomerFormData;
   setCustomer: (customer: CustomerFormData) => void;
   customerErrors: CustomerFormErrors;
@@ -77,7 +77,7 @@ interface AddMoveFormData {
   moveFormErrors: MoveFormErrors;
   setMoveFormErrors: (errors: MoveFormErrors) => void;
   segmentDistances: SegmentDistance[];
-  travelFeeOptions?: Doc<"travelFee">;
+  travelFeeOptions?: Doc<"travelFees">;
   isAllSectionsComplete: boolean;
   isLoading: boolean;
 }

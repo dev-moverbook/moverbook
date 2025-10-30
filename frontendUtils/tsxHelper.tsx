@@ -42,9 +42,9 @@ export const getQuoteStatusInfo = (
 };
 
 export const getMoveStatus = (
-  move: Doc<"move">,
+  move: Doc<"moves">,
   assignedMovers: number,
-  preMoveDoc: Doc<"preMoveDocs"> | null,
+  contract: Doc<"contracts"> | null,
   timeZone: string
 ): {
   label: string;
@@ -66,14 +66,14 @@ export const getMoveStatus = (
     };
   }
 
-  if (!preMoveDoc) {
+  if (!contract) {
     return {
-      label: "Pre Doc Ready To Send",
+      label: "Contract Ready To Send",
       icon: <FileText className="w-4 h-4 text-gray-400" />,
     };
   }
 
-  const { repSignature, customerSignature } = preMoveDoc;
+  const { repSignature, customerSignature } = contract;
 
   if (repSignature && !customerSignature) {
     return {
@@ -97,7 +97,7 @@ export const getMoveStatus = (
 
 export const getInvoiceStatus = (
   invoice: Doc<"invoices"> | null,
-  move: Doc<"move">
+  move: Doc<"moves">
 ): {
   label: string;
   icon: ReactNode;

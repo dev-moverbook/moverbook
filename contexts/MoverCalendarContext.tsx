@@ -18,7 +18,7 @@ interface MoverCalendarContextProps {
   startISO: string;
   endISO: string;
   today: Date;
-  moves: Doc<"move">[];
+  moves: Doc<"moves">[];
   isLoading: boolean;
 }
 
@@ -77,7 +77,7 @@ export const MoverCalendarProvider = ({
 
   const isLoading = movesResult === undefined;
 
-  const moves = useMemo<Doc<"move">[]>(() => movesResult ?? [], [movesResult]);
+  const moves = useMemo<Doc<"moves">[]>(() => movesResult ?? [], [movesResult]);
 
   const value: MoverCalendarContextProps = {
     mover,

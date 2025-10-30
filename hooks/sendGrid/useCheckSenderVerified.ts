@@ -7,7 +7,7 @@ import { FrontEndErrorMessages } from "@/types/errors";
 
 interface UseCheckSenderVerifiedReturn {
   checkSenderVerified: (
-    companyContactId: Id<"companyContact">
+    companyContactId: Id<"companyContacts">
   ) => Promise<boolean>;
   isLoading: boolean;
   error: string | null;
@@ -20,7 +20,7 @@ export const useCheckSenderVerified = (): UseCheckSenderVerifiedReturn => {
   const checkSenderMutation = useAction(api.sendgrid.checkSender);
 
   const checkSenderVerified = async (
-    companyContactId: Id<"companyContact">
+    companyContactId: Id<"companyContacts">
   ): Promise<boolean> => {
     try {
       setIsLoading(true);

@@ -3,12 +3,12 @@ import { formatJobRate, formatServiceTypeName } from "@/frontendUtils/helper";
 import { DuplicateOption } from "./duplicateMove.types";
 
 function formatAddress(
-  address: Doc<"move">["locations"][number]["address"] | null | undefined
+  address: Doc<"moves">["locations"][number]["address"] | null | undefined
 ) {
   return address?.formattedAddress ?? "—";
 }
 
-function getStartingAddress(move: Doc<"move">, isSwapped: boolean) {
+function getStartingAddress(move: Doc<"moves">, isSwapped: boolean) {
   if (!move.locations?.length) {
     return "—";
   }
@@ -18,7 +18,7 @@ function getStartingAddress(move: Doc<"move">, isSwapped: boolean) {
   return isSwapped ? formatAddress(lastLocation) : formatAddress(firstLocation);
 }
 
-function getEndingAddress(move: Doc<"move">, isSwapped: boolean) {
+function getEndingAddress(move: Doc<"moves">, isSwapped: boolean) {
   if (!move.locations?.length) {
     return "—";
   }
@@ -28,7 +28,7 @@ function getEndingAddress(move: Doc<"move">, isSwapped: boolean) {
   return isSwapped ? formatAddress(firstLocation) : formatAddress(lastLocation);
 }
 
-function getStopsCount(move: Doc<"move">) {
+function getStopsCount(move: Doc<"moves">) {
   return Math.max(0, (move.locations?.length ?? 0) - 2);
 }
 
@@ -94,7 +94,7 @@ export function buildSectionOptions(isSwapped: boolean): DuplicateOption[] {
 
 export function buildDuplicateMoveUrl(
   baseUrl: string,
-  move: Doc<"move">,
+  move: Doc<"moves">,
   selectedFields: string[]
 ) {
   const url = new URL(baseUrl, "http://localhost");

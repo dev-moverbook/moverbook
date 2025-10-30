@@ -15,7 +15,7 @@ import ConfirmModal from "@/components/shared/modal/ConfirmModal";
 
 interface DiscountsProps {
   discounts: Doc<"discounts">[];
-  moveId: Id<"move">;
+  moveId: Id<"moves">;
 }
 
 const Discounts = ({ discounts, moveId }: DiscountsProps) => {

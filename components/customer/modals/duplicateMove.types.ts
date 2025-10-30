@@ -15,5 +15,5 @@ export type DuplicateFieldKey =
 export interface DuplicateOption {
   label: string;
   value: DuplicateFieldKey;
-  getValue: (move: Doc<"move">) => string;
+  getValue: (move: Doc<"moves">) => string;
 }

@@ -7,19 +7,19 @@ import SectionHeader from "@/components/shared/section/SectionHeader";
 import FormActions from "@/components/shared/buttons/FormActions";
 import FieldGroup from "@/components/shared/field/FieldGroup";
 import { TravelChargingTypes } from "@/types/enums";
-import { useUpdateTravelFee } from "@/hooks/travelFee";
+import { useUpdateTravelFee } from "@/hooks/travelFees";
 import CurrencyInput from "@/components/shared/labeled/CurrencyInput";
 import { Doc } from "@/convex/_generated/dataModel";
 import { TRAVEL_FEE_METHOD_OPTIONS } from "@/types/types";
 import ButtonRadioGroup from "@/components/shared/labeled/ButtonRadioGroup";
 
 interface TravelFeeSectionProps {
-  travelFee: Doc<"travelFee">;
+  travelFee: Doc<"travelFees">;
 }
 
 const TravelFeeSection: React.FC<TravelFeeSectionProps> = ({ travelFee }) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [formData, setFormData] = useState<Doc<"travelFee">>(travelFee);
+  const [formData, setFormData] = useState<Doc<"travelFees">>(travelFee);
 
   const {
     updateTravelFee,

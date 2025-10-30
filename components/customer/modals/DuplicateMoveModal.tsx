@@ -11,7 +11,7 @@ import { buildSectionOptions, buildDuplicateMoveUrl } from "./utils";
 interface DuplicateMoveModalProps {
   isOpen: boolean;
   onClose: () => void;
-  move: Doc<"move">;
+  move: Doc<"moves">;
 }
 
 export default function DuplicateMoveModal({

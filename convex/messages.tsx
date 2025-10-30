@@ -10,6 +10,7 @@ import {
   validateDocument,
   validateMove,
   validateMoveCustomer,
+  validateUser,
 } from "./backendUtils/validate";
 import { RecentMoveMessageSummary } from "@/types/types";
 import {
@@ -24,10 +25,11 @@ import {
   buildTemplateValues,
   injectTemplateValues,
 } from "./backendUtils/template";
+import { formatMonthDayLabelStrict } from "@/frontendUtils/luxonUtils";
 
 export const getMessagesByMoveId = query({
   args: {
-    moveId: v.id("move"),
+    moveId: v.id("moves"),
   },
   handler: async (ctx, args): Promise<Doc<"messages">[]> => {
     const { moveId } = args;
@@ -42,7 +44,7 @@ export const getMessagesByMoveId = query({
 
     const move = await validateDocument(
       ctx.db,
-      "move",
+      "moves",
       moveId,
       ErrorMessages.MOVE_NOT_FOUND
     );
@@ -80,7 +82,7 @@ export const getRecentMessagesByCompanyId = query({
     isUserInOrg(identity, company.clerkOrganizationId);
 
     const moves = await ctx.db
-      .query("move")
+      .query("moves")
       .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
       .collect();
 
@@ -119,7 +121,7 @@ export const getRecentMessagesByCompanyId = query({
 
 export const createMessage = action({
   args: {
-    moveId: v.id("move"),
+    moveId: v.id("moves"),
     method: CommunicationTypeConvex,
     message: v.string(),
     subject: v.optional(v.union(v.string(), v.null())),
@@ -136,7 +138,7 @@ export const createMessage = action({
     ]);
 
     const move = validateMove(
-      await ctx.runQuery(internal.move.getMoveByIdInternal, { id: moveId })
+      await ctx.runQuery(internal.moves.getMoveByIdInternal, { moveId })
     );
 
     const company = await ctx.runQuery(
@@ -183,18 +185,45 @@ export const createMessage = action({
     //     }
     //     sid = await sendSendGridEmail(move.email, resolvedMessage, subject);
     //   }
+    const moveDate = move.moveDate
+      ? formatMonthDayLabelStrict(move.moveDate)
+      : "TBD";
 
-    await ctx.runMutation(internal.messages.internalCreateMessage, {
-      moveId,
+    const user = validateUser(
+      await ctx.runQuery(internal.users.getUserByClerkIdInternal, {
+        clerkUserId: identity.id as string,
+      })
+    );
+
+    const messageId = await ctx.runMutation(
+      internal.messages.internalCreateMessage,
+      {
+        moveId,
+        companyId: move.companyId,
+        method,
+        status: deliveryStatus,
+        message,
+        resolvedMessage,
+        sid, // pass to mutation
+        sentType,
+        resolvedSubject,
+        subject,
+      }
+    );
+
+    await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
+      type: "MESSAGE_OUTGOING",
+      body: `**${user.name}** sent message to **${moveCustomer.name}** **${moveDate} via ${method}`,
       companyId: move.companyId,
-      method,
-      status: deliveryStatus,
-      message,
-      resolvedMessage,
-      sid, // pass to mutation
-      sentType,
-      resolvedSubject,
-      subject,
+      userId: user._id,
+      moveId,
+      context: {
+        customerName: moveCustomer.name,
+        moveDate,
+        deliveryType: method,
+        messageId,
+      },
+      moveCustomerId: move.moveCustomerId,
     });
 
     return true;
@@ -203,7 +232,7 @@ export const createMessage = action({
 
 export const internalCreateMessage = internalMutation({
   args: {
-    moveId: v.id("move"),
+    moveId: v.id("moves"),
     companyId: v.id("companies"),
     method: CommunicationTypeConvex,
     status: MessageStatusConvex,

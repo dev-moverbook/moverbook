@@ -7,8 +7,8 @@ import SectionHeader from "@/components/shared/section/SectionHeader";
 import { Doc } from "@/convex/_generated/dataModel";
 
 interface InternalReviewProps {
-  internalReview: Doc<"internalReview"> | null;
-  move: Doc<"move">;
+  internalReview: Doc<"internalReviews"> | null;
+  move: Doc<"moves">;
 }
 const InternalReview = ({ internalReview, move }: InternalReviewProps) => {
   const isDisabled = move.moveStatus !== "Completed";

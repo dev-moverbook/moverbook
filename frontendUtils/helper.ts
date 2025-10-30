@@ -144,7 +144,7 @@ export function formatCurrencyCompact(amount: number): string {
 }
 
 export const getMoveStatusType = (
-  move: Doc<"move">,
+  move: Doc<"moves">,
   moveCustomer: Doc<"moveCustomers">,
   quote: Doc<"quotes"> | null
 ): string => {
@@ -157,7 +157,7 @@ export const getMoveStatusType = (
 };
 
 export const hasRequiredMoveFields = (
-  move: Doc<"move">,
+  move: Doc<"moves">,
   moveCustomer: Doc<"moveCustomers">
 ): boolean => {
   const hasInfoSection =
@@ -384,7 +384,7 @@ export const getMoverStatusColor = (
   }
 };
 
-export function getMoveCostRange(move: Doc<"move">): [number, number?] {
+export function getMoveCostRange(move: Doc<"moves">): [number, number?] {
   if (move.invoiceAmountPaid) {
     const total = move.invoiceAmountPaid + move.deposit;
     return [total];
@@ -463,7 +463,7 @@ export const getInitials = (name: string): string => {
 
 export const getHourlyRateFromLabor = (
   movers: number,
-  laborRates?: Doc<"labor">[]
+  laborRates?: Doc<"labors">[]
 ): number | null => {
   if (!laborRates) return null;
 

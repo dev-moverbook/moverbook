@@ -16,7 +16,7 @@ export function useStackedHistoricalRevenueBySource({
   startDate,
   endDate,
 }: Args): StackedDay[] | undefined {
-  const response = useQuery(api.move.getStackedHistoricalRevenueBySource, {
+  const response = useQuery(api.moves.getStackedHistoricalRevenueBySource, {
     companyId,
     startDate,
     endDate,

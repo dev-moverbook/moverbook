@@ -17,13 +17,13 @@ import {
   GetMovePageForMoverLeadData,
   GetMovePageForMoverMemberData,
 } from "@/types/convex-responses";
-import { Doc, Id } from "./_generated/dataModel";
+import { Doc } from "./_generated/dataModel";
 import { computeApprovedPayout } from "./backendUtils/calculations";
 import { buildMoverWageForMoveDisplay } from "./backendUtils/queryHelpers";
 import { ErrorMessages } from "@/types/errors";
 import { formatMonthDayLabelStrict } from "@/frontendUtils/luxonUtils";
-import { formatTime } from "@/frontendUtils/helper";
 import { formatTimeLower } from "./backendUtils/luxonHelper";
+import { internal } from "./_generated/api";
 
 export const updateMoveAssignment = mutation({
   args: {
@@ -55,7 +55,7 @@ export const updateMoveAssignment = mutation({
     );
     const move = await validateDocument(
       ctx.db,
-      "move",
+      "moves",
       assignment.moveId,
       ErrorMessages.MOVE_NOT_FOUND
     );
@@ -78,29 +78,35 @@ export const updateMoveAssignment = mutation({
       const moveDate = move.moveDate
         ? formatMonthDayLabelStrict(move.moveDate)
         : "TBD";
-      await ctx.db.insert("newsFeed", {
-        body: `**${newMover.name}** was assigned to move **${moveCustomer.name}** (**${moveDate}**).`,
-        companyId: company._id,
-        type: "ASSIGN_MOVER",
-        userId: updates.moverId,
-        context: {
-          moverName: previousMover.name,
-          customerName: moveCustomer.name,
-          moveDate: moveDate,
-        },
-      });
+      await Promise.all([
+        ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
+          type: "ASSIGN_MOVER",
+          companyId: company._id,
+          body: `**${newMover.name}** was assigned to move **${moveCustomer.name}** **${moveDate}**`,
+          userId: updates.moverId,
+          context: {
+            customerName: moveCustomer.name,
+            moveAssignmentId: assignmentId,
+            moveDate: moveDate,
+            moverName: newMover.name,
+          },
+          amount: 0,
+          moveId: move._id,
+        }),
 
-      await ctx.db.insert("newsFeed", {
-        body: `**${previousMover.name}** was removed from move **${moveCustomer.name}** (**${moveDate}**).`,
-        companyId: company._id,
-        type: "REMOVE_MOVER",
-        userId: previousMover._id,
-        context: {
-          moverName: previousMover.name,
-          customerName: moveCustomer.name,
-          moveDate: moveDate,
-        },
-      });
+        ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
+          type: "REMOVE_MOVER",
+          companyId: company._id,
+          body: `**${previousMover.name}** was removed from move **${moveCustomer.name}** **${moveDate}**`,
+          userId: previousMover._id,
+          context: {
+            moverName: previousMover.name,
+            customerName: moveCustomer.name,
+            moveDate: moveDate,
+          },
+          moveId: move._id,
+        }),
+      ]);
     }
 
     return true;
@@ -128,7 +134,7 @@ export const updateMoveAssignmentHours = mutation({
 
     const move = await validateDocument(
       ctx.db,
-      "move",
+      "moves",
       assignment.moveId,
       ErrorMessages.MOVE_NOT_FOUND
     );
@@ -169,43 +175,52 @@ export const updateMoveAssignmentHours = mutation({
       await ctx.db.get(move.moveCustomerId)
     );
 
+    const moveDate = move.moveDate
+      ? formatMonthDayLabelStrict(move.moveDate)
+      : "TBD";
+
     if (hasStartTime && updates.startTime) {
-      await ctx.db.insert("newsFeed", {
-        body: `**${mover.name}** clocked in at ${formatTimeLower(updates.startTime, company.timeZone)} for **${moveCustomer.name}**.`,
-        companyId: company._id,
+      await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
         type: "CLOCK_IN",
+        companyId: company._id,
+        body: `**${mover.name}** clocked in at ${formatTimeLower(updates.startTime, company.timeZone)} for **${moveCustomer.name}**`,
         userId: mover._id,
         context: {
           customerName: moveCustomer.name,
           workStartTime: updates.startTime,
           moverName: mover.name,
+          moveAssignmentId: assignmentId,
         },
       });
     }
 
     if (hasEndTime && updates.endTime) {
-      await ctx.db.insert("newsFeed", {
-        body: `**${mover.name}** clocked out at ${formatTimeLower(updates.endTime, company.timeZone)} for **${moveCustomer.name}**.`,
-        companyId: company._id,
+      await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
         type: "CLOCK_OUT",
+        companyId: company._id,
+        body: `**${mover.name}** clocked out at ${formatTimeLower(updates.endTime, company.timeZone)} for **${moveCustomer.name}**`,
         userId: mover._id,
         context: {
           customerName: moveCustomer.name,
           workEndTime: updates.endTime,
           moverName: mover.name,
+          moveAssignmentId: assignmentId,
         },
       });
     }
     if (updates.breakAmount !== undefined) {
-      await ctx.db.insert("newsFeed", {
-        body: `**${mover.name}** updated ${updates.breakAmount} hour work break for **${moveCustomer.name}**.`,
-        companyId: company._id,
+      await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
         type: "WORK_BREAK_UPDATE",
+        companyId: company._id,
+        body: `**${mover.name}** updated ${updates.breakAmount} hour work break for **${moveCustomer.name}** **(${moveDate})**`,
         userId: mover._id,
+        moveId: move._id,
         context: {
           customerName: moveCustomer.name,
           breakAmount: updates.breakAmount,
           moverName: mover.name,
+          moveAssignmentId: assignmentId,
+          moveDate,
         },
       });
     }
@@ -215,7 +230,7 @@ export const updateMoveAssignmentHours = mutation({
 
 export const insertMoveAssignment = mutation({
   args: {
-    moveId: v.id("move"),
+    moveId: v.id("moves"),
     moverId: v.id("users"),
     isLead: v.boolean(),
   },
@@ -229,7 +244,7 @@ export const insertMoveAssignment = mutation({
 
     const move = await validateDocument(
       ctx.db,
-      "move",
+      "moves",
       moveId,
       ErrorMessages.MOVE_NOT_FOUND
     );
@@ -241,7 +256,7 @@ export const insertMoveAssignment = mutation({
       await ctx.db.get(move.moveCustomerId)
     );
 
-    await ctx.db.insert("moveAssignments", {
+    const moveAssignmentId = await ctx.db.insert("moveAssignments", {
       moveId,
       moverId,
       isLead,
@@ -253,17 +268,19 @@ export const insertMoveAssignment = mutation({
       ? formatMonthDayLabelStrict(move.moveDate)
       : "TBD";
 
-    await ctx.db.insert("newsFeed", {
-      body: `**${mover.name}** was assigned to move **${moveCustomer.name}** (**${moveDate}**).`,
-      companyId: company._id,
+    // ToDo calculate amount
+    await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
       type: "ASSIGN_MOVER",
+      companyId: company._id,
+      body: `**${mover.name}** was assigned to move **${moveCustomer.name}** (**${moveDate}**).`,
       userId: moverId,
       moveId,
-      moveCustomerId: move.moveCustomerId,
+      amount: 0,
       context: {
-        moverName: mover.name,
         customerName: moveCustomer.name,
-        moveDate: moveDate,
+        moverName: mover.name,
+        moveDate,
+        moveAssignmentId,
       },
     });
 
@@ -273,7 +290,7 @@ export const insertMoveAssignment = mutation({
 
 export const getMoveAssignmentsPage = query({
   args: {
-    moveId: v.id("move"),
+    moveId: v.id("moves"),
   },
   handler: async (ctx, { moveId }): Promise<GetMoveAssignmentsPageData> => {
     const identity = await requireAuthenticatedUser(ctx, [
@@ -285,7 +302,7 @@ export const getMoveAssignmentsPage = query({
 
     const move = await validateDocument(
       ctx.db,
-      "move",
+      "moves",
       moveId,
       ErrorMessages.MOVE_NOT_FOUND
     );
@@ -308,29 +325,28 @@ export const getMoveAssignmentsPage = query({
       (user) => user.role === ClerkRoles.MOVER
     );
 
-    const preMoveDoc: Doc<"preMoveDocs"> | null = await ctx.db
-      .query("preMoveDocs")
+    const contract: Doc<"contracts"> | null = await ctx.db
+      .query("contracts")
       .withIndex("by_move", (q) => q.eq("moveId", moveId))
       .unique();
 
-    const additionalLiabilityCoverage: Doc<"additionalLiabilityCoverage"> | null =
-      await ctx.db
-        .query("additionalLiabilityCoverage")
-        .withIndex("by_move", (q) => q.eq("moveId", moveId))
-        .unique();
+    const waiver: Doc<"waivers"> | null = await ctx.db
+      .query("waivers")
+      .withIndex("by_move", (q) => q.eq("moveId", moveId))
+      .unique();
 
     return {
       assignments,
       allMovers,
-      preMoveDoc,
-      additionalLiabilityCoverage,
+      contract,
+      waiver,
     };
   },
 });
 
 export const getMovePageForMover = query({
   args: {
-    moveId: v.id("move"),
+    moveId: v.id("moves"),
   },
   handler: async (
     ctx,
@@ -340,7 +356,7 @@ export const getMovePageForMover = query({
 
     const move = await validateDocument(
       ctx.db,
-      "move",
+      "moves",
       moveId,
       ErrorMessages.MOVE_NOT_FOUND
     );
@@ -369,8 +385,8 @@ export const getMovePageForMover = query({
       };
     }
 
-    const preMoveDoc: Doc<"preMoveDocs"> | null = await ctx.db
-      .query("preMoveDocs")
+    const contract: Doc<"contracts"> | null = await ctx.db
+      .query("contracts")
       .withIndex("by_move", (q) => q.eq("moveId", moveId))
       .unique();
 
@@ -389,11 +405,10 @@ export const getMovePageForMover = query({
       .withIndex("by_move", (q) => q.eq("moveId", moveId))
       .first();
 
-    const additionalLiabilityCoverage: Doc<"additionalLiabilityCoverage"> | null =
-      await ctx.db
-        .query("additionalLiabilityCoverage")
-        .withIndex("by_move", (q) => q.eq("moveId", moveId))
-        .unique();
+    const waiver: Doc<"waivers"> | null = await ctx.db
+      .query("waivers")
+      .withIndex("by_move", (q) => q.eq("moveId", moveId))
+      .unique();
 
     const fees: Doc<"fees">[] = await ctx.db
       .query("fees")
@@ -403,11 +418,11 @@ export const getMovePageForMover = query({
     return {
       isLead: true,
       assignment,
-      preMoveDoc,
+      contract,
       discounts,
       additionalFees,
       invoice,
-      additionalLiabilityCoverage,
+      waiver,
       fees,
     };
   },
@@ -415,7 +430,7 @@ export const getMovePageForMover = query({
 
 export const getMoveAssignments = query({
   args: {
-    moveId: v.id("move"),
+    moveId: v.id("moves"),
   },
   handler: async (ctx, { moveId }): Promise<EnrichedMoveAssignment[]> => {
     const identity = await requireAuthenticatedUser(ctx, [
@@ -426,7 +441,7 @@ export const getMoveAssignments = query({
 
     const move = await validateDocument(
       ctx.db,
-      "move",
+      "moves",
       moveId,
       ErrorMessages.MOVE_NOT_FOUND
     );
@@ -480,13 +495,23 @@ export const approveMoveAssignmentHours = mutation({
     );
     const move = await validateDocument(
       ctx.db,
-      "move",
+      "moves",
       assignment.moveId,
       ErrorMessages.MOVE_NOT_FOUND
     );
     const company = await validateCompany(ctx.db, move.companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
+    const user = validateUser(
+      await ctx.db
+        .query("users")
+        .withIndex("by_clerkUserId", (q) =>
+          q.eq("clerkUserId", identity.id as string)
+        )
+        .first()
+    );
+
+    const mover = validateUser(await ctx.db.get(assignment.moverId));
     if (updates.hourStatus === "approved") {
       if (
         typeof assignment.startTime !== "number" ||
@@ -498,7 +523,7 @@ export const approveMoveAssignmentHours = mutation({
         });
       }
 
-      const mover = await ctx.db.get(assignment.moverId);
+      const mover = validateUser(await ctx.db.get(assignment.moverId));
       const { hours, pay } = computeApprovedPayout({
         startTime: assignment.startTime,
         endTime: assignment.endTime,
@@ -506,14 +531,44 @@ export const approveMoveAssignmentHours = mutation({
         hourlyRate: mover?.hourlyRate ?? 0,
       });
 
-      await ctx.db.patch(assignmentId, {
-        ...updates,
-        approvedHours: hours,
-        approvedPay: pay,
-      });
+      await Promise.all([
+        ctx.db.patch(assignmentId, {
+          ...updates,
+          approvedHours: hours,
+          approvedPay: pay,
+        }),
+        ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
+          type: "HOURS_STATUS_UPDATED",
+          companyId: company._id,
+          userId: mover._id,
+          body: `**${user.name}** **${updates.hourStatus}** for **${mover.name}**.`,
+          context: {
+            hourStatus: updates.hourStatus,
+            moverName: mover.name,
+            moveAssignmentId: assignmentId,
+          },
+          moveId: move._id,
+          amount: pay,
+        }),
+      ]);
     } else {
-      await ctx.db.patch(assignmentId, updates);
+      await Promise.all([
+        ctx.db.patch(assignmentId, updates),
+        ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
+          type: "HOURS_STATUS_UPDATED",
+          companyId: company._id,
+          userId: mover._id,
+          body: `**${user.name}** **${updates.hourStatus}** for **${mover.name}**.`,
+          context: {
+            hourStatus: updates.hourStatus,
+            moverName: mover.name,
+            moveAssignmentId: assignmentId,
+          },
+          moveId: move._id,
+        }),
+      ]);
     }
+
     return true;
   },
 });

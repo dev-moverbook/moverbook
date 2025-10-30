@@ -7,7 +7,7 @@ import LiabilitySection from "../sections/LiabilitySection";
 import TravelFeeSection from "../sections/TravelFeeSection";
 import FeesSection from "../sections/FeesSection";
 import CreditCardFeeSection from "../sections/CreditCardFeeSection";
-import { useCompanyRates } from "@/hooks/labor/useCompanyRates";
+import { useCompanyRates } from "@/hooks/labors/useCompanyRates";
 
 const RatesTab = () => {
   const { companyId } = useSlugContext();

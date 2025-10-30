@@ -7,7 +7,7 @@ import { Id } from "@/convex/_generated/dataModel";
 import { setErrorFromConvexError } from "@/frontendUtils/errorHelper";
 
 interface CreateAdditionalFeeInput {
-  moveId: Id<"move">;
+  moveId: Id<"moves">;
   name: string;
   price: number;
   quantity: number;

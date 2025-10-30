@@ -11,10 +11,11 @@ import {
 import { ClerkRoles } from "@/types/enums";
 import { ErrorMessages } from "@/types/errors";
 import { formatMonthDayLabelStrict } from "@/frontendUtils/luxonUtils";
+import { internal } from "./_generated/api";
 
 export const createAdditionalFee = mutation({
   args: {
-    moveId: v.id("move"),
+    moveId: v.id("moves"),
     name: v.string(),
     price: v.number(),
     quantity: v.number(),
@@ -33,7 +34,7 @@ export const createAdditionalFee = mutation({
 
     const move = await validateDocument(
       ctx.db,
-      "move",
+      "moves",
       moveId,
       ErrorMessages.MOVE_NOT_FOUND
     );
@@ -68,20 +69,23 @@ export const createAdditionalFee = mutation({
 
     const amount = price * quantity;
 
-    await ctx.db.insert("newsFeed", {
-      body: `**${user.name}** added fee **${name}** to **${moveCustomer.name}** **(${moveDate})**.`,
-      companyId: company._id,
+    await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
       type: "FEE_ADDED",
+      body: `**${user.name}** added fee **${name}** to **${moveCustomer.name}** **${moveDate}**.`,
+      companyId: company._id,
       userId: user._id,
       amount,
       context: {
         customerName: moveCustomer.name,
-        moveDate: moveDate,
-        feeName: name,
-        feeAmount: amount,
         feeId: additionalFeeId,
+        feeAmount: amount,
+        feeName: name,
+        moverName: user.name,
+        moveDate,
       },
+      moveId,
     });
+
     return true;
   },
 });
@@ -116,7 +120,7 @@ export const updateAdditionalFee = mutation({
     );
     const move = await validateDocument(
       ctx.db,
-      "move",
+      "moves",
       fee.moveId,
       ErrorMessages.MOVE_NOT_FOUND
     );
@@ -150,34 +154,38 @@ export const updateAdditionalFee = mutation({
     );
 
     if (updates.isActive === false) {
-      await ctx.db.insert("newsFeed", {
-        body: `**${user.name}** removed fee **${fee.name}** from **${moveCustomer.name}** **(${moveDate})**.`,
-        companyId: company._id,
+      await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
         type: "FEE_REMOVED",
+        companyId: company._id,
         userId: user._id,
+        body: `**${user.name}** removed fee **${fee.name}** from **${moveCustomer.name}** **${moveDate}**.`,
+        amount: fee.price * fee.quantity * -1,
         context: {
           customerName: moveCustomer.name,
-          moveDate: moveDate,
           feeName: fee.name,
           feeAmount: fee.price * fee.quantity,
           feeId: additionalFeeId,
+          moverName: user.name,
+          moveDate,
         },
-        amount: fee.price * fee.quantity * -1,
+        moveId: move._id,
       });
     } else {
-      await ctx.db.insert("newsFeed", {
-        body: `**${user.name}** updated fee **${updatedFee.name}** for **${moveCustomer.name}** **(${moveDate})**.`,
-        companyId: company._id,
+      await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
         type: "FEE_UPDATED",
+        companyId: company._id,
         userId: user._id,
+        body: `**${user.name}** updated fee **${updatedFee.name}** for **${moveCustomer.name}** **${moveDate}**.`,
+        amount: updatedFee.price * updatedFee.quantity,
         context: {
           customerName: moveCustomer.name,
-          moveDate: moveDate,
           feeName: updatedFee.name,
           feeAmount: updatedFee.price * updatedFee.quantity,
           feeId: additionalFeeId,
+          moverName: user.name,
+          moveDate,
         },
-        amount: updatedFee.price * updatedFee.quantity,
+        moveId: move._id,
       });
     }
 

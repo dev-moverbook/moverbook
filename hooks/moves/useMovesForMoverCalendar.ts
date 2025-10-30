@@ -7,9 +7,9 @@ export const useMovesForMoverCalendar = (args: {
   moverId: Id<"users"> | null;
   start: string;
   end: string;
-}): Doc<"move">[] | undefined => {
+}): Doc<"moves">[] | undefined => {
   const response = useQuery(
-    api.move.getMovesForMoverCalendar,
+    api.moves.getMovesForMoverCalendar,
     args
       ? {
           companyId: args.companyId,

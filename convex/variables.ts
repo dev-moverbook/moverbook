@@ -1,4 +1,4 @@
-import { ClerkRoles, ResponseStatus } from "@/types/enums";
+import { ClerkRoles } from "@/types/enums";
 import { ErrorMessages } from "@/types/errors";
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
@@ -8,7 +8,6 @@ import {
   isUserInOrg,
   validateDocument,
 } from "./backendUtils/validate";
-import { checkExistingVariable } from "./backendUtils/checkUnique";
 import { Doc, Id } from "./_generated/dataModel";
 
 export const getVariablesByCompanyId = query({

@@ -55,11 +55,11 @@ export const useCreateMove = () => {
   const [createMoveLoading, setCreateMoveLoading] = useState<boolean>(false);
   const [createMoveError, setCreateMoveError] = useState<string | null>(null);
 
-  const createMoveMutation = useMutation(api.move.createMove);
+  const createMoveMutation = useMutation(api.moves.createMove);
 
   const createMove = async (
     data: CreateMoveInput
-  ): Promise<Id<"move"> | null> => {
+  ): Promise<Id<"moves"> | null> => {
     setCreateMoveLoading(true);
     setCreateMoveError(null);
 

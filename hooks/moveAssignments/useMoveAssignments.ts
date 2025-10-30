@@ -6,7 +6,7 @@ import { Id } from "@/convex/_generated/dataModel";
 import { EnrichedMoveAssignment } from "@/types/convex-responses";
 
 export const useMoveAssignments = (
-  moveId: Id<"move">
+  moveId: Id<"moves">
 ): EnrichedMoveAssignment[] | undefined => {
   const response = useQuery(api.moveAssignments.getMoveAssignments, { moveId });
 

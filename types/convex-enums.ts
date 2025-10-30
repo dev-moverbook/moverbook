@@ -57,6 +57,12 @@ export const CommunicationTypeConvex = v.union(
   v.literal("sms")
 );
 
+export const FollowUpCommunicationTypeConvex = v.union(
+  v.literal("email"),
+  v.literal("sms"),
+  v.literal("phone")
+);
+
 export const PresSetScriptsConvex = v.union(
   v.literal(PresSetScripts.QUOTE_SENT),
   v.literal(PresSetScripts.INVOICE_SENT),

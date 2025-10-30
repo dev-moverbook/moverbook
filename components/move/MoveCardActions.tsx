@@ -5,8 +5,8 @@ import { Doc } from "@/convex/_generated/dataModel";
 interface MoveCardActionsProps {
   onMessagesClick?: () => void;
   onViewCustomerClick?: () => void;
-  onDuplicate?: (move: Doc<"move">) => void;
-  move: Doc<"move">;
+  onDuplicate?: (move: Doc<"moves">) => void;
+  move: Doc<"moves">;
 }
 export const MoveCardActions = ({
   onMessagesClick,

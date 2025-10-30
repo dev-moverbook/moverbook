@@ -2,7 +2,7 @@ import { formatDateToLong } from "@/frontendUtils/helper";
 import { Doc } from "@/convex/_generated/dataModel";
 
 export const buildTemplateValues = (
-  move: Doc<"move">,
+  move: Doc<"moves">,
   customerName: string
 ): Record<string, string> => {
   const moveDate = move.moveDate;

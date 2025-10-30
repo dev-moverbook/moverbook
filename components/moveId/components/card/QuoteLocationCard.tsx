@@ -10,7 +10,7 @@ import {
 import CardHeaderWithActions from "@/components/shared/card/CardHeaderWithActions";
 import { Badge } from "@/components/ui/badge";
 
-type MoveLocation = Doc<"move">["locations"][number];
+type MoveLocation = Doc<"moves">["locations"][number];
 
 interface QuoteLocationCardProps {
   location: MoveLocation;

@@ -10,7 +10,7 @@ import {
   scopeMovesToMover,
 } from "./queryHelpers";
 
-type MoverWageByMoveId = Map<Id<"move">, MoverWageForMove>;
+type MoverWageByMoveId = Map<Id<"moves">, MoverWageForMove>;
 
 function recordToIdMap<TTable extends keyof DataModel>(
   record: Record<string, Doc<TTable>>
@@ -22,7 +22,7 @@ function recordToIdMap<TTable extends keyof DataModel>(
 
 export async function buildReferenceMaps(
   ctx: QueryCtx,
-  moves: Doc<"move">[]
+  moves: Doc<"moves">[]
 ): Promise<{
   moveCustomerMap: Map<Id<"moveCustomers">, Doc<"moveCustomers">>;
   salesRepMap: Map<Id<"users">, Doc<"users">>;
@@ -46,12 +46,12 @@ export async function buildReferenceMaps(
 
 export async function scopeToMoverIfNeeded(
   ctx: QueryCtx,
-  baseMoves: Doc<"move">[],
+  baseMoves: Doc<"moves">[],
   selfMoverId: Id<"users"> | undefined,
   isMover: boolean,
   selfHourlyRate: number | undefined
 ): Promise<{
-  scopedMoves: Doc<"move">[];
+  scopedMoves: Doc<"moves">[];
   moverWageByMoveId: MoverWageByMoveId;
   hourStatusByMoveId: HourStatusMap;
   isScopedToMover: boolean;
@@ -59,7 +59,7 @@ export async function scopeToMoverIfNeeded(
   if (!isMover || !selfMoverId) {
     return {
       scopedMoves: baseMoves,
-      moverWageByMoveId: new Map<Id<"move">, MoverWageForMove>(),
+      moverWageByMoveId: new Map<Id<"moves">, MoverWageForMove>(),
       hourStatusByMoveId: new Map(),
       isScopedToMover: false,
     };

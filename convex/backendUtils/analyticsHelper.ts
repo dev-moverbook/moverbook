@@ -32,7 +32,7 @@ function inferHoursFromTimestamps(
 }
 
 export function computeActualMoveDurationHours(
-  move: Doc<"move">
+  move: Doc<"moves">
 ): number | null {
   const startTimestamp = move.actualStartTime ?? null;
   const endTimestamp = move.actualEndTime ?? null;
@@ -71,7 +71,7 @@ function initializeAggregatesByDay(
 }
 
 function getBucketDayForMove(
-  move: Doc<"move">,
+  move: Doc<"moves">,
   timeZone: string
 ): string | null {
   if (!move.moveDate) {
@@ -83,7 +83,7 @@ function getBucketDayForMove(
 
 function updateAggregatesForMove(
   aggregatesByDay: Record<string, DayAccumulator>,
-  move: Doc<"move">,
+  move: Doc<"moves">,
   timeZone: string
 ): void {
   const bucketDay = getBucketDayForMove(move, timeZone);
@@ -131,7 +131,7 @@ function computePointFromStats(
 
 export function buildDailyAveragesSeries(
   endDay: string,
-  moves: Doc<"move">[],
+  moves: Doc<"moves">[],
   startDay: string,
   timeZone: string
 ): MoveAnalyticsPoint[] {
@@ -146,7 +146,7 @@ export function buildDailyAveragesSeries(
   return series;
 }
 
-function forecastMinTotalForMove(move: Doc<"move">): number {
+function forecastMinTotalForMove(move: Doc<"moves">): number {
   const { minTotal } = computeMoveTotal({
     endingMoveTime: move.endingMoveTime ?? null,
     jobType: move.jobType,
@@ -176,7 +176,7 @@ function seedRevenueMapForDates(dateKeys: string[]): Record<string, number> {
 }
 
 function addForecastRevenueForMove(
-  moveRecord: Doc<"move">,
+  moveRecord: Doc<"moves">,
   revenueByDayMap: Record<string, number>,
   timeZone: string
 ): void {
@@ -203,7 +203,7 @@ function convertRevenueMapToSeries(
 
 export function buildForecastedSeries(
   endDay: string,
-  moves: Doc<"move">[],
+  moves: Doc<"moves">[],
   startDay: string,
   timeZone: string
 ): ForecastPoint[] {
@@ -254,10 +254,10 @@ function seedDayTotals(
 }
 
 function addMoveToTotalsByName(
-  move: Doc<"move">,
+  move: Doc<"moves">,
   timeZone: string,
   sumsByDay: Record<string, Record<string, number>>,
-  getGroupName: (move: Doc<"move">) => string | null | undefined
+  getGroupName: (move: Doc<"moves">) => string | null | undefined
 ): boolean {
   if (!move.moveDate) {
     return false;
@@ -302,11 +302,11 @@ function sortNames(names: string[]): string[] {
 
 export function buildStackedForecastedRevenueSeriesByName(
   endDay: string,
-  moves: Doc<"move">[],
+  moves: Doc<"moves">[],
   groupInfos: IdAndName[],
   startDay: string,
   timeZone: string,
-  getGroupId: (move: Doc<"move">) => string | null | undefined
+  getGroupId: (move: Doc<"moves">) => string | null | undefined
 ): StackedDay[] {
   const dateKeys = enumerateDaysInclusive(startDay, endDay);
   const sumsByDay = seedDayTotals(dateKeys);
@@ -370,7 +370,7 @@ function buildSegmentsForDate(
   return segments;
 }
 
-function historicalRevenueForMove(move: Doc<"move">): number {
+function historicalRevenueForMove(move: Doc<"moves">): number {
   const depositAmount = Number(move.deposit ?? 0);
   const invoicePaidAmount = Number(move.invoiceAmountPaid ?? 0);
   const sum = depositAmount + invoicePaidAmount;
@@ -378,10 +378,10 @@ function historicalRevenueForMove(move: Doc<"move">): number {
 }
 
 function addHistoricalMoveTotalsByName(
-  move: Doc<"move">,
+  move: Doc<"moves">,
   timeZone: string,
   sumsByDay: Record<string, Record<string, number>>,
-  getGroupName: (move: Doc<"move">) => string | null | undefined
+  getGroupName: (move: Doc<"moves">) => string | null | undefined
 ): boolean {
   if (!move.moveDate) {
     return false;
@@ -404,11 +404,11 @@ function addHistoricalMoveTotalsByName(
 
 export function buildStackedHistoricalRevenueSeriesByName(
   endDay: string,
-  moves: Doc<"move">[],
+  moves: Doc<"moves">[],
   groupInfos: IdAndName[],
   startDay: string,
   timeZone: string,
-  getGroupName: (move: Doc<"move">) => string | null | undefined
+  getGroupName: (move: Doc<"moves">) => string | null | undefined
 ): StackedDay[] {
   const dateKeys = enumerateDaysInclusive(startDay, endDay);
   const sumsByDay = seedDayTotals(dateKeys);

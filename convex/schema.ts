@@ -16,9 +16,17 @@ import {
   SubscriptionStatusConvex,
   TravelChargingTypesConvex,
   UserRoleConvex,
+  FollowUpCommunicationTypeConvex,
 } from "@/types/convex-enums";
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
+
+export const HourStatusConvex = v.union(
+  v.literal("approved"),
+  v.literal("incomplete"),
+  v.literal("pending"),
+  v.literal("rejected")
+);
 
 export const ActivityEventTypeConvex = v.union(
   v.literal("ASSIGN_MOVER"),
@@ -26,17 +34,19 @@ export const ActivityEventTypeConvex = v.union(
   v.literal("CLOCK_OUT"),
   v.literal("CONTRACT_SENT"),
   v.literal("CUSTOMER_CREATED"),
+  v.literal("CUSTOMER_CREATED_BY_REP"),
   v.literal("CUSTOMER_MOVE_UPDATED"),
   v.literal("CUSTOMER_SIGNED_CONTRACT_DOC"),
-  v.literal("CUSTOMER_SIGNED_PROPOSAL"),
   v.literal("CUSTOMER_UPDATED"),
+  v.literal("CUSTOMER_UPDATED_BY_REP"),
   v.literal("DISCOUNT_ADDED"),
   v.literal("DISCOUNT_REMOVED"),
   v.literal("DISCOUNT_UPDATED"),
   v.literal("FEE_ADDED"),
   v.literal("FEE_REMOVED"),
   v.literal("FEE_UPDATED"),
-  v.literal("HOURS_UPDATED"),
+  v.literal("FOLLOW_UP"),
+  v.literal("HOURS_STATUS_UPDATED"),
   v.literal("INTERNAL_REVIEW_COMPLETED"),
   v.literal("INTERNAL_REVIEW_SENT"),
   v.literal("INVOICE_MARKED_COMPLETE"),
@@ -44,45 +54,21 @@ export const ActivityEventTypeConvex = v.union(
   v.literal("INVOICE_SENT"),
   v.literal("MESSAGE_INCOMING"),
   v.literal("MESSAGE_OUTGOING"),
+  v.literal("MOVE_ARRIVAL"),
   v.literal("MOVE_COMPLETED"),
   v.literal("MOVE_CREATED"),
   v.literal("MOVE_STARTED"),
   v.literal("MOVE_STATUS_UPDATED"),
   v.literal("MOVE_UPDATED"),
+  v.literal("NEW_LEAD"),
+  v.literal("QUOTE_SENT"),
+  v.literal("QUOTE_SIGNED"),
   v.literal("REMOVE_MOVER"),
   v.literal("SALES_REP_MARKED_BOOKED"),
-  v.literal("SALES_REP_SEND_PROPOSAL"),
   v.literal("WAIVER_SENT"),
   v.literal("WAIVER_SIGNED"),
   v.literal("WORK_BREAK_UPDATE")
 );
-
-export const ActivityEventContextConvex = v.object({
-  amount: v.optional(v.number()),
-  approvedPay: v.optional(v.number()),
-  breakAmount: v.optional(v.number()),
-  customerId: v.optional(v.id("moveCustomers")),
-  customerName: v.optional(v.string()),
-  deliveryType: v.optional(CommunicationTypeConvex),
-  discountId: v.optional(v.id("discounts")),
-  discountName: v.optional(v.string()),
-  feeAmount: v.optional(v.number()),
-  feeId: v.optional(v.id("additionalFees")),
-  feeName: v.optional(v.string()),
-  invoiceId: v.optional(v.id("invoices")),
-  messageId: v.optional(v.id("messages")),
-  moveAssignmentId: v.optional(v.id("moveAssignments")),
-  moveDate: v.optional(v.string()),
-  moveId: v.optional(v.id("move")),
-  moveStatus: v.optional(v.string()),
-  moverName: v.optional(v.string()),
-  paymentType: v.optional(v.string()),
-  rating: v.optional(v.number()),
-  salesRepName: v.optional(v.string()),
-  timeLabel: v.optional(v.string()),
-  workStartTime: v.optional(v.number()),
-  workEndTime: v.optional(v.number()),
-});
 
 export const MoveFeeConvex = v.object({
   name: v.string(),
@@ -172,35 +158,52 @@ export const QuoteStatusConvex = v.union(
   v.literal("customer_change")
 );
 
-export const HourStatusConvex = v.union(
-  v.literal("approved"),
-  v.literal("incomplete"),
-  v.literal("pending"),
-  v.literal("rejected")
-);
-
 export const InvoiceStatusConvex = v.union(
   v.literal("pending"),
   v.literal("completed")
 );
 
+export const ActivityEventContextConvex = v.object({
+  amount: v.optional(v.number()),
+  approvedPay: v.optional(v.number()),
+  breakAmount: v.optional(v.number()),
+  customerId: v.optional(v.id("moveCustomers")),
+  customerName: v.optional(v.string()),
+  depositAmount: v.optional(v.string()),
+  deliveryType: v.optional(CommunicationTypeConvex),
+  discountId: v.optional(v.id("discounts")),
+  discountName: v.optional(v.string()),
+  feeAmount: v.optional(v.number()),
+  feeId: v.optional(v.id("additionalFees")),
+  feeName: v.optional(v.string()),
+  followUpType: v.optional(FollowUpCommunicationTypeConvex),
+  invoiceId: v.optional(v.id("invoices")),
+  messageId: v.optional(v.id("messages")),
+  moveAssignmentId: v.optional(v.id("moveAssignments")),
+  hourStatus: v.optional(HourStatusConvex),
+  moveDate: v.optional(v.string()),
+  moveId: v.optional(v.id("moves")),
+  moveStatus: v.optional(v.string()),
+  moverName: v.optional(v.string()),
+  paymentType: v.optional(PaymentMethodConvex),
+  rating: v.optional(v.number()),
+  salesRepName: v.optional(v.string()),
+  time: v.optional(v.number()),
+  timeLabel: v.optional(v.string()),
+  workStartTime: v.optional(v.number()),
+  workEndTime: v.optional(v.number()),
+});
+
 export default defineSchema({
   additionalFees: defineTable({
     feeId: v.optional(v.id("fees")),
     isActive: v.boolean(),
-    moveId: v.id("move"),
+    moveId: v.id("moves"),
     name: v.string(),
     price: v.number(),
     quantity: v.number(),
   }).index("by_move", ["moveId"]),
-  additionalLiabilityCoverage: defineTable({
-    customerSignature: v.optional(v.string()),
-    customerSignedAt: v.optional(v.number()),
-    moveId: v.id("move"),
-    repSignature: v.optional(v.string()),
-    repSignedAt: v.optional(v.number()),
-  }).index("by_move", ["moveId"]),
-  arrivalWindow: defineTable({
+  arrivalWindows: defineTable({
     afternoonArrival: v.string(),
     afternoonEnd: v.string(),
     companyId: v.id("companies"),
@@ -223,7 +226,7 @@ export default defineSchema({
     slug: v.string(),
     timeZone: v.string(),
   }).index("by_slug", ["slug"]),
-  companyContact: defineTable({
+  companyContacts: defineTable({
     address: v.union(AddressConvex, v.null()),
     companyId: v.id("companies"),
     email: v.string(),
@@ -233,7 +236,7 @@ export default defineSchema({
     sendgridVerified: v.optional(v.boolean()),
     website: v.string(),
   }).index("by_companyId", ["companyId"]),
-  compliance: defineTable({
+  compliances: defineTable({
     companyId: v.id("companies"),
     dmvNumber: v.string(),
     statePucPermitNumber: v.string(),
@@ -263,7 +266,7 @@ export default defineSchema({
   }).index("by_email", ["email"]),
   discounts: defineTable({
     isActive: v.boolean(),
-    moveId: v.id("move"),
+    moveId: v.id("moves"),
     name: v.string(),
     price: v.number(),
   }).index("by_move", ["moveId"]),
@@ -273,7 +276,6 @@ export default defineSchema({
     name: v.string(),
     price: v.number(),
   }).index("byCompanyId", ["companyId"]),
-
   insurancePolicies: defineTable({
     companyId: v.id("companies"),
     coverageAmount: v.number(),
@@ -298,13 +300,13 @@ export default defineSchema({
   invoices: defineTable({
     customerSignature: v.optional(v.string()),
     customerSignedAt: v.optional(v.number()),
-    moveId: v.id("move"),
+    moveId: v.id("moves"),
     repSignature: v.optional(v.string()),
     repSignedAt: v.optional(v.number()),
     status: InvoiceStatusConvex,
   }).index("by_move", ["moveId"]),
-  internalReview: defineTable({
-    moveId: v.id("move"),
+  internalReviews: defineTable({
+    moveId: v.id("moves"),
     rating: v.number(),
   }).index("by_move", ["moveId"]),
   items: defineTable({
@@ -317,7 +319,7 @@ export default defineSchema({
     size: v.number(),
     weight: v.number(),
   }).index("by_companyId", ["companyId"]),
-  labor: defineTable({
+  labors: defineTable({
     companyId: v.id("companies"),
     endDate: v.union(v.number(), v.null()),
     extra: v.number(),
@@ -333,7 +335,7 @@ export default defineSchema({
     companyId: v.id("companies"),
     message: v.string(),
     method: CommunicationTypeConvex,
-    moveId: v.id("move"),
+    moveId: v.id("moves"),
     resolvedMessage: v.string(),
     resolvedSubject: v.optional(v.union(v.string(), v.null())),
     sentType: MessageSentTypeConvex,
@@ -341,7 +343,7 @@ export default defineSchema({
     status: MessageStatusConvex,
     subject: v.optional(v.union(v.string(), v.null())),
   }).index("by_moveId", ["moveId"]),
-  move: defineTable({
+  moves: defineTable({
     actualArrivalTime: v.optional(v.number()),
     actualBreakTime: v.optional(v.number()),
     actualStartTime: v.optional(v.number()),
@@ -396,7 +398,7 @@ export default defineSchema({
     hourStatus: v.optional(HourStatusConvex),
     isLead: v.boolean(),
     managerNotes: v.optional(v.string()),
-    moveId: v.id("move"),
+    moveId: v.id("moves"),
     moverId: v.id("users"),
     startTime: v.optional(v.number()),
   })
@@ -413,13 +415,13 @@ export default defineSchema({
     .index("by_email", ["email"])
     .index("by_phone", ["phoneNumber"])
     .index("by_name", ["name"]),
-  newsFeed: defineTable({
+  newsFeeds: defineTable({
     amount: v.optional(v.number()),
     body: v.string(),
     companyId: v.id("companies"),
     context: ActivityEventContextConvex,
     moveCustomerId: v.optional(v.id("moveCustomers")),
-    moveId: v.optional(v.id("move")),
+    moveId: v.optional(v.id("moves")),
     type: ActivityEventTypeConvex,
     userId: v.optional(v.id("users")),
   })
@@ -437,17 +439,17 @@ export default defineSchema({
     weekdayHourMinimum: v.number(),
     weekendHourMinimum: v.number(),
   }).index("by_companyId", ["companyId"]),
-  preMoveDocs: defineTable({
+  contracts: defineTable({
     customerSignature: v.optional(v.string()),
     customerSignedAt: v.optional(v.number()),
-    moveId: v.id("move"),
+    moveId: v.id("moves"),
     repSignature: v.optional(v.string()),
     repSignedAt: v.optional(v.number()),
   }).index("by_move", ["moveId"]),
   quotes: defineTable({
     customerSignature: v.optional(v.string()),
     customerSignedAt: v.optional(v.number()),
-    moveId: v.id("move"),
+    moveId: v.id("moves"),
     repSignature: v.optional(v.string()),
     repSignedAt: v.optional(v.number()),
     status: QuoteStatusConvex,
@@ -472,7 +474,7 @@ export default defineSchema({
     title: v.string(),
     type: CommunicationTypeConvex,
   }),
-  travelFee: defineTable({
+  travelFees: defineTable({
     companyId: v.id("companies"),
     defaultMethod: v.union(v.null(), TravelChargingTypesConvex),
     flatRate: v.optional(v.number()),
@@ -497,6 +499,13 @@ export default defineSchema({
     defaultValue: v.string(),
     name: v.string(),
   }),
+  waivers: defineTable({
+    customerSignature: v.optional(v.string()),
+    customerSignedAt: v.optional(v.number()),
+    moveId: v.id("moves"),
+    repSignature: v.optional(v.string()),
+    repSignedAt: v.optional(v.number()),
+  }).index("by_move", ["moveId"]),
   webIntegrations: defineTable({
     companyId: v.id("companies"),
     externalReviewUrl: v.string(),

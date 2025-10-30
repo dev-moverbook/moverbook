@@ -11,7 +11,7 @@ import {
   isUserInOrg,
   validateCompany,
   validateDocument,
-  validateMoveCustomer,
+  validateUser,
 } from "./backendUtils/validate";
 import { ErrorMessages } from "@/types/errors";
 import {
@@ -20,6 +20,7 @@ import {
   resolveMoverContext,
 } from "./backendUtils/queryHelpers";
 import { HourStatus } from "@/types/types";
+import { internal } from "./_generated/api";
 
 export const createMoveCustomer = mutation({
   args: {
@@ -60,6 +61,15 @@ export const createMoveCustomer = mutation({
       return byPhone._id;
     }
 
+    const user = validateUser(
+      await ctx.db
+        .query("users")
+        .withIndex("by_clerkUserId", (q) =>
+          q.eq("clerkUserId", identity.id as string)
+        )
+        .first()
+    );
+
     const moveCustomerId = await ctx.db.insert("moveCustomers", {
       name,
       email,
@@ -68,16 +78,15 @@ export const createMoveCustomer = mutation({
       companyId,
     });
 
-    const salesRepName = identity.name ?? "Unknown";
-
-    await ctx.db.insert("newsFeed", {
-      body: `**${salesRepName}** created a new customer, **${name}**`,
+    await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
+      type: "CUSTOMER_CREATED_BY_REP",
       companyId,
-      type: "CUSTOMER_CREATED",
       moveCustomerId,
+      userId: user._id,
+      body: `**${user.name}** created a new customer, **${name}**`,
       context: {
         customerName: name,
-        salesRepName,
+        salesRepName: user.name,
       },
     });
 
@@ -122,13 +131,13 @@ export const searchMoveCustomersAndJobId = query({
       .collect();
 
     const allCompanyMoves = await ctx.db
-      .query("move")
+      .query("moves")
       .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
       .collect();
 
     let assignmentMapByMoveId: Map<string, Doc<"moveAssignments">> | undefined;
 
-    let movesScopedToMover: Doc<"move">[] = allCompanyMoves;
+    let movesScopedToMover: Doc<"moves">[] = allCompanyMoves;
 
     if (isMover && signedInMoverId) {
       const { moves: scopedMoves, assignmentMap } = await scopeMovesToMover(
@@ -140,7 +149,7 @@ export const searchMoveCustomersAndJobId = query({
       assignmentMapByMoveId = assignmentMap;
     }
 
-    const allowedMoveIds: Set<Id<"move">> | null =
+    const allowedMoveIds: Set<Id<"moves">> | null =
       isMover && signedInMoverId
         ? new Set(movesScopedToMover.map((moveRecord) => moveRecord._id))
         : null;
@@ -260,7 +269,7 @@ export const updateMoveCustomer = mutation({
     const identity = await ctx.auth.getUserIdentity();
 
     if (!identity) {
-      await ctx.db.insert("newsFeed", {
+      await ctx.db.insert("newsFeeds", {
         body: `**${existing.name}** updated their details.`,
         companyId: existing.companyId,
         type: "CUSTOMER_UPDATED",
@@ -283,14 +292,24 @@ export const updateMoveCustomer = mutation({
     const company = await validateCompany(ctx.db, existing.companyId);
     isUserInOrg(identityVerified, company.clerkOrganizationId);
 
-    await ctx.db.insert("newsFeed", {
-      body: `**${identityVerified.name}** updated customer details for **${existing.name}**.`,
+    const user = validateUser(
+      await ctx.db
+        .query("users")
+        .withIndex("by_clerkUserId", (q) =>
+          q.eq("clerkUserId", identityVerified.id as string)
+        )
+        .first()
+    );
+
+    await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
+      type: "CUSTOMER_UPDATED_BY_REP",
       companyId: existing.companyId,
-      type: "CUSTOMER_UPDATED",
-      moveCustomerId,
+      userId: user._id,
+      body: `**${user.name}** updated customer details for **${existing.name}**.`,
       context: {
         customerName: existing.name,
-        salesRepName: identityVerified.name,
+        moveCustomerId,
+        salesRepName: user.name,
       },
     });
 
@@ -329,8 +348,8 @@ export const getCustomerAndMoves = query({
       hourlyRate: selfHourlyRate,
     } = await resolveMoverContext(ctx, identity);
 
-    const baseMoves: Doc<"move">[] = await ctx.db
-      .query("move")
+    const baseMoves: Doc<"moves">[] = await ctx.db
+      .query("moves")
       .withIndex("by_moveCustomerId", (index) =>
         index.eq("moveCustomerId", moveCustomerId)
       )

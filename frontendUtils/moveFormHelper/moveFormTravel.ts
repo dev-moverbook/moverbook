@@ -4,7 +4,7 @@ import { Doc } from "@/convex/_generated/dataModel";
 
 export function applyTravelFeeDefaults(
   prev: MoveFormData,
-  travelFeeOptions?: Doc<"travelFee">
+  travelFeeOptions?: Doc<"travelFees">
 ): MoveFormData {
   if (prev.travelFeeMethod !== null) {
     return prev;

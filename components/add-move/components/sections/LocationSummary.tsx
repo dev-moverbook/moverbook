@@ -10,7 +10,7 @@ import { SegmentDistance } from "@/types/types";
 import { Doc } from "@/convex/_generated/dataModel";
 
 interface LocationSummaryProps {
-  companyContact?: Doc<"companyContact">;
+  companyContact?: Doc<"companyContacts">;
   locations: LocationInput[];
   segmentDistances: SegmentDistance[];
   showBorder?: boolean;

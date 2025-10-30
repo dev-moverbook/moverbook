@@ -1,19 +1,23 @@
-import { mutation } from "./_generated/server";
+import { action, internalQuery, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import {
   isUserInOrg,
   validateCompany,
+  validateDocExists,
   validateDocument,
+  validateUser,
 } from "./backendUtils/validate";
 import { ClerkRoles } from "@/types/enums";
 import { Doc, Id } from "./_generated/dataModel";
 import { InvoiceStatusConvex } from "./schema";
 import { ErrorMessages } from "@/types/errors";
+import { internal } from "./_generated/api";
+import { formatMonthDayLabelStrict } from "@/frontendUtils/luxonUtils";
 
 export const createOrUpdateInvoice = mutation({
   args: {
-    moveId: v.id("move"),
+    moveId: v.id("moves"),
     updates: v.object({
       customerSignature: v.optional(v.string()),
       customerSignedAt: v.optional(v.number()),
@@ -36,7 +40,7 @@ export const createOrUpdateInvoice = mutation({
 
     const move = await validateDocument(
       ctx.db,
-      "move",
+      "moves",
       moveId,
       ErrorMessages.MOVE_NOT_FOUND
     );
@@ -44,6 +48,24 @@ export const createOrUpdateInvoice = mutation({
     isUserInOrg(identity, company.clerkOrganizationId);
 
     const now = Date.now();
+    const user = validateUser(
+      await ctx.runQuery(internal.users.getUserByClerkIdInternal, {
+        clerkUserId: identity.id as string,
+      })
+    );
+
+    const moveCustomer = await ctx.runQuery(
+      internal.moveCustomers.getMoveCustomerByIdInternal,
+      {
+        moveCustomerId: move.moveCustomerId,
+      }
+    );
+
+    const validatedMoveCustomer = validateDocExists(
+      "moveCustomers",
+      moveCustomer,
+      ErrorMessages.MOVE_CUSTOMER_NOT_FOUND
+    );
 
     if (updates.customerSignature && !updates.customerSignedAt) {
       updates.customerSignedAt = now;
@@ -71,6 +93,134 @@ export const createOrUpdateInvoice = mutation({
       });
     }
 
+    const moveDate = move.moveDate
+      ? formatMonthDayLabelStrict(move.moveDate)
+      : "TBD";
+
+    if (updates.status === "completed") {
+      await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
+        type: "INVOICE_MARKED_COMPLETE",
+        companyId: company._id,
+        userId: user._id,
+        body: `**${user.name}** marked invoice as complete for **${validatedMoveCustomer.name}** **${moveDate}**`,
+        moveId,
+        context: {
+          customerName: validatedMoveCustomer.name,
+          moveDate,
+          invoiceId,
+          moverName: user.name,
+        },
+      });
+    }
+
     return true;
+  },
+});
+
+export const sendWaiverNotification = action({
+  args: {
+    moveId: v.id("moves"),
+    channel: v.union(v.literal("email"), v.literal("sms")),
+  },
+  handler: async (ctx, args): Promise<boolean> => {
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+      ClerkRoles.SALES_REP,
+      ClerkRoles.MOVER,
+    ]);
+
+    const move = await ctx.runQuery(internal.moves.getMoveByIdInternal, {
+      moveId: args.moveId,
+    });
+    const validatedMove = validateDocExists(
+      "moves",
+      move,
+      ErrorMessages.MOVE_NOT_FOUND
+    );
+
+    const company = await ctx.runQuery(
+      internal.companies.getCompanyByIdInternal,
+      {
+        companyId: validatedMove.companyId,
+      }
+    );
+    const validatedCompany = validateDocExists(
+      "companies",
+      company,
+      ErrorMessages.COMPANY_NOT_FOUND
+    );
+
+    isUserInOrg(identity, validatedCompany.clerkOrganizationId);
+
+    const user = validateUser(
+      await ctx.runQuery(internal.users.getUserByClerkIdInternal, {
+        clerkUserId: identity.id as string,
+      })
+    );
+
+    const moveCustomer = await ctx.runQuery(
+      internal.moveCustomers.getMoveCustomerByIdInternal,
+      {
+        moveCustomerId: validatedMove.moveCustomerId,
+      }
+    );
+
+    const validatedMoveCustomer = validateDocExists(
+      "moveCustomers",
+      moveCustomer,
+      ErrorMessages.MOVE_CUSTOMER_NOT_FOUND
+    );
+
+    const invoice = await ctx.runQuery(
+      internal.invoices.getInvoiceByMoveIdInternal,
+      {
+        moveId: validatedMove._id,
+      }
+    );
+    const validatedInvoice = validateDocExists(
+      "invoices",
+      invoice,
+      ErrorMessages.INVOICE_NOT_FOUND
+    );
+
+    if (args.channel === "email") {
+      // TODO: Send waiver email
+    } else if (args.channel === "sms") {
+      // TODO: Send waiver SMS
+    }
+    const moveDate = validatedMove.moveDate
+      ? formatMonthDayLabelStrict(validatedMove.moveDate)
+      : "TBD";
+    await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
+      type: "INVOICE_SENT",
+      companyId: validatedCompany._id,
+      body: `**${user.name}** sent invoice to **${validatedMoveCustomer.name}** **${moveDate}** via ${args.channel}`,
+      moveId: validatedMove._id,
+      context: {
+        customerName: validatedMoveCustomer.name,
+        deliveryType: args.channel,
+        moveDate,
+        invoiceId: validatedInvoice._id,
+        moverName: user.name,
+        salesRepName: user.name,
+      },
+      userId: user._id,
+    });
+
+    return true;
+  },
+});
+
+export const getInvoiceByMoveIdInternal = internalQuery({
+  args: {
+    moveId: v.id("moves"),
+  },
+  handler: async (ctx, args): Promise<Doc<"invoices"> | null> => {
+    return await ctx.db
+      .query("invoices")
+      .withIndex("by_move", (q) => q.eq("moveId", args.moveId))
+      .unique();
   },
 });
