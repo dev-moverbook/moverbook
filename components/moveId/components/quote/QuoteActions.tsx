@@ -8,17 +8,15 @@ import { useMoveContext } from "@/contexts/MoveContext";
 import { useSendQuote } from "@/hooks/quotes/useSendQuote";
 
 interface QuoteActionsProps {
-  onEditQuote: () => void;
   signatureDataUrl: string | null;
 }
 
-const QuoteActions = ({ onEditQuote, signatureDataUrl }: QuoteActionsProps) => {
+const QuoteActions = ({ signatureDataUrl }: QuoteActionsProps) => {
   const [activeLoading, setActiveLoading] = useState<
     "send" | "complete" | null
   >(null);
   const { createOrUpdateQuote, quoteUpdateError } = useCreateOrUpdateQuote();
-  const { sendQuote, sendQuoteLoading, sendQuoteError, setSendQuoteError } =
-    useSendQuote();
+  const { sendQuote, sendQuoteError, setSendQuoteError } = useSendQuote();
   const { updateMove, updateMoveError } = useUpdateMove();
 
   const { moveData } = useMoveContext();

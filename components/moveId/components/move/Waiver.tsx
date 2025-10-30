@@ -9,8 +9,8 @@ import { Doc } from "@/convex/_generated/dataModel";
 import AdditionalLiabilityTerms from "../copy/AdditionalLiabilityTerms";
 import { useMoveContext } from "@/contexts/MoveContext";
 import CollapsibleSection from "@/components/shared/buttons/CollapsibleSection";
-import { useCreateOrUpdateWaiver } from "@/hooks/waivers/useCreateOrUpdateWaiver";
-import { useSendWaiver } from "@/hooks/waivers/useSendWaiver";
+import { useCreateOrUpdateWaiver } from "@/hooks/waivers";
+import { useSendWaiver } from "@/hooks/waivers";
 
 interface WaiverProps {
   waiver: Doc<"waivers"> | null;
@@ -30,10 +30,8 @@ const Waiver = ({ waiver }: WaiverProps) => {
     createOrUpdateWaiver,
     isLoading: createOrUpdateWaiverLoading,
     error,
-    setError,
   } = useCreateOrUpdateWaiver();
-  const { sendWaiver, sendWaiverLoading, sendWaiverError, setSendWaiverError } =
-    useSendWaiver();
+  const { sendWaiver, sendWaiverLoading, sendWaiverError } = useSendWaiver();
   const showRepSignature = !!repSignature && repSignedAt;
   const showCustomerSignature = !!customerSignature && customerSignedAt;
   const isDisabled = !signatureDataUrl;

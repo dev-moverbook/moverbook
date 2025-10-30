@@ -18,10 +18,9 @@ import SectionContainer from "@/components/shared/containers/SectionContainer";
 
 interface QuoteStepProps {
   quote: Doc<"quotes"> | null;
-  onEditQuote: () => void;
 }
 
-const QuoteStep = ({ quote, onEditQuote }: QuoteStepProps) => {
+const QuoteStep = ({ quote }: QuoteStepProps) => {
   const { moveData } = useMoveContext();
   const { move } = moveData;
   const title = formatServiceTypeLabel(move.serviceType);
@@ -49,10 +48,7 @@ const QuoteStep = ({ quote, onEditQuote }: QuoteStepProps) => {
         <QuoteCost />
         <QuoteTerms />
         <QuoteSignature setSignatureDataUrl={setSignatureDataUrl} />
-        <QuoteActions
-          onEditQuote={onEditQuote}
-          signatureDataUrl={signatureDataUrl}
-        />
+        <QuoteActions signatureDataUrl={signatureDataUrl} />
       </>
     </SectionContainer>
   );

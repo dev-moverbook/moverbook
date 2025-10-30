@@ -45,7 +45,10 @@ const InternalReview = ({ internalReview, move }: InternalReviewProps) => {
 
         <FormActions
           onCancel={handleSendInternalReviewSms}
-          onSave={(e) => void handleSendInternalReviewEmail}
+          onSave={(e) => {
+            e.preventDefault();
+            handleSendInternalReviewEmail();
+          }}
           isSaving={isEmailLoading}
           isCanceling={isSmsLoading}
           error={sendInternalReviewError}

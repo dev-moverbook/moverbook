@@ -55,10 +55,6 @@ export default function InfoTab({ hideStepper }: InfoTabProps) {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const onEditQuote = () => {
-    handleStepClick(1);
-  };
-
   return (
     <>
       {!hideStepper && (
@@ -80,9 +76,7 @@ export default function InfoTab({ hideStepper }: InfoTabProps) {
       )}
 
       {currentStep === 1 && <LeadStep />}
-      {currentStep === 2 && (
-        <QuoteStep quote={quote} onEditQuote={onEditQuote} />
-      )}
+      {currentStep === 2 && <QuoteStep quote={quote} />}
       {currentStep === 3 && <MoveStep />}
       {currentStep === 4 && <PaymentStep />}
     </>

@@ -40,7 +40,10 @@ const ExternalReview = ({ move }: ExternalReviewProps) => {
       <SectionContainer showBorder={false}>
         <FormActions
           onCancel={handleSendExternalReviewSms}
-          onSave={(e) => void handleSendExternalReviewEmail}
+          onSave={(e) => {
+            e.preventDefault();
+            handleSendExternalReviewEmail();
+          }}
           isSaving={isEmailLoading}
           isCanceling={isSmsLoading}
           error={sendExternalReviewError}
