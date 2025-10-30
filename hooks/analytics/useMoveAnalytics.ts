@@ -19,7 +19,7 @@ export const useMoveAnalytics = (
   numberOfMovers: number | null,
   locationType: LocationType | null
 ): MoveAnalyticsPoint[] | undefined => {
-  const response = useQuery(api.move.getMoveAnalytics, {
+  const response = useQuery(api.moves.getMoveAnalytics, {
     companyId,
     startDate,
     endDate,

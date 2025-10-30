@@ -33,7 +33,11 @@ const MoveLayout = async ({
       <ErrorMessage message={"You must be signed in to view this page."} />
     );
   }
-  const data = await fetchQuery(api.move.getMoveContext, { moveId }, { token });
+  const data = await fetchQuery(
+    api.moves.getMoveContext,
+    { moveId },
+    { token }
+  );
 
   return <MoveProvider value={{ moveData: data }}>{children}</MoveProvider>;
 };
