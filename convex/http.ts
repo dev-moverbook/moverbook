@@ -72,7 +72,7 @@ http.route({
   method: "POST",
   handler: httpAction(async (ctx, request): Promise<Response> => {
     const signature: string = request.headers.get("stripe-signature") as string;
-    const result = (await ctx.runAction(internal.connectedAccount.fulfill, {
+    const result = (await ctx.runAction(internal.connectedAccounts.fulfill, {
       signature,
       payload: await request.text(),
     })) as WebhookHandlerResponse;

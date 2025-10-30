@@ -17,7 +17,7 @@ export async function getUserImageMap(
 }
 
 export function mergeNewsFeedAndImages(
-  newsFeedItems: Doc<"newsFeed">[],
+  newsFeedItems: Doc<"newsFeeds">[],
   userImageMap: Map<string, string | null>
 ): EnrichedNewsFeed[] {
   return newsFeedItems.map((item) => ({

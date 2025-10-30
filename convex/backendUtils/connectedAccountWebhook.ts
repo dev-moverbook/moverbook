@@ -58,7 +58,7 @@ export const handleAccountUpdated = async (
 
     const status = getConnectedAccountStatus(account);
 
-    await ctx.runMutation(internal.connectedAccount.saveConnectedAccount, {
+    await ctx.runMutation(internal.connectedAccounts.saveConnectedAccount, {
       customerId: customerId as Id<"customers">,
       stripeAccountId: account.id,
       status,
