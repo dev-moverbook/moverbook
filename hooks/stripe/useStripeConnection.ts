@@ -8,7 +8,7 @@ export const useStripeConnection = ():
   | Doc<"connectedAccounts">
   | null
   | undefined => {
-  const response = useQuery(api.connectedAccount.getStripeConnection);
+  const response = useQuery(api.connectedAccounts.getStripeConnection);
 
   return response ?? null;
 };

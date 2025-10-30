@@ -20,7 +20,7 @@ export default async function Page() {
     );
   }
   const connectedAccount = await fetchQuery(
-    api.connectedAccount.getStripeConnection,
+    api.connectedAccounts.getStripeConnection,
     {},
     { token }
   );
