@@ -5,7 +5,7 @@ import { useCreateOrUpdateQuote } from "@/hooks/quotes";
 import FormActionContainer from "@/components/shared/containers/FormActionContainer";
 import { useUpdateMove } from "@/hooks/moves";
 import { useMoveContext } from "@/contexts/MoveContext";
-import { useSendQuote } from "@/hooks/quotes/useSendQuote";
+import { useSendQuote } from "@/hooks/quotes";
 
 interface QuoteActionsProps {
   signatureDataUrl: string | null;
