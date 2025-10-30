@@ -3,7 +3,7 @@ import { Doc } from "@/convex/_generated/dataModel";
 
 export function ensureArrivalDefaults(
   prev: MoveFormData,
-  arrivalWindowOptions?: Doc<"arrivalWindow">
+  arrivalWindowOptions?: Doc<"arrivalWindows">
 ): MoveFormData {
   if (!arrivalWindowOptions) {
     return prev;
