@@ -9,7 +9,7 @@ import { Doc } from "@/convex/_generated/dataModel";
 import AdditionalLiabilityTerms from "../copy/AdditionalLiabilityTerms";
 import { useMoveContext } from "@/contexts/MoveContext";
 import CollapsibleSection from "@/components/shared/buttons/CollapsibleSection";
-import { useCreateOrUpdateWaiver } from "@/hooks/waiver/useCreateOrUpdateWaiver";
+import { useCreateOrUpdateWaiver } from "@/hooks/waivers/useCreateOrUpdateWaiver";
 
 interface WaiverProps {
   waiver: Doc<"waivers"> | null;
