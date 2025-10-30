@@ -212,18 +212,20 @@ export const createMessage = action({
     );
 
     await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
-      type: "MESSAGE_OUTGOING",
-      body: `**${user.name}** sent message to **${moveCustomer.name}** **${moveDate} via ${method}`,
-      companyId: move.companyId,
-      userId: user._id,
-      moveId,
-      context: {
-        customerName: moveCustomer.name,
-        moveDate,
-        deliveryType: method,
-        messageId,
+      entry: {
+        type: "MESSAGE_OUTGOING",
+        body: `**${user.name}** sent message to **${moveCustomer.name}** **${moveDate} via ${method}`,
+        companyId: move.companyId,
+        userId: user._id,
+        moveId,
+        context: {
+          customerName: moveCustomer.name,
+          moveDate,
+          deliveryType: method,
+          messageId,
+        },
+        moveCustomerId: move.moveCustomerId,
       },
-      moveCustomerId: move.moveCustomerId,
     });
 
     return true;

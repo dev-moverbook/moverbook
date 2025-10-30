@@ -79,14 +79,16 @@ export const createMoveCustomer = mutation({
     });
 
     await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
-      type: "CUSTOMER_CREATED_BY_REP",
-      companyId,
-      moveCustomerId,
-      userId: user._id,
-      body: `**${user.name}** created a new customer, **${name}**`,
-      context: {
-        customerName: name,
-        salesRepName: user.name,
+      entry: {
+        type: "CUSTOMER_CREATED_BY_REP",
+        companyId,
+        moveCustomerId,
+        userId: user._id,
+        body: `**${user.name}** created a new customer, **${name}**`,
+        context: {
+          customerName: name,
+          salesRepName: user.name,
+        },
       },
     });
 
@@ -302,14 +304,16 @@ export const updateMoveCustomer = mutation({
     );
 
     await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
-      type: "CUSTOMER_UPDATED_BY_REP",
-      companyId: existing.companyId,
-      userId: user._id,
-      body: `**${user.name}** updated customer details for **${existing.name}**.`,
-      context: {
-        customerName: existing.name,
-        moveCustomerId,
-        salesRepName: user.name,
+      entry: {
+        type: "CUSTOMER_UPDATED_BY_REP",
+        companyId: existing.companyId,
+        userId: user._id,
+        body: `**${user.name}** updated customer details for **${existing.name}**.`,
+        context: {
+          customerName: existing.name,
+          moveCustomerId,
+          salesRepName: user.name,
+        },
       },
     });
 

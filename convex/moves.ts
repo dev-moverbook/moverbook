@@ -288,16 +288,18 @@ export const createMove = mutation({
     // ToDo calculate amount
 
     await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
-      amount: 0,
-      type: "MOVE_CREATED",
-      body: `**${user.name}** booked a move **${moveCustomer.name}** **${moveDate}**`,
-      companyId: args.companyId,
-      userId: user._id,
-      moveId,
-      context: {
-        customerName: moveCustomer.name,
-        moveDate,
-        salesRepName: user.name,
+      entry: {
+        amount: 0,
+        type: "MOVE_CREATED",
+        body: `**${user.name}** booked a move **${moveCustomer.name}** **${moveDate}**`,
+        companyId: args.companyId,
+        userId: user._id,
+        moveId,
+        context: {
+          customerName: moveCustomer.name,
+          moveDate,
+          salesRepName: user.name,
+        },
       },
     });
 
@@ -527,15 +529,17 @@ export const updateMove = mutation({
     if (updates.actualArrivalTime) {
       events.push(
         ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
-          type: "MOVE_ARRIVAL",
-          body: `**${user.name}** arrived at **${formatTimeLower(updates.actualArrivalTime, company.timeZone)}** for **${moveCustomer.name}**`,
-          companyId: moveRecord.companyId,
-          userId: user._id,
-          moveId,
-          context: {
-            customerName: moveCustomer.name,
-            moverName: user.name,
-            time: updates.actualArrivalTime,
+          entry: {
+            type: "MOVE_ARRIVAL",
+            body: `**${user.name}** arrived at **${formatTimeLower(updates.actualArrivalTime, company.timeZone)}** for **${moveCustomer.name}**`,
+            companyId: moveRecord.companyId,
+            userId: user._id,
+            moveId,
+            context: {
+              customerName: moveCustomer.name,
+              moverName: user.name,
+              time: updates.actualArrivalTime,
+            },
           },
         })
       );
@@ -544,15 +548,17 @@ export const updateMove = mutation({
     if (updates.actualStartTime) {
       events.push(
         ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
-          type: "MOVE_STARTED",
-          body: `**${user.name}** started **${moveCustomer.name}**  move at ${formatTimeLower(updates.actualStartTime, company.timeZone)}`,
-          companyId: moveRecord.companyId,
-          userId: user._id,
-          moveId,
-          context: {
-            customerName: moveCustomer.name,
-            moverName: user.name,
-            time: updates.actualStartTime,
+          entry: {
+            type: "MOVE_STARTED",
+            body: `**${user.name}** started **${moveCustomer.name}**  move at ${formatTimeLower(updates.actualStartTime, company.timeZone)}`,
+            companyId: moveRecord.companyId,
+            userId: user._id,
+            moveId,
+            context: {
+              customerName: moveCustomer.name,
+              moverName: user.name,
+              time: updates.actualStartTime,
+            },
           },
         })
       );
@@ -561,44 +567,50 @@ export const updateMove = mutation({
     if (updates.endingMoveTime) {
       events.push(
         ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
-          type: "MOVE_COMPLETED",
-          body: `**${user.name}** completed move for **${moveCustomer.name}** at ${formatTimeLower(updates.endingMoveTime, company.timeZone)}`,
-          companyId: moveRecord.companyId,
-          userId: user._id,
-          moveId,
-          context: {
-            customerName: moveCustomer.name,
-            moverName: user.name,
-            time: updates.endingMoveTime,
+          entry: {
+            type: "MOVE_COMPLETED",
+            body: `**${user.name}** completed move for **${moveCustomer.name}** at ${formatTimeLower(updates.endingMoveTime, company.timeZone)}`,
+            companyId: moveRecord.companyId,
+            userId: user._id,
+            moveId,
+            context: {
+              customerName: moveCustomer.name,
+              moverName: user.name,
+              time: updates.endingMoveTime,
+            },
           },
         })
       );
     }
 
     await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
-      body: `**${user.name}** updated move for **${moveCustomer.name}**  **${moveDate}**`,
-      companyId: moveRecord.companyId,
-      type: "MOVE_UPDATED",
-      moveId,
-      context: {
-        customerName: moveCustomer.name,
-        moveDate,
-        salesRepName: user.name,
-      },
-      userId: user._id,
-    });
-
-    if (updates.moveStatus) {
-      await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
-        type: "MOVE_STATUS_UPDATED",
+      entry: {
+        body: `**${user.name}** updated move for **${moveCustomer.name}**  **${moveDate}**`,
         companyId: moveRecord.companyId,
-        body: `**${moveCustomer.name}** **${moveDate}** is now marked as **${updates.moveStatus}**`,
-        moveCustomerId: moveCustomer._id,
+        type: "MOVE_UPDATED",
         moveId,
         context: {
           customerName: moveCustomer.name,
           moveDate,
-          moveStatus: updates.moveStatus,
+          salesRepName: user.name,
+        },
+        userId: user._id,
+      },
+    });
+
+    if (updates.moveStatus) {
+      await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
+        entry: {
+          type: "MOVE_STATUS_UPDATED",
+          companyId: moveRecord.companyId,
+          body: `**${moveCustomer.name}** **${moveDate}** is now marked as **${updates.moveStatus}**`,
+          moveCustomerId: moveCustomer._id,
+          moveId,
+          context: {
+            customerName: moveCustomer.name,
+            moveDate,
+            moveStatus: updates.moveStatus,
+          },
         },
       });
     }

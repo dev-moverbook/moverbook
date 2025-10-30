@@ -65,19 +65,21 @@ export const createDiscount = mutation({
     const amount = price * -1;
 
     await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
-      type: "DISCOUNT_ADDED",
-      companyId: company._id,
-      userId: user._id,
-      body: `**${user.name}** added discount **${name}** to **${moveCustomer.name}** **(${moveDate})**.`,
-      amount,
-      context: {
-        customerName: moveCustomer.name,
-        moveDate,
-        discountId,
-        discountName: name,
-        moverName: user.name,
+      entry: {
+        type: "DISCOUNT_ADDED",
+        companyId: company._id,
+        userId: user._id,
+        body: `**${user.name}** added discount **${name}** to **${moveCustomer.name}** **(${moveDate})**.`,
+        amount,
+        context: {
+          customerName: moveCustomer.name,
+          moveDate,
+          discountId,
+          discountName: name,
+          moverName: user.name,
+        },
+        moveId,
       },
-      moveId,
     });
     return true;
   },
@@ -141,35 +143,39 @@ export const updateDiscount = mutation({
 
     if (updates.isActive === false) {
       await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
-        type: "DISCOUNT_REMOVED",
-        body: `**${user.name}** removed discount **${discount.name}** from **${moveCustomer.name}** **(${moveDate})**.`,
-        companyId: company._id,
-        userId: user._id,
-        amount,
-        context: {
-          customerName: moveCustomer.name,
-          moveDate,
-          discountName: discount.name,
-          discountId,
-          moverName: user.name,
+        entry: {
+          type: "DISCOUNT_REMOVED",
+          body: `**${user.name}** removed discount **${discount.name}** from **${moveCustomer.name}** **(${moveDate})**.`,
+          companyId: company._id,
+          userId: user._id,
+          amount,
+          context: {
+            customerName: moveCustomer.name,
+            moveDate,
+            discountName: discount.name,
+            discountId,
+            moverName: user.name,
+          },
+          moveId: move._id,
         },
-        moveId: move._id,
       });
     } else {
       await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
-        type: "DISCOUNT_UPDATED",
-        body: `**${user.name}** updated discount **${discount.name}** for **${moveCustomer.name}** **(${moveDate})**.`,
-        companyId: company._id,
-        userId: user._id,
-        context: {
-          customerName: moveCustomer.name,
-          moveDate: moveDate,
-          discountName: discount.name,
-          discountId,
-          moverName: user.name,
+        entry: {
+          type: "DISCOUNT_UPDATED",
+          body: `**${user.name}** updated discount **${discount.name}** for **${moveCustomer.name}** **(${moveDate})**.`,
+          companyId: company._id,
+          userId: user._id,
+          context: {
+            customerName: moveCustomer.name,
+            moveDate: moveDate,
+            discountName: discount.name,
+            discountId,
+            moverName: user.name,
+          },
+          amount,
+          moveId: move._id,
         },
-        amount,
-        moveId: move._id,
       });
     }
     return true;

@@ -80,31 +80,35 @@ export const updateMoveAssignment = mutation({
         : "TBD";
       await Promise.all([
         ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
-          type: "ASSIGN_MOVER",
-          companyId: company._id,
-          body: `**${newMover.name}** was assigned to move **${moveCustomer.name}** **${moveDate}**`,
-          userId: updates.moverId,
-          context: {
-            customerName: moveCustomer.name,
-            moveAssignmentId: assignmentId,
-            moveDate: moveDate,
-            moverName: newMover.name,
+          entry: {
+            type: "ASSIGN_MOVER",
+            companyId: company._id,
+            body: `**${newMover.name}** was assigned to move **${moveCustomer.name}** **${moveDate}**`,
+            userId: updates.moverId,
+            context: {
+              customerName: moveCustomer.name,
+              moveAssignmentId: assignmentId,
+              moveDate: moveDate,
+              moverName: newMover.name,
+            },
+            amount: 0,
+            moveId: move._id,
           },
-          amount: 0,
-          moveId: move._id,
         }),
 
         ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
-          type: "REMOVE_MOVER",
-          companyId: company._id,
-          body: `**${previousMover.name}** was removed from move **${moveCustomer.name}** **${moveDate}**`,
-          userId: previousMover._id,
-          context: {
-            moverName: previousMover.name,
-            customerName: moveCustomer.name,
-            moveDate: moveDate,
+          entry: {
+            type: "REMOVE_MOVER",
+            companyId: company._id,
+            body: `**${previousMover.name}** was removed from move **${moveCustomer.name}** **${moveDate}**`,
+            userId: previousMover._id,
+            context: {
+              moverName: previousMover.name,
+              customerName: moveCustomer.name,
+              moveDate: moveDate,
+            },
+            moveId: move._id,
           },
-          moveId: move._id,
         }),
       ]);
     }
@@ -181,46 +185,54 @@ export const updateMoveAssignmentHours = mutation({
 
     if (hasStartTime && updates.startTime) {
       await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
-        type: "CLOCK_IN",
-        companyId: company._id,
-        body: `**${mover.name}** clocked in at ${formatTimeLower(updates.startTime, company.timeZone)} for **${moveCustomer.name}**`,
-        userId: mover._id,
-        context: {
-          customerName: moveCustomer.name,
-          workStartTime: updates.startTime,
-          moverName: mover.name,
-          moveAssignmentId: assignmentId,
+        entry: {
+          type: "CLOCK_IN",
+          companyId: company._id,
+          body: `**${mover.name}** clocked in at ${formatTimeLower(updates.startTime, company.timeZone)} for **${moveCustomer.name}**`,
+          userId: mover._id,
+          context: {
+            customerName: moveCustomer.name,
+            workStartTime: updates.startTime,
+            moverName: mover.name,
+            moveAssignmentId: assignmentId,
+          },
+          moveId: move._id,
         },
       });
     }
 
     if (hasEndTime && updates.endTime) {
       await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
-        type: "CLOCK_OUT",
-        companyId: company._id,
-        body: `**${mover.name}** clocked out at ${formatTimeLower(updates.endTime, company.timeZone)} for **${moveCustomer.name}**`,
-        userId: mover._id,
-        context: {
-          customerName: moveCustomer.name,
-          workEndTime: updates.endTime,
-          moverName: mover.name,
-          moveAssignmentId: assignmentId,
+        entry: {
+          type: "CLOCK_OUT",
+          companyId: company._id,
+          body: `**${mover.name}** clocked out at ${formatTimeLower(updates.endTime, company.timeZone)} for **${moveCustomer.name}**`,
+          userId: mover._id,
+          context: {
+            customerName: moveCustomer.name,
+            workEndTime: updates.endTime,
+            moverName: mover.name,
+            moveAssignmentId: assignmentId,
+          },
+          moveId: move._id,
         },
       });
     }
     if (updates.breakAmount !== undefined) {
       await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
-        type: "WORK_BREAK_UPDATE",
-        companyId: company._id,
-        body: `**${mover.name}** updated ${updates.breakAmount} hour work break for **${moveCustomer.name}** **(${moveDate})**`,
-        userId: mover._id,
-        moveId: move._id,
-        context: {
-          customerName: moveCustomer.name,
-          breakAmount: updates.breakAmount,
-          moverName: mover.name,
-          moveAssignmentId: assignmentId,
-          moveDate,
+        entry: {
+          type: "WORK_BREAK_UPDATE",
+          companyId: company._id,
+          body: `**${mover.name}** updated ${updates.breakAmount} hour work break for **${moveCustomer.name}** **(${moveDate})**`,
+          userId: mover._id,
+          moveId: move._id,
+          context: {
+            customerName: moveCustomer.name,
+            breakAmount: updates.breakAmount,
+            moverName: mover.name,
+            moveAssignmentId: assignmentId,
+            moveDate,
+          },
         },
       });
     }
@@ -270,17 +282,19 @@ export const insertMoveAssignment = mutation({
 
     // ToDo calculate amount
     await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
-      type: "ASSIGN_MOVER",
-      companyId: company._id,
-      body: `**${mover.name}** was assigned to move **${moveCustomer.name}** (**${moveDate}**).`,
-      userId: moverId,
-      moveId,
-      amount: 0,
-      context: {
-        customerName: moveCustomer.name,
-        moverName: mover.name,
-        moveDate,
-        moveAssignmentId,
+      entry: {
+        type: "ASSIGN_MOVER",
+        companyId: company._id,
+        body: `**${mover.name}** was assigned to move **${moveCustomer.name}** (**${moveDate}**).`,
+        userId: moverId,
+        moveId,
+        amount: 0,
+        context: {
+          customerName: moveCustomer.name,
+          moverName: mover.name,
+          moveDate,
+          moveAssignmentId,
+        },
       },
     });
 
@@ -538,33 +552,37 @@ export const approveMoveAssignmentHours = mutation({
           approvedPay: pay,
         }),
         ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
-          type: "HOURS_STATUS_UPDATED",
-          companyId: company._id,
-          userId: mover._id,
-          body: `**${user.name}** **${updates.hourStatus}** for **${mover.name}**.`,
-          context: {
-            hourStatus: updates.hourStatus,
-            moverName: mover.name,
-            moveAssignmentId: assignmentId,
+          entry: {
+            type: "HOURS_STATUS_UPDATED",
+            companyId: company._id,
+            userId: mover._id,
+            body: `**${user.name}** **${updates.hourStatus}** for **${mover.name}**.`,
+            context: {
+              hourStatus: updates.hourStatus,
+              moverName: mover.name,
+              moveAssignmentId: assignmentId,
+            },
+            moveId: move._id,
+            amount: pay,
           },
-          moveId: move._id,
-          amount: pay,
         }),
       ]);
     } else {
       await Promise.all([
         ctx.db.patch(assignmentId, updates),
         ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
-          type: "HOURS_STATUS_UPDATED",
-          companyId: company._id,
-          userId: mover._id,
-          body: `**${user.name}** **${updates.hourStatus}** for **${mover.name}**.`,
-          context: {
-            hourStatus: updates.hourStatus,
-            moverName: mover.name,
-            moveAssignmentId: assignmentId,
+          entry: {
+            type: "HOURS_STATUS_UPDATED",
+            companyId: company._id,
+            userId: mover._id,
+            body: `**${user.name}** **${updates.hourStatus}** for **${mover.name}**.`,
+            context: {
+              hourStatus: updates.hourStatus,
+              moverName: mover.name,
+              moveAssignmentId: assignmentId,
+            },
+            moveId: move._id,
           },
-          moveId: move._id,
         }),
       ]);
     }
