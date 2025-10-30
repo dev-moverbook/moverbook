@@ -10,8 +10,8 @@ import { useQuery } from "convex/react";
 const GuidelinesTab = () => {
   const { companyId } = useSlugContext();
   const result = useQuery<
-    typeof api.arrivalWindow.getCompanyArrivalAndPolicies
-  >(api.arrivalWindow.getCompanyArrivalAndPolicies, {
+    typeof api.arrivalWindows.getCompanyArrivalAndPolicies
+  >(api.arrivalWindows.getCompanyArrivalAndPolicies, {
     companyId,
   });
   let content: React.ReactNode;
