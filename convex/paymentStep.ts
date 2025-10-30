@@ -10,7 +10,7 @@ import { ErrorMessages } from "@/types/errors";
 
 export const getPaymentPage = query({
   args: {
-    moveId: v.id("move"),
+    moveId: v.id("moves"),
   },
   handler: async (ctx, { moveId }): Promise<GetPaymentPageData> => {
     const identity = await requireAuthenticatedUser(ctx, [
@@ -22,7 +22,7 @@ export const getPaymentPage = query({
 
     const move = await validateDocument(
       ctx.db,
-      "move",
+      "moves",
       moveId,
       ErrorMessages.MOVE_NOT_FOUND
     );
@@ -46,8 +46,8 @@ export const getPaymentPage = query({
       .withIndex("by_move", (q) => q.eq("moveId", moveId))
       .unique();
 
-    const internalReview: Doc<"internalReview"> | null = await ctx.db
-      .query("internalReview")
+    const internalReview: Doc<"internalReviews"> | null = await ctx.db
+      .query("internalReviews")
       .withIndex("by_move", (q) => q.eq("moveId", moveId))
       .unique();
 

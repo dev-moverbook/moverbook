@@ -208,9 +208,7 @@ const CompanyContactSection: React.FC<CompanyContactSectionProps> = ({
       setVerificationError(null);
       setVerificationStatus("verifying");
 
-      const isVerified = await checkSenderVerified(
-        companyContact._id as Id<"companyContacts">
-      );
+      const isVerified = await checkSenderVerified(companyContact._id);
       setVerificationStatus(isVerified ? "verified" : "pending");
 
       if (!isVerified) {
