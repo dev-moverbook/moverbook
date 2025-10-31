@@ -5,9 +5,7 @@ import { useCustomerId } from "@/contexts/CustomerIdContext";
 import CustomerMoves from "./CustomerMoves";
 
 const CustomerIdPage: React.FC = () => {
-  const {
-    moveCustomer: { moveCustomer, moves },
-  } = useCustomerId();
+  const { moveCustomer, moves } = useCustomerId();
   return (
     <div>
       <CustomerInfo moveCustomer={moveCustomer} />
