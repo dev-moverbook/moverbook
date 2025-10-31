@@ -1,16 +1,24 @@
-"use client";
-
+import { usePaginatedQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { useQuery } from "convex/react";
-import type { Doc, Id } from "@/convex/_generated/dataModel";
+import type { Id } from "@/convex/_generated/dataModel";
 import { EnrichedNewsFeed } from "@/types/types";
 
 export const useNewsFeedByUserId = (
   companyId: Id<"companies">
-): EnrichedNewsFeed[] | undefined => {
-  const response = useQuery(api.newsfeeds.getActivitiesForUser, {
-    companyId,
-  });
+): {
+  newsFeedEvents: EnrichedNewsFeed[];
+  status: string;
+  loadMore: (n: number) => void;
+} => {
+  const {
+    results: newsFeedEvents = [],
+    status,
+    loadMore,
+  } = usePaginatedQuery(
+    api.newsfeeds.getActivitiesForUserPaginated,
+    { companyId },
+    { initialNumItems: 10 }
+  );
 
-  return response;
+  return { newsFeedEvents, status, loadMore };
 };

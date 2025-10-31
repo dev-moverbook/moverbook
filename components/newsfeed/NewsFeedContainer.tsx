@@ -23,7 +23,7 @@ const NewsFeedContainer: React.FC<NewsFeedContainerProps> = ({
   }
 
   return (
-    <div>
+    <div className="">
       {newsFeedEvents.map((newsFeedEvent) => {
         const href = getNewsFeedEventHref(slug, newsFeedEvent);
         return (

@@ -22,11 +22,15 @@ import {
   MoveStatusConvex,
 } from "@/types/convex-enums";
 import { HourStatusConvex, PaymentMethodConvex } from "./schema";
+import { paginationOptsValidator, PaginationResult } from "convex/server";
 
-export const getActivitiesForUser = query({
-  args: { companyId: v.id("companies") },
-  handler: async (ctx, args): Promise<EnrichedNewsFeed[]> => {
-    const { companyId } = args;
+export const getActivitiesForUserPaginated = query({
+  args: {
+    companyId: v.id("companies"),
+    paginationOpts: paginationOptsValidator,
+  },
+  handler: async (ctx, args): Promise<PaginationResult<EnrichedNewsFeed>> => {
+    const { companyId, paginationOpts } = args;
     const authenticatedUser = await requireAuthenticatedUser(ctx);
     const company = await validateCompany(ctx.db, companyId);
     isUserInOrg(authenticatedUser, company.clerkOrganizationId);
@@ -39,24 +43,24 @@ export const getActivitiesForUser = query({
         .unique()
     );
 
-    let newsFeedItems: Doc<"newsFeeds">[];
+    let baseQuery;
     if (userRecord.role === ClerkRoles.MOVER) {
-      newsFeedItems = await ctx.db
+      baseQuery = ctx.db
         .query("newsFeeds")
         .withIndex("by_userId", (q) => q.eq("userId", userRecord._id))
-        .order("desc")
-        .collect();
+        .order("desc");
     } else {
-      newsFeedItems = await ctx.db
+      baseQuery = ctx.db
         .query("newsFeeds")
         .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
-        .order("desc")
-        .collect();
+        .order("desc");
     }
+
+    const result = await baseQuery.paginate(paginationOpts);
 
     const uniqueUserIds = Array.from(
       new Set(
-        newsFeedItems
+        result.page
           .map((event) => event.userId)
           .filter((userId): userId is Id<"users"> => userId !== undefined)
       )
@@ -64,9 +68,60 @@ export const getActivitiesForUser = query({
 
     const userImageMap = await getUserImageMap(ctx, uniqueUserIds);
 
-    return mergeNewsFeedAndImages(newsFeedItems, userImageMap);
+    // Merge newsFeedItems with userImageMap as per your existing logic
+    const enrichedPage = mergeNewsFeedAndImages(result.page, userImageMap);
+
+    return {
+      ...result,
+      page: enrichedPage,
+    };
   },
 });
+
+// export const getActivitiesForUser = query({
+//   args: { companyId: v.id("companies") },
+//   handler: async (ctx, args): Promise<EnrichedNewsFeed[]> => {
+//     const { companyId } = args;
+//     const authenticatedUser = await requireAuthenticatedUser(ctx);
+//     const company = await validateCompany(ctx.db, companyId);
+//     isUserInOrg(authenticatedUser, company.clerkOrganizationId);
+
+//     const clerkUserId = authenticatedUser.id as string;
+//     const userRecord = validateUser(
+//       await ctx.db
+//         .query("users")
+//         .withIndex("by_clerkUserId", (q) => q.eq("clerkUserId", clerkUserId))
+//         .unique()
+//     );
+
+//     let newsFeedItems: Doc<"newsFeeds">[];
+//     if (userRecord.role === ClerkRoles.MOVER) {
+//       newsFeedItems = await ctx.db
+//         .query("newsFeeds")
+//         .withIndex("by_userId", (q) => q.eq("userId", userRecord._id))
+//         .order("desc")
+//         .collect();
+//     } else {
+//       newsFeedItems = await ctx.db
+//         .query("newsFeeds")
+//         .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
+//         .order("desc")
+//         .collect();
+//     }
+
+//     const uniqueUserIds = Array.from(
+//       new Set(
+//         newsFeedItems
+//           .map((event) => event.userId)
+//           .filter((userId): userId is Id<"users"> => userId !== undefined)
+//       )
+//     );
+
+//     const userImageMap = await getUserImageMap(ctx, uniqueUserIds);
+
+//     return mergeNewsFeedAndImages(newsFeedItems, userImageMap);
+//   },
+// });
 
 export const getActivitiesByMoveId = query({
   args: {

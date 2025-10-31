@@ -12,7 +12,7 @@ const NewsFeedMoveContainer = ({
   newsFeedEvents,
 }: NewsFeedMoveContainerProps) => {
   return (
-    <SectionContainer>
+    <SectionContainer className="pb-10">
       {newsFeedEvents.map((newsFeedEvent) => {
         return (
           <NewsFeedCard
