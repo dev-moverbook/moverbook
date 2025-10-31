@@ -90,7 +90,10 @@ const QuoteActions = ({ signatureDataUrl }: QuoteActionsProps) => {
   const isPrimaryDisabled = quote?.status === isRepSigned;
 
   const isSecondaryDisabled = quote?.status === isRepSigned;
-  const isTertiaryDisabled = move.moveStatus === "Booked" || !isRepSigned;
+  const isTertiaryDisabled =
+    move.moveStatus === "Booked" ||
+    !isRepSigned ||
+    move.moveStatus === "Completed";
   return (
     <FormActionContainer>
       <TripleFormAction

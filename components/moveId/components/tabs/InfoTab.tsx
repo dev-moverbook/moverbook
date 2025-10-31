@@ -8,6 +8,7 @@ import LeadStep from "../steps/LeadStep";
 import QuoteStep from "../steps/QuoteStep";
 import MoveStep from "../steps/MoveStep";
 import PaymentStep from "../steps/PaymentStep";
+import SetupStep from "../steps/SetUpStep";
 import { hasRequiredMoveFields } from "@/frontendUtils/helper";
 
 type InfoTabProps = {
@@ -15,7 +16,7 @@ type InfoTabProps = {
 };
 
 const MIN_STEP = 1;
-const MAX_STEP = 4;
+const MAX_STEP = 5;
 
 export default function InfoTab({ hideStepper }: InfoTabProps) {
   const router = useRouter();
@@ -45,6 +46,8 @@ export default function InfoTab({ hideStepper }: InfoTabProps) {
   const isQuoteStepComplete = quote?.status === "completed";
 
   const isLeadStepComplete = hasRequiredMoveFields(move, moveCustomer);
+  const isMoveStepComplete =
+    move.actualStartTime && move.actualArrivalTime && move.actualEndTime;
 
   const handleStepClick = (step: number) => {
     setCurrentStep(step);
@@ -62,6 +65,7 @@ export default function InfoTab({ hideStepper }: InfoTabProps) {
           steps={[
             { label: "Lead" },
             { label: "Quote" },
+            { label: "Setup" },
             { label: "Move" },
             { label: "Payment" },
           ]}
@@ -70,14 +74,20 @@ export default function InfoTab({ hideStepper }: InfoTabProps) {
           disabledSteps={[
             ...(!isLeadStepComplete ? [2, 3, 4] : []),
             ...(isLeadStepComplete && !isQuoteStepComplete ? [3, 4] : []),
+            ...(isLeadStepComplete &&
+            !isQuoteStepComplete &&
+            !isMoveStepComplete
+              ? [5]
+              : []),
           ]}
         />
       )}
 
       {currentStep === 1 && <LeadStep />}
       {currentStep === 2 && <QuoteStep quote={quote} />}
-      {currentStep === 3 && <MoveStep />}
-      {currentStep === 4 && <PaymentStep />}
+      {currentStep === 3 && <SetupStep />}
+      {currentStep === 4 && <MoveStep />}
+      {currentStep === 5 && <PaymentStep />}
     </>
   );
 }

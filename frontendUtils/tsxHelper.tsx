@@ -43,7 +43,7 @@ export const getQuoteStatusInfo = (
   };
 };
 
-export const getMoveStatus = (
+export const getSetUpStatus = (
   move: Doc<"moves">,
   assignedMovers: number,
   contract: Doc<"contracts"> | null,
@@ -128,5 +128,36 @@ export const getInvoiceStatus = (
   return {
     label: "Invoice Ready To Send",
     icon: <FileText className="w-4 h-4 text-gray-400" />,
+  };
+};
+
+export const getMoveStatus = (
+  move: Doc<"moves">
+): {
+  label: string;
+  icon: ReactNode;
+} => {
+  if (!move.actualStartTime) {
+    return {
+      label: "Awaiting Start",
+      icon: <Clock className="w-4 h-4 text-yellow-500" />,
+    };
+  }
+  if (!move.actualArrivalTime) {
+    return {
+      label: "Awaiting Arrival",
+      icon: <Clock className="w-4 h-4 text-yellow-500" />,
+    };
+  }
+  if (!move.actualEndTime) {
+    return {
+      label: "Awaiting End",
+      icon: <Clock className="w-4 h-4 text-yellow-500" />,
+    };
+  }
+
+  return {
+    label: "Move Completed",
+    icon: <CheckCircle2 className="w-4 h-4 text-greenCustom" />,
   };
 };
