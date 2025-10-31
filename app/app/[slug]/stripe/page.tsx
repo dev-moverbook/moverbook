@@ -1,3 +1,5 @@
+"use client";
+
 import StripePage from "@/components/stripe/StripePage";
 
 export default async function Page() {
