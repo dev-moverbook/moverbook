@@ -221,3 +221,8 @@ export interface GetSalesRepsAndReferralByCompanyIdData {
   users: Doc<"users">[];
   referrals: Doc<"referrals">[];
 }
+
+export interface newCustomerResponse {
+  isExistingCustomer: boolean;
+  moveCustomer: Doc<"moveCustomers">;
+}

@@ -4,7 +4,7 @@ import { DateTime } from "luxon";
 import Link from "next/link";
 import { formatMonthDayLabelStrict } from "@/frontendUtils/luxonUtils";
 import { parseBoldMarkdown } from "@/frontendUtils/pareseUtils";
-import { EnrichedNewsFeed } from "@/types/types";
+import { EnrichedNewsFeed, MoveStatus } from "@/types/types";
 import { getEventEmojis } from "@/frontendUtils/newsFeedHelper";
 import UserAvatar from "./NewsFeedAvatar";
 import Image from "next/image";
@@ -16,12 +16,12 @@ interface NewsFeedCardProps {
 
 const NewsFeedCard: React.FC<NewsFeedCardProps> = ({ newsFeedEvent, href }) => {
   const {
-    newsFeedItem: { _creationTime, body, type },
+    newsFeedItem: { _creationTime, body, type, context },
     userImageUrl,
   } = newsFeedEvent;
   const relativeTime = DateTime.fromMillis(_creationTime).toRelative();
   const creationDateFormatted = formatMonthDayLabelStrict(_creationTime);
-  const emojis = getEventEmojis(type);
+  const emojis = getEventEmojis(type, context?.moveStatus as MoveStatus);
 
   const cardContent = (
     <div className="flex items-start gap-4 py-3 border-b border-grayCustom w-full px-4  relative">

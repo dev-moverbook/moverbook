@@ -26,7 +26,7 @@ const QuoteStep = ({ quote }: QuoteStepProps) => {
   const title = formatServiceTypeLabel(move.serviceType);
   const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
 
-  const quoteStatus = getQuoteStatusInfo(quote);
+  const quoteStatus = getQuoteStatusInfo(quote, move.moveStatus);
 
   return (
     <SectionContainer>

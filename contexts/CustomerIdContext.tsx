@@ -2,18 +2,31 @@
 
 import { GetCustomerAndMovesData } from "@/types/convex-responses";
 import { createContext, useContext } from "react";
+import { api } from "@/convex/_generated/api";
+import { useQuery } from "convex/react";
+import { Id } from "@/convex/_generated/dataModel";
 
-type CustomerId = { moveCustomer: GetCustomerAndMovesData };
+type CustomerContextType = {
+  moveCustomer: GetCustomerAndMovesData;
+};
 
-const CustomerIdContext = createContext<CustomerId | null>(null);
+const CustomerIdContext = createContext<CustomerContextType | null>(null);
 
 export function CustomerIdProvider({
-  moveCustomer,
+  moveCustomerId,
   children,
 }: {
-  moveCustomer: GetCustomerAndMovesData;
+  moveCustomerId: Id<"moveCustomers">;
   children: React.ReactNode;
 }) {
+  const moveCustomer = useQuery(api.moveCustomers.getCustomerAndMoves, {
+    moveCustomerId,
+  });
+
+  if (!moveCustomer) {
+    return;
+  }
+
   return (
     <CustomerIdContext.Provider value={{ moveCustomer }}>
       {children}
@@ -21,11 +34,11 @@ export function CustomerIdProvider({
   );
 }
 
-export function useCustomerId(): CustomerId {
+export function useCustomerId(): GetCustomerAndMovesData {
   const context = useContext(CustomerIdContext);
   if (!context) {
     throw new Error("CustomerIdProvider missing");
   }
 
-  return context;
+  return context.moveCustomer;
 }

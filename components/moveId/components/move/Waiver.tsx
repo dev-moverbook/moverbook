@@ -9,8 +9,7 @@ import { Doc } from "@/convex/_generated/dataModel";
 import AdditionalLiabilityTerms from "../copy/AdditionalLiabilityTerms";
 import { useMoveContext } from "@/contexts/MoveContext";
 import CollapsibleSection from "@/components/shared/buttons/CollapsibleSection";
-import { useCreateOrUpdateWaiver } from "@/hooks/waivers";
-import { useSendWaiver } from "@/hooks/waivers";
+import { useCreateOrUpdateWaiver, useSendWaiver } from "@/hooks/waivers";
 
 interface WaiverProps {
   waiver: Doc<"waivers"> | null;
@@ -21,40 +20,51 @@ const Waiver = ({ waiver }: WaiverProps) => {
   const { move } = moveData;
   const { _id: moveId } = move;
 
+  // Destructure waiver details (handles null waiver gracefully)
   const { customerSignature, repSignature, customerSignedAt, repSignedAt } =
     waiver ?? {};
 
   const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
+  const [isEmailLoading, setIsEmailLoading] = useState(false);
+  const [isSmsLoading, setIsSmsLoading] = useState(false);
 
   const {
     createOrUpdateWaiver,
     isLoading: createOrUpdateWaiverLoading,
     error,
   } = useCreateOrUpdateWaiver();
-  const { sendWaiver, sendWaiverLoading, sendWaiverError } = useSendWaiver();
+  const { sendWaiver, sendWaiverError } = useSendWaiver();
+
+  // These determine when the signed images and times are shown
   const showRepSignature = !!repSignature && repSignedAt;
   const showCustomerSignature = !!customerSignature && customerSignedAt;
-  const isDisabled = !signatureDataUrl;
   const isCompleted = !!showRepSignature && !!showCustomerSignature;
 
+  // Button is only enabled when signature is drawn
+  const isDisabled = !signatureDataUrl;
+
   const handleSMS = async () => {
+    setIsSmsLoading(true);
     if (signatureDataUrl) {
       await createOrUpdateWaiver(moveId, { repSignature: signatureDataUrl });
     }
     await sendWaiver(moveId, "sms");
+    setIsSmsLoading(false);
   };
 
   const handleEmail = async () => {
+    setIsEmailLoading(true);
     if (signatureDataUrl) {
       await createOrUpdateWaiver(moveId, { repSignature: signatureDataUrl });
     }
     await sendWaiver(moveId, "email");
+    setIsEmailLoading(false);
   };
 
   return (
     <CollapsibleSection
       title="Waiver"
-      defaultOpen={false}
+      defaultOpen={!isCompleted}
       headerClassName="mx-auto"
       showCheckmark
       isCompleted={isCompleted}
@@ -83,19 +93,17 @@ const Waiver = ({ waiver }: WaiverProps) => {
         )}
         <FormActions
           disabled={isDisabled}
+          cancelDisabled={isDisabled || createOrUpdateWaiverLoading}
           onSave={(e) => {
             e.preventDefault();
-            handleSMS();
+            handleEmail();
           }}
-          onCancel={handleEmail}
+          onCancel={handleSMS}
           saveLabel="Email"
           cancelLabel="Text"
-          isSaving={createOrUpdateWaiverLoading || sendWaiverLoading}
-          isCanceling={createOrUpdateWaiverLoading || sendWaiverLoading}
+          isSaving={isEmailLoading}
+          isCanceling={isSmsLoading}
           error={error || sendWaiverError}
-          cancelDisabled={
-            isDisabled || createOrUpdateWaiverLoading || sendWaiverLoading
-          }
         />
       </SectionContainer>
     </CollapsibleSection>

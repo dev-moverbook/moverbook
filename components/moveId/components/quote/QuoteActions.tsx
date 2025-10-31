@@ -13,7 +13,7 @@ interface QuoteActionsProps {
 
 const QuoteActions = ({ signatureDataUrl }: QuoteActionsProps) => {
   const [activeLoading, setActiveLoading] = useState<
-    "send" | "complete" | null
+    "booked" | "sms" | "email" | null
   >(null);
   const { createOrUpdateQuote, quoteUpdateError } = useCreateOrUpdateQuote();
   const { sendQuote, sendQuoteError, setSendQuoteError } = useSendQuote();
@@ -46,7 +46,7 @@ const QuoteActions = ({ signatureDataUrl }: QuoteActionsProps) => {
   const handleEmailQuote = async (e: FormEvent) => {
     e.preventDefault();
     setSendQuoteError(null);
-    setActiveLoading("send");
+    setActiveLoading("email");
     await createOrUpdateQuote({
       moveId,
       updates: {
@@ -61,7 +61,7 @@ const QuoteActions = ({ signatureDataUrl }: QuoteActionsProps) => {
 
   const handleSmsQuote = async () => {
     setSendQuoteError(null);
-    setActiveLoading("send");
+    setActiveLoading("sms");
     await createOrUpdateQuote({
       moveId,
       updates: {
@@ -70,11 +70,12 @@ const QuoteActions = ({ signatureDataUrl }: QuoteActionsProps) => {
       },
     });
     await sendQuote(moveId, "sms");
+    setActiveLoading(null);
   };
 
   const handleMarkAsComplete = async () => {
     setSendQuoteError(null);
-    setActiveLoading("complete");
+    setActiveLoading("booked");
     await createOrUpdateQuote({
       moveId,
       updates: {
@@ -101,8 +102,9 @@ const QuoteActions = ({ signatureDataUrl }: QuoteActionsProps) => {
         onPrimary={(e) => void handleEmailQuote(e)}
         onSecondary={handleSmsQuote}
         onTertiary={() => void handleMarkAsComplete()}
-        primaryLoading={activeLoading === "send"}
-        tertiaryLoading={activeLoading === "complete"}
+        primaryLoading={activeLoading === "email"}
+        tertiaryLoading={activeLoading === "booked"}
+        secondaryLoading={activeLoading === "sms"}
         error={quoteUpdateError || updateMoveError || sendQuoteError}
         primaryDisabled={isPrimaryDisabled}
         secondaryDisabled={isSecondaryDisabled}

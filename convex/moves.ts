@@ -263,7 +263,7 @@ export const createMove = mutation({
 
     const jobId = generateJobId(args.companyId);
 
-    const moveCustomer = await validateMoveCustomer(
+    const moveCustomer = validateMoveCustomer(
       await ctx.db.get(args.moveCustomerId)
     );
 
@@ -470,7 +470,7 @@ export const updateMove = mutation({
   args: {
     moveId: v.id("moves"),
     updates: UpdateMoveFields,
-    effectiveAt: v.optional(v.number()), // optional override for backfills, imports, etc.
+    effectiveAt: v.optional(v.number()),
   },
   handler: async (ctx, { moveId, updates, effectiveAt }): Promise<boolean> => {
     const identity = await requireAuthenticatedUser(ctx, [
@@ -480,7 +480,6 @@ export const updateMove = mutation({
       ClerkRoles.SALES_REP,
       ClerkRoles.MOVER,
     ]);
-    console.log("updates", updates);
 
     const moveRecord = await validateDocument(
       ctx.db,
@@ -513,6 +512,7 @@ export const updateMove = mutation({
         )
         .first()
     );
+
     await ctx.db.patch(moveId, { ...updates, ...statusPatch });
 
     let moveDate: string;
@@ -524,14 +524,15 @@ export const updateMove = mutation({
       moveDate = "TBD";
     }
 
-    const events: Promise<Id<"newsFeeds">>[] = [];
-
-    if (updates.actualArrivalTime) {
-      events.push(
-        ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
+    switch (true) {
+      case !!updates.actualArrivalTime:
+        await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
           entry: {
             type: "MOVE_ARRIVAL",
-            body: `**${user.name}** arrived at **${formatTimeLower(updates.actualArrivalTime, company.timeZone)}** for **${moveCustomer.name}**`,
+            body: `**${user.name}** arrived at **${formatTimeLower(
+              updates.actualArrivalTime,
+              company.timeZone
+            )}** for **${moveCustomer.name}**`,
             companyId: moveRecord.companyId,
             userId: user._id,
             moveId,
@@ -541,16 +542,17 @@ export const updateMove = mutation({
               time: updates.actualArrivalTime,
             },
           },
-        })
-      );
-    }
+        });
+        return true;
 
-    if (updates.actualStartTime) {
-      events.push(
-        ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
+      case !!updates.actualStartTime:
+        await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
           entry: {
             type: "MOVE_STARTED",
-            body: `**${user.name}** started **${moveCustomer.name}**  move at ${formatTimeLower(updates.actualStartTime, company.timeZone)}`,
+            body: `**${user.name}** started **${moveCustomer.name}** move at ${formatTimeLower(
+              updates.actualStartTime,
+              company.timeZone
+            )}`,
             companyId: moveRecord.companyId,
             userId: user._id,
             moveId,
@@ -560,64 +562,86 @@ export const updateMove = mutation({
               time: updates.actualStartTime,
             },
           },
-        })
-      );
-    }
+        });
+        return true;
 
-    if (updates.endingMoveTime) {
-      events.push(
-        ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
+      case !!updates.actualEndTime:
+        await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
           entry: {
             type: "MOVE_COMPLETED",
-            body: `**${user.name}** completed move for **${moveCustomer.name}** at ${formatTimeLower(updates.endingMoveTime, company.timeZone)}`,
+            body: `**${user.name}** completed move for **${moveCustomer.name}** at ${formatTimeLower(
+              updates.actualEndTime,
+              company.timeZone
+            )}`,
             companyId: moveRecord.companyId,
             userId: user._id,
             moveId,
             context: {
               customerName: moveCustomer.name,
               moverName: user.name,
-              time: updates.endingMoveTime,
+              time: updates.actualEndTime,
             },
           },
-        })
-      );
-    }
-
-    await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
-      entry: {
-        body: `**${user.name}** updated move for **${moveCustomer.name}**  **${moveDate}**`,
-        companyId: moveRecord.companyId,
-        type: "MOVE_UPDATED",
-        moveId,
-        context: {
-          customerName: moveCustomer.name,
-          moveDate,
-          salesRepName: user.name,
-        },
-        userId: user._id,
-      },
-    });
-
-    if (updates.moveStatus) {
-      await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
-        entry: {
-          type: "MOVE_STATUS_UPDATED",
-          companyId: moveRecord.companyId,
-          body: `**${moveCustomer.name}** **${moveDate}** is now marked as **${updates.moveStatus}**`,
-          moveCustomerId: moveCustomer._id,
-          moveId,
-          context: {
-            customerName: moveCustomer.name,
-            moveDate,
-            moveStatus: updates.moveStatus,
+        });
+        return true;
+      case !!updates.actualBreakTime:
+        await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
+          entry: {
+            type: "MOVE_BREAK_UPDATED",
+            body: `**${user.name}** updated break for **${moveCustomer.name}** at ${formatTimeLower(
+              updates.actualBreakTime,
+              company.timeZone
+            )}`,
+            companyId: moveRecord.companyId,
+            userId: user._id,
+            moveId,
+            context: {
+              customerName: moveCustomer.name,
+              moverName: user.name,
+              time: updates.actualBreakTime,
+              moveDate,
+            },
           },
-        },
-      });
-    }
+        });
+        return true;
 
-    return true;
+      case !!updates.moveStatus:
+        await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
+          entry: {
+            type: "MOVE_STATUS_UPDATED",
+            companyId: moveRecord.companyId,
+            body: `**${moveCustomer.name}** **${moveDate}** is now marked as **${updates.moveStatus}**`,
+            moveCustomerId: moveCustomer._id,
+            moveId,
+            context: {
+              customerName: moveCustomer.name,
+              moveDate,
+              moveStatus: updates.moveStatus,
+            },
+          },
+        });
+        return true;
+
+      default:
+        await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
+          entry: {
+            type: "MOVE_UPDATED",
+            body: `**${user.name}** updated move for **${moveCustomer.name}**  **${moveDate}**`,
+            companyId: moveRecord.companyId,
+            moveId,
+            context: {
+              customerName: moveCustomer.name,
+              moveDate,
+              salesRepName: user.name,
+            },
+            userId: user._id,
+          },
+        });
+        return true;
+    }
   },
 });
+
 export const getMovesForCalendar = query({
   args: {
     start: v.string(),

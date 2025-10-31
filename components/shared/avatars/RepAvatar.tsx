@@ -15,7 +15,7 @@ export const RepAvatar: React.FC<{ salesRep: Doc<"users"> | null }> = ({
             alt={salesRep?.name ?? "Sales rep"}
             width={40}
             height={40}
-            className="rounded-full object-cover w-10 h-10"
+            className="rounded-full object-cover"
           />
         ) : (
           <span className="text-sm text-white font-medium">{initials}</span>

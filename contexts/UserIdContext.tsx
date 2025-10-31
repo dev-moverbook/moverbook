@@ -1,6 +1,8 @@
 "use client";
 
+import { api } from "@/convex/_generated/api";
 import { Doc, Id } from "@/convex/_generated/dataModel";
+import { useQuery } from "convex/react";
 import { createContext, useContext } from "react";
 
 type UserId = { userId: Id<"users">; user: Doc<"users"> };
@@ -9,13 +11,17 @@ const UserIdContext = createContext<UserId | null>(null);
 
 export function UserIdProvider({
   userId,
-  user,
   children,
 }: {
   userId: Id<"users">;
-  user: Doc<"users">;
   children: React.ReactNode;
 }) {
+  const user = useQuery(api.users.getUserById, { userId });
+
+  if (!user) {
+    return;
+  }
+
   return (
     <UserIdContext.Provider value={{ userId, user }}>
       {children}

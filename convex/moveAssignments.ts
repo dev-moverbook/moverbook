@@ -223,7 +223,7 @@ export const updateMoveAssignmentHours = mutation({
         entry: {
           type: "WORK_BREAK_UPDATE",
           companyId: company._id,
-          body: `**${mover.name}** updated ${updates.breakAmount} hour work break for **${moveCustomer.name}** **(${moveDate})**`,
+          body: `**${mover.name}** updated ${updates.breakAmount} hours work break for **${moveCustomer.name}** **${moveDate}**`,
           userId: mover._id,
           moveId: move._id,
           context: {
@@ -285,7 +285,7 @@ export const insertMoveAssignment = mutation({
       entry: {
         type: "ASSIGN_MOVER",
         companyId: company._id,
-        body: `**${mover.name}** was assigned to move **${moveCustomer.name}** (**${moveDate}**).`,
+        body: `**${mover.name}** was assigned to move **${moveCustomer.name}** **${moveDate}**`,
         userId: moverId,
         moveId,
         amount: 0,
@@ -556,7 +556,7 @@ export const approveMoveAssignmentHours = mutation({
             type: "HOURS_STATUS_UPDATED",
             companyId: company._id,
             userId: mover._id,
-            body: `**${user.name}** **${updates.hourStatus}** for **${mover.name}**.`,
+            body: `**${user.name}** **${updates.hourStatus}** ${hours} hours for **${mover.name}**`,
             context: {
               hourStatus: updates.hourStatus,
               moverName: mover.name,
@@ -568,6 +568,12 @@ export const approveMoveAssignmentHours = mutation({
         }),
       ]);
     } else {
+      const { hours } = computeApprovedPayout({
+        startTime: assignment.startTime ?? 0,
+        endTime: assignment.endTime ?? 0,
+        breakAmount: assignment.breakAmount ?? 0,
+        hourlyRate: mover?.hourlyRate ?? 0,
+      });
       await Promise.all([
         ctx.db.patch(assignmentId, updates),
         ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
@@ -575,7 +581,7 @@ export const approveMoveAssignmentHours = mutation({
             type: "HOURS_STATUS_UPDATED",
             companyId: company._id,
             userId: mover._id,
-            body: `**${user.name}** **${updates.hourStatus}** for **${mover.name}**.`,
+            body: `**${user.name}** **${updates.hourStatus}** ${hours} hours for **${mover.name}**`,
             context: {
               hourStatus: updates.hourStatus,
               moverName: mover.name,

@@ -290,6 +290,7 @@ const MoveAddress = ({
           isEditing={showEditInput}
           placeholder="Square Footage"
           unit="sq ft"
+          spellCheck={false}
         />
         {formData.locationRole !== "ending" && (
           <LabeledRadio

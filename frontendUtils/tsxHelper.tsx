@@ -2,15 +2,17 @@ import { FileText, Clock, CheckCircle2, AlertTriangle } from "lucide-react";
 import { ReactNode } from "react";
 import { Doc } from "@/convex/_generated/dataModel";
 import { isSameDayOrLater } from "./luxonUtils";
+import { MoveStatus } from "@/types/types";
 
 export const getQuoteStatusInfo = (
-  quote: Doc<"quotes"> | null
+  quote: Doc<"quotes"> | null,
+  moveStatus: MoveStatus
 ): {
   label: string;
   icon: ReactNode;
   isQuoted: boolean;
 } => {
-  if (quote?.status === "completed") {
+  if (quote?.status === "completed" || moveStatus === "Booked") {
     return {
       label: "Quote Complete",
       icon: <CheckCircle2 className="w-4 h-4 text-greenCustom" />,
@@ -77,14 +79,14 @@ export const getMoveStatus = (
 
   if (repSignature && !customerSignature) {
     return {
-      label: "Pending Customer Pre Doc Signature",
+      label: "Pending Customer Contract Signature",
       icon: <Clock className="w-4 h-4 text-yellow-500" />,
     };
   }
 
   if (repSignature && customerSignature) {
     return {
-      label: "Pre Doc Signed",
+      label: "Contract Signed",
       icon: <CheckCircle2 className="w-4 h-4 text-greenCustom" />,
     };
   }

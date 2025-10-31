@@ -5,6 +5,7 @@ import { ClerkRoles } from "@/types/enums";
 import {
   EnrichedMoveForMover,
   GetCustomerAndMovesData,
+  newCustomerResponse,
 } from "@/types/convex-responses";
 import { Doc, Id } from "./_generated/dataModel";
 import {
@@ -30,18 +31,10 @@ export const createMoveCustomer = mutation({
     phoneNumber: v.string(),
     altPhoneNumber: v.string(),
   },
-  handler: async (ctx, args): Promise<Id<"moveCustomers">> => {
+  handler: async (ctx, args): Promise<newCustomerResponse> => {
     const { name, email, phoneNumber, altPhoneNumber, companyId } = args;
 
-    const identity = await requireAuthenticatedUser(ctx, [
-      ClerkRoles.ADMIN,
-      ClerkRoles.APP_MODERATOR,
-      ClerkRoles.MANAGER,
-      ClerkRoles.SALES_REP,
-    ]);
-
     const company = await validateCompany(ctx.db, args.companyId);
-    isUserInOrg(identity, company.clerkOrganizationId);
 
     const byEmail: Doc<"moveCustomers"> | null = await ctx.db
       .query("moveCustomers")
@@ -49,7 +42,10 @@ export const createMoveCustomer = mutation({
       .first();
 
     if (byEmail) {
-      return byEmail._id;
+      return {
+        moveCustomer: byEmail,
+        isExistingCustomer: true,
+      };
     }
 
     const byPhone: Doc<"moveCustomers"> | null = await ctx.db
@@ -58,17 +54,11 @@ export const createMoveCustomer = mutation({
       .first();
 
     if (byPhone) {
-      return byPhone._id;
+      return {
+        moveCustomer: byPhone,
+        isExistingCustomer: true,
+      };
     }
-
-    const user = validateUser(
-      await ctx.db
-        .query("users")
-        .withIndex("by_clerkUserId", (q) =>
-          q.eq("clerkUserId", identity.id as string)
-        )
-        .first()
-    );
 
     const moveCustomerId = await ctx.db.insert("moveCustomers", {
       name,
@@ -77,6 +67,49 @@ export const createMoveCustomer = mutation({
       altPhoneNumber,
       companyId,
     });
+
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+      await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
+        entry: {
+          type: "CUSTOMER_CREATED",
+          companyId,
+          moveCustomerId,
+          body: `A new customer, **${name}** was created.`,
+          context: {
+            customerName: name,
+          },
+        },
+      });
+      const moveCustomer = await validateDocument(
+        ctx.db,
+        "moveCustomers",
+        moveCustomerId,
+        ErrorMessages.MOVE_CUSTOMER_NOT_FOUND
+      );
+      return {
+        moveCustomer: moveCustomer,
+        isExistingCustomer: false,
+      };
+    }
+
+    const identityVerified = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+      ClerkRoles.SALES_REP,
+    ]);
+
+    const user = validateUser(
+      await ctx.db
+        .query("users")
+        .withIndex("by_clerkUserId", (q) =>
+          q.eq("clerkUserId", identityVerified.id as string)
+        )
+        .first()
+    );
+    isUserInOrg(identityVerified, company.clerkOrganizationId);
 
     await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
       entry: {
@@ -92,7 +125,17 @@ export const createMoveCustomer = mutation({
       },
     });
 
-    return moveCustomerId;
+    const moveCustomer = await validateDocument(
+      ctx.db,
+      "moveCustomers",
+      moveCustomerId,
+      ErrorMessages.MOVE_CUSTOMER_NOT_FOUND
+    );
+
+    return {
+      moveCustomer: moveCustomer,
+      isExistingCustomer: false,
+    };
   },
 });
 

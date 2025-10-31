@@ -112,19 +112,20 @@ const CustomerStep = ({ onNext, onCancel }: CustomerStepProps) => {
       companyId,
     });
 
-    if (response.success) {
-      if (response.moveCustomerId) {
-        setMoveFormData({
-          ...moveFormData,
-          moveCustomerId: response.moveCustomerId,
-        });
-        onNext();
-      } else if (response.existingCustomer) {
-        setExistingCustomer(response.existingCustomer);
-      }
-    } else {
-      setCreateMoveCustomerError(FrontEndErrorMessages.GENERIC);
+    if (!response) {
+      setCreateMoveCustomerError(createMoveCustomerError);
+      return;
     }
+
+    if (response.isExistingCustomer) {
+      setExistingCustomer(response.moveCustomer);
+      return;
+    }
+    setMoveFormData({
+      ...moveFormData,
+      moveCustomerId: response.moveCustomer._id,
+    });
+    onNext();
   };
 
   return (

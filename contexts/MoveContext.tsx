@@ -2,6 +2,9 @@
 
 import { createContext, useContext } from "react";
 import { GetMoveData } from "@/types/convex-responses";
+import { Id } from "@/convex/_generated/dataModel";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
 interface MoveContextValue {
   moveData: GetMoveData;
@@ -19,10 +22,18 @@ export const useMoveContext = () => {
 
 export const MoveProvider = ({
   children,
-  value,
+  moveId,
 }: {
   children: React.ReactNode;
-  value: MoveContextValue;
+  moveId: Id<"moves">;
 }) => {
-  return <MoveContext.Provider value={value}>{children}</MoveContext.Provider>;
+  const moveData = useQuery(api.moves.getMoveContext, { moveId });
+
+  if (!moveData) {
+    return;
+  }
+
+  return (
+    <MoveContext.Provider value={{ moveData }}>{children}</MoveContext.Provider>
+  );
 };

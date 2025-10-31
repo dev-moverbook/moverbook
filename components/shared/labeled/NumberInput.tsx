@@ -18,6 +18,7 @@ interface NumberInputProps {
   thousandSeparator?: boolean;
   decimalScale?: number;
   allowNegative?: boolean;
+  spellCheck?: boolean;
 }
 
 const NumberInput: React.FC<NumberInputProps> = ({
@@ -32,6 +33,7 @@ const NumberInput: React.FC<NumberInputProps> = ({
   thousandSeparator = true,
   decimalScale = 0,
   allowNegative = false,
+  spellCheck,
 }) => {
   if (!isEditing) {
     return (
@@ -74,6 +76,7 @@ const NumberInput: React.FC<NumberInputProps> = ({
         inputMode="numeric"
         pattern="[0-9]*"
         suffix={suffix}
+        spellCheck={spellCheck}
       />
 
       {unit && !hasValue && alwaysShowUnit && (

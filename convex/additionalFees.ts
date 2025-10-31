@@ -72,7 +72,7 @@ export const createAdditionalFee = mutation({
     await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
       entry: {
         type: "FEE_ADDED",
-        body: `**${user.name}** added fee **${name}** to **${moveCustomer.name}** **${moveDate}**.`,
+        body: `**${user.name}** added fee **${name}** to **${moveCustomer.name}** **${moveDate}**`,
         companyId: company._id,
         userId: user._id,
         amount,
@@ -161,7 +161,7 @@ export const updateAdditionalFee = mutation({
           type: "FEE_REMOVED",
           companyId: company._id,
           userId: user._id,
-          body: `**${user.name}** removed fee **${fee.name}** from **${moveCustomer.name}** **${moveDate}**.`,
+          body: `**${user.name}** removed fee **${fee.name}** from **${moveCustomer.name}** **${moveDate}**`,
           amount: fee.price * fee.quantity * -1,
           context: {
             customerName: moveCustomer.name,
@@ -180,7 +180,7 @@ export const updateAdditionalFee = mutation({
           type: "FEE_UPDATED",
           companyId: company._id,
           userId: user._id,
-          body: `**${user.name}** updated fee **${updatedFee.name}** for **${moveCustomer.name}** **${moveDate}**.`,
+          body: `**${user.name}** updated fee **${updatedFee.name}** for **${moveCustomer.name}** **${moveDate}**`,
           amount: updatedFee.price * updatedFee.quantity,
           context: {
             customerName: moveCustomer.name,

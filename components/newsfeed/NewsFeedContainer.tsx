@@ -14,6 +14,14 @@ const NewsFeedContainer: React.FC<NewsFeedContainerProps> = ({
 }) => {
   const { slug } = useSlugContext();
 
+  if (newsFeedEvents.length === 0) {
+    return (
+      <div className="text-center text-grayCustom2 mt-4">
+        No news feed events found. Create a new move to see news feed events.
+      </div>
+    );
+  }
+
   return (
     <div>
       {newsFeedEvents.map((newsFeedEvent) => {

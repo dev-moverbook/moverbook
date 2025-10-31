@@ -1,6 +1,12 @@
 import { v } from "convex/values";
-import { action, internalQuery, mutation, query } from "./_generated/server";
-import { Doc } from "./_generated/dataModel";
+import {
+  action,
+  internalMutation,
+  internalQuery,
+  mutation,
+  query,
+} from "./_generated/server";
+import { Doc, Id } from "./_generated/dataModel";
 import { ClerkRoles } from "@/types/enums";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import {
@@ -156,11 +162,18 @@ export const sendInternalReview = action({
         moveId: validatedMove._id,
       }
     );
-    const validatedInternalReview = validateDocExists(
-      "internalReviews",
-      internalReview,
-      ErrorMessages.INTERNAL_REVIEW_NOT_FOUND
-    );
+
+    let internalReviewId: Id<"internalReviews"> | undefined =
+      internalReview?._id;
+
+    if (!internalReviewId) {
+      internalReviewId = await ctx.runMutation(
+        internal.internalReviews.insertInternalReview,
+        {
+          moveId: validatedMove._id,
+        }
+      );
+    }
 
     if (args.channel === "email") {
       // TODO: Send waiver email
@@ -181,7 +194,7 @@ export const sendInternalReview = action({
           deliveryType: args.channel,
           moveDate,
           salesRepName: user.name,
-          internalReviewId: validatedInternalReview._id,
+          internalReviewId,
         },
         userId: user._id,
       },
@@ -203,5 +216,18 @@ export const getInternalReviewByMoveIdInternal = internalQuery({
       .first();
 
     return internalReview;
+  },
+});
+
+export const insertInternalReview = internalMutation({
+  args: {
+    moveId: v.id("moves"),
+  },
+  handler: async (ctx, args): Promise<Id<"internalReviews">> => {
+    const { moveId } = args;
+
+    return await ctx.db.insert("internalReviews", {
+      moveId,
+    });
   },
 });

@@ -4,8 +4,8 @@ import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { Doc } from "@/convex/_generated/dataModel";
 import { setErrorFromConvexError } from "@/frontendUtils/errorHelper";
+import { newCustomerResponse } from "@/types/convex-responses";
 
 interface CreateMoveCustomerInput {
   companyId: Id<"companies">;
@@ -13,12 +13,6 @@ interface CreateMoveCustomerInput {
   email: string;
   phoneNumber: string;
   altPhoneNumber: string;
-}
-
-interface CreateMoveCustomerResult {
-  success: boolean;
-  moveCustomerId?: Id<"moveCustomers">;
-  existingCustomer?: Doc<"moveCustomers">;
 }
 
 export const useCreateMoveCustomer = () => {
@@ -31,32 +25,15 @@ export const useCreateMoveCustomer = () => {
 
   const createMoveCustomer = async (
     data: CreateMoveCustomerInput
-  ): Promise<CreateMoveCustomerResult> => {
+  ): Promise<newCustomerResponse | null> => {
     setLoading(true);
     setError(null);
 
     try {
-      const response = await createMoveCustomerMutation(data);
-
-      if (response) {
-        if ("moveCustomerId" in response) {
-          return {
-            success: true,
-            moveCustomerId: response,
-          };
-        }
-
-        if ("moveCustomer" in response) {
-          return {
-            success: true,
-            moveCustomerId: response,
-          };
-        }
-      }
-      return { success: false };
+      return await createMoveCustomerMutation(data);
     } catch (error) {
       setErrorFromConvexError(error, setError);
-      return { success: false };
+      return null;
     } finally {
       setLoading(false);
     }

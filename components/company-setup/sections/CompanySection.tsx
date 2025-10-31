@@ -106,6 +106,7 @@ const CompanySection: React.FC<CompanySectionProps> = ({
                 className="w-24 h-24 rounded-md object-cover"
                 width={120}
                 height={120}
+                priority
               />
             ) : (
               <div className="w-24 h-24 rounded-md border-2 border-dashed border-gray-400 flex items-center justify-center text-gray-400">

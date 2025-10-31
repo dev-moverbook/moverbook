@@ -8,6 +8,7 @@ import LeadStep from "../steps/LeadStep";
 import QuoteStep from "../steps/QuoteStep";
 import MoveStep from "../steps/MoveStep";
 import PaymentStep from "../steps/PaymentStep";
+import { hasRequiredMoveFields } from "@/frontendUtils/helper";
 
 type InfoTabProps = {
   hideStepper?: boolean;
@@ -41,11 +42,9 @@ export default function InfoTab({ hideStepper }: InfoTabProps) {
     setCurrentStep(stepFromQuery);
   }, [stepFromQuery]);
 
-  const isLeadStepComplete = React.useMemo(() => {
-    return !!(move && moveCustomer);
-  }, [move, moveCustomer]);
-
   const isQuoteStepComplete = quote?.status === "completed";
+
+  const isLeadStepComplete = hasRequiredMoveFields(move, moveCustomer);
 
   const handleStepClick = (step: number) => {
     setCurrentStep(step);

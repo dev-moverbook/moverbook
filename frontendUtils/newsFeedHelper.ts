@@ -23,8 +23,10 @@ import openmojiSpeechBubble from "openmoji/color/svg/1F5E8.svg";
 import openmojiGreenCircle from "openmoji/color/svg/1F7E2.svg";
 import openmojiRedCircle from "openmoji/color/svg/1F534.svg";
 import openmojiClipboard from "openmoji/color/svg/1F4CB.svg";
-import openmojiBriefcase from "openmoji/color/svg/1F4B1.svg";
+import openmojiBriefcase from "openmoji/color/svg/1F4BC.svg";
 import openmojiSkull from "openmoji/color/svg/1F480.svg";
+import openmojiCoffee from "openmoji/color/svg/2615.svg";
+import openmojiTruck from "openmoji/color/svg/1F69A.svg";
 import { EnrichedNewsFeed, MoveStatus } from "@/types/types";
 
 export function getEventEmojis(
@@ -84,6 +86,8 @@ export function getEventEmojis(
       return [openmojiSpeechBubble, openmojiGreenCircle];
     case "MOVE_ARRIVAL":
       return [openmojiLorry];
+    case "MOVE_BREAK_UPDATED":
+      return [openmojiCoffee, openmojiTruck];
     case "MOVE_COMPLETED":
       return [openmojiCheck, openmojiLorry];
     case "MOVE_CREATED":
@@ -112,7 +116,7 @@ export function getEventEmojis(
     case "NEW_LEAD":
       return [openmojiFire];
     case "QUOTE_SENT":
-      return [openmojiEnvelope];
+      return [openmojiEnvelope, openmojiPage];
     case "QUOTE_SIGNED":
       return [openmojiNib, openmojiPage];
     case "REMOVE_MOVER":
@@ -124,7 +128,7 @@ export function getEventEmojis(
     case "WAIVER_SIGNED":
       return [openmojiNib, openmojiClipboard];
     case "WORK_BREAK_UPDATE":
-      return [openmojiSmile];
+      return [openmojiCoffee];
     default:
       return [openmojiSmile];
   }

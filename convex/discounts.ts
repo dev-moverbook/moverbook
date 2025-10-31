@@ -69,7 +69,7 @@ export const createDiscount = mutation({
         type: "DISCOUNT_ADDED",
         companyId: company._id,
         userId: user._id,
-        body: `**${user.name}** added discount **${name}** to **${moveCustomer.name}** **(${moveDate})**.`,
+        body: `**${user.name}** added discount **${name}** to **${moveCustomer.name}** **${moveDate}**`,
         amount,
         context: {
           customerName: moveCustomer.name,

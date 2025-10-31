@@ -176,7 +176,6 @@ const newsFeedEntryUnion = v.union(
     moveId: v.id("moves"),
     userId: v.id("users"),
   }),
-  // To do
   v.object({
     type: v.literal("CUSTOMER_CREATED"),
     body: v.string(),
@@ -345,15 +344,15 @@ const newsFeedEntryUnion = v.union(
     moveId: v.id("moves"),
     userId: v.id("users"),
   }),
-  // To do
   v.object({
     type: v.literal("FOLLOW_UP"),
     body: v.string(),
     companyId: v.id("companies"),
     context: v.object({
       customerName: v.string(),
-      moveDate: v.string(),
       followUpType: FollowUpCommunicationTypeConvex,
+      moveDate: v.string(),
+      salesRepName: v.string(),
     }),
     moveId: v.id("moves"),
     userId: v.id("users"),
@@ -475,6 +474,19 @@ const newsFeedEntryUnion = v.union(
       time: v.number(),
       customerName: v.string(),
       moverName: v.string(),
+    }),
+    moveId: v.id("moves"),
+    userId: v.id("users"),
+  }),
+  v.object({
+    type: v.literal("MOVE_BREAK_UPDATED"),
+    body: v.string(),
+    companyId: v.id("companies"),
+    context: v.object({
+      customerName: v.string(),
+      moveDate: v.string(),
+      moverName: v.string(),
+      time: v.number(),
     }),
     moveId: v.id("moves"),
     userId: v.id("users"),

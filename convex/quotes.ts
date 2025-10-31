@@ -186,7 +186,7 @@ export const sendQuote = action({
       entry: {
         type: "QUOTE_SENT",
         companyId: validatedCompany._id,
-        body: `**${user.name}** sent proposal to **${validatedMoveCustomer.name}** via ${args.channel}`,
+        body: `**${user.name}** sent proposal to **${validatedMoveCustomer.name}** via **${args.channel}**`,
         moveId: validatedMove._id,
         context: {
           customerName: validatedMoveCustomer.name,

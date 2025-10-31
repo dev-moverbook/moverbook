@@ -8,11 +8,6 @@
  * @module
  */
 
-import type {
-  ApiFromModules,
-  FilterApi,
-  FunctionReference,
-} from "convex/server";
 import type * as additionalFees from "../additionalFees.js";
 import type * as arrivalWindows from "../arrivalWindows.js";
 import type * as backendUtils_analyticsHelper from "../backendUtils/analyticsHelper.js";
@@ -45,6 +40,7 @@ import type * as customers from "../customers.js";
 import type * as discounts from "../discounts.js";
 import type * as externalReviews from "../externalReviews.js";
 import type * as fees from "../fees.js";
+import type * as followUps from "../followUps.js";
 import type * as google from "../google.js";
 import type * as http from "../http.js";
 import type * as insurancePolicies from "../insurancePolicies.js";
@@ -72,6 +68,12 @@ import type * as variables from "../variables.js";
 import type * as waivers from "../waivers.js";
 import type * as webIntegrations from "../webIntegrations.js";
 import type * as webhooks_clerk from "../webhooks/clerk.js";
+
+import type {
+  ApiFromModules,
+  FilterApi,
+  FunctionReference,
+} from "convex/server";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -114,6 +116,7 @@ declare const fullApi: ApiFromModules<{
   discounts: typeof discounts;
   externalReviews: typeof externalReviews;
   fees: typeof fees;
+  followUps: typeof followUps;
   google: typeof google;
   http: typeof http;
   insurancePolicies: typeof insurancePolicies;
@@ -142,11 +145,15 @@ declare const fullApi: ApiFromModules<{
   webIntegrations: typeof webIntegrations;
   "webhooks/clerk": typeof webhooks_clerk;
 }>;
+declare const fullApiWithMounts: typeof fullApi;
+
 export declare const api: FilterApi<
-  typeof fullApi,
+  typeof fullApiWithMounts,
   FunctionReference<any, "public">
 >;
 export declare const internal: FilterApi<
-  typeof fullApi,
+  typeof fullApiWithMounts,
   FunctionReference<any, "internal">
 >;
+
+export declare const components: {};

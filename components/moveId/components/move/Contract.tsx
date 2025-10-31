@@ -63,7 +63,7 @@ const Contract = ({ contract }: ContractProps) => {
 
   return (
     <CollapsibleSection
-      title="Pre Move Doc"
+      title="Contract"
       defaultOpen={collapsePreMove}
       headerClassName="mx-auto"
       showCheckmark
@@ -95,9 +95,9 @@ const Contract = ({ contract }: ContractProps) => {
           disabled={isDisabled}
           onSave={(e) => {
             e.preventDefault();
-            handleSMS();
+            handleEmail();
           }}
-          onCancel={handleEmail}
+          onCancel={handleSMS}
           saveLabel="Email"
           cancelLabel="Text"
           isSaving={isEmailLoading}
