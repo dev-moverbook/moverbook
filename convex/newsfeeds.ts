@@ -38,22 +38,34 @@ export const getActivitiesForUserPaginated = query({
 
     const userId = authenticatedUser.convexId as Id<"users">;
     const userRecord = validateUser(await ctx.db.get(userId));
+    const showHistory = userRecord.role === ClerkRoles.APP_MODERATOR;
+
+    // Get user creation time for filtering if needed
+    const userCreationTime = userRecord._creationTime;
 
     let baseQuery;
     if (userRecord.role === ClerkRoles.MOVER) {
       baseQuery = ctx.db
         .query("newsFeeds")
-        .withIndex("by_userId", (q) => q.eq("userId", userRecord._id))
-        .order("desc");
+        .withIndex("by_userId", (q) => q.eq("userId", userRecord._id));
     } else {
       baseQuery = ctx.db
         .query("newsFeeds")
-        .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
-        .order("desc");
+        .withIndex("by_companyId", (q) => q.eq("companyId", companyId));
     }
+
+    if (!showHistory) {
+      baseQuery = baseQuery.filter((q) =>
+        q.gt(q.field("_creationTime"), userCreationTime)
+      );
+    }
+
+    // Always order descending by creation time after filtering
+    baseQuery = baseQuery.order("desc");
 
     const result = await baseQuery.paginate(paginationOpts);
 
+    // Collect unique user IDs for images mapping
     const uniqueUserIds = Array.from(
       new Set(
         result.page
@@ -63,8 +75,6 @@ export const getActivitiesForUserPaginated = query({
     );
 
     const userImageMap = await getUserImageMap(ctx, uniqueUserIds);
-
-    // Merge newsFeedItems with userImageMap as per your existing logic
     const enrichedPage = mergeNewsFeedAndImages(result.page, userImageMap);
 
     return {
@@ -279,9 +289,9 @@ const newsFeedEntryUnion = v.union(
     companyId: v.id("companies"),
     context: v.object({
       customerName: v.string(),
-      moveCustomerId: v.id("moveCustomers"),
       salesRepName: v.string(),
     }),
+    moveCustomerId: v.id("moveCustomers"),
     userId: v.id("users"),
   }),
   v.object({

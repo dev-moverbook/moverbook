@@ -354,9 +354,9 @@ export const updateMoveCustomer = mutation({
         body: `**${user.name}** updated customer details for **${existing.name}**.`,
         context: {
           customerName: existing.name,
-          moveCustomerId,
           salesRepName: user.name,
         },
+        moveCustomerId,
       },
     });
 

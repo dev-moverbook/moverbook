@@ -72,8 +72,8 @@ export default function InfoTab({ hideStepper }: InfoTabProps) {
           onStepClick={handleStepClick}
           className="mt-4"
           disabledSteps={[
-            ...(!isLeadStepComplete ? [2, 3, 4] : []),
-            ...(isLeadStepComplete && !isQuoteStepComplete ? [3, 4] : []),
+            ...(!isLeadStepComplete ? [2, 3, 4, 5] : []),
+            ...(isLeadStepComplete && !isQuoteStepComplete ? [3, 4, 5] : []),
             ...(isLeadStepComplete &&
             !isQuoteStepComplete &&
             !isMoveStepComplete
