@@ -50,6 +50,7 @@ export default function ActivateOrgClient({ desiredOrgId, slug }: Props) {
     slug,
     user,
     userLoaded,
+    organization,
   ]);
 
   return <FullLoading />;

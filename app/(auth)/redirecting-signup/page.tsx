@@ -61,7 +61,16 @@ export default function RedirectingSignupPage() {
       NProgress.start();
       router.replace(`/app/${companyData.company?.slug}`);
     })();
-  }, [orgLoaded, organization?.id, router, setActive, user, userLoaded]);
+  }, [
+    orgLoaded,
+    organization?.id,
+    router,
+    setActive,
+    user,
+    userLoaded,
+    companyData,
+    organization,
+  ]);
 
   return <FullLoading />;
 }

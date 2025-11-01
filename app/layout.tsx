@@ -22,6 +22,12 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Moverbook",
   description: "Move with ease",
+  themeColor: "#000000", // Add this
+  icons: [
+    { rel: "icon", url: "/icon-192x192.png", sizes: "192x192" },
+    { rel: "icon", url: "/icon-512x512.png", sizes: "512x512" },
+  ],
+  manifest: "/manifest.json", // Optionally add this line if your Next version supports it
 };
 
 export default function RootLayout({
@@ -31,6 +37,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#000000" />
+        {/* Optionally reference icons here too */}
+        <link rel="icon" href="/icon-192x192.png" sizes="192x192" />
+        <link rel="icon" href="/icon-512x512.png" sizes="512x512" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
