@@ -272,14 +272,8 @@ export const createMove = mutation({
       jobId,
     });
 
-    const user = validateUser(
-      await ctx.db
-        .query("users")
-        .withIndex("by_clerkUserId", (q) =>
-          q.eq("clerkUserId", identity.id as string)
-        )
-        .first()
-    );
+    const userId = identity.convexId as Id<"users">;
+    const user = validateUser(await ctx.db.get(userId));
 
     const moveDate = args.moveDate
       ? formatMonthDayLabelStrict(args.moveDate)
@@ -504,14 +498,8 @@ export const updateMove = mutation({
     const moveCustomer = validateMoveCustomer(
       await ctx.db.get(moveRecord.moveCustomerId)
     );
-    const user = validateUser(
-      await ctx.db
-        .query("users")
-        .withIndex("by_clerkUserId", (q) =>
-          q.eq("clerkUserId", identity.id as string)
-        )
-        .first()
-    );
+    const userId = identity.convexId as Id<"users">;
+    const user = validateUser(await ctx.db.get(userId));
 
     await ctx.db.patch(moveId, { ...updates, ...statusPatch });
 

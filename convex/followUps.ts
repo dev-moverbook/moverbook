@@ -10,6 +10,7 @@ import {
   isUserInOrg,
   validateUser,
 } from "./backendUtils/validate";
+import { Id } from "./_generated/dataModel";
 
 export const sendFollowUp = action({
   args: {
@@ -49,8 +50,8 @@ export const sendFollowUp = action({
     isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
     const user = validateUser(
-      await ctx.runQuery(internal.users.getUserByClerkIdInternal, {
-        clerkUserId: identity.id as string,
+      await ctx.runQuery(internal.users.getUserByIdInternal, {
+        userId: identity.convexId as Id<"users">,
       })
     );
 

@@ -156,8 +156,8 @@ export const sendQuote = action({
     isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
     const user = validateUser(
-      await ctx.runQuery(internal.users.getUserByClerkIdInternal, {
-        clerkUserId: identity.id as string,
+      await ctx.runQuery(internal.users.getUserByIdInternal, {
+        userId: identity.convexId as Id<"users">,
       })
     );
 

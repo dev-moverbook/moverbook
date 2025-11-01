@@ -22,6 +22,7 @@ import {
   MoveStatusConvex,
 } from "@/types/convex-enums";
 import { HourStatusConvex, PaymentMethodConvex } from "./schema";
+
 import { paginationOptsValidator, PaginationResult } from "convex/server";
 
 export const getActivitiesForUserPaginated = query({
@@ -35,13 +36,8 @@ export const getActivitiesForUserPaginated = query({
     const company = await validateCompany(ctx.db, companyId);
     isUserInOrg(authenticatedUser, company.clerkOrganizationId);
 
-    const clerkUserId = authenticatedUser.id as string;
-    const userRecord = validateUser(
-      await ctx.db
-        .query("users")
-        .withIndex("by_clerkUserId", (q) => q.eq("clerkUserId", clerkUserId))
-        .unique()
-    );
+    const userId = authenticatedUser.convexId as Id<"users">;
+    const userRecord = validateUser(await ctx.db.get(userId));
 
     let baseQuery;
     if (userRecord.role === ClerkRoles.MOVER) {
@@ -141,14 +137,9 @@ export const getActivitiesByMoveId = query({
 
     let newsFeedItems: Doc<"newsFeeds">[];
     if (identity.role === ClerkRoles.MOVER) {
-      const user = validateUser(
-        await ctx.db
-          .query("users")
-          .withIndex("by_clerkUserId", (q) =>
-            q.eq("clerkUserId", identity.id as string)
-          )
-          .unique()
-      );
+      const userId = identity.convexId as Id<"users">;
+      const user = validateUser(await ctx.db.get(userId));
+
       newsFeedItems = await ctx.db
         .query("newsFeeds")
         .withIndex("by_moveId_userId", (q) =>

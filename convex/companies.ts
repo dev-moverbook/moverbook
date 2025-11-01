@@ -139,12 +139,9 @@ export const getCompanyIdBySlug = query({
     );
     isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
-    const users = await ctx.db
-      .query("users")
-      .filter((q) => q.eq(q.field("clerkUserId"), identity.id as string))
-      .first();
+    const userId = identity.convexId as Id<"users">;
+    const user = validateUser(await ctx.db.get(userId), true);
 
-    const user = validateUser(users, true);
     const connectedAccount: Doc<"connectedAccounts"> | null = await ctx.db
       .query("connectedAccounts")
       .filter((q) => q.eq(q.field("customerId"), validatedCompany.customerId))
@@ -336,7 +333,13 @@ export const updateCompanyLogo = mutation({
 
 export const getCompanyClerkUserId = query({
   args: v.object({ clerkUserId: v.string() }),
-  handler: async (ctx, { clerkUserId }): Promise<Doc<"companies"> | null> => {
+  handler: async (
+    ctx,
+    { clerkUserId }
+  ): Promise<{
+    company: Doc<"companies"> | null;
+    user: Doc<"users"> | null;
+  } | null> => {
     const user = validateUser(
       await ctx.db
         .query("users")
@@ -344,8 +347,10 @@ export const getCompanyClerkUserId = query({
         .first()
     );
     if (!user.companyId) {
-      return null;
+      return { company: null, user };
     }
-    return await ctx.db.get(user.companyId);
+    const company = await ctx.db.get(user.companyId);
+
+    return { company, user };
   },
 });

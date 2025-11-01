@@ -17,7 +17,7 @@ import {
   GetMovePageForMoverLeadData,
   GetMovePageForMoverMemberData,
 } from "@/types/convex-responses";
-import { Doc } from "./_generated/dataModel";
+import { Doc, Id } from "./_generated/dataModel";
 import { computeApprovedPayout } from "./backendUtils/calculations";
 import { buildMoverWageForMoveDisplay } from "./backendUtils/queryHelpers";
 import { ErrorMessages } from "@/types/errors";
@@ -377,12 +377,8 @@ export const getMovePageForMover = query({
     const company = await validateCompany(ctx.db, move.companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
-    const user = validateUser(
-      await ctx.db
-        .query("users")
-        .filter((q) => q.eq(q.field("clerkUserId"), identity.id))
-        .first()
-    );
+    const userId = identity.convexId as Id<"users">;
+    const user = validateUser(await ctx.db.get(userId));
 
     const assignment: Doc<"moveAssignments"> = validateMoveAssignment(
       await ctx.db
@@ -516,14 +512,8 @@ export const approveMoveAssignmentHours = mutation({
     const company = await validateCompany(ctx.db, move.companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
-    const user = validateUser(
-      await ctx.db
-        .query("users")
-        .withIndex("by_clerkUserId", (q) =>
-          q.eq("clerkUserId", identity.id as string)
-        )
-        .first()
-    );
+    const userId = identity.convexId as Id<"users">;
+    const user = validateUser(await ctx.db.get(userId));
 
     const mover = validateUser(await ctx.db.get(assignment.moverId));
     if (updates.hourStatus === "approved") {

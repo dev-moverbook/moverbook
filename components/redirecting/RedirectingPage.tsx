@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useOrganizationList, useOrganization } from "@clerk/nextjs";
+import { useOrganizationList, useOrganization, useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import NProgress from "nprogress";
 import FullLoading from "@/components/shared/skeleton/FullLoading";
@@ -14,6 +14,7 @@ type Props = {
 export default function ActivateOrgClient({ desiredOrgId, slug }: Props) {
   const { setActive } = useOrganizationList();
   const { organization, isLoaded: orgLoaded } = useOrganization();
+  const { user, isLoaded: userLoaded } = useUser();
   const didRun = useRef(false);
   const router = useRouter();
 
@@ -21,9 +22,14 @@ export default function ActivateOrgClient({ desiredOrgId, slug }: Props) {
     if (didRun.current) {
       return;
     }
-    if (!orgLoaded || !setActive) {
+    if (!orgLoaded || !setActive || !userLoaded) {
       return;
     }
+    if (!user) {
+      router.replace("/sign-in");
+      return;
+    }
+
     didRun.current = true;
 
     (async () => {
@@ -35,7 +41,16 @@ export default function ActivateOrgClient({ desiredOrgId, slug }: Props) {
       NProgress.start();
       router.replace(`/app/${slug}`);
     })();
-  }, [desiredOrgId, orgLoaded, organization, router, setActive, slug]);
+  }, [
+    desiredOrgId,
+    orgLoaded,
+    organization?.id,
+    router,
+    setActive,
+    slug,
+    user,
+    userLoaded,
+  ]);
 
   return <FullLoading />;
 }

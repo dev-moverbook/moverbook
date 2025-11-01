@@ -26,32 +26,7 @@ http.route({
       });
       switch (result.type) {
         case "user.created":
-          // const invitation = await ctx.runQuery(
-          //   internal.invitations.getAcceptedInvitationByEmail,
-          //   {
-          //     email: result.data.email_addresses[0].email_address,
-          //   }
-          // );
-
-          // if (invitation) {
-          //   const company = await ctx.runQuery(
-          //     internal.companies.getCompanyClerkOrgIdInternal,
-          //     { clerkOrgId: invitation.clerkOrganizationId }
-          //   );
-          //   const validatedCompany = validateCompany(company);
-          //   await ctx.runMutation(internal.users.createUser, {
-          //     clerkUserId: result.data.id,
-          //     email: result.data.email_addresses[0].email_address,
-          //     name: `${result.data.first_name} ${result.data.last_name}`,
-          //     role: invitation.role,
-          //     hourlyRate: invitation.hourlyRate,
-          //     imageUrl: result.data.image_url,
-          //     companyId: validatedCompany._id,
-          //   });
-          //   break;
-          // }
           await handleUserCreated(ctx, result.data);
-
           break;
         case "organizationInvitation.accepted":
           await handleOrganizationInvitationAccepted(ctx, result.data);

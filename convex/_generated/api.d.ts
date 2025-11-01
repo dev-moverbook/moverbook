@@ -52,6 +52,7 @@ import type * as labors from "../labors.js";
 import type * as messages from "../messages.js";
 import type * as moveAssignments from "../moveAssignments.js";
 import type * as moveCustomers from "../moveCustomers.js";
+import type * as moverLocations from "../moverLocations.js";
 import type * as moves from "../moves.js";
 import type * as newsfeeds from "../newsfeeds.js";
 import type * as paymentStep from "../paymentStep.js";
@@ -128,6 +129,7 @@ declare const fullApi: ApiFromModules<{
   messages: typeof messages;
   moveAssignments: typeof moveAssignments;
   moveCustomers: typeof moveCustomers;
+  moverLocations: typeof moverLocations;
   moves: typeof moves;
   newsfeeds: typeof newsfeeds;
   paymentStep: typeof paymentStep;

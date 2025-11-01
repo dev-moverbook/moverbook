@@ -6,8 +6,8 @@ import { useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { ErrorMessages } from "@/types/errors";
 import { isValidEmail } from "@/utils/helper";
-import FormErrorMessage from "../../components/shared/error/FormErrorMessage";
-import { setErrorFromConvexError } from "../../frontendUtils/errorHelper";
+import FormErrorMessage from "../../../components/shared/error/FormErrorMessage";
+import { setErrorFromConvexError } from "../../../frontendUtils/errorHelper";
 
 const SignUpPage = () => {
   const [email, setEmail] = useState<string>("");

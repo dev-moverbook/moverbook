@@ -62,17 +62,8 @@ export const getStripeConnection = query({
   handler: async (ctx): Promise<Doc<"connectedAccounts"> | null> => {
     const identity = await requireAuthenticatedUser(ctx, [ClerkRoles.ADMIN]);
 
-    const clerkUserId = identity.id as string;
-
-    const user = validateUser(
-      await ctx.db
-        .query("users")
-        .withIndex("by_clerkUserId", (q) => q.eq("clerkUserId", clerkUserId))
-        .unique(),
-      true,
-      true,
-      true
-    );
+    const userId = identity.convexId as Id<"users">;
+    const user = validateUser(await ctx.db.get(userId), true, true, true);
 
     const account = await ctx.db
       .query("connectedAccounts")

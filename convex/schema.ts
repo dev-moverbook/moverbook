@@ -419,6 +419,12 @@ export default defineSchema({
     .index("by_email", ["email"])
     .index("by_phone", ["phoneNumber"])
     .index("by_name", ["name"]),
+  moverLocations: defineTable({
+    moverId: v.id("users"),
+    lat: v.number(),
+    lng: v.number(),
+    timestamp: v.number(),
+  }).index("by_moverId", ["moverId"]),
   newsFeeds: defineTable({
     amount: v.optional(v.number()),
     body: v.string(),

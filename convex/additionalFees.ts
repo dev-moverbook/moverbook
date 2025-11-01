@@ -12,6 +12,7 @@ import { ClerkRoles } from "@/types/enums";
 import { ErrorMessages } from "@/types/errors";
 import { formatMonthDayLabelStrict } from "@/frontendUtils/luxonUtils";
 import { internal } from "./_generated/api";
+import { Id } from "./_generated/dataModel";
 
 export const createAdditionalFee = mutation({
   args: {
@@ -41,14 +42,8 @@ export const createAdditionalFee = mutation({
     const company = await validateCompany(ctx.db, move.companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
-    const user = validateUser(
-      await ctx.db
-        .query("users")
-        .withIndex("by_clerkUserId", (q) =>
-          q.eq("clerkUserId", identity.id as string)
-        )
-        .first()
-    );
+    const userId = identity.convexId as Id<"users">;
+    const user = validateUser(await ctx.db.get(userId));
 
     const moveCustomer = validateMoveCustomer(
       await ctx.db.get(move.moveCustomerId)
@@ -130,14 +125,9 @@ export const updateAdditionalFee = mutation({
 
     isUserInOrg(identity, company.clerkOrganizationId);
 
-    const user = validateUser(
-      await ctx.db
-        .query("users")
-        .withIndex("by_clerkUserId", (q) =>
-          q.eq("clerkUserId", identity.id as string)
-        )
-        .first()
-    );
+    const userId = identity.convexId as Id<"users">;
+    const user = validateUser(await ctx.db.get(userId));
+
     const moveCustomer = validateMoveCustomer(
       await ctx.db.get(move.moveCustomerId)
     );

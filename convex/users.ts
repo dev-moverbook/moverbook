@@ -325,13 +325,8 @@ export const getUserByClerkId = query({
       ClerkRoles.SALES_REP,
     ]);
 
-    const clerkId = identity.id as string;
-    const user = validateUser(
-      await ctx.db
-        .query("users")
-        .withIndex("by_clerkUserId", (q) => q.eq("clerkUserId", clerkId))
-        .first()
-    );
+    const userId = identity.convexId as Id<"users">;
+    const user = validateUser(await ctx.db.get(userId));
     return user;
   },
 });

@@ -24,7 +24,7 @@ export default async function Page() {
     { token }
   );
 
-  if (!companyData) {
+  if (companyData === null || !companyData.company || !companyData.user) {
     if (orgRole === UserRole.ADMIN) {
       redirect("/app/onboarding");
     }
@@ -37,8 +37,8 @@ export default async function Page() {
 
   return (
     <RedirectingPage
-      desiredOrgId={companyData.clerkOrganizationId}
-      slug={companyData.slug}
+      desiredOrgId={companyData.company?.clerkOrganizationId}
+      slug={companyData.company?.slug}
     />
   );
 }

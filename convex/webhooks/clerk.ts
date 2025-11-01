@@ -10,6 +10,24 @@ export const handleOrganizationInvitationAccepted = async (
   ctx: GenericActionCtx<any>,
   data: OrganizationInvitationJSON
 ) => {
+  const MAX_RETRIES = 5;
+  const RETRY_DELAY_MS = 500;
+
+  const retry = async <T>(
+    fn: () => Promise<T>,
+    retries: number
+  ): Promise<T> => {
+    try {
+      return await fn();
+    } catch (err) {
+      if (retries > 0) {
+        await new Promise((res) => setTimeout(res, RETRY_DELAY_MS));
+        return retry(fn, retries - 1);
+      }
+      throw err;
+    }
+  };
+
   try {
     const invitation = await ctx.runMutation(
       internal.invitations.updateInvitationByClerkId,
@@ -18,11 +36,16 @@ export const handleOrganizationInvitationAccepted = async (
         status: InvitationStatus.ACCEPTED,
       }
     );
-    const user = validateUser(
-      await ctx.runQuery(internal.users.getUserByEmailInternal, {
-        email: data.email_address,
-      })
-    );
+
+    const user = await retry(async () => {
+      const fetchedUser = await ctx.runQuery(
+        internal.users.getUserByEmailInternal,
+        {
+          email: data.email_address,
+        }
+      );
+      return validateUser(fetchedUser);
+    }, MAX_RETRIES);
 
     const company = await ctx.runQuery(
       internal.companies.getCompanyClerkOrgIdInternal,
@@ -68,20 +91,27 @@ export const handleUserCreated = async (
       }
     );
     if (!customer) {
-      await ctx.runMutation(internal.users.createUser, {
+      const userId = await ctx.runMutation(internal.users.createUser, {
         clerkUserId: data.id,
         email: data.email_addresses[0].email_address,
         name: `${data.first_name} ${data.last_name}`,
         imageUrl: data.image_url,
       });
+      await updateClerkUserPublicMetadata(data.id, {
+        convexId: userId,
+      });
     } else {
-      await ctx.runMutation(internal.users.createUser, {
+      const userId = await ctx.runMutation(internal.users.createUser, {
         clerkUserId: data.id,
         email: data.email_addresses[0].email_address,
         name: `${data.first_name} ${data.last_name}`,
         role: ClerkRoles.ADMIN,
         customerId: customer._id,
         imageUrl: data.image_url,
+      });
+
+      await updateClerkUserPublicMetadata(data.id, {
+        convexId: userId,
       });
     }
   } catch (err) {
