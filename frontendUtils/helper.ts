@@ -721,7 +721,7 @@ export function getMoveDisplayRows({
     return rows;
   }
 
-  const { minTotal, maxTotal } = computeMoveTotal({
+  const result = computeMoveTotal({
     moveFees,
     jobType,
     jobTypeRate,
@@ -732,6 +732,8 @@ export function getMoveDisplayRows({
     startingMoveTime,
     endingMoveTime,
   });
+  const minTotal = result?.minTotal ?? 0;
+  const maxTotal = result?.maxTotal ?? 0;
 
   rows.push({
     left: "Total",
