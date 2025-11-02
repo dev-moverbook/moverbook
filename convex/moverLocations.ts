@@ -4,7 +4,6 @@ import { ConvexError, v } from "convex/values";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import {
   isUserInCompanyConvex,
-  isUserInOrg,
   validateDocument,
   validateUser,
 } from "./backendUtils/validate";
@@ -106,20 +105,23 @@ export const stopMoverLocationSharing = mutation({
       });
     }
 
-    await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
-      entry: {
-        type: "LOCATION_SHARING_STOPPED",
-        companyId: move.companyId,
-        body: `**${validatedUser.name}** stopped sharing location for move **${moveCustomer.name}**`,
-        context: {
-          customerName: moveCustomer.name,
-          moverName: validatedUser.name,
-          moverLocationId: moveLocation._id,
+    await Promise.all([
+      ctx.db.patch(moveLocation._id, { isOn: false }),
+      ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
+        entry: {
+          type: "LOCATION_SHARING_STOPPED",
+          companyId: move.companyId,
+          body: `**${validatedUser.name}** stopped sharing location for move **${moveCustomer.name}**`,
+          context: {
+            customerName: moveCustomer.name,
+            moverName: validatedUser.name,
+            moverLocationId: moveLocation._id,
+          },
+          moveId,
+          userId: validatedUser._id,
         },
-        moveId,
-        userId: validatedUser._id,
-      },
-    });
+      }),
+    ]);
 
     return true;
   },
@@ -170,6 +172,11 @@ export const inserMoverLocationSharing = mutation({
     if (!existing) {
       moveLocationId = await ctx.db.insert("moverLocations", {
         moveId,
+        isOn: true,
+      });
+    } else if (moveLocationId) {
+      await ctx.db.patch(moveLocationId, {
+        isOn: true,
       });
     }
 

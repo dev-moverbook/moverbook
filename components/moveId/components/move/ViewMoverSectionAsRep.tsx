@@ -7,6 +7,7 @@ import ArriveOriginSection from "@/components/move/movers/ArriveOriginSection";
 import EndMoveSection from "@/components/move/movers/EndMoveSectiont";
 import BreakMoveSection from "@/components/move/movers/BreakMoveSection";
 import { useUpdateMove } from "@/hooks/moves";
+import ViewMoverLocationMap from "./ViewMoverLocationMap";
 
 const ViewMoverSectionAsRep = () => {
   const { moveData } = useMoveContext();
@@ -73,6 +74,7 @@ const ViewMoverSectionAsRep = () => {
 
   return (
     <>
+      <ViewMoverLocationMap />
       <StartMoveSection
         isSaving={updateMoveLoading}
         updateError={updateMoveError}

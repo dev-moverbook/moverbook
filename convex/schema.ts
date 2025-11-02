@@ -426,6 +426,7 @@ export default defineSchema({
     moveId: v.id("moves"),
     lat: v.optional(v.number()),
     lng: v.optional(v.number()),
+    isOn: v.boolean(),
     timestamp: v.optional(v.number()),
   }).index("by_moveId", ["moveId"]),
   newsFeeds: defineTable({

@@ -1,5 +1,6 @@
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { TravelChargingTypes } from "./enums";
+import { ConvexReactClient } from "convex/react";
 
 export interface SelectOption {
   label: string;

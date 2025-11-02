@@ -10,6 +10,7 @@ import {
 } from "@/hooks/moverLocation";
 import FieldErrorMessage from "@/components/shared/labeled/FieldErrorMessage";
 import { useMoveContext } from "@/contexts/MoveContext";
+import MoverLocationMap from "../move/MoverLocationMap";
 
 interface LocationSharingSectionProps {
   isSharing: boolean;
@@ -55,6 +56,7 @@ const LocationSharingSection = ({
     await stopMoverLocation({ moveId });
   };
   const isCompleted = moverLocation !== null && !isSharing;
+  const showMap = isSharing && moverLocation;
 
   return (
     <div>
@@ -84,6 +86,7 @@ const LocationSharingSection = ({
         <FieldErrorMessage
           error={error || insertMoverLocationError || stopMoverLocationError}
         />
+        {showMap && <MoverLocationMap moverLocation={moverLocation} />}
       </SectionContainer>
     </div>
   );

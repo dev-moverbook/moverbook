@@ -21,7 +21,7 @@
     "paths": {
       "@/*": ["./*"]
     },
-    "typeRoots": ["./node_modules/@types"],
+    "typeRoots": ["./node_modules/@types", "./types"],
     "types": []
   },
   "include": [
@@ -29,7 +29,8 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "next.config.js"
+    "next.config.js",
+    "types/**/*.d.ts"
   ],
   "exclude": ["node_modules", "node_modules/@types/minimatch"]
 }
