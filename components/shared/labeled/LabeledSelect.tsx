@@ -37,9 +37,7 @@ const LabeledSelect: React.FC<LabeledSelectProps> = ({
   const isLabeled = label !== "";
   return (
     <div>
-      {isLabeled && (
-        <Label className="block text-sm font-medium">{label}</Label>
-      )}
+      {isLabeled && <Label className="block font-medium">{label}</Label>}
       <Select
         value={value ?? undefined}
         onValueChange={onChange}

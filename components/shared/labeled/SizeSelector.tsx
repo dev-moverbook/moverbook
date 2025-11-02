@@ -18,7 +18,7 @@ const SizeSelector: React.FC<SizeSelectorProps> = ({
 }) => {
   return (
     <div>
-      <Label className="block text-sm font-medium">{label}</Label>
+      <Label className="block font-medium">{label}</Label>
       <div className="flex flex-wrap gap-4 mt-1">
         {Object.entries(CategorySizeLabels).map(([, categorySize]) => {
           const numericSize = parseInt(categorySize.size);

@@ -44,7 +44,7 @@ const FieldTextAreaRow: React.FC<FieldTextAreaRowProps> = ({
 
   return (
     <div>
-      <Label className="block text-sm font-medium mb-1">{label}</Label>
+      <Label className="block font-medium">{label}</Label>
       <p className="text-sm text-grayCustom2 whitespace-pre-line">
         {value?.trim() || fallback}
       </p>

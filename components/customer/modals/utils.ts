@@ -97,7 +97,9 @@ export function buildDuplicateMoveUrl(
   move: Doc<"moves">,
   selectedFields: string[]
 ) {
-  const url = new URL(baseUrl, "http://localhost");
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+
+  const url = new URL(baseUrl, origin || "http://localhost");
   if (move.moveCustomerId) {
     url.searchParams.set("moveCustomerId", String(move.moveCustomerId));
   }
@@ -105,5 +107,6 @@ export function buildDuplicateMoveUrl(
     url.searchParams.set("duplicateFrom", String(move._id));
     url.searchParams.set("fields", selectedFields.join(","));
   }
+  url.searchParams.set("referral", "repeat");
   return `${baseUrl}?${url.searchParams.toString()}`;
 }

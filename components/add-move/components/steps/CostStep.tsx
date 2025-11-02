@@ -33,6 +33,8 @@ const CostStep = ({ onNext, onBack, isSaving, saveError }: CostStepProps) => {
 
   const { totalMinutes } = sumSegments(segmentDistances);
 
+  const isDisabled = !moveFormData.moveCustomerId || !moveFormData.referralId;
+
   const customerMissingError = !moveFormData.moveCustomerId
     ? "Save customer on first step before proceeding"
     : null;
@@ -83,7 +85,7 @@ const CostStep = ({ onNext, onBack, isSaving, saveError }: CostStepProps) => {
           saveLabel="Complete"
           cancelLabel="Back"
           error={saveError ?? customerMissingError}
-          disabled={Boolean(customerMissingError)}
+          disabled={isDisabled}
         />
       </FormActionContainer>
     </FormContainer>

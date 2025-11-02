@@ -4,6 +4,7 @@ type PageSearchParams = {
   moveCustomerId?: string | string[];
   duplicateFrom?: string | string[];
   fields?: string | string[];
+  referral?: string | string[];
 };
 
 function getFirstStringValue(value?: string | string[]): string | undefined {
@@ -30,11 +31,15 @@ export default async function Page({
       .map((field) => field.trim())
       .filter(Boolean) ?? [];
 
+  const referralParam =
+    getFirstStringValue(searchParamsData.referral) ?? undefined;
+
   return (
     <AddMovePage
       moveCustomerId={moveCustomerId}
       duplicateFromId={duplicateFromId}
       fieldsToDuplicate={fieldsToDuplicate}
+      referralParam={referralParam}
     />
   );
 }

@@ -9,10 +9,12 @@ export default function AddMovePage({
   moveCustomerId,
   duplicateFromId,
   fieldsToDuplicate,
+  referralParam,
 }: {
   moveCustomerId: string | null;
   duplicateFromId: string | null;
   fieldsToDuplicate: string[];
+  referralParam?: string;
 }) {
   const { isCompanyContactComplete, isStripeComplete } = useSlugContext();
   if (!isCompanyContactComplete || !isStripeComplete)
@@ -30,6 +32,7 @@ export default function AddMovePage({
         moveCustomerId={moveCustomerId}
         duplicateFromId={duplicateFromId}
         fieldsToDuplicate={fieldsToDuplicate}
+        referralParam={referralParam}
       />
     </MoveFormProvider>
   );

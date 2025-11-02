@@ -54,11 +54,7 @@ const NumberInput: React.FC<NumberInputProps> = ({
 
   return (
     <div className="relative">
-      {label && (
-        <Label className="text-white block text-sm font-medium pb-1">
-          {label}
-        </Label>
-      )}
+      {label && <Label className="block font-medium">{label}</Label>}
 
       <NumericFormat
         customInput={Input}

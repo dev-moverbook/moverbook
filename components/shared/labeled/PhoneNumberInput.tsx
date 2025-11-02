@@ -33,13 +33,13 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
 
   return (
     <div>
-      {label && <Label className="block text-sm font-medium">{label}</Label>}
+      {label && <Label className="block font-medium">{label}</Label>}
       <PatternFormat
         format="(###) ###-####"
         mask="_"
         value={value}
         onValueChange={(values) => {
-          onChange(values.value); // only digits
+          onChange(values.value);
         }}
         placeholder={placeholder}
         className={`w-full rounded-md border bg-transparent px-2 py-1 text-base shadow-sm transition-colors file:border-0 file:bg-transparent md:file:text-sm file:font-medium file:text-foreground placeholder:text-grayCustom2 focus-visible:outline-none focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm text-white ${

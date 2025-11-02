@@ -1,10 +1,9 @@
-"use client";
-
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import { useRunOnceWhen } from "./useRunOnceWhen";
 import { MoveFormData } from "@/types/form-types";
+import { useEffect } from "react";
 
 type DuplicateField =
   | "serviceType"
@@ -21,7 +20,9 @@ type DuplicateField =
 export function useDuplicateFromMove(
   duplicateFromId: string | null,
   fieldsToDuplicate: string[],
-  setMoveFormData: React.Dispatch<React.SetStateAction<MoveFormData>>
+  setMoveFormData: React.Dispatch<React.SetStateAction<MoveFormData>>,
+  referralOptions?: Doc<"referrals">[],
+  referralParam?: string
 ) {
   const selectedFields = new Set(fieldsToDuplicate as DuplicateField[]);
 
@@ -30,6 +31,19 @@ export function useDuplicateFromMove(
     duplicateFromId ? { moveId: duplicateFromId as Id<"moves"> } : "skip"
   );
 
+  useEffect(() => {
+    if (referralParam === "repeat" && referralOptions) {
+      const repeatReferral = referralOptions.find(
+        (option) => option.name.toLowerCase() === "repeat"
+      );
+      if (repeatReferral) {
+        setMoveFormData((curr) => ({
+          ...curr,
+          referralId: repeatReferral._id,
+        }));
+      }
+    }
+  }, [referralParam, referralOptions, setMoveFormData]);
   useRunOnceWhen(
     Boolean(duplicateSourceMove && selectedFields.size > 0),
     () => {

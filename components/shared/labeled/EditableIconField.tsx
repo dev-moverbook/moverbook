@@ -54,9 +54,7 @@ const EditableIconField: React.FC<EditableIconFieldProps> = ({
 
   return (
     <div className="space-y-1">
-      {label && (
-        <label className="block text-sm font-medium text-white">{label}</label>
-      )}
+      {label && <label className="block font-medium">{label}</label>}
       {isPhoneNumber ? (
         <PatternFormat
           format="(###) ###-####"

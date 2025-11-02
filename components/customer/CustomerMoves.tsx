@@ -31,7 +31,7 @@ export default function CustomerMoves({
     useState<boolean>(false);
   const [selectedMove, setSelectedMove] = useState<Doc<"moves"> | null>(null);
 
-  const addMoveHref = `/app/${slug}/add-move?moveCustomerId=${moveCustomer._id}`;
+  const addMoveHref = `/app/${slug}/add-move?moveCustomerId=${moveCustomer._id}&referral=repeat`;
 
   const handleDuplicateMove = (move: Doc<"moves">) => {
     setSelectedMove(move);

@@ -35,9 +35,7 @@ const CurrencyInput: React.FC<CurrencyInputProps> = ({
   return (
     <div>
       {label && (
-        <Label className="block text-sm font-medium pb-1 text-white">
-          {label}
-        </Label>
+        <Label className="block  font-medium  text-white">{label}</Label>
       )}
       <NumericFormat
         value={value === null ? "" : value}

@@ -37,13 +37,15 @@ export const isValidHourlyRate = (rate: number): boolean => {
 };
 
 export const formatMonthDay = (value: number | null | undefined) => {
-  if (!value) return "";
+  if (!value) {
+    return "";
+  }
 
   const month = Math.floor(value / 100);
   const day = value % 100;
 
-  const dt = DateTime.fromObject({ month, day });
-  return dt.isValid ? dt.toFormat("MMM d") : "";
+  const dateTime = DateTime.fromObject({ month, day });
+  return dateTime.isValid ? dateTime.toFormat("MMM d") : "";
 };
 
 export const formatTime = (time: string | null) =>
@@ -53,7 +55,9 @@ export const formatDecimalNumber = (
   value: number | null | undefined,
   unit: string
 ) => {
-  if (value == null || isNaN(value)) return "—";
+  if (value == null || isNaN(value)) {
+    return "—";
+  }
   return `${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unit}`;
 };
 
@@ -61,12 +65,16 @@ export const formatDisplayNumber = (
   value: number | null | undefined,
   unit: string
 ) => {
-  if (value == null || isNaN(value)) return "—";
+  if (value == null || isNaN(value)) {
+    return "—";
+  }
   return `${value.toLocaleString()} ${unit}`;
 };
 
 export function formatDateToLong(dateString: string | null): string | null {
-  if (!dateString) return "Missing Date";
+  if (!dateString) {
+    return "Missing Date";
+  }
   return DateTime.fromISO(dateString).toFormat("MMMM d, yyyy");
 }
 
@@ -89,7 +97,9 @@ export function formatMoveSize(size: MoveSize | null): string | null {
 }
 
 export function formatAccessType(type?: AccessType | null): string | null {
-  if (!type) return null;
+  if (!type) {
+    return null;
+  }
 
   const map: Record<AccessType, string> = {
     ground: "Ground Level",
@@ -103,7 +113,9 @@ export function formatAccessType(type?: AccessType | null): string | null {
 }
 
 export function formatLocationType(type?: LocationType | null): string | null {
-  if (!type) return null;
+  if (!type) {
+    return null;
+  }
 
   const map: Record<LocationType, string> = {
     apartment: "Apartment",
@@ -315,7 +327,9 @@ export const formatShortDate = (date: Date): string => {
 };
 
 export const formatLongDate = (date: Date | null | undefined): string => {
-  if (!date || Number.isNaN(date.getTime())) return "Missing Date";
+  if (!date || Number.isNaN(date.getTime())) {
+    return "Missing Date";
+  }
   return DateTime.fromJSDate(date).toLocaleString({
     month: "long",
     day: "numeric",
@@ -434,16 +448,24 @@ export const formatPriceRange = (low: number, high?: number): string => {
 export const priceFilterToOrder = (
   filter: PriceFilter | null
 ): PriceOrder | null => {
-  if (filter === "Lowest to Highest") return "asc";
-  if (filter === "Highest to Lowest") return "desc";
+  if (filter === "Lowest to Highest") {
+    return "asc";
+  }
+  if (filter === "Highest to Lowest") {
+    return "desc";
+  }
   return null;
 };
 
 export const priceOrderToFilter = (
   order: PriceOrder | null
 ): PriceFilter | null => {
-  if (order === "asc") return "Lowest to Highest";
-  if (order === "desc") return "Highest to Lowest";
+  if (order === "asc") {
+    return "Lowest to Highest";
+  }
+  if (order === "desc") {
+    return "Highest to Lowest";
+  }
   return null;
 };
 export const formatTimestamp = (
@@ -457,7 +479,9 @@ export const formatTimestamp = (
 
 export const getInitials = (name: string): string => {
   const parts = name.trim().split(" ");
-  if (parts.length === 1) return parts[0][0]?.toUpperCase() ?? "";
+  if (parts.length === 1) {
+    return parts[0][0]?.toUpperCase() ?? "";
+  }
   return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
 };
 
@@ -465,17 +489,28 @@ export const getHourlyRateFromLabor = (
   movers: number,
   laborRates?: Doc<"labors">[]
 ): number | null => {
-  if (!laborRates) return null;
+  if (!laborRates) {
+    return null;
+  }
 
   const active = laborRates.find((l) => l.isDefault && l.isActive);
-  if (!active) return null;
+  if (!active) {
+    return null;
+  }
 
-  if (movers === 2) return active.twoMovers;
-  if (movers === 3) return active.threeMovers;
-  if (movers === 4) return active.fourMovers;
-  if (movers > 4) return active.fourMovers + (movers - 4) * active.extra;
-
-  return null;
+  switch (movers) {
+    case 2:
+      return active.twoMovers;
+    case 3:
+      return active.threeMovers;
+    case 4:
+      return active.fourMovers;
+    default:
+      if (movers > 4) {
+        return active.fourMovers + (movers - 4) * active.extra;
+      }
+      return null;
+  }
 };
 
 export interface ListRowType {
@@ -586,23 +621,32 @@ export function computeMoveTotal(
   };
 }
 
-const fmt2 = (n: number) => (Number.isFinite(n) ? n.toFixed(2) : "0.00");
+const formatToTwoDecimals = (number: number) =>
+  Number.isFinite(number) ? number.toFixed(2) : "0.00";
 
-const fmtSmart = (n: number) =>
-  Number.isInteger(n) ? String(n) : n.toFixed(2);
+const formatSmartDecimal = (number: number) =>
+  Number.isInteger(number) ? String(number) : number.toFixed(2);
 
-const buildHourlySuffix = (minH?: number | null, maxH?: number | null) => {
-  const hasMin = typeof minH === "number";
-  const hasMax = typeof maxH === "number";
+export const buildHourlySuffix = (
+  minimumHours?: number | null,
+  maximumHours?: number | null
+) => {
+  const hasMinimumHours = typeof minimumHours === "number";
+  const hasMaximumHours = typeof maximumHours === "number";
 
-  if (hasMin && hasMax) {
-    const a = Math.max(0, minH!);
-    const b = Math.max(a, maxH!);
-    return a === b
-      ? ` (${fmtSmart(a)} hrs)`
-      : ` (${fmtSmart(a)} - ${fmtSmart(b)} hrs)`;
+  if (hasMinimumHours && hasMaximumHours) {
+    const safeMinimumHours = Math.max(0, minimumHours!);
+    const safeMaximumHours = Math.max(safeMinimumHours, maximumHours!);
+
+    return safeMinimumHours === safeMaximumHours
+      ? ` (${formatSmartDecimal(safeMinimumHours)} hrs)`
+      : ` (${formatSmartDecimal(safeMinimumHours)} - ${formatSmartDecimal(safeMaximumHours)} hrs)`;
   }
-  if (hasMin) return ` (${fmtSmart(Math.max(0, minH!))} hrs)`;
+
+  if (hasMinimumHours) {
+    return ` (${formatSmartDecimal(Math.max(0, minimumHours!))} hrs)`;
+  }
+
   return "";
 };
 
@@ -610,7 +654,9 @@ const buildTravelSuffix = (
   method: TravelChargingTypes | null,
   segmentDistances: SegmentDistance[]
 ) => {
-  if (!segmentDistances.length) return "";
+  if (!segmentDistances.length) {
+    return "";
+  }
 
   const first = segmentDistances[0];
   const miles = first.distance ?? 0;
@@ -618,9 +664,9 @@ const buildTravelSuffix = (
 
   switch (method) {
     case TravelChargingTypes.LABOR_HOURS:
-      return ` (${fmt2(Math.max(0, hours))} hrs)`;
+      return ` (${formatToTwoDecimals(Math.max(0, hours))} hrs)`;
     case TravelChargingTypes.MILEAGE:
-      return ` (${fmt2(Math.max(0, miles))} mi)`;
+      return ` (${formatToTwoDecimals(Math.max(0, miles))} mi)`;
     default:
       return "";
   }
@@ -761,7 +807,6 @@ function buildTravelRow(
     case TravelChargingTypes.FLAT:
       return { left: "Travel (Flat)", right: `${formatCurrency(rate)}` };
     default:
-      // Fallback (shouldn't happen if enum is exhaustive)
       return { left: "Travel Fee", right: formatCurrency(rate) };
   }
 }
@@ -771,7 +816,9 @@ export function getTotalHoursRange(
   end: number,
   drive: number = 0
 ): string {
-  if (typeof start !== "number" || typeof end !== "number") return "-";
+  if (typeof start !== "number" || typeof end !== "number") {
+    return "-";
+  }
   const totalStart = formatDisplayNumber(start + drive, "");
   const totalEnd = formatDisplayNumber(end + drive, "");
   return `${totalStart} - ${totalEnd} hours`;
@@ -809,24 +856,16 @@ export function formatMonthDayTimestamp(
 export const placeIdToRef = (pid: string | null) =>
   pid ? `place_id:${pid}` : null;
 
-/** Shallow, order-sensitive comparison for SegmentDistance arrays. */
 export const isLikelyPlaceId = (id?: string | null) =>
   !!id && !/[ ,]/.test(id) && id.length >= 10;
 
-/** Build a single string ref for the distance API:
- *  - placeId (raw, no "place_id:" prefix)
- *  - or "lat,lng"
- *  - or formatted address
- */
 export const toDistanceRef = (addr?: AddressInput | null): string | null => {
   if (!addr) return null;
 
-  // 1) prefer real placeId (raw)
   if (isLikelyPlaceId(addr.placeId)) {
     return addr.placeId!;
   }
 
-  // 2) lat/lng fallback
   const lat = addr.location?.lat ?? null;
   const lng = addr.location?.lng ?? null;
   if (
@@ -838,7 +877,6 @@ export const toDistanceRef = (addr?: AddressInput | null): string | null => {
     return `${lat},${lng}`;
   }
 
-  // 3) formatted address
   const fa = addr.formattedAddress?.trim();
   return fa && fa.length > 0 ? fa : null;
 };
@@ -897,7 +935,9 @@ export const formatNumber = (
 };
 
 export const formatMiles = (miles: number | null | undefined): string => {
-  if (miles == null) return "—";
+  if (miles == null) {
+    return "—";
+  }
   return `${formatNumber(miles)} miles`;
 };
 
@@ -959,35 +999,48 @@ export const sumSegments = (
 };
 
 export const toHHmmInZone = (
-  ms: number | null | undefined,
+  milliseconds: number | null | undefined,
   timeZone: string,
   fallback = ""
 ): string => {
-  if (ms == null || !Number.isFinite(ms)) return fallback;
-  const dt = DateTime.fromMillis(ms, { zone: timeZone });
-  return dt.isValid ? dt.toFormat("HH:mm") : fallback;
+  if (milliseconds == null || !Number.isFinite(milliseconds)) {
+    return fallback;
+  }
+  const dateTime = DateTime.fromMillis(milliseconds, { zone: timeZone });
+  return dateTime.isValid ? dateTime.toFormat("HH:mm") : fallback;
 };
 
 export const withHHmmInZone = (
-  baseMs: number,
-  hhmm: string,
+  baseMilliseconds: number,
+  timeString: string,
   timeZone: string
 ): number => {
-  const [h, m] = hhmm.split(":").map(Number);
-  if (!Number.isFinite(h) || !Number.isFinite(m)) return baseMs;
-  const dt = DateTime.fromMillis(baseMs, { zone: timeZone }).set({
-    hour: h,
-    minute: m,
+  const [hours, minutes] = timeString.split(":").map(Number);
+
+  if (!Number.isFinite(hours) || !Number.isFinite(minutes)) {
+    return baseMilliseconds;
+  }
+
+  const adjustedDateTime = DateTime.fromMillis(baseMilliseconds, {
+    zone: timeZone,
+  }).set({
+    hour: hours,
+    minute: minutes,
     second: 0,
     millisecond: 0,
   });
-  return dt.toMillis();
+
+  return adjustedDateTime.toMillis();
 };
 
 export const formatDateTimeLocal = (val: string) => {
-  if (!val || !val.includes("T")) return "";
+  if (!val || !val.includes("T")) {
+    return "";
+  }
   const [datePart, timePart] = val.split("T");
-  if (!datePart || !timePart) return "";
+  if (!datePart || !timePart) {
+    return "";
+  }
   return `${formatDateToLong(datePart)} ${formatTime(timePart)}`;
 };
 
@@ -1000,7 +1053,9 @@ export const fromLocalDT = (val: string, zone: string) =>
 export const normalizeBreakMinutes = (
   actualBreakTime?: number | null
 ): number => {
-  if (actualBreakTime == null || Number.isNaN(actualBreakTime)) return 0;
+  if (actualBreakTime == null || Number.isNaN(actualBreakTime)) {
+    return 0;
+  }
 
   return actualBreakTime <= 10
     ? Math.round(actualBreakTime * 60)
@@ -1042,9 +1097,9 @@ export const getMonthGrid = (viewDate: Date, timeZone: string) => {
 };
 
 export function getWeekdays(selectedDate: Date, timeZone: string): Date[] {
-  const dt = DateTime.fromJSDate(selectedDate).setZone(timeZone);
+  const dateTime = DateTime.fromJSDate(selectedDate).setZone(timeZone);
 
-  const sunday = dt.minus({ days: dt.weekday % 7 });
+  const sunday = dateTime.minus({ days: dateTime.weekday % 7 });
 
   return Array.from({ length: 7 }, (_, i) =>
     sunday.plus({ days: i }).toJSDate()
@@ -1066,31 +1121,34 @@ export function formatLongDateInZone(
   value: number | string | Date,
   timeZone: string
 ): string {
-  const dt =
+  const dateTime =
     typeof value === "number"
       ? DateTime.fromMillis(value, { zone: timeZone })
       : typeof value === "string"
         ? DateTime.fromISO(value, { zone: timeZone })
         : DateTime.fromJSDate(value, { zone: timeZone });
 
-  return dt.isValid ? dt.toFormat("MMM d, yyyy") : "Missing Date";
+  return dateTime.isValid ? dateTime.toFormat("MMM d, yyyy") : "Missing Date";
 }
 
 export function formatWeekRange(
   value: number | string | Date,
   timeZone: string
 ): string {
-  const dt =
+  const dateTime =
     typeof value === "number"
       ? DateTime.fromMillis(value, { zone: timeZone })
       : typeof value === "string"
         ? DateTime.fromISO(value, { zone: timeZone })
         : DateTime.fromJSDate(value, { zone: timeZone });
 
-  if (!dt.isValid) return "Missing Date";
+  if (!dateTime.isValid) {
+    return "Missing Date";
+  }
 
-  // Sunday of the week (Luxon: weekday 1=Mon ... 7=Sun)
-  const weekStart = dt.minus({ days: dt.weekday % 7 }).startOf("day");
+  const weekStart = dateTime
+    .minus({ days: dateTime.weekday % 7 })
+    .startOf("day");
   const weekEnd = weekStart.plus({ days: 6 }).endOf("day");
 
   return `${weekStart.toFormat("MMM d, yyyy")} - ${weekEnd.toFormat("MMM d,  yyyy")}`;
@@ -1106,7 +1164,8 @@ export const getMajorityMonth = (weekDates: Date[], timeZone: string): Date => {
   const sortedMonths = Object.entries(monthCount).sort((a, b) => b[1] - a[1]);
   const majorityMonth = Number(sortedMonths[0][0]);
   const majorityDate = weekDates.find(
-    (d) => DateTime.fromJSDate(d).setZone(timeZone).month === majorityMonth
+    (date) =>
+      DateTime.fromJSDate(date).setZone(timeZone).month === majorityMonth
   );
   return majorityDate ?? weekDates[0];
 };
@@ -1208,7 +1267,9 @@ export const formatTwoDecimals = (
   value: number | null | undefined,
   suffix?: string
 ): string => {
-  if (value == null || isNaN(value)) return "—";
+  if (value == null || isNaN(value)) {
+    return "—";
+  }
   return `${value.toFixed(2)}${suffix ? ` ${suffix}` : ""}`;
 };
 
@@ -1217,7 +1278,7 @@ export function roundToTwoDecimals(num: number): number {
 }
 
 export function formatHours(ms: number): string {
-  return `${ms.toFixed(2)} hours`;
+  return `${formatToTwoDecimals(ms)} hours`;
 }
 
 export function formatHoursAbbreviated(ms: number): string {

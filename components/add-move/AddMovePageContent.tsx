@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import PageHeader from "@/components/shared/heading/NavigationHeader";
 import ConfirmModal from "@/components/shared/modal/ConfirmModal";
@@ -24,15 +24,22 @@ export default function AddMovePageContent({
   moveCustomerId,
   duplicateFromId,
   fieldsToDuplicate,
+  referralParam,
 }: {
   moveCustomerId: string | null;
   duplicateFromId: string | null;
   fieldsToDuplicate: string[];
+  referralParam?: string;
 }) {
   const router = useRouter();
   const { slug } = useSlugContext();
-  const { setCustomer, setMoveFormData, moveFormData, isAllSectionsComplete } =
-    useMoveForm();
+  const {
+    setCustomer,
+    setMoveFormData,
+    moveFormData,
+    isAllSectionsComplete,
+    referralOptions,
+  } = useMoveForm();
   const { createMove, createMoveLoading, createMoveError, setCreateMoveError } =
     useCreateMove();
 
@@ -40,7 +47,13 @@ export default function AddMovePageContent({
   const [showModal, setShowModal] = useState<boolean>(false);
 
   useUnsavedChangesGuard(true);
-  useDuplicateFromMove(duplicateFromId, fieldsToDuplicate, setMoveFormData);
+  useDuplicateFromMove(
+    duplicateFromId,
+    fieldsToDuplicate,
+    setMoveFormData,
+    referralOptions,
+    referralParam
+  );
   usePrefillCustomer(moveCustomerId, setCustomer, setMoveFormData, () =>
     setStep(2)
   );

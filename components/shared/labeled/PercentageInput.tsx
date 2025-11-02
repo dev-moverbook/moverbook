@@ -31,9 +31,7 @@ const PercentageInput: React.FC<PercentageInputProps> = ({
 
   return (
     <div>
-      {label && (
-        <label className="block text-sm font-medium text-white">{label}</label>
-      )}
+      {label && <label className="block font-medium">{label}</label>}
       <NumericFormat
         value={value === null ? "" : value}
         onValueChange={(values) => {

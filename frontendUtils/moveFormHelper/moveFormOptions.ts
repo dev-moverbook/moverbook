@@ -7,12 +7,17 @@ export function buildSalesRepOptions(
 ): SelectOption[] {
   const base =
     salesReps?.map((rep) => ({
+      image: rep.imageUrl,
       label: rep.name,
       value: rep._id,
     })) ?? [];
 
   if (currentUser && !base.some((opt) => opt.value === currentUser._id)) {
-    base.push({ label: currentUser.name, value: currentUser._id });
+    base.push({
+      image: currentUser.imageUrl,
+      label: currentUser.name,
+      value: currentUser._id,
+    });
   }
 
   return base;

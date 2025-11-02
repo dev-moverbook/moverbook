@@ -37,7 +37,7 @@ const LabeledTimeInput: React.FC<LabeledTimeInputProps> = ({
 
   return (
     <div className="flex flex-col gap-2">
-      <Label className="block text-sm font-medium">{label}</Label>
+      <Label className="block font-medium">{label}</Label>
       <Input
         type="time"
         value={value}

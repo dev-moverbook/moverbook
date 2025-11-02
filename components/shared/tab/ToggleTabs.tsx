@@ -17,7 +17,7 @@ const ToggleTabs = <T extends string>({
 }: ToggleTabsProps<T>) => {
   return (
     <div className="">
-      {label && <Label className="block text-sm font-medium">{label}</Label>}
+      {label && <Label className="block  font-medium">{label}</Label>}
       <div
         className={`inline-flex gap-2 rounded-lg border border-grayCustom p-1 ${className}`}
       >

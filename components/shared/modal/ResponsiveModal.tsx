@@ -36,7 +36,7 @@ const ResponsiveModal: React.FC<ResponsiveModalProps> = ({
 
   return isMobile ? (
     <Drawer open={isOpen} onOpenChange={onClose}>
-      <DrawerContent {...(heightVh ? { heightVh } : {})}>
+      <DrawerContent className="px-4" {...(heightVh ? { heightVh } : {})}>
         <DrawerTitle>{title}</DrawerTitle>
         {description && <DrawerDescription>{description}</DrawerDescription>}
         {children}

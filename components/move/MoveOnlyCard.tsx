@@ -130,7 +130,7 @@ export default function MoveOnlyCard({
   );
 
   const baseClasses =
-    "bg-black py-4 px-4 text-white transition-colors duration-200";
+    "bg-black py-4 px-4 md:px-0 text-white transition-colors duration-200";
   const interactiveClasses =
     !showActions && !linkDisabled
       ? "hover:bg-background2 hover:rounded-lg cursor-pointer"

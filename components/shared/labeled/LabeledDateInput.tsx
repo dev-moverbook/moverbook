@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import FieldErrorMessage from "./FieldErrorMessage";
 import FieldDisplay from "@/components/shared/field/FieldDisplay";
 import { formatDateToLong } from "@/frontendUtils/helper";
+import { useIsIphone } from "@/hooks/utils/useIsIphone";
 
 interface LabeledDateInputProps {
   label: string;
@@ -27,14 +28,7 @@ const LabeledDateInput: React.FC<LabeledDateInputProps> = ({
   isEditing = true,
 }) => {
   const [focused, setFocused] = useState<boolean>(false);
-  const [isIphone, setIsIphone] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const ua = window.navigator.userAgent.toLowerCase();
-      setIsIphone(/iphone/.test(ua));
-    }
-  }, []);
+  const isIphone = useIsIphone();
 
   const showGhostText = !value && !focused && isIphone;
 
@@ -50,10 +44,10 @@ const LabeledDateInput: React.FC<LabeledDateInputProps> = ({
 
   return (
     <div className="relative">
-      <Label className="block text-sm font-medium">{label}</Label>
+      <Label className="block font-medium">{label}</Label>
 
       {showGhostText && (
-        <span className="absolute left-3 top-[30px] text-white pointer-events-none text-sm md:hidden">
+        <span className="absolute left-3 top-[27px] text-white pointer-events-none text-sm md:hidden">
           Select Date
         </span>
       )}

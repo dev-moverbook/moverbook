@@ -28,7 +28,7 @@ export default function DuplicateMoveForm({
   submitDisabled,
 }: DuplicateMoveFormProps) {
   return (
-    <FieldGroup>
+    <FieldGroup className="space-y-6">
       <LabeledMoveCheckboxGroup
         label="Move Details"
         name="duplicateSections"

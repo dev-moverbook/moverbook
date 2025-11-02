@@ -50,7 +50,7 @@ const NewsFeedCard: React.FC<NewsFeedCardProps> = ({ newsFeedEvent, href }) => {
       <div className="flex-1">
         <div className="flex items-start justify-between">
           <div>
-            <div className="text-base text-white">
+            <div className="text-sm text-white leading-tight">
               {parseBoldMarkdown(body)}
             </div>
             <div className="text-xs text-grayCustom2">{relativeTime}</div>

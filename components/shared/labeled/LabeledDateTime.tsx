@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import FieldErrorMessage from "./FieldErrorMessage";
 import FieldDisplay from "@/components/shared/field/FieldDisplay";
 import { formatDateTimeLocal } from "@/frontendUtils/helper";
+import { useIsIphone } from "@/hooks/utils/useIsIphone";
 
 interface LabeledDateTimeInputProps {
   label: string;
@@ -26,15 +27,8 @@ const LabeledDateTimeInput: React.FC<LabeledDateTimeInputProps> = ({
   max,
   isEditing = true,
 }) => {
-  const [focused, setFocused] = useState(false);
-  const [isIphone, setIsIphone] = useState(false);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const ua = window.navigator.userAgent.toLowerCase();
-      setIsIphone(/iphone/.test(ua));
-    }
-  }, []);
+  const [focused, setFocused] = useState<boolean>(false);
+  const isIphone = useIsIphone();
 
   const showGhostText = !value && !focused && isIphone;
 
@@ -50,7 +44,7 @@ const LabeledDateTimeInput: React.FC<LabeledDateTimeInputProps> = ({
 
   return (
     <div className="relative">
-      <Label className="block text-sm font-medium">{label}</Label>
+      <Label className="block  font-medium">{label}</Label>
 
       {showGhostText && (
         <span className="absolute left-3 top-[30px] text-white pointer-events-none text-sm md:hidden">

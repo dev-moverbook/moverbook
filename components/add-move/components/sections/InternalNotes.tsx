@@ -2,11 +2,14 @@
 
 import SectionContainer from "@/components/shared/containers/SectionContainer";
 import LabeledTextarea from "@/components/shared/labeled/LabeledTextarea";
-import LabeledSelect from "@/components/shared/labeled/LabeledSelect";
 import { MOVE_STATUS_OPTIONS, MoveStatus } from "@/types/types";
 import { useMoveForm } from "@/contexts/MoveFormContext";
 import { Id } from "@/convex/_generated/dataModel";
 import Header3 from "@/components/shared/heading/Header3";
+import AdaptiveSelect from "@/components/shared/select/AdaptiveSelect";
+import { Label } from "@/components/ui/label";
+import FieldGroup from "@/components/shared/field/FieldGroup";
+import AdaptiveContainer from "@/components/shared/select/AdaptiveContainer";
 
 const InternalNotes = () => {
   const { salesRepOptions, setMoveFormData, moveFormData, referralOptions } =
@@ -24,42 +27,76 @@ const InternalNotes = () => {
       <Header3 wrapperClassName="px-0" showCheckmark={false}>
         Internal Notes
       </Header3>
-      <LabeledSelect
-        label="Sales Rep"
-        value={salesRep ?? ""}
-        options={salesRepOptions}
-        onChange={(value) =>
-          setMoveFormData({ ...moveFormData, salesRep: value as Id<"users"> })
-        }
-      />
-      <LabeledSelect
-        label="Move Status"
-        value={moveStatus}
-        options={MOVE_STATUS_OPTIONS}
-        onChange={(value) =>
-          setMoveFormData({ ...moveFormData, moveStatus: value as MoveStatus })
-        }
-      />
-      <LabeledSelect
-        label="Referral Source*"
-        value={referralId ?? ""}
-        onChange={(value) =>
-          setMoveFormData({
-            ...moveFormData,
-            referralId: value as Id<"referrals">,
-          })
-        }
-        options={referralSelectOptions}
-        placeholder="Select a referral source"
-      />
-      <LabeledTextarea
-        label="Notes"
-        value={notes ?? ""}
-        onChange={(e) =>
-          setMoveFormData({ ...moveFormData, notes: e.target.value })
-        }
-        placeholder="Add internal note"
-      />
+
+      <FieldGroup className="flex flex-col gap-4">
+        <AdaptiveContainer>
+          <Label>Sales Rep</Label>
+          <AdaptiveSelect
+            title="Select sales rep"
+            options={salesRepOptions}
+            value={salesRep ?? ""}
+            onChange={(value) =>
+              setMoveFormData({
+                ...moveFormData,
+                salesRep: value as Id<"users">,
+              })
+            }
+            placeholder="Choose a sales rep"
+            triggerLabel="Sales Reps"
+            description="Choose a sales rep for the move."
+            showAllOption={false}
+            showSearch={false}
+          />
+        </AdaptiveContainer>
+
+        <AdaptiveContainer>
+          <Label>Move Status</Label>
+          <AdaptiveSelect
+            title="Select source"
+            options={MOVE_STATUS_OPTIONS}
+            value={moveStatus ?? ""}
+            onChange={(value) =>
+              setMoveFormData({
+                ...moveFormData,
+                moveStatus: value as MoveStatus,
+              })
+            }
+            placeholder="Choose a move status"
+            triggerLabel="Move Statuses"
+            description="Choose a move status for the move."
+            showSearch={false}
+            showAllOption={false}
+          />
+        </AdaptiveContainer>
+
+        <AdaptiveContainer>
+          <Label>Referral Source</Label>
+          <AdaptiveSelect
+            title="Select source"
+            options={referralSelectOptions}
+            value={referralId ?? ""}
+            onChange={(value) =>
+              setMoveFormData({
+                ...moveFormData,
+                referralId: value as Id<"referrals">,
+              })
+            }
+            placeholder="Choose a source"
+            triggerLabel="Sources"
+            description="Choose a referral source for the move."
+            showAllOption={false}
+            showSearch={false}
+          />
+        </AdaptiveContainer>
+        <LabeledTextarea
+          label="Notes"
+          value={notes ?? ""}
+          onChange={(e) =>
+            setMoveFormData({ ...moveFormData, notes: e.target.value })
+          }
+          placeholder="Add internal note"
+        />
+      </FieldGroup>
     </SectionContainer>
   );
 };

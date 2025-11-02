@@ -29,7 +29,7 @@ const LabeledTextarea: React.FC<LabeledTextareaProps> = ({
   }
 
   return (
-    <div>
+    <div className="">
       <Label className="block  font-medium ">{label}</Label>
       <Textarea value={value} onChange={onChange} placeholder={placeholder} />
       <FieldErrorMessage error={error} noPlaceholder={noPlaceholderError} />
