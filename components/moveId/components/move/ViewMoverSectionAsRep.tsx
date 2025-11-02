@@ -74,7 +74,6 @@ const ViewMoverSectionAsRep = () => {
 
   return (
     <>
-      <ViewMoverLocationMap />
       <StartMoveSection
         isSaving={updateMoveLoading}
         updateError={updateMoveError}
@@ -83,7 +82,7 @@ const ViewMoverSectionAsRep = () => {
         startTime={actualStartTime}
         handleSetStartTime={handleSetStartTime}
       />
-
+      {actualStartTime && <ViewMoverLocationMap />}
       {actualStartTime && (
         <ArriveOriginSection
           isSaving={updateMoveLoading}

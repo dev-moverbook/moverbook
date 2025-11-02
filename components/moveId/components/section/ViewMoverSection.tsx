@@ -135,7 +135,6 @@ const ViewMoverSection: React.FC<ViewMoverSectionProps> = ({
 
   return (
     <>
-      <LocationSharingSectionWrapper />
       <StartMoveSection
         isSaving={updateMoveLoading}
         updateError={updateMoveError}
@@ -144,8 +143,8 @@ const ViewMoverSection: React.FC<ViewMoverSectionProps> = ({
         startTime={actualStartTime}
         handleSetStartTime={handleSetStartTime}
       />
-
-      {actualStartTime && (
+      {actualStartTime && <LocationSharingSectionWrapper />}
+      {moveData.moverLocation && (
         <ArriveOriginSection
           isSaving={updateMoveLoading}
           updateError={updateMoveError}

@@ -280,7 +280,16 @@ export const insertMoveAssignment = mutation({
       ? formatMonthDayLabelStrict(move.moveDate)
       : "TBD";
 
-    // ToDo calculate amount
+    let amount: number | null = null;
+
+    const hourlyRate = mover.hourlyRate;
+    const endingMoveTime = move.endingMoveTime;
+    const startingMoveTime = move.startingMoveTime;
+
+    if (hourlyRate && endingMoveTime && startingMoveTime) {
+      amount = (endingMoveTime - startingMoveTime) * hourlyRate;
+    }
+
     await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
       entry: {
         type: "ASSIGN_MOVER",
@@ -288,7 +297,7 @@ export const insertMoveAssignment = mutation({
         body: `**${mover.name}** was assigned to move **${moveCustomer.name}** **${moveDate}**`,
         userId: moverId,
         moveId,
-        amount: 0,
+        amount,
         context: {
           customerName: moveCustomer.name,
           moverName: mover.name,

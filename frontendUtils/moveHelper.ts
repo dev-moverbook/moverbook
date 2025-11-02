@@ -18,7 +18,7 @@ export function getDisplayedPrice(
   hourStatus: HourStatus | undefined,
   moverWageDisplay?: MoverWageForMove | null
 ): string {
-  const { minTotal, maxTotal } = computeMoveTotal({
+  const result = computeMoveTotal({
     moveFees: move.moveFees,
     jobType: move.jobType,
     jobTypeRate: move.jobTypeRate,
@@ -29,6 +29,10 @@ export function getDisplayedPrice(
     travelFeeMethod: move.travelFeeMethod ?? null,
     segmentDistances: move.segmentDistances,
   });
+
+  if (result === null) {
+    return "TBD";
+  }
 
   if (isMover) {
     switch (hourStatus) {
@@ -55,9 +59,11 @@ export function getDisplayedPrice(
     return formatCurrency(move.invoiceAmountPaid + move.deposit);
   }
 
-  return minTotal === maxTotal
-    ? formatCurrency(minTotal)
-    : formatPriceRange(minTotal, maxTotal);
+  if (result.minTotal === result.maxTotal) {
+    return formatCurrency(result.minTotal);
+  }
+
+  return formatPriceRange(result.minTotal, result.maxTotal);
 }
 
 export function getStatusDisplay(

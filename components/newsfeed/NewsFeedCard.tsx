@@ -8,6 +8,7 @@ import { EnrichedNewsFeed, MoveStatus } from "@/types/types";
 import { getEventEmojis } from "@/frontendUtils/newsFeedHelper";
 import UserAvatar from "./NewsFeedAvatar";
 import Image from "next/image";
+import { formatCurrency } from "@/frontendUtils/helper";
 
 interface NewsFeedCardProps {
   newsFeedEvent: EnrichedNewsFeed;
@@ -16,21 +17,36 @@ interface NewsFeedCardProps {
 
 const NewsFeedCard: React.FC<NewsFeedCardProps> = ({ newsFeedEvent, href }) => {
   const {
-    newsFeedItem: { _creationTime, body, type, context },
+    newsFeedItem: { _creationTime, body, type, context, amount },
     userImageUrl,
   } = newsFeedEvent;
+
   const relativeTime = DateTime.fromMillis(_creationTime).toRelative();
   const creationDateFormatted = formatMonthDayLabelStrict(_creationTime);
-  const emojis = getEventEmojis(type, context?.moveStatus as MoveStatus);
+
+  const showEmojis = amount === undefined;
+  const emojis = showEmojis
+    ? getEventEmojis(type, context?.moveStatus as MoveStatus)
+    : [];
+
+  const displayAmount =
+    amount === null || amount === undefined ? "TBD" : formatCurrency(amount);
+  const amountColorClass =
+    amount === null || amount === undefined
+      ? ""
+      : amount >= 0
+        ? "text-green-600"
+        : "text-red-600";
 
   const cardContent = (
-    <div className="flex items-start gap-4 py-3 border-b border-grayCustom w-full px-4  relative">
+    <div className="flex items-start gap-4 py-3 border-b border-grayCustom w-full px-4 relative">
       <div className="flex flex-col items-center w-10 text-center">
         <UserAvatar userImageUrl={userImageUrl} altText="user" />
         <div className="text-xs text-grayCustom2 mt-1">
           {creationDateFormatted}
         </div>
       </div>
+
       <div className="flex-1">
         <div className="flex items-start justify-between">
           <div>
@@ -40,16 +56,23 @@ const NewsFeedCard: React.FC<NewsFeedCardProps> = ({ newsFeedEvent, href }) => {
             <div className="text-xs text-grayCustom2">{relativeTime}</div>
           </div>
         </div>
-        <div className="absolute right-4 bottom-4 flex gap-1">
-          {emojis.map((emojiSrc, i) => (
-            <Image
-              key={i}
-              src={emojiSrc}
-              alt="event emoji"
-              width={32}
-              height={32}
-            />
-          ))}
+
+        <div className="absolute right-4 bottom-4 flex gap-1 items-center">
+          {showEmojis ? (
+            emojis.map((emojiSrc, i) => (
+              <Image
+                key={i}
+                src={emojiSrc}
+                alt="event emoji"
+                width={32}
+                height={32}
+              />
+            ))
+          ) : (
+            <span className={`font-semibold text-lg ${amountColorClass}`}>
+              {displayAmount}
+            </span>
+          )}
         </div>
       </div>
     </div>

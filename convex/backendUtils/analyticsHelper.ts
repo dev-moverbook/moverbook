@@ -147,7 +147,7 @@ export function buildDailyAveragesSeries(
 }
 
 function forecastMinTotalForMove(move: Doc<"moves">): number {
-  const { minTotal } = computeMoveTotal({
+  const result = computeMoveTotal({
     endingMoveTime: move.endingMoveTime ?? null,
     jobType: move.jobType,
     jobTypeRate: move.jobTypeRate ?? null,
@@ -164,7 +164,7 @@ function forecastMinTotalForMove(move: Doc<"moves">): number {
     travelFeeMethod: move.travelFeeMethod ?? null,
     travelFeeRate: move.travelFeeRate ?? null,
   });
-  return Number.isFinite(minTotal) ? minTotal : 0;
+  return Number.isFinite(result?.minTotal ?? 0) ? (result?.minTotal ?? 0) : 0;
 }
 
 function seedRevenueMapForDates(dateKeys: string[]): Record<string, number> {

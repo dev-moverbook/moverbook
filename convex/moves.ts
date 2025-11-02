@@ -82,6 +82,7 @@ import {
 import { getFirstByCompanyId } from "./backendUtils/queries";
 import { formatMonthDayLabelStrict } from "@/frontendUtils/luxonUtils";
 import { internal } from "./_generated/api";
+import { computeMoveTotal } from "@/frontendUtils/helper";
 
 export const getMoveOptions = query({
   args: { companyId: v.id("companies") },
@@ -279,11 +280,21 @@ export const createMove = mutation({
       ? formatMonthDayLabelStrict(args.moveDate)
       : "TBD";
 
-    // ToDo calculate amount
+    const result = computeMoveTotal({
+      moveFees: args.moveFees,
+      jobType: args.jobType,
+      jobTypeRate: args.jobTypeRate,
+      startingMoveTime: args.startingMoveTime,
+      endingMoveTime: args.endingMoveTime,
+      liabilityCoverage: args.liabilityCoverage,
+      travelFeeRate: args.travelFeeRate ?? null,
+      travelFeeMethod: args.travelFeeMethod ?? null,
+      segmentDistances: args.segmentDistances,
+    });
 
     await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
       entry: {
-        amount: 0,
+        amount: result?.minTotal ?? null,
         type: "MOVE_CREATED",
         body: `**${user.name}** booked a move **${moveCustomer.name}** **${moveDate}**`,
         companyId: args.companyId,

@@ -521,40 +521,55 @@ const calcTravelCost = (
   }
 };
 
-export function computeMoveTotal({
-  endingMoveTime,
-  jobType,
-  jobTypeRate,
-  liabilityCoverage,
-  moveFees,
-  segmentDistances,
-  startingMoveTime,
-  travelFeeMethod,
-  travelFeeRate,
-}: ComputeQuoteTotalParams): { minTotal: number; maxTotal: number } {
-  const feesSubtotal = moveFees.reduce(
-    (sum, f) => sum + f.price * f.quantity,
+function isQuoteComputable(params: ComputeQuoteTotalParams): boolean {
+  if (!params.jobType) {
+    return false;
+  }
+
+  if (params.jobType === "hourly") {
+    if (params.jobTypeRate == null) {
+      return false;
+    }
+
+    if (params.startingMoveTime == null && params.endingMoveTime == null) {
+      return false;
+    }
+  }
+
+  if (params.jobType === "flat") {
+    if (params.jobTypeRate == null) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+export function computeMoveTotal(
+  params: ComputeQuoteTotalParams
+): { minTotal: number; maxTotal: number } | null {
+  if (!isQuoteComputable(params)) {
+    return null;
+  }
+
+  const feesSubtotal = params.moveFees.reduce(
+    (sum, fee) => sum + fee.price * fee.quantity,
     0
   );
-  const liabilityCost = liabilityCoverage?.premium ?? 0;
-
+  const liabilityCost = params.liabilityCoverage?.premium ?? 0;
   const travelCost = calcTravelCost(
-    travelFeeMethod,
-    travelFeeRate,
-    segmentDistances
+    params.travelFeeMethod,
+    params.travelFeeRate,
+    params.segmentDistances
   );
 
-  if (jobType === "hourly") {
-    const minH =
-      typeof startingMoveTime === "number" ? Math.max(0, startingMoveTime) : 0;
-    const maxH =
-      typeof endingMoveTime === "number"
-        ? Math.max(minH, endingMoveTime)
-        : minH;
+  if (params.jobType === "hourly") {
+    const rate = params.jobTypeRate ?? 0;
+    const minHours = Math.max(0, params.startingMoveTime ?? 0);
+    const maxHours = Math.max(minHours, params.endingMoveTime ?? minHours);
 
-    const rate = jobTypeRate ?? 0;
-    const preMin = feesSubtotal + liabilityCost + travelCost + rate * minH;
-    const preMax = feesSubtotal + liabilityCost + travelCost + rate * maxH;
+    const preMin = feesSubtotal + liabilityCost + travelCost + rate * minHours;
+    const preMax = feesSubtotal + liabilityCost + travelCost + rate * maxHours;
 
     return {
       minTotal: preMin,
@@ -562,9 +577,13 @@ export function computeMoveTotal({
     };
   }
 
-  const job = jobTypeRate ?? 0;
-  const pre = feesSubtotal + liabilityCost + travelCost + job;
-  return { minTotal: pre, maxTotal: pre };
+  const jobTotal = params.jobTypeRate ?? 0;
+  const total = feesSubtotal + liabilityCost + travelCost + jobTotal;
+
+  return {
+    minTotal: total,
+    maxTotal: total,
+  };
 }
 
 const fmt2 = (n: number) => (Number.isFinite(n) ? n.toFixed(2) : "0.00");

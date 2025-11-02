@@ -1,6 +1,5 @@
 import { v } from "convex/values";
-import { internalMutation, mutation, query } from "./_generated/server";
-
+import { internalMutation, query } from "./_generated/server";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import {
   isUserInOrg,
@@ -22,7 +21,6 @@ import {
   MoveStatusConvex,
 } from "@/types/convex-enums";
 import { HourStatusConvex, PaymentMethodConvex } from "./schema";
-
 import { paginationOptsValidator, PaginationResult } from "convex/server";
 
 export const getActivitiesForUserPaginated = query({
@@ -40,7 +38,6 @@ export const getActivitiesForUserPaginated = query({
     const userRecord = validateUser(await ctx.db.get(userId));
     const showHistory = userRecord.role === ClerkRoles.APP_MODERATOR;
 
-    // Get user creation time for filtering if needed
     const userCreationTime = userRecord._creationTime;
 
     let baseQuery;
@@ -60,12 +57,10 @@ export const getActivitiesForUserPaginated = query({
       );
     }
 
-    // Always order descending by creation time after filtering
     baseQuery = baseQuery.order("desc");
 
     const result = await baseQuery.paginate(paginationOpts);
 
-    // Collect unique user IDs for images mapping
     const uniqueUserIds = Array.from(
       new Set(
         result.page
@@ -83,51 +78,6 @@ export const getActivitiesForUserPaginated = query({
     };
   },
 });
-
-// export const getActivitiesForUser = query({
-//   args: { companyId: v.id("companies") },
-//   handler: async (ctx, args): Promise<EnrichedNewsFeed[]> => {
-//     const { companyId } = args;
-//     const authenticatedUser = await requireAuthenticatedUser(ctx);
-//     const company = await validateCompany(ctx.db, companyId);
-//     isUserInOrg(authenticatedUser, company.clerkOrganizationId);
-
-//     const clerkUserId = authenticatedUser.id as string;
-//     const userRecord = validateUser(
-//       await ctx.db
-//         .query("users")
-//         .withIndex("by_clerkUserId", (q) => q.eq("clerkUserId", clerkUserId))
-//         .unique()
-//     );
-
-//     let newsFeedItems: Doc<"newsFeeds">[];
-//     if (userRecord.role === ClerkRoles.MOVER) {
-//       newsFeedItems = await ctx.db
-//         .query("newsFeeds")
-//         .withIndex("by_userId", (q) => q.eq("userId", userRecord._id))
-//         .order("desc")
-//         .collect();
-//     } else {
-//       newsFeedItems = await ctx.db
-//         .query("newsFeeds")
-//         .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
-//         .order("desc")
-//         .collect();
-//     }
-
-//     const uniqueUserIds = Array.from(
-//       new Set(
-//         newsFeedItems
-//           .map((event) => event.userId)
-//           .filter((userId): userId is Id<"users"> => userId !== undefined)
-//       )
-//     );
-
-//     const userImageMap = await getUserImageMap(ctx, uniqueUserIds);
-
-//     return mergeNewsFeedAndImages(newsFeedItems, userImageMap);
-//   },
-// });
 
 export const getActivitiesByMoveId = query({
   args: {
@@ -191,7 +141,7 @@ const newsFeedEntryUnion = v.union(
       moverName: v.string(),
     }),
     moveId: v.id("moves"),
-    amount: v.number(),
+    amount: v.union(v.number(), v.null()),
     userId: v.id("users"),
   }),
   v.object({
@@ -585,7 +535,7 @@ const newsFeedEntryUnion = v.union(
   }),
   v.object({
     type: v.literal("MOVE_CREATED"),
-    amount: v.number(),
+    amount: v.union(v.number(), v.null()),
     body: v.string(),
     companyId: v.id("companies"),
     context: v.object({

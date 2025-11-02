@@ -430,7 +430,7 @@ export default defineSchema({
     timestamp: v.optional(v.number()),
   }).index("by_moveId", ["moveId"]),
   newsFeeds: defineTable({
-    amount: v.optional(v.number()),
+    amount: v.optional(v.union(v.number(), v.null())),
     body: v.string(),
     companyId: v.id("companies"),
     context: ActivityEventContextConvex,
