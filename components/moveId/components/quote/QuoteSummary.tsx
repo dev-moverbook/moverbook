@@ -32,11 +32,11 @@ const QuoteSummary = () => {
       <div className="flex justify-center">
         {company.imageUrl && (
           <Image
-            src={company.imageUrl} // fallback to default if needed
+            src={company.imageUrl}
             alt={company.name}
             width={80}
             height={80}
-            //   className="object-contain"
+            style={{ height: 40, width: "auto" }}
           />
         )}
       </div>

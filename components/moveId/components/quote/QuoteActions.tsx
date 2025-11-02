@@ -87,7 +87,8 @@ const QuoteActions = ({ signatureDataUrl }: QuoteActionsProps) => {
     setActiveLoading(null);
   };
   const isRepSigned = !!signatureDataUrl || quote?.repSignature;
-  const isPrimaryDisabled = quote?.status === isRepSigned;
+
+  const isPrimaryDisabled = !isRepSigned;
 
   const isSecondaryDisabled = quote?.status === isRepSigned;
   const isTertiaryDisabled =

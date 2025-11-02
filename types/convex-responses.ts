@@ -135,6 +135,7 @@ export interface GetMoveData {
   wageDisplay: MoverWageForMove | null;
   travelFee: Doc<"travelFees">;
   policy: Doc<"policies">;
+  moverLocation: Doc<"moverLocations"> | null;
 }
 
 export type GetDistanceMatrixResponse =

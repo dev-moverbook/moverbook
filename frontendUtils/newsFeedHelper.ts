@@ -27,6 +27,8 @@ import openmojiBriefcase from "openmoji/color/svg/1F4BC.svg";
 import openmojiSkull from "openmoji/color/svg/1F480.svg";
 import openmojiCoffee from "openmoji/color/svg/2615.svg";
 import openmojiTruck from "openmoji/color/svg/1F69A.svg";
+import openmojiMap from "openmoji/color/svg/1F5FA.svg";
+import openmojiLocation from "openmoji/color/svg/1F4CD.svg";
 import { EnrichedNewsFeed, MoveStatus } from "@/types/types";
 
 export function getEventEmojis(
@@ -80,6 +82,10 @@ export function getEventEmojis(
       return [openmojiCheck, openmojiBankNote];
     case "INVOICE_SENT":
       return [openmojiEnvelope, openmojiCart];
+    case "LOCATION_SHARING_STARTED":
+      return [openmojiLocation, openmojiGreenCircle];
+    case "LOCATION_SHARING_STOPPED":
+      return [openmojiLocation, openmojiRedCircle];
     case "MESSAGE_INCOMING":
       return [openmojiSpeechBubble, openmojiRedCircle];
     case "MESSAGE_OUTGOING":

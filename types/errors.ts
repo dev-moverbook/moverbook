@@ -1,4 +1,5 @@
 export enum ErrorMessages {
+  MOVER_LOCATION_NOT_FOUND = "Mover location not found",
   ARRIVAL_WINDOW_NOT_FOUND = "Arrival window not found",
   CLERK_INVITATION_SENT_ERROR = "Clerk error sending invitation to new user",
   CLERK_ORG_CREATE_ERROR = "Error creating Clerk organization",

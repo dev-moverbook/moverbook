@@ -494,6 +494,30 @@ const newsFeedEntryUnion = v.union(
     moveId: v.id("moves"),
     userId: v.id("users"),
   }),
+  v.object({
+    type: v.literal("LOCATION_SHARING_STARTED"),
+    body: v.string(),
+    companyId: v.id("companies"),
+    context: v.object({
+      customerName: v.string(),
+      moverName: v.string(),
+      moverLocationId: v.id("moverLocations"),
+    }),
+    moveId: v.id("moves"),
+    userId: v.id("users"),
+  }),
+  v.object({
+    type: v.literal("LOCATION_SHARING_STOPPED"),
+    body: v.string(),
+    companyId: v.id("companies"),
+    context: v.object({
+      customerName: v.string(),
+      moverName: v.string(),
+      moverLocationId: v.id("moverLocations"),
+    }),
+    moveId: v.id("moves"),
+    userId: v.id("users"),
+  }),
   // To do
   v.object({
     type: v.literal("MESSAGE_INCOMING"),

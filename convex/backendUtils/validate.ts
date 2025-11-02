@@ -118,6 +118,20 @@ export function isUserInOrg(
   return true;
 }
 
+export function isUserInCompanyConvex(
+  user: Doc<"users">,
+  companyId: Id<"companies">
+): boolean {
+  const isInCompany = user.companyId === companyId;
+  if (!isInCompany) {
+    throw new ConvexError({
+      code: "FORBIDDEN",
+      message: ErrorMessages.FOBIDDEN_COMPANY,
+    });
+  }
+  return isInCompany;
+}
+
 export function validateVariable(
   variable: Doc<"variables"> | null
 ): Doc<"variables"> {

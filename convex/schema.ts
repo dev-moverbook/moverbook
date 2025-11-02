@@ -53,6 +53,8 @@ export const ActivityEventTypeConvex = v.union(
   v.literal("INVOICE_MARKED_COMPLETE"),
   v.literal("INVOICE_PAYMENT"),
   v.literal("INVOICE_SENT"),
+  v.literal("LOCATION_SHARING_STARTED"),
+  v.literal("LOCATION_SHARING_STOPPED"),
   v.literal("MESSAGE_INCOMING"),
   v.literal("MESSAGE_OUTGOING"),
   v.literal("MOVE_ARRIVAL"),
@@ -185,6 +187,7 @@ export const ActivityEventContextConvex = v.object({
   moveAssignmentId: v.optional(v.id("moveAssignments")),
   hourStatus: v.optional(HourStatusConvex),
   moveBreakAmount: v.optional(v.number()),
+  moverLocationId: v.optional(v.id("moverLocations")),
   moveDate: v.optional(v.string()),
   moveId: v.optional(v.id("moves")),
   moveStatus: v.optional(v.string()),
@@ -420,11 +423,11 @@ export default defineSchema({
     .index("by_phone", ["phoneNumber"])
     .index("by_name", ["name"]),
   moverLocations: defineTable({
-    moverId: v.id("users"),
-    lat: v.number(),
-    lng: v.number(),
-    timestamp: v.number(),
-  }).index("by_moverId", ["moverId"]),
+    moveId: v.id("moves"),
+    lat: v.optional(v.number()),
+    lng: v.optional(v.number()),
+    timestamp: v.optional(v.number()),
+  }).index("by_moveId", ["moveId"]),
   newsFeeds: defineTable({
     amount: v.optional(v.number()),
     body: v.string(),

@@ -17,6 +17,7 @@ import { useMoveContext } from "@/contexts/MoveContext";
 import { computeFinalMoveCost } from "@/frontendUtils/payout";
 import InvoiceNotReady from "../shared/InvoiceNotReady";
 import { isSameDayOrLater } from "@/frontendUtils/luxonUtils";
+import LocationSharingSectionWrapper from "./LocationSharingWrapper";
 
 interface ViewMoverSectionProps {
   assignment: Doc<"moveAssignments">;
@@ -134,6 +135,7 @@ const ViewMoverSection: React.FC<ViewMoverSectionProps> = ({
 
   return (
     <>
+      <LocationSharingSectionWrapper />
       <StartMoveSection
         isSaving={updateMoveLoading}
         updateError={updateMoveError}

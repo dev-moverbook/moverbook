@@ -22,12 +22,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Moverbook",
   description: "Move with ease",
-  themeColor: "#000000", // Add this
   icons: [
     { rel: "icon", url: "/icon-192x192.png", sizes: "192x192" },
     { rel: "icon", url: "/icon-512x512.png", sizes: "512x512" },
   ],
-  manifest: "/manifest.json", // Optionally add this line if your Next version supports it
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({
@@ -40,24 +39,23 @@ export default function RootLayout({
       <head>
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#000000" />
-        {/* Optionally reference icons here too */}
         <link rel="icon" href="/icon-192x192.png" sizes="192x192" />
         <link rel="icon" href="/icon-512x512.png" sizes="512x512" />
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      <ClerkProvider
+        publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+        signInUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL}
+        signUpUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL}
+        signInForceRedirectUrl={
+          process.env.NEXT_PUBLIC_CLERK_SIGN_IN_FORCE_REDIRECT_URL
+        }
+        signUpForceRedirectUrl={
+          process.env.NEXT_PUBLIC_CLERK_SIGN_UP_FORCE_REDIRECT_URL
+        }
+        appearance={{ baseTheme: dark }}
       >
-        <ClerkProvider
-          publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
-          signInUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL}
-          signUpUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL}
-          signInForceRedirectUrl={
-            process.env.NEXT_PUBLIC_CLERK_SIGN_IN_FORCE_REDIRECT_URL
-          }
-          signUpForceRedirectUrl={
-            process.env.NEXT_PUBLIC_CLERK_SIGN_UP_FORCE_REDIRECT_URL
-          }
-          appearance={{ baseTheme: dark }}
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
           <ConvexClientProvider>
             <GoogleMapsProvider>
@@ -65,8 +63,8 @@ export default function RootLayout({
               <Suspense fallback={<FullLoading />}>{children}</Suspense>
             </GoogleMapsProvider>
           </ConvexClientProvider>
-        </ClerkProvider>
-      </body>
+        </body>
+      </ClerkProvider>
     </html>
   );
 }
