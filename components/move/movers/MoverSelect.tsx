@@ -1,15 +1,9 @@
 "use client";
 
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Id } from "@/convex/_generated/dataModel";
 import { useMoverCalendar } from "@/contexts/MoverCalendarContext";
+import AdaptiveContainer from "@/components/shared/select/AdaptiveContainer";
+import AdaptiveSelect from "@/components/shared/select/AdaptiveSelect";
 
 type MoverSelectProps = {
   label?: string;
@@ -26,35 +20,25 @@ export default function MoverSelect({
 
   return (
     <div className={className}>
-      <div className="flex flex-col gap-1">
+      <AdaptiveContainer>
         <Label>{label}</Label>
-        <Select
-          value={(mover?.id as unknown as string) ?? "ALL"}
-          onValueChange={(newValue) => {
-            if (newValue === "ALL") {
-              setMover(null);
-              return;
-            }
-            const opt =
-              moverOptions.find(
-                (o) => o.id === (newValue as unknown as Id<"users">)
-              ) || null;
-            setMover(opt);
+        <AdaptiveSelect
+          title={placeholder}
+          options={moverOptions}
+          value={mover?.value ?? null}
+          onChange={(value) => {
+            const selectedOption =
+              moverOptions.find((opt) => opt.value === value) ?? null;
+            setMover(selectedOption);
           }}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder={placeholder} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="ALL">All movers</SelectItem>
-            {moverOptions.map((m) => (
-              <SelectItem key={m.id} value={m.id as unknown as string}>
-                {m.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+          placeholder="Select mover"
+          triggerLabel="Movers"
+          allLabel="All Movers"
+          description={label}
+          showAllOption={true}
+          showSearch={true}
+        />
+      </AdaptiveContainer>
     </div>
   );
 }

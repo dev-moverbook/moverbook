@@ -5,6 +5,7 @@ import FieldErrorMessage from "./FieldErrorMessage";
 import FieldDisplay from "../field/FieldDisplay";
 import { Label } from "@radix-ui/react-label";
 import { Input } from "@/components/ui/input";
+import { useId } from "react";
 
 interface NumberInputProps {
   label?: string;
@@ -35,6 +36,7 @@ const NumberInput: React.FC<NumberInputProps> = ({
   allowNegative = false,
   spellCheck,
 }) => {
+  const labelId = useId();
   if (!isEditing) {
     return (
       <FieldDisplay
@@ -54,10 +56,15 @@ const NumberInput: React.FC<NumberInputProps> = ({
 
   return (
     <div className="relative">
-      {label && <Label className="block font-medium">{label}</Label>}
+      {label && (
+        <Label className="block font-medium" htmlFor={labelId}>
+          {label}
+        </Label>
+      )}
 
       <NumericFormat
         customInput={Input}
+        id={labelId}
         value={hasValue ? value : ""}
         onValueChange={(vals) => {
           if (vals.value === "") onChange(null);

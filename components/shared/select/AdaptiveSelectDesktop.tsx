@@ -26,6 +26,7 @@ interface AdaptiveSelectDesktopProps {
   title?: string;
   triggerLabel?: string;
   value: string | null;
+  id?: string;
 }
 
 export default function AdaptiveSelectDesktop({
@@ -45,6 +46,7 @@ export default function AdaptiveSelectDesktop({
   title,
   triggerLabel,
   value,
+  id,
 }: AdaptiveSelectDesktopProps) {
   const handlePick = (nextValue: string | null) => {
     onChange(nextValue);
@@ -63,6 +65,7 @@ export default function AdaptiveSelectDesktop({
           placeholder={placeholder}
           selectedOption={selectedOption}
           title={title}
+          id={id}
         />
       </PopoverTrigger>
       <PopoverContent className="shadow-white/10 shadow-xl">

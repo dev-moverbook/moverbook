@@ -23,6 +23,7 @@ interface AdaptiveSelectMobileProps {
   showSearch?: boolean;
   title?: string;
   value: string | null;
+  id?: string;
 }
 
 export default function AdaptiveSelectMobile({
@@ -38,6 +39,7 @@ export default function AdaptiveSelectMobile({
   showSearch = true,
   title,
   value,
+  id,
 }: AdaptiveSelectMobileProps) {
   const handleOptionPick = (nextValue: string | null) => {
     onChange(nextValue);
@@ -74,6 +76,7 @@ export default function AdaptiveSelectMobile({
             searchPlaceholder={searchPlaceholder}
             showSearch={showSearch}
             value={value}
+            id={id}
           />
         </div>
       </DrawerContent>

@@ -3,6 +3,8 @@
 import { NumericFormat } from "react-number-format";
 import FieldErrorMessage from "./FieldErrorMessage";
 import FieldDisplay from "../field/FieldDisplay";
+import { Label } from "@/components/ui/label";
+import { useId } from "react";
 
 interface PercentageInputProps {
   label?: string;
@@ -19,6 +21,8 @@ const PercentageInput: React.FC<PercentageInputProps> = ({
   isEditing = true,
   error,
 }) => {
+  const labelId = useId();
+
   if (!isEditing) {
     return (
       <FieldDisplay
@@ -31,8 +35,13 @@ const PercentageInput: React.FC<PercentageInputProps> = ({
 
   return (
     <div>
-      {label && <label className="block font-medium">{label}</label>}
+      {label && (
+        <Label className="block font-medium" htmlFor={labelId}>
+          {label}
+        </Label>
+      )}
       <NumericFormat
+        id={labelId}
         value={value === null ? "" : value}
         onValueChange={(values) => {
           const numericValue = values.floatValue ?? 0;

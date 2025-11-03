@@ -29,7 +29,7 @@ const QuoteStep = ({ quote }: QuoteStepProps) => {
   const quoteStatus = getQuoteStatusInfo(quote, move.moveStatus);
 
   return (
-    <SectionContainer>
+    <SectionContainer showBorder={false} className="px-0">
       <StepStatus
         items={[
           {

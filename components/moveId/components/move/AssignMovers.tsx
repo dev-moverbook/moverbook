@@ -1,19 +1,15 @@
 "use client";
 
-import SectionContainer from "@/components/shared/containers/SectionContainer";
-import SectionHeader from "@/components/shared/section/SectionHeader";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Doc, Id } from "@/convex/_generated/dataModel";
-import { useInsertMoveAssignment } from "@/hooks/moveAssignments";
-import { useUpdateMoveAssignment } from "@/hooks/moveAssignments";
 import { useMoveContext } from "@/contexts/MoveContext";
+import {
+  useInsertMoveAssignment,
+  useUpdateMoveAssignment,
+} from "@/hooks/moveAssignments";
+import { Doc, Id } from "@/convex/_generated/dataModel";
+import AdaptiveContainer from "@/components/shared/select/AdaptiveContainer";
+import AdaptiveSelect from "@/components/shared/select/AdaptiveSelect";
+import SectionContainer from "@/components/shared/containers/SectionContainer";
+import { Label } from "@/components/ui/label";
 
 const AssignMovers = ({
   assignments,
@@ -29,20 +25,6 @@ const AssignMovers = ({
   const { insertMoveAssignment } = useInsertMoveAssignment();
   const { updateMoveAssignment } = useUpdateMoveAssignment();
 
-  const slots = Array.from({ length: moverNumber }, (_, i) => {
-    const isLead = i === 0;
-    const label = isLead ? "Lead Mover" : `Mover #${i}`;
-    const existingAssignment = assignments.find((a) =>
-      isLead ? a.isLead : !a.isLead
-    );
-    return {
-      slot: i,
-      isLead,
-      label,
-      assignment: existingAssignment ?? null,
-    };
-  });
-
   const handleChange = async ({
     moverId,
     isLead,
@@ -55,61 +37,58 @@ const AssignMovers = ({
     if (assignment) {
       await updateMoveAssignment({
         assignmentId: assignment._id,
-        updates: {
-          moverId,
-          isLead,
-        },
+        updates: { moverId, isLead },
       });
     } else {
-      await insertMoveAssignment({
-        moveId: move._id,
-        moverId,
-        isLead,
-      });
+      await insertMoveAssignment({ moveId: move._id, moverId, isLead });
     }
   };
 
-  const isComplete = assignments.length === moverNumber;
+  const slots = Array.from({ length: moverNumber }, (_, index) => {
+    const isLead = index === 0;
+    const label = isLead ? "Lead Mover" : `Mover #${index}`;
+    const existingAssignment = assignments.find((assignment) =>
+      isLead ? assignment.isLead : !assignment.isLead
+    );
+    return {
+      slot: index,
+      isLead,
+      label,
+      assignment: existingAssignment ?? null,
+    };
+  });
+
+  const options = allMovers.map((mover) => ({
+    label: mover.name,
+    value: mover._id,
+    image: mover.imageUrl,
+  }));
 
   return (
-    <div>
-      <SectionHeader
-        className="mx-auto"
-        title="Assigned Movers"
-        showCheckmark={true}
-        isCompleted={isComplete}
-      />
-      <SectionContainer>
-        <div className="flex flex-col gap-4">
-          {slots.map(({ slot, label, assignment, isLead }) => (
-            <div key={slot} className="flex flex-col gap-1">
-              <Label>{label}</Label>
-              <Select
-                value={assignment?.moverId ?? ""}
-                onValueChange={(newMoverId) => {
-                  handleChange({
-                    moverId: newMoverId as Id<"users">,
-                    isLead,
-                    assignment,
-                  });
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select mover" />
-                </SelectTrigger>
-                <SelectContent>
-                  {allMovers.map((mover) => (
-                    <SelectItem key={mover._id} value={mover._id}>
-                      {mover.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          ))}
-        </div>
-      </SectionContainer>
-    </div>
+    <SectionContainer>
+      {slots.map(({ slot, label, assignment, isLead }) => (
+        <AdaptiveContainer key={slot}>
+          <Label>{label}</Label>
+          <AdaptiveSelect
+            title="Select mover"
+            options={options}
+            value={assignment?.moverId ?? ""}
+            onChange={(value) =>
+              handleChange({
+                moverId: value as Id<"users">,
+                isLead,
+                assignment,
+              })
+            }
+            placeholder="Select mover"
+            triggerLabel="Movers"
+            description={label}
+            showAllOption={false}
+            showSearch={true}
+          />
+        </AdaptiveContainer>
+      ))}
+    </SectionContainer>
   );
 };
 

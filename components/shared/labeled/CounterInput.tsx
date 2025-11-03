@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useId } from "react";
 import { Minus, Plus } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import FormErrorMessage from "../error/FormErrorMessage";
@@ -34,6 +34,7 @@ const CounterInput: React.FC<CounterInputProps> = ({
     value !== null ? String(value) : ""
   );
   const inputRef = useRef<HTMLInputElement>(null);
+  const inputId = useId();
 
   useEffect(() => {
     setInputValue(value !== null ? String(value) : "");
@@ -91,9 +92,15 @@ const CounterInput: React.FC<CounterInputProps> = ({
           <Label className={cn("text-white font-medium", labelClassName)}>
             {label}
           </Label>
-        )}{" "}
+        )}
         <div className="flex items-center gap-4">
-          <div className="min-w-[60px] px-4 py-1 text-center text-white border border-grayCustom rounded-xl text-lg bg-transparent">
+          <div
+            role="textbox"
+            aria-readonly="true"
+            tabIndex={-1}
+            aria-label={label}
+            className="min-w-[60px] px-4 py-1 text-center text-white border border-grayCustom rounded-xl text-lg bg-transparent"
+          >
             {value ?? "-"}
           </div>
         </div>
@@ -105,7 +112,10 @@ const CounterInput: React.FC<CounterInputProps> = ({
   return (
     <div className={cn("flex flex-col gap-2", className)}>
       {label && (
-        <Label className={cn("text-white font-medium", labelClassName)}>
+        <Label
+          htmlFor={inputId}
+          className={cn("text-white font-medium", labelClassName)}
+        >
           {label}
         </Label>
       )}
@@ -114,6 +124,7 @@ const CounterInput: React.FC<CounterInputProps> = ({
         <button
           type="button"
           onClick={decrement}
+          aria-label={`Decrease ${label ?? "value"}`}
           className="w-8 h-8 flex items-center justify-center rounded-full border border-grayCustom text-white shadow-sm transition duration-150 hover:bg-white/10 hover:scale-105 active:scale-95"
         >
           <Minus className="w-4 h-4" />
@@ -122,6 +133,7 @@ const CounterInput: React.FC<CounterInputProps> = ({
         {/* Editable number */}
         {isEditing ? (
           <input
+            id={inputId}
             ref={inputRef}
             type="number"
             value={inputValue}
@@ -131,6 +143,10 @@ const CounterInput: React.FC<CounterInputProps> = ({
             onClick={selectAll}
             min={min}
             max={max}
+            aria-valuemin={min}
+            aria-valuemax={max}
+            aria-valuenow={value ?? undefined}
+            aria-label={label}
             className="min-w-[60px] w-[70px] px-2 py-1 text-center text-white border border-grayCustom rounded-xl text-lg bg-transparent focus:outline-none focus:ring-1 focus:ring-greenCustom"
             inputMode="numeric"
             pattern="[0-9]*"
@@ -145,6 +161,7 @@ const CounterInput: React.FC<CounterInputProps> = ({
               if (e.key === "Enter" || e.key === " ") handleEdit();
             }}
             className="min-w-[60px] px-4 py-1 text-center text-white border border-grayCustom rounded-xl text-lg cursor-pointer hover:bg-white/10"
+            aria-label={label}
           >
             {value === null ? "-" : value}
           </div>
@@ -153,6 +170,7 @@ const CounterInput: React.FC<CounterInputProps> = ({
         <button
           type="button"
           onClick={increment}
+          aria-label={`Increase ${label ?? "value"}`}
           className="w-8 h-8 flex items-center justify-center rounded-full border border-grayCustom text-white shadow-sm transition duration-150 hover:bg-white/10 hover:scale-105 active:scale-95"
         >
           <Plus className="w-4 h-4" />

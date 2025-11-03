@@ -43,6 +43,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
 
   return (
     <ResponsiveModal
+      heightVh={30}
       isOpen={isOpen}
       onClose={onClose}
       title={title}

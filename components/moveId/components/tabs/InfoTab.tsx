@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Stepper from "@/components/shared/stepper/Stepper";
 import { useMoveContext } from "@/contexts/MoveContext";
 import LeadStep from "../steps/LeadStep";
@@ -19,8 +19,6 @@ const MIN_STEP = 1;
 const MAX_STEP = 5;
 
 export default function InfoTab({ hideStepper }: InfoTabProps) {
-  const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const { moveData } = useMoveContext();
@@ -51,9 +49,6 @@ export default function InfoTab({ hideStepper }: InfoTabProps) {
 
   const handleStepClick = (step: number) => {
     setCurrentStep(step);
-    const params = new URLSearchParams(searchParams);
-    params.set("step", String(step));
-    router.replace(`${pathname}?${params.toString()}`);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 

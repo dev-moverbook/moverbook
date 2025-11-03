@@ -30,7 +30,7 @@ const ResponsiveModal: React.FC<ResponsiveModalProps> = ({
   title,
   description,
   children,
-  heightVh = 80,
+  heightVh = 95,
 }) => {
   const isMobile = useMediaQuery({ maxWidth: MOBILE_BREAKPOINT });
 

@@ -7,6 +7,7 @@ import FieldDisplay from "../field/FieldDisplay";
 import FieldErrorMessage from "./FieldErrorMessage";
 import { X } from "lucide-react";
 import IconButton from "../buttons/IconButton";
+import { useId } from "react";
 
 type LatLngLiteral = { lat: () => number; lng: () => number };
 type PlaceResultLike = {
@@ -80,6 +81,7 @@ const LabeledPlacesAutocomplete: React.FC<PlacesAutoCompleteInputProps> = ({
   placeholder = "Start typing address...",
   showLabel = true,
 }) => {
+  const labelId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -231,10 +233,11 @@ const LabeledPlacesAutocomplete: React.FC<PlacesAutoCompleteInputProps> = ({
 
   return (
     <div className="relative">
-      {showLabel && <Label>{label}</Label>}
+      {showLabel && <Label htmlFor={labelId}>{label}</Label>}
 
       <Input
         ref={inputRef}
+        id={labelId}
         value={value}
         onFocus={() => {
           if (suggestions.length > 0) setOpen(true);

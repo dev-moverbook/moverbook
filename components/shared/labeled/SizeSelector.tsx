@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import SelectableCardContainer from "../containers/SelectableCardContainer";
 import { CategorySizeLabels } from "@/types/enums";
 import { cn } from "@/lib/utils";
+import { useId } from "react";
 
 interface SizeSelectorProps {
   value: number;
@@ -16,9 +17,12 @@ const SizeSelector: React.FC<SizeSelectorProps> = ({
   onChange,
   label = "Size",
 }) => {
+  const labelId = useId();
   return (
     <div>
-      <Label className="block font-medium">{label}</Label>
+      <Label className="block font-medium" htmlFor={labelId}>
+        {label}
+      </Label>
       <div className="flex flex-wrap gap-4 mt-1">
         {Object.entries(CategorySizeLabels).map(([, categorySize]) => {
           const numericSize = parseInt(categorySize.size);
@@ -26,6 +30,7 @@ const SizeSelector: React.FC<SizeSelectorProps> = ({
 
           return (
             <SelectableCardContainer
+              id={labelId}
               key={categorySize.label}
               onClick={() => onChange(numericSize)}
               centerText={categorySize.label}

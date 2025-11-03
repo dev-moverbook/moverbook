@@ -10,8 +10,13 @@ import AdaptiveSelect from "@/components/shared/select/AdaptiveSelect";
 import { Label } from "@/components/ui/label";
 import FieldGroup from "@/components/shared/field/FieldGroup";
 import AdaptiveContainer from "@/components/shared/select/AdaptiveContainer";
+import { useId } from "react";
 
 const InternalNotes = () => {
+  const salesRepId = useId();
+  const moveStatusId = useId();
+  const referralSourceId = useId();
+
   const { salesRepOptions, setMoveFormData, moveFormData, referralOptions } =
     useMoveForm();
   const referralSelectOptions =
@@ -30,8 +35,9 @@ const InternalNotes = () => {
 
       <FieldGroup className="flex flex-col gap-4">
         <AdaptiveContainer>
-          <Label>Sales Rep</Label>
+          <Label htmlFor={salesRepId}>Sales Rep</Label>
           <AdaptiveSelect
+            id={salesRepId}
             title="Select sales rep"
             options={salesRepOptions}
             value={salesRep ?? ""}
@@ -50,8 +56,9 @@ const InternalNotes = () => {
         </AdaptiveContainer>
 
         <AdaptiveContainer>
-          <Label>Move Status</Label>
+          <Label htmlFor={moveStatusId}>Move Status</Label>
           <AdaptiveSelect
+            id={moveStatusId}
             title="Select source"
             options={MOVE_STATUS_OPTIONS}
             value={moveStatus ?? ""}
@@ -70,8 +77,9 @@ const InternalNotes = () => {
         </AdaptiveContainer>
 
         <AdaptiveContainer>
-          <Label>Referral Source</Label>
+          <Label htmlFor={referralSourceId}>Referral Source*</Label>
           <AdaptiveSelect
+            id={referralSourceId}
             title="Select source"
             options={referralSelectOptions}
             value={referralId ?? ""}

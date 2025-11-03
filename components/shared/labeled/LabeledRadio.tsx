@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import FieldDisplay from "@/components/shared/field/FieldDisplay";
 import FieldErrorMessage from "./FieldErrorMessage";
+import { useId } from "react";
 
 interface RadioOption {
   label: string;
@@ -31,6 +32,7 @@ const LabeledRadio: React.FC<LabeledRadioProps> = ({
   error,
   isEditing = true,
 }) => {
+  const labelId = useId();
   const selectedLabel = options.find((opt) => opt.value === value)?.label;
 
   if (!isEditing) {
@@ -39,8 +41,11 @@ const LabeledRadio: React.FC<LabeledRadioProps> = ({
 
   return (
     <div>
-      <Label className="block  font-medium ">{label}</Label>
+      <Label className="block  font-medium " htmlFor={labelId}>
+        {label}
+      </Label>
       <RadioGroup
+        id={labelId}
         name={name}
         value={value}
         onValueChange={onChange}

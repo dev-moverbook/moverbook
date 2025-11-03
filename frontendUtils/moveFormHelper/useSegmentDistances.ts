@@ -1,13 +1,11 @@
+"use client";
+
 import { useEffect } from "react";
 import { toDistanceRef, segmentsEqual } from "../helper";
-
 import { SegmentDistance } from "@/types/types";
 import { AddressInput, LocationInput } from "@/types/form-types";
-import {
-  getEmptySegments,
-  getMiddleRefs,
-  updateSegmentDistances,
-} from "../segmentDistanceHelper";
+import { getEmptySegments, getMiddleRefs } from "../segmentDistanceHelper";
+import { updateSegmentDistances } from "../segmentDistanceHelper";
 
 export function useSegmentDistances(
   companyAddress: AddressInput | null | undefined,

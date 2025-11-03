@@ -22,6 +22,7 @@ export interface AdaptiveSelectOptionsListProps {
   searchPlaceholder?: string;
   showSearch?: boolean;
   value?: string | null;
+  id?: string;
 }
 
 export default function AdaptiveSelectOptionsList({
@@ -34,6 +35,7 @@ export default function AdaptiveSelectOptionsList({
   searchPlaceholder = "Search…",
   showSearch = true,
   value,
+  id,
 }: AdaptiveSelectOptionsListProps) {
   const [searchQuery, setSearchQuery] = useState<string>("");
 
@@ -58,6 +60,7 @@ export default function AdaptiveSelectOptionsList({
       <CommandList
         style={{ overflowAnchor: "none" }}
         className={cn(listMaxH, "bg-black", showSearch && "mt-2")}
+        id={id}
       >
         <CommandEmpty className="px-4 md:px-0 mt-2 text-white/70">
           {emptyText}

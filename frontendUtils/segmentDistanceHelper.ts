@@ -124,6 +124,10 @@ export async function updateSegmentDistances(
   setSegmentDistances: Dispatch<SetStateAction<SegmentDistance[]>>,
   abortSignal?: AbortSignal
 ) {
+  if (!fetchDistance) {
+    return;
+  }
+
   try {
     const computedSegments = await computeSegmentDistances(
       originReference,

@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import FieldErrorMessage from "./FieldErrorMessage";
 import { formatPhoneNumber } from "@/frontendUtils/helper";
 import FieldDisplay from "../field/FieldDisplay";
+import { useId } from "react";
 
 interface PhoneNumberInputProps {
   label?: string;
@@ -23,6 +24,8 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
   placeholder = "(123) 456-7890",
   isEditing = false,
 }) => {
+  const labelId = useId();
+
   if (!isEditing) {
     const displayValue = formatPhoneNumber(value);
 
@@ -33,8 +36,13 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
 
   return (
     <div>
-      {label && <Label className="block font-medium">{label}</Label>}
+      {label && (
+        <Label className="block font-medium" htmlFor={labelId}>
+          {label}
+        </Label>
+      )}
       <PatternFormat
+        id={labelId}
         format="(###) ###-####"
         mask="_"
         value={value}

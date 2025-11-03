@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import FieldDisplay from "@/components/shared/field/FieldDisplay";
 import CounterInput from "./CounterInput";
 import { formatDecimalHours } from "@/frontendUtils/timeUtils";
+import { useId } from "react";
 
 interface BreakTimeInputProps {
   hours: number;
@@ -22,6 +23,8 @@ const BreakTimeInput: React.FC<BreakTimeInputProps> = ({
   isEditing,
   label = "Break Time",
 }) => {
+  const id = useId();
+
   if (!isEditing) {
     return (
       <FieldDisplay
@@ -33,8 +36,8 @@ const BreakTimeInput: React.FC<BreakTimeInputProps> = ({
   }
 
   return (
-    <div>
-      <Label>{label}</Label>
+    <fieldset>
+      <legend className="text-white font-medium">{label}</legend>
       <div className="flex gap-12 mt-2">
         <CounterInput
           label="Hours"
@@ -52,7 +55,7 @@ const BreakTimeInput: React.FC<BreakTimeInputProps> = ({
           labelClassName="text-grayCustom2"
         />
       </div>
-    </div>
+    </fieldset>
   );
 };
 

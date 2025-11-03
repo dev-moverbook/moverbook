@@ -99,6 +99,23 @@ export const getCompanyContactInternal = internalQuery({
   },
 });
 
+export const getCompanyContactByCompanyIdInternal = internalQuery({
+  args: {
+    companyId: v.id("companies"),
+  },
+  handler: async (
+    ctx,
+    { companyId }
+  ): Promise<Doc<"companyContacts"> | null> => {
+    const companyContact = await ctx.db
+      .query("companyContacts")
+      .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
+      .first();
+
+    return companyContact;
+  },
+});
+
 export const getCompanyContact = query({
   args: {
     companyId: v.id("companies"),

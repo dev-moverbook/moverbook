@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import FieldErrorMessage from "./FieldErrorMessage";
 import { cn } from "@/lib/utils";
 import FieldDisplay from "../field/FieldDisplay";
+import { useId } from "react";
 
 interface Option {
   label: React.ReactNode;
@@ -37,6 +38,7 @@ const ButtonRadioGroup: React.FC<ButtonRadioGroupProps> = ({
   unselectedClassName = "border-grayCustom text-white transition-all duration-200",
   label,
 }) => {
+  const labelId = useId();
   const responsiveLayoutClass =
     layout === "vertical" ? "flex-col" : "flex-col md:flex-row";
 
@@ -47,10 +49,7 @@ const ButtonRadioGroup: React.FC<ButtonRadioGroupProps> = ({
   return (
     <div>
       {label && (
-        <Label
-          className="text-white  font-medium mb-1 block"
-          id={`${name}-label`}
-        >
+        <Label className="text-white  font-medium mb-1 block" id={labelId}>
           {label}
         </Label>
       )}
@@ -60,6 +59,7 @@ const ButtonRadioGroup: React.FC<ButtonRadioGroupProps> = ({
         onValueChange={(val) => onChange(val === value ? null : val)}
         className={cn("mb-4 flex gap-3", responsiveLayoutClass)}
         aria-labelledby={label ? `${name}-label` : undefined}
+        id={labelId}
       >
         {options.map((option) => (
           <div key={option.value} className="w-full relative">

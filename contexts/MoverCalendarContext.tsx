@@ -1,18 +1,17 @@
 "use client";
 
-import React, { createContext, useContext, useMemo, useState } from "react";
+import { createContext, useContext, useMemo, useState } from "react";
 import { DateTime } from "luxon";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { useSlugContext } from "@/contexts/SlugContext";
 import { getCurrentDate } from "../frontendUtils/helper";
 import { useMovesForMoverCalendar } from "../hooks/moves/useMovesForMoverCalendar";
-
-export type MoverOption = { id: Id<"users">; name: string };
+import { Option } from "@/types/types";
 
 interface MoverCalendarContextProps {
-  mover: MoverOption | null;
-  setMover: React.Dispatch<React.SetStateAction<MoverOption | null>>;
-  moverOptions: MoverOption[];
+  mover: Option | null;
+  setMover: React.Dispatch<React.SetStateAction<Option | null>>;
+  moverOptions: Option[];
   selectedDate: Date;
   setSelectedDate: React.Dispatch<React.SetStateAction<Date>>;
   startISO: string;
@@ -37,16 +36,17 @@ export const MoverCalendarProvider = ({
   const { companyId, timeZone } = useSlugContext();
   const today = getCurrentDate(timeZone);
 
-  const moverOptions = useMemo<MoverOption[]>(
+  const moverOptions = useMemo<Option[]>(
     () =>
       allMovers.map((mover) => ({
-        id: mover._id as Id<"users">,
-        name: mover.name || "Unnamed",
+        value: mover._id as Id<"users">,
+        label: mover.name || "Unnamed",
+        image: mover.imageUrl,
       })),
     [allMovers]
   );
 
-  const [mover, setMover] = useState<MoverOption | null>(null);
+  const [mover, setMover] = useState<Option | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>(today);
 
   const { startISO, endISO } = useMemo(() => {
@@ -62,7 +62,7 @@ export const MoverCalendarProvider = ({
           start: startISO,
           end: endISO,
           companyId,
-          moverId: mover?.id ?? null,
+          moverId: mover?.value ?? null,
         }
       : undefined;
 

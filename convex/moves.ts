@@ -1,5 +1,11 @@
 import { ConvexError, v } from "convex/values";
-import { internalQuery, mutation, query } from "./_generated/server";
+import {
+  action,
+  internalMutation,
+  internalQuery,
+  mutation,
+  query,
+} from "./_generated/server";
 import {
   buildHistoricalSeries,
   getApprovedPayTotalsForMoves,
@@ -15,6 +21,7 @@ import {
   validateTravelFee,
   validateUser,
   validateCompanyContact,
+  validateDocExists,
 } from "./backendUtils/validate";
 import { isUserInOrg } from "./backendUtils/validate";
 import {
@@ -50,6 +57,7 @@ import {
   IdAndName,
   MoveAnalyticsPoint,
   MoverWageForMove,
+  SegmentDistance,
   StackedDay,
 } from "@/types/types";
 import {
@@ -83,6 +91,8 @@ import { getFirstByCompanyId } from "./backendUtils/queries";
 import { formatMonthDayLabelStrict } from "@/frontendUtils/luxonUtils";
 import { internal } from "./_generated/api";
 import { computeMoveTotal } from "@/frontendUtils/helper";
+import { fetchDistanceMatrix, getDistanceMatrix } from "./google";
+import { LocationInput } from "@/types/form-types";
 
 export const getMoveOptions = query({
   args: { companyId: v.id("companies") },
@@ -440,6 +450,61 @@ export const getMoveContext = query({
   },
 });
 
+export async function computeSegments(
+  companyAddress: string,
+  locations: LocationInput[]
+): Promise<SegmentDistance[]> {
+  if (!companyAddress || locations.length === 0) return [];
+
+  console.log("computeSegments", { companyAddress, locations });
+
+  // Extract all formatted addresses
+  const locationAddresses = locations
+    .map((loc) => loc.address?.formattedAddress)
+    .filter((addr): addr is string => !!addr);
+
+  if (locationAddresses.length === 0) return [];
+
+  const segments: SegmentDistance[] = [];
+
+  // Office → first location
+  const firstLeg = await fetchDistanceMatrix(
+    companyAddress,
+    locationAddresses[0]
+  );
+  segments.push({
+    label: "Office → Pickup",
+    distance: firstLeg.distanceMiles,
+    duration: firstLeg.durationMinutes,
+  });
+
+  if (locationAddresses.length > 1) {
+    for (let i = 0; i < locationAddresses.length - 1; i++) {
+      const leg = await fetchDistanceMatrix(
+        locationAddresses[i],
+        locationAddresses[i + 1]
+      );
+      segments.push({
+        label: `Pickup → Dropoff`,
+        distance: leg.distanceMiles,
+        duration: leg.durationMinutes,
+      });
+    }
+  }
+
+  const lastLeg = await fetchDistanceMatrix(
+    locationAddresses[locationAddresses.length - 1],
+    companyAddress
+  );
+  segments.push({
+    label: "Dropoff → Office",
+    distance: lastLeg.distanceMiles,
+    duration: lastLeg.durationMinutes,
+  });
+
+  return segments;
+}
+
 export const UpdateMoveFields = v.object({
   actualArrivalTime: v.optional(v.number()),
   actualBreakTime: v.optional(v.number()),
@@ -477,7 +542,7 @@ export const UpdateMoveFields = v.object({
   travelFeeMethod: v.optional(v.union(v.null(), TravelChargingTypesConvex)),
 });
 
-export const updateMove = mutation({
+export const updateMove = action({
   args: {
     moveId: v.id("moves"),
     updates: UpdateMoveFields,
@@ -492,14 +557,44 @@ export const updateMove = mutation({
       ClerkRoles.MOVER,
     ]);
 
-    const moveRecord = await validateDocument(
-      ctx.db,
+    const moveRecord = validateDocExists(
       "moves",
-      moveId,
+      await ctx.runQuery(internal.moves.getMoveByIdInternal, {
+        moveId,
+      }),
       ErrorMessages.MOVE_NOT_FOUND
     );
-    const company = await validateCompany(ctx.db, moveRecord.companyId);
+
+    const company = validateDocExists(
+      "companies",
+      await ctx.runQuery(internal.companies.getCompanyByIdInternal, {
+        companyId: moveRecord.companyId!,
+      }),
+      ErrorMessages.COMPANY_NOT_FOUND
+    );
+
     isUserInOrg(identity, company.clerkOrganizationId);
+
+    let updatesWithSegments = { ...updates };
+
+    const companyContact = validateDocExists(
+      "companyContacts",
+      await ctx.runQuery(
+        internal.companyContacts.getCompanyContactByCompanyIdInternal,
+        {
+          companyId: moveRecord.companyId,
+        }
+      ),
+      ErrorMessages.COMPANY_CONTACT_NOT_FOUND
+    );
+
+    if (updates.locations && Array.isArray(updates.locations)) {
+      const computedSegments = await computeSegments(
+        companyContact.address?.formattedAddress ?? "",
+        updates.locations as LocationInput[]
+      );
+      updatesWithSegments.segmentDistances = computedSegments;
+    }
 
     let statusPatch: Partial<Doc<"moves">> = {};
     if (updates.moveStatus) {
@@ -512,13 +607,26 @@ export const updateMove = mutation({
       );
     }
 
-    const moveCustomer = validateMoveCustomer(
-      await ctx.db.get(moveRecord.moveCustomerId)
+    const moveCustomer = validateDocExists(
+      "moveCustomers",
+      await ctx.runQuery(internal.moveCustomers.getMoveCustomerByIdInternal, {
+        moveCustomerId: moveRecord.moveCustomerId,
+      }),
+      ErrorMessages.MOVE_CUSTOMER_NOT_FOUND
     );
     const userId = identity.convexId as Id<"users">;
-    const user = validateUser(await ctx.db.get(userId));
+    const user = validateDocExists(
+      "users",
+      await ctx.runQuery(internal.users.getUserByIdInternal, {
+        userId,
+      }),
+      ErrorMessages.USER_NOT_FOUND
+    );
 
-    await ctx.db.patch(moveId, { ...updates, ...statusPatch });
+    await ctx.runMutation(internal.moves.updateMoveInternal, {
+      moveId,
+      updates: updatesWithSegments,
+    });
 
     let moveDate: string;
     if (updates.moveDate) {
@@ -1260,5 +1368,17 @@ export const getStackedHistoricalRevenueBySource = query({
     );
 
     return series;
+  },
+});
+
+export const updateMoveInternal = internalMutation({
+  args: {
+    moveId: v.id("moves"),
+    updates: UpdateMoveFields,
+  },
+  handler: async (ctx, args): Promise<Id<"moves">> => {
+    const { moveId, updates } = args;
+    await ctx.db.patch(moveId, updates);
+    return moveId;
   },
 });

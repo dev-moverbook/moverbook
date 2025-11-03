@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import FieldErrorMessage from "./FieldErrorMessage";
 import FieldDisplay from "@/components/shared/field/FieldDisplay";
 import { formatCurrency, formatPhoneNumber } from "@/frontendUtils/helper";
+import { useId } from "react";
 
 interface LabeledInputProps {
   label?: string;
@@ -45,6 +46,8 @@ const LabeledInput: React.FC<LabeledInputProps> = ({
   noPlaceholderError = false,
   className,
 }) => {
+  const labelId = useId();
+
   if (!isEditing) {
     const displayValue = isPhoneNumber
       ? formatPhoneNumber(value)
@@ -63,9 +66,14 @@ const LabeledInput: React.FC<LabeledInputProps> = ({
 
   return (
     <div className={className}>
-      {label && <Label className="block font-medium">{label}</Label>}
+      {label && (
+        <Label htmlFor={labelId} className="block font-medium">
+          {label}
+        </Label>
+      )}
       <Input
         ref={inputRef}
+        id={labelId}
         type={type}
         value={value}
         onChange={onChange}

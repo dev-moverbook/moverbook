@@ -20,6 +20,7 @@ export interface AdaptiveSelectTriggerProps {
   selectedOption: Option | null;
   title?: string;
   triggerLabel?: string;
+  id?: string;
 }
 
 const AdaptiveSelectTrigger = forwardRef<
@@ -39,6 +40,7 @@ const AdaptiveSelectTrigger = forwardRef<
       selectedOption,
       title = "Select an option",
       triggerLabel,
+      id,
     },
     ref
   ) => {
@@ -70,6 +72,7 @@ const AdaptiveSelectTrigger = forwardRef<
           onClick={onOpen}
           size="combobox"
           className={cn(className, open && "border-greenCustom")}
+          id={id}
         >
           <span className="flex w-full items-center justify-between">
             <span className="flex min-w-0 flex-1 items-center gap-2">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useMutation } from "convex/react";
+import { useAction } from "convex/react";
 import { TravelChargingTypes } from "@/types/enums";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { api } from "@/convex/_generated/api";
@@ -61,7 +61,7 @@ export const useUpdateMove = () => {
   const [updateMoveLoading, setUpdateMoveLoading] = useState<boolean>(false);
   const [updateMoveError, setUpdateMoveError] = useState<string | null>(null);
 
-  const updateMoveMutation = useMutation(api.moves.updateMove);
+  const updateMoveMutation = useAction(api.moves.updateMove);
 
   const updateMove = async (data: UpdateMoveInput): Promise<boolean> => {
     setUpdateMoveLoading(true);

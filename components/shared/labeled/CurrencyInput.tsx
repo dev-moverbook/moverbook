@@ -5,6 +5,7 @@ import FieldErrorMessage from "./FieldErrorMessage";
 import FieldDisplay from "../field/FieldDisplay";
 import { formatCurrency } from "@/frontendUtils/helper";
 import { Label } from "@radix-ui/react-label";
+import { useId } from "react";
 
 interface CurrencyInputProps {
   label?: string;
@@ -23,6 +24,7 @@ const CurrencyInput: React.FC<CurrencyInputProps> = ({
   error,
   suffix,
 }) => {
+  const labelId = useId();
   if (!isEditing) {
     return (
       <FieldDisplay
@@ -35,9 +37,12 @@ const CurrencyInput: React.FC<CurrencyInputProps> = ({
   return (
     <div>
       {label && (
-        <Label className="block  font-medium  text-white">{label}</Label>
+        <Label className="block  font-medium  text-white" htmlFor={labelId}>
+          {label}
+        </Label>
       )}
       <NumericFormat
+        id={labelId}
         value={value === null ? "" : value}
         onValueChange={(values) => {
           if (values.value === "") {

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Option } from "@/types/types";
 import AdaptiveSelectTrigger from "./AdaptiveSelectTrigger";
 import AdaptiveSelectMobile from "./AdaptiveSelectMobile";
@@ -24,6 +24,7 @@ export interface AdaptiveSelectProps {
   title?: string;
   triggerLabel?: string;
   value?: string | null;
+  id?: string;
 }
 
 export default function AdaptiveSelect({
@@ -42,6 +43,7 @@ export default function AdaptiveSelect({
   title = "Select an option",
   triggerLabel,
   value,
+  id,
 }: AdaptiveSelectProps) {
   const isMobileViewport = useMediaQuery({ maxWidth: MOBILE_BREAKPOINT });
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -84,6 +86,7 @@ export default function AdaptiveSelect({
         selectedOption={selectedOption}
         title={title}
         triggerLabel={triggerLabel}
+        id={id}
       />
       <AdaptiveSelectMobile
         allIcon={allIcon}
@@ -97,6 +100,7 @@ export default function AdaptiveSelect({
         showSearch={showSearch}
         title={title}
         value={effectiveValue}
+        id={id}
       />
     </>
   ) : (
@@ -116,6 +120,7 @@ export default function AdaptiveSelect({
       value={effectiveValue}
       showSearch={showSearch}
       triggerLabel={triggerLabel}
+      id={id}
     />
   );
 }

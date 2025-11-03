@@ -3,7 +3,7 @@
 import { useAction } from "convex/react";
 import { useState, useCallback } from "react";
 import { api } from "@/convex/_generated/api";
-import { ResponseStatus } from "@/types/enums";
+import { setErrorFromConvexError } from "@/frontendUtils/errorHelper";
 
 export const useDistanceMatrix = () => {
   const getDistanceMatrix = useAction(api.google.getDistanceMatrix);
@@ -28,19 +28,17 @@ export const useDistanceMatrix = () => {
 
       try {
         const result = await getDistanceMatrix({ origin, destination });
-        if (result.status === ResponseStatus.SUCCESS) {
-          return {
-            success: true,
-            distanceMiles: result.data.distanceMiles,
-            durationMinutes: result.data.durationMinutes,
-          };
-        }
-        setError(result.error || "Unknown error");
-        return { success: false, error: result.error };
+        return {
+          success: true,
+          distanceMiles: result.distanceMiles,
+          durationMinutes: result.durationMinutes,
+        };
       } catch (err) {
-        const message = err instanceof Error ? err.message : "Unexpected error";
-        setError(message);
-        return { success: false, error: message };
+        setErrorFromConvexError(err, setError);
+        return {
+          success: false,
+          error: err instanceof Error ? err.message : "Unknown error",
+        };
       } finally {
         setLoading(false);
       }

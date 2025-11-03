@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import FieldErrorMessage from "./FieldErrorMessage";
 import FieldDisplay from "@/components/shared/field/FieldDisplay";
 import { formatTime } from "@/frontendUtils/helper";
-
+import { useId } from "react";
 interface LabeledTimeInputProps {
   label: string;
   value: string;
@@ -25,6 +25,7 @@ const LabeledTimeInput: React.FC<LabeledTimeInputProps> = ({
   max,
   isEditing = true,
 }) => {
+  const labelId = useId();
   if (!isEditing) {
     return (
       <FieldDisplay
@@ -37,8 +38,11 @@ const LabeledTimeInput: React.FC<LabeledTimeInputProps> = ({
 
   return (
     <div className="flex flex-col gap-2">
-      <Label className="block font-medium">{label}</Label>
+      <Label className="block font-medium" htmlFor={labelId}>
+        {label}
+      </Label>
       <Input
+        id={labelId}
         type="time"
         value={value}
         onChange={onChange}

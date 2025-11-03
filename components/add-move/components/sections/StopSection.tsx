@@ -1,7 +1,7 @@
 // StopSection.tsx
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MoveAddress from "./MoveAddress";
 import StopSectionHeader from "@/components/move/header/StopSectionHeader";
 import { LocationInput } from "@/types/form-types";
@@ -36,6 +36,12 @@ const StopSection = ({
   const [showModal, setShowModal] = useState<boolean>(false);
   const [deleteIndex, setDeleteIndex] = useState<number | null>(null);
 
+  useEffect(() => {
+    if (isAddingIndex === null && onSaved) {
+      onSaved();
+    }
+  }, [isAddingIndex, onSaved]);
+
   const handleAddStop = (e: React.MouseEvent) => {
     e.preventDefault();
     addStopLocation();
@@ -48,6 +54,7 @@ const StopSection = ({
       await removeLocation(deleteIndex);
       setShowModal(false);
       setDeleteIndex(null);
+      if (onSaved) onSaved();
     }
   };
 

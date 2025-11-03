@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import FieldErrorMessage from "./FieldErrorMessage";
+import { useId } from "react";
 
 export interface SelectOption {
   label: string;
@@ -34,16 +35,22 @@ const LabeledSelect: React.FC<LabeledSelectProps> = ({
   error,
   loading = false,
 }) => {
+  const labelId = useId();
   const isLabeled = label !== "";
+
   return (
     <div>
-      {isLabeled && <Label className="block font-medium">{label}</Label>}
+      {isLabeled && (
+        <Label htmlFor={labelId} className="block font-medium">
+          {label}
+        </Label>
+      )}
       <Select
         value={value ?? undefined}
         onValueChange={onChange}
         disabled={loading}
       >
-        <SelectTrigger>
+        <SelectTrigger id={labelId}>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent className="z-[9999]">

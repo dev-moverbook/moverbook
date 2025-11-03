@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useId } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import FieldErrorMessage from "./FieldErrorMessage";
@@ -29,6 +29,7 @@ const LabeledDateInput: React.FC<LabeledDateInputProps> = ({
 }) => {
   const [focused, setFocused] = useState<boolean>(false);
   const isIphone = useIsIphone();
+  const inputId = useId();
 
   const showGhostText = !value && !focused && isIphone;
 
@@ -43,16 +44,19 @@ const LabeledDateInput: React.FC<LabeledDateInputProps> = ({
   }
 
   return (
-    <div className="relative">
-      <Label className="block font-medium">{label}</Label>
+    <div className="relative w-full">
+      <Label className="block font-medium" htmlFor={inputId}>
+        {label}
+      </Label>
 
       {showGhostText && (
-        <span className="absolute left-3 top-[27px] text-white pointer-events-none text-sm md:hidden">
+        <span className="absolute left-3 top-[30px] text-white pointer-events-none text-sm md:hidden">
           Select Date
         </span>
       )}
 
       <Input
+        id={inputId}
         type="date"
         value={value}
         onChange={onChange}
@@ -60,7 +64,7 @@ const LabeledDateInput: React.FC<LabeledDateInputProps> = ({
         onBlur={() => setFocused(false)}
         min={min}
         max={max}
-        className="min-h-[34px] text-white bg-transparent pr-2 cursor-pointer [&::-webkit-calendar-picker-indicator]:invert"
+        className=" w-[300px] h-[40px] md:h-full text-white bg-transparent pr-2 cursor-pointer [&::-webkit-calendar-picker-indicator]:invert"
       />
 
       <FieldErrorMessage error={error} />

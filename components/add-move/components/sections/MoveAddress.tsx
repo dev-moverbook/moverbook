@@ -39,7 +39,7 @@ interface MoveAddressProps {
   isLoading?: boolean;
   error?: string | null;
   isAdding?: boolean;
-  onSaved?: () => void;
+  onSaved?: (savedLocation: LocationInput, index: number) => void;
   onCancelAdd?: () => void;
   canEdit?: boolean;
 }
@@ -116,7 +116,7 @@ const MoveAddress = ({
     if (!canEdit) return;
     updateLocation?.(index, formData);
     setIsEditing(false);
-    onSaved?.();
+    onSaved?.(formData, index);
   };
 
   const handleCancel = () => {
