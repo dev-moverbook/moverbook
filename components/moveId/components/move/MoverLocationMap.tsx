@@ -15,18 +15,18 @@ interface MoverLocationMapProps {
 export default function MoverLocationMap({
   moverLocation,
 }: MoverLocationMapProps) {
-  if (!moverLocation?.lat || !moverLocation?.lng) {
-    return <p className="text-grayCustom2">No location data available.</p>;
+  if (!moverLocation?.lat || !moverLocation?.lng || !moverLocation.isOn) {
+    return (
+      <div className="h-64 w-full rounded-md overflow-hidden relative bg-gray-800">
+        <div className="absolute inset-0 flex items-center justify-center"></div>
+      </div>
+    );
   }
 
   const center = {
     lat: moverLocation.lat,
     lng: moverLocation.lng,
   } as const;
-
-  if (!moverLocation.isOn) {
-    return <p className="text-grayCustom2">Location sharing is disabled.</p>;
-  }
 
   const lastUpdated = moverLocation.timestamp
     ? DateTime.fromMillis(moverLocation.timestamp).toRelative()

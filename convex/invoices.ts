@@ -48,24 +48,6 @@ export const createOrUpdateInvoice = mutation({
     isUserInOrg(identity, company.clerkOrganizationId);
 
     const now = Date.now();
-    const user = validateUser(
-      await ctx.runQuery(internal.users.getUserByIdInternal, {
-        userId: identity.convexId as Id<"users">,
-      })
-    );
-
-    const moveCustomer = await ctx.runQuery(
-      internal.moveCustomers.getMoveCustomerByIdInternal,
-      {
-        moveCustomerId: move.moveCustomerId,
-      }
-    );
-
-    const validatedMoveCustomer = validateDocExists(
-      "moveCustomers",
-      moveCustomer,
-      ErrorMessages.MOVE_CUSTOMER_NOT_FOUND
-    );
 
     if (updates.customerSignature && !updates.customerSignedAt) {
       updates.customerSignedAt = now;
@@ -92,29 +74,6 @@ export const createOrUpdateInvoice = mutation({
         ...updates,
       });
     }
-
-    const moveDate = move.moveDate
-      ? formatMonthDayLabelStrict(move.moveDate)
-      : "TBD";
-
-    if (updates.status === "completed") {
-      await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
-        entry: {
-          type: "INVOICE_MARKED_COMPLETE",
-          companyId: company._id,
-          userId: user._id,
-          body: `**${user.name}** marked invoice as complete for **${validatedMoveCustomer.name}** **${moveDate}**`,
-          moveId,
-          context: {
-            customerName: validatedMoveCustomer.name,
-            moveDate,
-            invoiceId,
-            moverName: user.name,
-          },
-        },
-      });
-    }
-
     return true;
   },
 });

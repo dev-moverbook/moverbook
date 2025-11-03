@@ -6,7 +6,7 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { setErrorFromConvexError } from "@/frontendUtils/errorHelper";
 
-interface InsertMoverLocationInput {
+interface CreateMoveCustomerInput {
   moveId: Id<"moves">;
 }
 
@@ -19,13 +19,36 @@ export const useInsertMoverLocation = () => {
   );
 
   const insertMoverLocation = async (
-    data: InsertMoverLocationInput
+    data: CreateMoveCustomerInput
   ): Promise<boolean> => {
     setLoading(true);
     setError(null);
 
+    if (!("geolocation" in navigator)) {
+      setError("Geolocation is not supported by this browser");
+      setLoading(false);
+      return false;
+    }
+
     try {
-      return await insertMoverLocationMutation(data);
+      const position = await new Promise<GeolocationPosition>(
+        (resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true,
+            maximumAge: 10_000,
+            timeout: 10_000,
+          });
+        }
+      );
+
+      const success = await insertMoverLocationMutation({
+        ...data,
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+        timestamp: Date.now(),
+      });
+
+      return success;
     } catch (error) {
       setErrorFromConvexError(error, setError);
       return false;

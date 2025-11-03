@@ -130,9 +130,12 @@ export const stopMoverLocationSharing = mutation({
 export const inserMoverLocationSharing = mutation({
   args: {
     moveId: v.id("moves"),
+    lat: v.number(),
+    lng: v.number(),
+    timestamp: v.number(),
   },
   handler: async (ctx, args): Promise<boolean> => {
-    const { moveId } = args;
+    const { moveId, lat, lng, timestamp } = args;
 
     const identity = await requireAuthenticatedUser(ctx, [
       ClerkRoles.ADMIN,
@@ -173,10 +176,16 @@ export const inserMoverLocationSharing = mutation({
       moveLocationId = await ctx.db.insert("moverLocations", {
         moveId,
         isOn: true,
+        lat,
+        lng,
+        timestamp,
       });
     } else if (moveLocationId) {
       await ctx.db.patch(moveLocationId, {
         isOn: true,
+        lat,
+        lng,
+        timestamp,
       });
     }
 

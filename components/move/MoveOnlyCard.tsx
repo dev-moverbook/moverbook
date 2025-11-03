@@ -133,7 +133,7 @@ export default function MoveOnlyCard({
     "bg-black py-4 px-4 md:px-0 text-white transition-colors duration-200";
   const interactiveClasses =
     !showActions && !linkDisabled
-      ? "hover:bg-background2 hover:rounded-lg cursor-pointer"
+      ? "hover:bg-background2 hover:rounded-lg cursor-pointer md:px-4"
       : "";
 
   let wrapper: React.ReactNode;

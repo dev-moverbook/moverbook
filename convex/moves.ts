@@ -701,10 +701,8 @@ export const updateMove = action({
         await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
           entry: {
             type: "MOVE_BREAK_UPDATED",
-            body: `**${user.name}** updated break for **${moveCustomer.name}** at ${formatTimeLower(
-              updates.actualBreakTime,
-              company.timeZone
-            )}`,
+            body: `**${user.name}** updated break of ${updates.actualBreakTime} hours for **${moveCustomer.name}** 
+            `,
             companyId: moveRecord.companyId,
             userId: user._id,
             moveId,

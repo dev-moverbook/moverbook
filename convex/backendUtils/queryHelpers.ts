@@ -733,8 +733,6 @@ function fillEstimate(
   assignment: Doc<"moveAssignments">,
   hourlyRate: number
 ): MoverWageForMove {
-  if (move.jobType !== "hourly") return summary;
-
   const est = computeHourlyRangeEstimated(move, assignment, hourlyRate);
 
   return {

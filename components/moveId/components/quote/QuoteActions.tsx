@@ -54,7 +54,6 @@ const QuoteActions = ({ signatureDataUrl }: QuoteActionsProps) => {
         ...(signatureDataUrl && { repSignature: signatureDataUrl }),
       },
     });
-    handleUpdateMoveStatusToQuoted();
     await sendQuote(moveId, "email");
     setActiveLoading(null);
   };
