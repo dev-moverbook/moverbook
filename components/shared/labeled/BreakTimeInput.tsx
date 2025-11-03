@@ -1,6 +1,5 @@
 "use client";
 
-import { Label } from "@/components/ui/label";
 import FieldDisplay from "@/components/shared/field/FieldDisplay";
 import CounterInput from "./CounterInput";
 import { formatDecimalHours } from "@/frontendUtils/timeUtils";
@@ -23,8 +22,6 @@ const BreakTimeInput: React.FC<BreakTimeInputProps> = ({
   isEditing,
   label = "Break Time",
 }) => {
-  const id = useId();
-
   if (!isEditing) {
     return (
       <FieldDisplay

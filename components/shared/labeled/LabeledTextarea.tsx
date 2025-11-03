@@ -25,11 +25,10 @@ const LabeledTextarea: React.FC<LabeledTextareaProps> = ({
   isEditing = true,
   noPlaceholderError = false,
 }) => {
+  const id = useId();
   if (!isEditing) {
     return <FieldDisplay label={label} value={value?.trim()} fallback="—" />;
   }
-
-  const id = useId();
 
   return (
     <div className="">
