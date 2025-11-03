@@ -3,7 +3,6 @@
 import FieldDisplay from "@/components/shared/field/FieldDisplay";
 import CounterInput from "./CounterInput";
 import { formatDecimalHours } from "@/frontendUtils/timeUtils";
-import { useId } from "react";
 
 interface BreakTimeInputProps {
   hours: number;
