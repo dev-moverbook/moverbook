@@ -1,5 +1,5 @@
 "use client";
-import React, { FormEvent, useState } from "react";
+import { FormEvent, useState } from "react";
 import TripleFormAction from "@/components/shared/buttons/TripleFormAction";
 import { useCreateOrUpdateQuote } from "@/hooks/quotes";
 import FormActionContainer from "@/components/shared/containers/FormActionContainer";
@@ -22,17 +22,6 @@ const QuoteActions = ({ signatureDataUrl }: QuoteActionsProps) => {
   const { moveData } = useMoveContext();
   const { move, quote } = moveData;
   const { _id: moveId, moveStatus } = move;
-
-  const handleUpdateMoveStatusToQuoted = async () => {
-    if (moveStatus === "New Lead") {
-      await updateMove({
-        moveId,
-        updates: {
-          moveStatus: "Quoted",
-        },
-      });
-    }
-  };
 
   const handleUpdateMoveStatusToBooked = async () => {
     if (moveStatus === "Quoted" || moveStatus === "New Lead") {
@@ -94,6 +83,7 @@ const QuoteActions = ({ signatureDataUrl }: QuoteActionsProps) => {
     move.moveStatus === "Booked" ||
     !isRepSigned ||
     move.moveStatus === "Completed";
+
   return (
     <FormActionContainer>
       <TripleFormAction

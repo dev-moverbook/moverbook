@@ -1,3 +1,5 @@
+"use client";
+
 import FormActions from "@/components/shared/buttons/FormActions";
 import MoveAddress from "../sections/MoveAddress";
 import { useMoveForm } from "@/contexts/MoveFormContext";
@@ -6,7 +8,6 @@ import FormActionContainer from "@/components/shared/containers/FormActionContai
 import StopSection from "../sections/StopSection";
 import LocationSummary from "../sections/LocationSummary";
 import MoveDetails from "../sections/MoveDetails";
-import { buildDefaultSegments } from "@/frontendUtils/segmentDistanceHelper";
 
 interface MoveStepProps {
   onNext: () => void;

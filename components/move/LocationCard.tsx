@@ -1,9 +1,10 @@
+"use client";
+
 import { SegmentDistance } from "@/types/types";
 import ListRowContainer from "../shared/containers/ListRowContainer";
 import ListRow from "../shared/ui/ListRow";
 import {
   sumSegments,
-  formatMilesAndTime,
   formatMiles,
   formatDurationFromMinutes,
 } from "@/frontendUtils/helper";
