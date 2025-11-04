@@ -29,14 +29,11 @@ export function useSegmentDistances(
     }
     if (!originRef) return;
 
-    const controller = new AbortController();
     updateSegmentDistances(
       originRef,
       middles,
       fetchDistance,
-      setSegmentDistances,
-      controller.signal
+      setSegmentDistances
     );
-    return () => controller.abort();
   }, [companyAddress, locations, fetchDistance, setSegmentDistances]);
 }

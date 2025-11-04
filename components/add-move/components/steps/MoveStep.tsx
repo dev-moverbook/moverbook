@@ -6,6 +6,7 @@ import FormActionContainer from "@/components/shared/containers/FormActionContai
 import StopSection from "../sections/StopSection";
 import LocationSummary from "../sections/LocationSummary";
 import MoveDetails from "../sections/MoveDetails";
+import { buildDefaultSegments } from "@/frontendUtils/segmentDistanceHelper";
 
 interface MoveStepProps {
   onNext: () => void;
@@ -20,6 +21,7 @@ const MoveStep = ({ onNext, onBack }: MoveStepProps) => {
     companyContact,
     segmentDistances,
     moveFormData,
+    triggerSegmentDistanceUpdate,
   } = useMoveForm();
 
   return (
@@ -31,12 +33,14 @@ const MoveStep = ({ onNext, onBack }: MoveStepProps) => {
         location={moveFormData.locations[0]}
         updateLocation={updateLocation}
         isAdding={true}
+        onPlaceSelected={triggerSegmentDistanceUpdate}
       />
       <StopSection
         locations={moveFormData.locations}
         addStopLocation={addStopLocation}
         removeLocation={removeLocation}
         updateLocation={updateLocation}
+        onPlaceSelected={triggerSegmentDistanceUpdate}
       />
       <MoveAddress
         title="Ending Location"
@@ -44,6 +48,7 @@ const MoveStep = ({ onNext, onBack }: MoveStepProps) => {
         location={moveFormData.locations[moveFormData.locations.length - 1]}
         updateLocation={updateLocation}
         isAdding={true}
+        onPlaceSelected={triggerSegmentDistanceUpdate}
       />
       <LocationSummary
         companyContact={companyContact}

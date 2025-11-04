@@ -18,6 +18,7 @@ interface StopSectionProps {
   isLoading?: boolean;
   error?: string | null;
   showBannerFromParent?: boolean;
+  onPlaceSelected?: () => void;
 }
 
 const StopSection = ({
@@ -31,6 +32,7 @@ const StopSection = ({
   isLoading,
   error,
   showBannerFromParent,
+  onPlaceSelected,
 }: StopSectionProps) => {
   const [showBanner, setShowBanner] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -93,6 +95,7 @@ const StopSection = ({
             onSaved={onSaved}
             isLoading={isLoading}
             error={error}
+            onPlaceSelected={onPlaceSelected}
           />
         );
       })}

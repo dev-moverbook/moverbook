@@ -48,38 +48,31 @@ export async function computeSegmentDistances(
   fetchDistance: (args: { origin: string; destination: string }) => Promise<{
     distanceMiles?: number | null;
     durationMinutes?: number | null;
-  }>,
-  abortSignal?: AbortSignal
+  }>
 ): Promise<SegmentDistance[]> {
-  const ensureNotAborted = () => {
-    if (abortSignal?.aborted) {
-      throw new DOMException("Aborted", "AbortError");
-    }
-  };
+  console.log("computeSegmentDistances originReference", originReference);
 
   const segments: SegmentDistance[] = [];
-
-  ensureNotAborted();
 
   const startLegResponse = await fetchDistance({
     origin: originReference,
     destination: middleReferences[0],
   });
 
+  console.log("startLegResponse", startLegResponse);
+
   segments.push({
     label: "Office → Pickup",
     distance: startLegResponse.distanceMiles ?? null,
     duration:
       startLegResponse.durationMinutes != null
-        ? startLegResponse.durationMinutes / 60
+        ? startLegResponse.durationMinutes
         : null,
   });
 
   const middleCount = middleReferences.length;
 
   for (let hopIndex = 0; hopIndex < middleCount - 1; hopIndex++) {
-    ensureNotAborted();
-
     const legResponse = await fetchDistance({
       origin: middleReferences[hopIndex],
       destination: middleReferences[hopIndex + 1],
@@ -90,12 +83,10 @@ export async function computeSegmentDistances(
       distance: legResponse.distanceMiles ?? null,
       duration:
         legResponse.durationMinutes != null
-          ? legResponse.durationMinutes / 60
+          ? legResponse.durationMinutes
           : null,
     });
   }
-
-  ensureNotAborted();
 
   const endLegResponse = await fetchDistance({
     origin: middleReferences[middleCount - 1],
@@ -107,7 +98,7 @@ export async function computeSegmentDistances(
     distance: endLegResponse.distanceMiles ?? null,
     duration:
       endLegResponse.durationMinutes != null
-        ? endLegResponse.durationMinutes / 60
+        ? endLegResponse.durationMinutes
         : null,
   });
 
@@ -121,8 +112,7 @@ export async function updateSegmentDistances(
     distanceMiles?: number | null;
     durationMinutes?: number | null;
   }>,
-  setSegmentDistances: Dispatch<SetStateAction<SegmentDistance[]>>,
-  abortSignal?: AbortSignal
+  setSegmentDistances: Dispatch<SetStateAction<SegmentDistance[]>>
 ) {
   if (!fetchDistance) {
     return;
@@ -132,8 +122,7 @@ export async function updateSegmentDistances(
     const computedSegments = await computeSegmentDistances(
       originReference,
       middleReferences,
-      fetchDistance,
-      abortSignal
+      fetchDistance
     );
 
     setSegmentDistances((previousSegments) =>

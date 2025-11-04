@@ -93,6 +93,7 @@ import { internal } from "./_generated/api";
 import { computeMoveTotal } from "@/frontendUtils/helper";
 import { fetchDistanceMatrix, getDistanceMatrix } from "./google";
 import { LocationInput } from "@/types/form-types";
+import { hopLabel } from "@/frontendUtils/segmentDistanceHelper";
 
 export const getMoveOptions = query({
   args: { companyId: v.id("companies") },
@@ -456,8 +457,6 @@ export async function computeSegments(
 ): Promise<SegmentDistance[]> {
   if (!companyAddress || locations.length === 0) return [];
 
-  console.log("computeSegments", { companyAddress, locations });
-
   // Extract all formatted addresses
   const locationAddresses = locations
     .map((loc) => loc.address?.formattedAddress)
@@ -485,13 +484,14 @@ export async function computeSegments(
         locationAddresses[i + 1]
       );
       segments.push({
-        label: `Pickup → Dropoff`,
+        label: hopLabel(i, locationAddresses.length), // Use hopLabel here
         distance: leg.distanceMiles,
         duration: leg.durationMinutes,
       });
     }
   }
 
+  // Last location → Office
   const lastLeg = await fetchDistanceMatrix(
     locationAddresses[locationAddresses.length - 1],
     companyAddress

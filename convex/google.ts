@@ -12,18 +12,20 @@ function parseDurationToMinutes(
     return null;
   }
   if (typeof duration === "number") {
-    return duration / 60;
+    return Math.round((duration / 60) * 100) / 100;
   }
   const secondsMatch = duration.match(/^(\d+)s$/);
   if (secondsMatch) {
-    return Number(secondsMatch[1]) / 60;
+    return Math.round((Number(secondsMatch[1]) / 60) * 100) / 100;
   }
   const regexResult = /^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/.exec(duration);
   if (regexResult) {
     const hours = Number(regexResult[1] ?? 0);
     const minutes = Number(regexResult[2] ?? 0);
     const seconds = Number(regexResult[3] ?? 0);
-    return (hours * 3600 + minutes * 60 + seconds) / 60;
+    return (
+      Math.round(((hours * 3600 + minutes * 60 + seconds) / 60) * 100) / 100
+    );
   }
   return null;
 }
@@ -222,7 +224,9 @@ export async function fetchDistanceMatrix(
 
     const distanceMiles =
       Math.round((route.distanceMeters / 1609.34) * 100) / 100;
+    console.log("route.duration", route.duration);
     const durationMinutes = parseDurationToMinutes(route.duration);
+    console.log("durationMinutes", durationMinutes);
 
     if (durationMinutes === null) {
       throw new ConvexError({

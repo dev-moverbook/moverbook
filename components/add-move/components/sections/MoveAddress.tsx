@@ -42,6 +42,7 @@ interface MoveAddressProps {
   onSaved?: (savedLocation: LocationInput, index: number) => void;
   onCancelAdd?: () => void;
   canEdit?: boolean;
+  onPlaceSelected?: () => void;
 }
 
 const MoveAddress = ({
@@ -56,6 +57,7 @@ const MoveAddress = ({
   isAdding = false,
   onSaved,
   canEdit = true,
+  onPlaceSelected,
 }: MoveAddressProps) => {
   const [isManualAddress, setIsManualAddress] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState<boolean>(canEdit && isAdding);
@@ -251,6 +253,7 @@ const MoveAddress = ({
                         }
                       : { lat: null, lng: null },
                   });
+                  onPlaceSelected?.();
                 }}
                 isEditing={true}
                 showLabel={false}

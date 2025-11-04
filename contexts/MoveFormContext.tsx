@@ -39,10 +39,10 @@ import {
 import { followLaborRateForTravel } from "../frontendUtils/moveFormHelper/rate";
 import { ensureArrivalDefaults } from "../frontendUtils/moveFormHelper/arrival";
 import { applyBootstrapDefaults } from "../frontendUtils/moveFormHelper/bootstrap";
-import { useSegmentDistances } from "../frontendUtils/moveFormHelper/useSegmentDistances";
 import { useCreditCardFee } from "../frontendUtils/moveFormHelper/hooks/useCreditCardFee";
 import { useHourlyRate } from "../frontendUtils/moveFormHelper/hooks/useHourlyRate";
 import { useDefaultInsurancePolicy } from "../frontendUtils/moveFormHelper/hooks/useDefaultInsurancePolicy";
+import calculateSegmentDistances from "@/frontendUtils/moveFormHelper/calculateSegmentDistances";
 
 interface AddMoveFormData {
   addMoveFee: (fee: MoveFeeInput) => void;
@@ -80,6 +80,7 @@ interface AddMoveFormData {
   travelFeeOptions?: Doc<"travelFees">;
   isAllSectionsComplete: boolean;
   isLoading: boolean;
+  triggerSegmentDistanceUpdate: () => void;
 }
 const MoveFormContext = createContext<AddMoveFormData | undefined>(undefined);
 
@@ -115,6 +116,12 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
     buildDefaultMoveFormData()
   );
   const [moveFormErrors, setMoveFormErrors] = useState<MoveFormErrors>({});
+  const [shouldUpdateSegments, setShouldUpdateSegments] =
+    useState<boolean>(false);
+
+  const triggerSegmentDistanceUpdate = () => {
+    setShouldUpdateSegments(true);
+  };
 
   const { fetchDistance } = useDistanceMatrix();
 
@@ -130,12 +137,23 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
     removeMoveItem,
   } = createMoveFormActions(setMoveFormData);
 
-  useSegmentDistances(
+  useEffect(() => {
+    if (!shouldUpdateSegments) return;
+
+    calculateSegmentDistances({
+      companyAddress: companyContact?.address,
+      locations: moveFormData.locations,
+      fetchDistance,
+      setSegmentDistances,
+    });
+
+    setShouldUpdateSegments(false);
+  }, [
+    shouldUpdateSegments,
     companyContact?.address,
     moveFormData.locations,
     fetchDistance,
-    setSegmentDistances
-  );
+  ]);
 
   useCreditCardFee(creditCardFee, setMoveFormData);
 
@@ -239,6 +257,7 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
         moveFormErrors,
         setMoveFormErrors,
         travelFeeOptions,
+        triggerSegmentDistanceUpdate,
       }}
     >
       {children}

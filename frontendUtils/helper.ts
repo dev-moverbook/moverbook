@@ -859,23 +859,30 @@ export const placeIdToRef = (pid: string | null) =>
 export const isLikelyPlaceId = (id?: string | null) =>
   !!id && !/[ ,]/.test(id) && id.length >= 10;
 
+// export const toDistanceRef = (addr?: AddressInput | null): string | null => {
+//   if (!addr) return null;
+
+//   if (isLikelyPlaceId(addr.placeId)) {
+//     return addr.placeId!;
+//   }
+
+//   const lat = addr.location?.lat ?? null;
+//   const lng = addr.location?.lng ?? null;
+//   if (
+//     typeof lat === "number" &&
+//     typeof lng === "number" &&
+//     !Number.isNaN(lat) &&
+//     !Number.isNaN(lng)
+//   ) {
+//     return `${lat},${lng}`;
+//   }
+
+//   const fa = addr.formattedAddress?.trim();
+//   return fa && fa.length > 0 ? fa : null;
+// };
+
 export const toDistanceRef = (addr?: AddressInput | null): string | null => {
   if (!addr) return null;
-
-  if (isLikelyPlaceId(addr.placeId)) {
-    return addr.placeId!;
-  }
-
-  const lat = addr.location?.lat ?? null;
-  const lng = addr.location?.lng ?? null;
-  if (
-    typeof lat === "number" &&
-    typeof lng === "number" &&
-    !Number.isNaN(lat) &&
-    !Number.isNaN(lng)
-  ) {
-    return `${lat},${lng}`;
-  }
 
   const fa = addr.formattedAddress?.trim();
   return fa && fa.length > 0 ? fa : null;
@@ -895,9 +902,6 @@ export const segmentsEqual = (a: SegmentDistance[], b: SegmentDistance[]) => {
       round2(x.distance) !== round2(y.distance) ||
       round2(x.duration) !== round2(y.duration)
     ) {
-      console.log("not equal");
-      console.log("a", a);
-      console.log("b", b);
       return false;
     }
   }
@@ -987,7 +991,7 @@ export const sumSegments = (
       anyMiles = true;
     }
     if (s.duration != null) {
-      mins += Math.round(s.duration * 60);
+      mins += s.duration;
       anyTime = true;
     }
   }

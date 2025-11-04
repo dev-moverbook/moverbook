@@ -20,20 +20,17 @@ const LocationCard = ({ segmentDistances }: LocationCardProps) => {
     }))
   );
 
+  const total = `${formatMiles(totalMiles)} (${formatDurationFromMinutes(totalMinutes)})`;
+
   const rows = [
     ...segmentDistances.map((seg) => ({
       label: seg.label,
-      value: formatMilesAndTime(seg.distance ?? null, seg.duration ?? null),
+      value: formatDurationFromMinutes(seg.duration ?? null),
       bold: false,
     })),
     {
       label: "Total",
-      value: (() => {
-        const milesPart = formatMiles(totalMiles);
-        const timePart =
-          totalMinutes == null ? null : formatDurationFromMinutes(totalMinutes);
-        return timePart ? `${milesPart} (${timePart})` : milesPart;
-      })(),
+      value: total,
       bold: true,
     },
   ];

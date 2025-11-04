@@ -26,6 +26,9 @@ export const useDistanceMatrix = () => {
       setLoading(true);
       setError(null);
 
+      console.log("origin", origin);
+      console.log("destination", destination);
+
       try {
         const result = await getDistanceMatrix({ origin, destination });
         return {
