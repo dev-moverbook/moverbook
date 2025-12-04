@@ -9,6 +9,7 @@ export type ServerEnv = {
   STRIPE_CONNECTED_WEBHOOK_SECRET: string;
   TWILIO_ACCOUNT_SID: string;
   TWILIO_AUTH_TOKEN: string;
+  VAPID_EMAIL: string;
   VAPID_PRIVATE_KEY: string;
   STRIPE_KEY: string;
 };
@@ -23,9 +24,10 @@ export const serverEnv = (): ServerEnv => {
     STRIPE_CONNECTED_WEBHOOK_SECRET:
       process.env.STRIPE_CONNECTED_WEBHOOK_SECRET,
     STRIPE_KEY: process.env.STRIPE_KEY,
-    TWILIO_ACCOUNT_SID: "test",
-    TWILIO_AUTH_TOKEN: "test",
+    TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID,
+    TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN,
     VAPID_PRIVATE_KEY: process.env.VAPID_PRIVATE_KEY,
+    VAPID_EMAIL: process.env.VAPID_EMAIL,
   } as const;
 
   const missing = getMissingEnvKeys(env);

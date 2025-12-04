@@ -8,6 +8,7 @@ export type ClientEnv = {
   NEXT_PUBLIC_CLERK_SIGN_UP_FORCE_REDIRECT_URL: string;
   NEXT_PUBLIC_CONVEX_URL: string;
   NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: string;
+  NEXT_PUBLIC_VAPID_PUBLIC_KEY: string;
 };
 
 export const clientEnv = (): ClientEnv => {
@@ -23,6 +24,7 @@ export const clientEnv = (): ClientEnv => {
     NEXT_PUBLIC_CONVEX_URL: process.env.NEXT_PUBLIC_CONVEX_URL,
     NEXT_PUBLIC_GOOGLE_MAPS_API_KEY:
       process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
+    NEXT_PUBLIC_VAPID_PUBLIC_KEY: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
   } as const;
 
   const missing = getMissingEnvKeys(env);
