@@ -1,10 +1,11 @@
-import { ConvexError, v } from "convex/values";
+import { v } from "convex/values";
 import { action } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { CreateCustomerWithSubscriptionData } from "@/types/convex-responses";
 import { ErrorMessages } from "@/types/errors";
-import { sendClerkInvitation } from "./backendUtils/clerk";
+import { sendClerkInvitation } from "./functions/clerk";
 import { Doc } from "./_generated/dataModel";
+import { throwConvexError } from "./backendUtils/errors";
 
 export const createCustomerWithSubscription = action({
   args: {
@@ -19,9 +20,9 @@ export const createCustomerWithSubscription = action({
       }
     );
     if (existingCustomer && existingCustomer.isActive) {
-      throw new ConvexError({
-        code: "CONFLICT",
-        message: ErrorMessages.CUSTOMER_EXISTS,
+      throwConvexError(ErrorMessages.CUSTOMER_EXISTS, {
+        code: "BAD REQUEST",
+        showToUser: true,
       });
     }
 
@@ -33,9 +34,9 @@ export const createCustomerWithSubscription = action({
     );
 
     if (existingUser) {
-      throw new ConvexError({
-        code: "CONFLICT",
-        message: ErrorMessages.USER_EXISTS,
+      throwConvexError(ErrorMessages.USER_EXISTS, {
+        code: "BAD REQUEST",
+        showToUser: true,
       });
     }
 

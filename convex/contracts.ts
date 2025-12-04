@@ -13,7 +13,6 @@ import { ClerkRoles } from "@/types/enums";
 import { Doc, Id } from "./_generated/dataModel";
 import { ErrorMessages } from "@/types/errors";
 import { internal } from "./_generated/api";
-import { formatMonthDayLabelStrict } from "@/frontendUtils/luxonUtils";
 
 export const createOrUpdateContract = mutation({
   args: {
@@ -87,6 +86,7 @@ export const createOrUpdateContract = mutation({
           moveCustomerId: move.moveCustomerId,
           context: {
             customerName: moveCustomer.name,
+            contractId,
           },
         },
       });
@@ -157,9 +157,7 @@ export const sendContract = action({
     } else if (args.channel === "sms") {
       // TODO: Send waiver SMS
     }
-    const moveDate = validatedMove.moveDate
-      ? formatMonthDayLabelStrict(validatedMove.moveDate)
-      : "TBD";
+
     await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
       entry: {
         type: "CONTRACT_SENT",

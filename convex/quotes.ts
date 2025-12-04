@@ -81,7 +81,7 @@ export const createOrUpdateQuote = mutation({
         });
       }
 
-      await ctx.db.insert("quotes", {
+      quoteId = await ctx.db.insert("quotes", {
         moveId,
         customerSignature: updates.customerSignature,
         customerSignedAt: updates.customerSignedAt,
@@ -109,6 +109,7 @@ export const createOrUpdateQuote = mutation({
             customerName: moveCustomer.name,
             moveDate,
             depositAmount,
+            quoteId,
           },
         },
       });

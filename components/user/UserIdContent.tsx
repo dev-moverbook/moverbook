@@ -19,10 +19,6 @@ import { canManageCompany } from "@/frontendUtils/permissions";
 import { useSlugContext } from "@/contexts/SlugContext";
 import { useUserId } from "@/contexts/UserIdContext";
 
-interface Props {
-  onBack: () => void;
-}
-
 type UserFormState = {
   name: string;
   email: string;
@@ -30,7 +26,7 @@ type UserFormState = {
   role: string;
 };
 
-const UserIdContent: React.FC<Props> = ({ onBack }) => {
+const UserIdContent: React.FC = () => {
   const { user: userData } = useUserId();
   const {
     updateUser,
@@ -63,7 +59,9 @@ const UserIdContent: React.FC<Props> = ({ onBack }) => {
     role: userData.role || "",
   });
 
-  const handleEditClick = () => setIsEditing(true);
+  const handleEditClick = () => {
+    setIsEditing(true);
+  };
 
   const handleCancel = () => {
     setIsEditing(false);
@@ -93,7 +91,9 @@ const UserIdContent: React.FC<Props> = ({ onBack }) => {
 
   const handleConfirmDelete = async () => {
     const success = await deleteUser(userData._id);
-    if (success) setIsDeleteModalOpen(false);
+    if (success) {
+      setIsDeleteModalOpen(false);
+    }
   };
 
   const handleCloseDeleteModal = () => {
@@ -115,7 +115,6 @@ const UserIdContent: React.FC<Props> = ({ onBack }) => {
     <>
       <BackCenteredHeader
         title="User Info"
-        onBack={onBack}
         onEditClick={
           isCompanyManagerPermission && userData.isActive
             ? handleEditClick

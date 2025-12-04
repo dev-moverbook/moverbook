@@ -2,23 +2,15 @@ import { ErrorMessages } from "@/types/errors";
 import {
   OrganizationMembership,
   User,
-  createClerkClient,
   Invitation,
   Organization,
   OrganizationInvitation,
 } from "@clerk/backend";
 import { UserRole } from "@/types/enums";
 import { getBaseUrl } from "@/utils/helper";
+import { clerkClient } from "../lib/clerk";
+import { serverEnv } from "../backendUtils/serverEnv";
 
-if (!process.env.CLERK_SECRET_KEY) {
-  throw new Error(ErrorMessages.ENV_CLERK_SECRET_KEY_NOT_SET);
-}
-
-export const clerkClient = createClerkClient({
-  secretKey: process.env.CLERK_SECRET_KEY,
-});
-
-// for admin users
 export async function sendClerkInvitation(email: string): Promise<Invitation> {
   const baseUrl = getBaseUrl();
   const redirectUrl = `${baseUrl}/accept-invite`;
@@ -101,6 +93,7 @@ export async function revokeOrganizationInvitation(
   organization_id: string,
   invitation_id: string
 ): Promise<OrganizationInvitation> {
+  const { CLERK_SECRET_KEY } = serverEnv();
   try {
     const response = await fetch(
       `https://api.clerk.com/v1/organizations/${organization_id}/invitations/${invitation_id}/revoke`,
@@ -108,7 +101,7 @@ export async function revokeOrganizationInvitation(
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.CLERK_SECRET_KEY}`,
+          Authorization: `Bearer ${CLERK_SECRET_KEY}`,
         },
       }
     );
@@ -182,7 +175,7 @@ export async function updateClerkOrgName(
 
 export async function updateClerkUserPublicMetadata(
   userId: string,
-  newMetadata: Record<string, any>
+  newMetadata: Record<string, string>
 ): Promise<void> {
   try {
     const user = await clerkClient.users.getUser(userId);

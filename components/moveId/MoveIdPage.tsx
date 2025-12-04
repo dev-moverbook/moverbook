@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import MoveCard from "@/components/move/MoveCard";
 import TabSelector from "@/components/shared/tab/TabSelector";
@@ -17,13 +16,12 @@ import DuplicateMoveModal from "../customer/modals/DuplicateMoveModal";
 import FeedLoader from "./components/newsFeed/FeedContainer";
 
 const MoveIdPage = () => {
-  const router = useRouter();
   const { slug, user } = useSlugContext();
   const { moveData } = useMoveContext();
   const { wageDisplay } = moveData;
 
   const [isDuplicateMoveModalOpen, setIsDuplicateMoveModalOpen] =
-    useState<boolean>(false);
+    useState(false);
   const [selectedMove, setSelectedMove] = useState<Doc<"moves"> | null>(null);
 
   const { move, moveCustomer, salesRepUser } = moveData;
@@ -55,8 +53,6 @@ const MoveIdPage = () => {
     return nonMoverTabs;
   }, [isMoverUser, isLeadMover, isManagement]);
 
-  const handleTabChange = (tab: string) => setActiveTab(tab);
-
   const handleDuplicateMove = (move: Doc<"moves">) => {
     setSelectedMove(move);
     setIsDuplicateMoveModalOpen(true);
@@ -67,9 +63,9 @@ const MoveIdPage = () => {
     setSelectedMove(null);
   };
 
-  const hrefLink = isMoverUser
-    ? `/app/${slug}/customer/${moveCustomer?._id}`
-    : `/app/${slug}/moves/${move._id}`;
+  const customerPageHref = `/app/${slug}/customer/${moveCustomer?._id}`;
+  const movePageHref = `/app/${slug}/moves/${move._id}`;
+  const messagesPageHref = `/app/${slug}/moves/${move._id}/messages`;
 
   const card = (
     <MoveCard
@@ -81,24 +77,20 @@ const MoveIdPage = () => {
       isMover={isMoverUser}
       hourStatus={moveData.myAssignment?.hourStatus}
       moverWageDisplay={wageDisplay}
-      onMessagesClick={() =>
-        router.push(`/app/${slug}/moves/${move._id}/messages`)
-      }
-      onViewCustomerClick={() =>
-        router.push(`/app/${slug}/customer/${moveCustomer?._id}`)
-      }
-      onCardClick={() => router.push(hrefLink)}
+      messagesHref={messagesPageHref}
+      customerHref={customerPageHref}
+      navigateTo={isMoverUser ? customerPageHref : movePageHref}
     />
   );
 
   return (
     <main>
-      {isMoverUser ? <Link href={hrefLink}>{card}</Link> : card}
+      {isMoverUser ? <Link href={customerPageHref}>{card}</Link> : card}
 
       <TabSelector
         tabs={tabs}
         activeTab={activeTab}
-        onTabChange={handleTabChange}
+        onTabChange={setActiveTab}
         className="mt-4"
       />
 
@@ -107,7 +99,6 @@ const MoveIdPage = () => {
       {activeTab === "MOVE" && isLeadMover && <MoverStep />}
       {activeTab === "SUMMARY" && isManagement && <SummaryTab />}
       {activeTab === "FEED" && <FeedLoader />}
-
       {selectedMove && isDuplicateMoveModalOpen && (
         <DuplicateMoveModal
           isOpen={isDuplicateMoveModalOpen}

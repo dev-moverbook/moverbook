@@ -8,6 +8,7 @@ import { GoogleMapsProvider } from "@/providers/GoogleMapsProvider";
 import RouteChangeProgress from "../components/layout/Nprogress";
 import { Suspense } from "react";
 import FullLoading from "../components/shared/skeleton/FullLoading";
+import { clientEnv } from "@/frontendUtils/clientEnv";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,14 +44,14 @@ export default function RootLayout({
         <link rel="icon" href="/icon-512x512.png" sizes="512x512" />
       </head>
       <ClerkProvider
-        publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
-        signInUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL}
-        signUpUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL}
+        publishableKey={clientEnv().NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+        signInUrl={clientEnv().NEXT_PUBLIC_CLERK_SIGN_IN_URL}
+        signUpUrl={clientEnv().NEXT_PUBLIC_CLERK_SIGN_UP_URL}
         signInForceRedirectUrl={
-          process.env.NEXT_PUBLIC_CLERK_SIGN_IN_FORCE_REDIRECT_URL
+          clientEnv().NEXT_PUBLIC_CLERK_SIGN_IN_FORCE_REDIRECT_URL
         }
         signUpForceRedirectUrl={
-          process.env.NEXT_PUBLIC_CLERK_SIGN_UP_FORCE_REDIRECT_URL
+          clientEnv().NEXT_PUBLIC_CLERK_SIGN_UP_FORCE_REDIRECT_URL
         }
         appearance={{ baseTheme: dark }}
       >

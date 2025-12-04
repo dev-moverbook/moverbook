@@ -1,6 +1,6 @@
 import { StripeAccountStatusConvex } from "@/types/convex-enums";
 import { ErrorMessages } from "@/types/errors";
-import { ConvexError, v } from "convex/values";
+import { v } from "convex/values";
 import { Doc, Id } from "./_generated/dataModel";
 import {
   action,
@@ -17,10 +17,12 @@ import {
   createStripeConnectedAccount,
   generateStripeAccountLink,
   generateStripeAccountLoginLink,
-  stripe,
 } from "./backendUtils/stripe";
 import { handleAccountUpdated } from "./backendUtils/connectedAccountWebhook";
 import Stripe from "stripe";
+import { stripe } from "./lib/stripe";
+import { serverEnv } from "./backendUtils/serverEnv";
+import { throwConvexError } from "./backendUtils/errors";
 
 export const saveConnectedAccount = internalMutation({
   args: {
@@ -159,9 +161,9 @@ export const getStripeDashboardLink = action({
     );
 
     if (!existingAccount || !existingAccount.stripeAccountId) {
-      throw new ConvexError({
+      throwConvexError(ErrorMessages.CONNECTED_ACCOUNT_NO_CUSTOMER_ID, {
         code: "NOT_FOUND",
-        message: ErrorMessages.CONNECTED_ACCOUNT_NO_CUSTOMER_ID,
+        showToUser: true,
       });
     }
 
@@ -176,13 +178,13 @@ export const getStripeDashboardLink = action({
 export const fulfill = internalAction({
   args: { signature: v.string(), payload: v.string() },
   handler: async (ctx, { signature, payload }) => {
-    const webhookSecret = process.env.STRIPE_CONNECTED_WEBHOOK_SECRET as string;
+    const { STRIPE_CONNECTED_WEBHOOK_SECRET } = serverEnv();
 
     try {
       const event = await stripe.webhooks.constructEventAsync(
         payload,
         signature,
-        webhookSecret
+        STRIPE_CONNECTED_WEBHOOK_SECRET
       );
 
       switch (event.type) {

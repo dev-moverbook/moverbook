@@ -12,7 +12,8 @@ import { ErrorMessages } from "@/types/errors";
 
 import { CommunicationTypeConvex } from "@/types/convex-enums";
 import { checkExistingScript } from "./backendUtils/checkUnique";
-import { Doc, Id } from "./_generated/dataModel";
+import { Doc } from "./_generated/dataModel";
+import { throwConvexError } from "./backendUtils/errors";
 
 export const getScriptsByCompanyId = query({
   args: { companyId: v.id("companies") },
@@ -204,9 +205,9 @@ export const deleteScript = mutation({
     const validatedScript = validateScript(script, true, true);
 
     if (validatedScript.preSetTypes) {
-      throw new ConvexError({
+      throwConvexError(ErrorMessages.SCRIPT_PRESET_CANNOT_BE_DELETED, {
         code: "BAD_REQUEST",
-        message: ErrorMessages.SCRIPT_PRESET_CANNOT_BE_DELETED,
+        showToUser: true,
       });
     }
 

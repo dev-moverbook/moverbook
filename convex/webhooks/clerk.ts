@@ -1,13 +1,13 @@
-import { GenericActionCtx } from "convex/server";
 import { OrganizationInvitationJSON, UserJSON } from "@clerk/backend";
 import { ErrorMessages } from "@/types/errors";
 import { internal } from "../_generated/api";
 import { ClerkRoles, InvitationStatus } from "@/types/enums";
 import { validateDocExists, validateUser } from "../backendUtils/validate";
-import { updateClerkUserPublicMetadata } from "../backendUtils/clerk";
+import { updateClerkUserPublicMetadata } from "../functions/clerk";
+import { ActionCtx } from "../_generated/server";
 
 export const handleOrganizationInvitationAccepted = async (
-  ctx: GenericActionCtx<any>,
+  ctx: ActionCtx,
   data: OrganizationInvitationJSON
 ) => {
   const MAX_RETRIES = 5;
@@ -70,7 +70,8 @@ export const handleOrganizationInvitationAccepted = async (
         },
       }),
       updateClerkUserPublicMetadata(user.clerkUserId, {
-        role: data.public_metadata.role,
+        role: data.public_metadata.role as string,
+        convexId: user._id,
       }),
     ]);
   } catch (err) {
@@ -79,10 +80,7 @@ export const handleOrganizationInvitationAccepted = async (
   }
 };
 
-export const handleUserCreated = async (
-  ctx: GenericActionCtx<any>,
-  data: UserJSON
-) => {
+export const handleUserCreated = async (ctx: ActionCtx, data: UserJSON) => {
   try {
     const customer = await ctx.runQuery(
       internal.customers.viewCustomerByEmail,
@@ -112,6 +110,7 @@ export const handleUserCreated = async (
 
       await updateClerkUserPublicMetadata(data.id, {
         convexId: userId,
+        role: ClerkRoles.ADMIN,
       });
     }
   } catch (err) {

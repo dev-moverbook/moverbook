@@ -1,6 +1,5 @@
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { TravelChargingTypes } from "./enums";
-import { ConvexReactClient } from "convex/react";
 
 export interface SelectOption {
   label: string;
@@ -389,3 +388,9 @@ export type EnrichedNewsFeed = {
 };
 
 export type DeliveryType = "email" | "sms";
+
+export type LatLng = { lat: number; lng: number };
+
+export interface RouteMapProps {
+  placeIds: (string | undefined)[];
+}

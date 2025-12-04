@@ -1,4 +1,4 @@
-import { ConvexError, v } from "convex/values";
+import { v } from "convex/values";
 import { action, internalAction } from "./_generated/server";
 import { Webhook } from "svix";
 import { WebhookEvent } from "@clerk/clerk-sdk-node";
@@ -9,21 +9,18 @@ import { requireAuthenticatedUser } from "./backendUtils/auth";
 import {
   clerkInviteUserToOrganizationHelper,
   createClerkOrganization,
-} from "./backendUtils/clerk";
+} from "./functions/clerk";
 import { CreatableUserRoleConvex } from "@/types/convex-enums";
 import { isUserInOrg, validateDocExists } from "./backendUtils/validate";
+import { serverEnv } from "./backendUtils/serverEnv";
+import { throwConvexError } from "./backendUtils/errors";
 
 export const fulfill = internalAction({
   args: { headers: v.any(), payload: v.string() },
   handler: async (ctx, args) => {
-    const secret = process.env.CLERK_WEBHOOK_SECRET;
-    if (!secret) {
-      throw new Error(
-        "CLERK_WEBHOOK_SECRET is not set in environment variables"
-      );
-    }
+    const { CLERK_WEBHOOK_SECRET } = serverEnv();
 
-    const wh = new Webhook(secret);
+    const wh = new Webhook(CLERK_WEBHOOK_SECRET);
     const payload = wh.verify(args.payload, args.headers) as WebhookEvent;
     return payload;
   },
@@ -80,9 +77,9 @@ export const clerkInviteUserToOrganization = action({
     );
 
     if (existingUser) {
-      throw new ConvexError({
-        code: "CONFLICT",
-        message: ErrorMessages.USER_WITH_EMAIL_EXISTS,
+      throwConvexError(ErrorMessages.USER_WITH_EMAIL_EXISTS, {
+        code: "BAD REQUEST",
+        showToUser: true,
       });
     }
 
@@ -103,16 +100,13 @@ export const clerkInviteUserToOrganization = action({
       role as string
     );
 
-    const invitationId = await ctx.runMutation(
-      internal.invitations.createInvitationInternal,
-      {
-        clerkInvitationId: response.id,
-        clerkOrganizationId: validatedCompany.clerkOrganizationId,
-        role,
-        email,
-        hourlyRate,
-      }
-    );
+    await ctx.runMutation(internal.invitations.createInvitationInternal, {
+      clerkInvitationId: response.id,
+      clerkOrganizationId: validatedCompany.clerkOrganizationId,
+      role,
+      email,
+      hourlyRate,
+    });
 
     return true;
   },

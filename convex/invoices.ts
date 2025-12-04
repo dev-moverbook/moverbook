@@ -62,13 +62,12 @@ export const createOrUpdateInvoice = mutation({
       .withIndex("by_move", (q) => q.eq("moveId", moveId))
       .unique();
 
-    let invoiceId: Id<"invoices">;
+    // maybe news feed entry for invoice created
 
     if (existing) {
       await ctx.db.patch(existing._id, updates);
-      invoiceId = existing._id;
     } else {
-      invoiceId = await ctx.db.insert("invoices", {
+      await ctx.db.insert("invoices", {
         moveId,
         status: updates.status || "pending",
         ...updates,

@@ -14,8 +14,9 @@ import type * as backendUtils_analyticsHelper from "../backendUtils/analyticsHel
 import type * as backendUtils_auth from "../backendUtils/auth.js";
 import type * as backendUtils_calculations from "../backendUtils/calculations.js";
 import type * as backendUtils_checkUnique from "../backendUtils/checkUnique.js";
-import type * as backendUtils_clerk from "../backendUtils/clerk.js";
+import type * as backendUtils_clerk from "../functions/clerk.js";
 import type * as backendUtils_connectedAccountWebhook from "../backendUtils/connectedAccountWebhook.js";
+import type * as backendUtils_errors from "../backendUtils/errors.js";
 import type * as backendUtils_helper from "../backendUtils/helper.js";
 import type * as backendUtils_luxonHelper from "../backendUtils/luxonHelper.js";
 import type * as backendUtils_moveHelper from "../backendUtils/moveHelper.js";
@@ -24,6 +25,7 @@ import type * as backendUtils_newsFeedHelper from "../backendUtils/newsFeedHelpe
 import type * as backendUtils_queries from "../backendUtils/queries.js";
 import type * as backendUtils_queryHelpers from "../backendUtils/queryHelpers.js";
 import type * as backendUtils_sendGrid from "../backendUtils/sendGrid.js";
+import type * as backendUtils_serverEnv from "../backendUtils/serverEnv.js";
 import type * as backendUtils_stripe from "../backendUtils/stripe.js";
 import type * as backendUtils_template from "../backendUtils/template.js";
 import type * as backendUtils_twilio from "../backendUtils/twilio.js";
@@ -93,6 +95,7 @@ declare const fullApi: ApiFromModules<{
   "backendUtils/checkUnique": typeof backendUtils_checkUnique;
   "backendUtils/clerk": typeof backendUtils_clerk;
   "backendUtils/connectedAccountWebhook": typeof backendUtils_connectedAccountWebhook;
+  "backendUtils/errors": typeof backendUtils_errors;
   "backendUtils/helper": typeof backendUtils_helper;
   "backendUtils/luxonHelper": typeof backendUtils_luxonHelper;
   "backendUtils/moveHelper": typeof backendUtils_moveHelper;
@@ -101,6 +104,7 @@ declare const fullApi: ApiFromModules<{
   "backendUtils/queries": typeof backendUtils_queries;
   "backendUtils/queryHelpers": typeof backendUtils_queryHelpers;
   "backendUtils/sendGrid": typeof backendUtils_sendGrid;
+  "backendUtils/serverEnv": typeof backendUtils_serverEnv;
   "backendUtils/stripe": typeof backendUtils_stripe;
   "backendUtils/template": typeof backendUtils_template;
   "backendUtils/twilio": typeof backendUtils_twilio;

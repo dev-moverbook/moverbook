@@ -26,9 +26,13 @@ const InvitedUsers = () => {
   };
 
   const handleConfirmRevoke = async () => {
-    if (!selectedInvitationId) return;
+    if (!selectedInvitationId) {
+      return;
+    }
     const success = await revokeInviteUser(selectedInvitationId);
-    if (success) handleCloseModal();
+    if (success) {
+      handleCloseModal();
+    }
   };
 
   const handleCloseModal = () => {

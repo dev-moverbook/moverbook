@@ -4,7 +4,7 @@ import LabeledInput from "@/components/shared/labeled/LabeledInput";
 import { useCreateCompany } from "@/hooks/companies";
 import { useOrganizationList } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import { useState } from "react";
 
 const OnboardingPage = () => {
   const router = useRouter();

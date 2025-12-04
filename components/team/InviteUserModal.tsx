@@ -113,7 +113,6 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
         ]}
       />
 
-      {/* Hourly Rate Input (Only for Movers) */}
       {role === ClerkRoles.MOVER && (
         <CurrencyInput
           label="Hourly Rate ($)"
@@ -126,7 +125,6 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
         />
       )}
 
-      {/* Submit Button */}
       <FormActions
         onSave={(e) => {
           e.preventDefault();

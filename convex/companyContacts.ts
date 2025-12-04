@@ -91,11 +91,7 @@ export const getCompanyContactInternal = internalQuery({
     ctx,
     { companyContactId }
   ): Promise<Doc<"companyContacts">> => {
-    const companyContact = validateCompanyContact(
-      await ctx.db.get(companyContactId)
-    );
-
-    return companyContact;
+    return validateCompanyContact(await ctx.db.get(companyContactId));
   },
 });
 
@@ -107,12 +103,10 @@ export const getCompanyContactByCompanyIdInternal = internalQuery({
     ctx,
     { companyId }
   ): Promise<Doc<"companyContacts"> | null> => {
-    const companyContact = await ctx.db
+    return await ctx.db
       .query("companyContacts")
       .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
       .first();
-
-    return companyContact;
   },
 });
 
@@ -134,13 +128,11 @@ export const getCompanyContact = query({
     const company = await validateCompany(ctx.db, companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
 
-    const companyContact = await getFirstByCompanyId(
+    return await getFirstByCompanyId(
       ctx.db,
       "companyContacts",
       companyId,
       ErrorMessages.COMPANY_CONTACT_NOT_FOUND
     );
-
-    return companyContact;
   },
 });

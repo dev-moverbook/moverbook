@@ -6,7 +6,6 @@ import {
   validateCategory,
   validateCompany,
   validateDocument,
-  validateItem,
 } from "./backendUtils/validate";
 import {
   GetItemsAndCategoriesAndRoomsByCompanyData,

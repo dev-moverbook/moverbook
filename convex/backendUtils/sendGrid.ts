@@ -1,17 +1,15 @@
 "use node";
 
 import { ErrorMessages } from "@/types/errors";
+import { serverEnv } from "./serverEnv";
+import sgMail from "@sendgrid/mail";
 
 const SENDGRID_API_BASE = "https://api.sendgrid.com";
 
 function getHeaders() {
-  const apiKey = process.env.SENDGRID_API_KEY;
-  if (!apiKey) {
-    throw new Error(ErrorMessages.ENV_NOT_SET_SENDGRID_KEY);
-  }
-
+  const { SENDGRID_API_KEY } = serverEnv();
   return {
-    Authorization: `Bearer ${apiKey}`,
+    Authorization: `Bearer ${SENDGRID_API_KEY}`,
     "Content-Type": "application/json",
   };
 }
@@ -93,23 +91,17 @@ export async function checkSenderVerified(senderId: string): Promise<boolean> {
   }
 }
 
-import sgMail from "@sendgrid/mail";
-
 export const sendSendGridEmail = async (
   to: string,
   body: string,
   subject?: string | null
 ): Promise<string> => {
-  if (!process.env.SENDGRID_API_KEY || !process.env.SENDGRID_FROM_EMAIL) {
-    console.error("Missing SendGrid environment variables.");
-    throw new Error(ErrorMessages.SENDGRID_ENV_MISSING);
-  }
-
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+  const { SENDGRID_API_KEY, SENDGRID_FROM_EMAIL } = serverEnv();
+  sgMail.setApiKey(SENDGRID_API_KEY);
 
   const msg = {
     to,
-    from: process.env.SENDGRID_FROM_EMAIL,
+    from: SENDGRID_FROM_EMAIL,
     subject: subject ?? "No Subject",
     text: body,
     html: `<p>${body}</p>`,

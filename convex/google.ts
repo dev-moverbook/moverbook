@@ -1,6 +1,8 @@
 import { action } from "./_generated/server";
 import { ConvexError, v } from "convex/values";
 import { GetDistanceMatrixData } from "@/types/convex-responses";
+import { serverEnv } from "./backendUtils/serverEnv";
+import { throwConvexError } from "./backendUtils/errors";
 
 const normalizePlaceId = (pid: string) =>
   pid.startsWith("place_id:") ? pid.slice("place_id:".length) : pid;
@@ -94,15 +96,15 @@ const buildWaypoint = (input: string) => {
   return { address: trimmed };
 };
 
-export function getGoogleApiKey(): string {
-  const apiKey =
-    process.env.GOOGLE_ROUTES_API_KEY ||
-    process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-  if (!apiKey) {
-    throw new Error("Missing Google Routes API key");
-  }
-  return apiKey;
-}
+// export function getGoogleApiKey(): string {
+//   const apiKey =
+//     process.env.GOOGLE_ROUTES_API_KEY ||
+//     process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+//   if (!apiKey) {
+//     throw new Error("Missing Google Routes API key");
+//   }
+//   return apiKey;
+// }
 
 export const getDistanceMatrix = action({
   args: {
@@ -114,7 +116,7 @@ export const getDistanceMatrix = action({
     { origin, destination }
   ): Promise<GetDistanceMatrixData> => {
     try {
-      const apiKey = getGoogleApiKey();
+      const { GOOGLE_ROUTES_API_KEY } = serverEnv();
 
       const url = "https://routes.googleapis.com/directions/v2:computeRoutes";
 
@@ -129,7 +131,7 @@ export const getDistanceMatrix = action({
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-Goog-Api-Key": apiKey,
+          "X-Goog-Api-Key": GOOGLE_ROUTES_API_KEY,
           "X-Goog-FieldMask": "routes.duration,routes.distanceMeters",
         },
         body: JSON.stringify(body),
@@ -182,7 +184,7 @@ export async function fetchDistanceMatrix(
   destination: string
 ): Promise<GetDistanceMatrixData> {
   try {
-    const apiKey = getGoogleApiKey();
+    const { GOOGLE_ROUTES_API_KEY } = serverEnv();
 
     const url = "https://routes.googleapis.com/directions/v2:computeRoutes";
 
@@ -197,7 +199,7 @@ export async function fetchDistanceMatrix(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-Goog-Api-Key": apiKey,
+        "X-Goog-Api-Key": GOOGLE_ROUTES_API_KEY,
         "X-Goog-FieldMask": "routes.duration,routes.distanceMeters",
       },
       body: JSON.stringify(body),
@@ -224,23 +226,21 @@ export async function fetchDistanceMatrix(
 
     const distanceMiles =
       Math.round((route.distanceMeters / 1609.34) * 100) / 100;
-    console.log("route.duration", route.duration);
     const durationMinutes = parseDurationToMinutes(route.duration);
-    console.log("durationMinutes", durationMinutes);
 
-    if (durationMinutes === null) {
-      throw new ConvexError({
-        code: "BAD_REQUEST",
-        message: `Invalid duration format: ${route.duration}`,
-      });
-    }
+    if (durationMinutes === null)
+      throwConvexError(
+        new Error(`Invalid duration format: ${route.duration}`),
+        {
+          code: "BAD_REQUEST",
+          showToUser: true,
+        }
+      );
 
     return { distanceMiles, durationMinutes };
   } catch (error) {
-    console.error("Routes API error", error);
-    throw new ConvexError({
+    throwConvexError(error, {
       code: "INTERNAL_ERROR",
-      message: error instanceof Error ? error.message : "Internal server error",
     });
   }
 }

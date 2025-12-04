@@ -4,7 +4,7 @@ import SectionContainer from "@/components/shared/containers/SectionContainer";
 import Header3 from "@/components/shared/heading/Header3";
 import LocationCard from "@/components/move/LocationCard";
 import { AddressProvider } from "@/components/move/AddressContext";
-import RouteMap from "@/components/move/RouteMap";
+import RouteMap from "@/components/move/map/RouteMap";
 import { LocationInput } from "@/types/form-types";
 import { SegmentDistance } from "@/types/types";
 import { Doc } from "@/convex/_generated/dataModel";

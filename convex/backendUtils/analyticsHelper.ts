@@ -278,7 +278,7 @@ function addMoveToTotalsByName(
   return rawName == null;
 }
 
-function buildSegmentsForDay(
+export function buildSegmentsForDay(
   orderedNames: string[],
   dayTotals: Record<string, number>,
   includeUnknown: boolean
@@ -296,7 +296,7 @@ function buildSegmentsForDay(
   return segs;
 }
 
-function sortNames(names: string[]): string[] {
+export function sortNames(names: string[]): string[] {
   return names.slice().sort((a, b) => a.localeCompare(b));
 }
 

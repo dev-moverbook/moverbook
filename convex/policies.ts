@@ -1,12 +1,10 @@
 import { ClerkRoles } from "@/types/enums";
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { mutation } from "./_generated/server";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import { validateCompany, validateDocument } from "./backendUtils/validate";
 import { isUserInOrg } from "./backendUtils/validate";
-import { Doc } from "./_generated/dataModel";
 import { ErrorMessages } from "@/types/errors";
-import { getFirstByCompanyId } from "./backendUtils/queries";
 
 export const updatePolicy = mutation({
   args: {
@@ -42,34 +40,5 @@ export const updatePolicy = mutation({
     await ctx.db.patch(policyId, updates);
 
     return true;
-  },
-});
-
-// not used
-export const getPolicy = query({
-  args: {
-    companyId: v.id("companies"),
-  },
-  handler: async (ctx, args): Promise<Doc<"policies">> => {
-    const { companyId } = args;
-
-    const identity = await requireAuthenticatedUser(ctx, [
-      ClerkRoles.ADMIN,
-      ClerkRoles.APP_MODERATOR,
-      ClerkRoles.MANAGER,
-      ClerkRoles.SALES_REP,
-    ]);
-
-    const company = await validateCompany(ctx.db, companyId);
-    isUserInOrg(identity, company.clerkOrganizationId);
-
-    const policy = await getFirstByCompanyId(
-      ctx.db,
-      "policies",
-      companyId,
-      ErrorMessages.POLICY_NOT_FOUND
-    );
-
-    return policy;
   },
 });

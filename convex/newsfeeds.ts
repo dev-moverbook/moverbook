@@ -220,6 +220,7 @@ const newsFeedEntryUnion = v.union(
     companyId: v.id("companies"),
     context: v.object({
       customerName: v.string(),
+      contractId: v.id("contracts"),
     }),
     moveId: v.id("moves"),
     moveCustomerId: v.id("moveCustomers"),
@@ -638,6 +639,7 @@ const newsFeedEntryUnion = v.union(
       customerName: v.string(),
       moveDate: v.string(),
       depositAmount: v.string(),
+      quoteId: v.id("quotes"),
     }),
     moveId: v.id("moves"),
     moveCustomerId: v.id("moveCustomers"),
@@ -660,6 +662,7 @@ const newsFeedEntryUnion = v.union(
     companyId: v.id("companies"),
     context: v.object({
       customerName: v.string(),
+      waiverId: v.id("waivers"),
     }),
     moveCustomerId: v.id("moveCustomers"),
     moveId: v.id("moves"),

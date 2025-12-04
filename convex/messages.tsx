@@ -169,7 +169,7 @@ export const createMessage = action({
       ? injectTemplateValues(subject, templateValues)
       : null;
 
-    let deliveryStatus: "sent" | "failed" = "sent";
+    const deliveryStatus: "sent" | "failed" = "sent";
     let sid: string | undefined;
 
     //   if (method === "sms") {

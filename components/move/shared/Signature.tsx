@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from "react";
+import { useRef } from "react";
 import SignatureCanvas from "react-signature-canvas";
 import IconButton from "../../shared/buttons/IconButton";
 import { X } from "lucide-react";

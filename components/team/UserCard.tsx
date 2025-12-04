@@ -22,7 +22,6 @@ const UserCard: React.FC<UserCardProps> = ({ user }) => {
   return (
     <Link href={`${pathname}/${user._id}`} onClick={handleClick}>
       <UserCardBorder>
-        {/* Left: Avatar + Name */}
         <div className="flex items-center gap-4">
           {user.imageUrl ? (
             <Image

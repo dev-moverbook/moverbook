@@ -70,7 +70,6 @@ import {
   resolveMoverContext,
   scopeMovesToMover,
   sortByPriceOrder,
-  buildStatusTimestampPatch,
 } from "./backendUtils/queryHelpers";
 import {
   buildDailyAveragesSeries,
@@ -91,7 +90,7 @@ import { getFirstByCompanyId } from "./backendUtils/queries";
 import { formatMonthDayLabelStrict } from "@/frontendUtils/luxonUtils";
 import { internal } from "./_generated/api";
 import { computeMoveTotal } from "@/frontendUtils/helper";
-import { fetchDistanceMatrix, getDistanceMatrix } from "./google";
+import { fetchDistanceMatrix } from "./google";
 import { LocationInput } from "@/types/form-types";
 import { hopLabel } from "@/frontendUtils/segmentDistanceHelper";
 
@@ -455,18 +454,20 @@ export async function computeSegments(
   companyAddress: string,
   locations: LocationInput[]
 ): Promise<SegmentDistance[]> {
-  if (!companyAddress || locations.length === 0) return [];
+  if (!companyAddress || locations.length === 0) {
+    return [];
+  }
 
-  // Extract all formatted addresses
   const locationAddresses = locations
     .map((loc) => loc.address?.formattedAddress)
     .filter((addr): addr is string => !!addr);
 
-  if (locationAddresses.length === 0) return [];
+  if (locationAddresses.length === 0) {
+    return [];
+  }
 
   const segments: SegmentDistance[] = [];
 
-  // Office → first location
   const firstLeg = await fetchDistanceMatrix(
     companyAddress,
     locationAddresses[0]
@@ -484,14 +485,13 @@ export async function computeSegments(
         locationAddresses[i + 1]
       );
       segments.push({
-        label: hopLabel(i, locationAddresses.length), // Use hopLabel here
+        label: hopLabel(i, locationAddresses.length),
         distance: leg.distanceMiles,
         duration: leg.durationMinutes,
       });
     }
   }
 
-  // Last location → Office
   const lastLeg = await fetchDistanceMatrix(
     locationAddresses[locationAddresses.length - 1],
     companyAddress
@@ -546,9 +546,8 @@ export const updateMove = action({
   args: {
     moveId: v.id("moves"),
     updates: UpdateMoveFields,
-    effectiveAt: v.optional(v.number()),
   },
-  handler: async (ctx, { moveId, updates, effectiveAt }): Promise<boolean> => {
+  handler: async (ctx, { moveId, updates }): Promise<boolean> => {
     const identity = await requireAuthenticatedUser(ctx, [
       ClerkRoles.ADMIN,
       ClerkRoles.APP_MODERATOR,
@@ -575,7 +574,7 @@ export const updateMove = action({
 
     isUserInOrg(identity, company.clerkOrganizationId);
 
-    let updatesWithSegments = { ...updates };
+    const updatesWithSegments = { ...updates };
 
     const companyContact = validateDocExists(
       "companyContacts",
@@ -596,16 +595,16 @@ export const updateMove = action({
       updatesWithSegments.segmentDistances = computedSegments;
     }
 
-    let statusPatch: Partial<Doc<"moves">> = {};
-    if (updates.moveStatus) {
-      const desiredStatus = updates.moveStatus;
-      const whenMs = typeof effectiveAt === "number" ? effectiveAt : Date.now();
-      statusPatch = buildStatusTimestampPatch(
-        moveRecord,
-        desiredStatus,
-        whenMs
-      );
-    }
+    // let statusPatch: Partial<Doc<"moves">> = {};
+    // if (updates.moveStatus) {
+    //   const desiredStatus = updates.moveStatus;
+    //   const whenMs = typeof effectiveAt === "number" ? effectiveAt : Date.now();
+    //   const statusPatch = buildStatusTimestampPatch(
+    //     moveRecord,
+    //     desiredStatus,
+    //     whenMs
+    //   );
+    // }
 
     const moveCustomer = validateDocExists(
       "moveCustomers",

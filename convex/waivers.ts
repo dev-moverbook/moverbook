@@ -85,6 +85,7 @@ export const createOrUpdateWaiver = mutation({
           moveCustomerId: move.moveCustomerId,
           context: {
             customerName: moveCustomer.name,
+            waiverId,
           },
           moveId,
         },

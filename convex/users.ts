@@ -21,7 +21,7 @@ import { GetSalesRepsAndReferralByCompanyIdData } from "@/types/convex-responses
 import {
   updateOrganizationMembershipHelper,
   updateUserNameHelper,
-} from "./backendUtils/clerk";
+} from "./functions/clerk";
 import { ErrorMessages } from "@/types/errors";
 
 export const getUserByEmailInternal = internalQuery({
@@ -29,12 +29,10 @@ export const getUserByEmailInternal = internalQuery({
     email: v.string(),
   },
   handler: async (ctx, args): Promise<Doc<"users"> | null> => {
-    const user: Doc<"users"> | null = await ctx.db
+    return await ctx.db
       .query("users")
       .withIndex("by_email", (q) => q.eq("email", args.email))
       .first();
-
-    return user;
   },
 });
 
@@ -52,13 +50,11 @@ export const getAllUsersByCompanyId = query({
 
     isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
-    const users: Doc<"users">[] = await ctx.db
+    return await ctx.db
       .query("users")
       .filter((q) => q.eq(q.field("companyId"), validatedCompany._id))
       .filter((q) => q.eq(q.field("isActive"), isActive))
       .collect();
-
-    return users;
   },
 });
 

@@ -3,10 +3,10 @@
 import { ArrowLeft, Pencil, Trash, X } from "lucide-react";
 import IconButton from "@/components/shared/buttons/IconButton";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 type BackCenteredHeaderProps = {
   title: string;
-  onBack: () => void;
   onEditClick?: () => void;
   onDeleteClick?: () => void;
   rightExtra?: React.ReactNode;
@@ -16,11 +16,8 @@ type BackCenteredHeaderProps = {
   titleClassName?: string;
 };
 
-const fixedSideWidth = "w-20";
-
 const BackCenteredHeader: React.FC<BackCenteredHeaderProps> = ({
   title,
-  onBack,
   onEditClick,
   onDeleteClick,
   rightExtra,
@@ -29,6 +26,12 @@ const BackCenteredHeader: React.FC<BackCenteredHeaderProps> = ({
   className,
   titleClassName,
 }) => {
+  const router = useRouter();
+
+  const handleBack = () => {
+    router.back();
+  };
+
   return (
     <div
       className={cn(
@@ -36,17 +39,12 @@ const BackCenteredHeader: React.FC<BackCenteredHeaderProps> = ({
         className
       )}
     >
-      <div
-        className={cn(
-          "shrink-0 flex items-center justify-start",
-          fixedSideWidth
-        )}
-      >
+      <div className={cn("shrink-0 flex items-center justify-start w-20")}>
         <IconButton
           className="border-grayCustom"
           icon={<ArrowLeft size={16} />}
           aria-label="Back"
-          onClick={onBack}
+          onClick={handleBack}
         />
       </div>
 
@@ -59,12 +57,7 @@ const BackCenteredHeader: React.FC<BackCenteredHeaderProps> = ({
         {title}
       </h2>
 
-      <div
-        className={cn(
-          "shrink-0 flex items-center justify-end gap-2",
-          fixedSideWidth
-        )}
-      >
+      <div className={cn("shrink-0 flex items-center justify-end gap-2 w-20")}>
         {rightExtra}
         {isEditing && onCancelEdit ? (
           <IconButton

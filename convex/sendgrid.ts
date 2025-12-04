@@ -5,15 +5,13 @@ import {
   checkSenderVerified,
   createSingleSender,
 } from "./backendUtils/sendGrid";
-import {
-  CheckSenderResponse,
-  CreateSenderResponse,
-} from "@/types/convex-responses";
+import { CheckSenderResponse } from "@/types/convex-responses";
 import { ClerkRoles, ResponseStatus } from "@/types/enums";
 import { ErrorMessages } from "@/types/errors";
 import { internal } from "./_generated/api";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import { parseFullAddressToSendgridFormat } from "./backendUtils/helper";
+import { throwConvexError } from "./backendUtils/errors";
 
 export const createSender = action({
   args: {
@@ -65,8 +63,12 @@ export const checkSender = action({
       const senderId = companyContact.sendgridSenderId;
 
       if (!senderId) {
-        throw new Error(
-          ErrorMessages.COMPANY_CONTACT_SENDGRID_SENDER_NOT_FOUND
+        throwConvexError(
+          ErrorMessages.COMPANY_CONTACT_SENDGRID_SENDER_NOT_FOUND,
+          {
+            code: "BAD_REQUEST",
+            showToUser: true,
+          }
         );
       }
       const isVerified = await checkSenderVerified(senderId);
@@ -85,13 +87,10 @@ export const checkSender = action({
         },
       };
     } catch (error) {
-      console.error(error);
-      return {
-        status: ResponseStatus.ERROR,
-        data: null,
-        error:
-          error instanceof Error ? error.message : ErrorMessages.GENERIC_ERROR,
-      };
+      throwConvexError(error, {
+        code: "INTERNAL_ERROR",
+        showToUser: true,
+      });
     }
   },
 });

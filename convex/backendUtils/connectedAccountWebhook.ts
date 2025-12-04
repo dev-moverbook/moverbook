@@ -1,29 +1,25 @@
 import { ErrorMessages } from "@/types/errors";
 import Stripe from "stripe";
-import { stripe } from "./stripe";
+import { stripe } from "../lib/stripe";
 import { StripeAccountStatus } from "@/types/enums";
-import { GenericActionCtx } from "convex/server";
 import { internal } from "../_generated/api";
 import { Id } from "../_generated/dataModel";
+import { serverEnv } from "./serverEnv";
+import { ActionCtx } from "../_generated/server";
 
 export async function verifyStripeConnectedWebhook(
   rawBody: string,
   signature: string
 ): Promise<Stripe.Event> {
-  const secret = process.env.STRIPE_CONNECTED_WEBHOOK_SECRET;
-
-  if (!secret) {
-    console.error("Stripe connected account webhook secret is not configured!");
-    throw new Error(ErrorMessages.ENV_NOT_SET_STRIPE_CONNECTED_WEBHOOK_SECRET);
-  }
+  const { STRIPE_CONNECTED_WEBHOOK_SECRET } = serverEnv();
+  const secret = STRIPE_CONNECTED_WEBHOOK_SECRET;
 
   try {
-    const event = await stripe.webhooks.constructEventAsync(
+    return await stripe.webhooks.constructEventAsync(
       rawBody,
       signature,
       secret
     );
-    return event;
   } catch (error) {
     console.error("Webhook verification failed:", error);
     throw new Error("Invalid Stripe webhook signature");
@@ -46,7 +42,7 @@ export function getConnectedAccountStatus(
 }
 
 export const handleAccountUpdated = async (
-  ctx: GenericActionCtx<any>,
+  ctx: ActionCtx,
   account: Stripe.Account
 ) => {
   try {
@@ -64,6 +60,7 @@ export const handleAccountUpdated = async (
       status,
     });
   } catch (error) {
+    console.error(ErrorMessages.CONNECTED_ACCOUNT_UPDATE_ERROR, error);
     throw new Error(ErrorMessages.CONNECTED_ACCOUNT_UPDATE_ERROR);
   }
 };

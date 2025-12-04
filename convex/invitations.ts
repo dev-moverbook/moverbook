@@ -4,7 +4,7 @@ import {
   internalQuery,
   query,
 } from "./_generated/server";
-import { ConvexError, v } from "convex/values";
+import { v } from "convex/values";
 import { InvitationStatusConvex, UserRoleConvex } from "@/types/convex-enums";
 import { Doc, Id } from "./_generated/dataModel";
 import { ClerkRoles, InvitationStatus } from "@/types/enums";
@@ -14,10 +14,10 @@ import {
   isUserInOrg,
   validateCompany,
   validateDocExists,
-  validateInvitation,
 } from "./backendUtils/validate";
 import { internal } from "./_generated/api";
-import { revokeOrganizationInvitation } from "./backendUtils/clerk";
+import { revokeOrganizationInvitation } from "./functions/clerk";
+import { throwConvexError } from "./backendUtils/errors";
 
 export const createInvitationInternal = internalMutation({
   args: {
@@ -73,9 +73,9 @@ export const updateInvitationByClerkId = internalMutation({
       .first();
 
     if (!invitation) {
-      throw new ConvexError({
+      throwConvexError(ErrorMessages.INVITATION_NOT_FOUND, {
         code: "NOT_FOUND",
-        message: ErrorMessages.INVITATION_NOT_FOUND,
+        showToUser: true,
       });
     }
 

@@ -1,8 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { formatDateToLong, formatLocationType } from "@/frontendUtils/helper";
-import { Doc, Id } from "@/convex/_generated/dataModel";
+import { Doc } from "@/convex/_generated/dataModel";
 import { MoverWageForMove, HourStatus } from "@/types/types";
 import {
   getDisplayedPrice,
@@ -21,9 +22,9 @@ interface MoveCardProps {
   isMover?: boolean;
   hourStatus?: HourStatus;
   moverWageDisplay?: MoverWageForMove | null;
-  onMessagesClick?: () => void;
-  onViewCustomerClick?: () => void;
-  onCardClick?: (moveId: Id<"moves">) => void;
+  navigateTo?: string;
+  messagesHref?: string;
+  customerHref?: string;
 }
 
 const MoveCard: React.FC<MoveCardProps> = ({
@@ -35,11 +36,11 @@ const MoveCard: React.FC<MoveCardProps> = ({
   isMover = false,
   hourStatus,
   moverWageDisplay,
-  onMessagesClick,
-  onViewCustomerClick,
-  onCardClick,
+  navigateTo,
+  messagesHref,
+  customerHref,
 }) => {
-  const name = moveCustomer?.name;
+  const name = moveCustomer?.name ?? "No name";
   const tags = [
     move.jobId ? `Job ID: ${move.jobId}` : null,
     formatLocationType(move.locations[0].locationType),
@@ -50,36 +51,30 @@ const MoveCard: React.FC<MoveCardProps> = ({
     move,
     isMover
   );
-
   const showHourStatus = isMover;
-
   const hourStatusClass = getHourStatusClass(hourStatus);
 
   const body = (
     <div
-      className={`py-4 px-4 text-white shadow-md ${
-        !showActions
-          ? "hover:bg-background2 transition-colors duration-200"
-          : ""
-      }`}
+      className={`
+        py-4 px-4 text-white shadow-md rounded-lg border border-border
+        ${!showActions ? "hover:bg-background2/80 transition-colors duration-200" : ""}
+      `}
     >
       <div className="max-w-screen-sm mx-auto">
         <div className="flex items-stretch justify-between gap-4">
-          {/* --- LEFT (Details) --- */}
           <div className="flex flex-col min-w-0">
-            <p className="text-grayCustom2">
+            <p className="text-grayCustom2 text-sm">
               {formatDateToLong(move.moveDate)}
             </p>
-            <h3 className="text-lg font-medium truncate">
-              {name ?? "No name"}
-            </h3>
-            <div className="flex items-center gap-1 min-w-0">
+            <h3 className="text-lg font-medium truncate">{name}</h3>
+            <div className="flex items-center gap-2 text-sm">
               <span style={{ color: statusDotColor }}>●</span>
               <span className="truncate">{displayStatus}</span>
               <span className="text-greenCustom font-semibold pl-1">
                 {price}
               </span>
-              {showHourStatus && (
+              {showHourStatus && hourStatus && (
                 <span className={`${hourStatusClass} italic`}>
                   ({hourStatus === "incomplete" ? "est." : hourStatus})
                 </span>
@@ -87,46 +82,66 @@ const MoveCard: React.FC<MoveCardProps> = ({
             </div>
           </div>
 
-          {/* --- RIGHT (Rep) --- */}
           <RepAvatar salesRep={salesRep} />
         </div>
-        {/* Tags */}
-        <div className="flex gap-1 flex-wrap mt-1">
+
+        <div className="flex gap-2 flex-wrap mt-3">
           {tags.map((tag, i) => (
-            <Badge interactive={false} key={i}>
+            <Badge key={i} interactive={false} variant="outline">
               {tag}
             </Badge>
           ))}
         </div>
+
         {showActions && (
-          <MoveCardActions
-            onMessagesClick={onMessagesClick}
-            onViewCustomerClick={onViewCustomerClick}
-            onDuplicate={onDuplicate}
-            move={move}
-          />
-        )}{" "}
+          <div className="mt-4">
+            <MoveCardActions
+              onMessagesClick={
+                messagesHref
+                  ? () => window.open(messagesHref, "_blank")
+                  : undefined
+              }
+              onViewCustomerClick={
+                customerHref
+                  ? () => window.open(customerHref, "_blank")
+                  : undefined
+              }
+              onDuplicate={onDuplicate ? () => onDuplicate(move) : undefined}
+              move={move}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
 
-  if (showActions) return body;
+  if (showActions) {
+    return body;
+  }
 
-  if (onCardClick) {
-    return (
+  if (!navigateTo) {
+    return body;
+  }
+
+  return (
+    <Link
+      href={navigateTo}
+      className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+    >
       <div
-        role="button"
+        role="link"
         tabIndex={0}
-        onClick={() => onCardClick(move._id)}
-        onKeyDown={(e) => e.key === "Enter" && onCardClick(move._id)}
-        className="cursor-pointer"
+        className="cursor-pointer outline-none"
+        onClick={(e) => {
+          if (e.ctrlKey || e.metaKey) {
+            e.stopPropagation();
+          }
+        }}
       >
         {body}
       </div>
-    );
-  }
-
-  return body;
+    </Link>
+  );
 };
 
 export default MoveCard;

@@ -23,9 +23,10 @@ import {
 import { createCompanyRecords } from "./backendUtils/helper";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import { internal } from "./_generated/api";
-import { updateClerkOrgName } from "./backendUtils/clerk";
+import { updateClerkOrgName } from "./functions/clerk";
 import { Doc, Id } from "./_generated/dataModel";
 import { getFirstByCompanyId } from "./backendUtils/queries";
+import { throwConvexError } from "./backendUtils/errors";
 
 export const createCompany = internalMutation({
   args: {
@@ -43,8 +44,10 @@ export const createCompany = internalMutation({
       .first();
 
     if (!user) {
-      console.error(ErrorMessages.USER_NOT_FOUND);
-      throw new Error(ErrorMessages.USER_NOT_FOUND);
+      throwConvexError(ErrorMessages.USER_NOT_FOUND, {
+        code: "NOT_FOUND",
+        showToUser: true,
+      });
     }
 
     if (!user.isActive) {

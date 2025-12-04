@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { api } from "./convex/_generated/api";
 import { ErrorMessages } from "./types/errors";
 import { ClerkRoles } from "./types/enums";
+import { clientEnv } from "./frontendUtils/clientEnv";
 
 const isProtectedRoute = createRouteMatcher(["/app(.*)"]);
 const isProtectedManagerRoute = createRouteMatcher([
@@ -16,17 +17,12 @@ export default clerkMiddleware(async (auth, req) => {
 
   const searchParams = req.nextUrl.searchParams.toString();
   const path = `${url.pathname}${searchParams.length > 0 ? `?${searchParams}` : ""}`;
-  const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
-  if (!convexUrl) {
-    throw new Error(ErrorMessages.ENV_NEXT_PUBLIC_CONVEX_UR_NOT_SET);
-  }
+  const convexUrl = clientEnv().NEXT_PUBLIC_CONVEX_URL;
 
   const convex = new ConvexHttpClient(convexUrl);
 
-  // Restrict admin routes to users with specific permissions
   if (path === "/") {
     const { userId, orgId } = await auth();
-    // user creates a company if they don't belong to org
     if (userId && !orgId) {
       return NextResponse.redirect(new URL("/app/onboarding", req.url));
     }
@@ -68,9 +64,7 @@ export default clerkMiddleware(async (auth, req) => {
 
 export const config = {
   matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
     "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    // Always run for API routes
     "/(api|trpc)(.*)",
   ],
 };

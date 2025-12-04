@@ -5,6 +5,7 @@ import { UserIdentity } from "convex/server";
 import { DatabaseReader, MutationCtx } from "../_generated/server";
 import { Doc, Id, TableNames } from "../_generated/dataModel";
 import { ConvexError } from "convex/values";
+import { throwConvexError } from "./errors";
 
 export function validateUser(
   user: Doc<"users"> | null,
@@ -490,9 +491,9 @@ export async function validateDocument<T extends TableNames>(
 ): Promise<Doc<T>> {
   const doc = await db.get(id);
   if (!doc) {
-    throw new ConvexError({
+    throwConvexError(errorMessage, {
       code: "NOT_FOUND",
-      message: errorMessage,
+      showToUser: true,
     });
   }
   if (additionalValidation) {
