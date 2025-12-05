@@ -19,7 +19,7 @@ export type ConvexErrorCode =
 
 export interface ServerErrorData {
   code?: string; // may be anything; we coerce it
-  message?: string; // ignored on purpose
+  message?: string;
   showToUser?: boolean;
 }
 export interface RouteError extends Error {
@@ -45,7 +45,8 @@ function coerceCode(maybeCode?: string): ErrorCode {
 export function toUiError(routeError: RouteError) {
   const code = coerceCode(routeError.data?.code);
   const message = routeError.data?.message;
-  return { code, message };
+  const showToUser = routeError.data?.showToUser ?? false;
+  return { code, message, showToUser };
 }
 
 export type PrimaryCta =
@@ -58,18 +59,15 @@ export function pickPrimaryCta(code?: ErrorCode | string): PrimaryCta {
       return { kind: "link", href: "/sign-in", label: "Sign in" };
     case "FORBIDDEN":
     case "NOT_FOUND":
-    case "NOT_IMPLEMENTED":
       return { kind: "link", href: "/", label: "Go home" };
+    case "VALIDATION_FAILED":
+    case "CONFLICT":
     case "RATE_LIMITED":
     case "INTERNAL_ERROR":
     default:
       return { kind: "retry" };
   }
 }
-
-// Assuming these types are correctly imported or defined in scope
-// and assuming ServerErrorData has been updated to include 'showToUser'
-// as discussed previously, for full type safety.
 
 function isRouteError(error: unknown): error is RouteError {
   return typeof error === "object" && error !== null && "data" in error;
@@ -80,17 +78,13 @@ export function getConvexErrorMessage(unknownError: unknown): {
   code?: ConvexErrorCode;
   recognized: boolean;
 } {
-  // Use the type predicate to safely narrow the type
   if (isRouteError(unknownError)) {
-    // TypeScript now knows unknownError is RouteError, so unknownError.data is safe.
     const payload = unknownError.data;
 
     if (payload && typeof payload === "object") {
-      // payload is ServerErrorData.
       const rawCode = payload.code;
       const message = payload.message;
       const showToUser = payload.showToUser ?? false;
-
       if (showToUser) {
         return {
           message: message ?? "Something went wrong.",

@@ -1,12 +1,12 @@
 import MoveCustomerCard from "@/components/customer/CustomerCard";
-import { Doc } from "@/convex/_generated/dataModel";
 import { useSlugContext } from "@/contexts/SlugContext";
 import FormActionContainer from "@/components/shared/containers/FormActionContainer";
 import FormActions from "@/components/shared/buttons/FormActions";
 import { useRouter } from "next/navigation";
+import { Doc } from "@/convex/_generated/dataModel";
 
 interface Props {
-  customer: Doc<"moveCustomers">;
+  customer: Doc<"users">;
   onUse: () => void;
   className?: string;
 }
