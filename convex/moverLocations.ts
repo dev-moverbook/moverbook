@@ -86,7 +86,7 @@ export const stopMoverLocationSharing = mutation({
     );
     const moveCustomer = await validateDocument(
       ctx.db,
-      "moveCustomers",
+      "users",
       move.moveCustomerId,
       ErrorMessages.MOVE_CUSTOMER_NOT_FOUND
     );
@@ -158,7 +158,7 @@ export const inserMoverLocationSharing = mutation({
 
     const moveCustomer = await validateDocument(
       ctx.db,
-      "moveCustomers",
+      "users",
       move.moveCustomerId,
       ErrorMessages.MOVE_CUSTOMER_NOT_FOUND
     );
