@@ -15,7 +15,7 @@ import { useSlugContext } from "@/contexts/SlugContext";
 import { canCreateMove, isMover } from "@/frontendUtils/permissions";
 
 interface CustomerInfoProps {
-  moveCustomer: Doc<"moveCustomers">;
+  moveCustomer: Doc<"users">;
   onClick?: () => void;
   showCheckmark?: boolean;
   isMoverLead?: boolean;
@@ -27,7 +27,7 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
   showCheckmark,
   isMoverLead,
 }) => {
-  const { user } = useSlugContext();
+  const { user, companyId } = useSlugContext();
   const canCreateMoveUser = canCreateMove(user.role);
   const isMoverUser = isMover(user.role);
   const { name, phoneNumber, altPhoneNumber, email } = moveCustomer;
@@ -43,8 +43,8 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
   const [formData, setFormData] = useState<CustomerFormData>({
     name,
     email,
-    phoneNumber,
-    altPhoneNumber,
+    phoneNumber: phoneNumber ?? "",
+    altPhoneNumber: altPhoneNumber ?? "",
   });
 
   const [errors, setErrors] = useState<CustomerFormErrors>({});
@@ -59,6 +59,7 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
 
     await updateMoveCustomer({
       moveCustomerId: moveCustomer._id,
+      companyId: companyId,
       updates: formData,
     });
     setIsEditing(false);
@@ -68,8 +69,8 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
     setFormData({
       name,
       email,
-      phoneNumber,
-      altPhoneNumber,
+      phoneNumber: phoneNumber ?? "",
+      altPhoneNumber: altPhoneNumber ?? "",
     });
     setIsEditing(false);
   };

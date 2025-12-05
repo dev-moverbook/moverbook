@@ -157,7 +157,7 @@ export function formatCurrencyCompact(amount: number): string {
 
 export const getMoveStatusType = (
   move: Doc<"moves">,
-  moveCustomer: Doc<"moveCustomers">,
+  moveCustomer: Doc<"users">,
   quote: Doc<"quotes"> | null
 ): string => {
   if (quote) {
@@ -170,7 +170,7 @@ export const getMoveStatusType = (
 
 export const hasRequiredMoveFields = (
   move: Doc<"moves">,
-  moveCustomer: Doc<"moveCustomers">
+  moveCustomer: Doc<"users">
 ): boolean => {
   const hasInfoSection =
     !!moveCustomer.email?.trim() &&
@@ -474,7 +474,7 @@ export const formatTimestamp = (
 ): string => {
   return DateTime.fromMillis(Math.floor(timestamp), {
     zone: timeZone,
-  }).toFormat("LLL d, h:mm a"); // e.g., "Aug 16, 3:45 PM"
+  }).toFormat("LLL d, h:mm a");
 };
 
 export const getInitials = (name: string): string => {

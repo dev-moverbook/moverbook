@@ -157,13 +157,13 @@ export function sortByPriceOrder(
 
 export async function getMoveCustomersMap(
   ctx: QueryCtx,
-  moveCustomerIds: Id<"moveCustomers">[]
-): Promise<Record<string, Doc<"moveCustomers">>> {
+  moveCustomerIds: Id<"users">[]
+): Promise<Record<string, Doc<"users">>> {
   if (moveCustomerIds.length === 0) return {};
 
   const uniqueIds = Array.from(new Set(moveCustomerIds));
   const customers = await ctx.db
-    .query("moveCustomers")
+    .query("users")
     .filter((f) => f.or(...uniqueIds.map((id) => f.eq(f.field("_id"), id))))
     .collect();
 
@@ -249,7 +249,7 @@ export async function applyMoverScopeAndEstimateWages(
 export function enrichMoves(
   moves: Doc<"moves">[],
   opts: {
-    moveCustomerMap: Record<string, Doc<"moveCustomers">>;
+    moveCustomerMap: Record<string, Doc<"users">>;
     salesRepMap: Record<string, Doc<"users">>;
     moverWageForMove?: Map<string, MoverWageForMove>;
     hourStatusMap?: HourStatusMap;

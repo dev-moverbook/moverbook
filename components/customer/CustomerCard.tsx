@@ -5,7 +5,7 @@ import { Doc } from "@/convex/_generated/dataModel";
 import { formatPhoneNumber } from "@/frontendUtils/helper";
 
 interface MoveCustomerCardProps {
-  moveCustomer: Doc<"moveCustomers">;
+  moveCustomer: Doc<"users">;
   onClick?: () => void;
   className?: string;
 }
@@ -31,7 +31,7 @@ const MoveCustomerCard: React.FC<MoveCustomerCardProps> = ({
         <p className="font-medium text-lg">{name}</p>
         <div className="flex gap-2 items-center  text-gray-300">
           <Phone className="w-4 h-4" />
-          <p>{formatPhoneNumber(phoneNumber)}</p>
+          <p>{formatPhoneNumber(phoneNumber ?? "N/A")}</p>
         </div>
         <div className="flex gap-2 items-center  text-gray-300">
           <Mail className="w-4 h-4" />

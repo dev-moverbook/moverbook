@@ -7,7 +7,7 @@ interface MessageHeaderProps {
   move: Doc<"moves">;
   onBack: () => void;
   onCall: () => void;
-  moveCustomer: Doc<"moveCustomers">;
+  moveCustomer: Doc<"users">;
 }
 
 const MessageHeader: React.FC<MessageHeaderProps> = ({

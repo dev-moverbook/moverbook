@@ -24,7 +24,7 @@ export async function buildReferenceMaps(
   ctx: QueryCtx,
   moves: Doc<"moves">[]
 ): Promise<{
-  moveCustomerMap: Map<Id<"moveCustomers">, Doc<"moveCustomers">>;
+  moveCustomerMap: Map<Id<"users">, Doc<"users">>;
   salesRepMap: Map<Id<"users">, Doc<"users">>;
 }> {
   const moveCustomerIds = Array.from(
@@ -32,7 +32,7 @@ export async function buildReferenceMaps(
   );
 
   const moveCustomersRecord = await getMoveCustomersMap(ctx, moveCustomerIds);
-  const moveCustomerMap = recordToIdMap<"moveCustomers">(moveCustomersRecord);
+  const moveCustomerMap = recordToIdMap<"users">(moveCustomersRecord);
 
   const uniqueSalesRepIds = Array.from(
     new Set(moves.map((move) => move.salesRep).filter(Boolean))

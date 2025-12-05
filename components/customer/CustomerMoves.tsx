@@ -17,7 +17,7 @@ import SectionHeaderWithAction from "@/components/shared/section/SectionHeaderWi
 
 interface CustomerMovesProps {
   moves: EnrichedMoveForMover[];
-  moveCustomer: Doc<"moveCustomers">;
+  moveCustomer: Doc<"users">;
 }
 
 export default function CustomerMoves({

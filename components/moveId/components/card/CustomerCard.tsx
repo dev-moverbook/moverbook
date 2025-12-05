@@ -5,7 +5,7 @@ import { formatPhoneNumber } from "@/frontendUtils/helper";
 import { Doc } from "@/convex/_generated/dataModel";
 
 interface CustomerCardProps {
-  moveCustomer: Doc<"moveCustomers">;
+  moveCustomer: Doc<"users">;
 }
 
 const CustomerCard = ({ moveCustomer }: CustomerCardProps) => {
