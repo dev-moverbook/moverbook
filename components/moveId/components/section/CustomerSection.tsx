@@ -10,8 +10,10 @@ import { cn } from "@/lib/utils";
 import { validateCustomerForm } from "@/frontendUtils/validation";
 import { useMoveContext } from "@/contexts/MoveContext";
 import { useUpdateMoveCustomer } from "@/hooks/moveCustomers";
+import { useSlugContext } from "@/contexts/SlugContext";
 
 const CustomerSection: React.FC = () => {
+  const { companyId } = useSlugContext();
   const { moveData } = useMoveContext();
   const moveCustomer = moveData.moveCustomer;
   const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -26,8 +28,8 @@ const CustomerSection: React.FC = () => {
   const [formData, setFormData] = useState<CustomerFormData>({
     name: moveCustomer.name,
     email: moveCustomer.email,
-    phoneNumber: moveCustomer.phoneNumber,
-    altPhoneNumber: moveCustomer.altPhoneNumber,
+    phoneNumber: moveCustomer.phoneNumber ?? "",
+    altPhoneNumber: moveCustomer.altPhoneNumber ?? "",
   });
 
   const [errors, setErrors] = useState<CustomerFormErrors>({});
@@ -52,6 +54,7 @@ const CustomerSection: React.FC = () => {
     }
     await updateMoveCustomer({
       moveCustomerId: moveCustomer._id,
+      companyId: companyId,
       updates: formData,
     });
     setIsEditing(false);
@@ -61,8 +64,8 @@ const CustomerSection: React.FC = () => {
     setFormData({
       name: moveCustomer.name,
       email: moveCustomer.email,
-      phoneNumber: moveCustomer.phoneNumber,
-      altPhoneNumber: moveCustomer.altPhoneNumber,
+      phoneNumber: moveCustomer.phoneNumber ?? "",
+      altPhoneNumber: moveCustomer.altPhoneNumber ?? "",
     });
     setIsEditing(false);
   };
