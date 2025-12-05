@@ -21,7 +21,9 @@ export const useUpdateMoveCustomer = () => {
   const [updateMoveCustomerLoading, setLoading] = useState<boolean>(false);
   const [updateMoveCustomerError, setError] = useState<string | null>(null);
 
-  const updateMoveCustomerMutation = useMutation(api.users.updateMoveCustomer);
+  const updateMoveCustomerMutation = useMutation(
+    api.moveCustomers.updateMoveCustomer
+  );
 
   const updateMoveCustomer = async (
     data: UpdateMoveCustomerInput
