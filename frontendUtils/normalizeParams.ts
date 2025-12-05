@@ -26,8 +26,8 @@ export function normalizeSlug(
 
 export function normalizeCustomerId(
   raw: string | string[] | undefined
-): Id<"moveCustomers"> | undefined {
-  return normalizeParam<Id<"moveCustomers">>(raw);
+): Id<"users"> | undefined {
+  return normalizeParam<Id<"users">>(raw);
 }
 
 export function normalizeMoveId(

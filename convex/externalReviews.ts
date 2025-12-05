@@ -54,17 +54,11 @@ export const sendExternalReview = action({
       })
     );
 
-    const moveCustomer = await ctx.runQuery(
+    const validatedMoveCustomer = await ctx.runQuery(
       internal.moveCustomers.getMoveCustomerByIdInternal,
       {
         moveCustomerId: validatedMove.moveCustomerId,
       }
-    );
-
-    const validatedMoveCustomer = validateDocExists(
-      "moveCustomers",
-      moveCustomer,
-      ErrorMessages.MOVE_CUSTOMER_NOT_FOUND
     );
 
     if (args.channel === "email") {

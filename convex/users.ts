@@ -23,6 +23,7 @@ import {
   updateUserNameHelper,
 } from "./functions/clerk";
 import { ErrorMessages } from "@/types/errors";
+import { throwConvexError } from "./backendUtils/errors";
 
 export const getUserByEmailInternal = internalQuery({
   args: {
@@ -154,6 +155,7 @@ export const createUser = internalMutation({
       hourlyRate,
       imageUrl,
       isActive: true,
+      updatedAt: Date.now(),
     });
 
     return userId;
@@ -176,7 +178,7 @@ export const updateUserActiveStatus = mutation({
     const user = await ctx.db.get(userId);
     const validatedUser = validateUser(user, false);
 
-    await ctx.db.patch(validatedUser._id, { isActive });
+    await ctx.db.patch(validatedUser._id, { isActive, updatedAt: Date.now() });
 
     return true;
   },
@@ -204,7 +206,13 @@ export const updateUser = action({
     const user = await ctx.runQuery(internal.users.getUserByIdInternal, {
       userId,
     });
-    const validatedUser = validateUser(user, true, true);
+    const validatedUser = validateUser(user, true, true, true);
+
+    if (!validatedUser.clerkUserId) {
+      throwConvexError("user does not have clerk", {
+        code: "BAD_REQUEST",
+      });
+    }
 
     const company = await ctx.runQuery(
       internal.companies.getCompanyByIdInternal,
@@ -271,6 +279,7 @@ export const updateUserByEmailInternal = internalMutation({
       role,
       companyId: validatedCompany._id,
       hourlyRate,
+      updatedAt: Date.now(),
     });
     return validatedUser._id;
   },

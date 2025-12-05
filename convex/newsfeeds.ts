@@ -189,7 +189,7 @@ const newsFeedEntryUnion = v.union(
     context: v.object({
       customerName: v.string(),
     }),
-    moveCustomerId: v.id("moveCustomers"),
+    moveCustomerId: v.id("users"),
   }),
   v.object({
     type: v.literal("CUSTOMER_CREATED_BY_REP"),
@@ -199,7 +199,7 @@ const newsFeedEntryUnion = v.union(
       customerName: v.string(),
       salesRepName: v.string(),
     }),
-    moveCustomerId: v.id("moveCustomers"),
+    moveCustomerId: v.id("users"),
     userId: v.id("users"),
   }),
   // To do
@@ -212,7 +212,7 @@ const newsFeedEntryUnion = v.union(
       moveId: v.id("moves"),
       moveDate: v.string(),
     }),
-    moveCustomerId: v.id("moveCustomers"),
+    moveCustomerId: v.id("users"),
   }),
   v.object({
     type: v.literal("CUSTOMER_SIGNED_CONTRACT_DOC"),
@@ -223,7 +223,7 @@ const newsFeedEntryUnion = v.union(
       contractId: v.id("contracts"),
     }),
     moveId: v.id("moves"),
-    moveCustomerId: v.id("moveCustomers"),
+    moveCustomerId: v.id("users"),
   }),
   v.object({
     type: v.literal("CUSTOMER_UPDATED"),
@@ -232,7 +232,7 @@ const newsFeedEntryUnion = v.union(
     context: v.object({
       customerName: v.string(),
     }),
-    moveCustomerId: v.id("moveCustomers"),
+    moveCustomerId: v.id("users"),
   }),
   v.object({
     type: v.literal("CUSTOMER_UPDATED_BY_REP"),
@@ -242,7 +242,7 @@ const newsFeedEntryUnion = v.union(
       customerName: v.string(),
       salesRepName: v.string(),
     }),
-    moveCustomerId: v.id("moveCustomers"),
+    moveCustomerId: v.id("users"),
     userId: v.id("users"),
   }),
   v.object({
@@ -386,7 +386,7 @@ const newsFeedEntryUnion = v.union(
       moveDate: v.string(),
       rating: v.number(),
     }),
-    moveCustomerId: v.id("moveCustomers"),
+    moveCustomerId: v.id("users"),
     moveId: v.id("moves"),
   }),
   v.object({
@@ -427,7 +427,7 @@ const newsFeedEntryUnion = v.union(
       moveDate: v.string(),
       paymentType: PaymentMethodConvex,
     }),
-    moveCustomerId: v.id("moveCustomers"),
+    moveCustomerId: v.id("users"),
     moveId: v.id("moves"),
   }),
   v.object({
@@ -479,7 +479,7 @@ const newsFeedEntryUnion = v.union(
       deliveryType: CommunicationTypeConvex,
       messageId: v.id("messages"),
     }),
-    moveCustomerId: v.id("moveCustomers"),
+    moveCustomerId: v.id("users"),
     moveId: v.id("moves"),
     userId: v.id("users"),
   }),
@@ -493,7 +493,7 @@ const newsFeedEntryUnion = v.union(
       messageId: v.id("messages"),
       moveDate: v.string(),
     }),
-    moveCustomerId: v.id("moveCustomers"),
+    moveCustomerId: v.id("users"),
     moveId: v.id("moves"),
     userId: v.id("users"),
   }),
@@ -569,7 +569,7 @@ const newsFeedEntryUnion = v.union(
       moveStatus: MoveStatusConvex,
     }),
     moveId: v.id("moves"),
-    moveCustomerId: v.id("moveCustomers"),
+    moveCustomerId: v.id("users"),
   }),
   v.object({
     type: v.literal("MOVE_UPDATED"),
@@ -642,7 +642,7 @@ const newsFeedEntryUnion = v.union(
       quoteId: v.id("quotes"),
     }),
     moveId: v.id("moves"),
-    moveCustomerId: v.id("moveCustomers"),
+    moveCustomerId: v.id("users"),
   }),
   v.object({
     type: v.literal("WAIVER_SENT"),
@@ -664,7 +664,7 @@ const newsFeedEntryUnion = v.union(
       customerName: v.string(),
       waiverId: v.id("waivers"),
     }),
-    moveCustomerId: v.id("moveCustomers"),
+    moveCustomerId: v.id("users"),
     moveId: v.id("moves"),
   }),
   v.object({

@@ -129,7 +129,7 @@ export interface GetMoveData {
   quote: Doc<"quotes"> | null;
   company: Doc<"companies">;
   companyContact: Doc<"companyContacts">;
-  moveCustomer: Doc<"moveCustomers">;
+  moveCustomer: Doc<"users">;
   salesRepUser: Doc<"users"> | null;
   myAssignment: Doc<"moveAssignments"> | null;
   wageDisplay: MoverWageForMove | null;
@@ -168,7 +168,7 @@ export interface GetPaymentPageData {
 }
 
 export interface EnrichedMove extends Doc<"moves"> {
-  moveCustomer: Doc<"moveCustomers"> | null;
+  moveCustomer: Doc<"users"> | null;
   salesRepUser: Doc<"users"> | null;
   moverWageForMove?: MoverWageForMove;
   hourStatus?: HourStatus;
@@ -186,7 +186,7 @@ export interface CreateMessageData {
 }
 
 export interface GetCustomerAndMovesData {
-  moveCustomer: Doc<"moveCustomers">;
+  moveCustomer: Doc<"users">;
   moves: EnrichedMoveForMover[] | Doc<"moves">[];
 }
 
@@ -225,5 +225,5 @@ export interface GetSalesRepsAndReferralByCompanyIdData {
 
 export interface newCustomerResponse {
   isExistingCustomer: boolean;
-  moveCustomer: Doc<"moveCustomers">;
+  moveCustomer: Doc<"users">;
 }

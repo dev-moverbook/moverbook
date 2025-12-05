@@ -7,7 +7,8 @@ import { Id } from "@/convex/_generated/dataModel";
 import { setErrorFromConvexError } from "@/frontendUtils/errorHelper";
 
 interface UpdateMoveCustomerInput {
-  moveCustomerId: Id<"moveCustomers">;
+  moveCustomerId: Id<"users">;
+  companyId: Id<"companies">;
   updates: {
     name?: string;
     email?: string;
@@ -20,9 +21,7 @@ export const useUpdateMoveCustomer = () => {
   const [updateMoveCustomerLoading, setLoading] = useState<boolean>(false);
   const [updateMoveCustomerError, setError] = useState<string | null>(null);
 
-  const updateMoveCustomerMutation = useMutation(
-    api.moveCustomers.updateMoveCustomer
-  );
+  const updateMoveCustomerMutation = useMutation(api.users.updateMoveCustomer);
 
   const updateMoveCustomer = async (
     data: UpdateMoveCustomerInput

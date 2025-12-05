@@ -19,9 +19,7 @@ export const useCreateMoveCustomer = () => {
   const [createMoveCustomerLoading, setLoading] = useState<boolean>(false);
   const [createMoveCustomerError, setError] = useState<string | null>(null);
 
-  const createMoveCustomerMutation = useMutation(
-    api.moveCustomers.createMoveCustomer
-  );
+  const createMoveCustomerMutation = useMutation(api.users.createMoveCustomer);
 
   const createMoveCustomer = async (
     data: CreateMoveCustomerInput

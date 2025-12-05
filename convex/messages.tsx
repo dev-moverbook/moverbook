@@ -1,4 +1,3 @@
-// "use node";
 import { action, internalMutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { ClerkRoles } from "@/types/enums";
@@ -9,7 +8,6 @@ import {
   validateDocExists,
   validateDocument,
   validateMove,
-  validateMoveCustomer,
   validateUser,
 } from "./backendUtils/validate";
 import { RecentMoveMessageSummary } from "@/types/types";
@@ -154,10 +152,11 @@ export const createMessage = action({
       ErrorMessages.COMPANY_NOT_FOUND
     );
 
-    const moveCustomer = validateMoveCustomer(
-      await ctx.runQuery(internal.moveCustomers.getMoveCustomerByIdInternal, {
+    const moveCustomer = await ctx.runQuery(
+      internal.moveCustomers.getMoveCustomerByIdInternal,
+      {
         moveCustomerId: move.moveCustomerId,
-      })
+      }
     );
 
     isUserInOrg(identity, validatedCompany.clerkOrganizationId);

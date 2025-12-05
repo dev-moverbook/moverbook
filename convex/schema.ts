@@ -172,7 +172,7 @@ export const ActivityEventContextConvex = v.object({
   approvedPay: v.optional(v.number()),
   breakAmount: v.optional(v.number()),
   contractId: v.optional(v.id("contracts")),
-  customerId: v.optional(v.id("moveCustomers")),
+  customerId: v.optional(v.id("users")),
   customerName: v.optional(v.string()),
   depositAmount: v.optional(v.string()),
   deliveryType: v.optional(CommunicationTypeConvex),
@@ -370,7 +370,7 @@ export default defineSchema({
     jobTypeRate: v.union(v.null(), v.number()),
     liabilityCoverage: v.union(v.null(), InsurancePolicyConvex),
     locations: v.array(LocationConvex),
-    moveCustomerId: v.id("moveCustomers"),
+    moveCustomerId: v.id("users"),
     moveDate: v.union(v.null(), v.string()),
     moveFees: v.array(MoveFeeConvex),
     moveItems: v.array(MoveItemConvex),
@@ -399,7 +399,7 @@ export default defineSchema({
   })
     .index("by_moveDate", ["moveDate"])
     .index("by_companyId", ["companyId"])
-    .index("by_moveCustomerId", ["moveCustomerId"]),
+    .index("by_moveCustomerIdAndCompanyId", ["moveCustomerId", "companyId"]),
   moveAssignments: defineTable({
     approvedHours: v.optional(v.number()),
     approvedPay: v.optional(v.number()),
@@ -415,16 +415,6 @@ export default defineSchema({
     .index("by_move", ["moveId"])
     .index("by_move_mover", ["moveId", "moverId"])
     .index("by_mover", ["moverId"]),
-  moveCustomers: defineTable({
-    altPhoneNumber: v.string(),
-    companyId: v.id("companies"),
-    email: v.string(),
-    name: v.string(),
-    phoneNumber: v.string(),
-  })
-    .index("by_email", ["email"])
-    .index("by_phone", ["phoneNumber"])
-    .index("by_name", ["name"]),
   moverLocations: defineTable({
     moveId: v.id("moves"),
     lat: v.optional(v.number()),
@@ -437,7 +427,7 @@ export default defineSchema({
     body: v.string(),
     companyId: v.id("companies"),
     context: ActivityEventContextConvex,
-    moveCustomerId: v.optional(v.id("moveCustomers")),
+    moveCustomerId: v.optional(v.id("users")),
     moveId: v.optional(v.id("moves")),
     type: ActivityEventTypeConvex,
     userId: v.optional(v.id("users")),
@@ -498,17 +488,21 @@ export default defineSchema({
     mileageRate: v.optional(v.number()),
   }),
   users: defineTable({
-    clerkUserId: v.string(),
+    altPhoneNumber: v.optional(v.string()),
+    clerkUserId: v.optional(v.string()),
     companyId: v.optional(v.id("companies")),
     customerId: v.optional(v.id("customers")),
     email: v.string(),
     hourlyRate: v.optional(v.union(v.number(), v.null())),
-    imageUrl: v.string(),
+    imageUrl: v.optional(v.string()),
     isActive: v.boolean(),
     name: v.string(),
     role: v.optional(UserRoleConvex),
+    phoneNumber: v.optional(v.string()),
+    updatedAt: v.number(),
   })
     .index("by_email", ["email"])
+    .index("by_phoneNumber", ["phoneNumber"])
     .index("by_clerkUserId", ["clerkUserId"])
     .index("by_companyId", ["companyId"]),
   variables: defineTable({

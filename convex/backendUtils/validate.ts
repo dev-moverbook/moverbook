@@ -1,5 +1,5 @@
 import { InvitationStatus, UserRole } from "@/types/enums";
-import { CommunicationType } from "@/types/types";
+import { CommunicationType, CustomerUser } from "@/types/types";
 import { ErrorMessages } from "@/types/errors";
 import { UserIdentity } from "convex/server";
 import { DatabaseReader, MutationCtx } from "../_generated/server";
@@ -11,7 +11,8 @@ export function validateUser(
   user: Doc<"users"> | null,
   checkActive: boolean = true,
   checkCompany?: boolean,
-  checkCustomer?: boolean
+  checkCustomer?: boolean,
+  checkClerkUserId?: boolean
 ): Doc<"users"> {
   if (!user) {
     throw new Error(ErrorMessages.USER_NOT_FOUND);
@@ -27,6 +28,13 @@ export function validateUser(
 
   if (checkCustomer && !user.customerId) {
     throw new Error(ErrorMessages.USER_NOT_CUSTOMER);
+  }
+
+  if (checkClerkUserId && !user.clerkUserId) {
+    throw new ConvexError({
+      code: "NOT_FOUND",
+      message: "user does not have clerk id",
+    });
   }
 
   return user;
@@ -471,12 +479,12 @@ export function validateDiscount(
 }
 
 export function validateMoveCustomer(
-  moveCustomer: Doc<"moveCustomers"> | null
-): Doc<"moveCustomers"> {
+  moveCustomer: Doc<"users"> | null
+): Doc<"users"> {
   if (!moveCustomer) {
-    throw new ConvexError({
+    throwConvexError(ErrorMessages.MOVE_CUSTOMER_NOT_FOUND, {
       code: "NOT_FOUND",
-      message: ErrorMessages.MOVE_CUSTOMER_NOT_FOUND,
+      showToUser: true,
     });
   }
   return moveCustomer;
@@ -514,4 +522,44 @@ export function validateDocExists<T extends TableNames>(
     });
   }
   return doc;
+}
+
+export function assertCustomerUser(doc: Doc<"users">): CustomerUser {
+  if (typeof doc.email !== "string") {
+    throw new Error(
+      "Validation Error: Customer is missing 'email' or it is invalid."
+    );
+  }
+
+  if (typeof doc.name !== "string") {
+    throw new Error(
+      "Validation Error: Customer is missing 'name' or it is invalid."
+    );
+  }
+
+  if (typeof doc.phoneNumber !== "string") {
+    throw new Error(
+      "Validation Error: Customer is missing 'phoneNumber' or it is invalid."
+    );
+  }
+
+  if (typeof doc.altPhoneNumber !== "string") {
+    throw new Error(
+      "Validation Error: Customer is missing 'altPhoneNumber' or it is invalid."
+    );
+  }
+
+  if (typeof doc.isActive !== "boolean") {
+    throw new Error(
+      "Validation Error: Customer is missing 'isActive' or it is invalid."
+    );
+  }
+
+  if (typeof doc.updatedAt !== "number") {
+    throw new Error(
+      "Validation Error: Customer is missing 'updatedAt' or it is invalid."
+    );
+  }
+
+  return doc as CustomerUser;
 }

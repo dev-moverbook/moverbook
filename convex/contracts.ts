@@ -146,12 +146,6 @@ export const sendContract = action({
       }
     );
 
-    const validatedMoveCustomer = validateDocExists(
-      "moveCustomers",
-      moveCustomer,
-      ErrorMessages.MOVE_CUSTOMER_NOT_FOUND
-    );
-
     if (args.channel === "email") {
       // TODO: Send waiver email
     } else if (args.channel === "sms") {
@@ -162,10 +156,10 @@ export const sendContract = action({
       entry: {
         type: "CONTRACT_SENT",
         companyId: validatedCompany._id,
-        body: `**${user.name}** sent contract to **${validatedMoveCustomer.name}** via ${args.channel}`,
+        body: `**${user.name}** sent contract to **${moveCustomer.name}** via ${args.channel}`,
         moveId: validatedMove._id,
         context: {
-          customerName: validatedMoveCustomer.name,
+          customerName: moveCustomer.name,
           deliveryType: args.channel,
           salesRepName: user.name,
         },

@@ -7,9 +7,9 @@ export default async function CustomerLayout({
   params,
 }: {
   children: React.ReactNode;
-  params: Promise<{ customerId: string }>;
+  params: Promise<{ customerId: string; slug: string }>;
 }) {
-  const { customerId: raw } = await params;
+  const { customerId: raw, slug } = await params;
   const moveCustomerId = normalizeCustomerId(raw);
 
   if (!moveCustomerId) {
@@ -17,7 +17,7 @@ export default async function CustomerLayout({
   }
 
   return (
-    <CustomerIdProvider moveCustomerId={moveCustomerId}>
+    <CustomerIdProvider moveCustomerId={moveCustomerId} slug={slug}>
       {children}
     </CustomerIdProvider>
   );

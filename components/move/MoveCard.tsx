@@ -15,7 +15,7 @@ import { MoveCardActions } from "./MoveCardActions";
 
 interface MoveCardProps {
   move: Doc<"moves">;
-  moveCustomer: Doc<"moveCustomers"> | null;
+  moveCustomer: Doc<"users"> | null;
   showActions?: boolean;
   onDuplicate?: (move: Doc<"moves">) => void;
   salesRep: Doc<"users"> | null;

@@ -24,8 +24,9 @@ interface CustomerStepProps {
 const CustomerStep = ({ onNext, onCancel }: CustomerStepProps) => {
   const { companyId } = useSlugContext();
 
-  const [existingCustomer, setExistingCustomer] =
-    useState<Doc<"moveCustomers"> | null>(null);
+  const [existingCustomer, setExistingCustomer] = useState<Doc<"users"> | null>(
+    null
+  );
 
   const {
     customer,
@@ -91,6 +92,7 @@ const CustomerStep = ({ onNext, onCancel }: CustomerStepProps) => {
     if (moveFormData.moveCustomerId) {
       const response = await updateMoveCustomer({
         moveCustomerId: moveFormData.moveCustomerId,
+        companyId,
         updates: {
           name: customer.name,
           email: customer.email,

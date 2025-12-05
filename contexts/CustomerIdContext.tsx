@@ -2,9 +2,8 @@
 
 import { GetCustomerAndMovesData } from "@/types/convex-responses";
 import { createContext, useContext } from "react";
-import { api } from "@/convex/_generated/api";
-import { useQuery } from "convex/react";
 import { Id } from "@/convex/_generated/dataModel";
+import { useCustomerAndMoves } from "@/hooks/moveCustomers/useCustomerAndMoves";
 
 type CustomerContextType = {
   moveCustomer: GetCustomerAndMovesData;
@@ -14,14 +13,14 @@ const CustomerIdContext = createContext<CustomerContextType | null>(null);
 
 export function CustomerIdProvider({
   moveCustomerId,
+  slug,
   children,
 }: {
-  moveCustomerId: Id<"moveCustomers">;
+  moveCustomerId: Id<"users">;
+  slug: string;
   children: React.ReactNode;
 }) {
-  const moveCustomer = useQuery(api.moveCustomers.getCustomerAndMoves, {
-    moveCustomerId,
-  });
+  const moveCustomer = useCustomerAndMoves(moveCustomerId, slug);
 
   if (!moveCustomer) {
     return;

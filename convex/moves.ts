@@ -240,7 +240,7 @@ export const createMove = mutation({
     jobTypeRate: v.union(v.null(), v.number()),
     liabilityCoverage: v.union(v.null(), InsurancePolicyConvex),
     locations: v.array(LocationConvex),
-    moveCustomerId: v.id("moveCustomers"),
+    moveCustomerId: v.id("users"),
     moveDate: v.union(v.null(), v.string()),
     moveFees: v.array(MoveFeeConvex),
     moveItems: v.array(MoveItemConvex),
@@ -274,8 +274,11 @@ export const createMove = mutation({
 
     const jobId = generateJobId(args.companyId);
 
-    const moveCustomer = validateMoveCustomer(
-      await ctx.db.get(args.moveCustomerId)
+    const moveCustomer = await ctx.runQuery(
+      internal.moveCustomers.getMoveCustomerByIdInternal,
+      {
+        moveCustomerId: args.moveCustomerId,
+      }
     );
 
     const moveId = await ctx.db.insert("moves", {
@@ -606,13 +609,13 @@ export const updateMove = action({
     //   );
     // }
 
-    const moveCustomer = validateDocExists(
-      "moveCustomers",
-      await ctx.runQuery(internal.moveCustomers.getMoveCustomerByIdInternal, {
+    const moveCustomer = await ctx.runQuery(
+      internal.moveCustomers.getMoveCustomerByIdInternal,
+      {
         moveCustomerId: moveRecord.moveCustomerId,
-      }),
-      ErrorMessages.MOVE_CUSTOMER_NOT_FOUND
+      }
     );
+
     const userId = identity.convexId as Id<"users">;
     const user = validateDocExists(
       "users",

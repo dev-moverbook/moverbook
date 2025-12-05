@@ -21,7 +21,8 @@ export const UserRoleConvex = v.union(
   v.literal(ClerkRoles.APP_MODERATOR),
   v.literal(ClerkRoles.MANAGER),
   v.literal(ClerkRoles.MOVER),
-  v.literal(ClerkRoles.SALES_REP)
+  v.literal(ClerkRoles.SALES_REP),
+  v.literal(ClerkRoles.CUSTOMER)
 );
 
 export const CreatableUserRoleConvex = v.union(
