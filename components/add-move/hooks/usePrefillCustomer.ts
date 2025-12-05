@@ -14,9 +14,7 @@ export function usePrefillCustomer(
 ) {
   const fetchedCustomer = useQuery(
     api.moveCustomers.getMoveCustomer,
-    moveCustomerId
-      ? { moveCustomerId: moveCustomerId as Id<"moveCustomers"> }
-      : "skip"
+    moveCustomerId ? { moveCustomerId: moveCustomerId as Id<"users"> } : "skip"
   );
 
   useRunOnceWhen(Boolean(fetchedCustomer && moveCustomerId), () => {
@@ -33,7 +31,7 @@ export function usePrefillCustomer(
 
     setMoveFormData((previousMoveFormData) => ({
       ...previousMoveFormData,
-      moveCustomerId: moveCustomerId as Id<"moveCustomers">,
+      moveCustomerId: moveCustomerId as Id<"users">,
     }));
 
     if (onPrefilled) {
