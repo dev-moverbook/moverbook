@@ -5,6 +5,7 @@ import { ClerkRoles, InvitationStatus } from "@/types/enums";
 import { validateDocExists, validateUser } from "../backendUtils/validate";
 import { updateClerkUserPublicMetadata } from "../functions/clerk";
 import { ActionCtx } from "../_generated/server";
+import { throwConvexError } from "../backendUtils/errors";
 
 export const handleOrganizationInvitationAccepted = async (
   ctx: ActionCtx,
@@ -46,6 +47,12 @@ export const handleOrganizationInvitationAccepted = async (
       );
       return validateUser(fetchedUser);
     }, MAX_RETRIES);
+
+    if (!user.clerkUserId) {
+      throwConvexError("user does not have clerk id", {
+        code: "BAD_REQUEST",
+      });
+    }
 
     const company = await ctx.runQuery(
       internal.companies.getCompanyClerkOrgIdInternal,
