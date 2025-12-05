@@ -9,8 +9,8 @@ export const useCustomerAndMoves = (
   moveCustomerId: Id<"users">,
   slug: string
 ): GetCustomerAndMovesData | undefined => {
-  const response = useQuery<typeof api.users.getCustomerAndMoves>(
-    api.users.getCustomerAndMoves,
+  const response = useQuery<typeof api.moveCustomers.getCustomerAndMoves>(
+    api.moveCustomers.getCustomerAndMoves,
     { moveCustomerId, slug }
   );
   return response;
