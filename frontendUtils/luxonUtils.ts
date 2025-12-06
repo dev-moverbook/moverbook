@@ -256,7 +256,7 @@ export function formatMonthDayLabelStrict(
 }
 
 export function formatWeekdayShort(isoDate: string): string {
-  const formatted: string = DateTime.fromISO(isoDate).toFormat("ccc"); // "Sun"
+  const formatted: string = DateTime.fromISO(isoDate).toFormat("ccc");
   return formatted;
 }
 
@@ -270,4 +270,15 @@ export function formatWeekdayShortWithDate(isoDateString: string): string {
 
   const formatted = dateTime.toFormat("LLL d, yyyy");
   return formatted;
+}
+
+export function formatTime(timeStr: string) {
+  const [hour, minute] = timeStr.split(":").map(Number);
+  const date = new Date();
+  date.setHours(hour);
+  date.setMinutes(minute);
+  return date.toLocaleTimeString([], {
+    hour: "numeric",
+    minute: "2-digit",
+  });
 }

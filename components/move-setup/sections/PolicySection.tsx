@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import SectionContainer from "@/components/shared/section/SectionContainer";
 import CenteredContainer from "@/components/shared/containers/CenteredContainer";
 import SectionHeader from "@/components/shared/section/SectionHeader";
@@ -21,32 +21,43 @@ interface PolicySectionProps {
 const PolicySection: React.FC<PolicySectionProps> = ({ policy }) => {
   const { updatePolicy, updatePolicyLoading, updatePolicyError } =
     useUpdatePolicy();
-  const [errors, setErrors] = useState<{ [key: string]: string | null }>({});
 
   const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [errors, setErrors] = useState<{ [key: string]: string | null }>({});
+
   const [formData, setFormData] = useState<PolicyFormData>({
     weekdayHourMinimum: policy.weekdayHourMinimum,
     weekendHourMinimum: policy.weekendHourMinimum,
     deposit: policy.deposit,
     cancellationFee: policy.cancellationFee,
     cancellationCutoffHour: policy.cancellationCutoffHour,
-    additionalTermsAndConditions: policy.additionalTermsAndConditions,
+    additionalTermsAndConditions: policy.additionalTermsAndConditions ?? "",
   });
 
-  const handleEditClick = () => {
-    setIsEditing(true);
-  };
-
-  const handleCancel = () => {
-    setIsEditing(false);
+  const resetForm = useCallback(() => {
     setFormData({
       weekdayHourMinimum: policy.weekdayHourMinimum,
       weekendHourMinimum: policy.weekendHourMinimum,
       deposit: policy.deposit,
-      cancellationFee: policy.cancellationFee,
+      cancellationFee: policy.cancellationFee ?? null,
       cancellationCutoffHour: policy.cancellationCutoffHour,
-      additionalTermsAndConditions: policy.additionalTermsAndConditions,
+      additionalTermsAndConditions: policy.additionalTermsAndConditions ?? "",
     });
+    setErrors({});
+  }, [
+    policy.weekdayHourMinimum,
+    policy.weekendHourMinimum,
+    policy.deposit,
+    policy.cancellationFee,
+    policy.cancellationCutoffHour,
+    policy.additionalTermsAndConditions,
+  ]);
+
+  const handleEditClick = () => setIsEditing(true);
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    resetForm();
   };
 
   const handleChange = (
@@ -54,19 +65,22 @@ const PolicySection: React.FC<PolicySectionProps> = ({ policy }) => {
       | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
       | { target: { name: string; value: string | number | null } }
   ) => {
-    const { name, value } = e.target;
+    const { name, value } = "target" in e ? e.target : e;
 
-    const isNumericField = [
+    const numericFields = [
       "weekdayHourMinimum",
       "weekendHourMinimum",
       "deposit",
       "cancellationFee",
       "cancellationCutoffHour",
-    ].includes(name);
+    ];
 
-    const parsedValue = isNumericField ? Number(value) : value;
+    const parsedValue = numericFields.includes(name)
+      ? Number(value) || null
+      : value;
 
-    if (isNumericField) {
+    // Validate numeric fields on change
+    if (numericFields.includes(name)) {
       const validationError = validatePrice(parsedValue as number);
       setErrors((prev) => ({ ...prev, [name]: validationError }));
     }
@@ -78,32 +92,55 @@ const PolicySection: React.FC<PolicySectionProps> = ({ policy }) => {
   };
 
   const handleSave = async () => {
-    const weekdayError = validatePrice(formData.weekdayHourMinimum);
-    const weekendError = validatePrice(formData.weekendHourMinimum);
-    const depositError = validatePrice(formData.deposit);
-    const cancellationFeeError = validatePrice(formData.cancellationFee);
+    // Validate required numeric fields
+    const fieldsToValidate = [
+      "weekdayHourMinimum",
+      "weekendHourMinimum",
+      "deposit",
+      "cancellationFee",
+    ] as const;
 
-    const newErrors = {
-      weekdayHourMinimum: weekdayError,
-      weekendHourMinimum: weekendError,
-      deposit: depositError,
-      cancellationFee: cancellationFeeError,
-    };
+    const newErrors: Partial<typeof errors> = {};
 
-    setErrors(newErrors);
+    fieldsToValidate.forEach((field) => {
+      const value = formData[field];
+      newErrors[field] = validatePrice(value as number);
+    });
 
-    const hasErrors = Object.values(newErrors).some((error) => error !== null);
-    if (hasErrors) return;
+    setErrors((prev) => ({
+      ...prev,
+      ...(newErrors as { [key: string]: string | null }),
+    }));
+    if (Object.values(newErrors).some((err) => err !== null)) return;
 
     const success = await updatePolicy(policy._id, {
       ...formData,
       deposit: formData.deposit ?? undefined,
       cancellationFee: formData.cancellationFee ?? undefined,
     });
+
     if (success) {
       setIsEditing(false);
     }
   };
+
+  const hasChanges = useMemo(() => {
+    return (
+      formData.weekdayHourMinimum !== policy.weekdayHourMinimum ||
+      formData.weekendHourMinimum !== policy.weekendHourMinimum ||
+      formData.deposit !== policy.deposit ||
+      formData.cancellationFee !== policy.cancellationFee ||
+      formData.cancellationCutoffHour !== policy.cancellationCutoffHour ||
+      formData.additionalTermsAndConditions !==
+        (policy.additionalTermsAndConditions ?? "")
+    );
+  }, [formData, policy]);
+
+  useEffect(() => {
+    if (!isEditing) {
+      resetForm();
+    }
+  }, [isEditing, resetForm]);
 
   return (
     <SectionContainer isLast={true}>
@@ -148,6 +185,7 @@ const PolicySection: React.FC<PolicySectionProps> = ({ policy }) => {
             }
             error={errors.deposit}
           />
+
           <CurrencyInput
             label="Cancellation Fee"
             value={formData.cancellationFee}
@@ -167,14 +205,13 @@ const PolicySection: React.FC<PolicySectionProps> = ({ policy }) => {
                 target: { name: "cancellationCutoffHour", value },
               })
             }
-            error={errors.cancellationCutoffHour}
             unit="hrs"
           />
 
           <FieldTextAreaRow
             label="Additional Terms and Conditions"
             name="additionalTermsAndConditions"
-            value={formData.additionalTermsAndConditions}
+            value={formData.additionalTermsAndConditions ?? ""}
             isEditing={isEditing}
             onChange={handleChange}
             placeholder="Enter additional terms and conditions"
@@ -189,6 +226,7 @@ const PolicySection: React.FC<PolicySectionProps> = ({ policy }) => {
               onCancel={handleCancel}
               isSaving={updatePolicyLoading}
               error={updatePolicyError}
+              disabled={!hasChanges}
             />
           )}
         </FieldGroup>

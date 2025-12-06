@@ -13,6 +13,7 @@ interface MoveCreditCardFeeProps {
   onSave?: () => Promise<boolean>;
   onCancel?: () => void;
   creditCardFeeRate: number;
+  initialCreditCardFeeRate: number;
   handleCreditCardFeeRateChange: (value: number) => void;
   isEditing?: boolean;
   setIsEditing?: (value: boolean) => void;
@@ -25,6 +26,7 @@ const MoveCreditCardFeeSection: React.FC<MoveCreditCardFeeProps> = ({
   onSave,
   onCancel,
   creditCardFeeRate,
+  initialCreditCardFeeRate,
   handleCreditCardFeeRateChange,
   isEditing = false,
   setIsEditing,
@@ -49,6 +51,18 @@ const MoveCreditCardFeeSection: React.FC<MoveCreditCardFeeProps> = ({
   const handleCancel = () => {
     onCancel?.();
   };
+
+  // --- Disabled Logic ---
+  // The field must not be empty (rate is a number, so 0 is usually fine,
+  // but if null/NaN is possible, check against that). Assuming rate is a number >= 0.
+
+  const hasNoChanges = creditCardFeeRate === initialCreditCardFeeRate;
+
+  // Disable if in editing mode and no changes were made.
+  // Note: For 'isAdd', hasNoChanges is generally irrelevant, but we ensure it's
+  // not disabled solely due to no changes if we're adding.
+  const isDisabled =
+    (isEditing && hasNoChanges) || (isAdd && creditCardFeeRate === 0); // Optionally disable if adding and rate is 0
 
   return (
     <div>
@@ -80,6 +94,7 @@ const MoveCreditCardFeeSection: React.FC<MoveCreditCardFeeProps> = ({
             onCancel={handleCancel}
             isSaving={isSaving}
             error={updateError}
+            disabled={isDisabled}
           />
         )}
       </SectionContainer>

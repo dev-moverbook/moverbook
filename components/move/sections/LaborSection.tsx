@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import SectionContainer from "@/components/shared/containers/SectionContainer";
 import Header3 from "@/components/shared/heading/Header3";
 import { MoveFormErrors } from "@/types/form-types";
@@ -22,6 +22,7 @@ export interface LaborFormData {
 
 interface LaborSectionProps {
   formData: LaborFormData;
+  originalData?: LaborFormData; // ← ADD THIS
   onChange: <K extends keyof LaborFormData>(
     key: K,
     value: LaborFormData[K]
@@ -40,6 +41,7 @@ interface LaborSectionProps {
 
 const LaborSection: React.FC<LaborSectionProps> = ({
   formData,
+  originalData,
   onChange,
   errors = {},
   setErrors,
@@ -78,7 +80,25 @@ const LaborSection: React.FC<LaborSectionProps> = ({
     clearError("movers");
   };
 
+  const hasChanges = useMemo(() => {
+    if (isAdd) {
+      return true;
+    }
+
+    return (
+      formData.trucks !== originalData?.trucks ||
+      formData.movers !== originalData?.movers ||
+      formData.startingMoveTime !== originalData?.startingMoveTime ||
+      formData.endingMoveTime !== originalData?.endingMoveTime ||
+      formData.jobType !== originalData?.jobType ||
+      formData.jobTypeRate !== originalData?.jobTypeRate
+    );
+  }, [formData, originalData, isAdd]);
+
   const handleSave = () => {
+    if (!hasChanges) {
+      return;
+    }
     onSave?.();
     setIsEditing?.(false);
   };
@@ -107,6 +127,7 @@ const LaborSection: React.FC<LaborSectionProps> = ({
       >
         Labor
       </Header3>
+
       <SectionContainer showBorder={false} className="pb-0">
         <LaborInputs
           formData={formData}
@@ -122,9 +143,11 @@ const LaborSection: React.FC<LaborSectionProps> = ({
           errors={errors}
         />
       </SectionContainer>
+
       <LaborSummary formData={formData} totalDriveTime={totalDriveTime} />
+
       {editingMode && onCancel && setIsEditing && (
-        <FormActionContainer className="mt-8 max-w-screen-sm w-full mx-auto ">
+        <FormActionContainer className="mt-8 max-w-screen-sm w-full mx-auto">
           <FormActions
             onSave={(e) => {
               e.preventDefault();
@@ -133,6 +156,8 @@ const LaborSection: React.FC<LaborSectionProps> = ({
             onCancel={onCancel}
             isSaving={isSaving}
             error={updateError}
+            disabled={!hasChanges}
+            saveLabel="Save "
           />
         </FormActionContainer>
       )}

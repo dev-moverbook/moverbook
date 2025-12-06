@@ -134,7 +134,7 @@ const CompanyContactSection: React.FC<CompanyContactSectionProps> = ({
     setFieldErrors((prev) => ({ ...prev, [name as FieldKey]: "" }));
   };
 
-  const isDisabled =
+  const isFormIncomplete =
     !formData.email ||
     !formData.phoneNumber ||
     !formData.website ||
@@ -142,6 +142,29 @@ const CompanyContactSection: React.FC<CompanyContactSectionProps> = ({
     !formData.address?.placeId ||
     formData.address?.location?.lat == null ||
     formData.address?.location?.lng == null;
+
+  const addressHasNoChanges = (() => {
+    const current = formData.address;
+    const initial = companyContact.address as AddressInput | null;
+
+    if (!current && !initial) return true;
+    if (!current || !initial) return false;
+
+    return (
+      current.formattedAddress === initial.formattedAddress &&
+      current.placeId === initial.placeId &&
+      current.location?.lat === initial.location?.lat &&
+      current.location?.lng === initial.location?.lng
+    );
+  })();
+
+  const hasNoChanges =
+    formData.email === companyContact.email &&
+    formData.phoneNumber === companyContact.phoneNumber &&
+    formData.website === companyContact.website &&
+    addressHasNoChanges;
+
+  const isDisabled = isFormIncomplete || (isEditing && hasNoChanges);
 
   const isComplete =
     !!formData.email &&

@@ -2,7 +2,7 @@
 
 import SectionContainer from "@/components/shared/containers/SectionContainer";
 import SectionHeader from "@/components/shared/section/SectionHeader";
-import React, { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import FieldGroup from "@/components/shared/field/FieldGroup";
 import FormActions from "@/components/shared/buttons/FormActions";
 import { useUpdateMove } from "@/hooks/moves";
@@ -21,19 +21,26 @@ const DepositSection = () => {
     deposit: move.deposit,
   });
 
-  const handleEditClick = () => {
-    setIsEditing(true);
-  };
+  useEffect(() => {
+    setFormData({ deposit: move.deposit });
+  }, [move.deposit]);
+
+  const hasChanges = useMemo(() => {
+    return formData.deposit !== move.deposit;
+  }, [formData.deposit, move.deposit]);
+
+  const handleEditClick = () => setIsEditing(true);
 
   const handleSave = async () => {
+    if (!hasChanges) {
+      return;
+    }
     await updateMove({ moveId: move._id, updates: formData });
     setIsEditing(false);
   };
 
   const handleCancel = () => {
-    setFormData({
-      deposit: move.deposit,
-    });
+    setFormData({ deposit: move.deposit });
     setIsEditing(false);
   };
 
@@ -66,6 +73,8 @@ const DepositSection = () => {
               onCancel={handleCancel}
               isSaving={updateMoveLoading}
               error={updateMoveError}
+              disabled={!hasChanges}
+              saveLabel="Save Changes"
             />
           )}
         </FieldGroup>

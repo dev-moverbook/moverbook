@@ -45,6 +45,16 @@ const CreditCardFeeSection: React.FC<CreditCardFeeSectionProps> = ({
     }
   };
 
+  const handleRateChange = (value: number | null) => {
+    if (value === null) {
+      setRate(0);
+    } else {
+      setRate(value);
+    }
+  };
+
+  const hasNoChanges = rate === creditCardFee.rate;
+
   return (
     <SectionContainer>
       <CenteredContainer>
@@ -60,13 +70,7 @@ const CreditCardFeeSection: React.FC<CreditCardFeeSectionProps> = ({
           <PercentageInput
             label="Fee Rate"
             value={rate}
-            onChange={(value) => {
-              if (value === null) {
-                setRate(0);
-              } else {
-                setRate(value);
-              }
-            }}
+            onChange={handleRateChange}
             isEditing={isEditing}
           />
 
@@ -79,6 +83,7 @@ const CreditCardFeeSection: React.FC<CreditCardFeeSectionProps> = ({
               onCancel={handleCancel}
               isSaving={updateCreditCardFeeLoading}
               error={updateCreditCardFeeError}
+              disabled={hasNoChanges}
             />
           )}
         </FieldGroup>

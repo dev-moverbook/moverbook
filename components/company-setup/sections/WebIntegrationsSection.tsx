@@ -44,6 +44,7 @@ const WebIntegrationsSection: React.FC<WebIntegrationsSectionProps> = ({
     setFormData({
       webform: webIntegrations.webform || "",
       webformEmbeddedCode: webIntegrations.webformEmbeddedCode || "",
+      externalReviewUrl: webIntegrations.externalReviewUrl || "",
     });
     setUpdateError(null);
   };
@@ -62,6 +63,13 @@ const WebIntegrationsSection: React.FC<WebIntegrationsSectionProps> = ({
       setUpdateError(null);
     }
   };
+
+  const hasNoChanges =
+    formData.webform === webIntegrations.webform &&
+    formData.webformEmbeddedCode === webIntegrations.webformEmbeddedCode &&
+    formData.externalReviewUrl === webIntegrations.externalReviewUrl;
+
+  const isDisabled = isEditing && hasNoChanges;
 
   return (
     <SectionContainer isLast={true}>
@@ -110,6 +118,7 @@ const WebIntegrationsSection: React.FC<WebIntegrationsSectionProps> = ({
               onCancel={handleCancel}
               isSaving={updateLoading}
               error={updateError}
+              disabled={isDisabled}
             />
           )}
         </FieldGroup>

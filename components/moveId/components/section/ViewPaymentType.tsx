@@ -55,6 +55,7 @@ const ViewPaymentType = () => {
       updateError={updateMoveError}
       isEditing={isEditing}
       setIsEditing={setIsEditing}
+      originalPaymentMethod={move.paymentMethod}
     />
   );
 };

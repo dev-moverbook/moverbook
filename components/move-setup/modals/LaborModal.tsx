@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { CreateLaborFormData } from "@/types/form-types";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import FieldGroup from "@/components/shared/field/FieldGroup";
@@ -78,6 +78,9 @@ const LaborModal: React.FC<LaborModalProps> = ({
         const day = (initialData.startDate % 100).toString();
         setStartMonth(month);
         setStartDay(day);
+      } else {
+        setStartMonth("none");
+        setStartDay("none");
       }
 
       if (initialData.endDate) {
@@ -85,11 +88,14 @@ const LaborModal: React.FC<LaborModalProps> = ({
         const day = (initialData.endDate % 100).toString();
         setEndMonth(month);
         setEndDay(day);
+      } else {
+        setEndMonth("none");
+        setEndDay("none");
       }
     } else {
       resetState();
     }
-  }, [initialData]);
+  }, [initialData, isOpen]);
 
   const resetState = () => {
     setLabor({
@@ -144,7 +150,7 @@ const LaborModal: React.FC<LaborModalProps> = ({
       else if (/three movers/i.test(msg)) nextErrors.threeMovers = msg;
       else if (/four movers/i.test(msg)) nextErrors.fourMovers = msg;
       else if (/extra rate/i.test(msg)) nextErrors.extra = msg;
-      else nextErrors.name = msg; // fallback
+      else nextErrors.name = msg;
 
       setErrors(nextErrors);
       return;
@@ -186,10 +192,48 @@ const LaborModal: React.FC<LaborModalProps> = ({
     endMonth === "none" ||
     endDay === "none";
 
-  const isDisabled =
-    isMissingRates || (!initialData?.isDefault && isMissingDates);
-
   const isDefault = initialData?.isDefault;
+
+  // Calculate if the current form data matches the initial data
+  const hasNoChanges = (() => {
+    if (!initialData) return false;
+
+    const nameChanged = labor.name.trim() !== initialData.name.trim();
+    const twoMoversChanged = labor.twoMovers !== initialData.twoMovers;
+    const threeMoversChanged = labor.threeMovers !== initialData.threeMovers;
+    const fourMoversChanged = labor.fourMovers !== initialData.fourMovers;
+    const extraChanged = labor.extra !== initialData.extra;
+
+    const ratesChanged =
+      nameChanged ||
+      twoMoversChanged ||
+      threeMoversChanged ||
+      fourMoversChanged ||
+      extraChanged;
+
+    if (isDefault) {
+      return !ratesChanged;
+    }
+
+    const currentStartDate =
+      startMonth !== "none" && startDay !== "none"
+        ? parseInt(startMonth) * 100 + parseInt(startDay)
+        : null;
+    const currentEndDate =
+      endMonth !== "none" && endDay !== "none"
+        ? parseInt(endMonth) * 100 + parseInt(endDay)
+        : null;
+
+    const startDateChanged = currentStartDate !== initialData.startDate;
+    const endDateChanged = currentEndDate !== initialData.endDate;
+
+    return !(ratesChanged || startDateChanged || endDateChanged);
+  })();
+
+  const isDisabled =
+    isMissingRates ||
+    (initialData && hasNoChanges) ||
+    (!isDefault && isMissingDates);
 
   const formContent = (
     <FieldGroup>

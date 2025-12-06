@@ -63,6 +63,18 @@ const ComplianceSection: React.FC<ComplianceSectionProps> = ({
     }
   };
 
+  const hasNoChanges =
+    formData.statePucPermitNumber === compliance.statePucPermitNumber &&
+    formData.dmvNumber === compliance.dmvNumber &&
+    formData.usDotNumber === compliance.usDotNumber;
+
+  const isFormEmpty =
+    formData.statePucPermitNumber.trim() === "" &&
+    formData.dmvNumber.trim() === "" &&
+    formData.usDotNumber.trim() === "";
+
+  const isDisabled = isEditing && hasNoChanges && !isFormEmpty;
+
   return (
     <SectionContainer>
       <CenteredContainer>
@@ -111,6 +123,7 @@ const ComplianceSection: React.FC<ComplianceSectionProps> = ({
               onCancel={handleCancel}
               isSaving={updateLoading}
               error={updateError}
+              disabled={isDisabled}
             />
           )}
         </FieldGroup>

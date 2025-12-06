@@ -73,15 +73,23 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
       altPhoneNumber: altPhoneNumber ?? "",
     });
     setIsEditing(false);
+    setErrors({});
   };
 
   const isCompleted =
     !!formData.name?.trim() &&
     isValidEmail(formData.email) &&
-    isValidPhoneNumber(formData.phoneNumber) &&
-    isValidPhoneNumber(formData.altPhoneNumber);
+    isValidPhoneNumber(formData.phoneNumber);
 
-  const isDisabled = !isCompleted;
+  // Check if form data is identical to initial data
+  const hasNoChanges =
+    formData.name === name &&
+    formData.email === email &&
+    formData.phoneNumber === (phoneNumber ?? "") &&
+    formData.altPhoneNumber === (altPhoneNumber ?? "");
+
+  // Disabled if not completed OR if editing and no changes have been made
+  const isDisabled = !isCompleted || (isEditing && hasNoChanges);
 
   const showContactFields = !isMoverUser || isMoverLead;
   const submitError =
@@ -105,7 +113,7 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
           title="Customer Info"
           isEditing={isEditing}
           onEditClick={() => setIsEditing(true)}
-          onCancelEdit={() => setIsEditing(false)}
+          onCancelEdit={handleCancel}
           className="px-0 pt-0"
           showCheckmark={showCheckmark && canCreateMoveUser}
           isCompleted={isCompleted}

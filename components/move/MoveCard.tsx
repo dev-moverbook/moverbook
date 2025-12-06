@@ -57,7 +57,7 @@ const MoveCard: React.FC<MoveCardProps> = ({
   const body = (
     <div
       className={`
-        py-4 px-4 text-white shadow-md rounded-lg border border-border
+        py-4 px-4 text-white shadow-md rounded-lg  
         ${!showActions ? "hover:bg-background2/80 transition-colors duration-200" : ""}
       `}
     >

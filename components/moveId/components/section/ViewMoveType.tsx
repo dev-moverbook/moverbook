@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { useMoveContext } from "@/contexts/MoveContext";
 import { ServiceType, StartWindowOption } from "@/types/types";
 import { MoveTypeFormData } from "@/types/form-types";
@@ -181,7 +181,6 @@ const ViewMoveType: React.FC = () => {
       serviceType={formData.serviceType}
       moveDate={formData.moveDate}
       startWindowOption={startWindowOption}
-      moveWindow={formData.moveWindow}
       arrivalTimes={formData.arrivalTimes}
       timeSlotOptions={timeSlotOptions}
       timeSlotsLoading={arrivalRes ? false : true}

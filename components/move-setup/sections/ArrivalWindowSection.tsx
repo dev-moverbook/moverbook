@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import SectionContainer from "@/components/shared/section/SectionContainer";
 import CenteredContainer from "@/components/shared/containers/CenteredContainer";
 import SectionHeader from "@/components/shared/section/SectionHeader";
@@ -27,6 +27,7 @@ const ArrivalWindowSection: React.FC<ArrivalWindowSectionProps> = ({
   } = useUpdateArrivalWindow();
 
   const [isEditing, setIsEditing] = useState<boolean>(false);
+
   const [formData, setFormData] = useState<ArrivalWindowFormData>({
     morningArrival: arrivalWindow.morningArrival,
     morningEnd: arrivalWindow.morningEnd,
@@ -34,12 +35,8 @@ const ArrivalWindowSection: React.FC<ArrivalWindowSectionProps> = ({
     afternoonEnd: arrivalWindow.afternoonEnd,
   });
 
-  const handleEditClick = () => {
-    setIsEditing(true);
-  };
-
-  const handleCancel = () => {
-    setIsEditing(false);
+  // Reset form data when canceling or when arrivalWindow prop changes
+  const resetForm = () => {
     setFormData({
       morningArrival: arrivalWindow.morningArrival,
       morningEnd: arrivalWindow.morningEnd,
@@ -47,6 +44,15 @@ const ArrivalWindowSection: React.FC<ArrivalWindowSectionProps> = ({
       afternoonEnd: arrivalWindow.afternoonEnd,
     });
     setUpdateArrivalWindowError(null);
+  };
+
+  const handleEditClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    resetForm();
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -62,6 +68,23 @@ const ArrivalWindowSection: React.FC<ArrivalWindowSectionProps> = ({
       setIsEditing(false);
     }
   };
+
+  // Compute whether form has changes
+  const hasChanges = useMemo(() => {
+    return (
+      formData.morningArrival !== arrivalWindow.morningArrival ||
+      formData.morningEnd !== arrivalWindow.morningEnd ||
+      formData.afternoonArrival !== arrivalWindow.afternoonArrival ||
+      formData.afternoonEnd !== arrivalWindow.afternoonEnd
+    );
+  }, [formData, arrivalWindow]);
+
+  // Keep formData in sync if arrivalWindow changes externally (e.g. after save)
+  useEffect(() => {
+    if (!isEditing) {
+      resetForm();
+    }
+  }, [arrivalWindow]);
 
   return (
     <SectionContainer>
@@ -105,6 +128,7 @@ const ArrivalWindowSection: React.FC<ArrivalWindowSectionProps> = ({
                 onCancel={handleCancel}
                 isSaving={updateArrivalWindowLoading}
                 error={updateArrivalWindowError}
+                disabled={!hasChanges}
               />
             </FormActionContainer>
           )}

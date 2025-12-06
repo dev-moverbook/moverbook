@@ -105,11 +105,24 @@ const UserIdContent: React.FC = () => {
     await reactivateUser(userData._id);
   };
 
-  const isDisabled =
+  // --- No Changes Logic ---
+  const initialHourlyRate =
+    userData.hourlyRate !== undefined ? userData.hourlyRate : null;
+
+  const hasNoChanges =
+    formData.name === userData.name &&
+    formData.role === userData.role &&
+    (formData.role !== ClerkRoles.MOVER ||
+      formData.hourlyRate === initialHourlyRate);
+
+  // --- Incomplete/Invalid Form Logic ---
+  const isFormIncomplete =
     formData.name.trim() === "" ||
-    formData.email.trim() === "" ||
     formData.role.trim() === "" ||
-    formData.hourlyRate === null;
+    (formData.role === ClerkRoles.MOVER && formData.hourlyRate === null);
+
+  // --- Disabled State ---
+  const isDisabled = isFormIncomplete || (isEditing && hasNoChanges);
 
   return (
     <>
@@ -159,7 +172,7 @@ const UserIdContent: React.FC = () => {
           value={formData.name}
           onChange={handleChange}
           placeholder="Enter Name"
-          isEditing={false}
+          isEditing={isEditing} // <-- Should be isEditing if it's meant to be editable
         />
 
         <FieldRow
@@ -167,7 +180,7 @@ const UserIdContent: React.FC = () => {
           name="email"
           value={formData.email}
           onChange={handleChange}
-          isEditing={false}
+          isEditing={false} // Email should generally not be editable via this form
         />
 
         {formData.role === ClerkRoles.MOVER && (
@@ -187,7 +200,7 @@ const UserIdContent: React.FC = () => {
 
         <RoleSelectField
           value={formData.role as ClerkRoles}
-          isEditing={false}
+          isEditing={isEditing} // <-- Role should be editable
           onChange={(val) =>
             setFormData((prev) => ({ ...prev, role: val as ClerkRoles }))
           }

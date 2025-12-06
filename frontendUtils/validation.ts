@@ -11,8 +11,15 @@ import {
 } from "@/types/form-types";
 import { DiscountFormData } from "../components/moveId/components/modals/DiscountModal";
 import { AdditionalFeeFormData } from "../components/moveId/components/modals/AdditionalFeeModal";
+import { PaymentMethod } from "@/types/types";
 
-export const validatePrice = (price: number | null): string | null => {
+export const validatePrice = (
+  price: number | null | undefined
+): string | null => {
+  if (price === undefined) {
+    return "Price is required.";
+  }
+
   if (price === null || isNaN(price)) {
     return "Price is required and must be a valid number.";
   }
@@ -293,4 +300,24 @@ export const validateMoveFormData = (
   const isValid = Object.keys(errors).length === 0;
 
   return { isValid, errors };
+};
+
+export const arePaymentMethodsEqual = (
+  a: PaymentMethod | null,
+  b: PaymentMethod | null
+): boolean => {
+  if (a === b) {
+    return true;
+  }
+  if (!a || !b) {
+    return false;
+  }
+  if (a.kind !== b.kind) {
+    return false;
+  }
+
+  if (a.kind === "other" && b.kind === "other") {
+    return a.label.trim() === b.label.trim();
+  }
+  return true;
 };

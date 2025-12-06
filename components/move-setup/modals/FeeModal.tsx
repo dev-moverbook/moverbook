@@ -96,10 +96,17 @@ const FeeModal: React.FC<FeeModalProps> = ({
     if (success) onClose();
   };
 
-  const isDisabled =
+  const isFormIncomplete =
     formData.name.trim() === "" ||
     formData.price === null ||
     formData.price === undefined;
+
+  const hasNoChanges = initialData
+    ? formData.name === initialData.name && formData.price === initialData.price
+    : false;
+
+  const isDisabled =
+    (isFormIncomplete || (initialData && hasNoChanges)) ?? false;
 
   const title = initialData ? "Edit Fee" : "Add Fee";
   const description = initialData

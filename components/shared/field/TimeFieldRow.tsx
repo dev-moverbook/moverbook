@@ -2,6 +2,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import FieldDisplay from "./FieldDisplay";
+import { formatTime } from "@/frontendUtils/luxonUtils";
 
 interface TimeRangeFieldRowProps {
   label: string;
@@ -80,15 +81,5 @@ const TimeRangeFieldRow: React.FC<TimeRangeFieldRowProps> = ({
 };
 
 // Optional: format "HH:mm" to "h:mm AM/PM"
-function formatTime(timeStr: string) {
-  const [hour, minute] = timeStr.split(":").map(Number);
-  const date = new Date();
-  date.setHours(hour);
-  date.setMinutes(minute);
-  return date.toLocaleTimeString([], {
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
 
 export default TimeRangeFieldRow;

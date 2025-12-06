@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import MoveTravelFeeSection from "@/components/move/sections/MoveTravelFeeSection";
 import { useMoveContext } from "@/contexts/MoveContext";
 import { TravelChargingTypes } from "@/types/enums";
@@ -99,6 +99,8 @@ const ViewTravelFee = () => {
       updateError={updateMoveError}
       isEditing={isEditing}
       setIsEditing={setIsEditing}
+      originalTravelFeeRate={move.travelFeeRate}
+      originalTravelFeeMethod={move.travelFeeMethod}
     />
   );
 };

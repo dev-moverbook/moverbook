@@ -19,6 +19,7 @@ const AddCreditCardFee = () => {
     <MoveCreditCardFeeSection
       isAdd={true}
       creditCardFeeRate={creditCardFeeRate}
+      initialCreditCardFeeRate={creditCardFeeRate}
       handleCreditCardFeeRateChange={handleCreditCardFeeRateChange}
     />
   );

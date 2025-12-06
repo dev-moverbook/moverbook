@@ -57,6 +57,14 @@ const TravelFeeSection: React.FC<TravelFeeSectionProps> = ({ travelFee }) => {
     }
   };
 
+  const hasNoChanges = () => {
+    return (
+      formData.mileageRate === travelFee.mileageRate &&
+      formData.flatRate === travelFee.flatRate &&
+      (formData.defaultMethod ?? null) === (travelFee.defaultMethod ?? null)
+    );
+  };
+
   return (
     <SectionContainer>
       <CenteredContainer>
@@ -94,7 +102,7 @@ const TravelFeeSection: React.FC<TravelFeeSectionProps> = ({ travelFee }) => {
           />
           <ButtonRadioGroup
             name="defaultTravelFee"
-            value={formData.defaultMethod ?? "None"} // 👈 show "none" if null
+            value={formData.defaultMethod ?? "None"}
             options={TRAVEL_FEE_METHOD_OPTIONS}
             onChange={handleDefaultTravelFeeChange}
             label="Default Travel Fee"
@@ -110,6 +118,7 @@ const TravelFeeSection: React.FC<TravelFeeSectionProps> = ({ travelFee }) => {
               onCancel={handleCancel}
               isSaving={updateTravelFeeLoading}
               error={updateTravelFeeError}
+              disabled={hasNoChanges()}
             />
           )}
         </FieldGroup>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { RoomFormData } from "@/types/form-types";
@@ -67,7 +67,14 @@ const RoomModal: React.FC<RoomModalProps> = ({
     }
   };
 
-  const isDisabled = formData.name.trim() === "";
+  const isFormIncomplete = formData.name.trim() === "";
+
+  const hasNoChanges = initialData
+    ? formData.name.trim() === initialData.name.trim()
+    : false;
+
+  const isDisabled =
+    (isFormIncomplete || (initialData && hasNoChanges)) ?? false;
 
   const formContent = (
     <FieldGroup>

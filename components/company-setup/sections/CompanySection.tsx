@@ -83,7 +83,12 @@ const CompanySection: React.FC<CompanySectionProps> = ({
     await uploadOrganizationLogo(company._id, file);
   };
 
-  const isDisabled = !formData.name || !formData.timeZone;
+  const isFormIncomplete = !formData.name || !formData.timeZone;
+
+  const hasNoChanges =
+    formData.name === company.name && formData.timeZone === company.timeZone;
+
+  const isDisabled = isFormIncomplete || (isEditing && hasNoChanges);
 
   return (
     <SectionContainer>

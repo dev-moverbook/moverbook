@@ -52,6 +52,7 @@ const ViewCreditCardFee = () => {
       onCancel={handleCancel}
       isSaving={updateMoveLoading}
       updateError={updateMoveError}
+      initialCreditCardFeeRate={initialFormData.creditCardFeeRate}
       isEditing={isEditing}
       setIsEditing={setIsEditing}
     />

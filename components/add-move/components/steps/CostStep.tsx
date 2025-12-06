@@ -1,3 +1,5 @@
+"use client";
+
 import FormActions from "@/components/shared/buttons/FormActions";
 import Deposit from "../sections/Deposit";
 import InternalNotes from "../sections/InternalNotes";

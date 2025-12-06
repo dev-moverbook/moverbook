@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { InsurancePolicyFormData } from "@/types/form-types";
 import FieldGroup from "@/components/shared/field/FieldGroup";
@@ -129,11 +129,25 @@ const LiabilityModal: React.FC<LiabilityModalProps> = ({
     setErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
-  const isDisabled =
+  const hasNoChanges = useCallback((): boolean => {
+    if (!initialData) {
+      return false;
+    }
+    return (
+      formData.name === initialData.name &&
+      formData.coverageAmount === initialData.coverageAmount &&
+      formData.coverageType === initialData.coverageType &&
+      formData.premium === initialData.premium
+    );
+  }, [formData, initialData]);
+
+  const isFormInvalid =
     formData.coverageType === null ||
     formData.coverageAmount === null ||
     formData.premium === null ||
     formData.name.trim() === "";
+
+  const isDisabled = isFormInvalid || (!!initialData && hasNoChanges());
 
   const title = initialData ? "Edit Policy" : "Add Policy";
   const description = initialData
@@ -150,7 +164,6 @@ const LiabilityModal: React.FC<LiabilityModalProps> = ({
         placeholder="Enter policy name"
         error={errors.name}
       />
-
       <CurrencyInput
         label="Coverage Type ($/lb)"
         value={formData.coverageType}
@@ -173,7 +186,7 @@ const LiabilityModal: React.FC<LiabilityModalProps> = ({
       />
 
       <CurrencyInput
-        label="Coverage Amount ($/lb)"
+        label="Coverage Amount" // Adjusted label for clarity
         value={formData.coverageAmount}
         isEditing={true}
         onChange={(value) =>

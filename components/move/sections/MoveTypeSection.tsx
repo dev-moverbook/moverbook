@@ -1,10 +1,10 @@
 "use client";
 
+import { useEffect, useMemo, useRef } from "react";
 import SectionContainer from "@/components/shared/containers/SectionContainer";
 import SectionHeader from "@/components/shared/section/SectionHeader";
 import FormActions from "@/components/shared/buttons/FormActions";
 import {
-  MoveTimes,
   SERVICE_TYPE_OPTIONS,
   START_WINDOW_OPTIONS,
   ServiceType,
@@ -20,7 +20,6 @@ export interface MoveTypeSectionProps {
   serviceType: ServiceType | null;
   moveDate: string | null;
   startWindowOption: StartWindowOption;
-  moveWindow: MoveTimes;
   arrivalTimes: {
     arrivalWindowStarts: string | null;
     arrivalWindowEnds: string | null;
@@ -28,18 +27,21 @@ export interface MoveTypeSectionProps {
   timeSlotOptions: { label: string; value: string }[] | null;
   timeSlotsLoading?: boolean;
   timeSlotsError?: string | null;
+
   isEditing: boolean;
   setIsEditing: (v: boolean) => void;
   onSave: () => Promise<boolean> | boolean;
   onCancel: () => void;
   isSaving?: boolean;
   updateError?: string | null;
+
   onServiceTypeChange: (v: ServiceType) => void;
   onMoveDateChange: (v: string) => void;
   onStartWindowOptionChange: (v: StartWindowOption) => void;
   onArrivalStartChange: (v: string) => void;
   onArrivalEndChange: (v: string) => void;
   onSelectTimeSlot: (value: string) => void;
+
   canEdit?: boolean;
 }
 
@@ -47,7 +49,6 @@ const MoveTypeSection: React.FC<MoveTypeSectionProps> = ({
   serviceType,
   moveDate,
   startWindowOption,
-  moveWindow,
   arrivalTimes,
   timeSlotOptions,
   timeSlotsLoading,
@@ -66,12 +67,82 @@ const MoveTypeSection: React.FC<MoveTypeSectionProps> = ({
   onSelectTimeSlot,
   canEdit = true,
 }) => {
+  const originalRef = useRef<{
+    serviceType: ServiceType | null;
+    moveDate: string | null;
+    startWindowOption: StartWindowOption;
+    arrivalWindowStarts: string | null;
+    arrivalWindowEnds: string | null;
+  } | null>(null);
+
+  const prevEditingRef = useRef<boolean>(false);
+
+  useEffect(() => {
+    const wasNotEditing = !prevEditingRef.current;
+    const nowEditing = isEditing;
+
+    if (wasNotEditing && nowEditing && !originalRef.current) {
+      originalRef.current = {
+        serviceType,
+        moveDate,
+        startWindowOption,
+        arrivalWindowStarts: arrivalTimes.arrivalWindowStarts,
+        arrivalWindowEnds: arrivalTimes.arrivalWindowEnds,
+      };
+    }
+
+    if (!nowEditing) {
+      originalRef.current = null;
+    }
+
+    prevEditingRef.current = nowEditing;
+  }, [
+    arrivalTimes.arrivalWindowEnds,
+    arrivalTimes.arrivalWindowStarts,
+    isEditing,
+    moveDate,
+    serviceType,
+    startWindowOption,
+  ]);
+
+  const original = originalRef.current;
+
+  const hasChanges = useMemo(() => {
+    if (!original) return false;
+
+    return (
+      serviceType !== original.serviceType ||
+      moveDate !== original.moveDate ||
+      startWindowOption !== original.startWindowOption ||
+      arrivalTimes.arrivalWindowStarts !== original.arrivalWindowStarts ||
+      arrivalTimes.arrivalWindowEnds !== original.arrivalWindowEnds
+    );
+  }, [
+    original,
+    serviceType,
+    moveDate,
+    startWindowOption,
+    arrivalTimes.arrivalWindowStarts,
+    arrivalTimes.arrivalWindowEnds,
+  ]);
+
+  const canSave = isEditing && hasChanges;
+
   const isCompleted =
     !!serviceType &&
-    !!(moveDate || "").toString().trim() &&
-    !!moveWindow &&
-    !!(arrivalTimes.arrivalWindowStarts || "").toString().trim() &&
-    !!(arrivalTimes.arrivalWindowEnds || "").toString().trim();
+    !!moveDate &&
+    !!arrivalTimes.arrivalWindowStarts &&
+    !!arrivalTimes.arrivalWindowEnds;
+
+  const handleSave = async () => {
+    if (!canSave) {
+      return;
+    }
+    const success = await onSave();
+    if (success) {
+      setIsEditing(false);
+    }
+  };
 
   return (
     <div>
@@ -124,7 +195,6 @@ const MoveTypeSection: React.FC<MoveTypeSectionProps> = ({
               onChange={(e) => onArrivalStartChange(e.target.value)}
               isEditing={isEditing}
             />
-
             <LabeledTimeInput
               label="Arrival Time Ends"
               value={arrivalTimes.arrivalWindowEnds || ""}
@@ -149,11 +219,12 @@ const MoveTypeSection: React.FC<MoveTypeSectionProps> = ({
           <FormActions
             onSave={(e) => {
               e.preventDefault();
-              void onSave();
+              void handleSave();
             }}
             onCancel={onCancel}
             isSaving={!!isSaving}
             error={updateError}
+            disabled={!canSave}
           />
         )}
       </SectionContainer>

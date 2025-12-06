@@ -17,8 +17,12 @@ interface MoveTravelFeeProps {
   onCancel?: () => void;
   travelFeeRate?: number | null;
   travelFeeMethod?: TravelChargingTypes | null;
+  originalTravelFeeRate?: number | null;
+  originalTravelFeeMethod?: TravelChargingTypes | null;
+
   handleTravelFeeRateChange: (value: number | null) => void;
   handleTravelFeeMethodChange: (value: TravelChargingTypes | "None") => void;
+
   isEditing?: boolean;
   setIsEditing?: (value: boolean) => void;
 }
@@ -31,12 +35,28 @@ const MoveTravelFeeSection: React.FC<MoveTravelFeeProps> = ({
   onCancel,
   travelFeeRate,
   travelFeeMethod,
+  originalTravelFeeRate,
+  originalTravelFeeMethod,
   handleTravelFeeRateChange,
   handleTravelFeeMethodChange,
   isEditing = false,
   setIsEditing,
 }) => {
   const editingMode = isAdd || isEditing;
+
+  const currentMethod = travelFeeMethod ?? null;
+  const currentRate = travelFeeRate ?? null;
+  const origMethod = originalTravelFeeMethod ?? null;
+  const origRate = originalTravelFeeRate ?? null;
+
+  const methodRequiresRate = currentMethod !== null;
+
+  const isValid =
+    !methodRequiresRate || (currentRate !== null && currentRate > 0);
+
+  const hasChanges = currentMethod !== origMethod || currentRate !== origRate;
+
+  const canSave = editingMode && (isAdd || hasChanges) && isValid;
 
   const handleToggle = () => {
     if (isEditing) {
@@ -47,6 +67,7 @@ const MoveTravelFeeSection: React.FC<MoveTravelFeeProps> = ({
   };
 
   const handleSave = async () => {
+    if (!canSave) return;
     const success = await onSave?.();
     if (success) {
       setIsEditing?.(false);
@@ -55,9 +76,10 @@ const MoveTravelFeeSection: React.FC<MoveTravelFeeProps> = ({
 
   const handleCancel = () => {
     onCancel?.();
+    setIsEditing?.(false);
   };
 
-  const rateLabel: string =
+  const rateLabel =
     travelFeeMethod === TravelChargingTypes.MILEAGE
       ? "Mileage Rate ($/mile)"
       : travelFeeMethod === TravelChargingTypes.FLAT
@@ -66,7 +88,7 @@ const MoveTravelFeeSection: React.FC<MoveTravelFeeProps> = ({
           ? "Labor Rate ($/hour)"
           : "";
 
-  const showRate = rateLabel !== "";
+  const showRateInput = rateLabel !== "";
 
   return (
     <div>
@@ -84,22 +106,21 @@ const MoveTravelFeeSection: React.FC<MoveTravelFeeProps> = ({
       <SectionContainer>
         <ButtonRadioGroup
           name="travelFeeMethod"
-          value={travelFeeMethod ?? "None"} // 👈 show "none" if null
+          value={travelFeeMethod ?? "None"}
           options={TRAVEL_FEE_METHOD_OPTIONS}
-          onChange={(value) => {
-            handleTravelFeeMethodChange(value as TravelChargingTypes | "None");
-          }}
+          onChange={(value) =>
+            handleTravelFeeMethodChange(value as TravelChargingTypes | "None")
+          }
           label="Method"
           isEditing={editingMode}
         />
 
-        {showRate && (
+        {showRateInput && (
           <CurrencyInput
             label={rateLabel}
             value={travelFeeRate ?? null}
             onChange={handleTravelFeeRateChange}
             isEditing={editingMode}
-            error={updateError}
             suffix={
               travelFeeMethod === TravelChargingTypes.MILEAGE
                 ? "/mile"
@@ -110,7 +131,7 @@ const MoveTravelFeeSection: React.FC<MoveTravelFeeProps> = ({
           />
         )}
 
-        {isEditing && (
+        {editingMode && (
           <FormActions
             onSave={(e) => {
               e.preventDefault();
@@ -119,6 +140,7 @@ const MoveTravelFeeSection: React.FC<MoveTravelFeeProps> = ({
             onCancel={handleCancel}
             isSaving={isSaving}
             error={updateError}
+            disabled={!canSave}
           />
         )}
       </SectionContainer>

@@ -84,6 +84,7 @@ const ViewLaborFee = () => {
       isEditing={isEditing}
       setIsEditing={setIsEditing}
       onCancel={handleCancel}
+      originalData={initialLaborData}
     />
   );
 };

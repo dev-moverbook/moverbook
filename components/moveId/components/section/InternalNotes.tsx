@@ -2,7 +2,7 @@
 
 import SectionContainer from "@/components/shared/containers/SectionContainer";
 import SectionHeader from "@/components/shared/section/SectionHeader";
-import React, { useState } from "react";
+import { useState } from "react";
 import FieldGroup from "@/components/shared/field/FieldGroup";
 import FormActions from "@/components/shared/buttons/FormActions";
 import { MOVE_STATUS_OPTIONS, MoveStatus } from "@/types/types";
@@ -42,6 +42,13 @@ const InternalNotesSection = () => {
     });
     setIsEditing(false);
   };
+
+  const hasNoChanges =
+    formData.notes === move.notes &&
+    formData.moveStatus === move.moveStatus &&
+    formData.salesRep === move.salesRep;
+
+  const isDisabled = isEditing && hasNoChanges;
 
   return (
     <div>
@@ -102,6 +109,7 @@ const InternalNotesSection = () => {
               onCancel={handleCancel}
               isSaving={updateMoveLoading}
               error={updateMoveError}
+              disabled={isDisabled}
             />
           )}
         </FieldGroup>
