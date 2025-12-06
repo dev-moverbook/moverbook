@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { FrontEndErrorMessages } from "@/types/errors";
 import FormActions from "@/components/shared/buttons/FormActions";
 import FieldGroup from "@/components/shared/field/FieldGroup";
@@ -30,8 +30,10 @@ const CreateReferralModal: React.FC<CreateReferralModalProps> = ({
   const [nameError, setNameError] = useState<string | null>(null);
 
   useEffect(() => {
-    setName(initialName);
-    setNameError(null);
+    if (isOpen) {
+      setName(initialName);
+      setNameError(null);
+    }
   }, [initialName, isOpen]);
 
   const handleClose = () => {
@@ -41,12 +43,13 @@ const CreateReferralModal: React.FC<CreateReferralModalProps> = ({
   };
 
   const handleSubmit = async () => {
-    if (!name.trim()) {
+    const trimmedName = name.trim();
+    if (!trimmedName) {
       setNameError(FrontEndErrorMessages.REFERARAL_NAME_REQUIRED);
       return;
     }
 
-    const success = await onSubmit(name);
+    const success = await onSubmit(trimmedName);
     if (success) {
       handleClose();
     }
@@ -65,7 +68,14 @@ const CreateReferralModal: React.FC<CreateReferralModalProps> = ({
       ? "Creating..."
       : "Create Referral";
 
-  const isDisabled = name.trim() === "";
+  const hasChanges = useMemo(() => {
+    const trimmedCurrent = name.trim();
+    const trimmedInitial = initialName.trim();
+    return trimmedCurrent !== trimmedInitial;
+  }, [name, initialName]);
+
+  const isEmpty = name.trim() === "";
+  const canSave = !isEmpty && (mode === "create" || hasChanges);
 
   const formContent = (
     <FieldGroup>
@@ -89,7 +99,7 @@ const CreateReferralModal: React.FC<CreateReferralModalProps> = ({
         isSaving={loading}
         saveLabel={saveLabel}
         error={error}
-        disabled={isDisabled}
+        disabled={!canSave}
       />
     </FieldGroup>
   );

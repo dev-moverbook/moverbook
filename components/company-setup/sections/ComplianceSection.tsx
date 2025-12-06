@@ -29,6 +29,7 @@ const ComplianceSection: React.FC<ComplianceSectionProps> = ({
   setUpdateError,
 }) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
+
   const [formData, setFormData] = useState<ComplianceFormData>({
     statePucPermitNumber: compliance.statePucPermitNumber || "",
     dmvNumber: compliance.dmvNumber || "",
@@ -63,17 +64,12 @@ const ComplianceSection: React.FC<ComplianceSectionProps> = ({
     }
   };
 
-  const hasNoChanges =
-    formData.statePucPermitNumber === compliance.statePucPermitNumber &&
-    formData.dmvNumber === compliance.dmvNumber &&
-    formData.usDotNumber === compliance.usDotNumber;
+  const hasChanges =
+    formData.statePucPermitNumber !== (compliance.statePucPermitNumber || "") ||
+    formData.dmvNumber !== (compliance.dmvNumber || "") ||
+    formData.usDotNumber !== (compliance.usDotNumber || "");
 
-  const isFormEmpty =
-    formData.statePucPermitNumber.trim() === "" &&
-    formData.dmvNumber.trim() === "" &&
-    formData.usDotNumber.trim() === "";
-
-  const isDisabled = isEditing && hasNoChanges && !isFormEmpty;
+  const canSave = isEditing && hasChanges;
 
   return (
     <SectionContainer>
@@ -123,7 +119,7 @@ const ComplianceSection: React.FC<ComplianceSectionProps> = ({
               onCancel={handleCancel}
               isSaving={updateLoading}
               error={updateError}
-              disabled={isDisabled}
+              disabled={!canSave} // Disabled only when no changes
             />
           )}
         </FieldGroup>

@@ -39,6 +39,7 @@ export default function AddMovePageContent({
     moveFormData,
     isAllSectionsComplete,
     referralOptions,
+    hasChanges,
   } = useMoveForm();
   const { createMove, createMoveLoading, createMoveError, setCreateMoveError } =
     useCreateMove();
@@ -59,8 +60,20 @@ export default function AddMovePageContent({
   );
 
   const closeAndGoBack = () => {
+    setShowModal(true);
+  };
+
+  const handleConfirmCloseModal = () => {
+    if (window.history.length > 1) {
+      router.back();
+    } else {
+      router.push(`/app/${slug}/moves`);
+    }
+    handleCloseModal();
+  };
+
+  const handleCloseModal = () => {
     setShowModal(false);
-    router.back();
   };
 
   const handleNext = async () => {
@@ -84,13 +97,14 @@ export default function AddMovePageContent({
       router.push(isAllSectionsComplete ? `${base}?step=2` : base);
     }
   };
+  console.log("hasChanges", hasChanges);
 
   return (
     <PageContainer>
       <PageHeader
         title="Add Move"
         onBack={() => (step === 1 ? setShowModal(true) : back())}
-        onClose={() => setShowModal(true)}
+        onClose={closeAndGoBack}
       />
       <Stepper
         currentStep={step}
@@ -120,9 +134,9 @@ export default function AddMovePageContent({
       <ConfirmModal
         title="Are you sure you want to leave?"
         description="You have unsaved changes. If you leave, your changes will be lost."
-        onClose={() => setShowModal(false)}
+        onClose={handleCloseModal}
         isOpen={showModal}
-        onConfirm={closeAndGoBack}
+        onConfirm={handleConfirmCloseModal}
         deleteLoading={false}
         deleteError={null}
       />

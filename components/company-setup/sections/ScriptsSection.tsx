@@ -11,15 +11,15 @@ import ScriptCard from "@/components/company-setup/components/ScriptCard";
 interface ScriptsSectionProps {
   scripts: Doc<"scripts">[];
   setIsScriptModalOpen: (open: boolean) => void;
+  setEditingScript: (script: Doc<"scripts"> | null) => void; // ← Add this prop
   onDeleteClick: (scriptId: Id<"scripts">) => void;
-  onEdit: (script: Doc<"scripts">) => void;
 }
 
 const ScriptsSection: React.FC<ScriptsSectionProps> = ({
   scripts,
   setIsScriptModalOpen,
+  setEditingScript,
   onDeleteClick,
-  onEdit,
 }) => {
   return (
     <SectionContainer>
@@ -29,7 +29,10 @@ const ScriptsSection: React.FC<ScriptsSectionProps> = ({
           actions={
             <AddItemButton
               label="Script"
-              onClick={() => setIsScriptModalOpen(true)}
+              onClick={() => {
+                setEditingScript(null); // ← Clear any previous edit
+                setIsScriptModalOpen(true); // ← Open in "Create" mode
+              }}
             />
           }
           className="px-0 pb-4"
@@ -44,7 +47,10 @@ const ScriptsSection: React.FC<ScriptsSectionProps> = ({
                 key={script._id}
                 script={script}
                 onDelete={() => onDeleteClick(script._id)}
-                onEdit={onEdit}
+                onEdit={() => {
+                  setEditingScript(script); // ← Set script to edit
+                  setIsScriptModalOpen(true); // ← Open modal
+                }}
               />
             ))}
           </CardContainer>

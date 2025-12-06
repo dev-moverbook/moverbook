@@ -6,6 +6,7 @@ import React, {
   useState,
   ReactNode,
   useEffect,
+  useMemo,
 } from "react";
 import { useMoveOptions } from "../hooks/moves/useMoveOptions";
 import {
@@ -43,6 +44,7 @@ import { useCreditCardFee } from "../frontendUtils/moveFormHelper/hooks/useCredi
 import { useHourlyRate } from "../frontendUtils/moveFormHelper/hooks/useHourlyRate";
 import { useDefaultInsurancePolicy } from "../frontendUtils/moveFormHelper/hooks/useDefaultInsurancePolicy";
 import calculateSegmentDistances from "@/frontendUtils/moveFormHelper/calculateSegmentDistances";
+import { isEqualDeep } from "@/utils/objects";
 
 interface AddMoveFormData {
   addMoveFee: (fee: MoveFeeInput) => void;
@@ -81,7 +83,9 @@ interface AddMoveFormData {
   isAllSectionsComplete: boolean;
   isLoading: boolean;
   triggerSegmentDistanceUpdate: () => void;
+  hasChanges: boolean;
 }
+
 const MoveFormContext = createContext<AddMoveFormData | undefined>(undefined);
 
 export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
@@ -113,8 +117,10 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
     buildDefaultSegments()
   );
   const [moveFormData, setMoveFormData] = useState<MoveFormData>(
-    buildDefaultMoveFormData()
+    buildDefaultMoveFormData(companyId)
   );
+  const [initialMoveFormData, setInitialMoveFormData] =
+    useState<MoveFormData | null>(null);
   const [moveFormErrors, setMoveFormErrors] = useState<MoveFormErrors>({});
   const [shouldUpdateSegments, setShouldUpdateSegments] =
     useState<boolean>(false);
@@ -204,6 +210,25 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
     moveFormData.jobType,
   ]);
 
+  const isReadyToCaptureInitial = useMemo(() => {
+    return !!moveOptions && !!companyId;
+  }, [moveOptions, companyId]);
+
+  useEffect(() => {
+    if (isReadyToCaptureInitial && !initialMoveFormData) {
+      setInitialMoveFormData(moveFormData);
+    }
+  }, [isReadyToCaptureInitial, initialMoveFormData, moveFormData]);
+
+  const hasChanges = useMemo(() => {
+    if (!initialMoveFormData) return false;
+
+    const current = { ...moveFormData, segmentDistances: [] };
+    const initial = { ...initialMoveFormData, segmentDistances: [] };
+
+    return !isEqualDeep(current, initial);
+  }, [moveFormData, initialMoveFormData]);
+
   const salesRepOptions = buildSalesRepOptions(salesReps, currentUser);
 
   const isInfoSectionComplete = selectInfoDone(customer);
@@ -258,6 +283,7 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
         setMoveFormErrors,
         travelFeeOptions,
         triggerSegmentDistanceUpdate,
+        hasChanges,
       }}
     >
       {children}

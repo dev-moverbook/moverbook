@@ -4,6 +4,7 @@ import {
   CustomerFormData,
   LocationInput,
 } from "@/types/form-types";
+import { Id } from "@/convex/_generated/dataModel";
 
 export function buildDefaultCustomer(): CustomerFormData {
   return {
@@ -29,10 +30,12 @@ function makeLocation(role: LocationInput["locationRole"]): LocationInput {
   };
 }
 
-export function buildDefaultMoveFormData(): MoveFormData {
+export function buildDefaultMoveFormData(
+  companyId: Id<"companies">
+): MoveFormData {
   return {
     arrivalTimes: { arrivalWindowEnds: "", arrivalWindowStarts: "" },
-    companyId: null,
+    companyId,
     creditCardFee: 0,
     deposit: 0,
     paymentMethod: { kind: "credit_card" },

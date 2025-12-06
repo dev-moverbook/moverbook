@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { FrontEndErrorMessages } from "@/types/errors";
 import { CommunicationType } from "@/types/types";
 import { Doc, Id } from "@/convex/_generated/dataModel";
@@ -49,38 +49,32 @@ const CreateScriptModal: React.FC<CreateScriptModalProps> = ({
   const [type, setType] = useState<CommunicationType>("sms");
   const [message, setMessage] = useState<string>("");
   const [emailTitle, setEmailTitle] = useState<string>("");
+
   const [titleError, setTitleError] = useState<string | null>(null);
   const [emailTitleError, setEmailTitleError] = useState<string | null>(null);
   const [messageError, setMessageError] = useState<string | null>(null);
 
-  const isDisabled =
-    title.trim() === "" ||
-    message.trim() === "" ||
-    (type === "email" && emailTitle.trim() === "");
-
+  // Reset form when modal opens or editingScript changes
   useEffect(() => {
-    if (editingScript) {
-      setTitle(editingScript.title);
-      setType(editingScript.type);
-      setMessage(editingScript.message);
-      setEmailTitle(editingScript.emailTitle || "");
-    } else {
-      resetState();
+    if (isOpen) {
+      if (editingScript) {
+        setTitle(editingScript.title);
+        setType(editingScript.type);
+        setMessage(editingScript.message);
+        setEmailTitle(editingScript.emailTitle || "");
+      } else {
+        setTitle("");
+        setType("sms");
+        setMessage("");
+        setEmailTitle("");
+      }
+      setTitleError(null);
+      setEmailTitleError(null);
+      setMessageError(null);
     }
-  }, [editingScript]);
-
-  const resetState = () => {
-    setTitle("");
-    setType("sms");
-    setMessage("");
-    setEmailTitle("");
-    setTitleError(null);
-    setEmailTitleError(null);
-    setMessageError(null);
-  };
+  }, [editingScript, isOpen]);
 
   const handleClose = () => {
-    resetState();
     onClose();
   };
 
@@ -89,35 +83,78 @@ const CreateScriptModal: React.FC<CreateScriptModalProps> = ({
       setTitleError(FrontEndErrorMessages.SCRIPT_TITLE_REQUIRED);
       return;
     }
-
     if (!message.trim()) {
       setMessageError(FrontEndErrorMessages.SCRIPT_MESSAGE_REQUIRED);
       return;
     }
-
-    if (type === "email" && (!emailTitle || emailTitle.trim() === "")) {
+    if (type === "email" && !emailTitle.trim()) {
       setEmailTitleError(FrontEndErrorMessages.EMAIL_TITLE_REQUIRED);
       return;
     }
 
     const success = editingScript
-      ? await onEdit(editingScript._id, title, type, message, emailTitle)
-      : await onCreate(title, type, message, emailTitle);
+      ? await onEdit(
+          editingScript._id,
+          title.trim(),
+          type,
+          message,
+          emailTitle || undefined
+        )
+      : await onCreate(title.trim(), type, message, emailTitle || undefined);
 
-    if (success) handleClose();
+    if (success) {
+      handleClose();
+    }
   };
 
   const insertVariable = (
     variableName: string,
     target: "message" | "emailTitle"
   ) => {
-    const formattedVariable = `{{${variableName}}}`;
+    const formatted = `{{${variableName}}}`;
     if (target === "message") {
-      setMessage((prev) => prev + formattedVariable);
+      setMessage((prev) => prev + formatted);
     } else {
-      setEmailTitle((prev) => prev + formattedVariable);
+      setEmailTitle((prev) => prev + formatted);
     }
   };
+
+  const hasChanges = useMemo(() => {
+    if (!editingScript) {
+      return true;
+    }
+
+    const trimmedTitle = title.trim();
+    const trimmedMessage = message.trim();
+    const trimmedEmailTitle = emailTitle.trim();
+
+    return (
+      trimmedTitle !== editingScript.title ||
+      type !== editingScript.type ||
+      trimmedMessage !== editingScript.message ||
+      trimmedEmailTitle !== (editingScript.emailTitle || "")
+    );
+  }, [title, type, message, emailTitle, editingScript]);
+
+  const isValid =
+    title.trim() !== "" &&
+    message.trim() !== "" &&
+    (type !== "email" || emailTitle.trim() !== "");
+
+  const canSave = isValid && (editingScript ? hasChanges : true);
+
+  const titleText = editingScript ? "Edit Script" : "Create Script";
+  const description = editingScript
+    ? "Modify the communication script and variables."
+    : "Create a reusable script template for email or SMS, using variables to personalize your message.";
+
+  const saveLabel = editingScript
+    ? createLoading
+      ? "Saving..."
+      : "Save Changes"
+    : createLoading
+      ? "Creating..."
+      : "Create Script";
 
   const formContent = (
     <FieldGroup>
@@ -137,8 +174,9 @@ const CreateScriptModal: React.FC<CreateScriptModalProps> = ({
         label="Type"
         value={type}
         onChange={(val) => {
-          setType(val);
+          setType(val as CommunicationType);
           if (val !== "email") setEmailTitle("");
+          setEmailTitleError(null);
         }}
         options={[
           { label: "SMS", value: "sms" },
@@ -183,6 +221,7 @@ const CreateScriptModal: React.FC<CreateScriptModalProps> = ({
           onInsert={(name) => insertVariable(name, "message")}
         />
       </div>
+
       <FormActionContainer className="mt-10">
         <FormActions
           onSave={(e) => {
@@ -192,17 +231,12 @@ const CreateScriptModal: React.FC<CreateScriptModalProps> = ({
           onCancel={handleClose}
           isSaving={createLoading}
           error={createError}
-          saveLabel={editingScript ? "Save Changes" : "Create Script"}
-          disabled={isDisabled}
+          saveLabel={saveLabel}
+          disabled={!canSave}
         />
       </FormActionContainer>
     </FieldGroup>
   );
-
-  const titleText = editingScript ? "Edit Script" : "Create Script";
-  const description = editingScript
-    ? "Modify the communication script and variables."
-    : "Create a reusable script template for email or SMS, using variables to personalize your message.";
 
   return (
     <ResponsiveModal

@@ -112,8 +112,8 @@ const ScriptsTab = () => {
           <ScriptsSection
             scripts={scripts}
             setIsScriptModalOpen={setIsScriptModalOpen}
+            setEditingScript={setEditingScript}
             onDeleteClick={handleDeleteClick}
-            onEdit={setEditingScript}
           />
 
           <VariablesSection variables={variables} />
