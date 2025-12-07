@@ -1,10 +1,9 @@
 import { Doc } from "@/convex/_generated/dataModel";
 import { formatJobRate, formatServiceTypeName } from "@/frontendUtils/helper";
 import { DuplicateOption } from "./duplicateMove.types";
+import { LocationInput } from "@/types/form-types";
 
-function formatAddress(
-  address: Doc<"moves">["locations"][number]["address"] | null | undefined
-) {
+function formatAddress(address: LocationInput["address"] | null | undefined) {
   return address?.formattedAddress ?? "—";
 }
 
@@ -61,7 +60,9 @@ export function buildSectionOptions(isSwapped: boolean): DuplicateOption[] {
       label: "Inventory",
       value: "inventory",
       getValue: (move) =>
-        move.moveItems.length > 0 ? `${move.moveItems.length} items` : "None",
+        move.moveItems && move.moveItems.length > 0
+          ? `${move.moveItems.length} items`
+          : "None",
     },
     {
       label: "Movers",
@@ -82,7 +83,9 @@ export function buildSectionOptions(isSwapped: boolean): DuplicateOption[] {
       label: "Add Ons",
       value: "addOns",
       getValue: (move) =>
-        move.moveFees.length > 0 ? `${move.moveFees.length} items` : "None",
+        move.moveFees && move.moveFees.length > 0
+          ? `${move.moveFees.length} items`
+          : "None",
     },
     {
       label: "Liability Coverage",
