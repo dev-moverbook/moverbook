@@ -1,5 +1,6 @@
+"use client";
+
 import CustomCard from "@/components/shared/card/CustomCard";
-import { Doc } from "@/convex/_generated/dataModel";
 import {
   formatAccessType,
   formatMoveSize,
@@ -9,8 +10,9 @@ import {
 } from "@/frontendUtils/helper";
 import CardHeaderWithActions from "@/components/shared/card/CardHeaderWithActions";
 import { Badge } from "@/components/ui/badge";
+import { LocationInput } from "@/types/form-types";
 
-type MoveLocation = Doc<"moves">["locations"][number];
+type MoveLocation = LocationInput;
 
 interface QuoteLocationCardProps {
   location: MoveLocation;
