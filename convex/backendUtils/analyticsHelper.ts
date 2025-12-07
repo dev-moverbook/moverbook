@@ -147,19 +147,23 @@ export function buildDailyAveragesSeries(
 }
 
 function forecastMinTotalForMove(move: Doc<"moves">): number {
+  const moveFees = move.moveFees
+    ? move.moveFees.map((feeLine) => ({
+        name: feeLine.name,
+        price: feeLine.price,
+        quantity: feeLine.quantity,
+      }))
+    : [];
+
   const result = computeMoveTotal({
     endingMoveTime: move.endingMoveTime ?? null,
-    jobType: move.jobType,
+    jobType: move.jobType ?? "hourly",
     jobTypeRate: move.jobTypeRate ?? null,
     liabilityCoverage: move.liabilityCoverage
       ? { premium: move.liabilityCoverage.premium }
       : null,
-    moveFees: move.moveFees.map((feeLine) => ({
-      name: feeLine.name,
-      price: feeLine.price,
-      quantity: feeLine.quantity,
-    })),
-    segmentDistances: move.segmentDistances,
+    moveFees,
+    segmentDistances: move.segmentDistances ?? [],
     startingMoveTime: move.startingMoveTime ?? null,
     travelFeeMethod: move.travelFeeMethod ?? null,
     travelFeeRate: move.travelFeeRate ?? null,
