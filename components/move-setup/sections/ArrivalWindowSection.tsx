@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import SectionContainer from "@/components/shared/section/SectionContainer";
 import CenteredContainer from "@/components/shared/containers/CenteredContainer";
 import SectionHeader from "@/components/shared/section/SectionHeader";
@@ -35,8 +35,7 @@ const ArrivalWindowSection: React.FC<ArrivalWindowSectionProps> = ({
     afternoonEnd: arrivalWindow.afternoonEnd,
   });
 
-  // Reset form data when canceling or when arrivalWindow prop changes
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setFormData({
       morningArrival: arrivalWindow.morningArrival,
       morningEnd: arrivalWindow.morningEnd,
@@ -44,7 +43,7 @@ const ArrivalWindowSection: React.FC<ArrivalWindowSectionProps> = ({
       afternoonEnd: arrivalWindow.afternoonEnd,
     });
     setUpdateArrivalWindowError(null);
-  };
+  }, [arrivalWindow, setFormData, setUpdateArrivalWindowError]);
 
   const handleEditClick = () => {
     setIsEditing(true);
@@ -69,7 +68,6 @@ const ArrivalWindowSection: React.FC<ArrivalWindowSectionProps> = ({
     }
   };
 
-  // Compute whether form has changes
   const hasChanges = useMemo(() => {
     return (
       formData.morningArrival !== arrivalWindow.morningArrival ||
@@ -79,12 +77,11 @@ const ArrivalWindowSection: React.FC<ArrivalWindowSectionProps> = ({
     );
   }, [formData, arrivalWindow]);
 
-  // Keep formData in sync if arrivalWindow changes externally (e.g. after save)
   useEffect(() => {
     if (!isEditing) {
       resetForm();
     }
-  }, [arrivalWindow]);
+  }, [isEditing, resetForm]);
 
   return (
     <SectionContainer>

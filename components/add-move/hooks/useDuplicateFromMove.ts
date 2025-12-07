@@ -59,7 +59,7 @@ export function useDuplicateFromMove(
         }
 
         if (selectedFields.has("startingLocation")) {
-          const startingLocation = sourceMove.locations.find(
+          const startingLocation = sourceMove.locations?.find(
             (location) => location.locationRole === "starting"
           );
 
@@ -72,7 +72,7 @@ export function useDuplicateFromMove(
         }
 
         if (selectedFields.has("endingLocation")) {
-          const endingLocation = sourceMove.locations.find(
+          const endingLocation = sourceMove.locations?.find(
             (location) => location.locationRole === "ending"
           );
 
@@ -85,11 +85,11 @@ export function useDuplicateFromMove(
         }
 
         if (selectedFields.has("stops")) {
-          const stopLocations = sourceMove.locations.filter(
+          const stopLocations = sourceMove.locations?.filter(
             (location) => location.locationRole === "stop"
           );
 
-          if (stopLocations.length > 0) {
+          if (stopLocations && stopLocations.length > 0) {
             updatedMoveFormData.locations = [
               ...updatedMoveFormData.locations,
               ...stopLocations,
@@ -98,28 +98,29 @@ export function useDuplicateFromMove(
         }
 
         if (selectedFields.has("inventory")) {
-          updatedMoveFormData.moveItems = sourceMove.moveItems;
+          updatedMoveFormData.moveItems = sourceMove.moveItems ?? [];
         }
 
         if (selectedFields.has("movers")) {
-          updatedMoveFormData.movers = sourceMove.movers;
+          updatedMoveFormData.movers = sourceMove.movers ?? 0;
         }
 
         if (selectedFields.has("trucks")) {
-          updatedMoveFormData.trucks = sourceMove.trucks;
+          updatedMoveFormData.trucks = sourceMove.trucks ?? 0;
         }
 
         if (selectedFields.has("rate")) {
-          updatedMoveFormData.jobType = sourceMove.jobType;
-          updatedMoveFormData.jobTypeRate = sourceMove.jobTypeRate;
+          updatedMoveFormData.jobType = sourceMove.jobType ?? "hourly";
+          updatedMoveFormData.jobTypeRate = sourceMove.jobTypeRate ?? null;
         }
 
         if (selectedFields.has("addOns")) {
-          updatedMoveFormData.moveFees = sourceMove.moveFees;
+          updatedMoveFormData.moveFees = sourceMove.moveFees ?? [];
         }
 
         if (selectedFields.has("liabilityCoverage")) {
-          updatedMoveFormData.liabilityCoverage = sourceMove.liabilityCoverage;
+          updatedMoveFormData.liabilityCoverage =
+            sourceMove.liabilityCoverage ?? null;
         }
 
         return updatedMoveFormData;
