@@ -356,7 +356,9 @@ export const formatMonthYear = (date: Date, timeZone: string): string => {
   return DateTime.fromJSDate(date).setZone(timeZone).toFormat("LLLL yyyy");
 };
 
-export const getStatusColor = (status: MoveStatus | MoveTimes): string => {
+export const getStatusColor = (
+  status: MoveStatus | MoveTimes | undefined
+): string => {
   switch (status) {
     case "New Lead":
       return "#108A01";
