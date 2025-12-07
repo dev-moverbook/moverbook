@@ -21,17 +21,17 @@ const CostSection = () => {
   } = move;
 
   const displayRows = getMoveDisplayRows({
-    moveFees,
-    jobType,
-    jobTypeRate,
+    moveFees: moveFees ?? [],
+    jobType: jobType ?? "hourly",
+    jobTypeRate: jobTypeRate ?? null,
     liabilityCoverage,
     travelFeeRate: travelFeeRate ?? null,
     travelFeeMethod: travelFeeMethod ?? null,
-    paymentMethod,
-    creditCardFee,
+    paymentMethod: paymentMethod ?? { kind: "other", label: "Other" },
+    creditCardFee: creditCardFee ?? 0,
     startingMoveTime: startingMoveTime ?? null,
     endingMoveTime: endingMoveTime ?? null,
-    segmentDistances,
+    segmentDistances: segmentDistances ?? [],
     getTotal: true,
   });
 

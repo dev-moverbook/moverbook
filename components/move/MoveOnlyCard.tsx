@@ -59,9 +59,9 @@ export default function MoveOnlyCard({
 
   const tagsAll = [
     move.jobId ? `Job ID: ${move.jobId}` : null,
-    formatMoveSize(move.locations[0].moveSize),
-    formatAccessType(move.locations[0].accessType),
-    formatLocationType(move.locations[0].locationType),
+    formatMoveSize(move.locations?.[0]?.moveSize ?? null),
+    formatAccessType(move.locations?.[0]?.accessType ?? null),
+    formatLocationType(move.locations?.[0]?.locationType ?? null),
   ].filter(Boolean) as string[];
 
   const tagsJobOnly = move.jobId ? [`Job ID: ${move.jobId}`] : [];
@@ -70,7 +70,9 @@ export default function MoveOnlyCard({
   const interactive = !showActions && !linkDisabled && (href || onNavigate);
   const cardBody = (
     <div className="max-w-screen-sm mx-auto">
-      <p className="text-grayCustom2">{formatDateToLong(move.moveDate)}</p>
+      <p className="text-grayCustom2">
+        {formatDateToLong(move.moveDate ?? null)}
+      </p>
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 min-w-0">

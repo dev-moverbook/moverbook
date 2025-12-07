@@ -10,6 +10,7 @@ import {
 } from "@/frontendUtils/helper";
 import { EnrichedMove } from "@/types/convex-responses";
 import { HourStatus, MoveStatus } from "@/types/types";
+import { LocationInput } from "@/types/form-types";
 
 export type MoverContext = {
   isMover: boolean;
@@ -43,9 +44,9 @@ export type MoveQueryFilters = {
   salesRepId?: Id<"users"> | null;
   referralId?: Id<"referrals"> | null;
   serviceType?: Doc<"moves">["serviceType"] | null;
-  moveSize?: Doc<"moves">["locations"][number]["moveSize"] | null;
+  moveSize?: LocationInput["moveSize"] | null;
   numberOfMovers?: number | null;
-  locationType?: Doc<"moves">["locations"][number]["locationType"] | null;
+  locationType?: LocationInput["locationType"] | null;
 };
 
 export async function getCompanyMoves(
@@ -476,7 +477,7 @@ function computeHourlyRangeEstimated(
   hourlyRate: number
 ): WageRange {
   const segmentDistances = move.segmentDistances;
-  const travelMinutes = sumSegments(segmentDistances).totalMinutes;
+  const travelMinutes = sumSegments(segmentDistances ?? []).totalMinutes;
   const travelHours = travelMinutes ? travelMinutes / 60 : 0;
 
   const startCandidate =

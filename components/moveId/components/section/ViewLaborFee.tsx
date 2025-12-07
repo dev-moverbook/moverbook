@@ -12,15 +12,15 @@ const ViewLaborFee = () => {
   const { moveData } = useMoveContext();
   const move = moveData.move;
   const segmentDistances = move.segmentDistances;
-  const { totalMinutes } = sumSegments(segmentDistances);
+  const { totalMinutes } = sumSegments(segmentDistances ?? []);
 
   const { updateMove, updateMoveLoading, updateMoveError } = useUpdateMove();
 
   const initialLaborData = useMemo<LaborFormData>(
     () => ({
-      jobType: move.jobType,
-      jobTypeRate: move.jobTypeRate,
-      trucks: move.trucks,
+      jobType: move.jobType ?? "hourly",
+      jobTypeRate: move.jobTypeRate ?? null,
+      trucks: move.trucks ?? 0,
       movers: move.movers ?? null,
       startingMoveTime: move.startingMoveTime ?? null,
       endingMoveTime: move.endingMoveTime ?? null,

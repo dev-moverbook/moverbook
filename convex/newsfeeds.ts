@@ -583,16 +583,15 @@ const newsFeedEntryUnion = v.union(
     moveId: v.id("moves"),
     userId: v.id("users"),
   }),
-  // To do
   v.object({
     type: v.literal("NEW_LEAD"),
     body: v.string(),
     companyId: v.id("companies"),
-    context: v.object({
-      moveDate: v.string(),
-    }),
     moveId: v.id("moves"),
-    userId: v.id("users"),
+    context: v.object({
+      customerName: v.string(),
+    }),
+    moveCustomerId: v.id("users"),
   }),
   v.object({
     type: v.literal("REMOVE_MOVER"),

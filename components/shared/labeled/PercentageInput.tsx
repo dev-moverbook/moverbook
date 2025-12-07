@@ -8,7 +8,7 @@ import { useId } from "react";
 
 interface PercentageInputProps {
   label?: string;
-  value: number | null;
+  value?: number | null;
   onChange: (value: number) => void;
   isEditing?: boolean;
   error?: string | null;
@@ -27,7 +27,9 @@ const PercentageInput: React.FC<PercentageInputProps> = ({
     return (
       <FieldDisplay
         label={label ?? ""}
-        value={value !== null ? `${value.toFixed(2)}%` : "N/A"}
+        value={
+          value !== null && value !== undefined ? `${value.toFixed(2)}%` : "N/A"
+        }
         fallback="N/A"
       />
     );

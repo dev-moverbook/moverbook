@@ -1,5 +1,11 @@
 import { v } from "convex/values";
-import { internalQuery, mutation, query } from "./_generated/server";
+import {
+  action,
+  internalMutation,
+  internalQuery,
+  mutation,
+  query,
+} from "./_generated/server";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import { ClerkRoles } from "@/types/enums";
 import {
@@ -26,6 +32,7 @@ import { CustomerUser, HourStatus } from "@/types/types";
 import { ErrorMessages } from "@/types/errors";
 import { internal } from "./_generated/api";
 import { throwConvexError } from "./backendUtils/errors";
+import { ServiceTypesConvex } from "@/types/convex-enums";
 
 export const searchMoveCustomersAndJobId = query({
   args: {
@@ -474,5 +481,121 @@ export const getCustomerAndMoves = query({
       moveCustomer,
       moves,
     };
+  },
+});
+
+export const createPublicMove = action({
+  args: {
+    companyId: v.id("companies"),
+    name: v.string(),
+    email: v.string(),
+    phoneNumber: v.string(),
+    altPhoneNumber: v.string(),
+    serviceType: ServiceTypesConvex,
+  },
+  handler: async (ctx, args): Promise<boolean> => {
+    const { companyId, name, email, phoneNumber, altPhoneNumber, serviceType } =
+      args;
+
+    const company = await ctx.runQuery(
+      internal.companies.getCompanyByIdInternal,
+      { companyId }
+    );
+    validateDocExists("companies", company, ErrorMessages.COMPANY_NOT_FOUND);
+
+    const existingCustomer = await ctx.runQuery(
+      internal.moveCustomers.getExistingMoveCustomerInternal,
+      { email, phoneNumber }
+    );
+
+    let moveCustomerId: Id<"users">;
+
+    if (existingCustomer) {
+      moveCustomerId = existingCustomer._id;
+    } else {
+      moveCustomerId = await ctx.runMutation(
+        internal.moveCustomers.createMoveCustomerInternal,
+        { email, phoneNumber, name, altPhoneNumber }
+      );
+    }
+
+    const referral = await ctx.runQuery(
+      internal.referrals.getReferralByNameInternal,
+      { referralName: "Web Form" }
+    );
+
+    const moveId = await ctx.runMutation(internal.moves.createMoveInternal, {
+      companyId,
+      moveCustomerId,
+      serviceType,
+      referralId: referral?._id,
+    });
+
+    await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
+      entry: {
+        type: "NEW_LEAD",
+        companyId,
+        moveCustomerId,
+        body: `A new lead was created from the web form.`,
+        moveId,
+        context: {
+          customerName: name,
+        },
+      },
+    });
+
+    return true;
+  },
+});
+
+export const getExistingMoveCustomerInternal = internalQuery({
+  args: {
+    email: v.string(),
+    phoneNumber: v.string(),
+  },
+  handler: async (ctx, args): Promise<Doc<"users"> | null> => {
+    const { email, phoneNumber } = args;
+
+    const existingCustomerByEmail = await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", email))
+      .first();
+
+    if (existingCustomerByEmail) {
+      return existingCustomerByEmail;
+    }
+
+    const existingCustomerByPhone = await ctx.db
+      .query("users")
+      .withIndex("by_phoneNumber", (q) => q.eq("phoneNumber", phoneNumber))
+      .first();
+
+    if (existingCustomerByPhone) {
+      return existingCustomerByPhone;
+    }
+
+    return null;
+  },
+});
+
+export const createMoveCustomerInternal = internalMutation({
+  args: {
+    email: v.string(),
+    phoneNumber: v.string(),
+    name: v.string(),
+    altPhoneNumber: v.string(),
+  },
+  handler: async (ctx, args): Promise<Id<"users">> => {
+    const { email, phoneNumber, name, altPhoneNumber } = args;
+    const moveCustomerId = await ctx.db.insert("users", {
+      email,
+      phoneNumber,
+      name,
+      altPhoneNumber,
+      role: ClerkRoles.CUSTOMER,
+      isActive: true,
+      updatedAt: Date.now(),
+    });
+    return moveCustomerId;
   },
 });

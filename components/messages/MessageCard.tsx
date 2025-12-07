@@ -41,7 +41,6 @@ const MessageCard: React.FC<MessageCardProps> = ({
         </div>
       </div>
 
-      {/* Right: date */}
       <span className="text-grayCustom2">
         {formatMonthDayTimestamp(timestamp, timeZone)}
       </span>

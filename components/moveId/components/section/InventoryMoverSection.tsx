@@ -16,7 +16,7 @@ const InventoryMoverSection = () => {
       </Header3>
 
       <SectionContainer>
-        <GroupedItemsList items={items} />
+        <GroupedItemsList items={items ?? []} />
       </SectionContainer>
     </div>
   );

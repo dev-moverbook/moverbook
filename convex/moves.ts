@@ -326,27 +326,21 @@ export const createMove = mutation({
 });
 
 export const getMoveContext = query({
-  args: { moveId: v.string() },
+  args: { moveId: v.id("moves") },
   handler: async (ctx, args): Promise<GetMoveData> => {
     const { moveId } = args;
 
-    const normalizedMoveId = ctx.db.normalizeId("moves", moveId);
-    if (!normalizedMoveId) {
-      throw new ConvexError({
-        code: "NOT_FOUND",
-        message: ErrorMessages.INVALID_MOVE_ID,
-      });
-    }
-
     const [identity, move] = await Promise.all([
       requireAuthenticatedUser(ctx),
-      validateDocument(
-        ctx.db,
-        "moves",
-        normalizedMoveId,
-        ErrorMessages.MOVE_NOT_FOUND
-      ),
+      ctx.db.get(moveId),
     ]);
+
+    if (!move) {
+      throw new ConvexError({
+        code: "NOT_FOUND",
+        message: ErrorMessages.MOVE_NOT_FOUND,
+      });
+    }
 
     const company = await validateCompany(ctx.db, move.companyId);
     isUserInOrg(identity, company.clerkOrganizationId);
@@ -367,14 +361,14 @@ export const getMoveContext = query({
     ] = await Promise.all([
       ctx.db
         .query("quotes")
-        .withIndex("by_move", (q) => q.eq("moveId", normalizedMoveId))
+        .withIndex("by_move", (q) => q.eq("moveId", moveId))
         .first(),
-      ctx.db.get(move.salesRep),
+      move.salesRep ? ctx.db.get(move.salesRep) : null,
       ctx.db
         .query("companyContacts")
         .filter((q) => q.eq(q.field("companyId"), move.companyId))
         .first(),
-      ctx.db.get(move.moveCustomerId),
+      ctx.db.get(move.moveCustomerId), // ← This should always exist
       ctx.db
         .query("travelFees")
         .filter((q) => q.eq(q.field("companyId"), move.companyId))
@@ -385,20 +379,20 @@ export const getMoveContext = query({
         .first(),
       ctx.db
         .query("additionalFees")
-        .withIndex("by_move", (q) => q.eq("moveId", normalizedMoveId))
+        .withIndex("by_move", (q) => q.eq("moveId", moveId))
         .collect(),
       ctx.db
         .query("discounts")
-        .withIndex("by_move", (q) => q.eq("moveId", normalizedMoveId))
+        .withIndex("by_move", (q) => q.eq("moveId", moveId))
         .collect(),
       moverContextPromise,
       ctx.db
         .query("moverLocations")
-        .withIndex("by_moveId", (q) => q.eq("moveId", normalizedMoveId))
+        .withIndex("by_moveId", (q) => q.eq("moveId", moveId))
         .first(),
     ]);
 
-    const salesRepUser = validateUser(salesRepUserDoc);
+    const salesRepUser = salesRepUserDoc ? validateUser(salesRepUserDoc) : null;
     const companyContact = validateCompanyContact(companyContactDoc);
     const moveCustomer = validateMoveCustomer(moveCustomerDoc);
     const travelFee = validateTravelFee(travelFeeDoc);
@@ -417,22 +411,17 @@ export const getMoveContext = query({
       myAssignment = await ctx.db
         .query("moveAssignments")
         .withIndex("by_move_mover", (q) =>
-          q.eq("moveId", normalizedMoveId).eq("moverId", selfMoverId)
+          q.eq("moveId", moveId).eq("moverId", selfMoverId)
         )
         .first();
 
-      if (!myAssignment) {
-        throw new ConvexError({
-          code: "NOT_FOUND",
-          message: ErrorMessages.MOVE_ASSIGNMENT_NOT_FOUND,
-        });
+      if (myAssignment) {
+        wageDisplay = buildMoverWageForMoveDisplay(
+          move,
+          myAssignment,
+          selfHourlyRate
+        );
       }
-
-      wageDisplay = buildMoverWageForMoveDisplay(
-        move,
-        myAssignment,
-        selfHourlyRate
-      );
     }
 
     return {
@@ -1380,5 +1369,27 @@ export const updateMoveInternal = internalMutation({
     const { moveId, updates } = args;
     await ctx.db.patch(moveId, updates);
     return moveId;
+  },
+});
+
+export const createMoveInternal = internalMutation({
+  args: {
+    companyId: v.id("companies"),
+    moveCustomerId: v.id("users"),
+    serviceType: ServiceTypesConvex,
+    referralId: v.optional(v.id("referrals")),
+  },
+  handler: async (ctx, args): Promise<Id<"moves">> => {
+    const { companyId, moveCustomerId, serviceType, referralId } = args;
+    const jobId = generateJobId(args.companyId);
+
+    return await ctx.db.insert("moves", {
+      companyId,
+      moveCustomerId,
+      serviceType,
+      referralId,
+      jobId,
+      updatedAt: Date.now(),
+    });
   },
 });

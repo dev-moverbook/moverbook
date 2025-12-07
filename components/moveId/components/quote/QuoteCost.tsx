@@ -25,13 +25,13 @@ const QuoteCost = () => {
   } = move;
 
   const displayRows = getMoveDisplayRows({
-    moveFees,
-    jobType,
-    jobTypeRate,
+    moveFees: moveFees ?? [],
+    jobType: jobType ?? "hourly",
+    jobTypeRate: jobTypeRate ?? null,
     liabilityCoverage,
-    paymentMethod,
-    creditCardFee,
-    segmentDistances,
+    paymentMethod: paymentMethod ?? { kind: "other", label: "Other" },
+    creditCardFee: creditCardFee ?? 0,
+    segmentDistances: segmentDistances ?? [],
     travelFeeMethod: travelFeeMethod ?? null,
     travelFeeRate: travelFeeRate ?? null,
     startingMoveTime,

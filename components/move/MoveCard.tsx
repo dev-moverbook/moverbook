@@ -43,7 +43,9 @@ const MoveCard: React.FC<MoveCardProps> = ({
   const name = moveCustomer?.name ?? "No name";
   const tags = [
     move.jobId ? `Job ID: ${move.jobId}` : null,
-    formatLocationType(move.locations[0].locationType),
+    move.locations?.[0]
+      ? formatLocationType(move.locations[0].locationType)
+      : null,
   ].filter(Boolean) as string[];
 
   const price = getDisplayedPrice(move, isMover, hourStatus, moverWageDisplay);
@@ -65,7 +67,7 @@ const MoveCard: React.FC<MoveCardProps> = ({
         <div className="flex items-stretch justify-between gap-4">
           <div className="flex flex-col min-w-0">
             <p className="text-grayCustom2 text-sm">
-              {formatDateToLong(move.moveDate)}
+              {formatDateToLong(move.moveDate ?? null)}
             </p>
             <h3 className="text-lg font-medium truncate">{name}</h3>
             <div className="flex items-center gap-2 text-sm">
@@ -94,18 +96,10 @@ const MoveCard: React.FC<MoveCardProps> = ({
         </div>
 
         {showActions && (
-          <div className="mt-4">
+          <div className="mt-1">
             <MoveCardActions
-              onMessagesClick={
-                messagesHref
-                  ? () => window.open(messagesHref, "_blank")
-                  : undefined
-              }
-              onViewCustomerClick={
-                customerHref
-                  ? () => window.open(customerHref, "_blank")
-                  : undefined
-              }
+              messagesHref={messagesHref}
+              customerHref={customerHref}
               onDuplicate={onDuplicate ? () => onDuplicate(move) : undefined}
               move={move}
             />

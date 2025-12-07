@@ -12,7 +12,7 @@ interface MessagesContentProps {
 const MessagesContent: React.FC<MessagesContentProps> = ({ messages }) => {
   const { slug } = useSlugContext();
   if (messages.length === 0) {
-    return <EmptyList message={"No Messages found"} />;
+    return <EmptyList className="px-0" message={"No Messages found"} />;
   }
 
   return (

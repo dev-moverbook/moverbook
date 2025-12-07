@@ -400,7 +400,8 @@ export const getMoverStatusColor = (
 
 export function getMoveCostRange(move: Doc<"moves">): [number, number?] {
   if (move.invoiceAmountPaid) {
-    const total = move.invoiceAmountPaid + move.deposit;
+    const deposit = move.deposit ?? 0;
+    const total = move.invoiceAmountPaid + deposit;
     return [total];
   }
 
@@ -1204,17 +1205,21 @@ export function computeMoveStatusesForDay(
   movesOnDate: EnrichedMove[],
   isMoverUser: boolean
 ): string[] {
-  return movesOnDate.map((move) =>
-    getStatusColor(
-      isMoverUser
-        ? move.moveStatus === "Completed"
-          ? move.moveStatus
-          : move.moveWindow
-        : move.moveStatus
-    )
-  );
-}
+  return movesOnDate.map((move) => {
+    // What we actually want to display for a mover
+    const moverDisplay =
+      move.moveStatus === "Completed"
+        ? move.moveStatus // "Completed"
+        : (move.moveWindow ?? "No window"); // fallback if moveWindow is missing
 
+    // Final value that goes into getStatusColor
+    const statusOrWindow: MoveStatus | MoveTimes | undefined = isMoverUser
+      ? (moverDisplay as MoveStatus | MoveTimes)
+      : move.moveStatus;
+
+    return getStatusColor(statusOrWindow as MoveStatus | MoveTimes);
+  });
+}
 export function computeDailyTotal(
   movesOnDate: EnrichedMove[],
   isMoverUser: boolean,

@@ -144,8 +144,9 @@ export const MoveFormProvider = ({ children }: { children: ReactNode }) => {
   } = createMoveFormActions(setMoveFormData);
 
   useEffect(() => {
-    if (!shouldUpdateSegments) return;
-
+    if (!shouldUpdateSegments) {
+      return;
+    }
     calculateSegmentDistances({
       companyAddress: companyContact?.address,
       locations: moveFormData.locations,

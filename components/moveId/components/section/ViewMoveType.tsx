@@ -28,11 +28,11 @@ const ViewMoveType: React.FC = () => {
 
   const [formData, setFormData] = useState<MoveTypeFormData>({
     serviceType: move.serviceType,
-    moveDate: move.moveDate,
-    moveWindow: move.moveWindow,
+    moveDate: move.moveDate ?? null,
+    moveWindow: move.moveWindow ?? "morning",
     arrivalTimes: {
-      arrivalWindowStarts: move.arrivalTimes.arrivalWindowStarts,
-      arrivalWindowEnds: move.arrivalTimes.arrivalWindowEnds,
+      arrivalWindowStarts: move.arrivalTimes?.arrivalWindowStarts ?? null,
+      arrivalWindowEnds: move.arrivalTimes?.arrivalWindowEnds ?? null,
     },
   });
 
@@ -82,11 +82,11 @@ const ViewMoveType: React.FC = () => {
   const handleCancel = () => {
     setFormData({
       serviceType: move.serviceType,
-      moveDate: move.moveDate,
-      moveWindow: move.moveWindow,
+      moveDate: move.moveDate ?? null,
+      moveWindow: move.moveWindow ?? "morning",
       arrivalTimes: {
-        arrivalWindowStarts: move.arrivalTimes.arrivalWindowStarts,
-        arrivalWindowEnds: move.arrivalTimes.arrivalWindowEnds,
+        arrivalWindowStarts: move.arrivalTimes?.arrivalWindowStarts ?? null,
+        arrivalWindowEnds: move.arrivalTimes?.arrivalWindowEnds ?? null,
       },
     });
     setStartWindowOption(move.moveWindow === "custom" ? "custom" : "available");

@@ -39,7 +39,6 @@ export default function AddMovePageContent({
     moveFormData,
     isAllSectionsComplete,
     referralOptions,
-    hasChanges,
   } = useMoveForm();
   const { createMove, createMoveLoading, createMoveError, setCreateMoveError } =
     useCreateMove();
@@ -97,7 +96,6 @@ export default function AddMovePageContent({
       router.push(isAllSectionsComplete ? `${base}?step=2` : base);
     }
   };
-  console.log("hasChanges", hasChanges);
 
   return (
     <PageContainer>

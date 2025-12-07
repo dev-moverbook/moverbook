@@ -12,7 +12,7 @@ interface GroupedItemsListProps {
 }
 
 const GroupedItemsList: React.FC<GroupedItemsListProps> = ({
-  items,
+  items = [],
   selectedItemIndices = new Set(),
   onToggle,
   isEditing = false,

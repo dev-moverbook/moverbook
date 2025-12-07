@@ -16,7 +16,7 @@ const MoveLineItemsSection = () => {
   const handleAddMoveFee = (fee: MoveFeeInput) => {
     updateMove({
       moveId: move._id,
-      updates: { moveFees: [...move.moveFees, fee] },
+      updates: { moveFees: [...(move.moveFees ?? []), fee] },
     });
   };
 
@@ -24,7 +24,7 @@ const MoveLineItemsSection = () => {
     updateMove({
       moveId: move._id,
       updates: {
-        moveFees: move.moveFees.map((f, i) => (i === index ? fee : f)),
+        moveFees: move.moveFees?.map((f, i) => (i === index ? fee : f)) ?? [],
       },
     });
   };
@@ -32,13 +32,15 @@ const MoveLineItemsSection = () => {
   const handleDeleteMoveFee = (index: number) => {
     updateMove({
       moveId: move._id,
-      updates: { moveFees: move.moveFees.filter((f, i) => i !== index) },
+      updates: {
+        moveFees: move.moveFees?.filter((f, i) => i !== index) ?? [],
+      },
     });
   };
 
   return (
     <LineItemsSection
-      fees={move.moveFees}
+      fees={move.moveFees ?? []}
       onAdd={handleAddMoveFee}
       onUpdate={handleUpdateMoveFee}
       onDelete={handleDeleteMoveFee}

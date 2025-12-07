@@ -237,6 +237,14 @@ export interface CustomerFormErrors {
   altPhoneNumber?: string;
 }
 
+export interface PublicNewMoveFormData {
+  name: string;
+  email: string;
+  phoneNumber: string;
+  altPhoneNumber: string;
+  serviceType: ServiceType;
+}
+
 export interface MoveFormData {
   arrivalTimes: ArrivalTimes;
   companyId: Id<"companies"> | null;

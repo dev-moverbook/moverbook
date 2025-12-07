@@ -1,4 +1,4 @@
-import { mutation, query } from "./_generated/server";
+import { internalQuery, mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import {
   isUserInOrg,
@@ -99,5 +99,17 @@ export const updateReferral = mutation({
     await ctx.db.patch(referralId, updates);
 
     return referralId;
+  },
+});
+
+export const getReferralByNameInternal = internalQuery({
+  args: { referralName: v.string() },
+  handler: async (ctx, args): Promise<Doc<"referrals"> | null> => {
+    const { referralName } = args;
+    return await ctx.db
+      .query("referrals")
+      .withIndex("by_name", (q) => q.eq("name", referralName))
+      .filter((q) => q.eq(q.field("isActive"), true))
+      .first();
   },
 });

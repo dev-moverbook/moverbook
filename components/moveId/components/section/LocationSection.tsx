@@ -255,7 +255,7 @@ const LocationSection = () => {
   const canCreateMoveUser = canCreateMove(user.role);
 
   const [editedLocations, setEditedLocations] = useState<LocationInput[]>(
-    move.locations
+    move.locations ?? []
   );
   const [addingStopIndex, setAddingStopIndex] = useState<number | null>(null);
   const [showBanner, setShowBanner] = useState<boolean>(false);
@@ -264,7 +264,7 @@ const LocationSection = () => {
   const { updateMove, updateMoveLoading, updateMoveError } = useUpdateMove();
 
   useEffect(() => {
-    setEditedLocations(move.locations);
+    setEditedLocations(move.locations ?? []);
   }, [move.locations]);
 
   const handleSaveLocations = async (
@@ -402,7 +402,7 @@ const LocationSection = () => {
 
       <LocationSummary
         companyContact={companyContact}
-        locations={move.locations}
+        locations={move.locations ?? []}
         segmentDistances={move.segmentDistances ?? []}
         showBorder={false}
       />
