@@ -1,3 +1,5 @@
+"use client";
+
 import CustomCard from "@/components/shared/card/CustomCard";
 import CardHeaderWithActions from "@/components/shared/card/CardHeaderWithActions";
 import { MoveItem } from "@/types/types";

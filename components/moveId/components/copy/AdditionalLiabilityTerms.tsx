@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 
 const AdditionalLiabilityTerms = () => {
   const [isExpanded, setIsExpanded] = useState<boolean>(false);

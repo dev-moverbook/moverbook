@@ -201,9 +201,9 @@ export interface MoveTypeFormData {
 }
 
 export interface InternalNotesFormData {
-  notes: string | null;
+  notes?: string | null;
   moveStatus: MoveStatus;
-  salesRep: Id<"users">;
+  salesRep?: Id<"users">;
 }
 
 export interface DepositFormData {
@@ -216,7 +216,7 @@ export interface MoveTravelFeeFormData {
 }
 
 export interface MoveCreditCardFeeFormData {
-  creditCardFeeRate: number;
+  creditCardFeeRate?: number;
 }
 
 export interface MovePaymentTypeFormData {

@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+"use client";
+
+import { useState } from "react";
 import SearchInput from "@/components/shared/ui/SearchInput";
 import SelectableCardContainer from "@/components/shared/containers/SelectableCardContainer";
 import SingleCardContainer from "@/components/shared/containers/SingleCardContainer";

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { ItemFormData } from "@/types/form-types";
 import { FrontEndErrorMessages } from "@/types/errors";

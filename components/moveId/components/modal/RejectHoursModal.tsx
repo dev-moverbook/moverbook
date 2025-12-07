@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import FieldGroup from "@/components/shared/field/FieldGroup";
 import ResponsiveModal from "@/components/shared/modal/ResponsiveModal";
 import LabeledTextarea from "@/components/shared/labeled/LabeledTextarea";

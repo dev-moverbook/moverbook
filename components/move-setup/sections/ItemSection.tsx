@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import ConfirmModal from "@/components/shared/modal/ConfirmModal";
 import ItemModal from "../modals/ItemModal";

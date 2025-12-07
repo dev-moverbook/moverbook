@@ -1,3 +1,5 @@
+"use client";
+
 import ConfirmModal from "@/components/shared/modal/ConfirmModal";
 import SectionContainer from "@/components/shared/section/SectionContainer";
 import { Button } from "@/components/ui/button";

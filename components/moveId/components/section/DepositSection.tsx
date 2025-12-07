@@ -18,11 +18,11 @@ const DepositSection = () => {
   const { updateMove, updateMoveLoading, updateMoveError } = useUpdateMove();
 
   const [formData, setFormData] = useState<DepositFormData>({
-    deposit: move.deposit,
+    deposit: move.deposit ?? 0,
   });
 
   useEffect(() => {
-    setFormData({ deposit: move.deposit });
+    setFormData({ deposit: move.deposit ?? 0 });
   }, [move.deposit]);
 
   const hasChanges = useMemo(() => {
@@ -40,7 +40,7 @@ const DepositSection = () => {
   };
 
   const handleCancel = () => {
-    setFormData({ deposit: move.deposit });
+    setFormData({ deposit: move.deposit ?? 0 });
     setIsEditing(false);
   };
 

@@ -16,7 +16,7 @@ const ViewPaymentType = () => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
   const initialFormData: MovePaymentTypeFormData = {
-    paymentMethod: move.paymentMethod,
+    paymentMethod: move.paymentMethod ?? { kind: "credit_card" },
   };
 
   const [formData, setFormData] =

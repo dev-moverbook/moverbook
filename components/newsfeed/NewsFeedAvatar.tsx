@@ -1,4 +1,6 @@
-import Image from "next/image"; // Import Next.js Image
+"use client";
+
+import Image from "next/image";
 
 interface UserAvatarProps {
   userImageUrl?: string | null;

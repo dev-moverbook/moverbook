@@ -1,3 +1,5 @@
+"use client";
+
 import SectionContainer from "@/components/shared/containers/SectionContainer";
 
 const InvoiceNotReady = () => {

@@ -22,7 +22,7 @@ const MoveBalanceTable: React.FC<MoveBalanceTableProps> = ({ assignments }) => {
     return null;
   }
 
-  const totalRevenue = invoiceAmountPaid + deposit;
+  const totalRevenue = invoiceAmountPaid + (deposit ?? 0);
   const expense = sumMoverExpense(assignments);
   const profit = computeProfit(totalRevenue, expense);
 

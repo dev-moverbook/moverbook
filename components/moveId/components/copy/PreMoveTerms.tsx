@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 
 const PreMoveTerms = () => {
   const [isExpanded, setIsExpanded] = useState<boolean>(false);

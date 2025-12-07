@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import GuidelinesTab from "./tabs/GuidelinesTab";
 import RatesTab from "./tabs/RatesTab";
 import InventoryTab from "./tabs/InventoryTab";

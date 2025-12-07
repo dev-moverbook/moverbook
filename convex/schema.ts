@@ -374,7 +374,7 @@ export default defineSchema({
     moveDate: v.optional(v.union(v.null(), v.string())),
     moveFees: v.optional(v.array(MoveFeeConvex)),
     moveItems: v.optional(v.array(MoveItemConvex)),
-    moveStatus: v.optional(MoveStatusConvex),
+    moveStatus: MoveStatusConvex,
     moveWindow: v.optional(MoveTimesConvex),
     movers: v.optional(v.number()),
     notes: v.optional(v.union(v.null(), v.string())),

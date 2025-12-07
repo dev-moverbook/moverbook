@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import SectionContainer from "@/components/shared/containers/SectionContainer";
 import CardContainer from "@/components/shared/card/CardContainer";
 import Header3 from "@/components/shared/heading/Header3";
@@ -11,7 +11,7 @@ import SelectLiabilityCard from "@/components/add-move/components/cards/SelectLi
 import { Doc } from "@/convex/_generated/dataModel";
 
 interface LiabilityCoverageSectionProps {
-  selectedPolicy: Doc<"insurancePolicies"> | null;
+  selectedPolicy: Doc<"insurancePolicies"> | null | undefined;
   policies: Doc<"insurancePolicies">[];
   onSelect: (policy: Doc<"insurancePolicies">) => Promise<boolean> | boolean;
   error?: string | null;
@@ -77,7 +77,7 @@ const LiabilityCoverageSection: React.FC<LiabilityCoverageSectionProps> = ({
                   policy={policy}
                   isSelected={policy.name === selectedPolicy?.name}
                   onSelect={() => handleChoose(policy)}
-                  disabled={isSaving} // if your card supports it
+                  disabled={isSaving}
                 />
               ))
             : displayPolicy && <SelectLiabilityCard policy={displayPolicy} />}

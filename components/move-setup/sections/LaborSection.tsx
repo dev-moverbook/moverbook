@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import SectionContainer from "@/components/shared/section/SectionContainer";
 import CenteredContainer from "@/components/shared/containers/CenteredContainer";

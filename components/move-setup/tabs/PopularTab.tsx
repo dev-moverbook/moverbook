@@ -1,3 +1,5 @@
+"use client";
+
 import SelectableCardContainer from "@/components/shared/containers/SelectableCardContainer";
 import SingleCardContainer from "@/components/shared/containers/SingleCardContainer";
 import { Doc, Id } from "@/convex/_generated/dataModel";

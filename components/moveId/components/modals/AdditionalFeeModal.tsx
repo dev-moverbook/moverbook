@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import FieldGroup from "@/components/shared/field/FieldGroup";
 import FieldRow from "@/components/shared/field/FieldRow";

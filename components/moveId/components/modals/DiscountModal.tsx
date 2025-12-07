@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from "react";
+"use client";
+
+import { useEffect, useState } from "react";
 import FieldGroup from "@/components/shared/field/FieldGroup";
 import FieldRow from "@/components/shared/field/FieldRow";
 import {

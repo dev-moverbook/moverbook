@@ -19,15 +19,15 @@ export function getDisplayedPrice(
   moverWageDisplay?: MoverWageForMove | null
 ): string {
   const result = computeMoveTotal({
-    moveFees: move.moveFees,
-    jobType: move.jobType,
-    jobTypeRate: move.jobTypeRate,
+    moveFees: move.moveFees ?? [],
+    jobType: move.jobType ?? "hourly",
+    jobTypeRate: move.jobTypeRate ?? null,
     startingMoveTime: move.startingMoveTime,
     endingMoveTime: move.endingMoveTime,
     liabilityCoverage: move.liabilityCoverage,
     travelFeeRate: move.travelFeeRate ?? null,
     travelFeeMethod: move.travelFeeMethod ?? null,
-    segmentDistances: move.segmentDistances,
+    segmentDistances: move.segmentDistances ?? [],
   });
 
   if (result === null) {
@@ -56,7 +56,7 @@ export function getDisplayedPrice(
   }
 
   if (move.moveStatus === "Completed" && move.invoiceAmountPaid) {
-    return formatCurrency(move.invoiceAmountPaid + move.deposit);
+    return formatCurrency(move.invoiceAmountPaid + (move.deposit ?? 0));
   }
 
   if (result.minTotal === result.maxTotal) {
@@ -72,7 +72,7 @@ export function getStatusDisplay(
 ): { label: string; color: string } {
   const isCompleted = move.moveStatus === "Completed";
 
-  if (isMover && !isCompleted) {
+  if (isMover && !isCompleted && move.moveWindow) {
     return {
       label: WINDOW_LABEL[move.moveWindow],
       color: getStatusColor(move.moveWindow),

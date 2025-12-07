@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import SectionHeader from "@/components/shared/section/SectionHeader";
 import AddedItems from "@/components/add-move/components/sections/AddedItems";
 import SelectionInventory from "@/components/add-move/components/sections/SelectionInventory";
@@ -105,7 +105,7 @@ const InventorySection = ({
       <>
         <AddedItems
           hideTitle={true}
-          moveItems={isEditing ? localMoveItems : move.moveItems}
+          moveItems={isEditing ? localMoveItems : (move.moveItems ?? [])}
           updateMoveItem={updateMoveItem}
           removeMoveItem={removeMoveItem}
           selectedItemIndices={selectedItemIndices}

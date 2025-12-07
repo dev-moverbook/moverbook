@@ -22,7 +22,7 @@ export interface LaborFormData {
 
 interface LaborSectionProps {
   formData: LaborFormData;
-  originalData?: LaborFormData; // ← ADD THIS
+  originalData?: LaborFormData;
   onChange: <K extends keyof LaborFormData>(
     key: K,
     value: LaborFormData[K]

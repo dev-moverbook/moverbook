@@ -75,7 +75,7 @@ const InternalNotesSection = () => {
           <SalesRepSelect
             companyId={move.companyId}
             label="Sales Rep"
-            valueId={formData.salesRep}
+            valueId={formData.salesRep ?? null}
             onChangeId={(id) => {
               if (!id) {
                 return;

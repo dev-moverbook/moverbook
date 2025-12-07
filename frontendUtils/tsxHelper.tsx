@@ -6,7 +6,7 @@ import { MoveStatus } from "@/types/types";
 
 export const getQuoteStatusInfo = (
   quote: Doc<"quotes"> | null,
-  moveStatus: MoveStatus
+  moveStatus?: MoveStatus
 ): {
   label: string;
   icon: ReactNode;
@@ -52,14 +52,14 @@ export const getSetUpStatus = (
   label: string;
   icon: ReactNode;
 } => {
-  if (assignedMovers < move.movers) {
+  if (assignedMovers < (move.movers ?? 0)) {
     return {
       label: "Assignment Required",
       icon: <AlertTriangle className="w-4 h-4 text-yellow-500" />,
     };
   }
 
-  const showPreMove = isSameDayOrLater(move.moveDate, timeZone);
+  const showPreMove = isSameDayOrLater(move.moveDate ?? null, timeZone);
 
   if (!showPreMove) {
     return {

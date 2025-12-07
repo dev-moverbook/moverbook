@@ -30,7 +30,7 @@ const SetUpStep = () => {
         timeZone
       );
 
-      const showPreMove = isSameDayOrLater(move.moveDate, timeZone);
+      const showPreMove = isSameDayOrLater(move.moveDate ?? null, timeZone);
       const isScheduleOpen = assignments.length !== allMovers.length;
 
       return (

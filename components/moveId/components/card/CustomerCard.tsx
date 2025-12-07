@@ -1,3 +1,5 @@
+"use client";
+
 import CustomCard from "@/components/shared/card/CustomCard";
 import { Phone, Mail, PhoneForwarded } from "lucide-react";
 import CardHeaderWithActions from "@/components/shared/card/CardHeaderWithActions";

@@ -44,7 +44,7 @@ const AssignMovers = ({
     }
   };
 
-  const slots = Array.from({ length: moverNumber }, (_, index) => {
+  const slots = Array.from({ length: moverNumber ?? 0 }, (_, index) => {
     const isLead = index === 0;
     const label = isLead ? "Lead Mover" : `Mover #${index}`;
     const existingAssignment = assignments.find((assignment) =>

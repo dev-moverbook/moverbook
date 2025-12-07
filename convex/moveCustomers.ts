@@ -529,6 +529,7 @@ export const createPublicMove = action({
       moveCustomerId,
       serviceType,
       referralId: referral?._id,
+      moveStatus: "New Lead",
     });
 
     await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {

@@ -11,7 +11,7 @@ const QuoteInventory = () => {
   const { moveData } = useMoveContext();
   const { move } = moveData;
   const { moveItems } = move;
-  const grouped = groupItemsByRoom(moveItems);
+  const grouped = groupItemsByRoom(moveItems ?? []);
   const noItems = Object.keys(grouped).length === 0;
   return (
     <div>

@@ -2,7 +2,7 @@
 
 import SectionContainer from "@/components/shared/containers/SectionContainer";
 import SectionHeader from "@/components/shared/section/SectionHeader";
-import React, { useState } from "react";
+import { useState } from "react";
 import FormActions from "@/components/shared/buttons/FormActions";
 import { CustomerFormData, CustomerFormErrors } from "@/types/form-types";
 import LabeledInput from "@/components/shared/labeled/LabeledInput";

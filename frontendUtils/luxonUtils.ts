@@ -16,7 +16,7 @@ export const formatLongDateTime = (ms: number, timeZone = "UTC"): string => {
 };
 
 export function isSameDayOrLater(
-  moveDate: string | Date | null,
+  moveDate: string | Date | null | undefined,
   timeZone: string
 ): boolean {
   if (!moveDate) {

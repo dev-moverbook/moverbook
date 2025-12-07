@@ -46,13 +46,13 @@ const ViewCreditCardFee = () => {
   return (
     <MoveCreditCardFeeSection
       isAdd={false}
-      creditCardFeeRate={formData.creditCardFeeRate}
+      creditCardFeeRate={formData.creditCardFeeRate ?? 0}
       handleCreditCardFeeRateChange={handleCreditCardFeeRateChange}
       onSave={handleSave}
       onCancel={handleCancel}
       isSaving={updateMoveLoading}
       updateError={updateMoveError}
-      initialCreditCardFeeRate={initialFormData.creditCardFeeRate}
+      initialCreditCardFeeRate={initialFormData.creditCardFeeRate ?? 0}
       isEditing={isEditing}
       setIsEditing={setIsEditing}
     />

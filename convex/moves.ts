@@ -1378,9 +1378,11 @@ export const createMoveInternal = internalMutation({
     moveCustomerId: v.id("users"),
     serviceType: ServiceTypesConvex,
     referralId: v.optional(v.id("referrals")),
+    moveStatus: MoveStatusConvex,
   },
   handler: async (ctx, args): Promise<Id<"moves">> => {
-    const { companyId, moveCustomerId, serviceType, referralId } = args;
+    const { companyId, moveCustomerId, serviceType, referralId, moveStatus } =
+      args;
     const jobId = generateJobId(args.companyId);
 
     return await ctx.db.insert("moves", {
@@ -1388,6 +1390,7 @@ export const createMoveInternal = internalMutation({
       moveCustomerId,
       serviceType,
       referralId,
+      moveStatus,
       jobId,
       updatedAt: Date.now(),
     });

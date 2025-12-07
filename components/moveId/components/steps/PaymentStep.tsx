@@ -52,15 +52,15 @@ const PaymentStep = () => {
       } = move;
 
       const { items, total } = computeFinalMoveCost({
-        moveFees,
-        jobType,
+        moveFees: moveFees ?? [],
+        jobType: jobType ?? "hourly",
         jobTypeRate: jobTypeRate ?? 0,
-        liabilityCoverage,
-        segmentDistances,
+        liabilityCoverage: liabilityCoverage ?? null,
+        segmentDistances: segmentDistances ?? [],
         travelFeeRate: travelFeeRate ?? null,
         travelFeeMethod: travelFeeMethod ?? null,
-        paymentMethod,
-        creditCardFee,
+        paymentMethod: paymentMethod ?? { kind: "other", label: "Other" },
+        creditCardFee: creditCardFee ?? 0,
         actualBreakTime: actualBreakTime ?? 0,
         actualStartTime: actualStartTime ?? 0,
         actualEndTime: actualEndTime ?? 0,

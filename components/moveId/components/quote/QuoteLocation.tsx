@@ -17,7 +17,7 @@ const QuoteLocation = () => {
       <SectionHeader className="mx-auto" title="Location" />
       <SectionContainer>
         <CardContainer className="space-y-4">
-          {location.map((loc, index) => (
+          {location?.map((loc, index) => (
             <QuoteLocationCard
               key={loc.uid}
               location={loc}

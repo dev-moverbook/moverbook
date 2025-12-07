@@ -1,3 +1,5 @@
+"use client";
+
 import CustomCard from "../shared/card/CustomCard";
 import CardDetailRow from "../shared/card/CardDetailRow";
 import CardDetailsWrapper from "../shared/card/CardDetailsWrapper";

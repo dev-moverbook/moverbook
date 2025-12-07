@@ -48,8 +48,8 @@ export const formatMonthDay = (value: number | null | undefined) => {
   return dateTime.isValid ? dateTime.toFormat("MMM d") : "";
 };
 
-export const formatTime = (time: string | null) =>
-  time ? DateTime.fromFormat(time, "HH:mm").toFormat("h:mm a") : null;
+export const formatTime = (time: string | null | undefined): string =>
+  time ? DateTime.fromFormat(time, "HH:mm").toFormat("h:mm a") : "TBD";
 
 export const formatDecimalNumber = (
   value: number | null | undefined,
@@ -71,7 +71,9 @@ export const formatDisplayNumber = (
   return `${value.toLocaleString()} ${unit}`;
 };
 
-export function formatDateToLong(dateString: string | null): string | null {
+export function formatDateToLong(
+  dateString: string | null | undefined
+): string {
   if (!dateString) {
     return "Missing Date";
   }
@@ -82,7 +84,9 @@ export const formatDateShort = (timestamp: number): string => {
   return DateTime.fromMillis(timestamp).toFormat("M/d/yy");
 };
 
-export function formatMoveSize(size: MoveSize | null): string | null {
+export function formatMoveSize(
+  size: MoveSize | null | undefined
+): string | null {
   const map: Record<MoveSize, string> = {
     studio: "Studio",
     "1_bedroom": "1 Bedroom",

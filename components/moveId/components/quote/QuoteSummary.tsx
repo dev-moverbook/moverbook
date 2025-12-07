@@ -24,11 +24,10 @@ const QuoteSummary = () => {
     jobId,
   } = move;
 
-  const { weight, size } = getTotalWeightAndSize(moveItems);
+  const { weight, size } = getTotalWeightAndSize(moveItems ?? []);
 
   return (
     <div className="bg-background2 text-white w-full mx-auto text-center py-6">
-      {/* Logo using Next.js Image */}
       <div className="flex justify-center">
         {company.imageUrl && (
           <Image
@@ -43,7 +42,6 @@ const QuoteSummary = () => {
       <h2 className="">Job ID: {jobId}</h2>
       <h2 className="font-bold text-xl">Move Estimate</h2>
 
-      {/* Date & Arrival */}
       <div>
         Starting on <strong>{formatDateToLong(moveDate)}</strong>
         <br />
@@ -51,7 +49,6 @@ const QuoteSummary = () => {
         {formatTime(arrivalTimes?.arrivalWindowEnds)}
       </div>
 
-      {/* Rate & Summary */}
       <div className="text-white ">
         <p>{formatMoveSize(locations?.[0]?.moveSize)} </p>
         <p>{`${formatDisplayNumber(size, "ft³")} / ${formatDisplayNumber(weight, "lbs")}`}</p>
