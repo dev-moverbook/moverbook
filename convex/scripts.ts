@@ -1,4 +1,4 @@
-import { mutation, query } from "./_generated/server";
+import { internalQuery, mutation, query } from "./_generated/server";
 import { ConvexError, v } from "convex/values";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import {
@@ -10,7 +10,10 @@ import {
 import { ClerkRoles } from "@/types/enums";
 import { ErrorMessages } from "@/types/errors";
 
-import { CommunicationTypeConvex } from "@/types/convex-enums";
+import {
+  CommunicationTypeConvex,
+  PresSetScriptsConvex,
+} from "@/types/convex-enums";
 import { checkExistingScript } from "./backendUtils/checkUnique";
 import { Doc } from "./_generated/dataModel";
 import { throwConvexError } from "./backendUtils/errors";
@@ -121,6 +124,7 @@ export const createScript = mutation({
       message,
       isActive: true,
       emailTitle,
+      updatedAt: Date.now(),
     });
 
     return true;
@@ -182,6 +186,7 @@ export const updateScript = mutation({
     await ctx.db.patch(scriptId, {
       ...updates,
       emailTitle: finalType === "email" ? finalEmailTitle : undefined,
+      updatedAt: Date.now(),
     });
 
     return true;
@@ -217,8 +222,22 @@ export const deleteScript = mutation({
     );
     isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
-    await ctx.db.patch(scriptId, { isActive: false });
+    await ctx.db.patch(scriptId, { isActive: false, updatedAt: Date.now() });
 
     return true;
+  },
+});
+
+export const getPresetScriptByPreSetType = internalQuery({
+  args: { companyId: v.id("companies"), preSetType: PresSetScriptsConvex },
+  handler: async (ctx, args): Promise<Doc<"scripts"> | null> => {
+    const { companyId, preSetType } = args;
+
+    return await ctx.db
+      .query("scripts")
+      .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
+      .filter((q) => q.eq(q.field("preSetTypes"), preSetType))
+      .filter((q) => q.eq(q.field("isActive"), true))
+      .first();
   },
 });

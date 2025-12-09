@@ -65,11 +65,20 @@ export const FollowUpCommunicationTypeConvex = v.union(
 );
 
 export const PresSetScriptsConvex = v.union(
-  v.literal(PresSetScripts.QUOTE_SENT),
-  v.literal(PresSetScripts.INVOICE_SENT),
-  v.literal(PresSetScripts.PRE_MOVE_DOC_SENT),
-  v.literal(PresSetScripts.INTERNAL_REVIEW_SENT),
-  v.literal(PresSetScripts.EXTERNAL_REVIEW_SENT)
+  v.literal(PresSetScripts.EMAIL_QUOTE),
+  v.literal(PresSetScripts.SMS_QUOTE),
+  v.literal(PresSetScripts.EMAIL_INVOICE),
+  v.literal(PresSetScripts.SMS_INVOICE),
+  v.literal(PresSetScripts.EMAIL_CONTRACT),
+  v.literal(PresSetScripts.SMS_CONTRACT),
+  v.literal(PresSetScripts.EMAIL_WAIVER),
+  v.literal(PresSetScripts.SMS_WAIVER),
+  v.literal(PresSetScripts.EMAIL_INTERNAL_REVIEW),
+  v.literal(PresSetScripts.SMS_INTERNAL_REVIEW),
+  v.literal(PresSetScripts.EMAIL_EXTERNAL_REVIEW),
+  v.literal(PresSetScripts.SMS_EXTERNAL_REVIEW),
+  v.literal(PresSetScripts.EMAIL_FOLLOW_UP),
+  v.literal(PresSetScripts.SMS_FOLLOW_UP)
 );
 
 export const TravelChargingTypesConvex = v.union(

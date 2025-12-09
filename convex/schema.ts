@@ -447,6 +447,12 @@ export default defineSchema({
     weekdayHourMinimum: v.number(),
     weekendHourMinimum: v.number(),
   }).index("by_companyId", ["companyId"]),
+  twilioNumbers: defineTable({
+    companyId: v.id("companies"),
+    twilioSid: v.string(),
+    phoneNumber: v.string(),
+    isActive: v.boolean(),
+  }).index("by_companyId", ["companyId"]),
   contracts: defineTable({
     customerSignature: v.optional(v.string()),
     customerSignedAt: v.optional(v.number()),
@@ -466,6 +472,7 @@ export default defineSchema({
     companyId: v.id("companies"),
     isActive: v.boolean(),
     name: v.string(),
+    updatedAt: v.optional(v.number()),
   })
     .index("by_companyId", ["companyId"])
     .index("by_name", ["name"]),
@@ -483,7 +490,8 @@ export default defineSchema({
     preSetTypes: v.optional(PresSetScriptsConvex),
     title: v.string(),
     type: CommunicationTypeConvex,
-  }),
+    updatedAt: v.number(),
+  }).index("by_companyId", ["companyId"]),
   travelFees: defineTable({
     companyId: v.id("companies"),
     defaultMethod: v.union(v.null(), TravelChargingTypesConvex),

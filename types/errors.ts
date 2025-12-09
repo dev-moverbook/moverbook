@@ -117,6 +117,7 @@ export enum ErrorMessages {
   CUSTOMER_EMAIL_TAKEN = "A customer with this email already exists.",
   CUSTOMER_PHONE_TAKEN = "A customer with this phone number already exists.",
   MOVE_CUSTOMER_DB_QUERY_BY_ID = "DB error querying move customer by id",
+  FOBIDDEN_MOVE = "Move does not belong to user",
 }
 
 export enum FrontEndErrorMessages {

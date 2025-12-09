@@ -22,6 +22,8 @@ import {
   validateUser,
   validateCompanyContact,
   validateDocExists,
+  isUserInCompanyConvex,
+  isCustomerInMove,
 } from "./backendUtils/validate";
 import { isUserInOrg } from "./backendUtils/validate";
 import {
@@ -1394,5 +1396,47 @@ export const createMoveInternal = internalMutation({
       jobId,
       updatedAt: Date.now(),
     });
+  },
+});
+
+export const getPublicMoveById = query({
+  args: {
+    moveId: v.id("moves"),
+  },
+  handler: async (ctx, args): Promise<Doc<"moves">> => {
+    const { moveId } = args;
+
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+      ClerkRoles.SALES_REP,
+      ClerkRoles.CUSTOMER,
+    ]);
+
+    const userId = identity.convexId as Id<"users">;
+    const user = validateDocExists(
+      "users",
+      await ctx.runQuery(internal.users.getUserByIdInternal, {
+        userId,
+      }),
+      ErrorMessages.USER_NOT_FOUND
+    );
+
+    const move = validateDocExists(
+      "moves",
+      await ctx.runQuery(internal.moves.getMoveByIdInternal, {
+        moveId,
+      }),
+      ErrorMessages.MOVE_NOT_FOUND
+    );
+
+    if (user.role === ClerkRoles.CUSTOMER) {
+      isCustomerInMove(user, move);
+    } else {
+      isUserInCompanyConvex(user, move.companyId);
+    }
+
+    return move;
   },
 });

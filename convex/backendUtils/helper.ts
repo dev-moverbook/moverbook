@@ -25,9 +25,14 @@ import {
   STARTER_ITEMS,
   STARTER_CATEGORIES,
 } from "@/types/const";
+
 import { ResponseStatus } from "@/types/enums";
 import { ErrorResponse } from "@/types/convex-responses";
 import { HistoricalPoint, IncomeTotals, MoveExpenseInfo } from "@/types/types";
+import {
+  STARTER_PRESET_SCRIPTS,
+  STARTER_REFERRALS,
+} from "@/types/starterConst";
 
 export const createCompanyRecords = async (
   ctx: MutationCtx,
@@ -144,6 +149,24 @@ export const createCompanyRecords = async (
         isStarter: true,
         isActive: true,
         isPopular: false,
+      });
+    }
+
+    for (const referral of STARTER_REFERRALS) {
+      await ctx.db.insert("referrals", {
+        companyId,
+        name: referral,
+        isActive: true,
+        updatedAt: Date.now(),
+      });
+    }
+
+    for (const script of STARTER_PRESET_SCRIPTS) {
+      await ctx.db.insert("scripts", {
+        companyId,
+        ...script,
+        isActive: true,
+        updatedAt: Date.now(),
       });
     }
   } catch (error) {

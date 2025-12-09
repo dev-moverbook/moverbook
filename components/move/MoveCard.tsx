@@ -25,6 +25,7 @@ interface MoveCardProps {
   navigateTo?: string;
   messagesHref?: string;
   customerHref?: string;
+  moveHref?: string;
 }
 
 const MoveCard: React.FC<MoveCardProps> = ({
@@ -39,6 +40,7 @@ const MoveCard: React.FC<MoveCardProps> = ({
   navigateTo,
   messagesHref,
   customerHref,
+  moveHref,
 }) => {
   const name = moveCustomer?.name ?? "No name";
   const tags = [
@@ -100,6 +102,7 @@ const MoveCard: React.FC<MoveCardProps> = ({
             <MoveCardActions
               messagesHref={messagesHref}
               customerHref={customerHref}
+              moveHref={moveHref}
               onDuplicate={onDuplicate ? () => onDuplicate(move) : undefined}
               move={move}
             />

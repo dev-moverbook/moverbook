@@ -21,7 +21,7 @@ const MoveIdPage = () => {
   const { wageDisplay } = moveData;
 
   const [isDuplicateMoveModalOpen, setIsDuplicateMoveModalOpen] =
-    useState(false);
+    useState<boolean>(false);
   const [selectedMove, setSelectedMove] = useState<Doc<"moves"> | null>(null);
 
   const { move, moveCustomer, salesRepUser } = moveData;
@@ -66,6 +66,7 @@ const MoveIdPage = () => {
   const customerPageHref = `/app/${slug}/customer/${moveCustomer?._id}`;
   const movePageHref = `/app/${slug}/moves/${move._id}`;
   const messagesPageHref = `/app/${slug}/moves/${move._id}/messages`;
+  const publicMoveHref = `/${slug}/moves/${move._id}`;
 
   const card = (
     <MoveCard
@@ -79,6 +80,7 @@ const MoveIdPage = () => {
       moverWageDisplay={wageDisplay}
       messagesHref={messagesPageHref}
       customerHref={customerPageHref}
+      moveHref={publicMoveHref}
       navigateTo={isMoverUser ? customerPageHref : movePageHref}
     />
   );

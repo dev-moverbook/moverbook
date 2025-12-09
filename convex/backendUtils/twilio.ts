@@ -1,21 +1,21 @@
 "use node";
-import twilio from "twilio";
 import { ErrorMessages } from "@/types/errors";
-import { serverEnv } from "./serverEnv";
+import { twilioClient } from "../lib/twilio";
+import { throwConvexError } from "./errors";
 
-export const sendTwilioSms = async (
-  phoneNumber: string,
-  to: string,
-  body: string
-): Promise<{ success: boolean; sid?: string }> => {
-  const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } = serverEnv();
-
-  const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
-
+export const sendTwilioSms = async ({
+  fromPhoneNumber,
+  toPhoneNumber,
+  body,
+}: {
+  fromPhoneNumber: string;
+  toPhoneNumber: string;
+  body: string;
+}): Promise<string> => {
   try {
-    const result = await client.messages.create({
-      from: phoneNumber,
-      to,
+    const result = await twilioClient.messages.create({
+      from: fromPhoneNumber,
+      to: toPhoneNumber,
       body,
     });
 
@@ -23,9 +23,10 @@ export const sendTwilioSms = async (
       throw new Error(ErrorMessages.MISSING_TWILIO_SID);
     }
 
-    return { success: true, sid: result.sid };
+    return result.sid;
   } catch (error) {
-    console.error("Twilio SMS failed:", error);
-    throw new Error(ErrorMessages.TWILIO_SMS_FAILED);
+    throwConvexError(error, {
+      code: "INTERNAL_ERROR",
+    });
   }
 };

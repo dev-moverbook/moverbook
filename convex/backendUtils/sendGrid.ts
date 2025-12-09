@@ -91,17 +91,23 @@ export async function checkSenderVerified(senderId: string): Promise<boolean> {
   }
 }
 
-export const sendSendGridEmail = async (
-  to: string,
-  body: string,
-  subject?: string | null
-): Promise<string> => {
-  const { SENDGRID_API_KEY, SENDGRID_FROM_EMAIL } = serverEnv();
+export const sendSendGridEmail = async ({
+  fromEmail,
+  toEmail,
+  body,
+  subject,
+}: {
+  fromEmail: string;
+  toEmail: string;
+  body: string;
+  subject: string;
+}): Promise<string> => {
+  const { SENDGRID_API_KEY } = serverEnv();
   sgMail.setApiKey(SENDGRID_API_KEY);
 
   const msg = {
-    to,
-    from: SENDGRID_FROM_EMAIL,
+    to: toEmail,
+    from: fromEmail,
     subject: subject ?? "No Subject",
     text: body,
     html: `<p>${body}</p>`,

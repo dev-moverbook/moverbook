@@ -66,11 +66,20 @@ export enum CommunicationType {
 }
 
 export enum PresSetScripts {
-  QUOTE_SENT = "Quote Sent",
-  INVOICE_SENT = "Invoice Sent",
-  PRE_MOVE_DOC_SENT = "Pre Move Doc Sent",
-  INTERNAL_REVIEW_SENT = "Internal Review Sent",
-  EXTERNAL_REVIEW_SENT = "External Review Sent",
+  EMAIL_QUOTE = "Email Quote",
+  SMS_QUOTE = "Sms Quote",
+  EMAIL_INVOICE = "Email Invoice",
+  SMS_INVOICE = "Sms Invoice",
+  EMAIL_CONTRACT = "Email Contract",
+  SMS_CONTRACT = "Sms Contract",
+  EMAIL_WAIVER = "Email Waiver",
+  SMS_WAIVER = "Sms Waiver",
+  EMAIL_INTERNAL_REVIEW = "Email Internal Review",
+  SMS_INTERNAL_REVIEW = "Sms Internal Review",
+  EMAIL_EXTERNAL_REVIEW = "Email External Review",
+  SMS_EXTERNAL_REVIEW = "Sms External Review",
+  EMAIL_FOLLOW_UP = "Email Follow Up",
+  SMS_FOLLOW_UP = "Sms Follow Up",
 }
 
 export enum TravelChargingTypes {

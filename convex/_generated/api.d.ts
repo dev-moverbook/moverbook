@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as actions_messages from "../actions/messages.js";
 import type * as additionalFees from "../additionalFees.js";
 import type * as arrivalWindows from "../arrivalWindows.js";
 import type * as backendUtils_analyticsHelper from "../backendUtils/analyticsHelper.js";
@@ -53,6 +54,7 @@ import type * as items from "../items.js";
 import type * as labors from "../labors.js";
 import type * as lib_clerk from "../lib/clerk.js";
 import type * as lib_stripe from "../lib/stripe.js";
+import type * as lib_twilio from "../lib/twilio.js";
 import type * as messages from "../messages.js";
 import type * as moveAssignments from "../moveAssignments.js";
 import type * as moveCustomers from "../moveCustomers.js";
@@ -68,6 +70,7 @@ import type * as scripts from "../scripts.js";
 import type * as sendgrid from "../sendgrid.js";
 import type * as stripe from "../stripe.js";
 import type * as travelFees from "../travelFees.js";
+import type * as twilioNumbers from "../twilioNumbers.js";
 import type * as users from "../users.js";
 import type * as variables from "../variables.js";
 import type * as waivers from "../waivers.js";
@@ -89,6 +92,7 @@ import type {
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  "actions/messages": typeof actions_messages;
   additionalFees: typeof additionalFees;
   arrivalWindows: typeof arrivalWindows;
   "backendUtils/analyticsHelper": typeof backendUtils_analyticsHelper;
@@ -134,6 +138,7 @@ declare const fullApi: ApiFromModules<{
   labors: typeof labors;
   "lib/clerk": typeof lib_clerk;
   "lib/stripe": typeof lib_stripe;
+  "lib/twilio": typeof lib_twilio;
   messages: typeof messages;
   moveAssignments: typeof moveAssignments;
   moveCustomers: typeof moveCustomers;
@@ -149,6 +154,7 @@ declare const fullApi: ApiFromModules<{
   sendgrid: typeof sendgrid;
   stripe: typeof stripe;
   travelFees: typeof travelFees;
+  twilioNumbers: typeof twilioNumbers;
   users: typeof users;
   variables: typeof variables;
   waivers: typeof waivers;

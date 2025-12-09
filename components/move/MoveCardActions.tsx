@@ -7,6 +7,7 @@ import { Doc } from "@/convex/_generated/dataModel";
 interface MoveCardActionsProps {
   messagesHref?: string;
   customerHref?: string;
+  moveHref?: string;
   onDuplicate?: (move: Doc<"moves">) => void;
   move: Doc<"moves">;
 }
@@ -14,6 +15,7 @@ interface MoveCardActionsProps {
 export const MoveCardActions = ({
   messagesHref,
   customerHref,
+  moveHref,
   onDuplicate,
   move,
 }: MoveCardActionsProps) => {
@@ -28,6 +30,15 @@ export const MoveCardActions = ({
           <span className="text-base underline">Messages</span>
         </Link>
       )}
+      {moveHref && (
+        <Link
+          href={moveHref}
+          className="flex items-center gap-1 hover:opacity-80"
+        >
+          <Eye className="w-4 h-4" />
+          <span className="text-base underline">Move</span>
+        </Link>
+      )}
 
       {customerHref && (
         <Link
@@ -35,7 +46,7 @@ export const MoveCardActions = ({
           className="flex items-center gap-1 hover:opacity-80"
         >
           <Eye className="w-4 h-4" />
-          <span className="text-base underline">View Customer</span>
+          <span className="text-base underline">Customer</span>
         </Link>
       )}
 
@@ -44,7 +55,7 @@ export const MoveCardActions = ({
         className="flex items-center gap-1 bg-transparent border-none cursor-pointer p-0 hover:opacity-80"
       >
         <CopyPlus className="w-4 h-4" />
-        <span className="text-base underline">Duplicate Move</span>
+        <span className="text-base underline">Duplicate</span>
       </button>
     </div>
   );

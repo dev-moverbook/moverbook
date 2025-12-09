@@ -563,3 +563,13 @@ export function assertCustomerUser(doc: Doc<"users">): CustomerUser {
 
   return doc as CustomerUser;
 }
+
+export function isCustomerInMove(user: Doc<"users">, move: Doc<"moves">): void {
+  const isValid = user._id === move.moveCustomerId;
+  if (!isValid) {
+    throwConvexError(ErrorMessages.FOBIDDEN_MOVE, {
+      code: "FORBIDDEN",
+      showToUser: true,
+    });
+  }
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import ChartCard from "../ChartCard";
 import StackedBarGraphCore from "./StackedBarGraphCore";
 import StackedLegendDots from "./StackedLegendDots";
