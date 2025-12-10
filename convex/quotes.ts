@@ -1,4 +1,4 @@
-import { action, mutation } from "./_generated/server";
+import { action, internalQuery, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { QuoteStatusConvex } from "./schema";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
@@ -119,6 +119,8 @@ export const createOrUpdateQuote = mutation({
   },
 });
 
+// To Be deleted
+
 export const sendQuote = action({
   args: {
     moveId: v.id("moves"),
@@ -169,11 +171,6 @@ export const sendQuote = action({
       }
     );
 
-    if (args.channel === "email") {
-      // TODO: Send waiver email
-    } else if (args.channel === "sms") {
-      // TODO: Send waiver SMS
-    }
     const moveDate = validatedMove.moveDate
       ? formatMonthDayLabelStrict(validatedMove.moveDate)
       : "TBD";
@@ -194,5 +191,18 @@ export const sendQuote = action({
     });
 
     return true;
+  },
+});
+
+export const getQuoteByMoveId = internalQuery({
+  args: {
+    moveId: v.id("moves"),
+  },
+  handler: async (ctx, args): Promise<Doc<"quotes"> | null> => {
+    const { moveId } = args;
+    return await ctx.db
+      .query("quotes")
+      .withIndex("by_move", (q) => q.eq("moveId", moveId))
+      .first();
   },
 });

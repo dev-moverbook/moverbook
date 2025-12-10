@@ -10,9 +10,9 @@ const stepMap: Record<string, number> = {
 export default async function Page({
   searchParams,
 }: {
-  searchParams: { step?: string };
+  searchParams: Promise<{ step?: string }>;
 }) {
-  const { step } = searchParams;
+  const { step } = await searchParams;
 
   const initialStep =
     step && stepMap[step.toLowerCase()] ? stepMap[step.toLowerCase()] : 1;

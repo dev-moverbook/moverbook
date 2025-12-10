@@ -1,13 +1,14 @@
 "use client";
 
 import { createContext, useContext } from "react";
-import { Doc, Id } from "@/convex/_generated/dataModel";
+import { Id } from "@/convex/_generated/dataModel";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import FullLoading from "@/components/shared/skeleton/FullLoading";
+import { PublicMoveData } from "@/types/convex-responses";
 
 interface PublicMoveIdContextType {
-  move: Doc<"moves">;
+  move: PublicMoveData;
 }
 
 const PublicMoveIdContext = createContext<PublicMoveIdContextType | undefined>(

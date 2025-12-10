@@ -4,8 +4,6 @@ import { ErrorMessages } from "@/types/errors";
 import { serverEnv } from "./serverEnv";
 import sgMail from "@sendgrid/mail";
 
-const SENDGRID_API_BASE = "https://api.sendgrid.com";
-
 function getHeaders() {
   const { SENDGRID_API_KEY } = serverEnv();
   return {
@@ -32,7 +30,7 @@ export async function createSingleSender({
   address,
 }: CreateSingleSenderParams): Promise<string> {
   try {
-    const res = await fetch(`${SENDGRID_API_BASE}/v3/senders`, {
+    const res = await fetch(`https://api.sendgrid.com/v3/senders`, {
       method: "POST",
       headers: getHeaders(),
       body: JSON.stringify({
@@ -69,7 +67,7 @@ export async function createSingleSender({
 
 export async function checkSenderVerified(senderId: string): Promise<boolean> {
   try {
-    const res = await fetch(`${SENDGRID_API_BASE}/senders/${senderId}`, {
+    const res = await fetch(`https://api.sendgrid.com/v3/senders/${senderId}`, {
       method: "GET",
       headers: getHeaders(),
     });

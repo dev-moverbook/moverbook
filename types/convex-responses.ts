@@ -227,3 +227,8 @@ export interface newCustomerResponse {
   isExistingCustomer: boolean;
   moveCustomer: Doc<"users">;
 }
+
+export interface PublicMoveData {
+  move: Doc<"moves">;
+  quote: Doc<"quotes"> | null;
+}

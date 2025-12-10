@@ -30,6 +30,7 @@ import {
   EnrichedMove,
   GetMoveOptionsData,
   GetMoveData,
+  PublicMoveData,
 } from "@/types/convex-responses";
 import {
   JobTypeConvex,
@@ -1403,7 +1404,7 @@ export const getPublicMoveById = query({
   args: {
     moveId: v.id("moves"),
   },
-  handler: async (ctx, args): Promise<Doc<"moves">> => {
+  handler: async (ctx, args): Promise<PublicMoveData> => {
     const { moveId } = args;
 
     const identity = await requireAuthenticatedUser(ctx, [
@@ -1437,6 +1438,13 @@ export const getPublicMoveById = query({
       isUserInCompanyConvex(user, move.companyId);
     }
 
-    return move;
+    const quote = await ctx.runQuery(internal.quotes.getQuoteByMoveId, {
+      moveId,
+    });
+
+    return {
+      move,
+      quote,
+    };
   },
 });

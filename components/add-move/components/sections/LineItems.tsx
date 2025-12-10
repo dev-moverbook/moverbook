@@ -68,7 +68,7 @@ const LineItems: React.FC = () => {
   };
 
   return (
-    <SectionContainer>
+    <SectionContainer className="md:px-0">
       <Header3
         wrapperClassName="px-0 py-0"
         showCheckmark={false}

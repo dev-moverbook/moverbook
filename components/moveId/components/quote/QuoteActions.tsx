@@ -5,7 +5,8 @@ import { useCreateOrUpdateQuote } from "@/hooks/quotes";
 import FormActionContainer from "@/components/shared/containers/FormActionContainer";
 import { useUpdateMove } from "@/hooks/moves";
 import { useMoveContext } from "@/contexts/MoveContext";
-import { useSendQuote } from "@/hooks/quotes";
+import { useSendPresetScript } from "@/hooks/messages";
+import { PresSetScripts } from "@/types/enums";
 
 interface QuoteActionsProps {
   signatureDataUrl: string | null;
@@ -16,8 +17,9 @@ const QuoteActions = ({ signatureDataUrl }: QuoteActionsProps) => {
     "booked" | "sms" | "email" | null
   >(null);
   const { createOrUpdateQuote, quoteUpdateError } = useCreateOrUpdateQuote();
-  const { sendQuote, sendQuoteError, setSendQuoteError } = useSendQuote();
   const { updateMove, updateMoveError } = useUpdateMove();
+  const { sendPresetScript, sendPresetScriptError, setSendPresetScriptError } =
+    useSendPresetScript();
 
   const { moveData } = useMoveContext();
   const { move, quote } = moveData;
@@ -34,7 +36,7 @@ const QuoteActions = ({ signatureDataUrl }: QuoteActionsProps) => {
 
   const handleEmailQuote = async (e: FormEvent) => {
     e.preventDefault();
-    setSendQuoteError(null);
+    setSendPresetScriptError(null);
     setActiveLoading("email");
     await createOrUpdateQuote({
       moveId,
@@ -43,12 +45,15 @@ const QuoteActions = ({ signatureDataUrl }: QuoteActionsProps) => {
         ...(signatureDataUrl && { repSignature: signatureDataUrl }),
       },
     });
-    await sendQuote(moveId, "email");
+    await sendPresetScript({
+      moveId,
+      preSetTypes: PresSetScripts.EMAIL_QUOTE,
+    });
     setActiveLoading(null);
   };
 
   const handleSmsQuote = async () => {
-    setSendQuoteError(null);
+    setSendPresetScriptError(null);
     setActiveLoading("sms");
     await createOrUpdateQuote({
       moveId,
@@ -57,12 +62,15 @@ const QuoteActions = ({ signatureDataUrl }: QuoteActionsProps) => {
         ...(signatureDataUrl && { repSignature: signatureDataUrl }),
       },
     });
-    await sendQuote(moveId, "sms");
+    await sendPresetScript({
+      moveId,
+      preSetTypes: PresSetScripts.SMS_QUOTE,
+    });
     setActiveLoading(null);
   };
 
   const handleMarkAsComplete = async () => {
-    setSendQuoteError(null);
+    setSendPresetScriptError(null);
     setActiveLoading("booked");
     await createOrUpdateQuote({
       moveId,
@@ -98,7 +106,7 @@ const QuoteActions = ({ signatureDataUrl }: QuoteActionsProps) => {
         primaryLoading={activeLoading === "email"}
         tertiaryLoading={activeLoading === "booked"}
         secondaryLoading={activeLoading === "sms"}
-        error={quoteUpdateError || updateMoveError || sendQuoteError}
+        error={quoteUpdateError || updateMoveError || sendPresetScriptError}
         primaryDisabled={isPrimaryDisabled}
         secondaryDisabled={isSecondaryDisabled}
         tertiaryDisabled={isTertiaryDisabled}

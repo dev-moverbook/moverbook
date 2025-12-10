@@ -9,14 +9,16 @@ import { Id } from "../_generated/dataModel";
 import { action } from "../_generated/server";
 import { requireAuthenticatedUser } from "../backendUtils/auth";
 import { throwConvexError } from "../backendUtils/errors";
-import { sendSendGridEmail } from "../backendUtils/sendGrid";
-import { sendTwilioSms } from "../backendUtils/twilio";
+// import { sendSendGridEmail } from "../backendUtils/sendGrid";
+// import { sendTwilioSms } from "../backendUtils/twilio";
 import {
   validateMove,
   validateUser,
   validateDocExists,
   isUserInCompanyConvex,
 } from "../backendUtils/validate";
+import { formatMonthDayLabelStrict } from "@/frontendUtils/luxonUtils";
+import { createPresetNewsFeedEntry } from "../backendUtils/newsFeedHelper";
 
 export const sendPresetScript = action({
   args: {
@@ -80,48 +82,50 @@ export const sendPresetScript = action({
     let sid: string | undefined = undefined;
 
     if (scriptType === "email") {
-      const companyContact = await ctx.runQuery(
-        internal.companyContacts.getCompanyContactByCompanyIdInternal,
-        {
-          companyId: company._id,
-        }
-      );
-      if (!companyContact) {
-        throwConvexError(ErrorMessages.COMPANY_CONTACT_NOT_FOUND, {
-          code: "NOT_FOUND",
-          showToUser: true,
-        });
-      }
-      sid = await sendSendGridEmail({
-        fromEmail: companyContact.email,
-        toEmail: validatedMoveCustomer.email,
-        body: script.message,
-        subject: script.emailTitle ?? "No Subject",
-      });
+      sid = "test email";
+      // const companyContact = await ctx.runQuery(
+      //   internal.companyContacts.getCompanyContactByCompanyIdInternal,
+      //   {
+      //     companyId: company._id,
+      //   }
+      // );
+      // if (!companyContact) {
+      //   throwConvexError(ErrorMessages.COMPANY_CONTACT_NOT_FOUND, {
+      //     code: "NOT_FOUND",
+      //     showToUser: true,
+      //   });
+      // }
+      // sid = await sendSendGridEmail({
+      //   fromEmail: companyContact.email,
+      //   toEmail: validatedMoveCustomer.email,
+      //   body: script.message,
+      //   subject: script.emailTitle ?? "No Subject",
+      // });
     } else if (scriptType === "sms") {
-      const twilioNumber = await ctx.runQuery(
-        internal.twilioNumbers.getTwilioNumberByCompanyIdInternal,
-        {
-          companyId: company._id,
-        }
-      );
-      if (!twilioNumber) {
-        throwConvexError(ErrorMessages.COMPANY_CONTACT_NOT_FOUND, {
-          code: "NOT_FOUND",
-          showToUser: true,
-        });
-      }
-      if (!validatedMoveCustomer.phoneNumber) {
-        throwConvexError("Customer phone number not found", {
-          code: "NOT_FOUND",
-          showToUser: true,
-        });
-      }
-      sid = await sendTwilioSms({
-        fromPhoneNumber: twilioNumber.phoneNumber,
-        toPhoneNumber: validatedMoveCustomer.phoneNumber,
-        body: script.message ?? "",
-      });
+      sid = "test sms";
+      // const twilioNumber = await ctx.runQuery(
+      //   internal.twilioNumbers.getTwilioNumberByCompanyIdInternal,
+      //   {
+      //     companyId: company._id,
+      //   }
+      // );
+      // if (!twilioNumber) {
+      //   throwConvexError(ErrorMessages.COMPANY_CONTACT_NOT_FOUND, {
+      //     code: "NOT_FOUND",
+      //     showToUser: true,
+      //   });
+      // }
+      // if (!validatedMoveCustomer.phoneNumber) {
+      //   throwConvexError("Customer phone number not found", {
+      //     code: "NOT_FOUND",
+      //     showToUser: true,
+      //   });
+      // }
+      // sid = await sendTwilioSms({
+      //   fromPhoneNumber: twilioNumber.phoneNumber,
+      //   toPhoneNumber: validatedMoveCustomer.phoneNumber,
+      //   body: script.message ?? "",
+      // });
     }
 
     await ctx.runMutation(internal.messages.internalCreateMessage, {
@@ -137,6 +141,20 @@ export const sendPresetScript = action({
       subject: script.emailTitle,
     });
 
+    const moveDate = move.moveDate
+      ? formatMonthDayLabelStrict(move.moveDate)
+      : "TBD";
+    const entry = createPresetNewsFeedEntry(preSetTypes, {
+      moveId,
+      companyId: company._id,
+      userId: user._id,
+      customerName: validatedMoveCustomer.name || "Customer",
+      moveDate,
+      salesRepName: user.name,
+      deliveryType: scriptType,
+    });
+
+    await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, { entry });
     return true;
   },
 });
