@@ -2,12 +2,13 @@ import IconButton from "@/components/shared/buttons/IconButton";
 import { formatLongDate, getStatusColor } from "@/frontendUtils/helper";
 import { Doc } from "@/convex/_generated/dataModel";
 import { ChevronLeft, Phone, Truck } from "lucide-react";
+import { CustomerUser } from "@/types/types";
 
 interface MessageHeaderProps {
   move: Doc<"moves">;
   onBack: () => void;
   onCall: () => void;
-  moveCustomer: Doc<"users">;
+  moveCustomer: CustomerUser;
 }
 
 const MessageHeader: React.FC<MessageHeaderProps> = ({
