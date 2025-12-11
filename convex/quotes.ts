@@ -284,6 +284,8 @@ export const signQuote = action({
       ? formatMonthDayLabelStrict(validatedMove.moveDate)
       : "TBD";
 
+    const depositAmount = formatCurrency(validatedMove.deposit ?? 0);
+
     await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
       entry: {
         type: "QUOTE_SIGNED",
