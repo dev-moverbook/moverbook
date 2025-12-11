@@ -1,6 +1,7 @@
 import { CreatableUserRole, TravelChargingTypes } from "@/types/enums";
 import {
   AccessType,
+  CustomerUser,
   HourStatus,
   JobType,
   LocationType,
@@ -161,7 +162,7 @@ export function formatCurrencyCompact(amount: number): string {
 
 export const getMoveStatusType = (
   move: Doc<"moves">,
-  moveCustomer: Doc<"users">,
+  moveCustomer: CustomerUser,
   quote: Doc<"quotes"> | null
 ): string => {
   if (quote) {
@@ -174,7 +175,7 @@ export const getMoveStatusType = (
 
 export const hasRequiredMoveFields = (
   move: Doc<"moves">,
-  moveCustomer: Doc<"users">
+  moveCustomer: CustomerUser
 ): boolean => {
   const hasInfoSection =
     !!moveCustomer.email?.trim() &&
