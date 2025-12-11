@@ -81,7 +81,7 @@ const Waiver = ({ waiver }: WaiverProps) => {
             title="Rep Signature"
           />
         ) : (
-          <Signature onChange={setSignatureDataUrl} />
+          <Signature title="Rep Signature" onChange={setSignatureDataUrl} />
         )}
         {showCustomerSignature && (
           <DisplaySignature

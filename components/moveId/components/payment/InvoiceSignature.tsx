@@ -103,7 +103,10 @@ const InvoiceSignature = ({ invoice, move, total }: InvoiceSignatureProps) => {
             title="Sales Rep Signature"
           />
         ) : (
-          <Signature onChange={setSignatureDataUrl} />
+          <Signature
+            title="Sales Rep Signature"
+            onChange={setSignatureDataUrl}
+          />
         )}
 
         <FormActionContainer>
