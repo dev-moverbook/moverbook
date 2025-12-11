@@ -186,7 +186,7 @@ export interface CreateMessageData {
 }
 
 export interface GetCustomerAndMovesData {
-  moveCustomer: Doc<"users">;
+  moveCustomer: CustomerUser;
   moves: EnrichedMoveForMover[] | Doc<"moves">[];
 }
 

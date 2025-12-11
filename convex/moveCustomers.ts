@@ -427,6 +427,7 @@ export const getCustomerAndMoves = query({
       moveCustomerId,
       ErrorMessages.MOVE_CUSTOMER_NOT_FOUND
     );
+    const customerUser = assertCustomerUser(moveCustomer);
     const company = await ctx.runQuery(
       internal.companies.getCompanyBySlugInternal,
       { slug }
@@ -455,7 +456,7 @@ export const getCustomerAndMoves = query({
 
     if (!isMover || !selfMoverId) {
       return {
-        moveCustomer,
+        moveCustomer: customerUser,
         moves: baseMoves,
       };
     }

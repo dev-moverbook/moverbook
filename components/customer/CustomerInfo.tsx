@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { Mail, Phone, PhoneForwarded, Contact } from "lucide-react";
-import { Doc } from "@/convex/_generated/dataModel";
 import EditableIconField from "../shared/labeled/EditableIconField";
 import { CustomerFormData, CustomerFormErrors } from "@/types/form-types";
 import { validateCustomerForm } from "@/frontendUtils/validation";
@@ -13,9 +12,10 @@ import SectionHeader from "../shared/section/SectionHeader";
 import { isValidEmail, isValidPhoneNumber } from "@/utils/helper";
 import { useSlugContext } from "@/contexts/SlugContext";
 import { canCreateMove, isMover } from "@/frontendUtils/permissions";
+import { CustomerUser } from "@/types/types";
 
 interface CustomerInfoProps {
-  moveCustomer: Doc<"users">;
+  moveCustomer: CustomerUser;
   onClick?: () => void;
   showCheckmark?: boolean;
   isMoverLead?: boolean;
