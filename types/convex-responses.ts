@@ -168,7 +168,7 @@ export interface GetPaymentPageData {
 }
 
 export interface EnrichedMove extends Doc<"moves"> {
-  moveCustomer: Doc<"users"> | null;
+  moveCustomer: CustomerUser;
   salesRepUser: Doc<"users"> | null;
   moverWageForMove?: MoverWageForMove;
   hourStatus?: HourStatus;
