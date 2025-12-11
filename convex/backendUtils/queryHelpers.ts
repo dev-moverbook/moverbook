@@ -1,7 +1,7 @@
 import { ClerkRoles } from "@/types/enums";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { QueryCtx, MutationCtx } from "@/convex/_generated/server";
-import { validateUser } from "./validate";
+import { assertCustomerUser, validateUser } from "./validate";
 import { UserIdentity } from "convex/server";
 import {
   getMoveCostRange,
@@ -261,7 +261,9 @@ export function enrichMoves(
 
   return moves.map((move) => ({
     ...move,
-    moveCustomer: moveCustomerMap[move.moveCustomerId] ?? null,
+    moveCustomer: assertCustomerUser(
+      moveCustomerMap[move.moveCustomerId] ?? null
+    ),
     salesRepUser: move.salesRep ? (salesRepMap[move.salesRep] ?? null) : null,
     moverWageForMove: moverWageForMove?.get(move._id),
     hourStatus: hourStatusMap?.get(move._id),

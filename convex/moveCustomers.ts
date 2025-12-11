@@ -479,7 +479,7 @@ export const getCustomerAndMoves = query({
     });
 
     return {
-      moveCustomer,
+      moveCustomer: customerUser,
       moves,
     };
   },
