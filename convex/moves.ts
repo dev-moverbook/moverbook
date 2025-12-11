@@ -16,7 +16,6 @@ import { ClerkRoles } from "@/types/enums";
 import {
   validateCompany,
   validateDocument,
-  validateMoveCustomer,
   validatePolicy,
   validateTravelFee,
   validateUser,
@@ -96,6 +95,7 @@ import { computeMoveTotal } from "@/frontendUtils/helper";
 import { fetchDistanceMatrix } from "./google";
 import { LocationInput } from "@/types/form-types";
 import { hopLabel } from "@/frontendUtils/segmentDistanceHelper";
+import { throwConvexError } from "./backendUtils/errors";
 
 export const getMoveOptions = query({
   args: { companyId: v.id("companies") },
@@ -354,7 +354,7 @@ export const getMoveContext = query({
       quote,
       salesRepUserDoc,
       companyContactDoc,
-      moveCustomerDoc,
+      moveCustomer,
       travelFeeDoc,
       policyDoc,
       additionalFees,
@@ -371,7 +371,9 @@ export const getMoveContext = query({
         .query("companyContacts")
         .filter((q) => q.eq(q.field("companyId"), move.companyId))
         .first(),
-      ctx.db.get(move.moveCustomerId), // ← This should always exist
+      ctx.runQuery(internal.moveCustomers.getMoveCustomerByIdInternal, {
+        moveCustomerId: move.moveCustomerId,
+      }),
       ctx.db
         .query("travelFees")
         .filter((q) => q.eq(q.field("companyId"), move.companyId))
@@ -397,7 +399,6 @@ export const getMoveContext = query({
 
     const salesRepUser = salesRepUserDoc ? validateUser(salesRepUserDoc) : null;
     const companyContact = validateCompanyContact(companyContactDoc);
-    const moveCustomer = validateMoveCustomer(moveCustomerDoc);
     const travelFee = validateTravelFee(travelFeeDoc);
     const policy = validatePolicy(policyDoc);
 
@@ -1432,6 +1433,14 @@ export const getPublicMoveById = query({
       ErrorMessages.MOVE_NOT_FOUND
     );
 
+    const company = validateDocExists(
+      "companies",
+      await ctx.runQuery(internal.companies.getCompanyByIdInternal, {
+        companyId: move.companyId,
+      }),
+      ErrorMessages.COMPANY_NOT_FOUND
+    );
+
     if (user.role === ClerkRoles.CUSTOMER) {
       isCustomerInMove(user, move);
     } else {
@@ -1442,9 +1451,53 @@ export const getPublicMoveById = query({
       moveId,
     });
 
+    const rawCompanyContact = await ctx.runQuery(
+      internal.companyContacts.getCompanyContactByCompanyIdInternal,
+      {
+        companyId: move.companyId,
+      }
+    );
+
+    const companyContact = validateDocExists(
+      "companyContacts",
+      rawCompanyContact,
+      ErrorMessages.COMPANY_CONTACT_NOT_FOUND
+    );
+    const moveCustomer = await ctx.runQuery(
+      internal.moveCustomers.getMoveCustomerByIdInternal,
+      {
+        moveCustomerId: move.moveCustomerId,
+      }
+    );
+
+    if (!move.salesRep) {
+      throwConvexError("Sales rep not found", {
+        code: "BAD_REQUEST",
+      });
+    }
+    const salesRepUser = validateDocExists(
+      "users",
+      await ctx.runQuery(internal.users.getUserByIdInternal, {
+        userId: move.salesRep,
+      }),
+      ErrorMessages.USER_NOT_FOUND
+    );
+
+    const policy = await ctx.db
+      .query("policies")
+      .withIndex("by_companyId", (q) => q.eq("companyId", move.companyId))
+      .first();
+
+    const validatedPolicy = validatePolicy(policy);
+
     return {
       move,
       quote,
+      company,
+      companyContact,
+      moveCustomer,
+      salesRepUser,
+      policy: validatedPolicy,
     };
   },
 });

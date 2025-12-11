@@ -7,6 +7,7 @@ interface SingleFormActionProps {
   error?: string | null;
   submitVariant?: "default" | "destructive" | "outline" | "ghost";
   disabled?: boolean;
+  onSubmit?: () => void;
 }
 
 const SingleFormAction: React.FC<SingleFormActionProps> = ({
@@ -15,6 +16,7 @@ const SingleFormAction: React.FC<SingleFormActionProps> = ({
   error,
   submitVariant = "default",
   disabled = false,
+  onSubmit,
 }) => {
   return (
     <div className="flex flex-col">
@@ -24,6 +26,7 @@ const SingleFormAction: React.FC<SingleFormActionProps> = ({
         variant={submitVariant}
         className="w-full"
         isLoading={isSubmitting}
+        onClick={onSubmit ?? undefined}
       >
         {submitLabel}
       </Button>

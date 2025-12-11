@@ -573,3 +573,16 @@ export function isCustomerInMove(user: Doc<"users">, move: Doc<"moves">): void {
     });
   }
 }
+
+export function isCorrectMoveCustomer(
+  moveCustomerId: Id<"users">,
+  moveCustomerIdInMove: Id<"users">
+): void {
+  const isValid = moveCustomerId === moveCustomerIdInMove;
+  if (!isValid) {
+    throwConvexError(ErrorMessages.FOBIDDEN_MOVE, {
+      code: "FORBIDDEN",
+      showToUser: true,
+    });
+  }
+}

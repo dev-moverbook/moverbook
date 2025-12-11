@@ -7,9 +7,10 @@ import { X } from "lucide-react";
 
 interface SignaturePadProps {
   onChange: (dataUrl: string | null) => void;
+  title: string;
 }
 
-const SignaturePad = ({ onChange }: SignaturePadProps) => {
+const SignaturePad = ({ title, onChange }: SignaturePadProps) => {
   const sigCanvasRef = useRef<SignatureCanvas | null>(null);
 
   const clearSignature = () => {
@@ -32,7 +33,7 @@ const SignaturePad = ({ onChange }: SignaturePadProps) => {
   return (
     <div>
       <div className="flex justify-between">
-        <h3 className="text-lg font-medium ">Sales Rep Signature</h3>
+        <h3 className="text-lg font-medium ">{title}</h3>
         <IconButton
           variant="outline"
           icon={<X className="w-4 h-4" />}

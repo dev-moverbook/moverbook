@@ -9,10 +9,14 @@ import { useSendPresetScript } from "@/hooks/messages";
 import { PresSetScripts } from "@/types/enums";
 
 interface QuoteActionsProps {
-  signatureDataUrl: string | null;
+  salesRepSignatureDataUrl: string | null;
+  customerSignatureDataUrl: string | null;
 }
 
-const QuoteActions = ({ signatureDataUrl }: QuoteActionsProps) => {
+const QuoteActions = ({
+  salesRepSignatureDataUrl,
+  customerSignatureDataUrl,
+}: QuoteActionsProps) => {
   const [activeLoading, setActiveLoading] = useState<
     "booked" | "sms" | "email" | null
   >(null);
@@ -42,7 +46,9 @@ const QuoteActions = ({ signatureDataUrl }: QuoteActionsProps) => {
       moveId,
       updates: {
         status: "pending",
-        ...(signatureDataUrl && { repSignature: signatureDataUrl }),
+        ...(salesRepSignatureDataUrl && {
+          repSignature: salesRepSignatureDataUrl,
+        }),
       },
     });
     await sendPresetScript({
@@ -59,7 +65,9 @@ const QuoteActions = ({ signatureDataUrl }: QuoteActionsProps) => {
       moveId,
       updates: {
         status: "pending",
-        ...(signatureDataUrl && { repSignature: signatureDataUrl }),
+        ...(salesRepSignatureDataUrl && {
+          repSignature: salesRepSignatureDataUrl,
+        }),
       },
     });
     await sendPresetScript({
@@ -76,13 +84,18 @@ const QuoteActions = ({ signatureDataUrl }: QuoteActionsProps) => {
       moveId,
       updates: {
         status: "completed",
-        ...(signatureDataUrl && { repSignature: signatureDataUrl }),
+        ...(customerSignatureDataUrl && {
+          customerSignature: customerSignatureDataUrl,
+        }),
+        ...(salesRepSignatureDataUrl && {
+          repSignature: salesRepSignatureDataUrl,
+        }),
       },
     });
     handleUpdateMoveStatusToBooked();
     setActiveLoading(null);
   };
-  const isRepSigned = !!signatureDataUrl || quote?.repSignature;
+  const isRepSigned = !!salesRepSignatureDataUrl || quote?.repSignature;
 
   const isPrimaryDisabled = !isRepSigned;
 

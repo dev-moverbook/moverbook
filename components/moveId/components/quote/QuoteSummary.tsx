@@ -8,12 +8,14 @@ import {
   formatTime,
   getTotalWeightAndSize,
 } from "@/frontendUtils/helper";
-import { useMoveContext } from "@/contexts/MoveContext";
+import { Doc } from "@/convex/_generated/dataModel";
 
-const QuoteSummary = () => {
-  const { moveData } = useMoveContext();
-  const { move, company } = moveData;
+interface QuoteSummaryProps {
+  move: Doc<"moves">;
+  company: Doc<"companies">;
+}
 
+const QuoteSummary = ({ move, company }: QuoteSummaryProps) => {
   const {
     moveDate,
     arrivalTimes,

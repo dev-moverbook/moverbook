@@ -5,11 +5,13 @@ import SectionHeader from "@/components/shared/section/SectionHeader";
 import { groupItemsByRoom } from "@/frontendUtils/helper";
 import RoomCard from "../card/RoomCard";
 import EmptyList from "@/components/shared/message/EmptyList";
-import { useMoveContext } from "@/contexts/MoveContext";
+import { Doc } from "@/convex/_generated/dataModel";
 
-const QuoteInventory = () => {
-  const { moveData } = useMoveContext();
-  const { move } = moveData;
+interface QuoteInventoryProps {
+  move: Doc<"moves">;
+}
+
+const QuoteInventory = ({ move }: QuoteInventoryProps) => {
   const { moveItems } = move;
   const grouped = groupItemsByRoom(moveItems ?? []);
   const noItems = Object.keys(grouped).length === 0;

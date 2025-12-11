@@ -2,16 +2,12 @@ import { FileText, Clock, CheckCircle2, AlertTriangle } from "lucide-react";
 import { ReactNode } from "react";
 import { Doc } from "@/convex/_generated/dataModel";
 import { isSameDayOrLater } from "./luxonUtils";
-import { MoveStatus } from "@/types/types";
+import { DisplayQuoteStatus, MoveStatus } from "@/types/types";
 
 export const getQuoteStatusInfo = (
   quote: Doc<"quotes"> | null,
   moveStatus?: MoveStatus
-): {
-  label: string;
-  icon: ReactNode;
-  isQuoted: boolean;
-} => {
+): DisplayQuoteStatus => {
   if (quote?.status === "completed" || moveStatus === "Booked") {
     return {
       label: "Quote Complete",
@@ -159,5 +155,39 @@ export const getMoveStatus = (
   return {
     label: "Move Completed",
     icon: <CheckCircle2 className="w-4 h-4 text-greenCustom" />,
+  };
+};
+
+export const getPublicQuoteStatus = (
+  quote: Doc<"quotes"> | null
+): DisplayQuoteStatus => {
+  if (quote?.status === "completed") {
+    return {
+      label: "Quote Complete",
+      icon: <CheckCircle2 className="w-4 h-4 text-greenCustom" />,
+      isQuoted: true,
+    };
+  }
+
+  if (quote?.status === "pending") {
+    return {
+      label: "Signature Required",
+      icon: <Clock className="w-4 h-4 text-yellow-500" />,
+      isQuoted: true,
+    };
+  }
+
+  if (quote?.status === "customer_change") {
+    return {
+      label: "Requested Changes",
+      icon: <AlertTriangle className="w-4 h-4 text-yellow-500" />,
+      isQuoted: true,
+    };
+  }
+
+  return {
+    label: "Awaiting Quote",
+    icon: <FileText className="w-4 h-4 text-gray-400" />,
+    isQuoted: false,
   };
 };

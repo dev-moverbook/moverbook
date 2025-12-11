@@ -4,15 +4,20 @@ import SectionContainer from "@/components/shared/containers/SectionContainer";
 import SectionHeader from "@/components/shared/section/SectionHeader";
 import Signature from "@/components/move/shared/Signature";
 import DisplaySignature from "@/components/move/shared/DisplaySignature";
-import { useMoveContext } from "@/contexts/MoveContext";
+import { Doc } from "@/convex/_generated/dataModel";
 
 interface QuoteSignatureProps {
-  setSignatureDataUrl: (dataUrl: string | null) => void;
+  setSalesRepSignatureDataUrl?: (dataUrl: string | null) => void;
+  setCustomerSignatureDataUrl?: (dataUrl: string | null) => void;
+
+  quote: Doc<"quotes"> | null;
 }
 
-const QuoteSignature = ({ setSignatureDataUrl }: QuoteSignatureProps) => {
-  const { moveData } = useMoveContext();
-  const { quote } = moveData;
+const QuoteSignature = ({
+  setSalesRepSignatureDataUrl,
+  setCustomerSignatureDataUrl,
+  quote,
+}: QuoteSignatureProps) => {
   const showRepSignature =
     (!!quote?.repSignature && quote?.status === "pending") ||
     quote?.status === "completed";
@@ -32,14 +37,22 @@ const QuoteSignature = ({ setSignatureDataUrl }: QuoteSignatureProps) => {
             title="Sales Rep Signature"
           />
         ) : (
-          <Signature onChange={setSignatureDataUrl} />
+          <Signature
+            title="Sales Rep Signature"
+            onChange={setSalesRepSignatureDataUrl ?? (() => {})}
+          />
         )}
-        {showCustomerSignature && (
+        {showCustomerSignature ? (
           <DisplaySignature
             image={quote.customerSignature || ""}
             timestamp={quote.customerSignedAt || 0}
             alt="Customer Signature"
             title="Customer Signature"
+          />
+        ) : (
+          <Signature
+            title="Customer Signature"
+            onChange={setCustomerSignatureDataUrl ?? (() => {})}
           />
         )}
       </SectionContainer>

@@ -25,7 +25,8 @@ const QuoteStep = ({ quote }: QuoteStepProps) => {
   const { move } = moveData;
   const title = formatServiceTypeLabel(move.serviceType);
   const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
-
+  const { company } = moveData;
+  const { companyContact, moveCustomer, salesRepUser, policy } = moveData;
   const quoteStatus = getQuoteStatusInfo(quote, move.moveStatus);
 
   return (
@@ -41,13 +42,20 @@ const QuoteStep = ({ quote }: QuoteStepProps) => {
         ]}
       />
       <>
-        <QuoteSummary />
-        <QuoteContact />
-        <QuoteLocation />
-        <QuoteInventory />
-        <QuoteCost />
-        <QuoteTerms />
-        <QuoteSignature setSignatureDataUrl={setSignatureDataUrl} />
+        <QuoteSummary move={move} company={company} />
+        <QuoteContact
+          companyContact={companyContact}
+          moveCustomer={moveCustomer}
+          salesRepUser={salesRepUser}
+        />
+        <QuoteLocation move={move} />
+        <QuoteInventory move={move} />
+        <QuoteCost move={move} />
+        <QuoteTerms policy={policy} />
+        <QuoteSignature
+          quote={quote}
+          setSignatureDataUrl={setSignatureDataUrl}
+        />
         <QuoteActions signatureDataUrl={signatureDataUrl} />
       </>
     </SectionContainer>

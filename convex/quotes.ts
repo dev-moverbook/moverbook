@@ -1,9 +1,15 @@
-import { action, internalQuery, mutation } from "./_generated/server";
+import {
+  action,
+  internalMutation,
+  internalQuery,
+  mutation,
+} from "./_generated/server";
 import { v } from "convex/values";
 import { QuoteStatusConvex } from "./schema";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import { ClerkRoles } from "@/types/enums";
 import {
+  isCorrectMoveCustomer,
   isUserInOrg,
   validateCompany,
   validateDocExists,
@@ -23,15 +29,13 @@ export const createOrUpdateQuote = mutation({
     moveId: v.id("moves"),
     updates: v.object({
       customerSignature: v.optional(v.string()),
-      customerSignedAt: v.optional(v.number()),
       repSignature: v.optional(v.string()),
-      repSignedAt: v.optional(v.number()),
       status: v.optional(QuoteStatusConvex),
     }),
   },
   handler: async (ctx, args): Promise<boolean> => {
     const { moveId } = args;
-    const updates = { ...args.updates };
+    const updates: Partial<Doc<"quotes">> = { ...args.updates };
 
     const identity = await requireAuthenticatedUser(ctx, [
       ClerkRoles.ADMIN,
@@ -51,7 +55,7 @@ export const createOrUpdateQuote = mutation({
 
     const now = Date.now();
 
-    if (updates.customerSignature && !updates.customerSignedAt) {
+    if (updates.customerSignature) {
       updates.customerSignedAt = now;
     }
 
@@ -204,5 +208,110 @@ export const getQuoteByMoveId = internalQuery({
       .query("quotes")
       .withIndex("by_move", (q) => q.eq("moveId", moveId))
       .first();
+  },
+});
+
+export const updateQuote = internalMutation({
+  args: {
+    quoteId: v.id("quotes"),
+    updates: v.object({
+      customerSignature: v.optional(v.string()),
+      customerSignedAt: v.optional(v.number()),
+      repSignature: v.optional(v.string()),
+      repSignedAt: v.optional(v.number()),
+      status: v.optional(QuoteStatusConvex),
+    }),
+  },
+  handler: async (ctx, args): Promise<void> => {
+    const { quoteId, updates } = args;
+
+    await ctx.db.patch(quoteId, updates);
+  },
+});
+
+export const signQuote = action({
+  args: {
+    moveId: v.id("moves"),
+    signature: v.string(),
+    paymentMethodId: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const { moveId, signature } = args;
+
+    const identity = await requireAuthenticatedUser(ctx, [ClerkRoles.CUSTOMER]);
+
+    const move = await ctx.runQuery(internal.moves.getMoveByIdInternal, {
+      moveId,
+    });
+
+    const validatedMove = validateDocExists(
+      "moves",
+      move,
+      ErrorMessages.MOVE_NOT_FOUND
+    );
+
+    const moveCustomer = validateMoveCustomer(
+      await ctx.runQuery(internal.users.getUserByIdInternal, {
+        userId: validatedMove.moveCustomerId,
+      })
+    );
+
+    isCorrectMoveCustomer(
+      identity.convexId as Id<"users">,
+      validatedMove.moveCustomerId
+    );
+
+    const quote = await ctx.runQuery(internal.quotes.getQuoteByMoveId, {
+      moveId,
+    });
+
+    const validatedQuote = validateDocExists(
+      "quotes",
+      quote,
+      ErrorMessages.QUOTE_NOT_FOUND
+    );
+
+    await ctx.runMutation(internal.quotes.updateQuote, {
+      quoteId: validatedQuote._id,
+      updates: {
+        customerSignature: signature,
+        customerSignedAt: Date.now(),
+        status: "completed",
+      },
+    });
+
+    const moveDate = validatedMove.moveDate
+      ? formatMonthDayLabelStrict(validatedMove.moveDate)
+      : "TBD";
+
+    await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
+      entry: {
+        type: "QUOTE_SIGNED",
+        companyId: validatedMove.companyId,
+        body: `**${moveCustomer.name}** signed proposal for  **${moveDate}** (deposit paid ${depositAmount}).`,
+        moveId,
+        moveCustomerId: moveCustomer._id,
+        context: {
+          customerName: moveCustomer.name,
+          moveDate,
+          depositAmount: "0",
+          quoteId: validatedQuote._id,
+        },
+      },
+    });
+
+    // if (validatedMove.deposit && validatedMove.deposit > 0 && paymentMethodId) {
+    //   await ctx.runAction(stripe.createDepositPaymentIntent, {
+    //     moveId: args.moveId,
+    //     amount: move.deposit,
+    //     paymentMethodId: args.paymentMethodId,
+    //   });
+
+    //   // Return immediately — payment is "processing"
+    //   return { success: true, status: "awaiting_payment" };
+    // }
+
+    // await ctx.runMutation(internal.moves.markAsBooked, { moveId: args.moveId });
+    return { success: true, status: "booked" };
   },
 });

@@ -455,3 +455,9 @@ export const ActivityEventType = {
 
 export type ActivityEventType =
   (typeof ActivityEventType)[keyof typeof ActivityEventType];
+
+export interface DisplayQuoteStatus {
+  label: string;
+  icon: React.ReactNode;
+  isQuoted: boolean;
+}

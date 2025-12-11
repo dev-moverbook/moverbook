@@ -4,11 +4,13 @@ import SectionContainer from "@/components/shared/containers/SectionContainer";
 import ReusableCard from "../card/ReusableCard";
 import { getMoveDisplayRows } from "@/frontendUtils/helper";
 import CostTable from "@/components/move/sections/CostTable";
-import { useMoveContext } from "@/contexts/MoveContext";
+import { Doc } from "@/convex/_generated/dataModel";
 
-const QuoteCost = () => {
-  const { moveData } = useMoveContext();
-  const { move } = moveData;
+interface QuoteCostProps {
+  move: Doc<"moves">;
+}
+
+const QuoteCost = ({ move }: QuoteCostProps) => {
   const {
     moveFees,
     liabilityCoverage,

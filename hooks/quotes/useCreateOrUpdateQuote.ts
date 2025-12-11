@@ -11,9 +11,7 @@ interface CreateOrUpdateQuoteInput {
   moveId: Id<"moves">;
   updates: {
     customerSignature?: string;
-    customerSignedAt?: number;
     repSignature?: string;
-    repSignedAt?: number;
     status?: QuoteStatus;
   };
 }

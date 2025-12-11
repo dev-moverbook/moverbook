@@ -4,12 +4,13 @@ import SectionContainer from "@/components/shared/containers/SectionContainer";
 import SectionHeader from "@/components/shared/section/SectionHeader";
 import CardContainer from "@/components/shared/card/CardContainer";
 import QuoteLocationCard from "@/components/moveId/components/card/QuoteLocationCard";
-import { useMoveContext } from "@/contexts/MoveContext";
+import { Doc } from "@/convex/_generated/dataModel";
 
-const QuoteLocation = () => {
-  const { moveData } = useMoveContext();
-  const { move } = moveData;
+interface QuoteLocationProps {
+  move: Doc<"moves">;
+}
 
+const QuoteLocation = ({ move }: QuoteLocationProps) => {
   const location = move.locations;
 
   return (

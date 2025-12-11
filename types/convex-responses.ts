@@ -1,7 +1,7 @@
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { ResponseStatus, StripeAccountStatus } from "./enums";
 import { ErrorMessages } from "./errors";
-import { HourStatus, MoverWageForMove } from "./types";
+import { CustomerUser, HourStatus, MoverWageForMove } from "./types";
 
 export interface ErrorResponse {
   status: ResponseStatus.ERROR;
@@ -129,7 +129,7 @@ export interface GetMoveData {
   quote: Doc<"quotes"> | null;
   company: Doc<"companies">;
   companyContact: Doc<"companyContacts">;
-  moveCustomer: Doc<"users">;
+  moveCustomer: CustomerUser;
   salesRepUser: Doc<"users"> | null;
   myAssignment: Doc<"moveAssignments"> | null;
   wageDisplay: MoverWageForMove | null;
@@ -231,4 +231,9 @@ export interface newCustomerResponse {
 export interface PublicMoveData {
   move: Doc<"moves">;
   quote: Doc<"quotes"> | null;
+  companyContact: Doc<"companyContacts">;
+  company: Doc<"companies">;
+  moveCustomer: CustomerUser;
+  salesRepUser: Doc<"users">;
+  policy: Doc<"policies">;
 }

@@ -4,10 +4,10 @@ import CustomCard from "@/components/shared/card/CustomCard";
 import { Phone, Mail, PhoneForwarded } from "lucide-react";
 import CardHeaderWithActions from "@/components/shared/card/CardHeaderWithActions";
 import { formatPhoneNumber } from "@/frontendUtils/helper";
-import { Doc } from "@/convex/_generated/dataModel";
+import { CustomerUser } from "@/types/types";
 
 interface CustomerCardProps {
-  moveCustomer: Doc<"users">;
+  moveCustomer: CustomerUser;
 }
 
 const CustomerCard = ({ moveCustomer }: CustomerCardProps) => {
