@@ -1491,6 +1491,44 @@ export const getPublicMoveById = query({
 
     const validatedPolicy = validatePolicy(policy);
 
+    const additionalFees = await ctx.db
+      .query("additionalFees")
+      .withIndex("by_move", (q) => q.eq("moveId", moveId))
+      .collect();
+
+    const discounts = await ctx.db
+      .query("discounts")
+      .withIndex("by_move", (q) => q.eq("moveId", moveId))
+      .collect();
+
+    const invoice = await ctx.runQuery(
+      internal.invoices.getInvoiceByMoveIdInternal,
+      {
+        moveId,
+      }
+    );
+
+    const waiver = await ctx.runQuery(
+      internal.waivers.getWaiverByMoveIdInternal,
+      {
+        moveId,
+      }
+    );
+
+    const contract = await ctx.runQuery(
+      internal.contracts.getContractByMoveIdInternal,
+      {
+        moveId,
+      }
+    );
+
+    const moverLocation = await ctx.runQuery(
+      internal.moverLocations.getMoverLocationByMoveIdInternal,
+      {
+        moveId,
+      }
+    );
+
     return {
       move,
       quote,
@@ -1499,6 +1537,12 @@ export const getPublicMoveById = query({
       moveCustomer,
       salesRepUser,
       policy: validatedPolicy,
+      additionalFees,
+      discounts,
+      invoice,
+      waiver,
+      contract,
+      moverLocation,
     };
   },
 });

@@ -5,9 +5,7 @@ import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
 
 interface UpdateWebIntegrationsData {
-  webform?: string;
-  webformEmbeddedCode?: string;
-  timeZone?: string;
+  externalReviewUrl?: string;
 }
 
 export const useUpdateWebIntegrations = () => {
