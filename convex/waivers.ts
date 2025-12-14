@@ -97,6 +97,7 @@ export const createOrUpdateWaiver = mutation({
   },
 });
 
+// To Be Deleted
 export const sendWaiver = action({
   args: {
     moveId: v.id("moves"),

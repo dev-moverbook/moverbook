@@ -7,6 +7,8 @@ import { Id } from "@/convex/_generated/dataModel";
 import { setErrorFromConvexError } from "@/frontendUtils/errorHelper";
 import { DeliveryType } from "@/types/types";
 
+// To Be Deleted
+
 export const useSendWaiver = () => {
   const [sendWaiverLoading, setSendWaiverLoading] = useState<boolean>(false);
   const [sendWaiverError, setSendWaiverError] = useState<string | null>(null);

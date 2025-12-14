@@ -9,7 +9,9 @@ import FormActions from "@/components/shared/buttons/FormActions";
 import CollapsibleSection from "@/components/shared/buttons/CollapsibleSection";
 import { Doc } from "@/convex/_generated/dataModel";
 import { useMoveContext } from "@/contexts/MoveContext";
-import { useCreateOrUpdateContract, useSendContract } from "@/hooks/contracts";
+import { useCreateOrUpdateContract } from "@/hooks/contracts";
+import { useSendPresetScript } from "@/hooks/messages";
+import { PresSetScripts } from "@/types/enums";
 
 interface ContractProps {
   contract: Doc<"contracts"> | null;
@@ -30,7 +32,7 @@ const Contract = ({ contract }: ContractProps) => {
   const { createOrUpdateContract, createOrUpdateContractError } =
     useCreateOrUpdateContract();
 
-  const { sendContract, sendContractError } = useSendContract();
+  const { sendPresetScript, sendPresetScriptError } = useSendPresetScript();
 
   const showRepSignature = !!repSignature && repSignedAt;
   const showCustomerSignature = !!customerSignature && customerSignedAt;
@@ -44,7 +46,10 @@ const Contract = ({ contract }: ContractProps) => {
         repSignature: signatureDataUrl,
       });
     }
-    await sendContract(moveId, "sms");
+    await sendPresetScript({
+      moveId,
+      preSetTypes: PresSetScripts.SMS_CONTRACT,
+    });
     setIsSmsLoading(false);
   };
 
@@ -55,7 +60,10 @@ const Contract = ({ contract }: ContractProps) => {
         repSignature: signatureDataUrl,
       });
     }
-    await sendContract(moveId, "email");
+    await sendPresetScript({
+      moveId,
+      preSetTypes: PresSetScripts.EMAIL_CONTRACT,
+    });
     setIsEmailLoading(false);
   };
 
@@ -102,7 +110,7 @@ const Contract = ({ contract }: ContractProps) => {
           cancelLabel="Text"
           isSaving={isEmailLoading}
           isCanceling={isSmsLoading}
-          error={createOrUpdateContractError || sendContractError}
+          error={createOrUpdateContractError || sendPresetScriptError}
           cancelDisabled={isDisabled}
         />
       </SectionContainer>

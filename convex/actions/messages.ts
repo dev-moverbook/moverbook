@@ -28,6 +28,8 @@ export const sendPresetScript = action({
   handler: async (ctx, args): Promise<boolean> => {
     const { moveId, preSetTypes } = args;
 
+    console.log("sendPresetScript", moveId, preSetTypes);
+
     const identity = await requireAuthenticatedUser(ctx, [
       ClerkRoles.ADMIN,
       ClerkRoles.APP_MODERATOR,

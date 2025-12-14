@@ -32,9 +32,13 @@ const LiabilityCoverageSection: React.FC<LiabilityCoverageSectionProps> = ({
   const editingMode = isAdd || isEditing;
 
   const handleChoose = async (policy: Doc<"insurancePolicies">) => {
-    if (isSaving) return; // guard while saving
+    if (isSaving) {
+      return;
+    }
     const ok = await Promise.resolve(onSelect(policy));
-    if (ok) setIsEditing(false); // only exit edit AFTER success
+    if (ok) {
+      setIsEditing(false);
+    }
   };
 
   return (

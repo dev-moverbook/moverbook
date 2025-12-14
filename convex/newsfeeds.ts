@@ -396,7 +396,6 @@ const newsFeedEntryUnion = v.union(
     context: v.object({
       customerName: v.string(),
       deliveryType: CommunicationTypeConvex,
-      internalReviewId: v.id("internalReviews"),
       moveDate: v.string(),
       salesRepName: v.string(),
     }),

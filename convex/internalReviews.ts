@@ -100,6 +100,7 @@ export const createInternalReview = mutation({
   },
 });
 
+// To Be Deleted
 export const sendInternalReview = action({
   args: {
     moveId: v.id("moves"),
@@ -187,7 +188,6 @@ export const sendInternalReview = action({
           deliveryType: args.channel,
           moveDate,
           salesRepName: user.name,
-          internalReviewId,
         },
         userId: user._id,
       },

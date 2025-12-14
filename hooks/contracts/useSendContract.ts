@@ -7,6 +7,8 @@ import { Id } from "@/convex/_generated/dataModel";
 import { setErrorFromConvexError } from "@/frontendUtils/errorHelper";
 import { DeliveryType } from "@/types/types";
 
+// To be Deleted
+
 export const useSendContract = () => {
   const [sendContractLoading, setSendContractLoading] =
     useState<boolean>(false);

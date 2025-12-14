@@ -10,7 +10,8 @@ import FormActionContainer from "@/components/shared/containers/FormActionContai
 import { useCreateOrUpdateInvoice } from "@/hooks/invoices";
 import { useUpdateMove } from "@/hooks/moves";
 import { Doc } from "@/convex/_generated/dataModel";
-import { useSendInvoice } from "@/hooks/invoices";
+import { useSendPresetScript } from "@/hooks/messages";
+import { PresSetScripts } from "@/types/enums";
 
 interface InvoiceSignatureProps {
   invoice: Doc<"invoices"> | null;
@@ -28,8 +29,9 @@ const InvoiceSignature = ({ invoice, move, total }: InvoiceSignatureProps) => {
   const { createOrUpdateInvoice, invoiceUpdateError } =
     useCreateOrUpdateInvoice();
   const { updateMove, updateMoveError } = useUpdateMove();
-  const { sendInvoice, sendInvoiceError, setSendInvoiceError } =
-    useSendInvoice();
+
+  const { sendPresetScript, sendPresetScriptError, setSendPresetScriptError } =
+    useSendPresetScript();
 
   const { repSignature, repSignedAt } = invoice || {};
   const showRepSignature = !!repSignature;
@@ -54,7 +56,10 @@ const InvoiceSignature = ({ invoice, move, total }: InvoiceSignatureProps) => {
         updates: { repSignature: signatureDataUrl },
       });
     }
-    await sendInvoice(move._id, "email");
+    await sendPresetScript({
+      moveId: move._id,
+      preSetTypes: PresSetScripts.EMAIL_INVOICE,
+    });
     setIsEmailing(false);
   };
 
@@ -66,12 +71,15 @@ const InvoiceSignature = ({ invoice, move, total }: InvoiceSignatureProps) => {
         updates: { repSignature: signatureDataUrl },
       });
     }
-    await sendInvoice(move._id, "sms");
+    await sendPresetScript({
+      moveId: move._id,
+      preSetTypes: PresSetScripts.SMS_INVOICE,
+    });
     setIsTexting(false);
   };
 
   const handleMarkAsComplete = async () => {
-    setSendInvoiceError(null);
+    setSendPresetScriptError(null);
     setIsMarkingAsComplete(true);
 
     const updates: Partial<Doc<"invoices">> = {
@@ -117,7 +125,9 @@ const InvoiceSignature = ({ invoice, move, total }: InvoiceSignatureProps) => {
             primaryLoading={isEmailing}
             secondaryLoading={isTexting}
             tertiaryLoading={isMarkingAsComplete}
-            error={invoiceUpdateError || updateMoveError || sendInvoiceError}
+            error={
+              invoiceUpdateError || updateMoveError || sendPresetScriptError
+            }
             disabled={isDisabled}
             primaryDisabled={isDisabled}
             secondaryDisabled={isDisabled}

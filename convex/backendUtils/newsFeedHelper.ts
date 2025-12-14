@@ -35,6 +35,7 @@ interface Options {
   moveDate?: string;
   salesRepName?: string;
   deliveryType: "email" | "sms";
+  internalReviewId?: Id<"internalReviews">;
 }
 
 export function createPresetNewsFeedEntry(
@@ -120,7 +121,7 @@ export function createPresetNewsFeedEntry(
     case PresSetScripts.SMS_EXTERNAL_REVIEW:
       return {
         type: "EXTERNAL_REVIEW_SENT" as const,
-        body: `${salesRepName} requested a review via ${deliveryType}`,
+        body: `${salesRepName} sent external review to **${customerName}** **${moveDate}** via ${deliveryType}`,
         companyId,
         moveId,
         userId,
@@ -152,7 +153,7 @@ export function createPresetNewsFeedEntry(
     case PresSetScripts.SMS_INTERNAL_REVIEW:
       return {
         type: "INTERNAL_REVIEW_SENT" as const,
-        body: "Internal review requested",
+        body: `${salesRepName} sent internal review via ${deliveryType}`,
         companyId,
         moveId,
         userId,
@@ -160,7 +161,6 @@ export function createPresetNewsFeedEntry(
           customerName,
           deliveryType,
           moveDate,
-          internalReviewId: "" as Id<"internalReviews">,
           salesRepName,
         },
       };

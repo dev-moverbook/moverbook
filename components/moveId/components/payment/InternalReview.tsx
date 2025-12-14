@@ -5,8 +5,9 @@ import SectionContainer from "@/components/shared/containers/SectionContainer";
 import FormActions from "@/components/shared/buttons/FormActions";
 import SectionHeader from "@/components/shared/section/SectionHeader";
 import { Doc } from "@/convex/_generated/dataModel";
-import { useSendInternalReview } from "@/hooks/internalReviews";
 import { useState } from "react";
+import { PresSetScripts } from "@/types/enums";
+import { useSendPresetScript } from "@/hooks/messages";
 
 interface InternalReviewProps {
   internalReview: Doc<"internalReviews"> | null;
@@ -18,18 +19,24 @@ const InternalReview = ({ internalReview, move }: InternalReviewProps) => {
 
   const [isSmsLoading, setIsSmsLoading] = useState<boolean>(false);
   const [isEmailLoading, setIsEmailLoading] = useState<boolean>(false);
-  const { sendInternalReview, sendInternalReviewError } =
-    useSendInternalReview();
+
+  const { sendPresetScript, sendPresetScriptError } = useSendPresetScript();
 
   const handleSendInternalReviewEmail = async () => {
     setIsEmailLoading(true);
-    await sendInternalReview(move._id, "email");
+    await sendPresetScript({
+      moveId: move._id,
+      preSetTypes: PresSetScripts.EMAIL_INTERNAL_REVIEW,
+    });
     setIsEmailLoading(false);
   };
 
   const handleSendInternalReviewSms = async () => {
     setIsSmsLoading(true);
-    await sendInternalReview(move._id, "sms");
+    await sendPresetScript({
+      moveId: move._id,
+      preSetTypes: PresSetScripts.SMS_INTERNAL_REVIEW,
+    });
     setIsSmsLoading(false);
   };
   return (
@@ -51,7 +58,7 @@ const InternalReview = ({ internalReview, move }: InternalReviewProps) => {
           }}
           isSaving={isEmailLoading}
           isCanceling={isSmsLoading}
-          error={sendInternalReviewError}
+          error={sendPresetScriptError}
           saveLabel="Email"
           cancelLabel="Text"
           disabled={isDisabled}

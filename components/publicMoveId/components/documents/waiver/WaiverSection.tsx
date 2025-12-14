@@ -3,9 +3,10 @@
 import DisplaySignature from "@/components/move/shared/DisplaySignature";
 import Signature from "@/components/move/shared/Signature";
 import CollapsibleSection from "@/components/shared/buttons/CollapsibleSection";
-import SectionContainer from "@/components/shared/containers/SectionContainer";
 import { Doc } from "@/convex/_generated/dataModel";
 import { useState } from "react";
+import SectionContainer from "@/components/shared/containers/SectionContainer";
+
 import WaiverActions from "./WaiverActions";
 import AdditionalLiabilityTerms from "@/components/moveId/components/copy/AdditionalLiabilityTerms";
 
@@ -25,7 +26,7 @@ const WaiverSection = ({ waiver }: WaiverSectionProps) => {
       showCheckmark
       isCompleted={isCompleted}
       toggleLabels={{ open: "Hide", closed: "Show" }}
-      className="max-w-screen-sm mx-auto border-b md:border-none"
+      className="max-w-screen-sm border-b md:border-none"
     >
       <SectionContainer showBorder={false}>
         <AdditionalLiabilityTerms />
