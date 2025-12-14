@@ -1,8 +1,9 @@
 import { ClerkRoles } from "@/types/enums";
-import { mutation, query } from "./_generated/server";
+import { internalQuery, mutation, query } from "./_generated/server";
 import { ConvexError, v } from "convex/values";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import {
+  isIdentityInMove,
   isUserInCompanyConvex,
   validateDocument,
   validateUser,
@@ -221,11 +222,8 @@ export const getMoverLocation = query({
       ClerkRoles.MANAGER,
       ClerkRoles.SALES_REP,
       ClerkRoles.MOVER,
+      ClerkRoles.CUSTOMER,
     ]);
-
-    const validatedUser = validateUser(
-      await ctx.db.get(identity.convexId as Id<"users">)
-    );
 
     const move = await validateDocument(
       ctx.db,
@@ -234,13 +232,27 @@ export const getMoverLocation = query({
       ErrorMessages.MOVE_NOT_FOUND
     );
 
-    isUserInCompanyConvex(validatedUser, move.companyId);
+    isIdentityInMove(identity, move);
 
     const moverLocation = await ctx.db
       .query("moverLocations")
       .withIndex("by_moveId", (q) => q.eq("moveId", moveId))
       .unique();
 
+    return moverLocation;
+  },
+});
+
+export const getMoverLocationByMoveIdInternal = internalQuery({
+  args: {
+    moveId: v.id("moves"),
+  },
+  handler: async (ctx, args): Promise<Doc<"moverLocations"> | null> => {
+    const { moveId } = args;
+    const moverLocation = await ctx.db
+      .query("moverLocations")
+      .withIndex("by_moveId", (q) => q.eq("moveId", moveId))
+      .unique();
     return moverLocation;
   },
 });

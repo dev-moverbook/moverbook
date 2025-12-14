@@ -236,4 +236,10 @@ export interface PublicMoveData {
   moveCustomer: CustomerUser;
   salesRepUser: Doc<"users">;
   policy: Doc<"policies">;
+  additionalFees: Doc<"additionalFees">[];
+  discounts: Doc<"discounts">[];
+  invoice: Doc<"invoices"> | null;
+  waiver: Doc<"waivers"> | null;
+  contract: Doc<"contracts"> | null;
+  moverLocation: Doc<"moverLocations"> | null;
 }

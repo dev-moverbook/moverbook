@@ -507,6 +507,7 @@ export const UpdateMoveFields = v.object({
   actualStartTime: v.optional(v.number()),
   actualEndTime: v.optional(v.number()),
   arrivalTimes: v.optional(ArrivalTimesConvex),
+  completedAt: v.optional(v.number()),
   creditCardFee: v.optional(v.number()),
   deposit: v.optional(v.number()),
   paymentMethod: v.optional(PaymentMethodConvex),

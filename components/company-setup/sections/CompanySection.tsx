@@ -13,6 +13,7 @@ import FieldGroup from "@/components/shared/field/FieldGroup";
 import FieldRow from "@/components/shared/field/FieldRow";
 import { TIMEZONE_OPTIONS } from "@/types/const";
 import SelectFieldRow from "@/components/shared/field/SelectFieldRow";
+import { useRouter } from "next/navigation";
 
 interface CompanySectionProps {
   company: Doc<"companies">;
@@ -46,7 +47,7 @@ const CompanySection: React.FC<CompanySectionProps> = ({
     name: company.name || "",
     timeZone: company.timeZone || "UTC",
   });
-
+  const router = useRouter();
   const handleEditClick = () => {
     setIsEditing(true);
   };
@@ -72,13 +73,16 @@ const CompanySection: React.FC<CompanySectionProps> = ({
     if (success) {
       setIsEditing(false);
       if (newSlug) {
-        window.location.href = `/app/${newSlug}/company-setup`;
+        router.replace(`/app/${newSlug}/company-setup`);
+        // window.location.href = `/app/${newSlug}/company-setup`;
       }
     }
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || e.target.files.length === 0) return;
+    if (!e.target.files || e.target.files.length === 0) {
+      return;
+    }
     const file = e.target.files[0];
     await uploadOrganizationLogo(company._id, file);
   };
@@ -102,7 +106,6 @@ const CompanySection: React.FC<CompanySectionProps> = ({
         />
 
         <div className="flex md:flex-row flex-col items-start md:space-x-8 space-y-4 md:space-y-0">
-          {/* Company Image */}
           <div className="relative">
             {company.imageUrl ? (
               <Image

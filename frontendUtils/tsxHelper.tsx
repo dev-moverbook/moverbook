@@ -191,3 +191,82 @@ export const getPublicQuoteStatus = (
     isQuoted: false,
   };
 };
+
+export const getPublicDocumentsStatus = (
+  contract: Doc<"contracts"> | null,
+  waiver: Doc<"waivers"> | null
+): {
+  label: string;
+  icon: ReactNode;
+} => {
+  const isContractSigned = contract?.customerSignature;
+  const isWaiverSigned = waiver?.customerSignature;
+  const isContractReadyToSign = contract && !isContractSigned;
+  const isWaiverReadyToSign = waiver && !isWaiverSigned;
+
+  if (!contract && !waiver) {
+    return {
+      label: "Awaiting Documents",
+      icon: <FileText className="w-4 h-4 text-gray-400" />,
+    };
+  }
+
+  if (isContractSigned && isWaiverSigned) {
+    return {
+      label: "Documents Signed",
+      icon: <CheckCircle2 className="w-4 h-4 text-greenCustom" />,
+    };
+  }
+
+  if (isContractReadyToSign && isWaiverReadyToSign) {
+    return {
+      label: "Documents Ready To Sign",
+      icon: <FileText className="w-4 h-4 text-gray-400" />,
+    };
+  }
+
+  if (isContractReadyToSign) {
+    return {
+      label: "Contract Ready To Sign",
+      icon: <FileText className="w-4 h-4 text-gray-400" />,
+    };
+  }
+
+  if (isWaiverReadyToSign) {
+    return {
+      label: "Waiver Ready To Sign",
+      icon: <FileText className="w-4 h-4 text-gray-400" />,
+    };
+  }
+
+  return {
+    label: "Awaiting Documents",
+    icon: <FileText className="w-4 h-4 text-gray-400" />,
+  };
+};
+
+export const getCustomerInvoiceStatus = (
+  invoice: Doc<"invoices"> | null
+): {
+  label: string;
+  icon: ReactNode;
+} => {
+  if (!invoice) {
+    return {
+      label: "Awaiting Invoice",
+      icon: <FileText className="w-4 h-4 text-gray-400" />,
+    };
+  }
+
+  if (invoice.customerSignature) {
+    return {
+      label: "Invoice Signed",
+      icon: <CheckCircle2 className="w-4 h-4 text-greenCustom" />,
+    };
+  }
+
+  return {
+    label: "Awaiting Payment",
+    icon: <Clock className="w-4 h-4 text-yellow-500" />,
+  };
+};

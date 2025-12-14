@@ -1,0 +1,80 @@
+"use client";
+
+import SectionContainer from "@/components/shared/containers/SectionContainer";
+import PaymentStatus from "./PaymentStatus";
+import PaymentActions from "./PaymentActions";
+import { useState } from "react";
+import InvoiceCustomerSignature from "./InvoiceCustomerSignature";
+import InvoiceSummary from "@/components/moveId/components/payment/InvoiceSummary";
+import { computeFinalMoveCost } from "@/frontendUtils/payout";
+import { usePublicMoveIdContext } from "@/contexts/PublicMovIdContext";
+
+const PaymentStep = () => {
+  const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
+
+  const { move } = usePublicMoveIdContext();
+  const invoice = move.invoice;
+  const additionalFees = move.additionalFees;
+  const discounts = move.discounts;
+  const {
+    moveFees,
+    jobType,
+    jobTypeRate,
+    liabilityCoverage,
+    segmentDistances,
+    travelFeeRate,
+    travelFeeMethod,
+    paymentMethod,
+    creditCardFee,
+    actualBreakTime,
+    actualStartTime,
+    actualEndTime,
+    actualArrivalTime,
+    deposit,
+  } = move.move;
+
+  const { items, total } = computeFinalMoveCost({
+    moveFees: moveFees ?? [],
+    jobType: jobType ?? "hourly",
+    jobTypeRate: jobTypeRate ?? 0,
+    liabilityCoverage: liabilityCoverage ?? null,
+    segmentDistances: segmentDistances ?? [],
+    travelFeeRate: travelFeeRate ?? null,
+    travelFeeMethod: travelFeeMethod ?? null,
+    paymentMethod: paymentMethod ?? { kind: "other", label: "Other" },
+    creditCardFee: creditCardFee ?? 0,
+    actualBreakTime: actualBreakTime ?? 0,
+    actualStartTime: actualStartTime ?? 0,
+    actualEndTime: actualEndTime ?? 0,
+    actualArrivalTime: actualArrivalTime ?? 0,
+    additionalFees,
+    discounts,
+    deposit: deposit ?? 0,
+  });
+
+  const showInvoice = invoice && invoice.repSignature;
+
+  return (
+    <div>
+      <SectionContainer showBorder={false} className="px-0">
+        <PaymentStatus invoice={invoice} />
+        {showInvoice && (
+          <>
+            <InvoiceSummary items={items} total={total} />
+            <InvoiceCustomerSignature
+              invoice={invoice}
+              setSignatureDataUrl={setSignatureDataUrl}
+            />
+            <PaymentActions
+              invoiceId={invoice?._id || null}
+              signature={signatureDataUrl}
+              amount={2}
+            />
+          </>
+        )}
+      </SectionContainer>
+    </div>
+  );
+};
+
+export default PaymentStep;

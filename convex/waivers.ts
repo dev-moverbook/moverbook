@@ -1,7 +1,8 @@
-import { action, mutation } from "./_generated/server";
+import { action, internalQuery, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import {
+  isIdentityInMove,
   isUserInOrg,
   validateCompany,
   validateDocExists,
@@ -167,5 +168,78 @@ export const sendWaiver = action({
     });
 
     return true;
+  },
+});
+
+export const customerSignWaiver = mutation({
+  args: {
+    waiverId: v.id("waivers"),
+    updates: v.object({
+      customerSignature: v.string(),
+    }),
+  },
+  handler: async (ctx, args): Promise<boolean> => {
+    const { waiverId } = args;
+    const updates: Partial<Doc<"waivers">> = {
+      ...args.updates,
+      customerSignedAt: Date.now(),
+    };
+
+    const identity = await requireAuthenticatedUser(ctx, [ClerkRoles.CUSTOMER]);
+
+    const waiver = await ctx.db.get(waiverId);
+    const validatedWaiver = validateDocExists(
+      "waivers",
+      waiver,
+      "Waiver not found"
+    );
+
+    const moveCustomer = await ctx.runQuery(
+      internal.moveCustomers.getMoveCustomerByIdInternal,
+      {
+        moveCustomerId: identity.convexId as Id<"users">,
+      }
+    );
+
+    const move = await validateDocument(
+      ctx.db,
+      "moves",
+      validatedWaiver.moveId,
+      ErrorMessages.MOVE_NOT_FOUND
+    );
+
+    isIdentityInMove(identity, move);
+
+    await ctx.db.patch(validatedWaiver._id, updates);
+
+    await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
+      entry: {
+        type: "WAIVER_SIGNED",
+        companyId: move.companyId,
+        body: `**${moveCustomer.name}** signed waiver`,
+        moveCustomerId: move.moveCustomerId,
+        context: {
+          customerName: moveCustomer.name,
+          waiverId,
+        },
+        moveId: move._id,
+      },
+    });
+
+    return true;
+  },
+});
+
+export const getWaiverByMoveIdInternal = internalQuery({
+  args: {
+    moveId: v.id("moves"),
+  },
+  handler: async (ctx, args): Promise<Doc<"waivers"> | null> => {
+    const { moveId } = args;
+    const waiver = await ctx.db
+      .query("waivers")
+      .withIndex("by_move", (q) => q.eq("moveId", moveId))
+      .unique();
+    return waiver;
   },
 });

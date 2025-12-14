@@ -1,7 +1,8 @@
-import { action, mutation } from "./_generated/server";
+import { action, internalQuery, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import {
+  isIdentityInMove,
   isUserInOrg,
   validateCompany,
   validateDocExists,
@@ -26,7 +27,7 @@ export const createOrUpdateContract = mutation({
   },
   handler: async (ctx, args): Promise<boolean> => {
     const { moveId } = args;
-    const updates = { ...args.updates };
+    const updates: Partial<Doc<"contracts">> = { ...args.updates };
 
     const identity = await requireAuthenticatedUser(ctx, [
       ClerkRoles.ADMIN,
@@ -49,10 +50,12 @@ export const createOrUpdateContract = mutation({
 
     if (updates.customerSignature && !updates.customerSignedAt) {
       updates.customerSignedAt = now;
+      updates.status = "pending";
     }
 
     if (updates.repSignature && !updates.repSignedAt) {
       updates.repSignedAt = now;
+      updates.status = "completed";
     }
 
     const existing: Doc<"contracts"> | null = await ctx.db
@@ -73,6 +76,7 @@ export const createOrUpdateContract = mutation({
       contractId = await ctx.db.insert("contracts", {
         moveId,
         ...updates,
+        status: "pending",
       });
     }
 
@@ -168,5 +172,79 @@ export const sendContract = action({
     });
 
     return true;
+  },
+});
+
+export const customerUpdateContract = mutation({
+  args: {
+    contractId: v.id("contracts"),
+    updates: v.object({
+      customerSignature: v.optional(v.string()),
+    }),
+  },
+  handler: async (ctx, args): Promise<boolean> => {
+    const { contractId } = args;
+    const updates: Partial<Doc<"contracts">> = {
+      ...args.updates,
+      customerSignedAt: Date.now(),
+      status: "completed",
+    };
+
+    const identity = await requireAuthenticatedUser(ctx, [ClerkRoles.CUSTOMER]);
+
+    const contract = await ctx.db.get(contractId);
+    const validatedContract = validateDocExists(
+      "contracts",
+      contract,
+      "Contract not found"
+    );
+
+    const moveCustomer = await ctx.runQuery(
+      internal.moveCustomers.getMoveCustomerByIdInternal,
+      {
+        moveCustomerId: identity.convexId as Id<"users">,
+      }
+    );
+
+    const move = await validateDocument(
+      ctx.db,
+      "moves",
+      validatedContract.moveId,
+      ErrorMessages.MOVE_NOT_FOUND
+    );
+
+    isIdentityInMove(identity, move);
+
+    await ctx.db.patch(validatedContract._id, updates);
+
+    await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
+      entry: {
+        type: "CUSTOMER_SIGNED_CONTRACT_DOC",
+        companyId: move.companyId,
+        body: `**${moveCustomer.name}** signed contract.`,
+        moveId: validatedContract.moveId,
+        moveCustomerId: move.moveCustomerId,
+        context: {
+          customerName: moveCustomer.name,
+          contractId: validatedContract._id,
+        },
+      },
+    });
+
+    return true;
+  },
+});
+
+export const getContractByMoveIdInternal = internalQuery({
+  args: {
+    moveId: v.id("moves"),
+  },
+  handler: async (ctx, args): Promise<Doc<"contracts"> | null> => {
+    const { moveId } = args;
+    const contract = await ctx.db
+      .query("contracts")
+      .withIndex("by_move", (q) => q.eq("moveId", moveId))
+      .unique();
+    return contract;
   },
 });

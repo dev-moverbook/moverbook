@@ -1,4 +1,4 @@
-import { InvitationStatus, UserRole } from "@/types/enums";
+import { ClerkRoles, InvitationStatus, UserRole } from "@/types/enums";
 import { CommunicationType, CustomerUser } from "@/types/types";
 import { ErrorMessages } from "@/types/errors";
 import { UserIdentity } from "convex/server";
@@ -581,6 +581,32 @@ export function isCorrectMoveCustomer(
   const isValid = moveCustomerId === moveCustomerIdInMove;
   if (!isValid) {
     throwConvexError(ErrorMessages.FOBIDDEN_MOVE, {
+      code: "FORBIDDEN",
+      showToUser: true,
+    });
+  }
+}
+
+export function isIdentityInMove(
+  identity: UserIdentity,
+  move: Doc<"moves">
+): void {
+  const role = identity.role;
+
+  if (role === ClerkRoles.APP_MODERATOR) {
+    return;
+  }
+
+  const userId = identity.convexId as Id<"users">;
+
+  if (role === ClerkRoles.CUSTOMER) {
+    return isCorrectMoveCustomer(userId, move.moveCustomerId);
+  }
+  const organizationId = identity.convexOrgId as Id<"companies">;
+
+  const isSameCompany = organizationId === move.companyId;
+  if (!isSameCompany) {
+    throwConvexError(ErrorMessages.FOBIDDEN_COMPANY, {
       code: "FORBIDDEN",
       showToUser: true,
     });

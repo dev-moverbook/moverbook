@@ -27,6 +27,7 @@ import { updateClerkOrgName } from "./functions/clerk";
 import { Doc, Id } from "./_generated/dataModel";
 import { getFirstByCompanyId } from "./backendUtils/queries";
 import { throwConvexError } from "./backendUtils/errors";
+import { getBaseUrl } from "@/utils/helper";
 
 export const createCompany = internalMutation({
   args: {
@@ -74,7 +75,7 @@ export const createCompany = internalMutation({
       ctx.db.patch(user._id, {
         companyId,
       }),
-      createCompanyRecords(ctx, companyId),
+      createCompanyRecords(ctx, companyId, slug),
     ]);
     return slug;
   },
@@ -269,6 +270,25 @@ export const updateCompany = action({
         updates,
       }
     );
+
+    if (updates.name) {
+      const webIntegrations = await ctx.runQuery(
+        internal.webIntegrations.getWebIntegrationsByCompanyId,
+        {
+          companyId,
+        }
+      );
+      if (!webIntegrations) {
+        throw new Error(ErrorMessages.WEB_INTEGRATIONS_NOT_FOUND);
+      }
+      const baseUrl = getBaseUrl();
+      await ctx.runMutation(internal.webIntegrations.updateWebformUrl, {
+        webIntegrationsId: webIntegrations._id,
+        updates: {
+          webform: `${baseUrl}/${result.slug}/new-move`,
+        },
+      });
+    }
 
     return {
       companyId: result._id,

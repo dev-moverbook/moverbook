@@ -19,8 +19,8 @@ const PublicNewMoveSteps = ({ stepper }: PublicNewMoveStepsProps) => {
         steps={[{ label: "Move" }, { label: "Contact" }]}
         onStepClick={setStep}
       />
-      {step === 1 && <MoveDetailsStep />}
-      {step === 2 && <ContactsStep />}
+      {step === 1 && <ContactsStep />}
+      {step === 2 && <MoveDetailsStep />}
     </>
   );
 };

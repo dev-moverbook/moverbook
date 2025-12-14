@@ -79,6 +79,7 @@ export const handleOrganizationInvitationAccepted = async (
       updateClerkUserPublicMetadata(user.clerkUserId, {
         role: data.public_metadata.role as string,
         convexId: user._id,
+        convexOrgId: validatedCompany._id,
       }),
     ]);
   } catch (err) {

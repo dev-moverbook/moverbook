@@ -1,7 +1,13 @@
-import { action, internalQuery, mutation } from "./_generated/server";
+import {
+  action,
+  internalMutation,
+  internalQuery,
+  mutation,
+} from "./_generated/server";
 import { v } from "convex/values";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import {
+  isIdentityInMove,
   isUserInOrg,
   validateCompany,
   validateDocExists,
@@ -10,7 +16,7 @@ import {
 } from "./backendUtils/validate";
 import { ClerkRoles } from "@/types/enums";
 import { Doc, Id } from "./_generated/dataModel";
-import { InvoiceStatusConvex } from "./schema";
+import { InvoiceStatusConvex, PaymentMethodConvex } from "./schema";
 import { ErrorMessages } from "@/types/errors";
 import { internal } from "./_generated/api";
 import { formatMonthDayLabelStrict } from "@/frontendUtils/luxonUtils";
@@ -178,5 +184,108 @@ export const getInvoiceByMoveIdInternal = internalQuery({
       .query("invoices")
       .withIndex("by_move", (q) => q.eq("moveId", args.moveId))
       .unique();
+  },
+});
+
+export const getInvoiceByIdInternal = internalQuery({
+  args: {
+    invoiceId: v.id("invoices"),
+  },
+  handler: async (ctx, args): Promise<Doc<"invoices"> | null> => {
+    return await ctx.db.get(args.invoiceId);
+  },
+});
+
+export const updateInvoice = internalMutation({
+  args: {
+    invoiceId: v.id("invoices"),
+    updates: v.object({
+      customerSignature: v.optional(v.string()),
+      customerSignedAt: v.optional(v.number()),
+    }),
+  },
+  handler: async (ctx, args): Promise<void> => {
+    const { invoiceId, updates } = args;
+    await ctx.db.patch(invoiceId, updates);
+  },
+});
+
+export const customerSignInvoice = action({
+  args: {
+    invoiceId: v.id("invoices"),
+    signature: v.string(),
+    paymentMethod: PaymentMethodConvex,
+    amount: v.number(),
+  },
+  handler: async (ctx, args): Promise<boolean> => {
+    const { invoiceId, signature, paymentMethod, amount } = args;
+
+    const identity = await requireAuthenticatedUser(ctx, [ClerkRoles.CUSTOMER]);
+    const user = validateUser(
+      await ctx.runQuery(internal.users.getUserByIdInternal, {
+        userId: identity.convexId as Id<"users">,
+      })
+    );
+
+    const invoice = await ctx.runQuery(
+      internal.invoices.getInvoiceByIdInternal,
+      {
+        invoiceId,
+      }
+    );
+    const validatedInvoice = validateDocExists(
+      "invoices",
+      invoice,
+      ErrorMessages.INVOICE_NOT_FOUND
+    );
+
+    const move = await ctx.runQuery(internal.moves.getMoveByIdInternal, {
+      moveId: validatedInvoice.moveId,
+    });
+    const validatedMove = validateDocExists(
+      "moves",
+      move,
+      ErrorMessages.MOVE_NOT_FOUND
+    );
+    isIdentityInMove(identity, validatedMove);
+
+    await ctx.runMutation(internal.invoices.updateInvoice, {
+      invoiceId: validatedInvoice._id,
+      updates: {
+        customerSignature: signature,
+        customerSignedAt: Date.now(),
+      },
+    });
+
+    const moveDate = validatedMove.moveDate
+      ? formatMonthDayLabelStrict(validatedMove.moveDate)
+      : "TBD";
+
+    await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
+      entry: {
+        type: "INVOICE_PAYMENT",
+        companyId: validatedMove.companyId,
+        body: `**${user.name}** paid invoice for move on **${moveDate}**`,
+        moveId: validatedMove._id,
+        context: {
+          invoiceId: validatedInvoice._id,
+          moveDate,
+          paymentType: paymentMethod,
+        },
+        moveCustomerId: validatedMove.moveCustomerId,
+        amount,
+      },
+    });
+
+    await ctx.runMutation(internal.moves.updateMoveInternal, {
+      moveId: validatedMove._id,
+      updates: {
+        moveStatus: "Completed",
+        completedAt: Date.now(),
+        invoiceAmountPaid: amount,
+      },
+    });
+
+    return true;
   },
 });

@@ -87,7 +87,7 @@ const WebIntegrationsSection: React.FC<WebIntegrationsSectionProps> = ({
             label="Web Form URL"
             name="webform"
             value={formData.webform}
-            isEditing={isEditing}
+            isEditing={false}
             onChange={handleChange}
             placeholder="Enter web form URL"
           />
@@ -96,7 +96,7 @@ const WebIntegrationsSection: React.FC<WebIntegrationsSectionProps> = ({
             label="Embedded Code"
             name="webformEmbeddedCode"
             value={formData.webformEmbeddedCode}
-            isEditing={isEditing}
+            isEditing={false}
             onChange={handleChange}
             placeholder="Enter embedded code"
           />

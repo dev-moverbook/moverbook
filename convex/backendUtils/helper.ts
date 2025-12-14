@@ -33,11 +33,14 @@ import {
   STARTER_PRESET_SCRIPTS,
   STARTER_REFERRALS,
 } from "@/types/starterConst";
+import { clientEnv } from "@/frontendUtils/clientEnv";
 
 export const createCompanyRecords = async (
   ctx: MutationCtx,
-  companyId: Id<"companies">
+  companyId: Id<"companies">,
+  slug: string
 ): Promise<void> => {
+  const { NEXT_PUBLIC_APP_URL } = clientEnv();
   try {
     await ctx.db.insert("compliances", {
       companyId,
@@ -48,7 +51,7 @@ export const createCompanyRecords = async (
 
     await ctx.db.insert("webIntegrations", {
       companyId,
-      webform: "",
+      webform: `${NEXT_PUBLIC_APP_URL}/${slug}/new-move`,
       webformEmbeddedCode: "",
       externalReviewUrl: "",
     });

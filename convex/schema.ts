@@ -162,6 +162,11 @@ export const QuoteStatusConvex = v.union(
   v.literal("customer_change")
 );
 
+export const ContractStatusConvex = v.union(
+  v.literal("pending"),
+  v.literal("completed")
+);
+
 export const InvoiceStatusConvex = v.union(
   v.literal("pending"),
   v.literal("completed")
@@ -459,6 +464,7 @@ export default defineSchema({
     moveId: v.id("moves"),
     repSignature: v.optional(v.string()),
     repSignedAt: v.optional(v.number()),
+    status: ContractStatusConvex,
   }).index("by_move", ["moveId"]),
   quotes: defineTable({
     customerSignature: v.optional(v.string()),

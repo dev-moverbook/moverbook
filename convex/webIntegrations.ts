@@ -1,6 +1,6 @@
 import { ClerkRoles } from "@/types/enums";
 import { v } from "convex/values";
-import { mutation } from "./_generated/server";
+import { internalMutation, internalQuery, mutation } from "./_generated/server";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import {
   validateCompany,
@@ -8,13 +8,12 @@ import {
   validateDocument,
 } from "./backendUtils/validate";
 import { ErrorMessages } from "@/types/errors";
+import { Doc } from "./_generated/dataModel";
 
 export const updateWebIntegrations = mutation({
   args: {
     webIntegrationsId: v.id("webIntegrations"),
     updates: v.object({
-      webform: v.optional(v.string()),
-      webformEmbeddedCode: v.optional(v.string()),
       externalReviewUrl: v.optional(v.string()),
     }),
   },
@@ -39,5 +38,33 @@ export const updateWebIntegrations = mutation({
     await ctx.db.patch(webIntegrations._id, updates);
 
     return true;
+  },
+});
+
+export const getWebIntegrationsByCompanyId = internalQuery({
+  args: {
+    companyId: v.id("companies"),
+  },
+  handler: async (ctx, args): Promise<Doc<"webIntegrations"> | null> => {
+    const { companyId } = args;
+    return await ctx.db
+      .query("webIntegrations")
+      .filter((q) => q.eq(q.field("companyId"), companyId))
+      .first();
+  },
+});
+
+export const updateWebformUrl = internalMutation({
+  args: {
+    webIntegrationsId: v.id("webIntegrations"),
+    updates: v.object({
+      webform: v.optional(v.string()),
+      webformEmbeddedCode: v.optional(v.string()),
+    }),
+  },
+  handler: async (ctx, args): Promise<void> => {
+    const { webIntegrationsId, updates } = args;
+
+    await ctx.db.patch(webIntegrationsId, updates);
   },
 });
