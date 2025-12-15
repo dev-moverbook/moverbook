@@ -35,7 +35,6 @@ interface Options {
   moveDate?: string;
   salesRepName?: string;
   deliveryType: "email" | "sms";
-  internalReviewId?: Id<"internalReviews">;
 }
 
 export function createPresetNewsFeedEntry(
@@ -61,12 +60,6 @@ export function createPresetNewsFeedEntry(
         companyId,
         moveId,
         userId,
-        context: {
-          customerName,
-          deliveryType,
-          moveDate,
-          salesRepName,
-        },
       };
 
     case PresSetScripts.EMAIL_INVOICE:
@@ -77,14 +70,6 @@ export function createPresetNewsFeedEntry(
         companyId,
         moveId,
         userId,
-        context: {
-          customerName,
-          deliveryType,
-          moveDate,
-          salesRepName,
-          invoiceId: "" as Id<"invoices">, // placeholder — not used
-          moverName: "",
-        },
       };
 
     case PresSetScripts.EMAIL_CONTRACT:
@@ -95,11 +80,6 @@ export function createPresetNewsFeedEntry(
         companyId,
         moveId,
         userId,
-        context: {
-          customerName,
-          deliveryType,
-          salesRepName,
-        },
       };
 
     case PresSetScripts.EMAIL_WAIVER:
@@ -110,11 +90,6 @@ export function createPresetNewsFeedEntry(
         companyId,
         moveId,
         userId,
-        context: {
-          customerName,
-          deliveryType,
-          salesRepName,
-        },
       };
 
     case PresSetScripts.EMAIL_EXTERNAL_REVIEW:
@@ -125,12 +100,6 @@ export function createPresetNewsFeedEntry(
         companyId,
         moveId,
         userId,
-        context: {
-          customerName,
-          deliveryType,
-          moveDate,
-          salesRepName,
-        },
       };
 
     case PresSetScripts.EMAIL_FOLLOW_UP:
@@ -141,12 +110,6 @@ export function createPresetNewsFeedEntry(
         companyId,
         moveId,
         userId,
-        context: {
-          customerName,
-          followUpType: deliveryType,
-          moveDate,
-          salesRepName,
-        },
       };
 
     case PresSetScripts.EMAIL_INTERNAL_REVIEW:
@@ -157,12 +120,6 @@ export function createPresetNewsFeedEntry(
         companyId,
         moveId,
         userId,
-        context: {
-          customerName,
-          deliveryType,
-          moveDate,
-          salesRepName,
-        },
       };
 
     default:

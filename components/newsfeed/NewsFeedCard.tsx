@@ -8,7 +8,7 @@ import { EnrichedNewsFeed, MoveStatus } from "@/types/types";
 import { getEventEmojis } from "@/frontendUtils/newsFeedHelper";
 import UserAvatar from "./NewsFeedAvatar";
 import Image from "next/image";
-import { formatCurrency } from "@/frontendUtils/helper";
+import { formatCurrency, getMoveStatusFromBody } from "@/frontendUtils/helper";
 
 interface NewsFeedCardProps {
   newsFeedEvent: EnrichedNewsFeed;
@@ -17,17 +17,21 @@ interface NewsFeedCardProps {
 
 const NewsFeedCard: React.FC<NewsFeedCardProps> = ({ newsFeedEvent, href }) => {
   const {
-    newsFeedItem: { _creationTime, body, type, context, amount },
+    newsFeedItem: { _creationTime, body, type, amount },
     userImageUrl,
   } = newsFeedEvent;
+
+  let moveStatus: MoveStatus | undefined;
+
+  if (type === "MOVE_STATUS_UPDATED") {
+    moveStatus = getMoveStatusFromBody(body);
+  }
 
   const relativeTime = DateTime.fromMillis(_creationTime).toRelative();
   const creationDateFormatted = formatMonthDayLabelStrict(_creationTime);
 
   const showEmojis = amount === undefined;
-  const emojis = showEmojis
-    ? getEventEmojis(type, context?.moveStatus as MoveStatus)
-    : [];
+  const emojis = showEmojis ? getEventEmojis(type, moveStatus) : [];
 
   const displayAmount =
     amount === null || amount === undefined ? "TBD" : formatCurrency(amount);

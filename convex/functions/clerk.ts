@@ -6,7 +6,7 @@ import {
   Organization,
   OrganizationInvitation,
 } from "@clerk/backend";
-import { UserRole } from "@/types/enums";
+import { ClerkRoles, UserRole } from "@/types/enums";
 import { getBaseUrl } from "@/utils/helper";
 import { clerkClient } from "../lib/clerk";
 import { serverEnv } from "../backendUtils/serverEnv";
@@ -191,5 +191,43 @@ export async function updateClerkUserPublicMetadata(
       error
     );
     throw new Error(ErrorMessages.CLERK_USER_METADATA_UPDATE_ERROR);
+  }
+}
+
+export async function sendClerkMoveCustomerInvitation({
+  email,
+  slug,
+  moveId,
+  convexUserId,
+}: {
+  email: string;
+  slug: string;
+  moveId: string;
+  convexUserId: string;
+}): Promise<Invitation> {
+  console.log(
+    "sending clerk move customer invitation",
+    email,
+    slug,
+    moveId,
+    convexUserId
+  );
+  const baseUrl = getBaseUrl();
+  const redirectUrl = `${baseUrl}/accept-invite`;
+  try {
+    const invitation = await clerkClient.invitations.createInvitation({
+      emailAddress: email,
+      ignoreExisting: true,
+      redirectUrl,
+      publicMetadata: {
+        role: ClerkRoles.CUSTOMER,
+        convexUserId,
+      },
+    });
+
+    return invitation;
+  } catch (error) {
+    console.error(ErrorMessages.CLERK_INVITATION_SENT_ERROR, error);
+    throw new Error(ErrorMessages.CLERK_INVITATION_SENT_ERROR);
   }
 }

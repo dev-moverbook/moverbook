@@ -113,11 +113,6 @@ export const stopMoverLocationSharing = mutation({
           type: "LOCATION_SHARING_STOPPED",
           companyId: move.companyId,
           body: `**${validatedUser.name}** stopped sharing location for move **${moveCustomer.name}**`,
-          context: {
-            customerName: moveCustomer.name,
-            moverName: validatedUser.name,
-            moverLocationId: moveLocation._id,
-          },
           moveId,
           userId: validatedUser._id,
         },
@@ -195,11 +190,6 @@ export const inserMoverLocationSharing = mutation({
         type: "LOCATION_SHARING_STARTED",
         companyId: move.companyId,
         body: `**${validatedUser.name}** shared their location for move **${moveCustomer.name}**`,
-        context: {
-          customerName: moveCustomer.name,
-          moverName: validatedUser.name,
-          moverLocationId: moveLocationId!,
-        },
         moveId,
         userId: validatedUser._id,
       },

@@ -208,9 +208,6 @@ export const createMoveCustomer = mutation({
           companyId,
           moveCustomerId,
           body: `A new customer, **${name}** was created.`,
-          context: {
-            customerName: name,
-          },
         },
       });
       const moveCustomer = await validateDocument(
@@ -243,10 +240,6 @@ export const createMoveCustomer = mutation({
         moveCustomerId,
         userId: user._id,
         body: `**${user.name}** created a new customer, **${name}**`,
-        context: {
-          customerName: name,
-          salesRepName: user.name,
-        },
       },
     });
 
@@ -328,9 +321,6 @@ export const updateMoveCustomer = mutation({
         companyId,
         type: "CUSTOMER_UPDATED",
         moveCustomerId,
-        context: {
-          customerName: existing.name,
-        },
       });
 
       return true;
@@ -354,10 +344,6 @@ export const updateMoveCustomer = mutation({
         companyId,
         userId: user._id,
         body: `**${user.name}** updated customer details for **${existing.name}**.`,
-        context: {
-          customerName: existing.name,
-          salesRepName: user.name,
-        },
         moveCustomerId,
       },
     });
@@ -540,9 +526,6 @@ export const createPublicMove = action({
         moveCustomerId,
         body: `A new lead was created from the web form.`,
         moveId,
-        context: {
-          customerName: name,
-        },
       },
     });
 

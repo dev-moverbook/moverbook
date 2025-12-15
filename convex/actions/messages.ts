@@ -1,7 +1,7 @@
 "use node";
 
 import { PresSetScriptsConvex } from "@/types/convex-enums";
-import { ClerkRoles } from "@/types/enums";
+import { ClerkRoles, PresSetScripts } from "@/types/enums";
 import { ErrorMessages } from "@/types/errors";
 import { v } from "convex/values";
 import { internal } from "../_generated/api";
@@ -19,6 +19,7 @@ import {
 } from "../backendUtils/validate";
 import { formatMonthDayLabelStrict } from "@/frontendUtils/luxonUtils";
 import { createPresetNewsFeedEntry } from "../backendUtils/newsFeedHelper";
+import { sendClerkMoveCustomerInvitation } from "../functions/clerk";
 
 export const sendPresetScript = action({
   args: {
@@ -27,8 +28,6 @@ export const sendPresetScript = action({
   },
   handler: async (ctx, args): Promise<boolean> => {
     const { moveId, preSetTypes } = args;
-
-    console.log("sendPresetScript", moveId, preSetTypes);
 
     const identity = await requireAuthenticatedUser(ctx, [
       ClerkRoles.ADMIN,
@@ -82,6 +81,20 @@ export const sendPresetScript = action({
 
     const scriptType = script.type;
     let sid: string | undefined = undefined;
+
+    if (
+      (preSetTypes === PresSetScripts.EMAIL_QUOTE ||
+        preSetTypes === PresSetScripts.SMS_QUOTE) &&
+      validatedMoveCustomer.clerkUserId === undefined
+    ) {
+      console.log("sending clerk move customer invitation");
+      await sendClerkMoveCustomerInvitation({
+        email: validatedMoveCustomer.email,
+        slug: company.slug,
+        moveId,
+        convexUserId: validatedMoveCustomer._id,
+      });
+    }
 
     if (scriptType === "email") {
       sid = "test email";

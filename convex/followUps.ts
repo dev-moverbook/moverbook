@@ -12,6 +12,7 @@ import {
 } from "./backendUtils/validate";
 import { Id } from "./_generated/dataModel";
 
+// To be Deleted
 export const sendFollowUp = action({
   args: {
     moveId: v.id("moves"),
@@ -76,12 +77,7 @@ export const sendFollowUp = action({
         companyId: validatedCompany._id,
         body: `**${user.name}** followed up with **${validatedMoveCustomer.name}** **${moveDate}** via ${args.channel}`,
         moveId: validatedMove._id,
-        context: {
-          customerName: validatedMoveCustomer.name,
-          followUpType: args.channel,
-          moveDate,
-          salesRepName: user.name,
-        },
+
         userId: user._id,
       },
     });

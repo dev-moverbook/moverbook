@@ -53,7 +53,7 @@ export const createAdditionalFee = mutation({
       ? formatMonthDayLabelStrict(move.moveDate)
       : "TBD";
 
-    const additionalFeeId = await ctx.db.insert("additionalFees", {
+    await ctx.db.insert("additionalFees", {
       moveId,
       name,
       price,
@@ -71,14 +71,6 @@ export const createAdditionalFee = mutation({
         companyId: company._id,
         userId: user._id,
         amount,
-        context: {
-          customerName: moveCustomer.name,
-          feeId: additionalFeeId,
-          feeAmount: amount,
-          feeName: name,
-          moverName: user.name,
-          moveDate,
-        },
         moveId,
       },
     });
@@ -153,14 +145,6 @@ export const updateAdditionalFee = mutation({
           userId: user._id,
           body: `**${user.name}** removed fee **${fee.name}** from **${moveCustomer.name}** **${moveDate}**`,
           amount: fee.price * fee.quantity * -1,
-          context: {
-            customerName: moveCustomer.name,
-            feeName: fee.name,
-            feeAmount: fee.price * fee.quantity,
-            feeId: additionalFeeId,
-            moverName: user.name,
-            moveDate,
-          },
           moveId: move._id,
         },
       });
@@ -172,14 +156,6 @@ export const updateAdditionalFee = mutation({
           userId: user._id,
           body: `**${user.name}** updated fee **${updatedFee.name}** for **${moveCustomer.name}** **${moveDate}**`,
           amount: updatedFee.price * updatedFee.quantity,
-          context: {
-            customerName: moveCustomer.name,
-            feeName: updatedFee.name,
-            feeAmount: updatedFee.price * updatedFee.quantity,
-            feeId: additionalFeeId,
-            moverName: user.name,
-            moveDate,
-          },
           moveId: move._id,
         },
       });

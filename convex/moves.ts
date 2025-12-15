@@ -316,11 +316,6 @@ export const createMove = mutation({
         companyId: args.companyId,
         userId: user._id,
         moveId,
-        context: {
-          customerName: moveCustomer.name,
-          moveDate,
-          salesRepName: user.name,
-        },
       },
     });
 
@@ -645,11 +640,6 @@ export const updateMove = action({
             companyId: moveRecord.companyId,
             userId: user._id,
             moveId,
-            context: {
-              customerName: moveCustomer.name,
-              moverName: user.name,
-              time: updates.actualArrivalTime,
-            },
           },
         });
         return true;
@@ -665,11 +655,6 @@ export const updateMove = action({
             companyId: moveRecord.companyId,
             userId: user._id,
             moveId,
-            context: {
-              customerName: moveCustomer.name,
-              moverName: user.name,
-              time: updates.actualStartTime,
-            },
           },
         });
         return true;
@@ -685,11 +670,6 @@ export const updateMove = action({
             companyId: moveRecord.companyId,
             userId: user._id,
             moveId,
-            context: {
-              customerName: moveCustomer.name,
-              moverName: user.name,
-              time: updates.actualEndTime,
-            },
           },
         });
         return true;
@@ -702,12 +682,6 @@ export const updateMove = action({
             companyId: moveRecord.companyId,
             userId: user._id,
             moveId,
-            context: {
-              customerName: moveCustomer.name,
-              moverName: user.name,
-              time: updates.actualBreakTime,
-              moveDate,
-            },
           },
         });
         return true;
@@ -720,11 +694,6 @@ export const updateMove = action({
             body: `**${moveCustomer.name}** **${moveDate}** is now marked as **${updates.moveStatus}**`,
             moveCustomerId: moveCustomer._id,
             moveId,
-            context: {
-              customerName: moveCustomer.name,
-              moveDate,
-              moveStatus: updates.moveStatus,
-            },
           },
         });
         return true;
@@ -736,11 +705,6 @@ export const updateMove = action({
             body: `**${user.name}** updated move for **${moveCustomer.name}**  **${moveDate}**`,
             companyId: moveRecord.companyId,
             moveId,
-            context: {
-              customerName: moveCustomer.name,
-              moveDate,
-              salesRepName: user.name,
-            },
             userId: user._id,
           },
         });

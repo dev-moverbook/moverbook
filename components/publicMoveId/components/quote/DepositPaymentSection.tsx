@@ -13,6 +13,7 @@ const DepositPaymentSection = ({
   move,
   signatureDataUrl,
 }: DepositPaymentSectionProps) => {
+  console.log("move", move);
   const isDisabled = !signatureDataUrl;
   const { signQuote, signQuoteLoading, signQuoteError } = useSignQuote();
   const hasDeposit = Number(move.deposit ?? 0) > 0;

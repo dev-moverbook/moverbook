@@ -85,12 +85,6 @@ export const updateMoveAssignment = mutation({
             companyId: company._id,
             body: `**${newMover.name}** was assigned to move **${moveCustomer.name}** **${moveDate}**`,
             userId: updates.moverId,
-            context: {
-              customerName: moveCustomer.name,
-              moveAssignmentId: assignmentId,
-              moveDate: moveDate,
-              moverName: newMover.name,
-            },
             amount: 0,
             moveId: move._id,
           },
@@ -102,11 +96,6 @@ export const updateMoveAssignment = mutation({
             companyId: company._id,
             body: `**${previousMover.name}** was removed from move **${moveCustomer.name}** **${moveDate}**`,
             userId: previousMover._id,
-            context: {
-              moverName: previousMover.name,
-              customerName: moveCustomer.name,
-              moveDate: moveDate,
-            },
             moveId: move._id,
           },
         }),
@@ -190,12 +179,6 @@ export const updateMoveAssignmentHours = mutation({
           companyId: company._id,
           body: `**${mover.name}** clocked in at ${formatTimeLower(updates.startTime, company.timeZone)} for **${moveCustomer.name}**`,
           userId: mover._id,
-          context: {
-            customerName: moveCustomer.name,
-            workStartTime: updates.startTime,
-            moverName: mover.name,
-            moveAssignmentId: assignmentId,
-          },
           moveId: move._id,
         },
       });
@@ -208,12 +191,6 @@ export const updateMoveAssignmentHours = mutation({
           companyId: company._id,
           body: `**${mover.name}** clocked out at ${formatTimeLower(updates.endTime, company.timeZone)} for **${moveCustomer.name}**`,
           userId: mover._id,
-          context: {
-            customerName: moveCustomer.name,
-            workEndTime: updates.endTime,
-            moverName: mover.name,
-            moveAssignmentId: assignmentId,
-          },
           moveId: move._id,
         },
       });
@@ -226,13 +203,6 @@ export const updateMoveAssignmentHours = mutation({
           body: `**${mover.name}** updated ${updates.breakAmount} hours work break for **${moveCustomer.name}** **${moveDate}**`,
           userId: mover._id,
           moveId: move._id,
-          context: {
-            customerName: moveCustomer.name,
-            breakAmount: updates.breakAmount,
-            moverName: mover.name,
-            moveAssignmentId: assignmentId,
-            moveDate,
-          },
         },
       });
     }
@@ -298,12 +268,6 @@ export const insertMoveAssignment = mutation({
         userId: moverId,
         moveId,
         amount,
-        context: {
-          customerName: moveCustomer.name,
-          moverName: mover.name,
-          moveDate,
-          moveAssignmentId,
-        },
       },
     });
 
@@ -556,11 +520,6 @@ export const approveMoveAssignmentHours = mutation({
             companyId: company._id,
             userId: mover._id,
             body: `**${user.name}** **${updates.hourStatus}** ${hours} hours for **${mover.name}**`,
-            context: {
-              hourStatus: updates.hourStatus,
-              moverName: mover.name,
-              moveAssignmentId: assignmentId,
-            },
             moveId: move._id,
             amount: pay,
           },
@@ -581,11 +540,6 @@ export const approveMoveAssignmentHours = mutation({
             companyId: company._id,
             userId: mover._id,
             body: `**${user.name}** **${updates.hourStatus}** ${hours} hours for **${mover.name}**`,
-            context: {
-              hourStatus: updates.hourStatus,
-              moverName: mover.name,
-              moveAssignmentId: assignmentId,
-            },
             moveId: move._id,
           },
         }),

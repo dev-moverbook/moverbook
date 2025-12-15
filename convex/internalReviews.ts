@@ -1,6 +1,5 @@
 import { v } from "convex/values";
 import {
-  action,
   internalMutation,
   internalQuery,
   mutation,
@@ -14,8 +13,6 @@ import {
   isUserInOrg,
   validateDocument,
   validateMoveCustomer,
-  validateDocExists,
-  validateUser,
 } from "./backendUtils/validate";
 import { ErrorMessages } from "@/types/errors";
 import { formatMonthDayLabelStrict } from "@/frontendUtils/luxonUtils";
@@ -87,11 +84,6 @@ export const createInternalReview = mutation({
         companyId: move.companyId,
         body: `**${moveCustomer.name}** **${moveDate}** left a ${rating} star review.`,
         moveId,
-        context: {
-          customerName: moveCustomer.name,
-          moveDate,
-          rating,
-        },
         moveCustomerId: move.moveCustomerId,
       },
     });
@@ -101,100 +93,100 @@ export const createInternalReview = mutation({
 });
 
 // To Be Deleted
-export const sendInternalReview = action({
-  args: {
-    moveId: v.id("moves"),
-    channel: v.union(v.literal("email"), v.literal("sms")),
-  },
-  handler: async (ctx, args): Promise<boolean> => {
-    const identity = await requireAuthenticatedUser(ctx, [
-      ClerkRoles.ADMIN,
-      ClerkRoles.APP_MODERATOR,
-      ClerkRoles.MANAGER,
-      ClerkRoles.SALES_REP,
-    ]);
+// export const sendInternalReview = action({
+//   args: {
+//     moveId: v.id("moves"),
+//     channel: v.union(v.literal("email"), v.literal("sms")),
+//   },
+//   handler: async (ctx, args): Promise<boolean> => {
+//     const identity = await requireAuthenticatedUser(ctx, [
+//       ClerkRoles.ADMIN,
+//       ClerkRoles.APP_MODERATOR,
+//       ClerkRoles.MANAGER,
+//       ClerkRoles.SALES_REP,
+//     ]);
 
-    const move = await ctx.runQuery(internal.moves.getMoveByIdInternal, {
-      moveId: args.moveId,
-    });
-    const validatedMove = validateDocExists(
-      "moves",
-      move,
-      ErrorMessages.MOVE_NOT_FOUND
-    );
+//     const move = await ctx.runQuery(internal.moves.getMoveByIdInternal, {
+//       moveId: args.moveId,
+//     });
+//     const validatedMove = validateDocExists(
+//       "moves",
+//       move,
+//       ErrorMessages.MOVE_NOT_FOUND
+//     );
 
-    const company = await ctx.runQuery(
-      internal.companies.getCompanyByIdInternal,
-      {
-        companyId: validatedMove.companyId,
-      }
-    );
-    const validatedCompany = validateDocExists(
-      "companies",
-      company,
-      ErrorMessages.COMPANY_NOT_FOUND
-    );
+//     const company = await ctx.runQuery(
+//       internal.companies.getCompanyByIdInternal,
+//       {
+//         companyId: validatedMove.companyId,
+//       }
+//     );
+//     const validatedCompany = validateDocExists(
+//       "companies",
+//       company,
+//       ErrorMessages.COMPANY_NOT_FOUND
+//     );
 
-    isUserInOrg(identity, validatedCompany.clerkOrganizationId);
+//     isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
-    const user = validateUser(
-      await ctx.runQuery(internal.users.getUserByIdInternal, {
-        userId: identity.convexId as Id<"users">,
-      })
-    );
+//     const user = validateUser(
+//       await ctx.runQuery(internal.users.getUserByIdInternal, {
+//         userId: identity.convexId as Id<"users">,
+//       })
+//     );
 
-    const validatedMoveCustomer = await ctx.runQuery(
-      internal.moveCustomers.getMoveCustomerByIdInternal,
-      {
-        moveCustomerId: validatedMove.moveCustomerId,
-      }
-    );
+//     const validatedMoveCustomer = await ctx.runQuery(
+//       internal.moveCustomers.getMoveCustomerByIdInternal,
+//       {
+//         moveCustomerId: validatedMove.moveCustomerId,
+//       }
+//     );
 
-    const internalReview = await ctx.runQuery(
-      internal.internalReviews.getInternalReviewByMoveIdInternal,
-      {
-        moveId: validatedMove._id,
-      }
-    );
+//     const internalReview = await ctx.runQuery(
+//       internal.internalReviews.getInternalReviewByMoveIdInternal,
+//       {
+//         moveId: validatedMove._id,
+//       }
+//     );
 
-    let internalReviewId: Id<"internalReviews"> | undefined =
-      internalReview?._id;
+//     let internalReviewId: Id<"internalReviews"> | undefined =
+//       internalReview?._id;
 
-    if (!internalReviewId) {
-      internalReviewId = await ctx.runMutation(
-        internal.internalReviews.insertInternalReview,
-        {
-          moveId: validatedMove._id,
-        }
-      );
-    }
+//     if (!internalReviewId) {
+//       internalReviewId = await ctx.runMutation(
+//         internal.internalReviews.insertInternalReview,
+//         {
+//           moveId: validatedMove._id,
+//         }
+//       );
+//     }
 
-    if (args.channel === "email") {
-      // TODO: Send waiver email
-    } else if (args.channel === "sms") {
-      // TODO: Send waiver SMS
-    }
-    const moveDate = validatedMove.moveDate
-      ? formatMonthDayLabelStrict(validatedMove.moveDate)
-      : "TBD";
-    await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
-      entry: {
-        type: "INTERNAL_REVIEW_SENT",
-        companyId: validatedCompany._id,
-        body: `**${user.name}** sent internal review to **${validatedMoveCustomer.name}** **${moveDate}** via ${args.channel}`,
-        moveId: validatedMove._id,
-        context: {
-          customerName: validatedMoveCustomer.name,
-          deliveryType: args.channel,
-          moveDate,
-          salesRepName: user.name,
-        },
-        userId: user._id,
-      },
-    });
-    return true;
-  },
-});
+//     if (args.channel === "email") {
+//       // TODO: Send waiver email
+//     } else if (args.channel === "sms") {
+//       // TODO: Send waiver SMS
+//     }
+//     const moveDate = validatedMove.moveDate
+//       ? formatMonthDayLabelStrict(validatedMove.moveDate)
+//       : "TBD";
+//     await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
+//       entry: {
+//         type: "INTERNAL_REVIEW_SENT",
+//         companyId: validatedCompany._id,
+//         body: `**${user.name}** sent internal review to **${validatedMoveCustomer.name}** **${moveDate}** via ${args.channel}`,
+//         moveId: validatedMove._id,
+//         context: {
+//           customerName: validatedMoveCustomer.name,
+//           deliveryType: args.channel,
+//           moveDate,
+//           salesRepName: user.name,
+//         },
+//         userId: user._id,
+//       },
+//     });
+//     return true;
+//   },
+// });
 
 export const getInternalReviewByMoveIdInternal = internalQuery({
   args: {

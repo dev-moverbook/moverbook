@@ -194,21 +194,18 @@ export const createMessage = action({
       })
     );
 
-    const messageId = await ctx.runMutation(
-      internal.messages.internalCreateMessage,
-      {
-        moveId,
-        companyId: move.companyId,
-        method,
-        status: deliveryStatus,
-        message,
-        resolvedMessage,
-        sid, // pass to mutation
-        sentType,
-        resolvedSubject,
-        subject,
-      }
-    );
+    await ctx.runMutation(internal.messages.internalCreateMessage, {
+      moveId,
+      companyId: move.companyId,
+      method,
+      status: deliveryStatus,
+      message,
+      resolvedMessage,
+      sid, // pass to mutation
+      sentType,
+      resolvedSubject,
+      subject,
+    });
 
     await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
       entry: {
@@ -217,12 +214,6 @@ export const createMessage = action({
         companyId: move.companyId,
         userId: user._id,
         moveId,
-        context: {
-          customerName: moveCustomer.name,
-          moveDate,
-          deliveryType: method,
-          messageId,
-        },
         moveCustomerId: move.moveCustomerId,
       },
     });

@@ -28,11 +28,14 @@ import { throwConvexError } from "./backendUtils/errors";
 export const getUserByEmailInternal = internalQuery({
   args: {
     email: v.string(),
+    role: v.optional(UserRoleConvex),
   },
   handler: async (ctx, args): Promise<Doc<"users"> | null> => {
+    const { email, role } = args;
     return await ctx.db
       .query("users")
-      .withIndex("by_email", (q) => q.eq("email", args.email))
+      .withIndex("by_email", (q) => q.eq("email", email))
+      .filter((q) => q.eq(q.field("role"), role))
       .first();
   },
 });
@@ -68,6 +71,7 @@ export const updateUserInternal = internalMutation({
       name: v.optional(v.string()),
       role: v.optional(UserRoleConvex),
       companyId: v.optional(v.id("companies")),
+      clerkUserId: v.optional(v.string()),
     }),
   },
   handler: async (ctx, args): Promise<Id<"users">> => {

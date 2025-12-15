@@ -1,4 +1,8 @@
-import { OrganizationInvitationJSON, UserJSON } from "@clerk/backend";
+import {
+  EmailAddressJSON,
+  OrganizationInvitationJSON,
+  UserJSON,
+} from "@clerk/backend";
 import { ErrorMessages } from "@/types/errors";
 import { internal } from "../_generated/api";
 import { ClerkRoles, InvitationStatus } from "@/types/enums";
@@ -90,30 +94,69 @@ export const handleOrganizationInvitationAccepted = async (
 
 export const handleUserCreated = async (ctx: ActionCtx, data: UserJSON) => {
   try {
+    const primaryEmailAddressId = data.primary_email_address_id;
+
+    const primaryEmail = data.email_addresses.find(
+      (e: EmailAddressJSON) => e.id === primaryEmailAddressId
+    )?.email_address;
+
+    if (!primaryEmail) {
+      console.error("Clerk user object is missing a primary email address.");
+      throw new Error("Could not determine primary email for new user.");
+    }
+
+    const clerkUserId = data.id;
+    const name = `${data.first_name} ${data.last_name}`;
+    const imageUrl = data.image_url;
+
     const customer = await ctx.runQuery(
       internal.customers.viewCustomerByEmail,
       {
-        email: data.email_addresses[0].email_address,
+        email: primaryEmail,
       }
     );
+
+    const moveCustomer = await ctx.runQuery(
+      internal.users.getUserByEmailInternal,
+      {
+        email: primaryEmail,
+        role: ClerkRoles.CUSTOMER,
+      }
+    );
+
+    if (moveCustomer) {
+      await ctx.runMutation(internal.users.updateUserInternal, {
+        userId: moveCustomer._id,
+        updates: {
+          imageUrl: imageUrl,
+          clerkUserId: clerkUserId,
+        },
+      });
+      await updateClerkUserPublicMetadata(data.id, {
+        convexId: moveCustomer._id,
+        role: ClerkRoles.CUSTOMER,
+      });
+      return;
+    }
+
     if (!customer) {
       const userId = await ctx.runMutation(internal.users.createUser, {
-        clerkUserId: data.id,
-        email: data.email_addresses[0].email_address,
-        name: `${data.first_name} ${data.last_name}`,
-        imageUrl: data.image_url,
+        clerkUserId: clerkUserId,
+        email: primaryEmail,
+        name: name,
+        imageUrl: imageUrl,
       });
       await updateClerkUserPublicMetadata(data.id, {
         convexId: userId,
       });
     } else {
       const userId = await ctx.runMutation(internal.users.createUser, {
-        clerkUserId: data.id,
-        email: data.email_addresses[0].email_address,
-        name: `${data.first_name} ${data.last_name}`,
+        clerkUserId: clerkUserId,
+        email: primaryEmail,
+        name: name,
         role: ClerkRoles.ADMIN,
         customerId: customer._id,
-        imageUrl: data.image_url,
+        imageUrl: imageUrl,
       });
 
       await updateClerkUserPublicMetadata(data.id, {

@@ -68,15 +68,12 @@ export const createOrUpdateQuote = mutation({
       .withIndex("by_move", (q) => q.eq("moveId", moveId))
       .unique();
 
-    let quoteId: Id<"quotes">;
-
     const moveCustomer = validateMoveCustomer(
       await ctx.db.get(move.moveCustomerId)
     );
 
     if (existing) {
       await ctx.db.patch(existing._id, updates);
-      quoteId = existing._id;
     } else {
       if (!updates.status) {
         throw new ConvexError({
@@ -85,7 +82,7 @@ export const createOrUpdateQuote = mutation({
         });
       }
 
-      quoteId = await ctx.db.insert("quotes", {
+      await ctx.db.insert("quotes", {
         moveId,
         customerSignature: updates.customerSignature,
         customerSignedAt: updates.customerSignedAt,
@@ -109,12 +106,6 @@ export const createOrUpdateQuote = mutation({
           body: `**${moveCustomer.name}** signed proposal for  **${moveDate}** (deposit paid ${depositAmount}).`,
           moveId,
           moveCustomerId: move.moveCustomerId,
-          context: {
-            customerName: moveCustomer.name,
-            moveDate,
-            depositAmount,
-            quoteId,
-          },
         },
       });
     }
@@ -175,21 +166,12 @@ export const sendQuote = action({
       }
     );
 
-    const moveDate = validatedMove.moveDate
-      ? formatMonthDayLabelStrict(validatedMove.moveDate)
-      : "TBD";
     await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
       entry: {
         type: "QUOTE_SENT",
         companyId: validatedCompany._id,
         body: `**${user.name}** sent proposal to **${validatedMoveCustomer.name}** via **${args.channel}**`,
         moveId: validatedMove._id,
-        context: {
-          customerName: validatedMoveCustomer.name,
-          deliveryType: args.channel,
-          moveDate,
-          salesRepName: user.name,
-        },
         userId: user._id,
       },
     });
@@ -293,12 +275,6 @@ export const signQuote = action({
         body: `**${moveCustomer.name}** signed proposal for  **${moveDate}** (deposit paid ${depositAmount}).`,
         moveId,
         moveCustomerId: moveCustomer._id,
-        context: {
-          customerName: moveCustomer.name,
-          moveDate,
-          depositAmount: "0",
-          quoteId: validatedQuote._id,
-        },
       },
     });
 

@@ -50,7 +50,7 @@ export const createDiscount = mutation({
     const moveDate = move.moveDate
       ? formatMonthDayLabelStrict(move.moveDate)
       : "TBD";
-    const discountId = await ctx.db.insert("discounts", {
+    await ctx.db.insert("discounts", {
       moveId,
       name,
       price,
@@ -66,13 +66,6 @@ export const createDiscount = mutation({
         userId: user._id,
         body: `**${user.name}** added discount **${name}** to **${moveCustomer.name}** **${moveDate}**`,
         amount,
-        context: {
-          customerName: moveCustomer.name,
-          moveDate,
-          discountId,
-          discountName: name,
-          moverName: user.name,
-        },
         moveId,
       },
     });
@@ -138,13 +131,6 @@ export const updateDiscount = mutation({
           companyId: company._id,
           userId: user._id,
           amount,
-          context: {
-            customerName: moveCustomer.name,
-            moveDate,
-            discountName: discount.name,
-            discountId,
-            moverName: user.name,
-          },
           moveId: move._id,
         },
       });
@@ -155,13 +141,6 @@ export const updateDiscount = mutation({
           body: `**${user.name}** updated discount **${discount.name}** for **${moveCustomer.name}** **(${moveDate})**.`,
           companyId: company._id,
           userId: user._id,
-          context: {
-            customerName: moveCustomer.name,
-            moveDate: moveDate,
-            discountName: discount.name,
-            discountId,
-            moverName: user.name,
-          },
           amount,
           moveId: move._id,
         },

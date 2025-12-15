@@ -16,7 +16,6 @@ import {
   SubscriptionStatusConvex,
   TravelChargingTypesConvex,
   UserRoleConvex,
-  FollowUpCommunicationTypeConvex,
 } from "@/types/convex-enums";
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
@@ -171,43 +170,6 @@ export const InvoiceStatusConvex = v.union(
   v.literal("pending"),
   v.literal("completed")
 );
-
-export const ActivityEventContextConvex = v.object({
-  amount: v.optional(v.number()),
-  approvedPay: v.optional(v.number()),
-  breakAmount: v.optional(v.number()),
-  contractId: v.optional(v.id("contracts")),
-  customerId: v.optional(v.id("users")),
-  customerName: v.optional(v.string()),
-  depositAmount: v.optional(v.string()),
-  deliveryType: v.optional(CommunicationTypeConvex),
-  discountId: v.optional(v.id("discounts")),
-  discountName: v.optional(v.string()),
-  feeAmount: v.optional(v.number()),
-  feeId: v.optional(v.id("additionalFees")),
-  feeName: v.optional(v.string()),
-  followUpType: v.optional(FollowUpCommunicationTypeConvex),
-  internalReviewId: v.optional(v.id("internalReviews")),
-  invoiceId: v.optional(v.id("invoices")),
-  messageId: v.optional(v.id("messages")),
-  moveAssignmentId: v.optional(v.id("moveAssignments")),
-  hourStatus: v.optional(HourStatusConvex),
-  moveBreakAmount: v.optional(v.number()),
-  moverLocationId: v.optional(v.id("moverLocations")),
-  moveDate: v.optional(v.string()),
-  moveId: v.optional(v.id("moves")),
-  moveStatus: v.optional(v.string()),
-  moverName: v.optional(v.string()),
-  paymentType: v.optional(PaymentMethodConvex),
-  quoteId: v.optional(v.id("quotes")),
-  rating: v.optional(v.number()),
-  salesRepName: v.optional(v.string()),
-  time: v.optional(v.number()),
-  timeLabel: v.optional(v.string()),
-  waiverId: v.optional(v.id("waivers")),
-  workStartTime: v.optional(v.number()),
-  workEndTime: v.optional(v.number()),
-});
 
 export default defineSchema({
   additionalFees: defineTable({
@@ -432,7 +394,6 @@ export default defineSchema({
     amount: v.optional(v.union(v.number(), v.null())),
     body: v.string(),
     companyId: v.id("companies"),
-    context: ActivityEventContextConvex,
     moveCustomerId: v.optional(v.id("users")),
     moveId: v.optional(v.id("moves")),
     type: ActivityEventTypeConvex,

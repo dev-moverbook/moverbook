@@ -13,19 +13,20 @@ const PublicMoveStepper = ({ step, setStep }: PublicMoveStepperProps) => {
   const quoteStatus = move.quote?.status;
 
   const isQuoteComplete = quoteStatus === "completed";
-  const isContractComplete = move.contract?.customerSignature;
+  const isContractComplete: boolean =
+    move.contract !== null && move.contract.customerSignature !== undefined;
   const isMoveComplete = !!move.move.actualEndTime;
 
   let disabledSteps: number[] = [];
+
   if (!isQuoteComplete) {
     disabledSteps = [2, 3, 4];
-  }
-  if (!isContractComplete) {
+  } else if (!isContractComplete) {
     disabledSteps = [3, 4];
-  }
-  if (!isMoveComplete) {
+  } else if (!isMoveComplete) {
     disabledSteps = [4];
   }
+
   return (
     <Stepper
       currentStep={step}

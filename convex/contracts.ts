@@ -1,4 +1,4 @@
-import { action, internalQuery, mutation } from "./_generated/server";
+import { internalQuery, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import {
@@ -8,7 +8,6 @@ import {
   validateDocExists,
   validateDocument,
   validateMoveCustomer,
-  validateUser,
 } from "./backendUtils/validate";
 import { ClerkRoles } from "@/types/enums";
 import { Doc, Id } from "./_generated/dataModel";
@@ -63,17 +62,14 @@ export const createOrUpdateContract = mutation({
       .withIndex("by_move", (q) => q.eq("moveId", moveId))
       .unique();
 
-    let contractId: Id<"contracts">;
-
     const moveCustomer = validateMoveCustomer(
       await ctx.db.get(move.moveCustomerId)
     );
 
     if (existing) {
       await ctx.db.patch(existing._id, updates);
-      contractId = existing._id;
     } else {
-      contractId = await ctx.db.insert("contracts", {
+      await ctx.db.insert("contracts", {
         moveId,
         ...updates,
         status: "pending",
@@ -88,10 +84,6 @@ export const createOrUpdateContract = mutation({
           body: `**${moveCustomer.name}** signed contract.`,
           moveId,
           moveCustomerId: move.moveCustomerId,
-          context: {
-            customerName: moveCustomer.name,
-            contractId,
-          },
         },
       });
     }
@@ -101,80 +93,80 @@ export const createOrUpdateContract = mutation({
 });
 
 // To Be Deleted
-export const sendContract = action({
-  args: {
-    moveId: v.id("moves"),
-    channel: v.union(v.literal("email"), v.literal("sms")),
-  },
-  handler: async (ctx, args): Promise<boolean> => {
-    const identity = await requireAuthenticatedUser(ctx, [
-      ClerkRoles.ADMIN,
-      ClerkRoles.APP_MODERATOR,
-      ClerkRoles.MANAGER,
-      ClerkRoles.SALES_REP,
-      ClerkRoles.MOVER,
-    ]);
+// export const sendContract = action({
+//   args: {
+//     moveId: v.id("moves"),
+//     channel: v.union(v.literal("email"), v.literal("sms")),
+//   },
+//   handler: async (ctx, args): Promise<boolean> => {
+//     const identity = await requireAuthenticatedUser(ctx, [
+//       ClerkRoles.ADMIN,
+//       ClerkRoles.APP_MODERATOR,
+//       ClerkRoles.MANAGER,
+//       ClerkRoles.SALES_REP,
+//       ClerkRoles.MOVER,
+//     ]);
 
-    const move = await ctx.runQuery(internal.moves.getMoveByIdInternal, {
-      moveId: args.moveId,
-    });
-    const validatedMove = validateDocExists(
-      "moves",
-      move,
-      ErrorMessages.MOVE_NOT_FOUND
-    );
+//     const move = await ctx.runQuery(internal.moves.getMoveByIdInternal, {
+//       moveId: args.moveId,
+//     });
+//     const validatedMove = validateDocExists(
+//       "moves",
+//       move,
+//       ErrorMessages.MOVE_NOT_FOUND
+//     );
 
-    const company = await ctx.runQuery(
-      internal.companies.getCompanyByIdInternal,
-      {
-        companyId: validatedMove.companyId,
-      }
-    );
-    const validatedCompany = validateDocExists(
-      "companies",
-      company,
-      ErrorMessages.COMPANY_NOT_FOUND
-    );
+//     const company = await ctx.runQuery(
+//       internal.companies.getCompanyByIdInternal,
+//       {
+//         companyId: validatedMove.companyId,
+//       }
+//     );
+//     const validatedCompany = validateDocExists(
+//       "companies",
+//       company,
+//       ErrorMessages.COMPANY_NOT_FOUND
+//     );
 
-    isUserInOrg(identity, validatedCompany.clerkOrganizationId);
+//     isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
-    const user = validateUser(
-      await ctx.runQuery(internal.users.getUserByIdInternal, {
-        userId: identity.convexId as Id<"users">,
-      })
-    );
+//     const user = validateUser(
+//       await ctx.runQuery(internal.users.getUserByIdInternal, {
+//         userId: identity.convexId as Id<"users">,
+//       })
+//     );
 
-    const moveCustomer = await ctx.runQuery(
-      internal.moveCustomers.getMoveCustomerByIdInternal,
-      {
-        moveCustomerId: validatedMove.moveCustomerId,
-      }
-    );
+//     const moveCustomer = await ctx.runQuery(
+//       internal.moveCustomers.getMoveCustomerByIdInternal,
+//       {
+//         moveCustomerId: validatedMove.moveCustomerId,
+//       }
+//     );
 
-    if (args.channel === "email") {
-      // TODO: Send waiver email
-    } else if (args.channel === "sms") {
-      // TODO: Send waiver SMS
-    }
+//     if (args.channel === "email") {
+//       // TODO: Send waiver email
+//     } else if (args.channel === "sms") {
+//       // TODO: Send waiver SMS
+//     }
 
-    await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
-      entry: {
-        type: "CONTRACT_SENT",
-        companyId: validatedCompany._id,
-        body: `**${user.name}** sent contract to **${moveCustomer.name}** via ${args.channel}`,
-        moveId: validatedMove._id,
-        context: {
-          customerName: moveCustomer.name,
-          deliveryType: args.channel,
-          salesRepName: user.name,
-        },
-        userId: user._id,
-      },
-    });
+//     await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
+//       entry: {
+//         type: "CONTRACT_SENT",
+//         companyId: validatedCompany._id,
+//         body: `**${user.name}** sent contract to **${moveCustomer.name}** via ${args.channel}`,
+//         moveId: validatedMove._id,
+//         context: {
+//           customerName: moveCustomer.name,
+//           deliveryType: args.channel,
+//           salesRepName: user.name,
+//         },
+//         userId: user._id,
+//       },
+//     });
 
-    return true;
-  },
-});
+//     return true;
+//   },
+// });
 
 export const customerUpdateContract = mutation({
   args: {
@@ -225,10 +217,6 @@ export const customerUpdateContract = mutation({
         body: `**${moveCustomer.name}** signed contract.`,
         moveId: validatedContract.moveId,
         moveCustomerId: move.moveCustomerId,
-        context: {
-          customerName: moveCustomer.name,
-          contractId: validatedContract._id,
-        },
       },
     });
 

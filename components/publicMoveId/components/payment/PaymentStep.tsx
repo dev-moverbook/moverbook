@@ -53,7 +53,7 @@ const PaymentStep = () => {
   });
 
   const showInvoice = invoice && invoice.repSignature;
-
+  const showPaymentActions = invoice?.customerSignature === undefined;
   return (
     <div>
       <SectionContainer showBorder={false} className="px-0">
@@ -65,11 +65,13 @@ const PaymentStep = () => {
               invoice={invoice}
               setSignatureDataUrl={setSignatureDataUrl}
             />
-            <PaymentActions
-              invoiceId={invoice?._id || null}
-              signature={signatureDataUrl}
-              amount={2}
-            />
+            {showPaymentActions && (
+              <PaymentActions
+                invoiceId={invoice._id}
+                signature={signatureDataUrl}
+                amount={2}
+              />
+            )}
           </>
         )}
       </SectionContainer>

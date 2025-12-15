@@ -141,7 +141,9 @@ export const getCompanyIdBySlug = query({
       company,
       ErrorMessages.COMPANY_NOT_FOUND
     );
-    isUserInOrg(identity, validatedCompany.clerkOrganizationId);
+    if (identity.role !== ClerkRoles.CUSTOMER) {
+      isUserInOrg(identity, validatedCompany.clerkOrganizationId);
+    }
 
     const userId = identity.convexId as Id<"users">;
     const user = validateUser(await ctx.db.get(userId), true);

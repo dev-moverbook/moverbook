@@ -2,13 +2,13 @@
 
 import DisplaySignature from "@/components/move/shared/DisplaySignature";
 import Signature from "@/components/move/shared/Signature";
-import CollapsibleSection from "@/components/shared/buttons/CollapsibleSection";
 import { Doc } from "@/convex/_generated/dataModel";
 import { useState } from "react";
 import SectionContainer from "@/components/shared/containers/SectionContainer";
 
 import WaiverActions from "./WaiverActions";
 import AdditionalLiabilityTerms from "@/components/moveId/components/copy/AdditionalLiabilityTerms";
+import SectionHeader from "@/components/shared/section/SectionHeader";
 
 interface WaiverSectionProps {
   waiver: Doc<"waivers">;
@@ -18,16 +18,11 @@ const WaiverSection = ({ waiver }: WaiverSectionProps) => {
   const isCompleted = !!waiver.customerSignature;
   const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
 
+  const showWaiverActions = !waiver.customerSignature;
+
   return (
-    <CollapsibleSection
-      title="Waiver"
-      defaultOpen={!isCompleted}
-      headerClassName="mx-auto"
-      showCheckmark
-      isCompleted={isCompleted}
-      toggleLabels={{ open: "Hide", closed: "Show" }}
-      className="max-w-screen-sm border-b md:border-none"
-    >
+    <>
+      <SectionHeader title="Waiver" isCompleted={isCompleted} showCheckmark />
       <SectionContainer showBorder={false}>
         <AdditionalLiabilityTerms />
         {waiver.repSignature && waiver.repSignedAt && (
@@ -51,12 +46,14 @@ const WaiverSection = ({ waiver }: WaiverSectionProps) => {
             onChange={setSignatureDataUrl}
           />
         )}
-        <WaiverActions
-          signatureDataUrl={signatureDataUrl}
-          waiverId={waiver._id}
-        />
+        {showWaiverActions && (
+          <WaiverActions
+            signatureDataUrl={signatureDataUrl}
+            waiverId={waiver._id}
+          />
+        )}
       </SectionContainer>
-    </CollapsibleSection>
+    </>
   );
 };
 

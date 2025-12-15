@@ -29,6 +29,7 @@ const PublicQuotesStep = () => {
     move: moveData,
   } = move;
   const quoteStatus = getPublicQuoteStatus(quote);
+  const showDeposit = quote?.status !== "completed";
   return (
     <SectionContainer showBorder={false} className="px-0">
       <QuoteStatus quoteStatus={quoteStatus} />
@@ -46,10 +47,12 @@ const PublicQuotesStep = () => {
         quote={quote}
         setCustomerSignatureDataUrl={setCustomerSignatureDataUrl}
       />
-      <DepositPaymentSection
-        move={moveData}
-        signatureDataUrl={customerSignatureDataUrl}
-      />
+      {showDeposit && (
+        <DepositPaymentSection
+          move={moveData}
+          signatureDataUrl={customerSignatureDataUrl}
+        />
+      )}
     </SectionContainer>
   );
 };

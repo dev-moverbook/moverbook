@@ -228,14 +228,14 @@ export const getPublicDocumentsStatus = (
   if (isContractReadyToSign) {
     return {
       label: "Contract Ready To Sign",
-      icon: <FileText className="w-4 h-4 text-gray-400" />,
+      icon: <AlertTriangle className="w-4 h-4 text-yellow-500" />,
     };
   }
 
   if (isWaiverReadyToSign) {
     return {
       label: "Waiver Ready To Sign",
-      icon: <FileText className="w-4 h-4 text-gray-400" />,
+      icon: <AlertTriangle className="w-4 h-4 text-yellow-500" />,
     };
   }
 

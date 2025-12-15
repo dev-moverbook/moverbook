@@ -12,6 +12,7 @@ import {
 } from "./backendUtils/validate";
 import { Id } from "./_generated/dataModel";
 
+// To be Deleted
 export const sendExternalReview = action({
   args: {
     moveId: v.id("moves"),
@@ -75,12 +76,6 @@ export const sendExternalReview = action({
         companyId: validatedCompany._id,
         body: `**${user.name}** sent external review to **${validatedMoveCustomer.name}** **${moveDate}** via ${args.channel}`,
         moveId: validatedMove._id,
-        context: {
-          customerName: validatedMoveCustomer.name,
-          deliveryType: args.channel,
-          moveDate,
-          salesRepName: user.name,
-        },
         userId: user._id,
       },
     });

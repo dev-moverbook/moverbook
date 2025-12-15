@@ -1300,3 +1300,27 @@ export function formatHours(ms: number): string {
 export function formatHoursAbbreviated(ms: number): string {
   return `${ms} hrs`;
 }
+
+export const getMoveStatusFromBody = (body: string): MoveStatus | undefined => {
+  const regex = /\*\*(.*?)\*\*/;
+  const match = body.match(regex);
+
+  if (match && match[1]) {
+    const extractedStatus = match[1].trim() as MoveStatus;
+
+    const validStatuses: MoveStatus[] = [
+      "New Lead",
+      "Quoted",
+      "Booked",
+      "Lost",
+      "Cancelled",
+      "Completed",
+    ];
+
+    if (validStatuses.includes(extractedStatus)) {
+      return extractedStatus;
+    }
+  }
+
+  return undefined;
+};
