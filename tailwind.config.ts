@@ -1,5 +1,5 @@
 import type { Config } from "tailwindcss";
-
+import tailwindcssAnimate from "tailwindcss-animate";
 export default {
   darkMode: ["class"],
   content: [
@@ -10,7 +10,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        averageMoveTime: "#E69F00", // orange (time)
+        averageMoveTime: "#E69F00",
         background: "hsl(var(--background))",
         background2: "#1E1E1E",
         foreground: "hsl(var(--foreground))",
@@ -18,8 +18,8 @@ export default {
         grayCustom2: "#8D8C8C",
         greenCustom: "#108A01",
         greenCustom80: "#108A0180",
-        profit: "#009E73", // green (profit)
-        revenue: "#0072B2", // lightest blue (historical)
+        profit: "#009E73",
+        revenue: "#0072B2",
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
@@ -65,7 +65,12 @@ export default {
         sm: "calc(var(--radius) - 4px)",
         custom: "20px",
       },
+      boxShadow: {
+        "light-md":
+          "0 4px 6px -1px rgba(255, 255, 255, 0.1), 0 2px 4px -2px rgba(255, 255, 255, 0.1)",
+        "white-glow": "0 0 15px rgba(255, 255, 255, 0.3)",
+      },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [tailwindcssAnimate],
 } satisfies Config;

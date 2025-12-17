@@ -12,6 +12,7 @@ const PaymentStatus = ({ invoice }: PaymentStatusProps) => {
   const paymentStatus = getCustomerInvoiceStatus(invoice);
   return (
     <StepStatus
+      className="py-0"
       items={[
         {
           label: "Payment Status",

@@ -185,12 +185,14 @@ const newsFeedEntryUnion = v.union(
     body: v.string(),
     companyId: v.id("companies"),
     moveCustomerId: v.id("users"),
+    moveId: v.optional(v.id("moves")),
   }),
   v.object({
     type: v.literal("CUSTOMER_UPDATED_BY_REP"),
     body: v.string(),
     companyId: v.id("companies"),
     moveCustomerId: v.id("users"),
+    moveId: v.optional(v.id("moves")),
     userId: v.id("users"),
   }),
   v.object({

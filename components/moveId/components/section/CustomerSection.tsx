@@ -56,6 +56,7 @@ const CustomerSection: React.FC = () => {
       moveCustomerId: moveCustomer._id,
       companyId: companyId,
       updates: formData,
+      moveId: moveData.move._id,
     });
     setIsEditing(false);
   };

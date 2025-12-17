@@ -1213,13 +1213,11 @@ export function computeMoveStatusesForDay(
   isMoverUser: boolean
 ): string[] {
   return movesOnDate.map((move) => {
-    // What we actually want to display for a mover
     const moverDisplay =
       move.moveStatus === "Completed"
-        ? move.moveStatus // "Completed"
-        : (move.moveWindow ?? "No window"); // fallback if moveWindow is missing
+        ? move.moveStatus
+        : (move.moveWindow ?? "No window");
 
-    // Final value that goes into getStatusColor
     const statusOrWindow: MoveStatus | MoveTimes | undefined = isMoverUser
       ? (moverDisplay as MoveStatus | MoveTimes)
       : move.moveStatus;

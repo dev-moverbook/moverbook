@@ -461,3 +461,11 @@ export interface DisplayQuoteStatus {
   icon: React.ReactNode;
   isQuoted: boolean;
 }
+
+export type PublicStatusColor = "gray" | "yellow" | "green";
+
+export interface StatusDisplay {
+  label: string;
+  icon: React.ReactNode;
+  color: PublicStatusColor;
+}

@@ -2,7 +2,8 @@ import { FileText, Clock, CheckCircle2, AlertTriangle } from "lucide-react";
 import { ReactNode } from "react";
 import { Doc } from "@/convex/_generated/dataModel";
 import { isSameDayOrLater } from "./luxonUtils";
-import { DisplayQuoteStatus, MoveStatus } from "@/types/types";
+import { DisplayQuoteStatus, MoveStatus, StatusDisplay } from "@/types/types";
+import { formatLocationType } from "./helper";
 
 export const getQuoteStatusInfo = (
   quote: Doc<"quotes"> | null,
@@ -158,6 +159,7 @@ export const getMoveStatus = (
   };
 };
 
+// To be deleted
 export const getPublicQuoteStatus = (
   quote: Doc<"quotes"> | null
 ): DisplayQuoteStatus => {
@@ -269,4 +271,126 @@ export const getCustomerInvoiceStatus = (
     label: "Awaiting Payment",
     icon: <Clock className="w-4 h-4 text-yellow-500" />,
   };
+};
+
+export interface PublicStatusParams {
+  quote: Doc<"quotes"> | null;
+  contract: Doc<"contracts"> | null;
+  waiver: Doc<"waivers"> | null;
+  move: Doc<"moves">;
+  invoice: Doc<"invoices"> | null;
+}
+
+export const getPublicStatusDisplay = ({
+  quote,
+  contract,
+  waiver,
+  move,
+  invoice,
+}: PublicStatusParams): StatusDisplay => {
+  if (quote?.status !== "completed") {
+    if (quote?.status === "pending") {
+      return {
+        label: "Quote Signature Required",
+        icon: <Clock className="w-4 h-4 text-yellow-500" />,
+        color: "yellow",
+      };
+    }
+    if (quote?.status === "customer_change") {
+      return {
+        label: "Quote Changes Requested",
+        icon: <AlertTriangle className="w-4 h-4 text-yellow-500" />,
+        color: "yellow",
+      };
+    }
+    return {
+      label: "Awaiting Quote",
+      icon: <FileText className="w-4 h-4 text-gray-400" />,
+      color: "gray",
+    };
+  }
+
+  const isContractSigned = !!contract?.customerSignature;
+  const isWaiverSigned = !!waiver?.customerSignature;
+  const isContractReadyToSign = contract && !isContractSigned;
+  const isWaiverReadyToSign = waiver && !isWaiverSigned;
+
+  if (!isContractSigned || !isWaiverSigned) {
+    if (isContractReadyToSign || isWaiverReadyToSign) {
+      if (isContractReadyToSign && isWaiverReadyToSign) {
+        return {
+          label: "Documents Ready To Sign",
+          icon: <AlertTriangle className="w-4 h-4 text-yellow-500" />,
+          color: "yellow",
+        };
+      }
+      return {
+        label: isContractReadyToSign
+          ? "Contract Signature Required"
+          : "Waiver Signature Required",
+        icon: <AlertTriangle className="w-4 h-4 text-yellow-500" />,
+        color: "yellow",
+      };
+    }
+
+    return {
+      label: "Awaiting Documents Preparation",
+      icon: <FileText className="w-4 h-4 text-gray-400" />,
+      color: "gray",
+    };
+  }
+
+  if (!move.actualEndTime) {
+    if (!move.actualStartTime) {
+      return {
+        label: "Awaiting Move Start",
+        icon: <Clock className="w-4 h-4 text-yellow-500" />,
+        color: "yellow",
+      };
+    }
+    if (!move.actualArrivalTime) {
+      return {
+        label: "Awaiting Arrival",
+        icon: <Clock className="w-4 h-4 text-gray-400" />,
+        color: "gray",
+      };
+    }
+    return {
+      label: "Awaiting Move End",
+      icon: <Clock className="w-4 h-4 text-gray-400" />,
+      color: "gray",
+    };
+  }
+
+  if (!invoice) {
+    return {
+      label: "Awaiting Final Invoice",
+      icon: <FileText className="w-4 h-4 text-gray-400" />,
+      color: "gray",
+    };
+  }
+
+  if (!invoice.customerSignature) {
+    return {
+      label: "Awaiting Payment",
+      icon: <Clock className="w-4 h-4 text-yellow-500" />,
+      color: "yellow",
+    };
+  }
+
+  return {
+    label: "Move Completed",
+    icon: <CheckCircle2 className="w-4 h-4 text-greenCustom" />,
+    color: "green",
+  };
+};
+
+export const getMoveTags = (move: Doc<"moves">): string[] => {
+  const tags = [
+    move.jobId ? `Job ID: ${move.jobId}` : null,
+    move.locations?.[0]
+      ? formatLocationType(move.locations[0].locationType)
+      : null,
+  ];
+  return tags.filter(Boolean) as string[];
 };

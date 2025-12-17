@@ -14,6 +14,7 @@ const ViewCustomer = () => {
       moveCustomer={moveCustomer}
       showCheckmark={true}
       isMoverLead={isMoverLead}
+      moveId={moveData.move._id}
     />
   );
 };

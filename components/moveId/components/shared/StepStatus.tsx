@@ -9,11 +9,12 @@ interface StepStatusProps {
     value: string | null;
     icon?: React.ReactNode;
   }[];
+  className?: string;
 }
 
-const StepStatus = ({ items }: StepStatusProps) => {
+const StepStatus = ({ items, className }: StepStatusProps) => {
   return (
-    <SectionContainer showBorder={false}>
+    <SectionContainer showBorder={false} className={className}>
       {items.map((item, i) => (
         <FieldDisplay
           key={i}

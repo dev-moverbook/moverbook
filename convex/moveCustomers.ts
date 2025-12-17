@@ -33,6 +33,7 @@ import { ErrorMessages } from "@/types/errors";
 import { internal } from "./_generated/api";
 import { throwConvexError } from "./backendUtils/errors";
 import { ServiceTypesConvex } from "@/types/convex-enums";
+import { updateUserNameHelper } from "./functions/clerk";
 
 export const searchMoveCustomersAndJobId = query({
   args: {
@@ -256,7 +257,7 @@ export const createMoveCustomer = mutation({
     };
   },
 });
-export const updateMoveCustomer = mutation({
+export const updateMoveCustomer = action({
   args: {
     moveCustomerId: v.id("users"),
     companyId: v.id("companies"),
@@ -266,65 +267,10 @@ export const updateMoveCustomer = mutation({
       phoneNumber: v.optional(v.string()),
       altPhoneNumber: v.optional(v.string()),
     }),
+    moveId: v.optional(v.id("moves")),
   },
   handler: async (ctx, args): Promise<boolean> => {
-    const { moveCustomerId, updates, companyId } = args;
-
-    const existing = await validateDocument(
-      ctx.db,
-      "users",
-      moveCustomerId,
-      ErrorMessages.MOVE_CUSTOMER_NOT_FOUND
-    );
-
-    if (updates.email && updates.email !== existing.email) {
-      const emailTaken = await ctx.db
-        .query("users")
-        .withIndex("by_email", (q) => q.eq("email", updates.email!))
-        .filter((q) => q.neq(q.field("_id"), moveCustomerId))
-        .first();
-
-      if (emailTaken) {
-        throwConvexError(ErrorMessages.CUSTOMER_EMAIL_TAKEN, {
-          code: "CONFLICT",
-          showToUser: true,
-        });
-      }
-    }
-
-    if (updates.phoneNumber && updates.phoneNumber !== existing.phoneNumber) {
-      const phoneTaken = await ctx.db
-        .query("users")
-        .withIndex("by_phoneNumber", (q) =>
-          q.eq("phoneNumber", updates.phoneNumber!)
-        )
-        .filter((q) => q.neq(q.field("_id"), moveCustomerId))
-        .first();
-
-      if (phoneTaken) {
-        throwConvexError(ErrorMessages.CUSTOMER_PHONE_TAKEN, {
-          code: "CONFLICT",
-          showToUser: true,
-        });
-      }
-    }
-
-    await ctx.db.patch(moveCustomerId, {
-      ...updates,
-    });
-
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) {
-      await ctx.db.insert("newsFeeds", {
-        body: `**${existing.name}** updated their details.`,
-        companyId,
-        type: "CUSTOMER_UPDATED",
-        moveCustomerId,
-      });
-
-      return true;
-    }
+    const { moveCustomerId, updates, companyId, moveId } = args;
 
     const identityVerified = await requireAuthenticatedUser(ctx, [
       ClerkRoles.ADMIN,
@@ -335,16 +281,80 @@ export const updateMoveCustomer = mutation({
 
     const currentUserId = identityVerified.convexId as Id<"users">;
 
-    const user = validateUser(await ctx.db.get(currentUserId));
+    const user = validateUser(
+      await ctx.runQuery(internal.users.getUserByIdInternal, {
+        userId: currentUserId,
+      })
+    );
     isUserInCompanyConvex(user, companyId);
+
+    const existingMoveCustomer = validateUser(
+      await ctx.runQuery(internal.users.getUserByIdInternal, {
+        userId: moveCustomerId,
+      })
+    );
+
+    if (updates.email && updates.email !== existingMoveCustomer.email) {
+      const emailTaken = await ctx.runQuery(
+        internal.moveCustomers.getUserByEmailInternal,
+        {
+          email: updates.email!,
+        }
+      );
+
+      if (emailTaken) {
+        throwConvexError(ErrorMessages.CUSTOMER_EMAIL_TAKEN, {
+          code: "CONFLICT",
+          showToUser: true,
+        });
+      }
+    }
+
+    if (
+      updates.phoneNumber &&
+      updates.phoneNumber !== existingMoveCustomer.phoneNumber
+    ) {
+      const phoneTaken = await ctx.runQuery(
+        internal.moveCustomers.getUserByPhoneNumberInternal,
+        {
+          phoneNumber: updates.phoneNumber!,
+        }
+      );
+
+      if (phoneTaken) {
+        throwConvexError(ErrorMessages.CUSTOMER_PHONE_TAKEN, {
+          code: "CONFLICT",
+          showToUser: true,
+        });
+      }
+    }
+
+    if (
+      existingMoveCustomer.clerkUserId &&
+      updates.name &&
+      updates.name !== existingMoveCustomer.name
+    ) {
+      await updateUserNameHelper(
+        existingMoveCustomer.clerkUserId,
+        updates.name!
+      );
+    }
+
+    await ctx.runMutation(internal.users.updateUserInternal, {
+      userId: moveCustomerId,
+      updates: {
+        ...updates,
+      },
+    });
 
     await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
       entry: {
         type: "CUSTOMER_UPDATED_BY_REP",
         companyId,
         userId: user._id,
-        body: `**${user.name}** updated customer details for **${existing.name}**.`,
+        body: `**${user.name}** updated customer details for **${existingMoveCustomer.name}**.`,
         moveCustomerId,
+        moveId,
       },
     });
 
@@ -582,5 +592,120 @@ export const createMoveCustomerInternal = internalMutation({
       updatedAt: Date.now(),
     });
     return moveCustomerId;
+  },
+});
+
+export const updateUserAsCustomer = action({
+  args: {
+    userId: v.id("users"),
+    companyId: v.id("companies"),
+    moveId: v.id("moves"),
+    updates: v.object({
+      name: v.optional(v.string()),
+      email: v.optional(v.string()),
+      phoneNumber: v.optional(v.string()),
+      altPhoneNumber: v.optional(v.string()),
+    }),
+  },
+  handler: async (ctx, args): Promise<boolean> => {
+    const { userId, updates, moveId, companyId } = args;
+    const identity = await requireAuthenticatedUser(ctx, [ClerkRoles.CUSTOMER]);
+
+    const existingUser = validateUser(
+      await ctx.runQuery(internal.users.getUserByIdInternal, {
+        userId,
+      })
+    );
+
+    if (existingUser._id !== identity.convexId) {
+      throwConvexError(ErrorMessages.USER_FORBIDDEN_PERMISSION, {
+        code: "FORBIDDEN",
+        showToUser: true,
+      });
+    }
+
+    if (updates.email && updates.email !== existingUser.email) {
+      const emailTaken = await ctx.runQuery(
+        internal.moveCustomers.getUserByEmailInternal,
+        {
+          email: updates.email!,
+        }
+      );
+
+      if (emailTaken) {
+        throwConvexError(ErrorMessages.CUSTOMER_EMAIL_TAKEN, {
+          code: "CONFLICT",
+          showToUser: true,
+        });
+      }
+    }
+
+    if (
+      updates.phoneNumber &&
+      updates.phoneNumber !== existingUser.phoneNumber
+    ) {
+      const phoneTaken = await ctx.runQuery(
+        internal.moveCustomers.getUserByPhoneNumberInternal,
+        {
+          phoneNumber: updates.phoneNumber!,
+        }
+      );
+
+      if (phoneTaken) {
+        throwConvexError(ErrorMessages.CUSTOMER_PHONE_TAKEN, {
+          code: "CONFLICT",
+          showToUser: true,
+        });
+      }
+    }
+
+    await ctx.runMutation(internal.users.updateUserInternal, {
+      userId,
+      updates: {
+        ...updates,
+      },
+    });
+
+    if (
+      existingUser.clerkUserId &&
+      updates.name &&
+      updates.name !== existingUser.name
+    ) {
+      await updateUserNameHelper(existingUser.clerkUserId, updates.name);
+    }
+
+    await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
+      entry: {
+        type: "CUSTOMER_UPDATED",
+        companyId: companyId,
+        moveCustomerId: existingUser._id,
+        body: `**${existingUser.name}** updated their details.`,
+        moveId,
+      },
+    });
+
+    return true;
+  },
+});
+
+export const getUserByEmailInternal = internalQuery({
+  args: { email: v.string() },
+  handler: async (ctx, args): Promise<Doc<"users"> | null> => {
+    const { email } = args;
+    return ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", email))
+      .first();
+  },
+});
+
+export const getUserByPhoneNumberInternal = internalQuery({
+  args: { phoneNumber: v.string() },
+  handler: async (ctx, args): Promise<Doc<"users"> | null> => {
+    const { phoneNumber } = args;
+    return ctx.db
+      .query("users")
+      .withIndex("by_phoneNumber", (q) => q.eq("phoneNumber", phoneNumber))
+      .first();
   },
 });

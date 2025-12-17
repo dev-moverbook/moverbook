@@ -9,43 +9,48 @@ import { setErrorFromConvexError } from "@/frontendUtils/errorHelper";
 interface UpdateMoveCustomerInput {
   moveCustomerId: Id<"users">;
   companyId: Id<"companies">;
+  moveId: Id<"moves">;
   updates: {
     name?: string;
     email?: string;
     phoneNumber?: string;
     altPhoneNumber?: string;
   };
-  moveId?: Id<"moves">;
 }
 
-export const useUpdateMoveCustomer = () => {
-  const [updateMoveCustomerLoading, setLoading] = useState<boolean>(false);
-  const [updateMoveCustomerError, setError] = useState<string | null>(null);
+export const useUpdateMoveCustomerByCustomer = () => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   const updateMoveCustomerAction = useAction(
-    api.moveCustomers.updateMoveCustomer
+    api.moveCustomers.updateUserAsCustomer
   );
 
-  const updateMoveCustomer = async (
+  const updateMoveCustomerByCustomer = async (
     data: UpdateMoveCustomerInput
   ): Promise<boolean> => {
-    setLoading(true);
+    setIsLoading(true);
     setError(null);
 
     try {
-      return await updateMoveCustomerAction(data);
+      return await updateMoveCustomerAction({
+        userId: data.moveCustomerId,
+        companyId: data.companyId,
+        updates: data.updates,
+        moveId: data.moveId,
+      });
     } catch (error) {
       setErrorFromConvexError(error, setError);
       return false;
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   return {
-    updateMoveCustomer,
-    updateMoveCustomerLoading,
-    updateMoveCustomerError,
-    setUpdateMoveCustomerError: setError,
+    updateMoveCustomerByCustomer,
+    isLoading,
+    error,
+    setError,
   };
 };

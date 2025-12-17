@@ -72,6 +72,9 @@ export const updateUserInternal = internalMutation({
       role: v.optional(UserRoleConvex),
       companyId: v.optional(v.id("companies")),
       clerkUserId: v.optional(v.string()),
+      email: v.optional(v.string()),
+      phoneNumber: v.optional(v.string()),
+      altPhoneNumber: v.optional(v.string()),
     }),
   },
   handler: async (ctx, args): Promise<Id<"users">> => {

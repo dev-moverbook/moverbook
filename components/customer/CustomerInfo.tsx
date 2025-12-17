@@ -13,12 +13,14 @@ import { isValidEmail, isValidPhoneNumber } from "@/utils/helper";
 import { useSlugContext } from "@/contexts/SlugContext";
 import { canCreateMove, isMover } from "@/frontendUtils/permissions";
 import { CustomerUser } from "@/types/types";
+import { Id } from "@/convex/_generated/dataModel";
 
 interface CustomerInfoProps {
   moveCustomer: CustomerUser;
   onClick?: () => void;
   showCheckmark?: boolean;
   isMoverLead?: boolean;
+  moveId?: Id<"moves">;
 }
 
 const CustomerInfo: React.FC<CustomerInfoProps> = ({
@@ -26,6 +28,7 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
   onClick,
   showCheckmark,
   isMoverLead,
+  moveId,
 }) => {
   const { user, companyId } = useSlugContext();
   const canCreateMoveUser = canCreateMove(user.role);
@@ -61,6 +64,7 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
       moveCustomerId: moveCustomer._id,
       companyId: companyId,
       updates: formData,
+      moveId: moveId,
     });
     setIsEditing(false);
   };

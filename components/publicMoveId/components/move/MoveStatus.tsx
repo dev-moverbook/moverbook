@@ -9,6 +9,7 @@ const MoveStatus = () => {
   const moveStatus = getMoveStatus(move.move);
   return (
     <StepStatus
+      className="py-0"
       items={[
         {
           label: "Move Status",

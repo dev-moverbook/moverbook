@@ -13,6 +13,7 @@ const DocumentsStatus = ({ contract, waiver }: DocumentsStatusProps) => {
   const documentsStatus = getPublicDocumentsStatus(contract, waiver);
   return (
     <StepStatus
+      className="py-0"
       items={[
         {
           label: "Documents Status",
