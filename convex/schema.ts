@@ -73,6 +73,12 @@ export const ActivityEventTypeConvex = v.union(
   v.literal("WORK_BREAK_UPDATE")
 );
 
+export const ChangeRequestStatusConvex = v.union(
+  v.literal("pending"),
+  v.literal("approved"),
+  v.literal("rejected")
+);
+
 export const MoveFeeConvex = v.object({
   name: v.string(),
   price: v.number(),
@@ -383,6 +389,15 @@ export default defineSchema({
     .index("by_move", ["moveId"])
     .index("by_move_mover", ["moveId", "moverId"])
     .index("by_mover", ["moverId"]),
+  moveChangeRequests: defineTable({
+    customerAcknowledgedAt: v.optional(v.number()),
+    moveId: v.id("moves"),
+    status: ChangeRequestStatusConvex,
+    requestedLocations: v.optional(v.array(LocationConvex)),
+    requestedMoveItems: v.optional(v.array(MoveItemConvex)),
+    rejectionNotes: v.optional(v.string()),
+    updatedAt: v.number(),
+  }).index("by_move", ["moveId"]),
   moverLocations: defineTable({
     moveId: v.id("moves"),
     lat: v.optional(v.number()),

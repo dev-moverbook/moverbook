@@ -7,18 +7,27 @@ import { getMoveTags, getPublicStatusDisplay } from "@/frontendUtils/tsxHelper";
 
 const PublicMoveCard: React.FC = () => {
   const { move: moveData } = usePublicMoveIdContext();
-  const { move, moveCustomer, quote, contract, waiver, invoice } = moveData;
+  const {
+    move,
+    moveCustomer,
+    quote,
+    contract,
+    waiver,
+    invoice,
+    changeRequests,
+  } = moveData;
 
   const name = moveCustomer.name ?? "Move Details";
 
   const tags = getMoveTags(move);
 
   const publicStatusDisplay = getPublicStatusDisplay({
-    quote: quote,
-    contract: contract,
-    waiver: waiver,
-    move: move,
-    invoice: invoice,
+    quote,
+    contract,
+    waiver,
+    move,
+    invoice,
+    changeRequests,
   });
 
   return (

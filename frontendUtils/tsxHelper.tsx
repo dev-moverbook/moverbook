@@ -3,7 +3,7 @@ import { ReactNode } from "react";
 import { Doc } from "@/convex/_generated/dataModel";
 import { isSameDayOrLater } from "./luxonUtils";
 import { DisplayQuoteStatus, MoveStatus, StatusDisplay } from "@/types/types";
-import { formatLocationType } from "./helper";
+import { formatLocationType, hasPendingChangeRequest } from "./helper";
 
 export const getQuoteStatusInfo = (
   quote: Doc<"quotes"> | null,
@@ -194,6 +194,7 @@ export const getPublicQuoteStatus = (
   };
 };
 
+// To be deleted
 export const getPublicDocumentsStatus = (
   contract: Doc<"contracts"> | null,
   waiver: Doc<"waivers"> | null
@@ -279,6 +280,7 @@ export interface PublicStatusParams {
   waiver: Doc<"waivers"> | null;
   move: Doc<"moves">;
   invoice: Doc<"invoices"> | null;
+  changeRequests: Doc<"moveChangeRequests">[];
 }
 
 export const getPublicStatusDisplay = ({
@@ -287,7 +289,18 @@ export const getPublicStatusDisplay = ({
   waiver,
   move,
   invoice,
+  changeRequests,
 }: PublicStatusParams): StatusDisplay => {
+  const hasPendingChange = hasPendingChangeRequest(changeRequests);
+
+  if (hasPendingChange) {
+    return {
+      label: "Change Request Pending",
+      icon: <AlertTriangle className="w-4 h-4 text-yellow-500" />,
+      color: "yellow",
+    };
+  }
+
   if (quote?.status !== "completed") {
     if (quote?.status === "pending") {
       return {

@@ -30,7 +30,11 @@ const QuoteContact = ({
       <div className="flex items-center justify-between ">
         <SectionHeader className="px-0" title="Contact Information" />
         {showEditButton && (
-          <IconButton icon={<PencilIcon size={20} />} onClick={onEditClick} />
+          <IconButton
+            title="Edit Contact Information"
+            icon={<PencilIcon size={20} />}
+            onClick={onEditClick}
+          />
         )}
       </div>
       <SectionContainer>

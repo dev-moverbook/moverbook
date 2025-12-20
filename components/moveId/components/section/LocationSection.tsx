@@ -297,7 +297,6 @@ const LocationSection = () => {
     setEditedLocations((prev) =>
       prev.map((loc, i) => (i === index ? { ...loc, ...partial } : loc))
     );
-    console.log("updateLocation in update", editedLocations);
   };
 
   const removeLocation = async (index: number) => {

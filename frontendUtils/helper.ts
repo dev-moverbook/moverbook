@@ -1322,3 +1322,20 @@ export const getMoveStatusFromBody = (body: string): MoveStatus | undefined => {
 
   return undefined;
 };
+
+export function findUnacknowledgedResolvedChangeRequest(
+  changeRequests: Doc<"moveChangeRequests">[]
+): Doc<"moveChangeRequests"> | undefined {
+  return changeRequests.find((req) => {
+    const isResolved = req.status === "approved" || req.status === "rejected";
+    const notAcknowledged = req.customerAcknowledgedAt == null;
+
+    return isResolved && notAcknowledged;
+  });
+}
+
+export function hasPendingChangeRequest(
+  changeRequests: Doc<"moveChangeRequests">[]
+): boolean {
+  return changeRequests.some((req) => req.status === "pending");
+}

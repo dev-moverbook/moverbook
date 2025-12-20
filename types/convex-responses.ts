@@ -136,6 +136,7 @@ export interface GetMoveData {
   travelFee: Doc<"travelFees">;
   policy: Doc<"policies">;
   moverLocation: Doc<"moverLocations"> | null;
+  changeRequests: Doc<"moveChangeRequests">[];
 }
 
 export type GetDistanceMatrixResponse =
@@ -229,17 +230,18 @@ export interface newCustomerResponse {
 }
 
 export interface PublicMoveData {
-  move: Doc<"moves">;
-  quote: Doc<"quotes"> | null;
-  companyContact: Doc<"companyContacts">;
-  company: Doc<"companies">;
-  moveCustomer: CustomerUser;
-  salesRepUser: Doc<"users">;
-  policy: Doc<"policies">;
   additionalFees: Doc<"additionalFees">[];
+  changeRequests: Doc<"moveChangeRequests">[];
+  company: Doc<"companies">;
+  companyContact: Doc<"companyContacts">;
+  contract: Doc<"contracts"> | null;
   discounts: Doc<"discounts">[];
   invoice: Doc<"invoices"> | null;
-  waiver: Doc<"waivers"> | null;
-  contract: Doc<"contracts"> | null;
+  move: Doc<"moves">;
+  moveCustomer: CustomerUser;
   moverLocation: Doc<"moverLocations"> | null;
+  policy: Doc<"policies">;
+  quote: Doc<"quotes"> | null;
+  salesRepUser: Doc<"users">;
+  waiver: Doc<"waivers"> | null;
 }

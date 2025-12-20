@@ -9,6 +9,9 @@ import PaymentStep from "./components/payment/PaymentStep";
 import PageContainer from "../shared/containers/PageContainer";
 import PublicMoveNav from "./components/header/PublicMoveNav";
 import PublicMoveCard from "./components/header/PublicMoveCard";
+import ChangeResponseNotification from "./components/notification/ChangeResponseNotification";
+import { usePublicMoveIdContext } from "@/contexts/PublicMovIdContext";
+import { findUnacknowledgedResolvedChangeRequest } from "@/frontendUtils/helper";
 
 interface PublicMoveIdPageProps {
   initialStep: number;
@@ -17,11 +20,22 @@ interface PublicMoveIdPageProps {
 const PublicMoveIdPage = ({ initialStep }: PublicMoveIdPageProps) => {
   const { step, setStep } = useStepper(initialStep, 4);
 
+  const { move } = usePublicMoveIdContext();
+  const { changeRequests } = move;
+
+  const unacknowledgedChangeRequest =
+    findUnacknowledgedResolvedChangeRequest(changeRequests);
+
   return (
     <>
       <PublicMoveNav />
       <PageContainer className="pt-10">
         <PublicMoveCard />
+        {unacknowledgedChangeRequest && (
+          <ChangeResponseNotification
+            changeRequest={unacknowledgedChangeRequest}
+          />
+        )}
         <PublicMoveStepper step={step} setStep={setStep} />
 
         {step === 1 && <QuotesStep />}

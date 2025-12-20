@@ -469,3 +469,5 @@ export interface StatusDisplay {
   icon: React.ReactNode;
   color: PublicStatusColor;
 }
+
+export type ChangeRequestStatus = "pending" | "approved" | "rejected";

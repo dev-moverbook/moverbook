@@ -3,14 +3,13 @@
 import SectionContainer from "@/components/shared/containers/SectionContainer";
 import { usePublicMoveIdContext } from "@/contexts/PublicMovIdContext";
 import QuoteSummary from "@/components/moveId/components/quote/QuoteSummary";
-import QuoteLocation from "@/components/moveId/components/quote/QuoteLocation";
-import QuoteInventory from "@/components/moveId/components/quote/QuoteInventory";
 import QuoteCost from "@/components/moveId/components/quote/QuoteCost";
 import QuoteTerms from "@/components/moveId/components/quote/QuoteTerms";
 import QuoteSignature from "@/components/moveId/components/quote/QuoteSignature";
 import { useState } from "react";
 import DepositPaymentSection from "./DepositPaymentSection";
 import QuoteContactProvider from "./QuoteContactProvider";
+import EditableQuoteSection from "./EditableQuoteSection";
 
 const PublicQuotesStep = () => {
   const [customerSignatureDataUrl, setCustomerSignatureDataUrl] = useState<
@@ -30,8 +29,7 @@ const PublicQuotesStep = () => {
     <SectionContainer showBorder={false} className="p-0 pb-10">
       <QuoteSummary move={moveData} company={company} />
       <QuoteContactProvider />
-      <QuoteLocation move={moveData} />
-      <QuoteInventory move={moveData} />
+      <EditableQuoteSection />
       <QuoteCost move={moveData} />
       <QuoteTerms policy={policy} />
       <QuoteSignature

@@ -11,11 +11,14 @@ import { X } from "lucide-react";
 import SectionContainer from "@/components/shared/containers/SectionContainer";
 import ContactCard from "@/components/moveId/components/card/ContactCard";
 import CustomerForm from "@/components/move/sections/Customer/CustomerForm";
+import { ClerkRoles } from "@/types/enums";
 
 const QuoteContactProvider = () => {
-  const { move } = usePublicMoveIdContext();
+  const { move, userRole } = usePublicMoveIdContext();
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const { companyContact, moveCustomer, salesRepUser } = move;
+
+  const isMoveCustomer = userRole === ClerkRoles.CUSTOMER;
 
   const handleEditClick = () => {
     setIsEditing(true);
@@ -46,7 +49,12 @@ const QuoteContactProvider = () => {
         <div className="flex items-center justify-between ">
           <SectionHeader className="px-0" title="Contact Information" />
 
-          <IconButton icon={<X size={20} />} onClick={handleCancel} />
+          <IconButton
+            className="border-grayCustom "
+            icon={<X size={20} />}
+            onClick={handleCancel}
+            title="Cancel Edit"
+          />
         </div>
         <SectionContainer>
           <ContactCard
@@ -72,7 +80,7 @@ const QuoteContactProvider = () => {
       companyContact={companyContact}
       moveCustomer={moveCustomer}
       salesRepUser={salesRepUser}
-      onEditClick={handleEditClick}
+      onEditClick={isMoveCustomer ? handleEditClick : undefined}
       isEditing={isEditing}
     />
   );

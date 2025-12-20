@@ -21,8 +21,7 @@ import {
   validateUser,
   validateCompanyContact,
   validateDocExists,
-  isUserInCompanyConvex,
-  isCustomerInMove,
+  isIdentityInMove,
 } from "./backendUtils/validate";
 import { isUserInOrg } from "./backendUtils/validate";
 import {
@@ -329,7 +328,13 @@ export const getMoveContext = query({
     const { moveId } = args;
 
     const [identity, move] = await Promise.all([
-      requireAuthenticatedUser(ctx),
+      requireAuthenticatedUser(ctx, [
+        ClerkRoles.ADMIN,
+        ClerkRoles.APP_MODERATOR,
+        ClerkRoles.MANAGER,
+        ClerkRoles.SALES_REP,
+        ClerkRoles.MOVER,
+      ]),
       ctx.db.get(moveId),
     ]);
 
@@ -356,6 +361,7 @@ export const getMoveContext = query({
       discounts,
       moverContext,
       moverLocation,
+      changeRequests,
     ] = await Promise.all([
       ctx.db
         .query("quotes")
@@ -390,6 +396,9 @@ export const getMoveContext = query({
         .query("moverLocations")
         .withIndex("by_moveId", (q) => q.eq("moveId", moveId))
         .first(),
+      ctx.runQuery(internal.moveChangeRequests.getMoveChangeRequestsByMoveId, {
+        moveId,
+      }),
     ]);
 
     const salesRepUser = salesRepUserDoc ? validateUser(salesRepUserDoc) : null;
@@ -437,6 +446,7 @@ export const getMoveContext = query({
       travelFee,
       policy,
       moverLocation,
+      changeRequests,
     };
   },
 });
@@ -1381,15 +1391,6 @@ export const getPublicMoveById = query({
       ClerkRoles.CUSTOMER,
     ]);
 
-    const userId = identity.convexId as Id<"users">;
-    const user = validateDocExists(
-      "users",
-      await ctx.runQuery(internal.users.getUserByIdInternal, {
-        userId,
-      }),
-      ErrorMessages.USER_NOT_FOUND
-    );
-
     const move = validateDocExists(
       "moves",
       await ctx.runQuery(internal.moves.getMoveByIdInternal, {
@@ -1406,11 +1407,7 @@ export const getPublicMoveById = query({
       ErrorMessages.COMPANY_NOT_FOUND
     );
 
-    if (user.role === ClerkRoles.CUSTOMER) {
-      isCustomerInMove(user, move);
-    } else {
-      isUserInCompanyConvex(user, move.companyId);
-    }
+    isIdentityInMove(identity, move);
 
     const quote = await ctx.runQuery(internal.quotes.getQuoteByMoveId, {
       moveId,
@@ -1493,6 +1490,13 @@ export const getPublicMoveById = query({
       }
     );
 
+    const changeRequests = await ctx.runQuery(
+      internal.moveChangeRequests.getMoveChangeRequestsByMoveId,
+      {
+        moveId,
+      }
+    );
+
     return {
       move,
       quote,
@@ -1507,6 +1511,7 @@ export const getPublicMoveById = query({
       waiver,
       contract,
       moverLocation,
+      changeRequests,
     };
   },
 });

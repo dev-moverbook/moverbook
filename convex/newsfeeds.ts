@@ -172,6 +172,7 @@ const newsFeedEntryUnion = v.union(
     body: v.string(),
     companyId: v.id("companies"),
     moveCustomerId: v.id("users"),
+    moveId: v.id("moves"),
   }),
   v.object({
     type: v.literal("CUSTOMER_SIGNED_CONTRACT_DOC"),

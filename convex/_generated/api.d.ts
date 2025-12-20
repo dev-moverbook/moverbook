@@ -57,6 +57,7 @@ import type * as lib_stripe from "../lib/stripe.js";
 import type * as lib_twilio from "../lib/twilio.js";
 import type * as messages from "../messages.js";
 import type * as moveAssignments from "../moveAssignments.js";
+import type * as moveChangeRequests from "../moveChangeRequests.js";
 import type * as moveCustomers from "../moveCustomers.js";
 import type * as moverLocations from "../moverLocations.js";
 import type * as moves from "../moves.js";
@@ -141,6 +142,7 @@ declare const fullApi: ApiFromModules<{
   "lib/twilio": typeof lib_twilio;
   messages: typeof messages;
   moveAssignments: typeof moveAssignments;
+  moveChangeRequests: typeof moveChangeRequests;
   moveCustomers: typeof moveCustomers;
   moverLocations: typeof moverLocations;
   moves: typeof moves;

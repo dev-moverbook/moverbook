@@ -10,6 +10,7 @@ import MoveStep from "../steps/MoveStep";
 import PaymentStep from "../steps/PaymentStep";
 import SetupStep from "../steps/SetUpStep";
 import { hasRequiredMoveFields } from "@/frontendUtils/helper";
+import ChangeRequestNotification from "../notifications/ChangeRequestNotification";
 
 type InfoTabProps = {
   hideStepper?: boolean;
@@ -22,7 +23,7 @@ export default function InfoTab({ hideStepper }: InfoTabProps) {
   const searchParams = useSearchParams();
 
   const { moveData } = useMoveContext();
-  const { move, moveCustomer, quote } = moveData;
+  const { move, moveCustomer, quote, changeRequests } = moveData;
 
   const stepFromQuery = useMemo(() => {
     const stepParam = searchParams.get("step");
@@ -52,8 +53,16 @@ export default function InfoTab({ hideStepper }: InfoTabProps) {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const hasPendingChangeRequest = changeRequests.some(
+    (req) => req.status === "pending"
+  );
+
   return (
     <>
+      {hasPendingChangeRequest && (
+        <ChangeRequestNotification changeRequest={changeRequests[0]} />
+      )}
+
       {!hideStepper && (
         <Stepper
           currentStep={currentStep}
