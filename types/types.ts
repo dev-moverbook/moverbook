@@ -471,3 +471,16 @@ export interface StatusDisplay {
 }
 
 export type ChangeRequestStatus = "pending" | "approved" | "rejected";
+
+export interface TwilioInquirySchema {
+  inquiryId: string;
+  inquirySessionToken: string;
+}
+
+export type TollfreeVerificationStatus =
+  | "Pending Review"
+  | "In Review"
+  | "Approved"
+  | "Rejected"
+  | "Expired"
+  | "Verification Required";

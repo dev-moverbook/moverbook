@@ -612,3 +612,21 @@ export function isIdentityInMove(
     });
   }
 }
+
+export function isIdentityInCompany(
+  identity: UserIdentity,
+  companyId: Id<"companies">
+): void {
+  const role = identity.role;
+  if (role === ClerkRoles.APP_MODERATOR) {
+    return;
+  }
+  const userCompanyId = identity.convexOrgId as Id<"companies">;
+  const isSameCompany = userCompanyId === companyId;
+  if (!isSameCompany) {
+    throwConvexError(ErrorMessages.FOBIDDEN_COMPANY, {
+      code: "FORBIDDEN",
+      showToUser: true,
+    });
+  }
+}

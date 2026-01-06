@@ -105,6 +105,15 @@ export const TimeDistanceRangeConvex = v.union(
   v.literal("70-90 sec (400 ft)")
 );
 
+export const TollfreeVerificationStatusConvex = v.union(
+  v.literal("Pending Review"),
+  v.literal("In Review"),
+  v.literal("Approved"),
+  v.literal("Rejected"),
+  v.literal("Expired"),
+  v.literal("Verification Required")
+);
+
 export const AddressConvex = v.object({
   formattedAddress: v.string(),
   placeId: v.union(v.string(), v.null()),
@@ -480,6 +489,23 @@ export default defineSchema({
     flatRate: v.optional(v.number()),
     mileageRate: v.optional(v.number()),
   }),
+  twilioPhoneNumbers: defineTable({
+    companyId: v.id("companies"),
+    phoneNumberE164: v.string(),
+    sid: v.string(),
+    isActive: v.boolean(),
+    tollfreeVerificationStatus: v.optional(TollfreeVerificationStatusConvex),
+    tollfreeInquiryId: v.optional(v.string()),
+    tollfreeVerificationSid: v.optional(v.string()),
+    tollfreeRegistrationSid: v.optional(v.string()),
+    tollfreeVerifiedAt: v.optional(v.number()),
+    tollfreeRejectionReasons: v.optional(v.string()),
+    updatedAt: v.optional(v.number()),
+  })
+    .index("by_companyId", ["companyId"])
+    .index("by_phoneNumber", ["phoneNumberE164"])
+    .index("by_sid", ["sid"])
+    .index("by_updatedAt", ["updatedAt"]),
   users: defineTable({
     altPhoneNumber: v.optional(v.string()),
     clerkUserId: v.optional(v.string()),

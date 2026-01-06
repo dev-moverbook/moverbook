@@ -12,6 +12,7 @@ export type ServerEnv = {
   VAPID_EMAIL: string;
   VAPID_PRIVATE_KEY: string;
   STRIPE_KEY: string;
+  HTTP_ACTIONS: string;
 };
 
 export const serverEnv = (): ServerEnv => {
@@ -28,6 +29,7 @@ export const serverEnv = (): ServerEnv => {
     TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN,
     VAPID_PRIVATE_KEY: process.env.VAPID_PRIVATE_KEY,
     VAPID_EMAIL: process.env.VAPID_EMAIL,
+    HTTP_ACTIONS: process.env.HTTP_ACTIONS,
   } as const;
 
   const missing = getMissingEnvKeys(env);

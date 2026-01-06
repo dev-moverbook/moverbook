@@ -10,6 +10,7 @@ import {
   BarChart2,
   Briefcase,
   Truck,
+  Phone,
 } from "lucide-react";
 import NavLink from "@/components/shared/buttons/NavLink";
 import {
@@ -101,10 +102,16 @@ const SidebarContent = ({ onNavigate }: SidebarContentProps) => {
       )}
 
       {canSeeAdmin && (
-        <NavLink href={`/app/${slug}/stripe`} onNavigate={onNavigate}>
-          <CreditCard size={24} />
-          Stripe
-        </NavLink>
+        <>
+          <NavLink href={`/app/${slug}/stripe`} onNavigate={onNavigate}>
+            <CreditCard size={24} />
+            Stripe
+          </NavLink>
+          <NavLink href={`/app/${slug}/twilio-phone`} onNavigate={onNavigate}>
+            <Phone size={24} />
+            Twilio Phone
+          </NavLink>
+        </>
       )}
     </nav>
   );

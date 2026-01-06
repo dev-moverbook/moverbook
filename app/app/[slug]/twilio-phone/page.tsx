@@ -1,9 +1,9 @@
-import StripePage from "@/components/stripe/StripePage";
+import TwilioPhonePage from "@/components/twilio-phone/page";
 
 export default function Page() {
   return (
     <main className="min-h-100vh">
-      <StripePage />
+      <TwilioPhonePage />
     </main>
   );
 }

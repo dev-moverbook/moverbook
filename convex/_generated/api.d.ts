@@ -9,6 +9,7 @@
  */
 
 import type * as actions_messages from "../actions/messages.js";
+import type * as actions_twilio from "../actions/twilio.js";
 import type * as additionalFees from "../additionalFees.js";
 import type * as arrivalWindows from "../arrivalWindows.js";
 import type * as backendUtils_analyticsHelper from "../backendUtils/analyticsHelper.js";
@@ -28,7 +29,6 @@ import type * as backendUtils_sendGrid from "../backendUtils/sendGrid.js";
 import type * as backendUtils_serverEnv from "../backendUtils/serverEnv.js";
 import type * as backendUtils_stripe from "../backendUtils/stripe.js";
 import type * as backendUtils_template from "../backendUtils/template.js";
-import type * as backendUtils_twilio from "../backendUtils/twilio.js";
 import type * as backendUtils_validate from "../backendUtils/validate.js";
 import type * as categories from "../categories.js";
 import type * as clerk from "../clerk.js";
@@ -44,6 +44,7 @@ import type * as externalReviews from "../externalReviews.js";
 import type * as fees from "../fees.js";
 import type * as followUps from "../followUps.js";
 import type * as functions_clerk from "../functions/clerk.js";
+import type * as functions_twilio from "../functions/twilio.js";
 import type * as google from "../google.js";
 import type * as http from "../http.js";
 import type * as insurancePolicies from "../insurancePolicies.js";
@@ -72,6 +73,7 @@ import type * as sendgrid from "../sendgrid.js";
 import type * as stripe from "../stripe.js";
 import type * as travelFees from "../travelFees.js";
 import type * as twilioNumbers from "../twilioNumbers.js";
+import type * as twilioPhoneNumbers from "../twilioPhoneNumbers.js";
 import type * as users from "../users.js";
 import type * as variables from "../variables.js";
 import type * as waivers from "../waivers.js";
@@ -94,6 +96,7 @@ import type {
  */
 declare const fullApi: ApiFromModules<{
   "actions/messages": typeof actions_messages;
+  "actions/twilio": typeof actions_twilio;
   additionalFees: typeof additionalFees;
   arrivalWindows: typeof arrivalWindows;
   "backendUtils/analyticsHelper": typeof backendUtils_analyticsHelper;
@@ -113,7 +116,6 @@ declare const fullApi: ApiFromModules<{
   "backendUtils/serverEnv": typeof backendUtils_serverEnv;
   "backendUtils/stripe": typeof backendUtils_stripe;
   "backendUtils/template": typeof backendUtils_template;
-  "backendUtils/twilio": typeof backendUtils_twilio;
   "backendUtils/validate": typeof backendUtils_validate;
   categories: typeof categories;
   clerk: typeof clerk;
@@ -129,6 +131,7 @@ declare const fullApi: ApiFromModules<{
   fees: typeof fees;
   followUps: typeof followUps;
   "functions/clerk": typeof functions_clerk;
+  "functions/twilio": typeof functions_twilio;
   google: typeof google;
   http: typeof http;
   insurancePolicies: typeof insurancePolicies;
@@ -157,6 +160,7 @@ declare const fullApi: ApiFromModules<{
   stripe: typeof stripe;
   travelFees: typeof travelFees;
   twilioNumbers: typeof twilioNumbers;
+  twilioPhoneNumbers: typeof twilioPhoneNumbers;
   users: typeof users;
   variables: typeof variables;
   waivers: typeof waivers;
