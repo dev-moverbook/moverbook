@@ -157,7 +157,8 @@ export { CategorySize };
 export const MessageStatusConvex = v.union(
   v.literal("pending"),
   v.literal("sent"),
-  v.literal("failed")
+  v.literal("failed"),
+  v.literal("received")
 );
 
 export const MessageSentTypeConvex = v.union(

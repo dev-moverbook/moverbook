@@ -1,6 +1,7 @@
 import { Doc } from "@/convex/_generated/dataModel";
 import { MutationCtx } from "@/convex/_generated/server";
 import { InsurancePolicyInput } from "@/types/form-types";
+import parsePhoneNumberFromString from "libphonenumber-js/min";
 
 export const isValidEmail = (email: string) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -17,10 +18,11 @@ export const generateSlug = (name: string): string => {
 
 export const isValidPhoneNumber = (phone: string | null | undefined) => {
   if (!phone) return false;
-  const digits = phone.replace(/\D/g, ""); // remove all non-digit characters
-  return digits.length === 10;
-};
 
+  const phoneNumber = parsePhoneNumberFromString(phone, "US");
+
+  return phoneNumber?.isValid() ?? false;
+};
 export const getBaseUrl = (): string => {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL;
   if (appUrl) {

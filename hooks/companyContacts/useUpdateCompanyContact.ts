@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { FrontEndErrorMessages } from "@/types/errors";
 import { Id } from "@/convex/_generated/dataModel";
 import { AddressInput } from "@/types/form-types";
+import { setErrorFromConvexError } from "@/frontendUtils/errorHelper";
 
 interface UpdateCompanyContactData {
   email?: string;
@@ -36,8 +36,7 @@ export const useUpdateCompanyContact = () => {
         updates,
       });
     } catch (error) {
-      console.error(error);
-      setUpdateCompanyContactError(FrontEndErrorMessages.GENERIC);
+      setErrorFromConvexError(error, setUpdateCompanyContactError);
       return false;
     } finally {
       setUpdateCompanyContactLoading(false);

@@ -34,6 +34,7 @@ import { internal } from "./_generated/api";
 import { throwConvexError } from "./backendUtils/errors";
 import { ServiceTypesConvex } from "@/types/convex-enums";
 import { updateUserNameHelper } from "./functions/clerk";
+import { validateAndFormatPhone } from "./backendUtils/helper";
 
 export const searchMoveCustomersAndJobId = query({
   args: {
@@ -166,6 +167,12 @@ export const createMoveCustomer = mutation({
   handler: async (ctx, args): Promise<newCustomerResponse> => {
     const { name, email, phoneNumber, altPhoneNumber, companyId } = args;
 
+    const validatedPhoneNumber = validateAndFormatPhone(phoneNumber, "US");
+    const validatedAltPhoneNumber = validateAndFormatPhone(
+      altPhoneNumber,
+      "US"
+    );
+
     const byEmail: Doc<"users"> | null = await ctx.db
       .query("users")
       .withIndex("by_email", (q) => q.eq("email", email))
@@ -180,7 +187,9 @@ export const createMoveCustomer = mutation({
 
     const byPhone: Doc<"users"> | null = await ctx.db
       .query("users")
-      .withIndex("by_phoneNumber", (q) => q.eq("phoneNumber", phoneNumber))
+      .withIndex("by_phoneNumber", (q) =>
+        q.eq("phoneNumber", validatedPhoneNumber)
+      )
       .first();
 
     if (byPhone) {
@@ -193,8 +202,8 @@ export const createMoveCustomer = mutation({
     const moveCustomerId = await ctx.db.insert("users", {
       name,
       email,
-      phoneNumber,
-      altPhoneNumber,
+      phoneNumber: validatedPhoneNumber,
+      altPhoneNumber: validatedAltPhoneNumber,
       role: ClerkRoles.CUSTOMER,
       isActive: true,
       updatedAt: Date.now(),
@@ -257,6 +266,7 @@ export const createMoveCustomer = mutation({
     };
   },
 });
+
 export const updateMoveCustomer = action({
   args: {
     moveCustomerId: v.id("users"),
@@ -297,9 +307,7 @@ export const updateMoveCustomer = action({
     if (updates.email && updates.email !== existingMoveCustomer.email) {
       const emailTaken = await ctx.runQuery(
         internal.moveCustomers.getUserByEmailInternal,
-        {
-          email: updates.email!,
-        }
+        { email: updates.email }
       );
 
       if (emailTaken) {
@@ -310,22 +318,32 @@ export const updateMoveCustomer = action({
       }
     }
 
-    if (
-      updates.phoneNumber &&
-      updates.phoneNumber !== existingMoveCustomer.phoneNumber
-    ) {
-      const phoneTaken = await ctx.runQuery(
-        internal.moveCustomers.getUserByPhoneNumberInternal,
-        {
-          phoneNumber: updates.phoneNumber!,
-        }
-      );
+    let validatedPhoneNumber: string | undefined;
+    if (updates.phoneNumber !== undefined) {
+      validatedPhoneNumber = validateAndFormatPhone(updates.phoneNumber, "US");
 
-      if (phoneTaken) {
-        throwConvexError(ErrorMessages.CUSTOMER_PHONE_TAKEN, {
-          code: "CONFLICT",
-          showToUser: true,
-        });
+      if (validatedPhoneNumber !== existingMoveCustomer.phoneNumber) {
+        const phoneTaken = await ctx.runQuery(
+          internal.moveCustomers.getUserByPhoneNumberInternal,
+          { phoneNumber: validatedPhoneNumber }
+        );
+
+        if (phoneTaken) {
+          throwConvexError(ErrorMessages.CUSTOMER_PHONE_TAKEN, {
+            code: "CONFLICT",
+            showToUser: true,
+          });
+        }
+      }
+    }
+
+    let validatedAltPhoneNumber: string | undefined;
+    if (updates.altPhoneNumber !== undefined) {
+      const trimmed = updates.altPhoneNumber.trim();
+      if (trimmed === "") {
+        validatedAltPhoneNumber = undefined;
+      } else {
+        validatedAltPhoneNumber = validateAndFormatPhone(trimmed, "US");
       }
     }
 
@@ -336,15 +354,27 @@ export const updateMoveCustomer = action({
     ) {
       await updateUserNameHelper(
         existingMoveCustomer.clerkUserId,
-        updates.name!
+        updates.name
       );
+    }
+
+    const dbUpdates: Partial<{
+      name: string;
+      email: string;
+      phoneNumber: string;
+      altPhoneNumber: string;
+    }> = { ...updates };
+
+    if (validatedPhoneNumber !== undefined) {
+      dbUpdates.phoneNumber = validatedPhoneNumber;
+    }
+    if (validatedAltPhoneNumber !== undefined) {
+      dbUpdates.altPhoneNumber = validatedAltPhoneNumber;
     }
 
     await ctx.runMutation(internal.users.updateUserInternal, {
       userId: moveCustomerId,
-      updates: {
-        ...updates,
-      },
+      updates: dbUpdates,
     });
 
     await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {

@@ -29,6 +29,7 @@ import type * as backendUtils_sendGrid from "../backendUtils/sendGrid.js";
 import type * as backendUtils_serverEnv from "../backendUtils/serverEnv.js";
 import type * as backendUtils_stripe from "../backendUtils/stripe.js";
 import type * as backendUtils_template from "../backendUtils/template.js";
+import type * as backendUtils_twilioHelpers from "../backendUtils/twilioHelpers.js";
 import type * as backendUtils_validate from "../backendUtils/validate.js";
 import type * as categories from "../categories.js";
 import type * as clerk from "../clerk.js";
@@ -79,6 +80,7 @@ import type * as variables from "../variables.js";
 import type * as waivers from "../waivers.js";
 import type * as webIntegrations from "../webIntegrations.js";
 import type * as webhooks_clerk from "../webhooks/clerk.js";
+import type * as webhooks_twilio from "../webhooks/twilio.js";
 
 import type {
   ApiFromModules,
@@ -116,6 +118,7 @@ declare const fullApi: ApiFromModules<{
   "backendUtils/serverEnv": typeof backendUtils_serverEnv;
   "backendUtils/stripe": typeof backendUtils_stripe;
   "backendUtils/template": typeof backendUtils_template;
+  "backendUtils/twilioHelpers": typeof backendUtils_twilioHelpers;
   "backendUtils/validate": typeof backendUtils_validate;
   categories: typeof categories;
   clerk: typeof clerk;
@@ -166,6 +169,7 @@ declare const fullApi: ApiFromModules<{
   waivers: typeof waivers;
   webIntegrations: typeof webIntegrations;
   "webhooks/clerk": typeof webhooks_clerk;
+  "webhooks/twilio": typeof webhooks_twilio;
 }>;
 declare const fullApiWithMounts: typeof fullApi;
 

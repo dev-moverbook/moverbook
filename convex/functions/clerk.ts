@@ -7,12 +7,12 @@ import {
   OrganizationInvitation,
 } from "@clerk/backend";
 import { ClerkRoles, UserRole } from "@/types/enums";
-import { getBaseUrl } from "@/utils/helper";
 import { clerkClient } from "../lib/clerk";
 import { serverEnv } from "../backendUtils/serverEnv";
+import { clientEnv } from "@/frontendUtils/clientEnv";
 
 export async function sendClerkInvitation(email: string): Promise<Invitation> {
-  const baseUrl = getBaseUrl();
+  const baseUrl = clientEnv().NEXT_PUBLIC_APP_URL;
   const redirectUrl = `${baseUrl}/accept-invite`;
   try {
     const invitation = await clerkClient.invitations.createInvitation({
@@ -58,7 +58,7 @@ export async function clerkInviteUserToOrganizationHelper(
   email: string,
   role: string
 ): Promise<OrganizationInvitation> {
-  const baseUrl = getBaseUrl();
+  const baseUrl = clientEnv().NEXT_PUBLIC_APP_URL;
   try {
     const response = await fetch(
       `https://api.clerk.com/v1/organizations/${clerkOrgId}/invitations`,
@@ -212,7 +212,7 @@ export async function sendClerkMoveCustomerInvitation({
     moveId,
     convexUserId
   );
-  const baseUrl = getBaseUrl();
+  const baseUrl = clientEnv().NEXT_PUBLIC_APP_URL;
   const redirectUrl = `${baseUrl}/accept-invite`;
   try {
     const invitation = await clerkClient.invitations.createInvitation({

@@ -27,7 +27,7 @@ import { updateClerkOrgName } from "./functions/clerk";
 import { Doc, Id } from "./_generated/dataModel";
 import { getFirstByCompanyId } from "./backendUtils/queries";
 import { throwConvexError } from "./backendUtils/errors";
-import { getBaseUrl } from "@/utils/helper";
+import { clientEnv } from "@/frontendUtils/clientEnv";
 
 export const createCompany = internalMutation({
   args: {
@@ -283,7 +283,7 @@ export const updateCompany = action({
       if (!webIntegrations) {
         throw new Error(ErrorMessages.WEB_INTEGRATIONS_NOT_FOUND);
       }
-      const baseUrl = getBaseUrl();
+      const baseUrl = clientEnv().NEXT_PUBLIC_APP_URL;
       await ctx.runMutation(internal.webIntegrations.updateWebformUrl, {
         webIntegrationsId: webIntegrations._id,
         updates: {

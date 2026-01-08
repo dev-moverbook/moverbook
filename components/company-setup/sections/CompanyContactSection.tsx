@@ -15,6 +15,7 @@ import { useCreateSender } from "../../../hooks/sendGrid/useCreateSender";
 import { useCheckSenderVerified } from "../../../hooks/sendGrid/useCheckSenderVerified";
 import PhoneNumberInput from "@/components/shared/labeled/PhoneNumberInput";
 import LabeledPlacesAutocomplete from "@/components/shared/labeled/LabeledPlacesAutoComplete";
+import { isValidPhoneNumber } from "@/utils/helper";
 
 interface CompanyContactSectionProps {
   companyContact: Doc<"companyContacts">;
@@ -136,12 +137,12 @@ const CompanyContactSection: React.FC<CompanyContactSectionProps> = ({
 
   const isFormIncomplete =
     !formData.email ||
-    !formData.phoneNumber ||
     !formData.website ||
     !formData.address?.formattedAddress ||
     !formData.address?.placeId ||
     formData.address?.location?.lat == null ||
-    formData.address?.location?.lng == null;
+    formData.address?.location?.lng == null ||
+    !isValidPhoneNumber(formData.phoneNumber);
 
   const addressHasNoChanges = (() => {
     const current = formData.address;
@@ -285,17 +286,10 @@ const CompanyContactSection: React.FC<CompanyContactSectionProps> = ({
           onClick={handleCheckVerification}
           disabled={isCheckingVerification}
         >
-          {isCheckingVerification ? (
-            <>
-              <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-              Checking...
-            </>
-          ) : (
-            <div className="flex items-center">
-              <Mail className="h-4 w-4 mr-1" />
-              Verification Complete
-            </div>
-          )}
+          <div className="flex items-center">
+            <Mail className="h-4 w-4 mr-1" />
+            Verification Complete
+          </div>
         </Button>
       );
     }
@@ -307,17 +301,10 @@ const CompanyContactSection: React.FC<CompanyContactSectionProps> = ({
         onClick={handleCreateSender}
         disabled={isCreatingSender}
       >
-        {isCreatingSender ? (
-          <>
-            <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-            Creating...
-          </>
-        ) : (
-          <div className="flex items-center">
-            <Mail className="h-4 w-4 mr-1" />
-            Verify Email
-          </div>
-        )}
+        <div className="flex items-center">
+          <Mail className="h-4 w-4 mr-1" />
+          Verify Email
+        </div>
       </Button>
     );
   };

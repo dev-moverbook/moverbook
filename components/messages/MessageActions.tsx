@@ -91,7 +91,7 @@ const MessageActions = ({ toggleOptions, showOptions, textareaRef }: Props) => {
             icon={<SendHorizontal className="w-5 h-5 text-white" />}
             onClick={handleSend}
             variant="green"
-            className="w-8 h-8 p-4"
+            className="p-2"
             loading={createMessageLoading}
             title="Send"
           />

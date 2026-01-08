@@ -34,6 +34,8 @@ import {
   STARTER_REFERRALS,
 } from "@/types/starterConst";
 import { clientEnv } from "@/frontendUtils/clientEnv";
+import { throwConvexError } from "./errors";
+import { CountryCode, parsePhoneNumber } from "libphonenumber-js/min";
 
 export const createCompanyRecords = async (
   ctx: MutationCtx,
@@ -368,4 +370,51 @@ export async function getApprovedPayTotalsForMoves(
     );
 
   return new Map(entries);
+}
+
+export function validateAndFormatPhone(
+  input: string,
+  defaultCountry: CountryCode = "US"
+): string {
+  if (!input) {
+    throwConvexError("Invalid phone number", {
+      code: "BAD_REQUEST",
+      showToUser: true,
+    });
+  }
+
+  const trimmed = input.trim();
+  if (trimmed === "") {
+    throwConvexError("Phone number cannot be empty", {
+      code: "BAD_REQUEST",
+      showToUser: true,
+    });
+  }
+
+  try {
+    const phoneObj = parsePhoneNumber(trimmed, { defaultCountry });
+
+    if (!phoneObj || !phoneObj.isValid()) {
+      throw new Error("Invalid phone number");
+    }
+
+    return phoneObj.number;
+  } catch (error) {
+    throwConvexError(error, {
+      code: "BAD_REQUEST",
+      showToUser: true,
+    });
+  }
+}
+
+export function processPhoneNumberUpdate(
+  input: string | null | undefined
+): string | null | undefined {
+  if (input === undefined) {
+    return undefined;
+  }
+  if (input === null) {
+    return null;
+  }
+  return validateAndFormatPhone(input);
 }

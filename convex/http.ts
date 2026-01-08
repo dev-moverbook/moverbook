@@ -6,6 +6,12 @@ import {
   handleOrganizationInvitationAccepted,
   handleUserCreated,
 } from "./webhooks/clerk";
+import {
+  handleInboundTwilioSms,
+  processTollfreeVerificationEvent,
+} from "./webhooks/twilio";
+import { isTollfreeVerificationEvent } from "./backendUtils/twilioHelpers";
+import { TwilioWebhookEventBase } from "@/types/types";
 
 const http = httpRouter();
 
@@ -61,6 +67,46 @@ http.route({
         status: 400,
       });
     }
+  }),
+});
+
+http.route({
+  path: "/twilio-events",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    try {
+      const body = await request.json();
+
+      if (!Array.isArray(body)) {
+        throw new Error("Invalid Twilio webhook payload");
+      }
+
+      const events: TwilioWebhookEventBase[] = body;
+
+      for (const event of events) {
+        if (isTollfreeVerificationEvent(event)) {
+          await processTollfreeVerificationEvent(ctx, {
+            type: event.type,
+            data: {
+              phoneNumberSid: event.data.phone_number,
+              verificationstatus: event.data.status,
+            },
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Failed to process Twilio webhook:", error);
+    }
+
+    return new Response(null, { status: 200 });
+  }),
+});
+
+http.route({
+  path: "/twilio/inbound-sms",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    return handleInboundTwilioSms(ctx, request);
   }),
 });
 

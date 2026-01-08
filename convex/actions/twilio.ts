@@ -1,7 +1,7 @@
 "use node";
 
 import { v } from "convex/values";
-import { action } from "../_generated/server";
+import { action, internalAction } from "../_generated/server";
 import { internal } from "../_generated/api";
 import {
   isIdentityInCompany,
@@ -17,7 +17,11 @@ import {
 } from "../functions/twilio";
 import { ErrorMessages } from "@/types/errors";
 import { TwilioInquirySchema } from "@/types/types";
-import { Id } from "../_generated/dataModel";
+import { Doc, Id } from "../_generated/dataModel";
+import { serverEnv } from "../backendUtils/serverEnv";
+import twilioPkg from "twilio";
+
+const { validateRequest } = twilioPkg;
 
 export const insertTwilioNumber = action({
   args: {
@@ -144,5 +148,82 @@ export const validateTwilioNumber = action({
         code: "INTERNAL_ERROR",
       });
     }
+  },
+});
+
+export const validateAndProcessInboundSms = internalAction({
+  args: {
+    url: v.string(),
+    twilioSignature: v.string(),
+    bodyObject: v.any(),
+    messageData: v.object({
+      fromPhoneE164: v.string(),
+      toPhoneE164: v.string(),
+      messageBody: v.string(),
+      twilioMessageSid: v.string(),
+    }),
+  },
+  handler: async (ctx, args) => {
+    const { TWILIO_AUTH_TOKEN } = serverEnv();
+
+    const isValid = validateRequest(
+      TWILIO_AUTH_TOKEN,
+      args.twilioSignature,
+      args.url,
+      args.bodyObject
+    );
+
+    if (!isValid) {
+      console.error("Twilio signature validation failed in Node Action.");
+      throw new Error("Unauthorized Twilio Request");
+    }
+
+    const twilioNumber = await ctx.runQuery(
+      internal.twilioPhoneNumbers.getTwilioPhoneNumberByPhoneNumberE164,
+      {
+        phoneNumberE164: args.messageData.toPhoneE164,
+      }
+    );
+
+    const validatedTwilioNumber = validateDocExists(
+      "twilioPhoneNumbers",
+      twilioNumber,
+      "Twilio number not found"
+    );
+
+    const user = await ctx.runQuery(
+      internal.users.getUserByPhoneNumberInternal,
+      {
+        phoneNumber: args.messageData.fromPhoneE164,
+      }
+    );
+
+    const validatedUser = validateUser(user);
+
+    const latestMove: Doc<"moves"> | null = await ctx.runQuery(
+      internal.moves.getLatestMoveByMoveCustomerIdInternal,
+      {
+        userId: validatedUser._id,
+        companyId: validatedTwilioNumber.companyId,
+      }
+    );
+
+    const validatedMove: Doc<"moves"> = validateDocExists(
+      "moves",
+      latestMove,
+      "Move not found"
+    );
+
+    await ctx.runMutation(internal.messages.internalCreateInboundMessage, {
+      moveId: validatedMove._id,
+      companyId: validatedTwilioNumber.companyId,
+      method: "sms",
+      status: "received",
+      message: args.messageData.messageBody,
+      sid: args.messageData.twilioMessageSid,
+      sentType: "incoming",
+    });
+
+    return validatedMove;
   },
 });

@@ -1,7 +1,7 @@
+import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
-import React from "react";
 
 type IconButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   icon: React.ReactNode;
@@ -9,7 +9,6 @@ type IconButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: "default" | "outline" | "green" | "ghost";
   loading?: boolean;
   asChild?: boolean;
-  disabled?: boolean;
 };
 
 const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
@@ -27,27 +26,29 @@ const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
     ref
   ) => {
     const Comp = asChild ? Slot : "button";
+    const isDisabled = disabled || loading;
 
     return (
       <Comp
         {...props}
         ref={ref}
         className={cn(
-          "flex items-center justify-center p-1.5 rounded-full transition",
+          "flex items-center justify-center rounded-full p-1.5 transition-colors duration-150",
           variant === "default" &&
             "bg-transparent hover:bg-background2 border border-greenCustom",
           variant === "outline" &&
             "bg-transparent border border-gray-600 hover:bg-gray-700",
-          variant === "green" && "bg-greenCustom hover:bg-greenCustom/80",
+          variant === "green" &&
+            "bg-greenCustom text-white hover:bg-greenCustom/80",
           variant === "ghost" &&
-            "bg-transparent hover:bg-white/10 text-white border-none outline-none focus:outline-none focus-visible:ring-1 focus-visible:ring-greenCustom",
-          disabled && "opacity-50 pointer-events-none",
+            "bg-transparent text-white hover:bg-white/10 border-none outline-none focus:outline-none focus-visible:ring-1 focus-visible:ring-greenCustom",
+          isDisabled && "opacity-50 pointer-events-none cursor-not-allowed",
           className
         )}
-        {...(!asChild && { disabled })}
+        {...(!asChild && { disabled: isDisabled })}
       >
         {loading ? (
-          <Loader2 className="animate-spin w-4 h-4 text-white" />
+          <Loader2 className="h-4 w-4 animate-spin text-white" />
         ) : (
           <span className={cn(iconClassName)}>{icon}</span>
         )}
@@ -57,4 +58,5 @@ const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
 );
 
 IconButton.displayName = "IconButton";
+
 export default IconButton;

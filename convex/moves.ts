@@ -1515,3 +1515,17 @@ export const getPublicMoveById = query({
     };
   },
 });
+
+export const getLatestMoveByMoveCustomerIdInternal = internalQuery({
+  args: { userId: v.id("users"), companyId: v.id("companies") },
+  handler: async (ctx, args): Promise<Doc<"moves"> | null> => {
+    const { userId, companyId } = args;
+    return await ctx.db
+      .query("moves")
+      .withIndex("by_moveCustomerIdAndCompanyId", (q) =>
+        q.eq("moveCustomerId", userId).eq("companyId", companyId)
+      )
+      .order("desc")
+      .first();
+  },
+});

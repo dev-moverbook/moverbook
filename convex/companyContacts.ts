@@ -17,6 +17,7 @@ import { AddressConvex } from "./schema";
 import { Doc } from "./_generated/dataModel";
 import { ErrorMessages } from "@/types/errors";
 import { getFirstByCompanyId } from "./backendUtils/queries";
+import { processPhoneNumberUpdate } from "./backendUtils/helper";
 
 export const updateCompanyContact = mutation({
   args: {
@@ -49,13 +50,14 @@ export const updateCompanyContact = mutation({
     isUserInOrg(identity, company.clerkOrganizationId);
 
     const emailChanged =
-      updates.email && updates.email !== companyContact.email;
+      updates.email !== undefined && updates.email !== companyContact.email;
     const addressChanged =
-      updates.address && updates.address !== companyContact.address;
+      updates.address !== undefined &&
+      updates.address !== companyContact.address;
 
-    const finalUpdates: Record<string, unknown> = {
-      ...updates,
-    };
+    const finalUpdates: Record<string, unknown> = { ...updates };
+
+    finalUpdates.phoneNumber = processPhoneNumberUpdate(updates.phoneNumber);
 
     if (emailChanged || addressChanged) {
       finalUpdates.sendgridSenderId = undefined;

@@ -1,19 +1,20 @@
 "use client";
 
-import { PatternFormat } from "react-number-format";
+import PhoneInput from "react-phone-number-input";
+import "react-phone-number-input/style.css";
 import { Label } from "@/components/ui/label";
 import FieldErrorMessage from "./FieldErrorMessage";
-import { formatPhoneNumber } from "@/frontendUtils/helper";
 import FieldDisplay from "../field/FieldDisplay";
 import { useId } from "react";
+import { formatPhoneNumber } from "react-phone-number-input";
 
 interface PhoneNumberInputProps {
   label?: string;
   value: string;
   onChange: (value: string) => void;
   error?: string | null;
-  placeholder?: string;
   isEditing?: boolean;
+  placeholder?: string;
 }
 
 const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
@@ -21,41 +22,55 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
   value,
   onChange,
   error,
-  placeholder = "(123) 456-7890",
   isEditing = false,
+  placeholder,
 }) => {
   const labelId = useId();
 
   if (!isEditing) {
-    const displayValue = formatPhoneNumber(value);
-
     return (
-      <FieldDisplay label={label || ""} value={displayValue} fallback="—" />
+      <FieldDisplay
+        label={label || ""}
+        value={value ? formatPhoneNumber(value) : "—"}
+        fallback="—"
+      />
     );
   }
 
   return (
-    <div>
+    <div className="flex flex-col gap-1">
       {label && (
-        <Label className="block font-medium" htmlFor={labelId}>
+        <Label htmlFor={labelId} className="font-medium">
           {label}
         </Label>
       )}
-      <PatternFormat
+
+      <PhoneInput
         id={labelId}
-        format="(###) ###-####"
-        mask="_"
+        defaultCountry="US"
+        country="US"
+        international={false}
+        countrySelectProps={{ disabled: true }}
         value={value}
-        onValueChange={(values) => {
-          onChange(values.value);
+        onChange={(val) => onChange(val ?? "")}
+        className="w-full"
+        numberInputProps={{
+          placeholder: placeholder ?? "(555) 555-5555",
+          className: `
+            w-full rounded-md border bg-transparent px-2 py-1 text-base
+            shadow-sm transition-colors placeholder:text-grayCustom2
+            focus-visible:outline-none focus-visible:ring-1
+            disabled:cursor-not-allowed disabled:opacity-50
+            md:text-sm text-white
+            ${
+              error
+                ? "border-red-500 focus-visible:ring-red-500"
+                : "border-grayCustom focus-visible:ring-ring"
+            }
+          `,
         }}
-        placeholder={placeholder}
-        className={`w-full rounded-md border bg-transparent px-2 py-1 text-base shadow-sm transition-colors file:border-0 file:bg-transparent md:file:text-sm file:font-medium file:text-foreground placeholder:text-grayCustom2 focus-visible:outline-none focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm text-white ${
-          error
-            ? "border-red-500 focus-visible:ring-red-500"
-            : "border-grayCustom focus-visible:ring-ring"
-        }`}
       />
+
       <FieldErrorMessage error={error} />
     </div>
   );

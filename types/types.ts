@@ -484,3 +484,29 @@ export type TollfreeVerificationStatus =
   | "Rejected"
   | "Expired"
   | "Verification Required";
+
+export interface TollfreeVerificationEventData {
+  phoneNumberSid: string;
+  verificationstatus: string;
+  verificationSid?: string;
+  rejectionReasons?: string[] | string;
+}
+
+export interface TollfreeVerificationCloudEvent {
+  type: string;
+  data: TollfreeVerificationEventData;
+}
+
+export type TollfreeVerificationEvent = {
+  type: `com.twilio.messaging.compliance.toll-free-verification.${string}`;
+  data: {
+    inquiry_id: string;
+    status: string;
+    phone_number: string;
+  };
+};
+
+export type TwilioWebhookEventBase = {
+  type: string;
+  data?: unknown;
+};

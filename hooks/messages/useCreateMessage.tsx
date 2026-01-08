@@ -21,7 +21,7 @@ export const useCreateMessage = () => {
     null
   );
 
-  const createMessageMutation = useAction(api.messages.createMessage);
+  const createMessageMutation = useAction(api.actions.messages.createMessage);
 
   const createMessage = async ({
     moveId,

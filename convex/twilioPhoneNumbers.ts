@@ -115,3 +115,16 @@ export const updateTwilioPhoneNumberInternal = internalMutation({
     await ctx.db.patch(id, { ...updates, updatedAt: Date.now() });
   },
 });
+
+export const getTwilioPhoneNumberByPhoneNumberE164 = internalQuery({
+  args: { phoneNumberE164: v.string() },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("twilioPhoneNumbers")
+      .withIndex("by_phoneNumber", (q) =>
+        q.eq("phoneNumberE164", args.phoneNumberE164)
+      )
+      .filter((q) => q.eq(q.field("isActive"), true))
+      .first();
+  },
+});
