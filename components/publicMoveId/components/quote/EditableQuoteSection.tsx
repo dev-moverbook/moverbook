@@ -11,11 +11,13 @@ import MoveDetailsEditingHeading from "./MoveDetailsEditingHeading";
 import { LocationInput, MoveItemInput } from "@/types/form-types";
 import EditableQuoteLocation from "./EditableQuoteLocation";
 import InventoryPublicQuoteLoader from "./InventoryPublicQuoteLoader";
+import { canPublicEditMove } from "@/frontendUtils/timeUtils";
 
 const EditableQuoteSection = () => {
   const { move, userRole } = usePublicMoveIdContext();
   const { move: moveData } = move;
   const isMoveCustomer = isMoveCustomerFromClerk(userRole);
+  const canEdit = isMoveCustomer && canPublicEditMove(moveData.moveDate);
 
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
@@ -63,9 +65,7 @@ const EditableQuoteSection = () => {
 
   return (
     <>
-      <MoveDetailsHeading
-        onEditClick={isMoveCustomer ? handleEditClick : undefined}
-      />
+      <MoveDetailsHeading onEditClick={canEdit ? handleEditClick : undefined} />
       <QuoteLocation move={moveData} />
       <QuoteInventory move={moveData} />
     </>

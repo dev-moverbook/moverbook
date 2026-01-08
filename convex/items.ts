@@ -142,6 +142,7 @@ export const getItemsAndCategoriesAndRoomsByCompany = query({
       ClerkRoles.APP_MODERATOR,
       ClerkRoles.MANAGER,
       ClerkRoles.SALES_REP,
+      ClerkRoles.CUSTOMER,
     ]);
 
     const company = await validateCompany(ctx.db, companyId);

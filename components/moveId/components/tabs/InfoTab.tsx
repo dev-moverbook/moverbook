@@ -53,14 +53,15 @@ export default function InfoTab({ hideStepper }: InfoTabProps) {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const hasPendingChangeRequest = changeRequests.some(
-    (req) => req.status === "pending"
+  const pendingChangeRequest = useMemo(
+    () => changeRequests.find((req) => req.status === "pending"),
+    [changeRequests]
   );
 
   return (
     <>
-      {hasPendingChangeRequest && (
-        <ChangeRequestNotification changeRequest={changeRequests[0]} />
+      {pendingChangeRequest && (
+        <ChangeRequestNotification changeRequest={pendingChangeRequest} />
       )}
 
       {!hideStepper && (

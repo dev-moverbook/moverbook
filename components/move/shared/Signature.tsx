@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import SignatureCanvas from "react-signature-canvas";
 import IconButton from "../../shared/buttons/IconButton";
 import { X } from "lucide-react";
@@ -12,34 +12,43 @@ interface SignaturePadProps {
 
 const SignaturePad = ({ title, onChange }: SignaturePadProps) => {
   const sigCanvasRef = useRef<SignatureCanvas | null>(null);
+  const [hasSignature, setHasSignature] = useState(false);
 
   const clearSignature = () => {
     sigCanvasRef.current?.clear();
+    setHasSignature(false);
     onChange(null);
   };
 
   const handleEnd = () => {
-    if (sigCanvasRef.current?.isEmpty()) {
+    if (!sigCanvasRef.current || sigCanvasRef.current.isEmpty()) {
+      setHasSignature(false);
       onChange(null);
-    } else {
-      if (!sigCanvasRef.current) return;
-      const dataUrl = sigCanvasRef.current
-        .getTrimmedCanvas()
-        .toDataURL("image/png");
-      onChange(dataUrl);
+      return;
     }
+
+    setHasSignature(true);
+
+    const dataUrl = sigCanvasRef.current
+      .getTrimmedCanvas()
+      .toDataURL("image/png");
+
+    onChange(dataUrl);
   };
 
   return (
     <div>
       <div className="flex justify-between">
-        <h3 className="text-lg font-medium ">{title}</h3>
-        <IconButton
-          variant="outline"
-          icon={<X className="w-4 h-4" />}
-          onClick={clearSignature}
-          title="Clear"
-        />
+        <h3 className="text-lg font-medium">{title}</h3>
+
+        {hasSignature && (
+          <IconButton
+            variant="outline"
+            icon={<X className="w-4 h-4" />}
+            onClick={clearSignature}
+            title="Clear"
+          />
+        )}
       </div>
 
       <div className="flex flex-col items-center gap-4 py-4 rounded-lg shadow-md">

@@ -47,3 +47,17 @@ export const formatDecimalHours = (hours: number, minutes: number) => {
   const decimal = hours + minutes / 60;
   return decimal.toFixed(2) + " hours";
 };
+
+export const canPublicEditMove = (moveDate?: string | null) => {
+  if (!moveDate) {
+    return true;
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const moveDay = new Date(moveDate);
+  moveDay.setHours(0, 0, 0, 0);
+
+  return moveDay > today;
+};

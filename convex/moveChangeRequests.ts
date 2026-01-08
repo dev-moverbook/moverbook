@@ -12,8 +12,9 @@ import {
   LocationConvex,
   MoveItemConvex,
 } from "./schema";
+import { canPublicEditMove } from "@/frontendUtils/timeUtils";
+import { throwConvexError } from "./backendUtils/errors";
 
-// to be updated
 export const insertMoveUpdate = mutation({
   args: {
     moveId: v.id("moves"),
@@ -33,6 +34,16 @@ export const insertMoveUpdate = mutation({
       ErrorMessages.MOVE_NOT_FOUND
     );
     isIdentityInMove(identity, move);
+
+    if (!canPublicEditMove(move.moveDate)) {
+      throwConvexError(
+        "Move can no longer be edited on or after the move date",
+        {
+          code: "BAD_REQUEST",
+          showToUser: true,
+        }
+      );
+    }
 
     await ctx.db.insert("moveChangeRequests", {
       moveId,

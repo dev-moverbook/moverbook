@@ -83,16 +83,15 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
   const isCompleted =
     !!formData.name?.trim() &&
     isValidEmail(formData.email) &&
-    isValidPhoneNumber(formData.phoneNumber);
+    isValidPhoneNumber(formData.phoneNumber) &&
+    isValidPhoneNumber(formData.altPhoneNumber);
 
-  // Check if form data is identical to initial data
   const hasNoChanges =
     formData.name === name &&
     formData.email === email &&
     formData.phoneNumber === (phoneNumber ?? "") &&
     formData.altPhoneNumber === (altPhoneNumber ?? "");
 
-  // Disabled if not completed OR if editing and no changes have been made
   const isDisabled = !isCompleted || (isEditing && hasNoChanges);
 
   const showContactFields = !isMoverUser || isMoverLead;
@@ -160,7 +159,7 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
               label="Alternative Phone Number"
               placeholder="Enter alternative phone number"
               isPhoneNumber
-              suffix="  (alt)"
+              suffix=" (Alternative)"
             />
           </>
         )}

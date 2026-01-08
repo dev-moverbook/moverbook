@@ -5,6 +5,7 @@ import { api } from "./convex/_generated/api";
 import { ErrorMessages } from "./types/errors";
 import { ClerkRoles } from "./types/enums";
 import { clientEnv } from "./frontendUtils/clientEnv";
+import { isMoveCustomer } from "./frontendUtils/permissions";
 
 const isProtectedRoute = createRouteMatcher(["/app(.*)"]);
 const isProtectedManagerRoute = createRouteMatcher([
@@ -22,7 +23,17 @@ export default clerkMiddleware(async (auth, req) => {
   const convex = new ConvexHttpClient(convexUrl);
 
   if (path === "/") {
-    const { userId, orgId } = await auth();
+    const authData = await auth();
+    const userRole = authData.sessionClaims?.userRole as ClerkRoles | undefined;
+
+    const userId = authData.userId;
+    const orgId = authData.orgId;
+    // const convexId = authData.sessionClaims?.convexId as string | undefined;
+
+    if (isMoveCustomer(userRole)) {
+      return NextResponse.next();
+    }
+
     if (userId && !orgId) {
       return NextResponse.redirect(new URL("/app/onboarding", req.url));
     }

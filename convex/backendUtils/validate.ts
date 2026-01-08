@@ -111,7 +111,7 @@ export function isUserInOrg(
   identity: UserIdentity,
   clerkOrgId: string
 ): boolean {
-  const allowedRoles = [UserRole.APP_MODERATOR];
+  const allowedRoles = [UserRole.APP_MODERATOR, ClerkRoles.CUSTOMER];
 
   if (allowedRoles.includes(identity.role as UserRole)) {
     return true;

@@ -2,10 +2,10 @@ import { Doc } from "@/convex/_generated/dataModel";
 import { MutationCtx } from "@/convex/_generated/server";
 import { InsurancePolicyInput } from "@/types/form-types";
 import parsePhoneNumberFromString from "libphonenumber-js/min";
+import isEmail from "validator/lib/isEmail";
 
 export const isValidEmail = (email: string) => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
+  return isEmail(email);
 };
 
 export const generateSlug = (name: string): string => {
@@ -22,20 +22,6 @@ export const isValidPhoneNumber = (phone: string | null | undefined) => {
   const phoneNumber = parsePhoneNumberFromString(phone, "US");
 
   return phoneNumber?.isValid() ?? false;
-};
-export const getBaseUrl = (): string => {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
-  if (appUrl) {
-    return appUrl;
-  }
-
-  // Use window.location on the client side as a fallback
-  if (typeof window !== "undefined") {
-    return window.location.origin;
-  }
-
-  // Default to localhost for server-side development
-  return "https://www.moverbook.com";
 };
 
 export const generateUniqueSlug = async (
@@ -60,9 +46,10 @@ export const generateUniqueSlug = async (
   return slug;
 };
 
-// utils/itemHelpers.ts or similar path
 export const calculateWeightFromSize = (size: number | null): number | null => {
-  if (size === null || isNaN(size)) return null;
+  if (size === null || isNaN(size)) {
+    return null;
+  }
   return size * 7;
 };
 
