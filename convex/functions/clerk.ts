@@ -231,3 +231,34 @@ export async function sendClerkMoveCustomerInvitation({
     throw new Error(ErrorMessages.CLERK_INVITATION_SENT_ERROR);
   }
 }
+
+export async function sendMoveCustomerClerkInvitation(
+  email: string,
+  convexId: string,
+  moveId: string
+): Promise<{ invitationId: string; invitationUrl: string }> {
+  const baseUrl = clientEnv().NEXT_PUBLIC_APP_URL;
+  const redirectUrl = `${baseUrl}/accept-invite`;
+  try {
+    const invitation = await clerkClient.invitations.createInvitation({
+      emailAddress: email,
+      ignoreExisting: true,
+      redirectUrl,
+      publicMetadata: {
+        role: ClerkRoles.CUSTOMER,
+        convexId,
+        moveId,
+      },
+      notify: false,
+    });
+
+    if (!invitation.url) {
+      throw new Error(ErrorMessages.CLERK_INVITATION_SENT_ERROR);
+    }
+
+    return { invitationId: invitation.id, invitationUrl: invitation.url };
+  } catch (error) {
+    console.error(ErrorMessages.CLERK_INVITATION_SENT_ERROR, error);
+    throw new Error(ErrorMessages.CLERK_INVITATION_SENT_ERROR);
+  }
+}

@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
-import MessageSubject from "./MessageSubject";
 import MessageActions from "./MessageActions";
 import MessageOptions from "./MessageOptions";
 import MessageScripts from "./MessageScripts";
@@ -52,8 +51,6 @@ const MessageInputBarInner = () => {
     <div className=" bg-black text-white border-t border-grayCustom z-10 w-full">
       <div className="max-w-screen-sm mx-auto">
         <div className="w-full  px-4 pb-4 pt-2">
-          {method === "email" && <MessageSubject />}
-
           <MessageActions
             toggleOptions={toggleOptions}
             showOptions={showOptions || showScripts || showVariables}

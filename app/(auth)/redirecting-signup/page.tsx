@@ -16,12 +16,7 @@ export default function RedirectingSignupPage() {
   const didRun = useRef(false);
   const router = useRouter();
 
-  const companyData = useQuery(
-    api.companies.getCompanyClerkUserId,
-    user ? { clerkUserId: user?.id } : "skip"
-  );
-  console.log("organization", organization);
-  console.log("companyData", companyData);
+  const companyData = useQuery(api.companies.getSignUpInvitation);
 
   useEffect(() => {
     if (didRun.current) {
@@ -37,7 +32,14 @@ export default function RedirectingSignupPage() {
 
     didRun.current = true;
 
+    const moveId = companyData.moveId;
+    const slug = companyData.slug;
+
     (async () => {
+      if (moveId && slug) {
+        router.replace(`/${slug}/moves/${moveId}`);
+        return;
+      }
       if (
         companyData.company === null &&
         companyData.user &&

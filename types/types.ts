@@ -404,6 +404,7 @@ export type CustomerUser = {
   imageUrl?: string;
   name: string;
   phoneNumber: string;
+  clerkUserId?: string;
 };
 
 // types/activityEvents.ts
@@ -510,3 +511,5 @@ export type TwilioWebhookEventBase = {
   type: string;
   data?: unknown;
 };
+
+export type PublicMoveStep = "documents" | "move" | "payment";

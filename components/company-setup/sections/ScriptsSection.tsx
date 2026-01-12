@@ -41,7 +41,7 @@ const ScriptsSection: React.FC<ScriptsSectionProps> = ({
         {scripts.length === 0 ? (
           <p className="text-grayCustom2">No active scripts found.</p>
         ) : (
-          <CardContainer>
+          <CardContainer className="space-y-4">
             {scripts.map((script) => (
               <ScriptCard
                 key={script._id}

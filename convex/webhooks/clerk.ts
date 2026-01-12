@@ -136,6 +136,7 @@ export const handleUserCreated = async (ctx: ActionCtx, data: UserJSON) => {
         convexId: moveCustomer._id,
         role: ClerkRoles.CUSTOMER,
       });
+
       return;
     }
 

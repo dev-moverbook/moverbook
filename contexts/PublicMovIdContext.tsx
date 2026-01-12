@@ -25,10 +25,14 @@ export const PublicMoveIdProvider = ({
   initialMoveId: Id<"moves">;
   children: React.ReactNode;
 }) => {
+  console.log("initialMoveId", moveId);
   const move = useQuery(api.moves.getPublicMoveById, { moveId });
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
 
-  if (!move || user === undefined) {
+  console.log("user", user);
+  console.log("move", move);
+
+  if (!move || !isLoaded) {
     return <FullLoading />;
   }
 

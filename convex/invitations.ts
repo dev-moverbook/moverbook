@@ -22,14 +22,23 @@ import { throwConvexError } from "./backendUtils/errors";
 export const createInvitationInternal = internalMutation({
   args: {
     clerkInvitationId: v.string(),
-    clerkOrganizationId: v.string(),
+    clerkOrganizationId: v.optional(v.string()),
     role: UserRoleConvex,
     email: v.string(),
     hourlyRate: v.union(v.number(), v.null()),
+    moveId: v.optional(v.id("moves")),
+    userId: v.optional(v.id("users")),
   },
   handler: async (ctx, args): Promise<Id<"invitations">> => {
-    const { clerkInvitationId, clerkOrganizationId, role, email, hourlyRate } =
-      args;
+    const {
+      clerkInvitationId,
+      clerkOrganizationId,
+      role,
+      email,
+      hourlyRate,
+      moveId,
+      userId,
+    } = args;
 
     return await ctx.db.insert("invitations", {
       clerkInvitationId,
@@ -38,6 +47,9 @@ export const createInvitationInternal = internalMutation({
       role,
       email,
       hourlyRate,
+      moveId,
+      userId,
+      updatedAt: Date.now(),
     });
   },
 });
@@ -134,6 +146,13 @@ export const revokeInviteUser = action({
       invitation,
       ErrorMessages.INVITATION_NOT_FOUND
     );
+
+    if (!validatedInvitation.clerkOrganizationId) {
+      throwConvexError("Invitation is not associated with an organization", {
+        code: "BAD_REQUEST",
+        showToUser: true,
+      });
+    }
 
     isUserInOrg(identity, validatedInvitation.clerkOrganizationId);
     await revokeOrganizationInvitation(

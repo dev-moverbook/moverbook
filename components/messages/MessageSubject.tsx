@@ -8,12 +8,16 @@ const MessageSubject = () => {
   const { subject, setSubject } = useMessageContext();
 
   return (
-    <div className="w-full">
+    <div className="w-full mb-3">
       <span className="w-10" aria-hidden="true" />
-      <div className=" items-end gap-2 w-full  px-10">
-        <Label className="text-sm text-white  block">Title</Label>
+
+      <div className="items-end  w-full px-10">
+        <Label htmlFor="message-subject" className="text-sm text-white block">
+          Title
+        </Label>
 
         <Input
+          id="message-subject"
           type="text"
           value={subject ?? ""}
           onChange={(e) => setSubject(e.target.value)}
@@ -21,6 +25,7 @@ const MessageSubject = () => {
           className="flex-1 h-8"
         />
       </div>
+
       <span className="w-10" aria-hidden="true" />
     </div>
   );

@@ -279,15 +279,19 @@ export default defineSchema({
   }).index("by_companyId", ["companyId"]),
   invitations: defineTable({
     clerkInvitationId: v.string(),
-    clerkOrganizationId: v.string(),
+    clerkOrganizationId: v.optional(v.string()),
     email: v.string(),
     hourlyRate: v.union(v.number(), v.null()),
+    moveId: v.optional(v.id("moves")),
     role: UserRoleConvex,
     status: InvitationStatusConvex,
+    userId: v.optional(v.id("users")),
+    updatedAt: v.optional(v.number()),
   })
     .index("by_email", ["email"])
     .index("status", ["status"])
     .index("by_clerkInvitationId", ["clerkInvitationId"])
+    .index("by_userId", ["userId"])
     .index("by_clerkOrganizationId", ["clerkOrganizationId"]),
   invoices: defineTable({
     customerSignature: v.optional(v.string()),

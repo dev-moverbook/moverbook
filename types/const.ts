@@ -30,6 +30,8 @@ export const DEFAULT_TRAVEL_RATE = 159;
 
 export const STRIPE_API_VERSION = "2025-02-24.acacia";
 
+export const TEMPLATE_TOKEN_REGEX = /{{(.*?)}}/g;
+
 export const DEFAULT_ROOMS = [
   "Bedroom #1",
   "Bedroom #2",

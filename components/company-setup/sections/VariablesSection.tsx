@@ -8,6 +8,7 @@ import { useUpdateVariable } from "@/hooks/variables";
 import { Doc } from "@/convex/_generated/dataModel";
 import VariableCard from "@/components/company-setup/components/VariableCard";
 
+// To be Deleted
 interface VariablesSectionProps {
   variables: Doc<"variables">[];
 }

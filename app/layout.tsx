@@ -35,6 +35,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const redirectUrl = clientEnv().NEXT_PUBLIC_APP_URL + "/redirecting-signup";
   return (
     <html lang="en">
       <head>
@@ -45,10 +46,8 @@ export default function RootLayout({
       </head>
       <ClerkProvider
         publishableKey={clientEnv().NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
-        signInUrl={clientEnv().NEXT_PUBLIC_CLERK_SIGN_IN_URL}
         signUpUrl={clientEnv().NEXT_PUBLIC_CLERK_SIGN_UP_URL}
-        signInForceRedirectUrl={clientEnv().NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL}
-        signUpForceRedirectUrl={clientEnv().NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL}
+        signUpForceRedirectUrl={redirectUrl}
         appearance={{ baseTheme: dark }}
       >
         <body

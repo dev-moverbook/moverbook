@@ -21,16 +21,17 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   return (
     <div
       className={cn(
-        "max-w-xs md:max-w-sm p-3 rounded-xl min-w-36 relative text-sm shadow",
+        "relative min-w-36 max-w-xs md:max-w-sm rounded-xl p-3 text-sm shadow",
         isIncoming
-          ? "bg-white text-black self-start rounded-bl-none"
-          : "bg-green-100 text-black self-end rounded-br-none"
+          ? "self-start bg-white text-black rounded-bl-none"
+          : "self-end bg-green-100 text-black rounded-br-none"
       )}
     >
-      <p className="mb-5">{text}</p>
-      <div className="absolute bottom-1 right-2 flex items-center text-xs text-gray-500 gap-1">
-        <span>{time}</span>
-        <Icon className="w-4 h-4" />
+      <p className="mb-5 break-words whitespace-pre-wrap">{text}</p>
+
+      <div className="absolute bottom-1 right-2 flex items-center gap-1 text-xs text-gray-500">
+        {time && <span>{time}</span>}
+        <Icon className="h-4 w-4" />
       </div>
     </div>
   );

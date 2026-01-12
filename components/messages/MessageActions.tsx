@@ -7,6 +7,7 @@ import IconButton from "@/components/shared/buttons/IconButton";
 import { Textarea } from "@/components/ui/textarea";
 import { useMoveContext } from "@/contexts/MoveContext";
 import { useCreateMessage } from "@/hooks/messages";
+import MessageSubject from "./MessageSubject";
 
 interface Props {
   toggleOptions: () => void;
@@ -62,7 +63,7 @@ const MessageActions = ({ toggleOptions, showOptions, textareaRef }: Props) => {
       {createMessageError && (
         <p className=" text-red-500 text-center ">{createMessageError}</p>
       )}
-
+      {method === "email" && <MessageSubject />}
       <div className="flex items-end gap-2">
         <IconButton
           onClick={toggleOptions}

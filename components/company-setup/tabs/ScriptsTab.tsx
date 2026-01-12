@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import ScriptsSection from "../sections/ScriptsSection";
-import VariablesSection from "../sections/VariablesSection";
 import { useSlugContext } from "@/contexts/SlugContext";
 import { CommunicationType } from "@/types/types";
 import { FrontEndErrorMessages } from "@/types/errors";
@@ -115,8 +114,6 @@ const ScriptsTab = () => {
             setEditingScript={setEditingScript}
             onDeleteClick={handleDeleteClick}
           />
-
-          <VariablesSection variables={variables} />
 
           <CreateScriptModal
             isOpen={isScriptModalOpen}

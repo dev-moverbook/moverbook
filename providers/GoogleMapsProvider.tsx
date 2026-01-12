@@ -4,6 +4,8 @@ import { LoadScript } from "@react-google-maps/api";
 import FullLoading from "@/components/shared/skeleton/FullLoading";
 import { clientEnv } from "@/frontendUtils/clientEnv";
 
+const GOOGLE_MAPS_LIBRARIES: "places"[] = ["places"];
+
 interface GoogleMapsProviderProps {
   children: React.ReactNode;
 }
@@ -16,7 +18,7 @@ export const GoogleMapsProvider: React.FC<GoogleMapsProviderProps> = ({
   return (
     <LoadScript
       googleMapsApiKey={apiKey}
-      libraries={["places"]}
+      libraries={GOOGLE_MAPS_LIBRARIES}
       loadingElement={<FullLoading />}
     >
       {children}

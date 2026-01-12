@@ -5,13 +5,16 @@ import { api } from "./convex/_generated/api";
 import { ErrorMessages } from "./types/errors";
 import { ClerkRoles } from "./types/enums";
 import { clientEnv } from "./frontendUtils/clientEnv";
-import { isMoveCustomer } from "./frontendUtils/permissions";
+import {
+  isCompanyAdminRole,
+  isMoveCustomer,
+} from "./frontendUtils/permissions";
 
 const isProtectedRoute = createRouteMatcher(["/app(.*)"]);
 const isProtectedManagerRoute = createRouteMatcher([
   "/app/[slug]/company-settings",
 ]);
-const isProtectedAdminRoute = createRouteMatcher(["/app/[slug]/stripe"]);
+const isProtectedAdminRoute = createRouteMatcher(["/app/(.*)/stripe"]);
 
 export default clerkMiddleware(async (auth, req) => {
   const url = req.nextUrl;
@@ -22,14 +25,13 @@ export default clerkMiddleware(async (auth, req) => {
 
   const convex = new ConvexHttpClient(convexUrl);
 
+  const authData = await auth();
+  const userRole = authData.sessionClaims?.userRole as ClerkRoles;
+
+  const userId = authData.userId;
+  const orgId = authData.orgId;
+
   if (path === "/") {
-    const authData = await auth();
-    const userRole = authData.sessionClaims?.userRole as ClerkRoles | undefined;
-
-    const userId = authData.userId;
-    const orgId = authData.orgId;
-    // const convexId = authData.sessionClaims?.convexId as string | undefined;
-
     if (isMoveCustomer(userRole)) {
       return NextResponse.next();
     }
@@ -57,6 +59,8 @@ export default clerkMiddleware(async (auth, req) => {
     await auth.protect();
   }
   if (isProtectedManagerRoute(req)) {
+    // const isAllowedPermission = isMoveCustomer(userRole);
+
     await auth.protect((has) => {
       return (
         has({ role: ClerkRoles.ADMIN }) ||
@@ -67,9 +71,11 @@ export default clerkMiddleware(async (auth, req) => {
   }
 
   if (isProtectedAdminRoute(req)) {
-    await auth.protect((has) => {
-      return has({ role: ClerkRoles.ADMIN });
-    });
+    const preventAccess = !isCompanyAdminRole(userRole);
+
+    if (preventAccess) {
+      return NextResponse.redirect(new URL("/unauthorized", req.url));
+    }
   }
 });
 

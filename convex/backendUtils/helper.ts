@@ -123,6 +123,7 @@ export const createCompanyRecords = async (
         defaultValue: "customer",
       },
       { name: "move_date", defaultValue: "move date" },
+      { name: "quote_link", defaultValue: "quote link" },
     ];
 
     for (const name of DEFAULT_ROOMS) {

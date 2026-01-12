@@ -27,7 +27,9 @@ import { createPresetNewsFeedEntry } from "../backendUtils/newsFeedHelper";
 import { sendClerkMoveCustomerInvitation } from "../functions/clerk";
 import {
   buildTemplateValues,
+  extractTemplateKeys,
   injectTemplateValues,
+  resolveTemplateSideEffects,
 } from "../backendUtils/template";
 import { sendTwilioSms } from "../functions/twilio";
 
@@ -228,7 +230,29 @@ export const createMessage = action({
 
     isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
-    const templateValues = buildTemplateValues(move, moveCustomer.name);
+    const messageKeys = extractTemplateKeys(message);
+    const subjectKeys = subject
+      ? extractTemplateKeys(subject)
+      : new Set<string>();
+
+    const allKeys = new Set([...messageKeys, ...subjectKeys]);
+
+    console.log("moveCustomer", moveCustomer);
+
+    const resolvedValues = await resolveTemplateSideEffects({
+      ctx,
+      keys: allKeys,
+      move,
+      slug: validatedCompany.slug,
+      moveCustomer,
+    });
+
+    const templateValues = await buildTemplateValues({
+      keys: allKeys,
+      move,
+      customerName: moveCustomer.name,
+      resolvedValues,
+    });
 
     const resolvedMessage = injectTemplateValues(message, templateValues);
     const resolvedSubject = subject
@@ -256,8 +280,8 @@ export const createMessage = action({
         body: resolvedMessage,
       });
       sid = result;
+    } else if (method === "email") {
     }
-    // else if (method === "email") {
     // if (!move.email) {
     //   throw new Error(ErrorMessages.MOVE_EMAIL_NOT_FOUND);
     // }

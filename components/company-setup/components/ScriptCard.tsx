@@ -46,7 +46,7 @@ const ScriptCard: React.FC<ScriptCardProps> = ({
       </div>
 
       {script.type === "email" && (
-        <p className="text-sm mt-1 font-bold text-grayCustom">
+        <p className="text-sm font-bold text-grayCustom">
           Subject: {script.emailTitle}
         </p>
       )}
