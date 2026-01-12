@@ -117,15 +117,6 @@ export const createCompanyRecords = async (
       defaultMethod: DEFAULT_TRAVEL_CHARGING_METHOD,
     });
 
-    const defaultVariables = [
-      {
-        name: "customer_name",
-        defaultValue: "customer",
-      },
-      { name: "move_date", defaultValue: "move date" },
-      { name: "quote_link", defaultValue: "quote link" },
-    ];
-
     for (const name of DEFAULT_ROOMS) {
       await ctx.db.insert("rooms", {
         companyId,
@@ -133,10 +124,6 @@ export const createCompanyRecords = async (
         isActive: true,
         isStarter: true,
       });
-    }
-
-    for (const variable of defaultVariables) {
-      await ctx.db.insert("variables", { companyId, ...variable });
     }
 
     for (const category of STARTER_CATEGORIES) {

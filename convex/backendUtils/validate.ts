@@ -141,19 +141,6 @@ export function isUserInCompanyConvex(
   return isInCompany;
 }
 
-export function validateVariable(
-  variable: Doc<"variables"> | null
-): Doc<"variables"> {
-  if (!variable) {
-    throw new ConvexError({
-      code: "NOT_FOUND",
-      message: ErrorMessages.VARIABLE_NOT_FOUND,
-    });
-  }
-
-  return variable;
-}
-
 export function validateQuote(quote: Doc<"quotes"> | null): Doc<"quotes"> {
   if (!quote) {
     throw new ConvexError({

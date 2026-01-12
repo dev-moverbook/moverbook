@@ -1,19 +1,6 @@
-import { Doc, Id } from "@/convex/_generated/dataModel";
+import { Id } from "@/convex/_generated/dataModel";
 import { MutationCtx } from "../_generated/server";
 import { CommunicationType } from "@/types/types";
-
-export const checkExistingVariable = async (
-  ctx: MutationCtx,
-  companyId: Id<"companies">,
-  name: string
-): Promise<Doc<"variables"> | null> => {
-  return await ctx.db
-    .query("variables")
-    .filter((q) =>
-      q.and(q.eq(q.field("companyId"), companyId), q.eq(q.field("name"), name))
-    )
-    .first();
-};
 
 export const checkExistingScript = async (
   ctx: MutationCtx,
