@@ -25,6 +25,10 @@ const PublicQuotesStep = () => {
   } = move;
   const showDeposit = quote?.status !== "completed";
 
+  if (quote === null) {
+    return null;
+  }
+
   return (
     <SectionContainer showBorder={false} className="p-0 pb-10">
       <QuoteSummary move={moveData} company={company} />

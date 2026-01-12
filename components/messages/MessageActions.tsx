@@ -54,7 +54,9 @@ const MessageActions = ({ toggleOptions, showOptions, textareaRef }: Props) => {
       setShowOptions(false);
       setShowScripts(false);
       setShowVariables(false);
-      if (textareaRef.current) textareaRef.current.style.height = "auto";
+      if (textareaRef.current) {
+        textareaRef.current.style.height = "auto";
+      }
     }
   };
 

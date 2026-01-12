@@ -26,7 +26,6 @@ import { formatMonthDayLabelStrict } from "@/frontendUtils/luxonUtils";
 import { createPresetNewsFeedEntry } from "../backendUtils/newsFeedHelper";
 import { sendClerkMoveCustomerInvitation } from "../functions/clerk";
 import {
-  buildTemplateValues,
   extractTemplateKeys,
   injectTemplateValues,
   resolveTemplateSideEffects,
@@ -237,8 +236,6 @@ export const createMessage = action({
 
     const allKeys = new Set([...messageKeys, ...subjectKeys]);
 
-    console.log("moveCustomer", moveCustomer);
-
     const resolvedValues = await resolveTemplateSideEffects({
       ctx,
       keys: allKeys,
@@ -247,16 +244,16 @@ export const createMessage = action({
       moveCustomer,
     });
 
-    const templateValues = await buildTemplateValues({
-      keys: allKeys,
-      move,
-      customerName: moveCustomer.name,
-      resolvedValues,
-    });
+    // const templateValues = await buildTemplateValues({
+    //   keys: allKeys,
+    //   move,
+    //   customerName: moveCustomer.name,
+    //   resolvedValues,
+    // });
 
-    const resolvedMessage = injectTemplateValues(message, templateValues);
+    const resolvedMessage = injectTemplateValues(message, resolvedValues);
     const resolvedSubject = subject
-      ? injectTemplateValues(subject, templateValues)
+      ? injectTemplateValues(subject, resolvedValues)
       : null;
 
     const deliveryStatus: "sent" | "failed" = "sent";

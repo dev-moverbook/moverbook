@@ -528,11 +528,6 @@ export default defineSchema({
     .index("by_phoneNumber", ["phoneNumber"])
     .index("by_clerkUserId", ["clerkUserId"])
     .index("by_companyId", ["companyId"]),
-  variables: defineTable({
-    companyId: v.id("companies"),
-    defaultValue: v.string(),
-    name: v.string(),
-  }),
   waivers: defineTable({
     customerSignature: v.optional(v.string()),
     customerSignedAt: v.optional(v.number()),

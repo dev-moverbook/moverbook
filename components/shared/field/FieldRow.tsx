@@ -17,6 +17,7 @@ interface FieldRowProps {
   min?: number;
   step?: number;
   inputRef?: React.Ref<HTMLInputElement>;
+  isLink?: boolean;
 }
 
 const FieldRow: React.FC<FieldRowProps> = ({
@@ -32,6 +33,7 @@ const FieldRow: React.FC<FieldRowProps> = ({
   min,
   step,
   inputRef,
+  isLink = false,
 }) => {
   const isLabeled = label !== "";
   if (isEditing) {
@@ -56,7 +58,12 @@ const FieldRow: React.FC<FieldRowProps> = ({
   }
 
   return (
-    <FieldDisplay label={label} value={value?.trim()} fallback={fallback} />
+    <FieldDisplay
+      label={label}
+      value={value?.trim()}
+      fallback={fallback}
+      isLink={isLink}
+    />
   );
 };
 

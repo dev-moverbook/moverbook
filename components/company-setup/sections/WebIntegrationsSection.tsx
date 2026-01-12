@@ -90,6 +90,7 @@ const WebIntegrationsSection: React.FC<WebIntegrationsSectionProps> = ({
             isEditing={false}
             onChange={handleChange}
             placeholder="Enter web form URL"
+            isLink
           />
 
           <FieldRow

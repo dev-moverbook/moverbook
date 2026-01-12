@@ -31,7 +31,6 @@ interface CreateScriptModalProps {
   ) => Promise<boolean>;
   createLoading: boolean;
   createError: string | null;
-  variables: Doc<"variables">[];
   editingScript: Doc<"scripts"> | null;
 }
 
@@ -42,7 +41,6 @@ const CreateScriptModal: React.FC<CreateScriptModalProps> = ({
   onEdit,
   createLoading,
   createError,
-  variables,
   editingScript,
 }) => {
   const [title, setTitle] = useState<string>("");
@@ -54,7 +52,6 @@ const CreateScriptModal: React.FC<CreateScriptModalProps> = ({
   const [emailTitleError, setEmailTitleError] = useState<string | null>(null);
   const [messageError, setMessageError] = useState<string | null>(null);
 
-  // Reset form when modal opens or editingScript changes
   useEffect(() => {
     if (isOpen) {
       if (editingScript) {
@@ -198,7 +195,6 @@ const CreateScriptModal: React.FC<CreateScriptModalProps> = ({
             noPlaceholderError={true}
           />
           <VariableInsertButtons
-            variables={variables}
             onInsert={(name) => insertVariable(name, "emailTitle")}
           />
         </div>
@@ -217,7 +213,6 @@ const CreateScriptModal: React.FC<CreateScriptModalProps> = ({
           noPlaceholderError={true}
         />
         <VariableInsertButtons
-          variables={variables}
           onInsert={(name) => insertVariable(name, "message")}
         />
       </div>

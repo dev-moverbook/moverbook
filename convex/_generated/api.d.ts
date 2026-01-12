@@ -76,7 +76,6 @@ import type * as travelFees from "../travelFees.js";
 import type * as twilioNumbers from "../twilioNumbers.js";
 import type * as twilioPhoneNumbers from "../twilioPhoneNumbers.js";
 import type * as users from "../users.js";
-import type * as variables from "../variables.js";
 import type * as waivers from "../waivers.js";
 import type * as webIntegrations from "../webIntegrations.js";
 import type * as webhooks_clerk from "../webhooks/clerk.js";
@@ -165,7 +164,6 @@ declare const fullApi: ApiFromModules<{
   twilioNumbers: typeof twilioNumbers;
   twilioPhoneNumbers: typeof twilioPhoneNumbers;
   users: typeof users;
-  variables: typeof variables;
   waivers: typeof waivers;
   webIntegrations: typeof webIntegrations;
   "webhooks/clerk": typeof webhooks_clerk;

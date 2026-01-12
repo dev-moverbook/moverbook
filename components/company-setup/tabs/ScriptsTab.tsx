@@ -10,7 +10,7 @@ import CreateScriptModal from "../modals/CreateScriptModal";
 import { useDeleteScript } from "@/hooks/scripts";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { useUpdateScript } from "@/hooks/scripts";
-import { useScriptsAndVariables } from "@/hooks/scripts/useScriptsAndVariables";
+import { useScriptsByCompanyId } from "@/hooks/scripts";
 import VerticalSectionGroup from "@/components/shared/section/VerticalSectionGroup";
 import ConfirmModal from "@/components/shared/modal/ConfirmModal";
 
@@ -45,7 +45,7 @@ const ScriptsTab = () => {
     null
   );
 
-  const result = useScriptsAndVariables(companyId);
+  const result = useScriptsByCompanyId(companyId);
 
   const handleCreateScript = async (
     title: string,
@@ -104,8 +104,7 @@ const ScriptsTab = () => {
       break;
 
     default: {
-      const { scripts, variables } = result;
-
+      const scripts = result;
       content = (
         <>
           <ScriptsSection
@@ -125,7 +124,6 @@ const ScriptsTab = () => {
             onEdit={handleEditScript}
             createLoading={editingScript ? updateScriptLoading : createLoading}
             createError={editingScript ? updateErrorLoading : createError}
-            variables={variables}
             editingScript={editingScript}
           />
 

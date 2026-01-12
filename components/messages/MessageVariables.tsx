@@ -3,8 +3,7 @@
 import { BadgeButton } from "@/components/shared/buttons/BadgeButton";
 import BadgeButtonGroup from "@/components/shared/containers/BadgeButtonGroup";
 import { useMessageContext } from "@/contexts/MessageContext";
-import { useSlugContext } from "@/contexts/SlugContext";
-import { useVariablesByCompanyId } from "@/hooks/variables/useVariablesByCompanyId";
+import { TEMPLATE_VARIABLES } from "@/types/const";
 import { MessageVariablesTarget } from "@/types/types";
 
 interface MessageVariablesProps {
@@ -12,7 +11,6 @@ interface MessageVariablesProps {
 }
 
 const MessageVariables = ({ target }: MessageVariablesProps) => {
-  const { companyId } = useSlugContext();
   const {
     input,
     setInput,
@@ -21,8 +19,6 @@ const MessageVariables = ({ target }: MessageVariablesProps) => {
     setShowOptions,
     setShowVariables,
   } = useMessageContext();
-
-  const variables = useVariablesByCompanyId(companyId);
 
   const handleVariableClick = (variable: string) => {
     const formatted = `{{${variable}}}`;
@@ -37,13 +33,7 @@ const MessageVariables = ({ target }: MessageVariablesProps) => {
     setShowVariables(false);
   };
 
-  if (!variables) {
-    return (
-      <div className="text-sm text-muted-foreground text-center py-4">
-        Loading variables...
-      </div>
-    );
-  }
+  const variables = Object.values(TEMPLATE_VARIABLES);
 
   if (variables.length === 0) {
     return (
@@ -55,9 +45,12 @@ const MessageVariables = ({ target }: MessageVariablesProps) => {
 
   return (
     <BadgeButtonGroup>
-      {variables.map((v) => (
-        <BadgeButton key={v._id} onClick={() => handleVariableClick(v.name)}>
-          <span className="font-medium">{v.name}</span>
+      {variables.map((variable) => (
+        <BadgeButton
+          key={variable}
+          onClick={() => handleVariableClick(variable)}
+        >
+          <span className="font-medium">{variable}</span>
         </BadgeButton>
       ))}
     </BadgeButtonGroup>

@@ -47,12 +47,9 @@ export const getScriptsByCompanyId = query({
   },
 });
 
-export const getActiveScriptsAndVariablesByCompanyId = query({
+export const getActiveScriptsByCompanyId = query({
   args: { companyId: v.id("companies") },
-  handler: async (
-    ctx,
-    args
-  ): Promise<{ scripts: Doc<"scripts">[]; variables: Doc<"variables">[] }> => {
+  handler: async (ctx, args): Promise<{ scripts: Doc<"scripts">[] }> => {
     const { companyId } = args;
 
     const identity = await requireAuthenticatedUser(ctx, [
@@ -75,11 +72,7 @@ export const getActiveScriptsAndVariablesByCompanyId = query({
       )
       .collect();
 
-    const variables: Doc<"variables">[] = await ctx.db
-      .query("variables")
-      .filter((q) => q.eq(q.field("companyId"), validatedCompany._id))
-      .collect();
-    return { scripts, variables };
+    return { scripts };
   },
 });
 

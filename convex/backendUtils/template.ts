@@ -1,6 +1,6 @@
 import { formatDateToLong } from "@/frontendUtils/helper";
 import { Doc } from "@/convex/_generated/dataModel";
-import { TEMPLATE_TOKEN_REGEX } from "@/types/const";
+import { TEMPLATE_TOKEN_REGEX, TEMPLATE_VARIABLES } from "@/types/const";
 import { ActionCtx } from "../_generated/server";
 import { clientEnv } from "@/frontendUtils/clientEnv";
 import { sendMoveCustomerClerkInvitation } from "../functions/clerk";
@@ -20,42 +20,6 @@ export const injectTemplateValues = (
 export const extractTemplateKeys = (template: string): Set<string> => {
   const matches = template.match(TEMPLATE_TOKEN_REGEX) ?? [];
   return new Set(matches.map((m) => m.slice(2, -2).trim()));
-};
-
-export const buildTemplateValues = async ({
-  keys,
-  move,
-  customerName,
-  resolvedValues,
-}: {
-  keys: Set<string>;
-  move: Doc<"moves">;
-  customerName: string;
-  resolvedValues?: Record<string, string>;
-}): Promise<Record<string, string>> => {
-  const values: Record<string, string> = {};
-
-  for (const key of keys) {
-    switch (key) {
-      case "customer_name":
-        values.customer_name = customerName;
-        break;
-
-      case "move_date":
-        values.move_date = move.moveDate
-          ? formatDateToLong(move.moveDate)
-          : "TBD";
-        break;
-
-      default:
-        if (resolvedValues?.[key]) {
-          values[key] = resolvedValues[key];
-        }
-        break;
-    }
-  }
-
-  return values;
 };
 
 export const resolveTemplateSideEffects = async ({
@@ -91,20 +55,38 @@ export const resolveTemplateSideEffects = async ({
     return step ? `${inviteUrl}?step=${step}` : inviteUrl;
   };
 
-  if (keys.has("quote_link")) {
+  if (keys.has(TEMPLATE_VARIABLES.quote_link)) {
     resolved.quote_link = await buildMoveLink();
   }
 
-  if (keys.has("documents_link")) {
+  if (keys.has(TEMPLATE_VARIABLES.documents_link)) {
     resolved.documents_link = await buildMoveLink("documents");
   }
 
-  if (keys.has("live_move_link")) {
+  if (keys.has(TEMPLATE_VARIABLES.live_move_link)) {
     resolved.live_move_link = await buildMoveLink("move");
   }
 
-  if (keys.has("payment_link")) {
+  if (keys.has(TEMPLATE_VARIABLES.payment_link)) {
     resolved.payment_link = await buildMoveLink("payment");
+  }
+
+  if (keys.has(TEMPLATE_VARIABLES.invite_link)) {
+    resolved.invite_link = await ensureMoveCustomerInviteLink({
+      ctx,
+      move,
+      moveCustomer,
+    });
+  }
+
+  if (keys.has(TEMPLATE_VARIABLES.customer_name)) {
+    resolved.customer_name = moveCustomer.name;
+  }
+
+  if (keys.has(TEMPLATE_VARIABLES.move_date)) {
+    resolved.move_date = move.moveDate
+      ? formatDateToLong(move.moveDate)
+      : "TBD";
   }
 
   return resolved;

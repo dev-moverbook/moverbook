@@ -1,5 +1,6 @@
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { TravelChargingTypes } from "./enums";
+import { TEMPLATE_VARIABLES } from "./const";
 
 export interface SelectOption {
   label: string;
@@ -513,3 +514,6 @@ export type TwilioWebhookEventBase = {
 };
 
 export type PublicMoveStep = "documents" | "move" | "payment";
+
+export type TemplateVariableKey =
+  (typeof TEMPLATE_VARIABLES)[keyof typeof TEMPLATE_VARIABLES];

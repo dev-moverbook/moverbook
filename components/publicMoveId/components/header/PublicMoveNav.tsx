@@ -1,7 +1,7 @@
 "use client";
 
 import { usePublicMoveIdContext } from "@/contexts/PublicMovIdContext";
-import { UserAvatar } from "@clerk/nextjs";
+import { UserButton } from "@clerk/nextjs";
 import { isMoveCustomerFromClerk } from "@/frontendUtils/permissions";
 import { ArrowLeft } from "lucide-react";
 import IconButton from "@/components/shared/buttons/IconButton";
@@ -43,7 +43,7 @@ const PublicMoveNav = () => {
       </div>
 
       <div className="flex-shrink-0">
-        <UserAvatar />
+        <UserButton />
       </div>
     </nav>
   );
