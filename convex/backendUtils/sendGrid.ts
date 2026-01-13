@@ -47,7 +47,7 @@ export async function createSingleSender({
           email: fromEmail,
           name: fromName,
         },
-        nickname: "Primary Sender",
+        nickname: `Sender-${fromEmail}`,
       }),
     });
 
@@ -58,7 +58,7 @@ export async function createSingleSender({
       throw new Error(ErrorMessages.SENDGRID_SENDER_CREATION_ERROR);
     }
 
-    return body.id;
+    return String(body.id);
   } catch (err) {
     console.error("SendGrid sender creation failed:", err);
     throw new Error(ErrorMessages.SENDGRID_SENDER_CREATION_ERROR);
@@ -90,32 +90,46 @@ export async function checkSenderVerified(senderId: string): Promise<boolean> {
 }
 
 export const sendSendGridEmail = async ({
-  fromEmail,
   toEmail,
-  body,
   subject,
+  bodyText,
+  bodyHtml,
+  replyToEmail,
+  replyToName,
 }: {
-  fromEmail: string;
   toEmail: string;
-  body: string;
   subject: string;
+  bodyText: string;
+  bodyHtml?: string;
+  replyToEmail?: string;
+  replyToName?: string;
 }): Promise<string> => {
-  const { SENDGRID_API_KEY } = serverEnv();
+  const { SENDGRID_API_KEY, SENDGRID_FROM_EMAIL } = serverEnv();
+
   sgMail.setApiKey(SENDGRID_API_KEY);
 
   const msg = {
     to: toEmail,
-    from: fromEmail,
-    subject: subject ?? "No Subject",
-    text: body,
-    html: `<p>${body}</p>`,
+    from: {
+      email: SENDGRID_FROM_EMAIL,
+      name: "Moverbook",
+    },
+    subject,
+    text: bodyText,
+    html: bodyHtml ?? `<p>${bodyText}</p>`,
+    ...(replyToEmail && {
+      replyTo: {
+        email: replyToEmail,
+        name: replyToName,
+      },
+    }),
   };
 
   try {
     const [response] = await sgMail.send(msg);
-    const sid =
-      response.headers["x-message-id"] || response.headers["x-msg-id"];
-    return sid;
+    return (
+      response.headers["x-message-id"] ?? response.headers["x-msg-id"] ?? ""
+    );
   } catch (error) {
     console.error("SendGrid email failed:", error);
     throw new Error(ErrorMessages.SENDGRID_EMAIL_FAILED);

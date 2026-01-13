@@ -61,11 +61,13 @@ const MessageThread = () => {
               <MessageBubble
                 key={msg._id}
                 text={msg.resolvedMessage}
+                subject={msg.resolvedSubject ?? msg.subject}
                 time={formatTimestamp(msg._creationTime, timeZone)}
                 type={msg.status === "sent" ? "outgoing" : "incoming"}
                 method={msg.method as "sms" | "email"}
               />
             ))}
+
             <div ref={bottomRef} />
           </>
         );

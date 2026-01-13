@@ -9,13 +9,10 @@ import SectionHeader from "@/components/shared/section/SectionHeader";
 import FormActions from "@/components/shared/buttons/FormActions";
 import FieldRow from "@/components/shared/field/FieldRow";
 import FieldGroup from "@/components/shared/field/FieldGroup";
-import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, Loader2, Mail } from "lucide-react";
-import { useCreateSender } from "../../../hooks/sendGrid/useCreateSender";
-import { useCheckSenderVerified } from "../../../hooks/sendGrid/useCheckSenderVerified";
 import PhoneNumberInput from "@/components/shared/labeled/PhoneNumberInput";
 import LabeledPlacesAutocomplete from "@/components/shared/labeled/LabeledPlacesAutoComplete";
 import { isValidPhoneNumber } from "@/utils/helper";
+import EmailVerificationButtons from "../components/EmailVerificationButtons";
 
 interface CompanyContactSectionProps {
   companyContact: Doc<"companyContacts">;
@@ -37,7 +34,7 @@ const CompanyContactSection: React.FC<CompanyContactSectionProps> = ({
   updateError,
   setUpdateError,
 }) => {
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
 
   const [formData, setFormData] = useState<CompanyContactFormData>({
     email: companyContact.email || "",
@@ -52,30 +49,6 @@ const CompanyContactSection: React.FC<CompanyContactSectionProps> = ({
     address: "",
     website: "",
   });
-
-  const {
-    createSender,
-    isLoading: isCreatingSender,
-    error: createSenderError,
-  } = useCreateSender();
-  const {
-    checkSenderVerified,
-    isLoading: isCheckingVerification,
-    error: checkVerificationError,
-  } = useCheckSenderVerified();
-
-  const [verificationStatus, setVerificationStatus] = useState<
-    "unverified" | "pending" | "verifying" | "verified" | "error"
-  >(() => {
-    if (companyContact.sendgridVerified) return "verified";
-    if (companyContact.sendgridSenderId && !companyContact.sendgridVerified)
-      return "pending";
-    return "unverified";
-  });
-
-  const [verificationError, setVerificationError] = useState<string | null>(
-    null
-  );
 
   const mergeAddress = (patch: Partial<AddressInput>) => {
     setFormData((prev) => {
@@ -204,111 +177,6 @@ const CompanyContactSection: React.FC<CompanyContactSectionProps> = ({
     if (success) setIsEditing(false);
   };
 
-  const handleCreateSender = async () => {
-    try {
-      setVerificationError(null);
-      setVerificationStatus("verifying");
-
-      const success = await createSender(companyContact._id);
-      if (success) {
-        setVerificationStatus("pending");
-      } else {
-        setVerificationStatus("error");
-        setVerificationError(
-          createSenderError || "Failed to create sender. Please try again."
-        );
-      }
-    } catch (error) {
-      console.error("Error creating sender:", error);
-      setVerificationStatus("error");
-      setVerificationError(
-        "An unexpected error occurred while creating the sender."
-      );
-    }
-  };
-
-  const handleCheckVerification = async () => {
-    try {
-      setVerificationError(null);
-      setVerificationStatus("verifying");
-
-      const isVerified = await checkSenderVerified(companyContact._id);
-      setVerificationStatus(isVerified ? "verified" : "pending");
-
-      if (!isVerified) {
-        setVerificationError(
-          "Email not yet verified. Please check your email for a verification link from SendGrid."
-        );
-      }
-    } catch (error) {
-      console.error("Error checking verification:", error);
-      setVerificationStatus("error");
-      setVerificationError(
-        checkVerificationError ||
-          "Failed to check verification status. Please try again."
-      );
-    }
-  };
-
-  const renderVerificationButton = () => {
-    if (verificationStatus === "verified") {
-      return (
-        <div className="flex items-center text-green-600">
-          <CheckCircle className="h-4 w-4 mr-1" />
-          <span className="text-sm">Email verified</span>
-        </div>
-      );
-    }
-
-    if (verificationStatus === "verifying") {
-      return (
-        <div className="flex items-center text-amber-600">
-          <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-          <span className="text-sm">Processing...</span>
-        </div>
-      );
-    }
-
-    if (verificationStatus === "error") {
-      return (
-        <div className="flex items-center text-red-600">
-          <XCircle className="h-4 w-4 mr-1" />
-          <span className="text-sm">Verification failed</span>
-        </div>
-      );
-    }
-
-    if (verificationStatus === "pending") {
-      return (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleCheckVerification}
-          disabled={isCheckingVerification}
-        >
-          <div className="flex items-center">
-            <Mail className="h-4 w-4 mr-1" />
-            Verification Complete
-          </div>
-        </Button>
-      );
-    }
-
-    return (
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={handleCreateSender}
-        disabled={isCreatingSender}
-      >
-        <div className="flex items-center">
-          <Mail className="h-4 w-4 mr-1" />
-          Verify Email
-        </div>
-      </Button>
-    );
-  };
-
   return (
     <SectionContainer>
       <CenteredContainer>
@@ -336,14 +204,7 @@ const CompanyContactSection: React.FC<CompanyContactSectionProps> = ({
             />
 
             {!isEditing && (
-              <div className="flex flex-col gap-1 w-[200px]">
-                {renderVerificationButton()}
-                {verificationError && (
-                  <div className="text-sm text-red-600 mt-1">
-                    {verificationError}
-                  </div>
-                )}
-              </div>
+              <EmailVerificationButtons companyContact={companyContact} />
             )}
           </div>
 

@@ -31,6 +31,7 @@ import {
   resolveTemplateSideEffects,
 } from "../backendUtils/template";
 import { sendTwilioSms } from "../functions/twilio";
+import { sendSendGridEmail } from "../backendUtils/sendGrid";
 
 export const sendPresetScript = action({
   args: {
@@ -220,6 +221,20 @@ export const createMessage = action({
       ErrorMessages.COMPANY_NOT_FOUND
     );
 
+    const companyContact = await ctx.runQuery(
+      internal.companyContacts.getCompanyContactByCompanyIdInternal,
+      {
+        companyId: move.companyId,
+      }
+    );
+
+    if (!companyContact) {
+      throwConvexError(ErrorMessages.COMPANY_CONTACT_NOT_FOUND, {
+        code: "NOT_FOUND",
+        showToUser: true,
+      });
+    }
+
     const moveCustomer = await ctx.runQuery(
       internal.moveCustomers.getMoveCustomerByIdInternal,
       {
@@ -243,13 +258,6 @@ export const createMessage = action({
       slug: validatedCompany.slug,
       moveCustomer,
     });
-
-    // const templateValues = await buildTemplateValues({
-    //   keys: allKeys,
-    //   move,
-    //   customerName: moveCustomer.name,
-    //   resolvedValues,
-    // });
 
     const resolvedMessage = injectTemplateValues(message, resolvedValues);
     const resolvedSubject = subject
@@ -278,12 +286,16 @@ export const createMessage = action({
       });
       sid = result;
     } else if (method === "email") {
+      sid = await sendSendGridEmail({
+        toEmail: moveCustomer.email,
+        bodyText: resolvedMessage,
+        bodyHtml: resolvedMessage,
+        subject: resolvedSubject ?? "",
+        replyToEmail: companyContact.email,
+        replyToName: validatedCompany.name,
+      });
     }
-    // if (!move.email) {
-    //   throw new Error(ErrorMessages.MOVE_EMAIL_NOT_FOUND);
-    // }
-    // sid = await sendSendGridEmail(move.email, resolvedMessage, subject);
-    //   }
+
     const moveDate = move.moveDate
       ? formatMonthDayLabelStrict(move.moveDate)
       : "TBD";
