@@ -9,6 +9,7 @@
  */
 
 import type * as actions_messages from "../actions/messages.js";
+import type * as actions_pdf from "../actions/pdf.js";
 import type * as actions_twilio from "../actions/twilio.js";
 import type * as additionalFees from "../additionalFees.js";
 import type * as arrivalWindows from "../arrivalWindows.js";
@@ -97,6 +98,7 @@ import type {
  */
 declare const fullApi: ApiFromModules<{
   "actions/messages": typeof actions_messages;
+  "actions/pdf": typeof actions_pdf;
   "actions/twilio": typeof actions_twilio;
   additionalFees: typeof additionalFees;
   arrivalWindows: typeof arrivalWindows;
