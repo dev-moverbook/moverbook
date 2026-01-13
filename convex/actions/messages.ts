@@ -5,7 +5,7 @@ import {
   MessageSentTypeConvex,
   PresSetScriptsConvex,
 } from "@/types/convex-enums";
-import { ClerkRoles, PresSetScripts } from "@/types/enums";
+import { ClerkRoles } from "@/types/enums";
 import { ErrorMessages } from "@/types/errors";
 import { v } from "convex/values";
 import { internal } from "../_generated/api";
@@ -24,7 +24,6 @@ import {
 } from "../backendUtils/validate";
 import { formatMonthDayLabelStrict } from "@/frontendUtils/luxonUtils";
 import { createPresetNewsFeedEntry } from "../backendUtils/newsFeedHelper";
-import { sendClerkMoveCustomerInvitation } from "../functions/clerk";
 import {
   extractTemplateKeys,
   injectTemplateValues,
@@ -52,12 +51,11 @@ export const sendPresetScript = action({
       await ctx.runQuery(internal.moves.getMoveByIdInternal, { moveId })
     );
 
-    const validatedMoveCustomer = validateDocExists(
-      "users",
-      await ctx.runQuery(internal.users.getUserByIdInternal, {
-        userId: move.moveCustomerId,
-      }),
-      ErrorMessages.MOVE_CUSTOMER_NOT_FOUND
+    const moveCustomer = await ctx.runQuery(
+      internal.moveCustomers.getMoveCustomerByIdInternal,
+      {
+        moveCustomerId: move.moveCustomerId,
+      }
     );
 
     const user = validateUser(
@@ -93,41 +91,48 @@ export const sendPresetScript = action({
 
     const scriptType = script.type;
     let sid: string | undefined = undefined;
+    const message = script.message;
 
-    if (
-      (preSetTypes === PresSetScripts.EMAIL_QUOTE ||
-        preSetTypes === PresSetScripts.SMS_QUOTE) &&
-      validatedMoveCustomer.clerkUserId === undefined
-    ) {
-      console.log("sending clerk move customer invitation");
-      await sendClerkMoveCustomerInvitation({
-        email: validatedMoveCustomer.email,
-        slug: company.slug,
-        moveId,
-        convexUserId: validatedMoveCustomer._id,
-      });
-    }
+    const messageKeys = extractTemplateKeys(message);
+    const subjectKeys = script.emailTitle
+      ? extractTemplateKeys(script.emailTitle)
+      : new Set<string>();
+    const allKeys = new Set([...messageKeys, ...subjectKeys]);
+    const resolvedValues = await resolveTemplateSideEffects({
+      ctx,
+      keys: allKeys,
+      move,
+      slug: company.slug,
+      moveCustomer,
+    });
+
+    const resolvedMessage = injectTemplateValues(message, resolvedValues);
+    const resolvedSubject = script.emailTitle
+      ? injectTemplateValues(script.emailTitle, resolvedValues)
+      : null;
 
     if (scriptType === "email") {
-      sid = "test email";
-      // const companyContact = await ctx.runQuery(
-      //   internal.companyContacts.getCompanyContactByCompanyIdInternal,
-      //   {
-      //     companyId: company._id,
-      //   }
-      // );
-      // if (!companyContact) {
-      //   throwConvexError(ErrorMessages.COMPANY_CONTACT_NOT_FOUND, {
-      //     code: "NOT_FOUND",
-      //     showToUser: true,
-      //   });
-      // }
-      // sid = await sendSendGridEmail({
-      //   fromEmail: companyContact.email,
-      //   toEmail: validatedMoveCustomer.email,
-      //   body: script.message,
-      //   subject: script.emailTitle ?? "No Subject",
-      // });
+      const companyContact = await ctx.runQuery(
+        internal.companyContacts.getCompanyContactByCompanyIdInternal,
+        {
+          companyId: company._id,
+        }
+      );
+      if (!companyContact) {
+        throwConvexError(ErrorMessages.COMPANY_CONTACT_NOT_FOUND, {
+          code: "NOT_FOUND",
+          showToUser: true,
+        });
+      }
+      sid = await sendSendGridEmail({
+        toEmail: moveCustomer.email,
+        bodyText: resolvedMessage,
+        bodyHtml: resolvedMessage,
+        subject: resolvedSubject ?? "",
+        replyToEmail: companyContact.email,
+        replyToName: company.name,
+        formatTextToHtml: true,
+      });
     } else if (scriptType === "sms") {
       sid = "test sms";
       // const twilioNumber = await ctx.runQuery(
@@ -175,7 +180,7 @@ export const sendPresetScript = action({
       moveId,
       companyId: company._id,
       userId: user._id,
-      customerName: validatedMoveCustomer.name || "Customer",
+      customerName: moveCustomer.name,
       moveDate,
       salesRepName: user.name,
       deliveryType: scriptType,

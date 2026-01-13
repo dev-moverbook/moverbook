@@ -1,21 +1,46 @@
 "use node";
 
 import { v } from "convex/values";
-import { action } from "../_generated/server";
+import { internalAction } from "../_generated/server";
 import { sendSendGridEmail } from "../backendUtils/sendGrid";
 import { throwConvexError } from "../backendUtils/errors";
 
-export const generateQuotePdf = action({
+export const generateQuotePdf = internalAction({
   args: {
+    documentType: v.union(
+      v.literal("quote"),
+      v.literal("contract"),
+      v.literal("waiver"),
+      v.literal("invoice")
+    ),
     toEmail: v.string(),
     ccEmails: v.optional(v.array(v.string())),
     bccEmails: v.optional(v.array(v.string())),
     subject: v.string(),
     bodyText: v.string(),
     bodyHtml: v.optional(v.string()),
+    replyToEmail: v.optional(v.string()),
+    replyToName: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const { toEmail, ccEmails, bccEmails, subject, bodyText, bodyHtml } = args;
+    const {
+      documentType,
+      toEmail,
+      ccEmails,
+      bccEmails,
+      subject,
+      bodyText,
+      bodyHtml,
+      replyToEmail,
+      replyToName,
+    } = args;
+
+    const documentTypeMap = {
+      quote: "quote.pdf",
+      contract: "contract.pdf",
+      waiver: "waiver.pdf",
+      invoice: "invoice.pdf",
+    };
 
     const html = `<html>
     <body style="font-family: Arial; padding: 40px">
@@ -24,7 +49,7 @@ export const generateQuotePdf = action({
     </body>
   </html>`;
     try {
-      const response = await fetch("https://moverbook.com/api/test-pdf", {
+      const response = await fetch("https://moverbook.com/api/pdf", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -45,10 +70,12 @@ export const generateQuotePdf = action({
         subject: subject,
         bodyText: bodyText,
         bodyHtml: bodyHtml,
+        replyToEmail: replyToEmail,
+        replyToName: replyToName,
         attachments: [
           {
             content: pdfBase64,
-            filename: "quote.pdf",
+            filename: documentTypeMap[documentType],
             type: "application/pdf",
             disposition: "attachment",
           },

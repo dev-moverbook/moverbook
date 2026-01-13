@@ -232,6 +232,30 @@ export const signQuote = action({
       ErrorMessages.MOVE_NOT_FOUND
     );
 
+    const company = await ctx.runQuery(
+      internal.companies.getCompanyByIdInternal,
+      {
+        companyId: validatedMove.companyId,
+      }
+    );
+    const validatedCompany = validateDocExists(
+      "companies",
+      company,
+      ErrorMessages.COMPANY_NOT_FOUND
+    );
+
+    const companyContact = await ctx.runQuery(
+      internal.companyContacts.getCompanyContactByCompanyIdInternal,
+      {
+        companyId: validatedCompany._id,
+      }
+    );
+    const validatedCompanyContact = validateDocExists(
+      "companyContacts",
+      companyContact,
+      ErrorMessages.USER_NOT_FOUND
+    );
+
     const moveCustomer = validateMoveCustomer(
       await ctx.runQuery(internal.users.getUserByIdInternal, {
         userId: validatedMove.moveCustomerId,
@@ -276,6 +300,17 @@ export const signQuote = action({
         moveId,
         moveCustomerId: moveCustomer._id,
       },
+    });
+
+    await ctx.runAction(internal.actions.pdf.generateQuotePdf, {
+      documentType: "quote",
+      toEmail: moveCustomer.email,
+      ccEmails: [validatedCompanyContact.email],
+      replyToEmail: validatedCompanyContact.email,
+      replyToName: validatedCompany.name,
+      subject: `Quote for ${moveCustomer.name} on ${moveDate}`,
+      bodyText: `Attached is the quote for ${moveCustomer.name} on ${moveDate}.`,
+      bodyHtml: `<p>Attached is the quote for ${moveCustomer.name} on ${moveDate}.</p>`,
     });
 
     // if (validatedMove.deposit && validatedMove.deposit > 0 && paymentMethodId) {

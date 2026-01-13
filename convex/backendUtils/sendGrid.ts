@@ -3,6 +3,7 @@
 import { ErrorMessages } from "@/types/errors";
 import { serverEnv } from "./serverEnv";
 import sgMail from "@sendgrid/mail";
+import { textToEmailHtml } from "@/utils/strings";
 
 function getHeaders() {
   const { SENDGRID_API_KEY } = serverEnv();
@@ -99,6 +100,7 @@ export const sendSendGridEmail = async ({
   replyToEmail,
   replyToName,
   attachments,
+  formatTextToHtml = false,
 }: {
   toEmail: string;
   ccEmails?: string[];
@@ -114,10 +116,23 @@ export const sendSendGridEmail = async ({
     type: string;
     disposition?: "attachment" | "inline";
   }[];
+  formatTextToHtml?: boolean;
 }): Promise<string> => {
   const { SENDGRID_API_KEY, SENDGRID_FROM_EMAIL } = serverEnv();
 
   sgMail.setApiKey(SENDGRID_API_KEY);
+
+  let finalHtml: string;
+
+  if (formatTextToHtml) {
+    finalHtml = textToEmailHtml(bodyText);
+  } else {
+    finalHtml = bodyHtml ?? `<p>${bodyText}</p>`;
+  }
+
+  const hasCc = Array.isArray(ccEmails) && ccEmails.length > 0;
+  const hasBcc = Array.isArray(bccEmails) && bccEmails.length > 0;
+  const hasAttachments = Array.isArray(attachments) && attachments.length > 0;
 
   const msg = {
     to: toEmail,
@@ -127,10 +142,10 @@ export const sendSendGridEmail = async ({
     },
     subject,
     text: bodyText,
-    html: bodyHtml ?? `<p>${bodyText}</p>`,
-    attachments,
-    ...(ccEmails && { cc: ccEmails }),
-    ...(bccEmails && { bcc: bccEmails }),
+    html: finalHtml,
+    ...(hasAttachments && { attachments }),
+    ...(hasCc && { cc: ccEmails }),
+    ...(hasBcc && { bcc: bccEmails }),
     ...(replyToEmail && {
       replyTo: {
         email: replyToEmail,

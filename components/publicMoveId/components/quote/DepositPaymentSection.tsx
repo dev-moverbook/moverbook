@@ -13,10 +13,9 @@ const DepositPaymentSection = ({
   move,
   signatureDataUrl,
 }: DepositPaymentSectionProps) => {
-  console.log("move", move);
   const isDisabled = !signatureDataUrl;
   const { signQuote, signQuoteLoading, signQuoteError } = useSignQuote();
-  const hasDeposit = Number(move.deposit ?? 0) > 0;
+  // const hasDeposit = Number(move.deposit ?? 0) > 0;
 
   const handleConfirm = async () => {
     if (!signatureDataUrl) {
@@ -24,20 +23,17 @@ const DepositPaymentSection = ({
     }
     await signQuote(move._id, signatureDataUrl);
   };
-  if (!hasDeposit) {
-    return (
-      <SingleFormAction
-        disabled={isDisabled}
-        submitLabel="Confirm"
-        onSubmit={handleConfirm}
-        isSubmitting={signQuoteLoading}
-        error={signQuoteError}
-        submitVariant="default"
-      />
-    );
-  }
-
-  return <div>DepositPaymentSection</div>;
+  // if (!hasDeposit) {
+  return (
+    <SingleFormAction
+      disabled={isDisabled}
+      submitLabel="Confirm"
+      onSubmit={handleConfirm}
+      isSubmitting={signQuoteLoading}
+      error={signQuoteError}
+      submitVariant="default"
+    />
+  );
 };
 
 export default DepositPaymentSection;
