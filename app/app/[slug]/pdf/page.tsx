@@ -8,10 +8,16 @@ export default function TestPdfButton() {
 
   const handleClick = async () => {
     try {
-      const result = await generateQuotePdf({});
-      console.log("PDF generated:", result);
+      const result = await generateQuotePdf({
+        toEmail: "dev.moverbook@gmail.com",
+        ccEmails: ["dev.moverbook@gmail.com"],
+        bccEmails: ["dev.moverbook@gmail.com"],
+        subject: "Quote PDF Test",
+        bodyText: "This is a test quote PDF",
+        bodyHtml: "<p>This is a test quote PDF</p>",
+      });
 
-      alert(`PDF generated (${result.byteLength} bytes)`);
+      alert(`PDF generated (${result})`);
     } catch (error) {
       console.error("Failed to generate PDF", error);
       alert("PDF generation failed");

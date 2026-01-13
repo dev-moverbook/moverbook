@@ -91,18 +91,29 @@ export async function checkSenderVerified(senderId: string): Promise<boolean> {
 
 export const sendSendGridEmail = async ({
   toEmail,
+  ccEmails,
+  bccEmails,
   subject,
   bodyText,
   bodyHtml,
   replyToEmail,
   replyToName,
+  attachments,
 }: {
   toEmail: string;
+  ccEmails?: string[];
+  bccEmails?: string[];
   subject: string;
   bodyText: string;
   bodyHtml?: string;
   replyToEmail?: string;
   replyToName?: string;
+  attachments?: {
+    content: string;
+    filename: string;
+    type: string;
+    disposition?: "attachment" | "inline";
+  }[];
 }): Promise<string> => {
   const { SENDGRID_API_KEY, SENDGRID_FROM_EMAIL } = serverEnv();
 
@@ -117,6 +128,9 @@ export const sendSendGridEmail = async ({
     subject,
     text: bodyText,
     html: bodyHtml ?? `<p>${bodyText}</p>`,
+    attachments,
+    ...(ccEmails && { cc: ccEmails }),
+    ...(bccEmails && { bcc: bccEmails }),
     ...(replyToEmail && {
       replyTo: {
         email: replyToEmail,
