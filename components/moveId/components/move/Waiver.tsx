@@ -26,8 +26,8 @@ const Waiver = ({ waiver }: WaiverProps) => {
     waiver ?? {};
 
   const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
-  const [isEmailLoading, setIsEmailLoading] = useState(false);
-  const [isSmsLoading, setIsSmsLoading] = useState(false);
+  const [isEmailLoading, setIsEmailLoading] = useState<boolean>(false);
+  const [isSmsLoading, setIsSmsLoading] = useState<boolean>(false);
 
   const {
     createOrUpdateWaiver,
@@ -40,7 +40,7 @@ const Waiver = ({ waiver }: WaiverProps) => {
   const showCustomerSignature = !!customerSignature && customerSignedAt;
   const isCompleted = !!showRepSignature && !!showCustomerSignature;
 
-  const isDisabled = !signatureDataUrl;
+  const isDisabled = !signatureDataUrl && !waiver;
 
   const handleSMS = async () => {
     setIsSmsLoading(true);

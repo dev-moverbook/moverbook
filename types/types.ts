@@ -517,3 +517,12 @@ export type PublicMoveStep = "documents" | "move" | "payment";
 
 export type TemplateVariableKey =
   (typeof TEMPLATE_VARIABLES)[keyof typeof TEMPLATE_VARIABLES];
+
+export type SendGridError = Error & {
+  code?: number;
+  response?: {
+    body?: {
+      errors?: unknown;
+    };
+  };
+};

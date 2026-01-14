@@ -4,6 +4,7 @@ import { ErrorMessages } from "@/types/errors";
 import { serverEnv } from "./serverEnv";
 import sgMail from "@sendgrid/mail";
 import { textToEmailHtml } from "@/utils/strings";
+import { SendGridError } from "@/types/types";
 
 function getHeaders() {
   const { SENDGRID_API_KEY } = serverEnv();
@@ -159,8 +160,15 @@ export const sendSendGridEmail = async ({
     return (
       response.headers["x-message-id"] ?? response.headers["x-msg-id"] ?? ""
     );
-  } catch (error) {
-    console.error("SendGrid email failed:", error);
+  } catch (error: unknown) {
+    const err = error as SendGridError;
+
+    console.error("SendGrid email failed:", {
+      message: err.message,
+      code: err.code,
+      errors: err.response?.body?.errors,
+    });
+
     throw new Error(ErrorMessages.SENDGRID_EMAIL_FAILED);
   }
 };

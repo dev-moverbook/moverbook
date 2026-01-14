@@ -1,4 +1,9 @@
-import { internalQuery, mutation } from "./_generated/server";
+import {
+  action,
+  internalMutation,
+  internalQuery,
+  mutation,
+} from "./_generated/server";
 import { v } from "convex/values";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import {
@@ -10,9 +15,10 @@ import {
   validateMoveCustomer,
 } from "./backendUtils/validate";
 import { ClerkRoles } from "@/types/enums";
-import { Doc, Id } from "./_generated/dataModel";
+import { Doc } from "./_generated/dataModel";
 import { ErrorMessages } from "@/types/errors";
 import { internal } from "./_generated/api";
+import { throwConvexError } from "./backendUtils/errors";
 
 export const createOrUpdateWaiver = mutation({
   args: {
@@ -165,7 +171,7 @@ export const createOrUpdateWaiver = mutation({
 //   },
 // });
 
-export const customerSignWaiver = mutation({
+export const customerSignWaiver = action({
   args: {
     waiverId: v.id("waivers"),
     updates: v.object({
@@ -174,37 +180,63 @@ export const customerSignWaiver = mutation({
   },
   handler: async (ctx, args): Promise<boolean> => {
     const { waiverId } = args;
-    const updates: Partial<Doc<"waivers">> = {
-      ...args.updates,
-      customerSignedAt: Date.now(),
-    };
 
-    const identity = await requireAuthenticatedUser(ctx, [ClerkRoles.CUSTOMER]);
+    const identity = await requireAuthenticatedUser(ctx);
 
-    const waiver = await ctx.db.get(waiverId);
+    const waiver = await ctx.runQuery(internal.waivers.getWaiverByIdInternal, {
+      waiverId,
+    });
     const validatedWaiver = validateDocExists(
       "waivers",
       waiver,
       "Waiver not found"
     );
 
+    const move = await ctx.runQuery(internal.moves.getMoveByIdInternal, {
+      moveId: validatedWaiver.moveId,
+    });
+
+    if (!move) {
+      throwConvexError("Move not found", {
+        code: "BAD_REQUEST",
+        showToUser: true,
+      });
+    }
+
     const moveCustomer = await ctx.runQuery(
       internal.moveCustomers.getMoveCustomerByIdInternal,
       {
-        moveCustomerId: identity.convexId as Id<"users">,
+        moveCustomerId: move.moveCustomerId,
       }
     );
+    if (!moveCustomer) {
+      throwConvexError("Move customer not found", {
+        code: "BAD_REQUEST",
+        showToUser: true,
+      });
+    }
 
-    const move = await validateDocument(
-      ctx.db,
-      "moves",
-      validatedWaiver.moveId,
-      ErrorMessages.MOVE_NOT_FOUND
+    const companyContact = await ctx.runQuery(
+      internal.companyContacts.getCompanyContactByCompanyIdInternal,
+      {
+        companyId: move.companyId,
+      }
     );
+    if (!companyContact) {
+      throwConvexError("Company contact not found", {
+        code: "BAD_REQUEST",
+        showToUser: true,
+      });
+    }
 
     isIdentityInMove(identity, move);
 
-    await ctx.db.patch(validatedWaiver._id, updates);
+    await ctx.runMutation(internal.waivers.updateWaiverInternal, {
+      waiverId: validatedWaiver._id,
+      updates: {
+        customerSignature: args.updates.customerSignature,
+      },
+    });
 
     await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
       entry: {
@@ -214,6 +246,14 @@ export const customerSignWaiver = mutation({
         moveCustomerId: move.moveCustomerId,
         moveId: move._id,
       },
+    });
+
+    await ctx.runAction(internal.actions.pdf.generatePdf, {
+      documentType: "waiver",
+      toEmail: moveCustomer.email,
+      ccEmails: [companyContact.email],
+      subject: "Waiver Signed",
+      bodyText: "Waiver signed",
     });
 
     return true;
@@ -231,5 +271,32 @@ export const getWaiverByMoveIdInternal = internalQuery({
       .withIndex("by_move", (q) => q.eq("moveId", moveId))
       .unique();
     return waiver;
+  },
+});
+
+export const getWaiverByIdInternal = internalQuery({
+  args: {
+    waiverId: v.id("waivers"),
+  },
+  handler: async (ctx, args): Promise<Doc<"waivers"> | null> => {
+    const { waiverId } = args;
+    return await ctx.db.get(waiverId);
+  },
+});
+
+export const updateWaiverInternal = internalMutation({
+  args: {
+    waiverId: v.id("waivers"),
+    updates: v.object({
+      customerSignature: v.string(),
+    }),
+  },
+  handler: async (ctx, args): Promise<void> => {
+    const { waiverId } = args;
+    const updates: Partial<Doc<"waivers">> = {
+      ...args.updates,
+      customerSignedAt: Date.now(),
+    };
+    await ctx.db.patch(waiverId, updates);
   },
 });

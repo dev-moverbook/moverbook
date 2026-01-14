@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useMutation } from "convex/react";
+import { useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { setErrorFromConvexError } from "@/frontendUtils/errorHelper";
@@ -14,7 +14,7 @@ export const useCustomerSignWaiver = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const mutationFn = useMutation(api.waivers.customerSignWaiver);
+  const actionFn = useAction(api.waivers.customerSignWaiver);
 
   const customerSignWaiver = async (
     waiverId: Id<"waivers">,
@@ -24,7 +24,7 @@ export const useCustomerSignWaiver = () => {
     setError(null);
 
     try {
-      return await mutationFn({ waiverId, updates });
+      return await actionFn({ waiverId, updates });
     } catch (error) {
       setErrorFromConvexError(error, setError);
       return false;

@@ -302,7 +302,7 @@ export const signQuote = action({
       },
     });
 
-    await ctx.runAction(internal.actions.pdf.generateQuotePdf, {
+    await ctx.runAction(internal.actions.pdf.generatePdf, {
       documentType: "quote",
       toEmail: moveCustomer.email,
       ccEmails: [validatedCompanyContact.email],

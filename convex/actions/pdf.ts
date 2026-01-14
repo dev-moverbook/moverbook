@@ -5,7 +5,7 @@ import { internalAction } from "../_generated/server";
 import { sendSendGridEmail } from "../backendUtils/sendGrid";
 import { throwConvexError } from "../backendUtils/errors";
 
-export const generateQuotePdf = internalAction({
+export const generatePdf = internalAction({
   args: {
     documentType: v.union(
       v.literal("quote"),
