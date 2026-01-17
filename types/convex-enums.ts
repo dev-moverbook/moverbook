@@ -78,7 +78,8 @@ export const PresSetScriptsConvex = v.union(
   v.literal(PresSetScripts.EMAIL_EXTERNAL_REVIEW),
   v.literal(PresSetScripts.SMS_EXTERNAL_REVIEW),
   v.literal(PresSetScripts.EMAIL_FOLLOW_UP),
-  v.literal(PresSetScripts.SMS_FOLLOW_UP)
+  v.literal(PresSetScripts.SMS_FOLLOW_UP),
+  v.literal(PresSetScripts.EMAIL_LOCATION_SHARING)
 );
 
 export const TravelChargingTypesConvex = v.union(

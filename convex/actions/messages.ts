@@ -104,6 +104,7 @@ export const sendPresetScript = action({
       move,
       slug: company.slug,
       moveCustomer,
+      company,
     });
 
     const resolvedMessage = injectTemplateValues(message, resolvedValues);
@@ -262,6 +263,7 @@ export const createMessage = action({
       move,
       slug: validatedCompany.slug,
       moveCustomer,
+      company: validatedCompany,
     });
 
     const resolvedMessage = injectTemplateValues(message, resolvedValues);

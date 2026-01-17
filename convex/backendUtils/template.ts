@@ -1,5 +1,5 @@
 import { formatDateToLong } from "@/frontendUtils/helper";
-import { Doc } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import { TEMPLATE_TOKEN_REGEX, TEMPLATE_VARIABLES } from "@/types/const";
 import { ActionCtx } from "../_generated/server";
 import { clientEnv } from "@/frontendUtils/clientEnv";
@@ -7,6 +7,7 @@ import { sendMoveCustomerClerkInvitation } from "../functions/clerk";
 import { internal } from "../_generated/api";
 import { ClerkRoles } from "@/types/enums";
 import { CustomerUser, PublicMoveStep } from "@/types/types";
+import { throwConvexError } from "./errors";
 
 export const injectTemplateValues = (
   template: string,
@@ -28,12 +29,14 @@ export const resolveTemplateSideEffects = async ({
   move,
   slug,
   moveCustomer,
+  company,
 }: {
   ctx: ActionCtx;
   keys: Set<string>;
   move: Doc<"moves">;
   slug: string;
   moveCustomer: CustomerUser;
+  company: Doc<"companies">;
 }): Promise<Record<string, string>> => {
   const baseUrl = clientEnv().NEXT_PUBLIC_APP_URL;
   const resolved: Record<string, string> = {};
@@ -53,6 +56,11 @@ export const resolveTemplateSideEffects = async ({
     });
 
     return step ? `${inviteUrl}?step=${step}` : inviteUrl;
+  };
+
+  const buildInternalReviewLink = async () => {
+    const url = `${baseUrl}/${slug}/moves/${move._id}/review`;
+    return url;
   };
 
   if (keys.has(TEMPLATE_VARIABLES.quote_link)) {
@@ -79,6 +87,13 @@ export const resolveTemplateSideEffects = async ({
     });
   }
 
+  if (keys.has(TEMPLATE_VARIABLES.external_review_link)) {
+    resolved.external_review_link = await buildExternalReviewLink({
+      ctx,
+      companyId: company._id,
+    });
+  }
+
   if (keys.has(TEMPLATE_VARIABLES.customer_name)) {
     resolved.customer_name = moveCustomer.name;
   }
@@ -87,6 +102,10 @@ export const resolveTemplateSideEffects = async ({
     resolved.move_date = move.moveDate
       ? formatDateToLong(move.moveDate)
       : "TBD";
+  }
+
+  if (keys.has(TEMPLATE_VARIABLES.internal_review_link)) {
+    resolved.internal_review_link = await buildInternalReviewLink();
   }
 
   return resolved;
@@ -117,4 +136,27 @@ export const ensureMoveCustomerInviteLink = async ({
   });
 
   return invitationUrl;
+};
+
+export const buildExternalReviewLink = async ({
+  ctx,
+  companyId,
+}: {
+  ctx: ActionCtx;
+  companyId: Id<"companies">;
+}): Promise<string> => {
+  const webIntegrations = await ctx.runQuery(
+    internal.webIntegrations.getWebIntegrationsByCompanyId,
+    {
+      companyId,
+    }
+  );
+
+  if (!webIntegrations?.externalReviewUrl) {
+    throwConvexError("external review not found", {
+      code: "NOT_FOUND",
+    });
+  }
+
+  return webIntegrations.externalReviewUrl;
 };

@@ -11,6 +11,8 @@ import {
 import FieldErrorMessage from "@/components/shared/labeled/FieldErrorMessage";
 import { useMoveContext } from "@/contexts/MoveContext";
 import MoverLocationMap from "../move/MoverLocationMap";
+import { useSendPresetScript } from "@/hooks/messages";
+import { PresSetScripts } from "@/types/enums";
 
 interface LocationSharingSectionProps {
   isSharing: boolean;
@@ -37,6 +39,9 @@ const LocationSharingSection = ({
     setInsertMoverLocationError,
   } = useInsertMoverLocation();
 
+  const { sendPresetScript, sendPresetScriptLoading, sendPresetScriptError } =
+    useSendPresetScript();
+
   const {
     stopMoverLocation,
     stopMoverLocationLoading,
@@ -47,7 +52,13 @@ const LocationSharingSection = ({
   const startSharing = async () => {
     setStopMoverLocationError(null);
     setIsSharing(true);
-    await insertMoverLocation({ moveId });
+    await Promise.all([
+      insertMoverLocation({ moveId }),
+      sendPresetScript({
+        moveId,
+        preSetTypes: PresSetScripts.EMAIL_LOCATION_SHARING,
+      }),
+    ]);
   };
 
   const stopSharing = async () => {
@@ -77,14 +88,19 @@ const LocationSharingSection = ({
             onClick={startSharing}
             disabled={Boolean(error)}
             className="w-full"
-            isLoading={insertMoverLocationLoading}
+            isLoading={insertMoverLocationLoading || sendPresetScriptLoading}
           >
             Start Sharing Location
           </Button>
         )}
 
         <FieldErrorMessage
-          error={error || insertMoverLocationError || stopMoverLocationError}
+          error={
+            error ||
+            insertMoverLocationError ||
+            stopMoverLocationError ||
+            sendPresetScriptError
+          }
         />
         {showMap && <MoverLocationMap moverLocation={moverLocation} />}
       </SectionContainer>

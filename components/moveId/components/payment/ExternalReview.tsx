@@ -4,8 +4,9 @@ import SectionContainer from "@/components/shared/containers/SectionContainer";
 import FormActions from "@/components/shared/buttons/FormActions";
 import SectionHeader from "@/components/shared/section/SectionHeader";
 import { Doc } from "@/convex/_generated/dataModel";
-import { useSendExternalReview } from "@/hooks/externalReviews";
 import { useState } from "react";
+import { useSendPresetScript } from "@/hooks/messages";
+import { PresSetScripts } from "@/types/enums";
 
 interface ExternalReviewProps {
   move: Doc<"moves">;
@@ -15,21 +16,26 @@ const ExternalReview = ({ move }: ExternalReviewProps) => {
 
   const [isSmsLoading, setIsSmsLoading] = useState<boolean>(false);
   const [isEmailLoading, setIsEmailLoading] = useState<boolean>(false);
-  const { sendExternalReview, sendExternalReviewError } =
-    useSendExternalReview();
 
-  const handleSendExternalReviewEmail = async () => {
+  const { sendPresetScript, sendPresetScriptError } = useSendPresetScript();
+
+  const handleSendExternalReview = async () => {
     setIsEmailLoading(true);
-    await sendExternalReview(move._id, "email");
+    await sendPresetScript({
+      moveId: move._id,
+      preSetTypes: PresSetScripts.EMAIL_EXTERNAL_REVIEW,
+    });
     setIsEmailLoading(false);
   };
 
   const handleSendExternalReviewSms = async () => {
     setIsSmsLoading(true);
-    await sendExternalReview(move._id, "sms");
+    await sendPresetScript({
+      moveId: move._id,
+      preSetTypes: PresSetScripts.SMS_EXTERNAL_REVIEW,
+    });
     setIsSmsLoading(false);
   };
-
   return (
     <div>
       <SectionHeader
@@ -42,11 +48,11 @@ const ExternalReview = ({ move }: ExternalReviewProps) => {
           onCancel={handleSendExternalReviewSms}
           onSave={(e) => {
             e.preventDefault();
-            handleSendExternalReviewEmail();
+            handleSendExternalReview();
           }}
           isSaving={isEmailLoading}
           isCanceling={isSmsLoading}
-          error={sendExternalReviewError}
+          error={sendPresetScriptError}
           saveLabel="Email"
           cancelLabel="Text"
           disabled={isDisabled}

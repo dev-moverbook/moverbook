@@ -83,99 +83,6 @@ export const createOrUpdateInvoice = mutation({
   },
 });
 
-// To Be Deleted
-// export const sendInvoice = action({
-//   args: {
-//     moveId: v.id("moves"),
-//     channel: v.union(v.literal("email"), v.literal("sms")),
-//   },
-//   handler: async (ctx, args): Promise<boolean> => {
-//     const identity = await requireAuthenticatedUser(ctx, [
-//       ClerkRoles.ADMIN,
-//       ClerkRoles.APP_MODERATOR,
-//       ClerkRoles.MANAGER,
-//       ClerkRoles.SALES_REP,
-//       ClerkRoles.MOVER,
-//     ]);
-
-//     const move = await ctx.runQuery(internal.moves.getMoveByIdInternal, {
-//       moveId: args.moveId,
-//     });
-//     const validatedMove = validateDocExists(
-//       "moves",
-//       move,
-//       ErrorMessages.MOVE_NOT_FOUND
-//     );
-
-//     const company = await ctx.runQuery(
-//       internal.companies.getCompanyByIdInternal,
-//       {
-//         companyId: validatedMove.companyId,
-//       }
-//     );
-//     const validatedCompany = validateDocExists(
-//       "companies",
-//       company,
-//       ErrorMessages.COMPANY_NOT_FOUND
-//     );
-
-//     isUserInOrg(identity, validatedCompany.clerkOrganizationId);
-
-//     const user = validateUser(
-//       await ctx.runQuery(internal.users.getUserByIdInternal, {
-//         userId: identity.convexId as Id<"users">,
-//       })
-//     );
-
-//     const validatedMoveCustomer = await ctx.runQuery(
-//       internal.moveCustomers.getMoveCustomerByIdInternal,
-//       {
-//         moveCustomerId: validatedMove.moveCustomerId,
-//       }
-//     );
-
-//     const invoice = await ctx.runQuery(
-//       internal.invoices.getInvoiceByMoveIdInternal,
-//       {
-//         moveId: validatedMove._id,
-//       }
-//     );
-//     const validatedInvoice = validateDocExists(
-//       "invoices",
-//       invoice,
-//       ErrorMessages.INVOICE_NOT_FOUND
-//     );
-
-//     if (args.channel === "email") {
-//       // TODO: Send waiver email
-//     } else if (args.channel === "sms") {
-//       // TODO: Send waiver SMS
-//     }
-//     const moveDate = validatedMove.moveDate
-//       ? formatMonthDayLabelStrict(validatedMove.moveDate)
-//       : "TBD";
-//     await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
-//       entry: {
-//         type: "INVOICE_SENT",
-//         companyId: validatedCompany._id,
-//         body: `**${user.name}** sent invoice to **${validatedMoveCustomer.name}** **${moveDate}** via ${args.channel}`,
-//         moveId: validatedMove._id,
-//         context: {
-//           customerName: validatedMoveCustomer.name,
-//           deliveryType: args.channel,
-//           moveDate,
-//           invoiceId: validatedInvoice._id,
-//           moverName: user.name,
-//           salesRepName: user.name,
-//         },
-//         userId: user._id,
-//       },
-//     });
-
-//     return true;
-//   },
-// });
-
 export const getInvoiceByMoveIdInternal = internalQuery({
   args: {
     moveId: v.id("moves"),
@@ -250,6 +157,30 @@ export const customerSignInvoice = action({
     );
     isIdentityInMove(identity, validatedMove);
 
+    const company = await ctx.runQuery(
+      internal.companies.getCompanyByIdInternal,
+      {
+        companyId: validatedMove.companyId,
+      }
+    );
+    const validatedCompany = validateDocExists(
+      "companies",
+      company,
+      ErrorMessages.COMPANY_NOT_FOUND
+    );
+
+    const companyContact = await ctx.runQuery(
+      internal.companyContacts.getCompanyContactByCompanyIdInternal,
+      {
+        companyId: validatedCompany._id,
+      }
+    );
+    const validatedCompanyContact = validateDocExists(
+      "companyContacts",
+      companyContact,
+      ErrorMessages.USER_NOT_FOUND
+    );
+
     await ctx.runMutation(internal.invoices.updateInvoice, {
       invoiceId: validatedInvoice._id,
       updates: {
@@ -280,6 +211,14 @@ export const customerSignInvoice = action({
         completedAt: Date.now(),
         invoiceAmountPaid: amount,
       },
+    });
+
+    await ctx.runAction(internal.actions.pdf.generatePdf, {
+      documentType: "invoice",
+      toEmail: user.email,
+      ccEmails: [validatedCompanyContact.email],
+      subject: `Invoice Reciept for ${moveDate}`,
+      bodyText: "Invoice paid",
     });
 
     return true;

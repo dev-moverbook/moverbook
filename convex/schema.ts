@@ -304,6 +304,7 @@ export default defineSchema({
   internalReviews: defineTable({
     moveId: v.id("moves"),
     rating: v.optional(v.number()),
+    updatedAt: v.optional(v.number()),
   }).index("by_move", ["moveId"]),
   items: defineTable({
     categoryId: v.optional(v.id("categories")),

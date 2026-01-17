@@ -6,17 +6,17 @@ import {
   query,
 } from "./_generated/server";
 import { Doc, Id } from "./_generated/dataModel";
-import { ClerkRoles } from "@/types/enums";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import {
-  validateCompany,
-  isUserInOrg,
   validateDocument,
   validateMoveCustomer,
+  isIdentityInMove,
 } from "./backendUtils/validate";
 import { ErrorMessages } from "@/types/errors";
 import { formatMonthDayLabelStrict } from "@/frontendUtils/luxonUtils";
 import { internal } from "./_generated/api";
+import { throwConvexError } from "./backendUtils/errors";
+import { ClerkRoles } from "@/types/enums";
 
 export const getInternalReview = query({
   args: {
@@ -25,12 +25,7 @@ export const getInternalReview = query({
   handler: async (ctx, args): Promise<Doc<"internalReviews"> | null> => {
     const { moveId } = args;
 
-    const identity = await requireAuthenticatedUser(ctx, [
-      ClerkRoles.ADMIN,
-      ClerkRoles.APP_MODERATOR,
-      ClerkRoles.MANAGER,
-      ClerkRoles.SALES_REP,
-    ]);
+    const identity = await requireAuthenticatedUser(ctx);
 
     const move = await validateDocument(
       ctx.db,
@@ -38,8 +33,7 @@ export const getInternalReview = query({
       moveId,
       ErrorMessages.MOVE_NOT_FOUND
     );
-    const company = await validateCompany(ctx.db, move.companyId);
-    isUserInOrg(identity, company.clerkOrganizationId);
+    isIdentityInMove(identity, move);
 
     const internalReview = await ctx.db
       .query("internalReviews")
@@ -58,12 +52,16 @@ export const createInternalReview = mutation({
   handler: async (ctx, args): Promise<boolean> => {
     const { moveId, rating } = args;
 
+    const identity = await requireAuthenticatedUser(ctx, [ClerkRoles.CUSTOMER]);
+
     const move = await validateDocument(
       ctx.db,
       "moves",
       moveId,
       ErrorMessages.MOVE_NOT_FOUND
     );
+
+    isIdentityInMove(identity, move);
 
     const moveCustomer = validateMoveCustomer(
       await ctx.db.get(move.moveCustomerId)
@@ -92,102 +90,6 @@ export const createInternalReview = mutation({
   },
 });
 
-// To Be Deleted
-// export const sendInternalReview = action({
-//   args: {
-//     moveId: v.id("moves"),
-//     channel: v.union(v.literal("email"), v.literal("sms")),
-//   },
-//   handler: async (ctx, args): Promise<boolean> => {
-//     const identity = await requireAuthenticatedUser(ctx, [
-//       ClerkRoles.ADMIN,
-//       ClerkRoles.APP_MODERATOR,
-//       ClerkRoles.MANAGER,
-//       ClerkRoles.SALES_REP,
-//     ]);
-
-//     const move = await ctx.runQuery(internal.moves.getMoveByIdInternal, {
-//       moveId: args.moveId,
-//     });
-//     const validatedMove = validateDocExists(
-//       "moves",
-//       move,
-//       ErrorMessages.MOVE_NOT_FOUND
-//     );
-
-//     const company = await ctx.runQuery(
-//       internal.companies.getCompanyByIdInternal,
-//       {
-//         companyId: validatedMove.companyId,
-//       }
-//     );
-//     const validatedCompany = validateDocExists(
-//       "companies",
-//       company,
-//       ErrorMessages.COMPANY_NOT_FOUND
-//     );
-
-//     isUserInOrg(identity, validatedCompany.clerkOrganizationId);
-
-//     const user = validateUser(
-//       await ctx.runQuery(internal.users.getUserByIdInternal, {
-//         userId: identity.convexId as Id<"users">,
-//       })
-//     );
-
-//     const validatedMoveCustomer = await ctx.runQuery(
-//       internal.moveCustomers.getMoveCustomerByIdInternal,
-//       {
-//         moveCustomerId: validatedMove.moveCustomerId,
-//       }
-//     );
-
-//     const internalReview = await ctx.runQuery(
-//       internal.internalReviews.getInternalReviewByMoveIdInternal,
-//       {
-//         moveId: validatedMove._id,
-//       }
-//     );
-
-//     let internalReviewId: Id<"internalReviews"> | undefined =
-//       internalReview?._id;
-
-//     if (!internalReviewId) {
-//       internalReviewId = await ctx.runMutation(
-//         internal.internalReviews.insertInternalReview,
-//         {
-//           moveId: validatedMove._id,
-//         }
-//       );
-//     }
-
-//     if (args.channel === "email") {
-//       // TODO: Send waiver email
-//     } else if (args.channel === "sms") {
-//       // TODO: Send waiver SMS
-//     }
-//     const moveDate = validatedMove.moveDate
-//       ? formatMonthDayLabelStrict(validatedMove.moveDate)
-//       : "TBD";
-//     await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
-//       entry: {
-//         type: "INTERNAL_REVIEW_SENT",
-//         companyId: validatedCompany._id,
-//         body: `**${user.name}** sent internal review to **${validatedMoveCustomer.name}** **${moveDate}** via ${args.channel}`,
-//         moveId: validatedMove._id,
-//         context: {
-//           customerName: validatedMoveCustomer.name,
-//           deliveryType: args.channel,
-//           moveDate,
-//           salesRepName: user.name,
-//         },
-//         userId: user._id,
-//       },
-//     });
-//     return true;
-//   },
-// });
-
 export const getInternalReviewByMoveIdInternal = internalQuery({
   args: {
     moveId: v.id("moves"),
@@ -214,5 +116,50 @@ export const insertInternalReview = internalMutation({
     return await ctx.db.insert("internalReviews", {
       moveId,
     });
+  },
+});
+
+export const updateInternalReview = mutation({
+  args: {
+    internalReviewId: v.id("internalReviews"),
+    updates: v.object({
+      rating: v.number(),
+    }),
+  },
+  handler: async (ctx, args): Promise<boolean> => {
+    const { internalReviewId, updates } = args;
+
+    const internalReview = await ctx.db.get(internalReviewId);
+    if (!internalReview) {
+      throwConvexError(ErrorMessages.INTERNAL_REVIEW_NOT_FOUND, {
+        code: "NOT_FOUND",
+      });
+    }
+
+    const move = await validateDocument(
+      ctx.db,
+      "moves",
+      internalReview.moveId,
+      ErrorMessages.MOVE_NOT_FOUND
+    );
+
+    const identity = await requireAuthenticatedUser(ctx, [ClerkRoles.CUSTOMER]);
+    isIdentityInMove(identity, move);
+
+    await ctx.db.patch(internalReviewId, {
+      ...updates,
+      updatedAt: Date.now(),
+    });
+    await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
+      entry: {
+        type: "INTERNAL_REVIEW_COMPLETED",
+        companyId: move.companyId,
+        body: `**${identity.name}** left a ${updates.rating} star rating.`,
+        moveId: move._id,
+        moveCustomerId: move.moveCustomerId,
+      },
+    });
+
+    return true;
   },
 });

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useMutation } from "convex/react";
+import { useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { setErrorFromConvexError } from "@/frontendUtils/errorHelper";
@@ -17,7 +17,7 @@ export const useCustomerSignContract = () => {
     string | null
   >(null);
 
-  const mutationFn = useMutation(api.contracts.customerUpdateContract);
+  const mutationFn = useAction(api.contracts.customerUpdateContract);
 
   const customerSignContract = async (
     contractId: Id<"contracts">,

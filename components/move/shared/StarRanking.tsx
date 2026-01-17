@@ -16,7 +16,7 @@ const StarRating: React.FC<StarRatingProps> = ({
   const safeValue = value ?? 0;
 
   return (
-    <div className="flex gap-1 bg-black p-2 rounded w-full">
+    <div className="flex gap-1 bg-black  rounded w-full">
       {[1, 2, 3, 4, 5].map((i) => (
         <Star
           key={i}

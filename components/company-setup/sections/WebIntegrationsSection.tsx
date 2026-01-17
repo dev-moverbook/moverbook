@@ -30,8 +30,6 @@ const WebIntegrationsSection: React.FC<WebIntegrationsSectionProps> = ({
 }) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [formData, setFormData] = useState<WebIntegrationsFormData>({
-    webform: webIntegrations.webform || "",
-    webformEmbeddedCode: webIntegrations.webformEmbeddedCode || "",
     externalReviewUrl: webIntegrations.externalReviewUrl || "",
   });
 
@@ -42,8 +40,6 @@ const WebIntegrationsSection: React.FC<WebIntegrationsSectionProps> = ({
   const handleCancel = () => {
     setIsEditing(false);
     setFormData({
-      webform: webIntegrations.webform || "",
-      webformEmbeddedCode: webIntegrations.webformEmbeddedCode || "",
       externalReviewUrl: webIntegrations.externalReviewUrl || "",
     });
     setUpdateError(null);
@@ -65,8 +61,6 @@ const WebIntegrationsSection: React.FC<WebIntegrationsSectionProps> = ({
   };
 
   const hasNoChanges =
-    formData.webform === webIntegrations.webform &&
-    formData.webformEmbeddedCode === webIntegrations.webformEmbeddedCode &&
     formData.externalReviewUrl === webIntegrations.externalReviewUrl;
 
   const isDisabled = isEditing && hasNoChanges;
@@ -86,7 +80,7 @@ const WebIntegrationsSection: React.FC<WebIntegrationsSectionProps> = ({
           <FieldRow
             label="Web Form URL"
             name="webform"
-            value={formData.webform}
+            value={webIntegrations.webform}
             isEditing={false}
             onChange={handleChange}
             placeholder="Enter web form URL"
@@ -96,7 +90,7 @@ const WebIntegrationsSection: React.FC<WebIntegrationsSectionProps> = ({
           <FieldRow
             label="Embedded Code"
             name="webformEmbeddedCode"
-            value={formData.webformEmbeddedCode}
+            value={webIntegrations.webformEmbeddedCode}
             isEditing={false}
             onChange={handleChange}
             placeholder="Enter embedded code"

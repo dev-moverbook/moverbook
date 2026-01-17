@@ -80,6 +80,7 @@ export enum PresSetScripts {
   SMS_EXTERNAL_REVIEW = "Sms External Review",
   EMAIL_FOLLOW_UP = "Email Follow Up",
   SMS_FOLLOW_UP = "Sms Follow Up",
+  EMAIL_LOCATION_SHARING = "Email Location Sharing",
 }
 
 export enum TravelChargingTypes {

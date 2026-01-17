@@ -24,8 +24,6 @@ export interface ComplianceFormData {
 }
 
 export interface WebIntegrationsFormData {
-  webform?: string;
-  webformEmbeddedCode?: string;
   externalReviewUrl?: string;
 }
 

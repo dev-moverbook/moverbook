@@ -2,7 +2,7 @@
 
 import SingleFormAction from "@/components/shared/buttons/SingleFormAction";
 import { Doc } from "@/convex/_generated/dataModel";
-import { useSignQuote } from "@/hooks/quotes/useSignQuote";
+import { useSignQuote } from "@/hooks/quotes";
 
 interface DepositPaymentSectionProps {
   move: Doc<"moves">;
