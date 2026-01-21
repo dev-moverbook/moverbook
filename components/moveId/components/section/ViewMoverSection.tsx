@@ -18,7 +18,6 @@ import { computeFinalMoveCost } from "@/frontendUtils/payout";
 import InvoiceNotReady from "../shared/InvoiceNotReady";
 import { isSameDayOrLater } from "@/frontendUtils/luxonUtils";
 import LocationSharingSectionWrapper from "./LocationSharingWrapper";
-import PaymentWrapper from "../stripe/PaymentWrapper";
 
 interface ViewMoverSectionProps {
   assignment: Doc<"moveAssignments">;
@@ -188,12 +187,6 @@ const ViewMoverSection: React.FC<ViewMoverSectionProps> = ({
         <>
           <InvoiceSummary items={items} total={total} />
           <InvoiceSignature move={move} invoice={invoice} total={total} />
-          <PaymentWrapper
-            moveCustomerId={move.moveCustomerId}
-            companyId={move.companyId}
-            amount={total}
-            moveId={move._id}
-          />
         </>
       ) : (
         <InvoiceNotReady />
