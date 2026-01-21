@@ -15,6 +15,8 @@ import StepStatus from "../shared/StepStatus";
 import { getQuoteStatusInfo } from "@/frontendUtils/tsxHelper";
 import { useMoveContext } from "@/contexts/MoveContext";
 import SectionContainer from "@/components/shared/containers/SectionContainer";
+import PaymentWrapper from "../stripe/PaymentWrapper";
+import QuoteConfirmation from "../quote/QuoteConfirmation";
 
 interface QuoteStepProps {
   quote: Doc<"quotes"> | null;
@@ -66,6 +68,12 @@ const QuoteStep = ({ quote }: QuoteStepProps) => {
           salesRepSignatureDataUrl={salesRepSignatureDataUrl}
           customerSignatureDataUrl={customerSignatureDataUrl}
         />
+        <QuoteConfirmation
+          move={move}
+          customerSignatureDataUrl={customerSignatureDataUrl}
+          salesRepSignatureDataUrl={salesRepSignatureDataUrl}
+        />
+        <PaymentWrapper amount={move.deposit ?? 0} moveId={move._id} />
       </>
     </SectionContainer>
   );

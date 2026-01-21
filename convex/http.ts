@@ -110,4 +110,34 @@ http.route({
   }),
 });
 
+http.route({
+  path: "/stripe-connected-payments",
+  method: "POST",
+  handler: httpAction(async (ctx, request): Promise<Response> => {
+    const signature = request.headers.get("stripe-signature");
+
+    if (!signature) {
+      return new Response("Missing Stripe signature", { status: 400 });
+    }
+
+    const payload = await request.text();
+
+    const result = (await ctx.runAction(
+      internal.webhooks.stripeConnected.fulfill,
+      {
+        signature,
+        payload,
+      }
+    )) as WebhookHandlerResponse;
+
+    if (result.success) {
+      return new Response(null, { status: 200 });
+    }
+
+    return new Response(result.error || "Stripe webhook error", {
+      status: 400,
+    });
+  }),
+});
+
 export default http;

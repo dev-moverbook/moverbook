@@ -515,6 +515,9 @@ export const UpdateMoveFields = v.object({
   completedAt: v.optional(v.number()),
   creditCardFee: v.optional(v.number()),
   deposit: v.optional(v.number()),
+  depositPaid: v.optional(v.boolean()),
+  depositPaymentId: v.optional(v.id("payments")),
+  depositPaidAt: v.optional(v.number()),
   paymentMethod: v.optional(PaymentMethodConvex),
   destinationToOrigin: v.optional(v.union(v.number(), v.null())),
   endingMoveTime: v.optional(v.union(v.number(), v.null())),
@@ -542,6 +545,8 @@ export const UpdateMoveFields = v.object({
   trucks: v.optional(v.number()),
   travelFeeRate: v.optional(v.union(v.null(), v.number())),
   travelFeeMethod: v.optional(v.union(v.null(), TravelChargingTypesConvex)),
+  depositPaymentError: v.optional(v.union(v.null(), v.string())),
+  invoicePaymentError: v.optional(v.union(v.null(), v.string())),
 });
 
 export const updateMove = action({

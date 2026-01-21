@@ -5,7 +5,6 @@ import ScriptsSection from "../sections/ScriptsSection";
 import { useSlugContext } from "@/contexts/SlugContext";
 import { CommunicationType } from "@/types/types";
 import { FrontEndErrorMessages } from "@/types/errors";
-import { useCreateScript } from "@/hooks/stripe";
 import CreateScriptModal from "../modals/CreateScriptModal";
 import { useDeleteScript } from "@/hooks/scripts";
 import { Doc, Id } from "@/convex/_generated/dataModel";
@@ -13,6 +12,7 @@ import { useUpdateScript } from "@/hooks/scripts";
 import { useScriptsByCompanyId } from "@/hooks/scripts";
 import VerticalSectionGroup from "@/components/shared/section/VerticalSectionGroup";
 import ConfirmModal from "@/components/shared/modal/ConfirmModal";
+import { useCreateScript } from "@/hooks/stripe/useCreateScript";
 
 type UpdateScriptData = {
   title?: string;

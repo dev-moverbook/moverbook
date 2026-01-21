@@ -66,9 +66,7 @@ export const createOrUpdateInvoice = mutation({
     const existing: Doc<"invoices"> | null = await ctx.db
       .query("invoices")
       .withIndex("by_move", (q) => q.eq("moveId", moveId))
-      .unique();
-
-    // maybe news feed entry for invoice created
+      .first();
 
     if (existing) {
       await ctx.db.patch(existing._id, updates);
@@ -195,12 +193,11 @@ export const customerSignInvoice = action({
 
     await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
       entry: {
-        type: "INVOICE_PAYMENT",
+        type: "QUOTE_SIGNED",
         companyId: validatedMove.companyId,
-        body: `**${user.name}** paid invoice for move on **${moveDate}**`,
+        body: `**${user.name}** signed proposal for **${moveDate}** deposit paid $0.00`,
         moveId: validatedMove._id,
         moveCustomerId: validatedMove.moveCustomerId,
-        amount,
       },
     });
 

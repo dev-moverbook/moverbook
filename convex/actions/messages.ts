@@ -21,6 +21,7 @@ import {
   validateDocExists,
   isUserInCompanyConvex,
   isUserInOrg,
+  isIdentityInMove,
 } from "../backendUtils/validate";
 import { formatMonthDayLabelStrict } from "@/frontendUtils/luxonUtils";
 import { createPresetNewsFeedEntry } from "../backendUtils/newsFeedHelper";
@@ -336,6 +337,124 @@ export const createMessage = action({
         moveCustomerId: move.moveCustomerId,
       },
     });
+
+    return true;
+  },
+});
+
+export const markMoveAsBooked = action({
+  args: {
+    moveId: v.id("moves"),
+    customerSignature: v.optional(v.string()),
+    salesRepSignature: v.optional(v.string()),
+    updateQuote: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args): Promise<boolean> => {
+    const { moveId, customerSignature, salesRepSignature, updateQuote } = args;
+
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+      ClerkRoles.SALES_REP,
+      ClerkRoles.CUSTOMER,
+    ]);
+
+    const move = validateMove(
+      await ctx.runQuery(internal.moves.getMoveByIdInternal, { moveId })
+    );
+
+    isIdentityInMove(identity, move);
+
+    const moveCustomer = await ctx.runQuery(
+      internal.moveCustomers.getMoveCustomerByIdInternal,
+      {
+        moveCustomerId: move.moveCustomerId,
+      }
+    );
+
+    const companyContact = await ctx.runQuery(
+      internal.companyContacts.getCompanyContactByCompanyIdInternal,
+      {
+        companyId: move.companyId,
+      }
+    );
+
+    if (!companyContact) {
+      throwConvexError(ErrorMessages.COMPANY_CONTACT_NOT_FOUND, {
+        code: "NOT_FOUND",
+        showToUser: true,
+      });
+    }
+
+    const now = Date.now();
+    let customerSignatureDate: number | undefined;
+    let salesRepSignatureDate: number | undefined;
+
+    if (customerSignature) {
+      customerSignatureDate = now;
+    }
+    if (salesRepSignature) {
+      salesRepSignatureDate = now;
+    }
+
+    if (updateQuote) {
+      const quote = await ctx.runQuery(internal.quotes.getQuoteByMoveId, {
+        moveId,
+      });
+      if (quote) {
+        await ctx.runMutation(internal.quotes.updateQuote, {
+          quoteId: quote._id,
+          updates: {
+            customerSignature: customerSignature,
+            customerSignedAt: customerSignatureDate,
+            repSignature: salesRepSignature,
+            repSignedAt: salesRepSignatureDate,
+          },
+        });
+      } else {
+        await ctx.runMutation(internal.quotes.createQuote, {
+          moveId,
+          customerSignature: customerSignature,
+          customerSignedAt: customerSignatureDate,
+          repSignature: salesRepSignature,
+          repSignedAt: salesRepSignatureDate,
+          status: "completed",
+        });
+      }
+    }
+    const formattedMoveDate = move.moveDate
+      ? formatMonthDayLabelStrict(move.moveDate)
+      : "TBD";
+
+    await ctx.runMutation(internal.moves.updateMoveInternal, {
+      moveId,
+      updates: {
+        moveStatus: "Booked",
+      },
+    });
+
+    await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
+      entry: {
+        type: "MOVE_STATUS_UPDATED",
+        companyId: move.companyId,
+        body: `**${moveCustomer.name}** **${formattedMoveDate}** is now marked as **Booked**`,
+        moveCustomerId: moveCustomer._id,
+        moveId,
+      },
+    });
+
+    try {
+      await ctx.runAction(internal.actions.pdf.generatePdf, {
+        documentType: "quote",
+        toEmail: moveCustomer.email,
+        ccEmails: [companyContact.email],
+        subject: `Quote for ${moveCustomer.name} on ${formattedMoveDate}`,
+        bodyText: "Quote generated",
+      });
+    } catch (error) {
+      console.error(error);
+    }
 
     return true;
   },

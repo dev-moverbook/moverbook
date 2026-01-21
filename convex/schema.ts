@@ -186,6 +186,20 @@ export const InvoiceStatusConvex = v.union(
   v.literal("completed")
 );
 
+export const PaymentStatusConvex = v.union(
+  v.literal("requires_payment_method"),
+  v.literal("requires_confirmation"),
+  v.literal("processing"),
+  v.literal("succeeded"),
+  v.literal("failed"),
+  v.literal("canceled"),
+  v.literal("refunded")
+);
+export const PaymentTypeConvex = v.union(
+  v.literal("deposit"),
+  v.literal("final_payment")
+);
+
 export default defineSchema({
   additionalFees: defineTable({
     feeId: v.optional(v.id("fees")),
@@ -349,6 +363,9 @@ export default defineSchema({
     companyId: v.id("companies"),
     creditCardFee: v.optional(v.number()),
     deposit: v.optional(v.number()),
+    depositPaid: v.optional(v.boolean()),
+    depositPaymentId: v.optional(v.id("payments")),
+    depositPaidAt: v.optional(v.number()),
     destinationToOrigin: v.optional(v.union(v.null(), v.number())),
     endingMoveTime: v.optional(v.union(v.null(), v.number())),
     invoiceAmountPaid: v.optional(v.number()),
@@ -383,6 +400,8 @@ export default defineSchema({
     completedAt: v.optional(v.number()),
     cancelledAt: v.optional(v.number()),
     lostAt: v.optional(v.number()),
+    depositPaymentError: v.optional(v.union(v.null(), v.string())),
+    invoicePaymentError: v.optional(v.union(v.null(), v.string())),
     updatedAt: v.optional(v.number()),
   })
     .index("by_moveDate", ["moveDate"])
@@ -412,6 +431,21 @@ export default defineSchema({
     rejectionNotes: v.optional(v.string()),
     updatedAt: v.number(),
   }).index("by_move", ["moveId"]),
+  moveCustomerStripeProfiles: defineTable({
+    cardBrand: v.optional(v.string()),
+    cardLast4: v.optional(v.string()),
+    cardExpMonth: v.optional(v.number()),
+    cardExpYear: v.optional(v.number()),
+    companyId: v.id("companies"),
+    defaultPaymentMethodId: v.optional(v.string()),
+    moveCustomerId: v.id("users"),
+    stripeConnectedAccountId: v.string(),
+    stripeCustomerId: v.string(),
+    updatedAt: v.number(),
+  })
+    .index("by_moveCustomer", ["moveCustomerId"])
+    .index("by_moveCustomer_company", ["moveCustomerId", "companyId"])
+    .index("by_stripeCustomer", ["stripeCustomerId"]),
   moverLocations: defineTable({
     moveId: v.id("moves"),
     lat: v.optional(v.number()),
@@ -433,6 +467,22 @@ export default defineSchema({
     .index("by_userId", ["userId"])
     .index("by_companyId", ["companyId"])
     .index("by_moveId_userId", ["moveId", "userId"]),
+  payments: defineTable({
+    amount: v.number(), // in cents
+    companyId: v.id("companies"),
+    description: v.optional(v.string()),
+    failureReason: v.optional(v.string()),
+    moveId: v.id("moves"),
+    stripeConnectedAccountId: v.string(),
+    stripePaymentIntentId: v.string(),
+    status: PaymentStatusConvex,
+    type: PaymentTypeConvex,
+    updatedAt: v.optional(v.number()),
+    userId: v.id("users"),
+  })
+    .index("by_move", ["moveId"])
+    .index("by_paymentIntent", ["stripePaymentIntentId"]),
+
   policies: defineTable({
     additionalTermsAndConditions: v.optional(v.string()),
     cancellationCutoffHour: v.number(),

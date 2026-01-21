@@ -10,6 +10,7 @@
 
 import type * as actions_messages from "../actions/messages.js";
 import type * as actions_pdf from "../actions/pdf.js";
+import type * as actions_stripe from "../actions/stripe.js";
 import type * as actions_twilio from "../actions/twilio.js";
 import type * as additionalFees from "../additionalFees.js";
 import type * as arrivalWindows from "../arrivalWindows.js";
@@ -44,6 +45,7 @@ import type * as customers from "../customers.js";
 import type * as discounts from "../discounts.js";
 import type * as fees from "../fees.js";
 import type * as functions_clerk from "../functions/clerk.js";
+import type * as functions_stripe from "../functions/stripe.js";
 import type * as functions_twilio from "../functions/twilio.js";
 import type * as google from "../google.js";
 import type * as http from "../http.js";
@@ -59,11 +61,13 @@ import type * as lib_twilio from "../lib/twilio.js";
 import type * as messages from "../messages.js";
 import type * as moveAssignments from "../moveAssignments.js";
 import type * as moveChangeRequests from "../moveChangeRequests.js";
+import type * as moveCustomerStripeProfiles from "../moveCustomerStripeProfiles.js";
 import type * as moveCustomers from "../moveCustomers.js";
 import type * as moverLocations from "../moverLocations.js";
 import type * as moves from "../moves.js";
 import type * as newsfeeds from "../newsfeeds.js";
 import type * as paymentStep from "../paymentStep.js";
+import type * as payments from "../payments.js";
 import type * as policies from "../policies.js";
 import type * as quotes from "../quotes.js";
 import type * as referrals from "../referrals.js";
@@ -78,6 +82,8 @@ import type * as users from "../users.js";
 import type * as waivers from "../waivers.js";
 import type * as webIntegrations from "../webIntegrations.js";
 import type * as webhooks_clerk from "../webhooks/clerk.js";
+import type * as webhooks_stripeConnected from "../webhooks/stripeConnected.js";
+import type * as webhooks_stripeConnectedHandlers from "../webhooks/stripeConnectedHandlers.js";
 import type * as webhooks_twilio from "../webhooks/twilio.js";
 
 import type {
@@ -97,6 +103,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   "actions/messages": typeof actions_messages;
   "actions/pdf": typeof actions_pdf;
+  "actions/stripe": typeof actions_stripe;
   "actions/twilio": typeof actions_twilio;
   additionalFees: typeof additionalFees;
   arrivalWindows: typeof arrivalWindows;
@@ -131,6 +138,7 @@ declare const fullApi: ApiFromModules<{
   discounts: typeof discounts;
   fees: typeof fees;
   "functions/clerk": typeof functions_clerk;
+  "functions/stripe": typeof functions_stripe;
   "functions/twilio": typeof functions_twilio;
   google: typeof google;
   http: typeof http;
@@ -146,11 +154,13 @@ declare const fullApi: ApiFromModules<{
   messages: typeof messages;
   moveAssignments: typeof moveAssignments;
   moveChangeRequests: typeof moveChangeRequests;
+  moveCustomerStripeProfiles: typeof moveCustomerStripeProfiles;
   moveCustomers: typeof moveCustomers;
   moverLocations: typeof moverLocations;
   moves: typeof moves;
   newsfeeds: typeof newsfeeds;
   paymentStep: typeof paymentStep;
+  payments: typeof payments;
   policies: typeof policies;
   quotes: typeof quotes;
   referrals: typeof referrals;
@@ -165,6 +175,8 @@ declare const fullApi: ApiFromModules<{
   waivers: typeof waivers;
   webIntegrations: typeof webIntegrations;
   "webhooks/clerk": typeof webhooks_clerk;
+  "webhooks/stripeConnected": typeof webhooks_stripeConnected;
+  "webhooks/stripeConnectedHandlers": typeof webhooks_stripeConnectedHandlers;
   "webhooks/twilio": typeof webhooks_twilio;
 }>;
 declare const fullApiWithMounts: typeof fullApi;

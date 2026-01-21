@@ -8,6 +8,7 @@ export type ClientEnv = {
   NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: string;
   NEXT_PUBLIC_VAPID_PUBLIC_KEY: string;
   NEXT_PUBLIC_APP_URL: string;
+  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: string;
 };
 
 export const clientEnv = (): ClientEnv => {
@@ -21,6 +22,8 @@ export const clientEnv = (): ClientEnv => {
       process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
     NEXT_PUBLIC_VAPID_PUBLIC_KEY: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+    NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:
+      process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
   } as const;
 
   const missing = getMissingEnvKeys(env);

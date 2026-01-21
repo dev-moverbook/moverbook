@@ -16,6 +16,15 @@ export const viewCustomerByEmail = internalQuery({
   },
 });
 
+export const viewCustomerByIdInternal = internalQuery({
+  args: {
+    customerId: v.id("customers"),
+  },
+  handler: async (ctx, args): Promise<Doc<"customers"> | null> => {
+    return await ctx.db.get(args.customerId);
+  },
+});
+
 export const createCustomer = internalMutation({
   args: {
     email: v.string(),

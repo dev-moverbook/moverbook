@@ -261,3 +261,32 @@ export const signQuote = action({
     return { success: true, status: "booked" };
   },
 });
+
+export const createQuote = internalMutation({
+  args: {
+    moveId: v.id("moves"),
+    customerSignature: v.optional(v.string()),
+    customerSignedAt: v.optional(v.number()),
+    repSignature: v.optional(v.string()),
+    repSignedAt: v.optional(v.number()),
+    status: v.optional(QuoteStatusConvex),
+  },
+  handler: async (ctx, args): Promise<void> => {
+    const {
+      moveId,
+      customerSignature,
+      customerSignedAt,
+      repSignature,
+      repSignedAt,
+      status,
+    } = args;
+    await ctx.db.insert("quotes", {
+      moveId,
+      customerSignature,
+      customerSignedAt,
+      repSignature,
+      repSignedAt,
+      status: status || "pending",
+    });
+  },
+});

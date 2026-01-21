@@ -88,6 +88,20 @@ export const getConnectedAccountInternal = internalQuery({
   },
 });
 
+export const getConnectedAccountByStripeAccountIdInternal = internalQuery({
+  args: {
+    stripeAccountId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("connectedAccounts")
+      .withIndex("by_stripeAccountId", (q) =>
+        q.eq("stripeAccountId", args.stripeAccountId)
+      )
+      .unique();
+  },
+});
+
 export const createStripeOnboardingLink = action({
   args: { origin: v.string() },
   handler: async (ctx, { origin }): Promise<string> => {

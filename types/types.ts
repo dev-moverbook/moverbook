@@ -526,3 +526,11 @@ export type SendGridError = Error & {
     };
   };
 };
+
+export interface CompleteCardInfo {
+  paymentMethodId: string;
+  brand: string;
+  last4: string;
+  expMonth: number;
+  expYear: number;
+}
