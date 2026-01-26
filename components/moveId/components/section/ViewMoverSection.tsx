@@ -11,7 +11,6 @@ import Contract from "../move/Contract";
 import Waiver from "../move/Waiver";
 import Discounts from "../payment/Discounts";
 import AdditionalFees from "../payment/AdditionalFees";
-import InvoiceSignature from "../payment/InvoiceSignature";
 import InvoiceSummary from "../payment/InvoiceSummary";
 import { useMoveContext } from "@/contexts/MoveContext";
 import { computeFinalMoveCost } from "@/frontendUtils/payout";
@@ -186,7 +185,6 @@ const ViewMoverSection: React.FC<ViewMoverSectionProps> = ({
       {showInvoice ? (
         <>
           <InvoiceSummary items={items} total={total} />
-          <InvoiceSignature move={move} invoice={invoice} total={total} />
         </>
       ) : (
         <InvoiceNotReady />

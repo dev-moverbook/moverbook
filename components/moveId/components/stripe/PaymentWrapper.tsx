@@ -13,9 +13,15 @@ interface PaymentWrapperProps {
   amount: number;
   moveId: Id<"moves">;
   error?: string | null;
+  type: "deposit" | "final_payment";
 }
 
-const PaymentWrapper = ({ amount, moveId, error }: PaymentWrapperProps) => {
+const PaymentWrapper = ({
+  amount,
+  moveId,
+  error,
+  type,
+}: PaymentWrapperProps) => {
   const [moveCustomerStripeProfile, setMoveCustomerStripeProfile] =
     useState<Doc<"moveCustomerStripeProfiles"> | null>(null);
 
@@ -59,7 +65,7 @@ const PaymentWrapper = ({ amount, moveId, error }: PaymentWrapperProps) => {
           useSavedPaymentMethod,
           manualPaymentMethodId,
         }) => {
-          await createPaymentIntent(moveId, "deposit", {
+          await createPaymentIntent(moveId, type, {
             useSavedPaymentMethod,
             manualPaymentMethodId,
           });

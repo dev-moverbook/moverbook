@@ -1,28 +1,31 @@
 "use client";
 
+import { Doc } from "@/convex/_generated/dataModel";
+import CompleteInvoiceButton from "./CompleteInvoiceButton";
 import SectionContainer from "@/components/shared/containers/SectionContainer";
 import SectionHeader from "@/components/shared/section/SectionHeader";
-import { Doc } from "@/convex/_generated/dataModel";
 import PaymentWrapper from "../stripe/PaymentWrapper";
-import BookingButton from "./BookingButton";
 
-interface QuoteConfirmationProps {
+interface InvoiceConfirmationProps {
   move: Doc<"moves">;
   customerSignatureDataUrl: string | null;
   salesRepSignatureDataUrl: string | null;
+  amount: number;
 }
-const QuoteConfirmation = ({
+
+const InvoiceConfirmation = ({
   move,
   customerSignatureDataUrl,
   salesRepSignatureDataUrl,
-}: QuoteConfirmationProps) => {
-  const showCreditPayment =
-    move.deposit &&
-    move.deposit > 0 &&
-    move.paymentMethod?.kind === "credit_card";
+  amount,
+}: InvoiceConfirmationProps) => {
+  const moveId = move._id;
 
-  const isPaymentSuccessful = move.depositPaid;
-  const lastPaymentError = move.depositPaymentError;
+  const showCreditPayment =
+    amount && move.paymentMethod?.kind === "credit_card";
+
+  const isPaymentSuccessful = move.invoicePaid;
+  const lastPaymentError = move.invoicePaymentError;
 
   if (isPaymentSuccessful) {
     return (
@@ -34,21 +37,21 @@ const QuoteConfirmation = ({
       </div>
     );
   }
+
   return (
     <div>
+      <SectionHeader title="Confirmation" />
       <SectionContainer>
-        <SectionHeader title="Confirmation" />
-
         {showCreditPayment ? (
           <PaymentWrapper
             error={lastPaymentError}
-            amount={move.deposit ?? 0}
+            amount={amount}
             moveId={move._id}
-            type="deposit"
+            type="final_payment"
           />
         ) : (
-          <BookingButton
-            moveId={move._id}
+          <CompleteInvoiceButton
+            moveId={moveId}
             customerSignatureDataUrl={customerSignatureDataUrl}
             salesRepSignatureDataUrl={salesRepSignatureDataUrl}
           />
@@ -58,4 +61,4 @@ const QuoteConfirmation = ({
   );
 };
 
-export default QuoteConfirmation;
+export default InvoiceConfirmation;

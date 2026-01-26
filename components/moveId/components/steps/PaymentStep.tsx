@@ -2,16 +2,14 @@
 
 import AdditionalFees from "../payment/AdditionalFees";
 import Discounts from "../payment/Discounts";
-import InvoiceSummary from "../payment/InvoiceSummary";
-import InvoiceSignature from "../payment/InvoiceSignature";
-import InternalReview from "../payment/InternalReview";
-import ExternalReview from "../payment/ExternalReview";
 import StepStatus from "../shared/StepStatus";
 import { getInvoiceStatus } from "@/frontendUtils/tsxHelper";
 import { useMoveContext } from "@/contexts/MoveContext";
 import { useGetPaymentPage } from "@/hooks/paymentPage";
 import { computeFinalMoveCost } from "@/frontendUtils/payout";
 import InvoiceNotReady from "../shared/InvoiceNotReady";
+import InoviceSection from "../payment/InoviceSection";
+import SectionContainer from "@/components/shared/containers/SectionContainer";
 
 const PaymentStep = () => {
   const { moveData } = useMoveContext();
@@ -74,7 +72,7 @@ const PaymentStep = () => {
         !!actualStartTime && !!actualArrivalTime && !!actualEndTime;
 
       return (
-        <div>
+        <SectionContainer showBorder={false} className="px-0">
           <StepStatus
             items={[
               {
@@ -92,16 +90,17 @@ const PaymentStep = () => {
           />
           <Discounts discounts={discounts} moveId={moveId} />
           {showInvoice ? (
-            <>
-              <InvoiceSummary items={items} total={total} />
-              <InvoiceSignature invoice={invoice} move={move} total={total} />
-              <InternalReview internalReview={internalReview} move={move} />
-              <ExternalReview move={move} />
-            </>
+            <InoviceSection
+              items={items}
+              total={total}
+              invoice={invoice}
+              move={move}
+              internalReview={internalReview}
+            />
           ) : (
             <InvoiceNotReady />
           )}
-        </div>
+        </SectionContainer>
       );
     }
   }

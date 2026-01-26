@@ -5,55 +5,53 @@ import DisplaySignature from "@/components/move/shared/DisplaySignature";
 import Signature from "@/components/move/shared/Signature";
 import SectionContainer from "@/components/shared/containers/SectionContainer";
 import SectionHeader from "@/components/shared/section/SectionHeader";
-import TripleFormAction from "@/components/shared/buttons/TripleFormAction";
 import FormActionContainer from "@/components/shared/containers/FormActionContainer";
 import { useCreateOrUpdateInvoice } from "@/hooks/invoices";
-import { useUpdateMove } from "@/hooks/moves";
 import { Doc } from "@/convex/_generated/dataModel";
 import { useSendPresetScript } from "@/hooks/messages";
 import { PresSetScripts } from "@/types/enums";
+import FormActions from "@/components/shared/buttons/FormActions";
 
 interface InvoiceSignatureProps {
   invoice: Doc<"invoices"> | null;
   move: Doc<"moves">;
-  total: number;
+  salesRepSignatureDataUrl: string | null;
+  setCustomerSignatureDataUrl: (dataUrl: string | null) => void;
+  setSalesRepSignatureDataUrl: (dataUrl: string | null) => void;
 }
 
-const InvoiceSignature = ({ invoice, move, total }: InvoiceSignatureProps) => {
-  const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
+const InvoiceSignature = ({
+  invoice,
+  move,
+  salesRepSignatureDataUrl,
+  setCustomerSignatureDataUrl,
+  setSalesRepSignatureDataUrl,
+}: InvoiceSignatureProps) => {
   const [isEmailing, setIsEmailing] = useState<boolean>(false);
   const [isTexting, setIsTexting] = useState<boolean>(false);
-  const [isMarkingAsComplete, setIsMarkingAsComplete] =
-    useState<boolean>(false);
 
   const { createOrUpdateInvoice, invoiceUpdateError } =
     useCreateOrUpdateInvoice();
-  const { updateMove, updateMoveError } = useUpdateMove();
 
-  const { sendPresetScript, sendPresetScriptError, setSendPresetScriptError } =
-    useSendPresetScript();
+  const { sendPresetScript, sendPresetScriptError } = useSendPresetScript();
 
-  const { repSignature, repSignedAt } = invoice || {};
+  const { repSignature, repSignedAt, customerSignature, customerSignedAt } =
+    invoice || {};
   const showRepSignature = !!repSignature;
 
-  const isDisabled = !showRepSignature && !signatureDataUrl;
+  const isDisabled = !showRepSignature && !salesRepSignatureDataUrl;
   const isComplete = invoice?.status === "completed" && !!repSignature;
 
-  const handleUpdateMoveStatus = async () => {
-    if (move.moveStatus !== "Completed") {
-      await updateMove({
-        moveId: move._id,
-        updates: { moveStatus: "Completed", invoiceAmountPaid: total },
-      });
-    }
-  };
+  const showCustomerSignature = !!customerSignature;
+
+  const showActions = invoice?.status !== "completed";
 
   const handleEmailInvoice = async () => {
     setIsEmailing(true);
-    if (signatureDataUrl) {
+    if (salesRepSignatureDataUrl) {
       await createOrUpdateInvoice({
         moveId: move._id,
-        updates: { repSignature: signatureDataUrl },
+        updates: { repSignature: salesRepSignatureDataUrl },
       });
     }
     await sendPresetScript({
@@ -65,10 +63,10 @@ const InvoiceSignature = ({ invoice, move, total }: InvoiceSignatureProps) => {
 
   const handleTextInvoice = async () => {
     setIsTexting(true);
-    if (signatureDataUrl) {
+    if (salesRepSignatureDataUrl) {
       await createOrUpdateInvoice({
         moveId: move._id,
-        updates: { repSignature: signatureDataUrl },
+        updates: { repSignature: salesRepSignatureDataUrl },
       });
     }
     await sendPresetScript({
@@ -76,22 +74,6 @@ const InvoiceSignature = ({ invoice, move, total }: InvoiceSignatureProps) => {
       preSetTypes: PresSetScripts.SMS_INVOICE,
     });
     setIsTexting(false);
-  };
-
-  const handleMarkAsComplete = async () => {
-    setSendPresetScriptError(null);
-    setIsMarkingAsComplete(true);
-
-    const updates: Partial<Doc<"invoices">> = {
-      status: "completed",
-
-      ...(signatureDataUrl && { repSignature: signatureDataUrl }),
-    };
-
-    await createOrUpdateInvoice({ moveId: move._id, updates });
-    await handleUpdateMoveStatus();
-
-    setIsMarkingAsComplete(false);
   };
 
   return (
@@ -113,32 +95,40 @@ const InvoiceSignature = ({ invoice, move, total }: InvoiceSignatureProps) => {
         ) : (
           <Signature
             title="Sales Rep Signature"
-            onChange={setSignatureDataUrl}
+            onChange={setSalesRepSignatureDataUrl}
           />
         )}
-
-        <FormActionContainer>
-          <TripleFormAction
-            onPrimary={handleEmailInvoice}
-            onSecondary={handleTextInvoice}
-            onTertiary={handleMarkAsComplete}
-            primaryLoading={isEmailing}
-            secondaryLoading={isTexting}
-            tertiaryLoading={isMarkingAsComplete}
-            error={
-              invoiceUpdateError || updateMoveError || sendPresetScriptError
-            }
-            disabled={isDisabled}
-            primaryDisabled={isDisabled}
-            secondaryDisabled={isDisabled}
-            tertiaryDisabled={isComplete}
-            secondaryVariant="outline"
-            tertiaryVariant="outline"
-            primaryLabel="Email"
-            secondaryLabel="Text"
-            tertiaryLabel="Mark as Complete"
+        {showCustomerSignature ? (
+          <DisplaySignature
+            image={customerSignature || ""}
+            timestamp={customerSignedAt || 0}
+            alt="Customer Signature"
+            title="Customer Signature"
           />
-        </FormActionContainer>
+        ) : (
+          <Signature
+            title="Customer Signature"
+            onChange={setCustomerSignatureDataUrl}
+          />
+        )}
+        {showActions && (
+          <FormActionContainer>
+            <FormActions
+              onSave={(e) => {
+                e.preventDefault();
+                handleEmailInvoice();
+              }}
+              onCancel={handleTextInvoice}
+              saveLabel="Email"
+              cancelLabel="Text"
+              isSaving={isEmailing}
+              isCanceling={isTexting}
+              error={invoiceUpdateError || sendPresetScriptError}
+              disabled={isDisabled}
+              cancelDisabled={isDisabled}
+            />
+          </FormActionContainer>
+        )}
       </SectionContainer>
     </div>
   );

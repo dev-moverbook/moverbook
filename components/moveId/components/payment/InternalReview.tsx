@@ -49,21 +49,22 @@ const InternalReview = ({ internalReview, move }: InternalReviewProps) => {
       />
       <SectionContainer>
         <StarRating value={internalReview?.rating ?? null} readOnly />
-
-        <FormActions
-          onCancel={handleSendInternalReviewSms}
-          onSave={(e) => {
-            e.preventDefault();
-            handleSendInternalReviewEmail();
-          }}
-          isSaving={isEmailLoading}
-          isCanceling={isSmsLoading}
-          error={sendPresetScriptError}
-          saveLabel="Email"
-          cancelLabel="Text"
-          disabled={isDisabled}
-          cancelDisabled={isDisabled}
-        />
+        {!isComplete && (
+          <FormActions
+            onCancel={handleSendInternalReviewSms}
+            onSave={(e) => {
+              e.preventDefault();
+              handleSendInternalReviewEmail();
+            }}
+            isSaving={isEmailLoading}
+            isCanceling={isSmsLoading}
+            error={sendPresetScriptError}
+            saveLabel="Email"
+            cancelLabel="Text"
+            disabled={isDisabled}
+            cancelDisabled={isDisabled}
+          />
+        )}
       </SectionContainer>
     </div>
   );

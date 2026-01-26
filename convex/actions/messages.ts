@@ -459,3 +459,130 @@ export const markMoveAsBooked = action({
     return true;
   },
 });
+
+export const markInvoiceAsComplete = action({
+  args: {
+    moveId: v.id("moves"),
+    customerSignature: v.optional(v.string()),
+    salesRepSignature: v.optional(v.string()),
+    updateInvoice: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args): Promise<boolean> => {
+    const { moveId, customerSignature, salesRepSignature, updateInvoice } =
+      args;
+
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+      ClerkRoles.SALES_REP,
+      ClerkRoles.CUSTOMER,
+    ]);
+
+    const move = validateMove(
+      await ctx.runQuery(internal.moves.getMoveByIdInternal, { moveId })
+    );
+
+    const userId = identity.convexId as Id<"users">;
+
+    isIdentityInMove(identity, move);
+
+    const moveCustomer = await ctx.runQuery(
+      internal.moveCustomers.getMoveCustomerByIdInternal,
+      {
+        moveCustomerId: move.moveCustomerId,
+      }
+    );
+
+    const companyContact = await ctx.runQuery(
+      internal.companyContacts.getCompanyContactByCompanyIdInternal,
+      {
+        companyId: move.companyId,
+      }
+    );
+
+    if (!companyContact) {
+      throwConvexError(ErrorMessages.COMPANY_CONTACT_NOT_FOUND, {
+        code: "NOT_FOUND",
+        showToUser: true,
+      });
+    }
+
+    const now = Date.now();
+    let customerSignatureDate: number | undefined;
+    let salesRepSignatureDate: number | undefined;
+
+    if (customerSignature) {
+      customerSignatureDate = now;
+    }
+    if (salesRepSignature) {
+      salesRepSignatureDate = now;
+    }
+
+    if (updateInvoice) {
+      const invoice = await ctx.runQuery(
+        internal.invoices.getInvoiceByMoveIdInternal,
+        {
+          moveId,
+        }
+      );
+      if (invoice) {
+        await ctx.runMutation(internal.invoices.updateInvoice, {
+          invoiceId: invoice._id,
+          updates: {
+            customerSignature: customerSignature,
+            customerSignedAt: customerSignatureDate,
+            repSignature: salesRepSignature,
+            repSignedAt: salesRepSignatureDate,
+          },
+        });
+      } else {
+        await ctx.runMutation(internal.invoices.createInvoice, {
+          moveId,
+          customerSignature: customerSignature,
+          customerSignedAt: customerSignatureDate,
+          repSignature: salesRepSignature,
+          repSignedAt: salesRepSignatureDate,
+          status: "completed",
+        });
+      }
+    }
+    const formattedMoveDate = move.moveDate
+      ? formatMonthDayLabelStrict(move.moveDate)
+      : "TBD";
+
+    await ctx.runMutation(internal.moves.updateMoveInternal, {
+      moveId,
+      updates: {
+        moveStatus: "Completed",
+        invoicePaid: true,
+        invoicePaidAt: now,
+        invoicePaymentError: null,
+      },
+    });
+
+    await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
+      entry: {
+        type: "INVOICE_MARKED_COMPLETE",
+        companyId: move.companyId,
+        body: `**${identity.name}** marked invoice complete for ${moveCustomer.name} on ${formattedMoveDate}`,
+        moveId,
+        userId,
+      },
+    });
+
+    try {
+      await ctx.runAction(internal.actions.pdf.generatePdf, {
+        documentType: "invoice",
+        toEmail: moveCustomer.email,
+        ccEmails: [companyContact.email],
+        subject: `Invoice for ${moveCustomer.name} on ${formattedMoveDate}`,
+        bodyText: "Invoice generated",
+      });
+    } catch (error) {
+      console.error(error);
+    }
+
+    return true;
+  },
+});

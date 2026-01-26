@@ -56,7 +56,7 @@ export const createPaymentIntent = action({
       });
     }
 
-    const amount = type === "deposit" ? (move?.deposit ?? 0) : 0; // Add final pay logic
+    const amount = type === "deposit" ? (move?.deposit ?? 0) : 220; // Add final pay logic
 
     try {
       const paymentIntent = await createOffSessionPaymentIntent({

@@ -120,31 +120,58 @@ export async function handlePaymentIntentSucceeded(
     },
   });
 
-  await ctx.runMutation(internal.moves.updateMoveInternal, {
-    moveId: payment.moveId,
-    updates: {
-      depositPaid: true,
-      moveStatus: "Booked",
-      depositPaymentId: payment._id,
-      depositPaidAt: Date.now(),
-      depositPaymentError: null,
-    },
-  });
-
   const moveDate = move?.moveDate
     ? formatMonthDayLabelStrict(move.moveDate)
     : "TBD";
-  const depositAmount = formatCurrency(payment.amount);
+  const formmatedAmount = formatCurrency(payment.amount);
+  const now = Date.now();
 
-  await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
-    entry: {
-      type: "QUOTE_SIGNED",
-      companyId: payment.companyId,
-      body: `**${user.name}** signed proposal for **${moveDate}** deposit paid ${depositAmount}`,
+  if (payment.type === "deposit") {
+    await ctx.runMutation(internal.moves.updateMoveInternal, {
       moveId: payment.moveId,
-      moveCustomerId: payment.userId,
-    },
-  });
+      updates: {
+        depositPaid: true,
+        moveStatus: "Booked",
+        depositPaymentId: payment._id,
+        depositPaidAt: now,
+        depositPaymentError: null,
+      },
+    });
+
+    await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
+      entry: {
+        type: "QUOTE_SIGNED",
+        companyId: payment.companyId,
+        body: `**${user.name}** signed proposal for **${moveDate}** deposit paid ${formmatedAmount}`,
+        moveId: payment.moveId,
+        moveCustomerId: payment.userId,
+      },
+    });
+  }
+
+  if (payment.type === "final_payment") {
+    await ctx.runMutation(internal.moves.updateMoveInternal, {
+      moveId: payment.moveId,
+      updates: {
+        invoicePaid: true,
+        moveStatus: "Completed",
+        invoicePaymentId: payment._id,
+        invoicePaidAt: now,
+        invoicePaymentError: null,
+      },
+    });
+
+    await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
+      entry: {
+        type: "INVOICE_PAYMENT",
+        companyId: payment.companyId,
+        body: `**${user.name}** paid invoice for move on ${moveDate}`,
+        moveId: payment.moveId,
+        moveCustomerId: payment.userId,
+        amount: payment.amount,
+      },
+    });
+  }
 }
 
 export async function handlePaymentIntentFailed(

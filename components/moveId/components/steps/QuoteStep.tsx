@@ -15,7 +15,6 @@ import StepStatus from "../shared/StepStatus";
 import { getQuoteStatusInfo } from "@/frontendUtils/tsxHelper";
 import { useMoveContext } from "@/contexts/MoveContext";
 import SectionContainer from "@/components/shared/containers/SectionContainer";
-import PaymentWrapper from "../stripe/PaymentWrapper";
 import QuoteConfirmation from "../quote/QuoteConfirmation";
 
 interface QuoteStepProps {
@@ -35,6 +34,8 @@ const QuoteStep = ({ quote }: QuoteStepProps) => {
   const { company } = moveData;
   const { companyContact, moveCustomer, salesRepUser, policy } = moveData;
   const quoteStatus = getQuoteStatusInfo(quote, move.moveStatus);
+
+  const showQuoteActions = quote?.status === "pending";
 
   return (
     <SectionContainer showBorder={false} className="px-0">
@@ -64,16 +65,14 @@ const QuoteStep = ({ quote }: QuoteStepProps) => {
           setSalesRepSignatureDataUrl={setSalesRepSignatureDataUrl}
           setCustomerSignatureDataUrl={setCustomerSignatureDataUrl}
         />
-        <QuoteActions
-          salesRepSignatureDataUrl={salesRepSignatureDataUrl}
-          customerSignatureDataUrl={customerSignatureDataUrl}
-        />
+        {showQuoteActions && (
+          <QuoteActions salesRepSignatureDataUrl={salesRepSignatureDataUrl} />
+        )}
         <QuoteConfirmation
           move={move}
           customerSignatureDataUrl={customerSignatureDataUrl}
           salesRepSignatureDataUrl={salesRepSignatureDataUrl}
         />
-        <PaymentWrapper amount={move.deposit ?? 0} moveId={move._id} />
       </>
     </SectionContainer>
   );

@@ -369,6 +369,10 @@ export default defineSchema({
     destinationToOrigin: v.optional(v.union(v.null(), v.number())),
     endingMoveTime: v.optional(v.union(v.null(), v.number())),
     invoiceAmountPaid: v.optional(v.number()),
+    invoicePaid: v.optional(v.boolean()),
+    invoicePaymentId: v.optional(v.id("payments")),
+    invoicePaidAt: v.optional(v.number()),
+    invoicePaymentError: v.optional(v.union(v.null(), v.string())),
     jobId: v.string(),
     jobType: v.optional(JobTypeConvex),
     jobTypeRate: v.optional(v.union(v.null(), v.number())),
@@ -401,7 +405,6 @@ export default defineSchema({
     cancelledAt: v.optional(v.number()),
     lostAt: v.optional(v.number()),
     depositPaymentError: v.optional(v.union(v.null(), v.string())),
-    invoicePaymentError: v.optional(v.union(v.null(), v.string())),
     updatedAt: v.optional(v.number()),
   })
     .index("by_moveDate", ["moveDate"])

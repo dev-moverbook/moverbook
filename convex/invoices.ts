@@ -108,6 +108,9 @@ export const updateInvoice = internalMutation({
     updates: v.object({
       customerSignature: v.optional(v.string()),
       customerSignedAt: v.optional(v.number()),
+      repSignature: v.optional(v.string()),
+      repSignedAt: v.optional(v.number()),
+      status: v.optional(InvoiceStatusConvex),
     }),
   },
   handler: async (ctx, args): Promise<void> => {
@@ -193,11 +196,12 @@ export const customerSignInvoice = action({
 
     await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
       entry: {
-        type: "QUOTE_SIGNED",
+        type: "INVOICE_PAYMENT",
         companyId: validatedMove.companyId,
-        body: `**${user.name}** signed proposal for **${moveDate}** deposit paid $0.00`,
+        body: `**${user.name}** paid invoice for move on ${moveDate}`,
         moveId: validatedMove._id,
         moveCustomerId: validatedMove.moveCustomerId,
+        amount: amount,
       },
     });
 
@@ -219,5 +223,26 @@ export const customerSignInvoice = action({
     });
 
     return true;
+  },
+});
+
+export const createInvoice = internalMutation({
+  args: {
+    moveId: v.id("moves"),
+    customerSignature: v.optional(v.string()),
+    customerSignedAt: v.optional(v.number()),
+    repSignature: v.optional(v.string()),
+    repSignedAt: v.optional(v.number()),
+    status: v.optional(InvoiceStatusConvex),
+  },
+  handler: async (ctx, args): Promise<Id<"invoices">> => {
+    return await ctx.db.insert("invoices", {
+      moveId: args.moveId,
+      customerSignature: args.customerSignature,
+      customerSignedAt: args.customerSignedAt,
+      repSignature: args.repSignature,
+      repSignedAt: args.repSignedAt,
+      status: args.status || "pending",
+    });
   },
 });
