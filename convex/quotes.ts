@@ -10,6 +10,7 @@ import { requireAuthenticatedUser } from "./backendUtils/auth";
 import { ClerkRoles } from "@/types/enums";
 import {
   isCorrectMoveCustomer,
+  isIdentityInMove,
   isUserInOrg,
   validateCompany,
   validateDocExists,
@@ -22,6 +23,43 @@ import { ConvexError } from "convex/values";
 import { internal } from "./_generated/api";
 import { formatMonthDayLabelStrict } from "@/frontendUtils/luxonUtils";
 import { formatCurrency } from "@/frontendUtils/helper";
+
+export const updateQuoteCustomerSignature = mutation({
+  args: {
+    quoteId: v.id("quotes"),
+    updates: v.object({
+      customerSignature: v.string(),
+    }),
+  },
+  handler: async (ctx, args): Promise<boolean> => {
+    const { quoteId, updates } = args;
+
+    const identity = await requireAuthenticatedUser(ctx, [ClerkRoles.CUSTOMER]);
+
+    const quote = await validateDocument(
+      ctx.db,
+      "quotes",
+      quoteId,
+      ErrorMessages.QUOTE_NOT_FOUND
+    );
+
+    const move = await validateDocument(
+      ctx.db,
+      "moves",
+      quote.moveId,
+      ErrorMessages.MOVE_NOT_FOUND
+    );
+
+    isIdentityInMove(identity, move);
+
+    await ctx.db.patch(quoteId, {
+      customerSignature: updates.customerSignature,
+      customerSignedAt: Date.now(),
+      status: "completed",
+    });
+    return true;
+  },
+});
 
 export const createOrUpdateQuote = mutation({
   args: {
@@ -148,7 +186,6 @@ export const signQuote = action({
   args: {
     moveId: v.id("moves"),
     signature: v.string(),
-    paymentMethodId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const { moveId, signature } = args;
@@ -246,19 +283,7 @@ export const signQuote = action({
       bodyHtml: `<p>Attached is the quote for ${moveCustomer.name} on ${moveDate}.</p>`,
     });
 
-    // if (validatedMove.deposit && validatedMove.deposit > 0 && paymentMethodId) {
-    //   await ctx.runAction(stripe.createDepositPaymentIntent, {
-    //     moveId: args.moveId,
-    //     amount: move.deposit,
-    //     paymentMethodId: args.paymentMethodId,
-    //   });
-
-    //   // Return immediately — payment is "processing"
-    //   return { success: true, status: "awaiting_payment" };
-    // }
-
-    // await ctx.runMutation(internal.moves.markAsBooked, { moveId: args.moveId });
-    return { success: true, status: "booked" };
+    return true;
   },
 });
 

@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { CompleteCardInfo } from "@/types/types";
 import { CardInput } from "./formComponents/CardInput";
-import { NewCardOption } from "./formComponents/NewCardOption";
 import { PayButton } from "./formComponents/PayButton";
-import { PaymentHeader } from "./formComponents/PaymentHeader";
-import { SavedCardOption } from "./formComponents/SavedCardOption";
 import { useStripePayment } from "@/hooks/stripe";
+import ButtonRadioGroup from "@/components/shared/labeled/ButtonRadioGroup";
+import { Label } from "@/components/ui/label";
 
 interface StripePaymentFormProps {
   amount: number;
@@ -38,30 +37,43 @@ export function StripePaymentForm({
     createPaymentIntent,
   });
 
-  const [selection, setSelection] = useState<"saved" | "new">(
+  const [selection, setSelection] = useState<string>(
     cardInfo ? "saved" : "new"
   );
   const [isCardComplete, setIsCardComplete] = useState<boolean>(false);
-
   const [hasStarted, setHasStarted] = useState<boolean>(false);
   const [isTimedOut, setIsTimedOut] = useState<boolean>(false);
 
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
+  const paymentOptions = useMemo(() => {
+    const opts = [];
 
-    if (hasStarted && !loading && !stripeError && !error) {
-      timer = setTimeout(() => {
-        setIsTimedOut(true);
-      }, 10000);
+    if (cardInfo) {
+      opts.push({
+        label: `${cardInfo.brand} •••• ${cardInfo.last4} (exp ${cardInfo.expMonth}/${cardInfo.expYear})`,
+        value: "saved",
+      });
     }
 
+    opts.push({
+      label: "New Card",
+      value: "new",
+    });
+
+    return opts;
+  }, [cardInfo]);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (hasStarted && !loading && !stripeError && !error) {
+      timer = setTimeout(() => setIsTimedOut(true), 10000);
+    }
     return () => clearTimeout(timer);
   }, [hasStarted, loading, stripeError, error]);
 
   const handleSubmit = async () => {
     setIsTimedOut(false);
     setHasStarted(true);
-    await submit(selection);
+    await submit(selection as "saved" | "new");
   };
 
   const isButtonLoading =
@@ -73,7 +85,7 @@ export function StripePaymentForm({
     stripeError ||
     error ||
     (isTimedOut
-      ? "Payment authorized, but confirmation is taking longer than expected. Please refresh or check your email."
+      ? "Payment authorized, but confirmation is taking longer than expected."
       : null);
 
   const isSubmitDisabled =
@@ -85,24 +97,29 @@ export function StripePaymentForm({
         e.preventDefault();
         handleSubmit();
       }}
-      className="max-w-md space-y-4 rounded-lg p-6  shadow-sm"
+      className="max-w-md space-y-6 rounded-lg  shadow-sm"
     >
-      <PaymentHeader />
-
-      {cardInfo && (
-        <SavedCardOption
-          cardInfo={cardInfo}
-          selected={selection === "saved"}
-          onSelect={() => setSelection("saved")}
-        />
-      )}
-
-      <NewCardOption
-        selected={selection === "new"}
-        onSelect={() => setSelection("new")}
+      <ButtonRadioGroup
+        label="Payment Method"
+        name="paymentMethod"
+        options={paymentOptions}
+        value={selection}
+        onChange={(value) => setSelection(value as "saved" | "new")}
+        layout="vertical"
+        isEditing={!isButtonLoading}
       />
 
-      {selection === "new" && <CardInput onChange={setIsCardComplete} />}
+      {selection === "new" && (
+        <div className="">
+          <Label
+            className="text-white  font-medium mb-2 block"
+            id="card-information"
+          >
+            Card Information
+          </Label>
+          <CardInput onChange={setIsCardComplete} />
+        </div>
+      )}
 
       <PayButton
         isDisabled={isSubmitDisabled}

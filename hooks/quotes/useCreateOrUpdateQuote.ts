@@ -17,8 +17,8 @@ interface CreateOrUpdateQuoteInput {
 }
 
 export const useCreateOrUpdateQuote = () => {
-  const [quoteUpdateLoading, setQuoteUpdateLoading] = useState(false);
-  const [quoteUpdateError, setQuoteUpdateError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   const createOrUpdateMutation = useMutation(api.quotes.createOrUpdateQuote);
 
@@ -26,23 +26,23 @@ export const useCreateOrUpdateQuote = () => {
     moveId,
     updates,
   }: CreateOrUpdateQuoteInput): Promise<boolean> => {
-    setQuoteUpdateLoading(true);
-    setQuoteUpdateError(null);
+    setLoading(true);
+    setError(null);
 
     try {
       return await createOrUpdateMutation({ moveId, updates });
     } catch (error) {
-      setErrorFromConvexError(error, setQuoteUpdateError);
+      setErrorFromConvexError(error, setError);
       return false;
     } finally {
-      setQuoteUpdateLoading(false);
+      setLoading(false);
     }
   };
 
   return {
     createOrUpdateQuote,
-    quoteUpdateLoading,
-    quoteUpdateError,
-    setQuoteUpdateError,
+    loading,
+    error,
+    setError,
   };
 };

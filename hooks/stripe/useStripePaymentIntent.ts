@@ -22,7 +22,6 @@ export const useStripePaymentIntent = () => {
   const createPaymentIntent = async (
     moveId: Id<"moves">,
     type: "deposit" | "final_payment",
-    // Accept the third argument as an object containing the manual ID
     options?: {
       useSavedPaymentMethod: boolean;
       manualPaymentMethodId?: string;
@@ -32,7 +31,6 @@ export const useStripePaymentIntent = () => {
     setError(null);
 
     try {
-      // Pass manualPaymentMethodId to the Convex action
       return await action({
         moveId,
         type,

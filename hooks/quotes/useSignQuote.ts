@@ -14,17 +14,16 @@ export const useSignQuote = () => {
 
   const signQuote = async (
     moveId: Id<"moves">,
-    signature: string,
-    paymentMethodId?: string
-  ): Promise<{ success: boolean; status: string }> => {
+    signature: string
+  ): Promise<boolean> => {
     setSignQuoteLoading(true);
     setSignQuoteError(null);
 
     try {
-      return await signQuoteAction({ moveId, signature, paymentMethodId });
+      return await signQuoteAction({ moveId, signature });
     } catch (error) {
       setErrorFromConvexError(error, setSignQuoteError);
-      return { success: false, status: "error" };
+      return false;
     } finally {
       setSignQuoteLoading(false);
     }

@@ -28,7 +28,7 @@ const QuoteContact = ({
   return (
     <div>
       <div className="flex items-center justify-between ">
-        <SectionHeader className="px-0" title="Contact Information" />
+        <SectionHeader className="" title="Contact Information" />
         {showEditButton && (
           <IconButton
             title="Edit Contact Information"

@@ -25,6 +25,7 @@ const CurrencyInput: React.FC<CurrencyInputProps> = ({
   suffix,
 }) => {
   const labelId = useId();
+
   if (!isEditing) {
     return (
       <FieldDisplay
@@ -34,22 +35,24 @@ const CurrencyInput: React.FC<CurrencyInputProps> = ({
       />
     );
   }
+
   return (
-    <div>
+    <div className="w-full">
       {label && (
-        <Label className="block  font-medium  text-white" htmlFor={labelId}>
+        <Label className="block font-medium text-white mb-1" htmlFor={labelId}>
           {label}
         </Label>
       )}
       <NumericFormat
         id={labelId}
-        value={value === null ? "" : value}
+        value={value === null ? "" : value / 100}
         onValueChange={(values) => {
           if (values.value === "") {
             onChange(null);
           } else {
             const numericValue = values.floatValue ?? 0;
-            onChange(numericValue);
+            const centsValue = Math.round(numericValue * 100);
+            onChange(centsValue);
           }
         }}
         thousandSeparator
@@ -60,8 +63,7 @@ const CurrencyInput: React.FC<CurrencyInputProps> = ({
         allowNegative={false}
         placeholder="$0.00"
         type="text"
-        inputMode="numeric"
-        pattern="[0-9]*"
+        inputMode="decimal"
         disabled={!isEditing}
         className={`placeholder:text-grayCustom2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring w-full rounded-md border px-2 py-1 text-base bg-transparent text-white ${
           error
@@ -69,7 +71,7 @@ const CurrencyInput: React.FC<CurrencyInputProps> = ({
             : "border-grayCustom"
         }`}
       />
-      <FieldErrorMessage error={error} />{" "}
+      <FieldErrorMessage error={error} />
     </div>
   );
 };

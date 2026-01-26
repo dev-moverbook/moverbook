@@ -41,7 +41,7 @@ const LabeledRadio: React.FC<LabeledRadioProps> = ({
 
   return (
     <div>
-      <Label className="block  font-medium " htmlFor={labelId}>
+      <Label className="block  font-medium mb-2" htmlFor={labelId}>
         {label}
       </Label>
       <RadioGroup

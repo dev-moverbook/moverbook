@@ -6,34 +6,26 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { setErrorFromConvexError } from "@/frontendUtils/errorHelper";
 
-interface CreateOrUpdateInvoiceInput {
-  moveId: Id<"moves">;
-  updates: {
-    customerSignature?: string;
-    customerSignedAt?: number;
-    repSignature?: string;
-    repSignedAt?: number;
-    status?: "completed" | "pending";
-  };
-}
-
-export const useCreateOrUpdateInvoice = () => {
+export const useUpdateQuoteCustomerSignature = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const createOrUpdateMutation = useMutation(
-    api.invoices.createOrUpdateInvoice
+  const updateQuoteCustomerSignatureMutation = useMutation(
+    api.quotes.updateQuoteCustomerSignature
   );
 
-  const createOrUpdateInvoice = async ({
-    moveId,
-    updates,
-  }: CreateOrUpdateInvoiceInput): Promise<boolean> => {
+  const updateQuoteCustomerSignature = async (
+    quoteId: Id<"quotes">,
+    customerSignature: string
+  ): Promise<boolean> => {
     setLoading(true);
     setError(null);
 
     try {
-      return await createOrUpdateMutation({ moveId, updates });
+      return await updateQuoteCustomerSignatureMutation({
+        quoteId,
+        updates: { customerSignature },
+      });
     } catch (error) {
       setErrorFromConvexError(error, setError);
       return false;
@@ -43,7 +35,7 @@ export const useCreateOrUpdateInvoice = () => {
   };
 
   return {
-    createOrUpdateInvoice,
+    updateQuoteCustomerSignature,
     loading,
     error,
     setError,

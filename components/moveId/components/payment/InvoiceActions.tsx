@@ -1,22 +1,27 @@
 "use client";
 
 import { useMoveContext } from "@/contexts/MoveContext";
-import QuoteSave from "./QuoteSave";
-import QuoteCommunication from "./QuoteCommunication";
+import InvoiceSave from "./InvoiceSave";
+import { Doc } from "@/convex/_generated/dataModel";
+import InvoiceCommunication from "./InvoiceCommunication";
 
-interface QuoteActionsProps {
+interface InvoiceActionsProps {
   salesRepSignatureDataUrl: string | null;
   customerSignatureDataUrl: string | null;
   onSuccess: () => void;
+  invoice: Doc<"invoices"> | null;
+  amount: number;
 }
 
-const QuoteActions = ({
+const InvoiceActions = ({
   salesRepSignatureDataUrl,
   customerSignatureDataUrl,
   onSuccess,
-}: QuoteActionsProps) => {
+  invoice,
+  amount,
+}: InvoiceActionsProps) => {
   const { moveData } = useMoveContext();
-  const { move, quote } = moveData;
+  const { move } = moveData;
 
   const hasUnsavedChanges = !!(
     salesRepSignatureDataUrl || customerSignatureDataUrl
@@ -24,9 +29,9 @@ const QuoteActions = ({
 
   if (hasUnsavedChanges) {
     return (
-      <QuoteSave
+      <InvoiceSave
         moveId={move._id}
-        quote={quote}
+        invoice={invoice}
         salesRepSignatureDataUrl={salesRepSignatureDataUrl}
         customerSignatureDataUrl={customerSignatureDataUrl}
         onSuccess={onSuccess}
@@ -34,7 +39,7 @@ const QuoteActions = ({
     );
   }
 
-  return <QuoteCommunication move={move} />;
+  return <InvoiceCommunication move={move} invoice={invoice} amount={amount} />;
 };
 
-export default QuoteActions;
+export default InvoiceActions;

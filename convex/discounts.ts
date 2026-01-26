@@ -1,4 +1,4 @@
-import { mutation } from "./_generated/server";
+import { internalQuery, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import {
@@ -12,7 +12,7 @@ import { ClerkRoles } from "@/types/enums";
 import { ErrorMessages } from "@/types/errors";
 import { formatMonthDayLabelStrict } from "@/frontendUtils/luxonUtils";
 import { internal } from "./_generated/api";
-import { Id } from "./_generated/dataModel";
+import { Doc, Id } from "./_generated/dataModel";
 
 export const createDiscount = mutation({
   args: {
@@ -147,5 +147,18 @@ export const updateDiscount = mutation({
       });
     }
     return true;
+  },
+});
+
+export const getDiscountsByMoveIdInternal = internalQuery({
+  args: {
+    moveId: v.id("moves"),
+  },
+  handler: async (ctx, args): Promise<Doc<"discounts">[]> => {
+    const { moveId } = args;
+    return await ctx.db
+      .query("discounts")
+      .withIndex("by_move", (q) => q.eq("moveId", moveId))
+      .collect();
   },
 });

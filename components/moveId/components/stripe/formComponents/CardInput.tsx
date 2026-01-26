@@ -9,10 +9,19 @@ export function CardInput({ onChange }: CardInputProps) {
     <div className="rounded-md border border-grayCustom p-3">
       <CardElement
         options={{
-          hidePostalCode: true,
+          iconStyle: "solid",
           style: {
             base: {
               color: "#ffffff",
+              fontSize: "16px",
+              "::placeholder": {
+                color: "#aaaaaa",
+              },
+              iconColor: "#ffffff",
+            },
+            invalid: {
+              color: "#ef4444",
+              iconColor: "#ef4444",
             },
           },
         }}

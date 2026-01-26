@@ -15,6 +15,7 @@ import { isIdentityInMove } from "../backendUtils/validate";
 import { ErrorMessages } from "@/types/errors";
 import Stripe from "stripe";
 import { Doc } from "../_generated/dataModel";
+import { computeFinalMoveCost } from "@/frontendUtils/payout";
 
 export const createPaymentIntent = action({
   args: {
@@ -56,7 +57,39 @@ export const createPaymentIntent = action({
       });
     }
 
-    const amount = type === "deposit" ? (move?.deposit ?? 0) : 220; // Add final pay logic
+    const additionalFees = await ctx.runQuery(
+      internal.additionalFees.getAdditionalFeesByMoveIdInternal,
+      {
+        moveId,
+      }
+    );
+    const discounts = await ctx.runQuery(
+      internal.discounts.getDiscountsByMoveIdInternal,
+      {
+        moveId,
+      }
+    );
+
+    const { total } = computeFinalMoveCost({
+      moveFees: move.moveFees ?? [],
+      jobType: move.jobType ?? "hourly",
+      jobTypeRate: move.jobTypeRate ?? 0,
+      liabilityCoverage: move.liabilityCoverage ?? null,
+      segmentDistances: move.segmentDistances ?? [],
+      travelFeeRate: move.travelFeeRate ?? null,
+      travelFeeMethod: move.travelFeeMethod ?? null,
+      paymentMethod: move.paymentMethod ?? { kind: "other", label: "Other" },
+      creditCardFee: move.creditCardFee ?? 0,
+      actualBreakTime: move.actualBreakTime ?? 0,
+      actualStartTime: move.actualStartTime ?? 0,
+      actualEndTime: move.actualEndTime ?? 0,
+      actualArrivalTime: move.actualArrivalTime ?? 0,
+      additionalFees: additionalFees,
+      discounts: discounts,
+      deposit: move.deposit ?? 0,
+    });
+
+    const amount = type === "deposit" ? (move?.deposit ?? 0) : total;
 
     try {
       const paymentIntent = await createOffSessionPaymentIntent({

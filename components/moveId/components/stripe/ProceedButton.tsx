@@ -17,19 +17,26 @@ const ProceedButton = ({
   moveId,
   paymentError,
 }: ProceedButtonProps) => {
-  const { ensureMoveCustomerStripeProfile, loading, error } =
-    useEnsureMoveCustomerStripeProfiel();
+  const {
+    ensureMoveCustomerStripeProfile,
+    loading: ensureMoveCustomerStripeProfileLoading,
+    error: ensureMoveCustomerStripeProfileError,
+  } = useEnsureMoveCustomerStripeProfiel();
+
   const handleClick = async () => {
     const moveCustomerStripeProfile =
       await ensureMoveCustomerStripeProfile(moveId);
     setMoveCustomerStripeProfile(moveCustomerStripeProfile);
   };
+
+  const isSubmitting = ensureMoveCustomerStripeProfileLoading;
+
   return (
     <SingleFormAction
+      submitLabel="Payment"
       onSubmit={handleClick}
-      isSubmitting={loading}
-      error={error || paymentError}
-      submitLabel="Proceed With Payment"
+      isSubmitting={isSubmitting}
+      error={paymentError || ensureMoveCustomerStripeProfileError}
     />
   );
 };

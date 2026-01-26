@@ -7,9 +7,11 @@ import QuoteCost from "@/components/moveId/components/quote/QuoteCost";
 import QuoteTerms from "@/components/moveId/components/quote/QuoteTerms";
 import QuoteSignature from "@/components/moveId/components/quote/QuoteSignature";
 import { useState } from "react";
-import DepositPaymentSection from "./DepositPaymentSection";
 import QuoteContactProvider from "./QuoteContactProvider";
 import EditableQuoteSection from "./EditableQuoteSection";
+import NoDepositPaymentSection from "./NoDepositPaymentSection";
+import DepositPaymentSection from "./DepositPaymentSection";
+import CustomerQuoteSignature from "./CustomerQuoteSignature";
 
 const PublicQuotesStep = () => {
   const [customerSignatureDataUrl, setCustomerSignatureDataUrl] = useState<
@@ -24,6 +26,9 @@ const PublicQuotesStep = () => {
     move: moveData,
   } = move;
   const showDeposit = quote?.status !== "completed";
+
+  const showQuoteActions =
+    customerSignatureDataUrl !== null && quote?.status !== "completed";
 
   if (quote === null) {
     return null;
@@ -40,12 +45,21 @@ const PublicQuotesStep = () => {
         quote={quote}
         setCustomerSignatureDataUrl={setCustomerSignatureDataUrl}
       />
-      {showDeposit && (
-        <DepositPaymentSection
+      {showQuoteActions && (
+        <CustomerQuoteSignature
+          quoteId={quote._id}
+          customerSignatureDataUrl={customerSignatureDataUrl}
+        />
+      )}
+
+      {showDeposit && customerSignatureDataUrl ? (
+        <DepositPaymentSection move={moveData} />
+      ) : customerSignatureDataUrl ? (
+        <NoDepositPaymentSection
           move={moveData}
           signatureDataUrl={customerSignatureDataUrl}
         />
-      )}
+      ) : null}
     </SectionContainer>
   );
 };

@@ -15,7 +15,6 @@ import StepStatus from "../shared/StepStatus";
 import { getQuoteStatusInfo } from "@/frontendUtils/tsxHelper";
 import { useMoveContext } from "@/contexts/MoveContext";
 import SectionContainer from "@/components/shared/containers/SectionContainer";
-import QuoteConfirmation from "../quote/QuoteConfirmation";
 
 interface QuoteStepProps {
   quote: Doc<"quotes"> | null;
@@ -34,8 +33,6 @@ const QuoteStep = ({ quote }: QuoteStepProps) => {
   const { company } = moveData;
   const { companyContact, moveCustomer, salesRepUser, policy } = moveData;
   const quoteStatus = getQuoteStatusInfo(quote, move.moveStatus);
-
-  const showQuoteActions = quote?.status === "pending";
 
   return (
     <SectionContainer showBorder={false} className="px-0">
@@ -65,13 +62,14 @@ const QuoteStep = ({ quote }: QuoteStepProps) => {
           setSalesRepSignatureDataUrl={setSalesRepSignatureDataUrl}
           setCustomerSignatureDataUrl={setCustomerSignatureDataUrl}
         />
-        {showQuoteActions && (
-          <QuoteActions salesRepSignatureDataUrl={salesRepSignatureDataUrl} />
-        )}
-        <QuoteConfirmation
-          move={move}
-          customerSignatureDataUrl={customerSignatureDataUrl}
+
+        <QuoteActions
           salesRepSignatureDataUrl={salesRepSignatureDataUrl}
+          customerSignatureDataUrl={customerSignatureDataUrl}
+          onSuccess={() => {
+            setSalesRepSignatureDataUrl(null);
+            setCustomerSignatureDataUrl(null);
+          }}
         />
       </>
     </SectionContainer>

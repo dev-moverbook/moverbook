@@ -30,5 +30,6 @@ export const useEnsureMoveCustomerStripeProfiel = () => {
     ensureMoveCustomerStripeProfile,
     loading,
     error,
+    setError,
   };
 };

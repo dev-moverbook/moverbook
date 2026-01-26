@@ -114,7 +114,14 @@ export const customerUpdateContract = action({
       status: "completed",
     };
 
-    const identity = await requireAuthenticatedUser(ctx, [ClerkRoles.CUSTOMER]);
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.CUSTOMER,
+      ClerkRoles.SALES_REP,
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+      ClerkRoles.MOVER,
+    ]);
 
     const contract = await ctx.runQuery(
       internal.contracts.getContractByIdInternal,

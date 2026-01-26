@@ -7,7 +7,7 @@ import InvoiceSignature from "./InvoiceSignature";
 import InvoiceSummary from "./InvoiceSummary";
 import { CostFormat } from "@/types/types";
 import { useState } from "react";
-import InvoiceConfirmation from "./InvoiceConfirmation";
+import InvoiceActions from "./InvoiceActions";
 
 interface InoviceSectionProps {
   items: CostFormat[];
@@ -32,24 +32,32 @@ const InoviceSection = ({
   >(null);
 
   return (
-    <>
+    <div>
       <InvoiceSummary items={items} total={total} />
       <InvoiceSignature
-        salesRepSignatureDataUrl={salesRepSignatureDataUrl}
         setCustomerSignatureDataUrl={setCustomerSignatureDataUrl}
         setSalesRepSignatureDataUrl={setSalesRepSignatureDataUrl}
         invoice={invoice}
-        move={move}
       />
-      <InvoiceConfirmation
-        customerSignatureDataUrl={customerSignatureDataUrl}
-        salesRepSignatureDataUrl={salesRepSignatureDataUrl}
-        move={move}
-        amount={total}
-      />
-      <InternalReview internalReview={internalReview} move={move} />
-      <ExternalReview move={move} />
-    </>
+      {
+        <InvoiceActions
+          salesRepSignatureDataUrl={salesRepSignatureDataUrl}
+          customerSignatureDataUrl={customerSignatureDataUrl}
+          invoice={invoice}
+          onSuccess={() => {
+            setSalesRepSignatureDataUrl(null);
+            setCustomerSignatureDataUrl(null);
+          }}
+          amount={total}
+        />
+      }
+      {move.moveStatus === "Completed" && (
+        <>
+          <InternalReview internalReview={internalReview} move={move} />
+          <ExternalReview move={move} />
+        </>
+      )}
+    </div>
   );
 };
 

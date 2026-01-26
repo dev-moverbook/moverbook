@@ -82,6 +82,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       );
     } else {
       // Standard button with loading spinner
+      // Inside your Button.tsx component
       return (
         <button
           className={cn(
@@ -92,7 +93,13 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           disabled={isLoading || disabled}
           {...props}
         >
-          <span className={cn(isLoading && "invisible", "w-full")}>
+          {/* Add 'flex items-center justify-center' here */}
+          <span
+            className={cn(
+              isLoading && "invisible",
+              "flex items-center justify-center gap-2 w-full"
+            )}
+          >
             {children}
           </span>
           {isLoading && (

@@ -1,38 +1,33 @@
 "use client";
 
-import SingleFormAction from "@/components/shared/buttons/SingleFormAction";
+import PaymentWrapper from "@/components/moveId/components/stripe/PaymentWrapper";
+import SectionContainer from "@/components/shared/containers/SectionContainer";
+import SectionHeader from "@/components/shared/section/SectionHeader";
 import { Doc } from "@/convex/_generated/dataModel";
-import { useSignQuote } from "@/hooks/quotes";
+import PaymentSuccess from "@/components/moveId/components/stripe/formComponents/PaymentSuccess";
 
 interface DepositPaymentSectionProps {
   move: Doc<"moves">;
-  signatureDataUrl: string | null;
 }
+const DepositPaymentSection = ({ move }: DepositPaymentSectionProps) => {
+  const isPaymentSuccessful = move.depositPaid;
+  const lastPaymentError = move.depositPaymentError;
 
-const DepositPaymentSection = ({
-  move,
-  signatureDataUrl,
-}: DepositPaymentSectionProps) => {
-  const isDisabled = !signatureDataUrl;
-  const { signQuote, signQuoteLoading, signQuoteError } = useSignQuote();
-  // const hasDeposit = Number(move.deposit ?? 0) > 0;
-
-  const handleConfirm = async () => {
-    if (!signatureDataUrl) {
-      return;
-    }
-    await signQuote(move._id, signatureDataUrl);
-  };
-  // if (!hasDeposit) {
+  if (isPaymentSuccessful) {
+    return <PaymentSuccess />;
+  }
   return (
-    <SingleFormAction
-      disabled={isDisabled}
-      submitLabel="Confirm"
-      onSubmit={handleConfirm}
-      isSubmitting={signQuoteLoading}
-      error={signQuoteError}
-      submitVariant="default"
-    />
+    <div>
+      <SectionHeader className="mx-auto" title="Confirmation" />
+      <SectionContainer showBorder={false}>
+        <PaymentWrapper
+          error={lastPaymentError}
+          amount={move.deposit ?? 0}
+          moveId={move._id}
+          type="deposit"
+        />
+      </SectionContainer>
+    </div>
   );
 };
 
