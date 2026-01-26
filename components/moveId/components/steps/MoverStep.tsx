@@ -22,7 +22,6 @@ const MoverStep = () => {
             contract={result.contract}
             discounts={result.discounts}
             additionalFees={result.additionalFees}
-            invoice={result.invoice}
             waiver={result.waiver}
             fees={result.fees}
             assignment={result.assignment}

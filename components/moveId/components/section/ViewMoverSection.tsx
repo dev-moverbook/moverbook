@@ -23,7 +23,6 @@ interface ViewMoverSectionProps {
   contract: Doc<"contracts"> | null;
   discounts: Doc<"discounts">[];
   additionalFees: Doc<"additionalFees">[];
-  invoice: Doc<"invoices"> | null;
   waiver: Doc<"waivers"> | null;
   fees: Doc<"fees">[];
 }
@@ -33,7 +32,6 @@ const ViewMoverSection: React.FC<ViewMoverSectionProps> = ({
   contract,
   discounts,
   additionalFees,
-  invoice,
   waiver,
   fees,
 }) => {
