@@ -8,6 +8,7 @@ import InvoiceCustomerSignature from "./InvoiceCustomerSignature";
 import InvoiceSummary from "@/components/moveId/components/payment/InvoiceSummary";
 import { computeFinalMoveCost } from "@/frontendUtils/payout";
 import { usePublicMoveIdContext } from "@/contexts/PublicMovIdContext";
+import SaveCustomerInvoice from "./SaveCustomerInvoice";
 
 const PaymentStep = () => {
   const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
@@ -53,7 +54,8 @@ const PaymentStep = () => {
   });
 
   const showInvoice = invoice && invoice.repSignature;
-  const showPaymentActions = invoice?.customerSignature === undefined;
+  const showPaymentActions =
+    invoice?.status === "completed" && paymentMethod?.kind === "credit_card";
   return (
     <div>
       <SectionContainer showBorder={false} className="px-0">
@@ -65,12 +67,15 @@ const PaymentStep = () => {
               invoice={invoice}
               setSignatureDataUrl={setSignatureDataUrl}
             />
-            {showPaymentActions && (
-              <PaymentActions
+            {signatureDataUrl && invoice && (
+              <SaveCustomerInvoice
                 invoiceId={invoice._id}
                 signature={signatureDataUrl}
-                amount={2}
+                setSignatureDataUrl={setSignatureDataUrl}
               />
+            )}
+            {showPaymentActions && (
+              <PaymentActions amount={total} move={move.move} />
             )}
           </>
         )}

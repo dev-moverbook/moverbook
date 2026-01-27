@@ -1,48 +1,38 @@
 "use client";
 
-import SingleFormAction from "@/components/shared/buttons/SingleFormAction";
-import { Id } from "@/convex/_generated/dataModel";
-import { useCustomerSignInvoice } from "@/hooks/invoices/useCustomerSignInvoice";
+import PaymentWrapper from "@/components/moveId/components/stripe/PaymentWrapper";
+import SectionContainer from "@/components/shared/containers/SectionContainer";
+import SectionHeader from "@/components/shared/section/SectionHeader";
+import { Doc } from "@/convex/_generated/dataModel";
+import PaymentSuccess from "@/components/moveId/components/stripe/formComponents/PaymentSuccess";
 
-interface PaymentActionsProps {
-  invoiceId: Id<"invoices"> | null;
-  signature: string | null;
-  amount: number | null;
+interface InvoicePaymentSectionProps {
+  move: Doc<"moves">;
+  amount: number;
 }
-
-const PaymentActions = ({
-  invoiceId,
-  signature,
+const InvoicePaymentSection = ({
+  move,
   amount,
-}: PaymentActionsProps) => {
-  const {
-    customerSignInvoice,
-    customerSignInvoiceError,
-    customerSignInvoiceLoading,
-  } = useCustomerSignInvoice();
+}: InvoicePaymentSectionProps) => {
+  const isPaymentSuccessful = move.invoicePaid;
+  const lastPaymentError = move.invoicePaymentError;
 
-  const handleSubmit = async () => {
-    if (!invoiceId || !signature || !amount) {
-      return;
-    }
-    await customerSignInvoice(
-      invoiceId,
-      signature,
-      { kind: "credit_card" },
-      amount
-    );
-  };
-
-  const isDisabled = !signature || !amount;
+  if (isPaymentSuccessful) {
+    return <PaymentSuccess />;
+  }
   return (
-    <SingleFormAction
-      submitLabel="Submit"
-      onSubmit={handleSubmit}
-      isSubmitting={customerSignInvoiceLoading}
-      error={customerSignInvoiceError}
-      disabled={isDisabled}
-    />
+    <div>
+      <SectionHeader className="mx-auto" title="Confirmation" />
+      <SectionContainer showBorder={false}>
+        <PaymentWrapper
+          error={lastPaymentError}
+          amount={amount}
+          moveId={move._id}
+          type="final_payment"
+        />
+      </SectionContainer>
+    </div>
   );
 };
 
-export default PaymentActions;
+export default InvoicePaymentSection;

@@ -23,9 +23,6 @@ export const useMarkAsComplete = () => {
 
   const markAsComplete = async ({
     moveId,
-    customerSignature,
-    salesRepSignature,
-    updateInvoice,
   }: MarkAsCompleteArgs): Promise<boolean> => {
     setIsLoading(true);
     setError(null);
@@ -33,9 +30,6 @@ export const useMarkAsComplete = () => {
     try {
       return await markAsCompleteMutation({
         moveId,
-        customerSignature: customerSignature || undefined,
-        salesRepSignature: salesRepSignature || undefined,
-        updateInvoice,
       });
     } catch (error) {
       setErrorFromConvexError(error, setError);

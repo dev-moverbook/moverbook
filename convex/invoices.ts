@@ -20,6 +20,7 @@ import { InvoiceStatusConvex, PaymentMethodConvex } from "./schema";
 import { ErrorMessages } from "@/types/errors";
 import { internal } from "./_generated/api";
 import { formatMonthDayLabelStrict } from "@/frontendUtils/luxonUtils";
+import { throwConvexError } from "./backendUtils/errors";
 
 export const createOrUpdateInvoice = mutation({
   args: {
@@ -244,5 +245,56 @@ export const createInvoice = internalMutation({
       repSignedAt: args.repSignedAt,
       status: args.status || "pending",
     });
+  },
+});
+
+export const updateInvoiceCustomerInvoice = mutation({
+  args: {
+    invoiceId: v.id("invoices"),
+    updates: v.object({
+      customerSignature: v.optional(v.string()),
+      status: v.optional(InvoiceStatusConvex),
+    }),
+  },
+  handler: async (ctx, args): Promise<boolean> => {
+    const { invoiceId, updates } = args;
+
+    const identity = await requireAuthenticatedUser(ctx, [
+      ClerkRoles.ADMIN,
+      ClerkRoles.APP_MODERATOR,
+      ClerkRoles.MANAGER,
+      ClerkRoles.SALES_REP,
+      ClerkRoles.MOVER,
+      ClerkRoles.CUSTOMER,
+    ]);
+
+    const invoice = await validateDocument(
+      ctx.db,
+      "invoices",
+      invoiceId,
+      ErrorMessages.INVOICE_NOT_FOUND
+    );
+
+    const move = await ctx.runQuery(internal.moves.getMoveByIdInternal, {
+      moveId: invoice.moveId,
+    });
+
+    if (!move) {
+      throwConvexError(ErrorMessages.MOVE_NOT_FOUND, {
+        code: "NOT_FOUND",
+        showToUser: true,
+      });
+    }
+
+    isIdentityInMove(identity, move);
+
+    const now = Date.now();
+
+    await ctx.db.patch(invoiceId, {
+      ...updates,
+      ...(updates.customerSignature && { customerSignedAt: now }),
+    });
+
+    return true;
   },
 });

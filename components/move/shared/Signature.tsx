@@ -51,7 +51,7 @@ const SignaturePad = ({ title, onChange }: SignaturePadProps) => {
         )}
       </div>
 
-      <div className="flex flex-col items-center gap-4 py-4 rounded-lg shadow-md">
+      <div className="flex flex-col items-center gap-4  py-1 rounded-lg shadow-md">
         <SignatureCanvas
           ref={sigCanvasRef}
           penColor="white"

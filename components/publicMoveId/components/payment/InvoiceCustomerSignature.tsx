@@ -4,6 +4,7 @@ import DisplaySignature from "@/components/move/shared/DisplaySignature";
 import Signature from "@/components/move/shared/Signature";
 import SectionHeader from "@/components/shared/section/SectionHeader";
 import { Doc } from "@/convex/_generated/dataModel";
+import SectionContainer from "@/components/shared/containers/SectionContainer";
 
 interface InvoiceCustomerSignatureProps {
   invoice: Doc<"invoices">;
@@ -14,9 +15,14 @@ const InvoiceCustomerSignature = ({
   invoice,
   setSignatureDataUrl,
 }: InvoiceCustomerSignatureProps) => {
-  const { repSignature, repSignedAt, customerSignature, customerSignedAt } =
-    invoice;
-  const isComplete = !!customerSignature;
+  const {
+    repSignature,
+    repSignedAt,
+    customerSignature,
+    customerSignedAt,
+    status,
+  } = invoice;
+  const isComplete = status === "completed";
   return (
     <div>
       <SectionHeader
@@ -24,22 +30,27 @@ const InvoiceCustomerSignature = ({
         showCheckmark
         isCompleted={isComplete}
       />
-      <DisplaySignature
-        image={repSignature || ""}
-        timestamp={repSignedAt || 0}
-        alt="Rep Signature"
-        title="Sales Rep Signature"
-      />
-      {customerSignature && customerSignedAt ? (
+      <SectionContainer showBorder={false}>
         <DisplaySignature
-          image={customerSignature}
-          timestamp={customerSignedAt}
-          alt="Customer Signature"
-          title="Customer Signature"
+          image={repSignature || ""}
+          timestamp={repSignedAt || 0}
+          alt="Rep Signature"
+          title="Sales Rep Signature"
         />
-      ) : (
-        <Signature title="Customer Signature" onChange={setSignatureDataUrl} />
-      )}
+        {customerSignature && customerSignedAt ? (
+          <DisplaySignature
+            image={customerSignature}
+            timestamp={customerSignedAt}
+            alt="Customer Signature"
+            title="Customer Signature"
+          />
+        ) : (
+          <Signature
+            title="Customer Signature"
+            onChange={setSignatureDataUrl}
+          />
+        )}
+      </SectionContainer>
     </div>
   );
 };

@@ -19,7 +19,7 @@ const DisplaySignature = ({
   const formattedDate = formatDateShort(timestamp);
 
   return (
-    <div className="flex flex-col items-start gap-2">
+    <div className="flex flex-col items-start gap-1">
       <h3 className="text-lg font-medium ">{title}</h3>
       <div className="relative w-full h-40 border border-grayCustom rounded shadow-xl shadow-white/10">
         <Image src={image} alt={alt} fill className="object-contain rounded" />

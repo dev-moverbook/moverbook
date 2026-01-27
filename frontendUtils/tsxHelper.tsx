@@ -291,6 +291,13 @@ export const getPublicStatusDisplay = ({
   invoice,
   changeRequests,
 }: PublicStatusParams): StatusDisplay => {
+  if (move.moveStatus === "Completed") {
+    return {
+      label: "Move Completed",
+      icon: <CheckCircle2 className="w-4 h-4 text-greenCustom" />,
+      color: "green",
+    };
+  }
   const hasPendingChange = hasPendingChangeRequest(changeRequests);
 
   if (hasPendingChange) {
@@ -328,7 +335,7 @@ export const getPublicStatusDisplay = ({
   const isContractReadyToSign = contract && !isContractSigned;
   const isWaiverReadyToSign = waiver && !isWaiverSigned;
 
-  if (!isContractSigned || !isWaiverSigned) {
+  if (!isContractSigned) {
     if (isContractReadyToSign || isWaiverReadyToSign) {
       if (isContractReadyToSign && isWaiverReadyToSign) {
         return {

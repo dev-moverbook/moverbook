@@ -463,13 +463,9 @@ export const markMoveAsBooked = action({
 export const markInvoiceAsComplete = action({
   args: {
     moveId: v.id("moves"),
-    customerSignature: v.optional(v.string()),
-    salesRepSignature: v.optional(v.string()),
-    updateInvoice: v.optional(v.boolean()),
   },
   handler: async (ctx, args): Promise<boolean> => {
-    const { moveId, customerSignature, salesRepSignature, updateInvoice } =
-      args;
+    const { moveId } = args;
 
     const identity = await requireAuthenticatedUser(ctx, [
       ClerkRoles.ADMIN,
@@ -509,44 +505,7 @@ export const markInvoiceAsComplete = action({
     }
 
     const now = Date.now();
-    let customerSignatureDate: number | undefined;
-    let salesRepSignatureDate: number | undefined;
 
-    if (customerSignature) {
-      customerSignatureDate = now;
-    }
-    if (salesRepSignature) {
-      salesRepSignatureDate = now;
-    }
-
-    if (updateInvoice) {
-      const invoice = await ctx.runQuery(
-        internal.invoices.getInvoiceByMoveIdInternal,
-        {
-          moveId,
-        }
-      );
-      if (invoice) {
-        await ctx.runMutation(internal.invoices.updateInvoice, {
-          invoiceId: invoice._id,
-          updates: {
-            customerSignature: customerSignature,
-            customerSignedAt: customerSignatureDate,
-            repSignature: salesRepSignature,
-            repSignedAt: salesRepSignatureDate,
-          },
-        });
-      } else {
-        await ctx.runMutation(internal.invoices.createInvoice, {
-          moveId,
-          customerSignature: customerSignature,
-          customerSignedAt: customerSignatureDate,
-          repSignature: salesRepSignature,
-          repSignedAt: salesRepSignatureDate,
-          status: "completed",
-        });
-      }
-    }
     const formattedMoveDate = move.moveDate
       ? formatMonthDayLabelStrict(move.moveDate)
       : "TBD";
