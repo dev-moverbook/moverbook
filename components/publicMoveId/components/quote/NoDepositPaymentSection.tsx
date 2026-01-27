@@ -1,8 +1,6 @@
 "use client";
 
 import SingleFormAction from "@/components/shared/buttons/SingleFormAction";
-import SectionContainer from "@/components/shared/containers/SectionContainer";
-import SectionHeader from "@/components/shared/section/SectionHeader";
 import { Doc } from "@/convex/_generated/dataModel";
 import { useSignQuote } from "@/hooks/quotes";
 
@@ -23,19 +21,14 @@ const NoDepositPaymentSection = ({
   };
 
   return (
-    <div>
-      <SectionHeader className="mx-auto" title="Confirmation" />
-      <SectionContainer showBorder={false}>
-        <SingleFormAction
-          disabled={isDisabled}
-          submitLabel="Confirm"
-          onSubmit={handleConfirm}
-          isSubmitting={signQuoteLoading}
-          error={signQuoteError}
-          submitVariant="default"
-        />
-      </SectionContainer>
-    </div>
+    <SingleFormAction
+      disabled={isDisabled}
+      submitLabel="Confirm"
+      onSubmit={handleConfirm}
+      isSubmitting={signQuoteLoading}
+      error={signQuoteError}
+      submitVariant="default"
+    />
   );
 };
 

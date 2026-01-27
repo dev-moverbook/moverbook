@@ -1,6 +1,7 @@
 "use client";
 
 import SingleFormAction from "@/components/shared/buttons/SingleFormAction";
+import { formatCurrency } from "@/frontendUtils/helper";
 
 interface PayButtonProps {
   loading: boolean;
@@ -18,7 +19,7 @@ export function PayButton({
   return (
     <SingleFormAction
       isSubmitting={loading}
-      submitLabel={`Pay $${amount.toFixed(2)}`}
+      submitLabel={`Pay ${formatCurrency(amount)}`}
       error={error}
       submitVariant="default"
       disabled={isDisabled}

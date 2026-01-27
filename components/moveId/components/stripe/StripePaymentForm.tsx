@@ -7,6 +7,7 @@ import { PayButton } from "./formComponents/PayButton";
 import { useStripePayment } from "@/hooks/stripe";
 import ButtonRadioGroup from "@/components/shared/labeled/ButtonRadioGroup";
 import { Label } from "@/components/ui/label";
+import { PaymentProcessingStatus } from "./formComponents/PaymentProcessngStatus";
 
 interface StripePaymentFormProps {
   amount: number;
@@ -90,6 +91,10 @@ export function StripePaymentForm({
 
   const isSubmitDisabled =
     isButtonLoading || (selection === "new" && !isCardComplete);
+
+  if (isButtonLoading) {
+    return <PaymentProcessingStatus />;
+  }
 
   return (
     <form

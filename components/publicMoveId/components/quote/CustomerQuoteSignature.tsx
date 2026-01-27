@@ -21,7 +21,7 @@ const CustomerQuoteSignature = ({
 
   return (
     <SingleFormAction
-      submitLabel="Submit"
+      submitLabel="Save"
       onSubmit={handleSubmit}
       isSubmitting={loading}
       error={error}

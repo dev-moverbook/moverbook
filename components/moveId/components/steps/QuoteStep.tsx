@@ -62,15 +62,16 @@ const QuoteStep = ({ quote }: QuoteStepProps) => {
           setSalesRepSignatureDataUrl={setSalesRepSignatureDataUrl}
           setCustomerSignatureDataUrl={setCustomerSignatureDataUrl}
         />
-
-        <QuoteActions
-          salesRepSignatureDataUrl={salesRepSignatureDataUrl}
-          customerSignatureDataUrl={customerSignatureDataUrl}
-          onSuccess={() => {
-            setSalesRepSignatureDataUrl(null);
-            setCustomerSignatureDataUrl(null);
-          }}
-        />
+        {(salesRepSignatureDataUrl || quote?.repSignature) && (
+          <QuoteActions
+            salesRepSignatureDataUrl={salesRepSignatureDataUrl}
+            customerSignatureDataUrl={customerSignatureDataUrl}
+            onSuccess={() => {
+              setSalesRepSignatureDataUrl(null);
+              setCustomerSignatureDataUrl(null);
+            }}
+          />
+        )}
       </>
     </SectionContainer>
   );
