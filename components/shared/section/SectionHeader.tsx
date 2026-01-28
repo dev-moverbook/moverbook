@@ -1,3 +1,5 @@
+"use client";
+
 import { Pencil, Trash2, X, CircleCheckBig, AlertTriangle } from "lucide-react";
 import IconButton from "@/components/shared/buttons/IconButton";
 import { ReactNode } from "react";
@@ -17,6 +19,7 @@ interface SectionHeaderProps {
   showCheckmark?: boolean;
   showAlert?: boolean;
   canEdit?: boolean;
+  hideActions?: boolean;
 }
 
 const SectionHeader: React.FC<SectionHeaderProps> = ({
@@ -32,6 +35,7 @@ const SectionHeader: React.FC<SectionHeaderProps> = ({
   showCheckmark,
   showAlert,
   canEdit = true,
+  hideActions = false,
 }) => {
   return (
     <div
@@ -54,37 +58,39 @@ const SectionHeader: React.FC<SectionHeaderProps> = ({
         )}
       </div>
 
-      {/* Right side: icons */}
-      <div className="flex items-center gap-2">
-        {actions ? (
-          actions
-        ) : isEditing && onCancelEdit && canEdit ? (
-          <IconButton
-            icon={<X size={16} />}
-            aria-label="Cancel"
-            onClick={onCancelEdit}
-            className="border border-grayCustom"
-          />
-        ) : (
-          <>
-            {onEditClick && canEdit && (
-              <IconButton
-                icon={<Pencil size={16} />}
-                aria-label="Edit"
-                onClick={onEditClick}
-              />
-            )}
-            {onDeleteClick && id && (
-              <IconButton
-                onClick={() => onDeleteClick(id)}
-                icon={<Trash2 className="w-4 h-4" />}
-                variant="outline"
-                title="Delete"
-              />
-            )}
-          </>
-        )}
-      </div>
+      {/* Right side: icons - Wrapper logic updated */}
+      {!hideActions && (
+        <div className="flex items-center gap-2">
+          {actions ? (
+            actions
+          ) : isEditing && onCancelEdit && canEdit ? (
+            <IconButton
+              icon={<X size={16} />}
+              aria-label="Cancel"
+              onClick={onCancelEdit}
+              className="border border-grayCustom"
+            />
+          ) : (
+            <>
+              {onEditClick && canEdit && (
+                <IconButton
+                  icon={<Pencil size={16} />}
+                  aria-label="Edit"
+                  onClick={onEditClick}
+                />
+              )}
+              {onDeleteClick && id && (
+                <IconButton
+                  onClick={() => onDeleteClick(id)}
+                  icon={<Trash2 className="w-4 h-4" />}
+                  variant="outline"
+                  title="Delete"
+                />
+              )}
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 };

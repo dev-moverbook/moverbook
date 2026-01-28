@@ -290,7 +290,7 @@ export const getPublicStatusDisplay = ({
   move,
   invoice,
   changeRequests,
-}: PublicStatusParams): StatusDisplay => {
+}: PublicStatusParams): StatusDisplay | null => {
   if (move.moveStatus === "Completed") {
     return {
       label: "Move Completed",
@@ -398,11 +398,7 @@ export const getPublicStatusDisplay = ({
     };
   }
 
-  return {
-    label: "Move Completed",
-    icon: <CheckCircle2 className="w-4 h-4 text-greenCustom" />,
-    color: "green",
-  };
+  return null;
 };
 
 export const getMoveTags = (move: Doc<"moves">): string[] => {

@@ -8,6 +8,9 @@ import CurrencyInput from "../../shared/labeled/CurrencyInput";
 import { TravelChargingTypes } from "@/types/enums";
 import ButtonRadioGroup from "../../shared/labeled/ButtonRadioGroup";
 import { TRAVEL_FEE_METHOD_OPTIONS } from "@/types/types";
+import { Doc } from "@/convex/_generated/dataModel";
+import { isMoveCompleted } from "@/frontendUtils/moveHelper";
+import { MoveFormData } from "@/types/form-types";
 
 interface MoveTravelFeeProps {
   isAdd?: boolean;
@@ -25,6 +28,7 @@ interface MoveTravelFeeProps {
 
   isEditing?: boolean;
   setIsEditing?: (value: boolean) => void;
+  move: MoveFormData | Doc<"moves">;
 }
 
 const MoveTravelFeeSection: React.FC<MoveTravelFeeProps> = ({
@@ -41,9 +45,10 @@ const MoveTravelFeeSection: React.FC<MoveTravelFeeProps> = ({
   handleTravelFeeMethodChange,
   isEditing = false,
   setIsEditing,
+  move,
 }) => {
   const editingMode = isAdd || isEditing;
-
+  const hideButton = isMoveCompleted(move);
   const currentMethod = travelFeeMethod ?? null;
   const currentRate = travelFeeRate ?? null;
   const origMethod = originalTravelFeeMethod ?? null;
@@ -99,6 +104,7 @@ const MoveTravelFeeSection: React.FC<MoveTravelFeeProps> = ({
             <EditToggleButton isEditing={isEditing} onToggle={handleToggle} />
           )
         }
+        hideButton={hideButton}
       >
         Travel Fee
       </Header3>

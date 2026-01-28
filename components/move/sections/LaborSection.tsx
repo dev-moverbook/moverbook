@@ -3,13 +3,15 @@
 import React, { useMemo, useState } from "react";
 import SectionContainer from "@/components/shared/containers/SectionContainer";
 import Header3 from "@/components/shared/heading/Header3";
-import { MoveFormErrors } from "@/types/form-types";
+import { MoveFormData, MoveFormErrors } from "@/types/form-types";
 import LaborInputs from "./Labor/LaborInputs";
 import LaborSummary from "./Labor/LaborSummary";
 import EditToggleButton from "../../shared/buttons/EditToggleButton";
 import FormActions from "@/components/shared/buttons/FormActions";
 import { JobType } from "@/types/types";
 import FormActionContainer from "../../shared/containers/FormActionContainer";
+import { Doc } from "@/convex/_generated/dataModel";
+import { isMoveCompleted } from "@/frontendUtils/moveHelper";
 
 export interface LaborFormData {
   trucks: number;
@@ -37,6 +39,7 @@ interface LaborSectionProps {
   isEditing: boolean;
   onCancel?: () => void;
   setIsEditing?: (value: boolean) => void;
+  move: MoveFormData | Doc<"moves">;
 }
 
 const LaborSection: React.FC<LaborSectionProps> = ({
@@ -53,7 +56,9 @@ const LaborSection: React.FC<LaborSectionProps> = ({
   isEditing,
   setIsEditing,
   onCancel,
+  move,
 }) => {
+  const hideButton = isMoveCompleted(move);
   const [tagTrucksType, setTagTrucksType] = useState<"suggested" | "custom">(
     "suggested"
   );
@@ -124,6 +129,7 @@ const LaborSection: React.FC<LaborSectionProps> = ({
             />
           )
         }
+        hideButton={hideButton}
       >
         Labor
       </Header3>

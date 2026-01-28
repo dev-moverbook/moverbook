@@ -41,6 +41,7 @@ const MoveLineItemsSection = () => {
   return (
     <LineItemsSection
       fees={move.moveFees ?? []}
+      move={move}
       onAdd={handleAddMoveFee}
       onUpdate={handleUpdateMoveFee}
       onDelete={handleDeleteMoveFee}

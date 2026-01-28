@@ -8,12 +8,14 @@ interface StopSectionHeaderProps {
   stopCount: number;
   showBanner: boolean;
   onAddStop: (e: React.MouseEvent) => void;
+  hideButton?: boolean;
 }
 
 const StopSectionHeader: React.FC<StopSectionHeaderProps> = ({
   stopCount,
   showBanner,
   onAddStop,
+  hideButton = false,
 }) => {
   return (
     <SectionContainer className="pt-0 pb-6 px-0 md:px-0">
@@ -43,6 +45,7 @@ const StopSectionHeader: React.FC<StopSectionHeaderProps> = ({
               </Button>
             </div>
           }
+          hideButton={hideButton}
         >
           Stops
         </Header3>

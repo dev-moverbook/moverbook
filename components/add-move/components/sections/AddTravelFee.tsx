@@ -50,6 +50,7 @@ const AddTravelFee = () => {
       travelFeeMethod={travelFeeMethod}
       handleTravelFeeRateChange={handleTravelFeeRateChange}
       handleTravelFeeMethodChange={handleTravelFeeMethodChange}
+      move={moveFormData}
     />
   );
 };

@@ -101,6 +101,7 @@ const ViewTravelFee = () => {
       setIsEditing={setIsEditing}
       originalTravelFeeRate={move.travelFeeRate}
       originalTravelFeeMethod={move.travelFeeMethod}
+      move={move}
     />
   );
 };

@@ -16,6 +16,7 @@ interface EndMoveSectionProps {
   handleSetEndMove: (value: number) => Promise<void> | void;
   endMoveTime?: number | null;
   timeZone: string;
+  hideButton?: boolean;
 }
 
 const EndMoveSection: React.FC<EndMoveSectionProps> = ({
@@ -26,6 +27,7 @@ const EndMoveSection: React.FC<EndMoveSectionProps> = ({
   handleSetEndMove,
   endMoveTime,
   timeZone,
+  hideButton = false,
 }) => {
   const hasEndMoveTime = typeof endMoveTime === "number";
   const canManual = Boolean(handleSetEndMove);
@@ -116,6 +118,7 @@ const EndMoveSection: React.FC<EndMoveSectionProps> = ({
             />
           )
         }
+        hideButton={hideButton}
       >
         End Move Time
       </Header3>

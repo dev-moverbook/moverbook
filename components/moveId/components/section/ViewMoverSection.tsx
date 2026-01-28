@@ -17,6 +17,7 @@ import { computeFinalMoveCost } from "@/frontendUtils/payout";
 import InvoiceNotReady from "../shared/InvoiceNotReady";
 import { isSameDayOrLater } from "@/frontendUtils/luxonUtils";
 import LocationSharingSectionWrapper from "./LocationSharingWrapper";
+import { isMoveCompleted } from "@/frontendUtils/moveHelper";
 
 interface ViewMoverSectionProps {
   assignment: Doc<"moveAssignments">;
@@ -130,6 +131,8 @@ const ViewMoverSection: React.FC<ViewMoverSectionProps> = ({
 
   const showContract = isSameDayOrLater(move.moveDate, timeZone);
 
+  const hideButton = isMoveCompleted(move);
+
   return (
     <>
       <StartMoveSection
@@ -139,6 +142,7 @@ const ViewMoverSection: React.FC<ViewMoverSectionProps> = ({
         timeZone={timeZone}
         startTime={actualStartTime}
         handleSetStartTime={handleSetStartTime}
+        hideButton={hideButton}
       />
       {actualStartTime && <LocationSharingSectionWrapper />}
       {moveData.moverLocation && (
@@ -149,6 +153,7 @@ const ViewMoverSection: React.FC<ViewMoverSectionProps> = ({
           timeZone={timeZone}
           arriveOriginTime={actualArrivalTime}
           handleSetArriveOrigin={handleSetArriveOrigin}
+          hideButton={hideButton}
         />
       )}
 
@@ -160,6 +165,7 @@ const ViewMoverSection: React.FC<ViewMoverSectionProps> = ({
           timeZone={timeZone}
           endMoveTime={actualEndTime}
           handleSetEndMove={handleSetEndMove}
+          hideButton={hideButton}
         />
       )}
 
@@ -169,17 +175,14 @@ const ViewMoverSection: React.FC<ViewMoverSectionProps> = ({
           updateError={updateMoveError}
           handleChangeBreakTime={handleChangeBreakTime}
           breakMoveTime={actualBreakTime}
+          hideButton={hideButton}
         />
       )}
 
       {showContract && <Contract contract={contract} />}
       <Waiver waiver={waiver} />
-      <Discounts discounts={discounts} moveId={move._id} />
-      <AdditionalFees
-        additionalFees={additionalFees}
-        moveId={move._id}
-        fees={fees}
-      />
+      <Discounts discounts={discounts} move={move} />
+      <AdditionalFees additionalFees={additionalFees} fees={fees} move={move} />
       {showInvoice ? (
         <>
           <InvoiceSummary items={items} total={total} />

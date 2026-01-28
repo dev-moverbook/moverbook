@@ -16,6 +16,7 @@ interface ArriveOriginSectionProps {
   handleSetArriveOrigin: (value: number) => Promise<void> | void;
   arriveOriginTime?: number | null;
   timeZone: string;
+  hideButton?: boolean;
 }
 
 const ArriveOriginSection: React.FC<ArriveOriginSectionProps> = ({
@@ -26,6 +27,7 @@ const ArriveOriginSection: React.FC<ArriveOriginSectionProps> = ({
   handleSetArriveOrigin,
   arriveOriginTime,
   timeZone,
+  hideButton = false,
 }) => {
   const hasArriveOriginTime = typeof arriveOriginTime === "number";
   const canManual = Boolean(handleSetArriveOrigin);
@@ -120,6 +122,7 @@ const ArriveOriginSection: React.FC<ArriveOriginSectionProps> = ({
             />
           )
         }
+        hideButton={hideButton}
       >
         Arrive Origin Time
       </Header3>

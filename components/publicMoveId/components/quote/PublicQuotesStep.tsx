@@ -20,13 +20,11 @@ const PublicQuotesStep = () => {
   const { move } = usePublicMoveIdContext();
   const { quote, company, policy, move: moveData } = move;
 
-  // 1. Determine if a deposit is required via credit card
   const hasPayment =
     moveData.deposit !== undefined &&
     moveData.deposit > 0 &&
     moveData.paymentMethod?.kind === "credit_card";
 
-  // 3. Determine if the signature has been drawn but not yet saved/submitted
   const showQuoteActions =
     customerSignatureDataUrl !== null && quote?.status !== "completed";
 
@@ -42,15 +40,11 @@ const PublicQuotesStep = () => {
       <QuoteCost move={moveData} />
       <QuoteTerms policy={policy} />
 
-      {/* Signature Pad */}
       <QuoteSignature
         quote={quote}
         setCustomerSignatureDataUrl={setCustomerSignatureDataUrl}
       />
 
-      {/* --- MUTUALLY EXCLUSIVE ACTIONS --- */}
-
-      {/* 1. Show standard signature save ONLY if there IS a payment required */}
       {showQuoteActions && hasPayment && (
         <CustomerQuoteSignature
           quoteId={quote._id}
@@ -58,7 +52,6 @@ const PublicQuotesStep = () => {
         />
       )}
 
-      {/* 2. Show no-deposit finalize ONLY if there is NO payment required */}
       {showQuoteActions && !hasPayment && (
         <NoDepositPaymentSection
           move={moveData}
@@ -66,9 +59,6 @@ const PublicQuotesStep = () => {
         />
       )}
 
-      {/* ---------------------------------- */}
-
-      {/* 3. Payment form shows after standard signature is saved */}
       {hasPayment && <DepositPaymentSection move={moveData} />}
     </SectionContainer>
   );

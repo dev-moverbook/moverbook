@@ -9,7 +9,9 @@ import IconButton from "@/components/shared/buttons/IconButton";
 import { Pencil, X } from "lucide-react";
 import FieldErrorMessage from "@/components/shared/labeled/FieldErrorMessage";
 import { useMoveForm } from "@/contexts/MoveFormContext";
+import { isMoveCompleted } from "@/frontendUtils/moveHelper";
 
+// To Be Deleted
 const LiabilityCoverage: React.FC = () => {
   const {
     moveFormData,
@@ -22,6 +24,8 @@ const LiabilityCoverage: React.FC = () => {
   const selectedPolicy = insurancePolicyOptions?.find(
     (policy) => policy.name === moveFormData.liabilityCoverage?.name
   );
+
+  const hideButton = isMoveCompleted(moveFormData);
 
   return (
     <div>
@@ -46,6 +50,7 @@ const LiabilityCoverage: React.FC = () => {
             {isEditing ? "Cancel" : "Edit"}
           </IconButton>
         }
+        hideButton={hideButton}
       >
         Liability Coverage
       </Header3>

@@ -10,13 +10,14 @@ import { formatTime } from "@/frontendUtils/helper";
 import { canCreateMove, isMover } from "@/frontendUtils/permissions";
 import { useSlugContext } from "@/contexts/SlugContext";
 import MoveTypeSection from "@/components/move/sections/MoveTypeSection";
+import { isMoveCompleted } from "@/frontendUtils/moveHelper";
 
 const ViewMoveType: React.FC = () => {
   const { moveData } = useMoveContext();
   const move = moveData.move;
 
   const { user } = useSlugContext();
-  const canCreateMoveUser = canCreateMove(user.role);
+  const canCreateMoveUser = canCreateMove(user.role) && !isMoveCompleted(move);
   const isMoverUser = isMover(user.role);
 
   const { updateMove, updateMoveLoading, updateMoveError } = useUpdateMove();

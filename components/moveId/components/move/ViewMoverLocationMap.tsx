@@ -14,13 +14,11 @@ const ViewMoverLocationMap = () => {
   const isComplete =
     !moverLocation?.isOn && moverLocation?.lat && moverLocation?.lng;
 
-  const noMapText = isComplete
-    ? "Trip ended."
-    : "Location Sharing is disabled.";
+  const noMapText = isComplete ? "Trip ended." : "No location available.";
 
   return (
     <div>
-      <Header3 isCompleted={Boolean(isComplete)}>Location Sharing</Header3>
+      <Header3 showCheckmark={false}>Location Sharing</Header3>
       <SectionContainer>
         {showMap ? (
           <MoverLocationMap moverLocation={moverLocation} />

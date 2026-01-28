@@ -11,6 +11,7 @@ import {
 } from "./helper";
 import { EnrichedMoveAssignment } from "@/types/convex-responses";
 import { formatLongDateTime } from "./luxonUtils";
+import { MoveFormData } from "@/types/form-types";
 
 export function getDisplayedPrice(
   move: Doc<"moves">,
@@ -152,4 +153,8 @@ export function buildMoverHoursTexts(
   }
 
   return texts;
+}
+
+export function isMoveCompleted(move: Doc<"moves"> | MoveFormData): boolean {
+  return move.moveStatus === "Completed";
 }

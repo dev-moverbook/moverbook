@@ -19,6 +19,7 @@ interface StopSectionProps {
   error?: string | null;
   showBannerFromParent?: boolean;
   onPlaceSelected?: () => void;
+  hideButton?: boolean;
 }
 
 const StopSection = ({
@@ -33,6 +34,7 @@ const StopSection = ({
   error,
   showBannerFromParent,
   onPlaceSelected,
+  hideButton = false,
 }: StopSectionProps) => {
   const [showBanner, setShowBanner] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -78,6 +80,7 @@ const StopSection = ({
         stopCount={stops.length}
         showBanner={showBanner || !!showBannerFromParent}
         onAddStop={handleAddStop}
+        hideButton={hideButton}
       />
 
       {stops.map((stop, i) => {

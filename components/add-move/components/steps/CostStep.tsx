@@ -57,6 +57,7 @@ const CostStep = ({ onNext, onBack, isSaving, saveError }: CostStepProps) => {
         setErrors={setMoveFormErrors}
         isEditing={true}
         totalDriveTime={totalMinutes}
+        move={moveFormData}
       />
 
       <AddTravelFee />
@@ -71,6 +72,7 @@ const CostStep = ({ onNext, onBack, isSaving, saveError }: CostStepProps) => {
         }}
         error={moveFormErrors.liabilityCoverage}
         isAdd={true}
+        move={moveFormData}
       />
 
       <AddCreditCardFee />

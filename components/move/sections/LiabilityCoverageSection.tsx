@@ -9,6 +9,8 @@ import { Pencil, X } from "lucide-react";
 import FieldErrorMessage from "@/components/shared/labeled/FieldErrorMessage";
 import SelectLiabilityCard from "@/components/add-move/components/cards/SelectLiabilityCard";
 import { Doc } from "@/convex/_generated/dataModel";
+import { MoveFormData } from "@/types/form-types";
+import { isMoveCompleted } from "@/frontendUtils/moveHelper";
 
 interface LiabilityCoverageSectionProps {
   selectedPolicy: Doc<"insurancePolicies"> | null | undefined;
@@ -17,6 +19,7 @@ interface LiabilityCoverageSectionProps {
   error?: string | null;
   isAdd?: boolean;
   isSaving?: boolean;
+  move: MoveFormData | Doc<"moves">;
 }
 
 const LiabilityCoverageSection: React.FC<LiabilityCoverageSectionProps> = ({
@@ -26,8 +29,10 @@ const LiabilityCoverageSection: React.FC<LiabilityCoverageSectionProps> = ({
   error,
   isAdd = false,
   isSaving = false,
+  move,
 }) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
+  const hideButton = isMoveCompleted(move);
   const displayPolicy = policies.find((p) => p.name === selectedPolicy?.name);
   const editingMode = isAdd || isEditing;
 
@@ -68,6 +73,7 @@ const LiabilityCoverageSection: React.FC<LiabilityCoverageSectionProps> = ({
             </IconButton>
           )
         }
+        hideButton={hideButton}
       >
         Liability Coverage
       </Header3>

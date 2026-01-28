@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import SectionContainer from "@/components/shared/containers/SectionContainer";
 import Header3 from "@/components/shared/heading/Header3";
 import EditToggleButton from "../../shared/buttons/EditToggleButton";
@@ -17,6 +17,7 @@ interface BreakMoveSectionProps {
   onCancel?: () => void;
   breakMoveTime?: number | null;
   handleChangeBreakTime: (value: number) => Promise<void> | void;
+  hideButton?: boolean;
 }
 
 const BreakMoveSection: React.FC<BreakMoveSectionProps> = ({
@@ -25,6 +26,7 @@ const BreakMoveSection: React.FC<BreakMoveSectionProps> = ({
   onCancel,
   handleChangeBreakTime,
   breakMoveTime,
+  hideButton = false,
 }) => {
   const serverDecimalHours = useMemo(
     () => (typeof breakMoveTime === "number" ? breakMoveTime : 0),
@@ -70,6 +72,7 @@ const BreakMoveSection: React.FC<BreakMoveSectionProps> = ({
             onToggle={() => setIsEditing((prev) => !prev)}
           />
         }
+        hideButton={hideButton}
       >
         Break Time
       </Header3>

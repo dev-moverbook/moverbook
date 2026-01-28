@@ -32,7 +32,7 @@ const LabeledTextarea: React.FC<LabeledTextareaProps> = ({
 
   return (
     <div className="">
-      <Label className="block  font-medium " htmlFor={id}>
+      <Label className="block  font-medium mb-1" htmlFor={id}>
         {label}
       </Label>
       <Textarea

@@ -1043,15 +1043,23 @@ export const withHHmmInZone = (
   return adjustedDateTime.toMillis();
 };
 
-export const formatDateTimeLocal = (val: string) => {
-  if (!val || !val.includes("T")) {
+export const formatDateTimeLocal = (
+  dateSource: string | number | null | undefined
+) => {
+  if (!dateSource) {
     return "";
   }
-  const [datePart, timePart] = val.split("T");
-  if (!datePart || !timePart) {
-    return "";
+
+  const parsedDate =
+    typeof dateSource === "number"
+      ? DateTime.fromMillis(dateSource)
+      : DateTime.fromISO(dateSource);
+
+  if (!parsedDate.isValid) {
+    return "Invalid Date";
   }
-  return `${formatDateToLong(datePart)} ${formatTime(timePart)}`;
+
+  return parsedDate.toFormat("MMMM d, yyyy h:mm a");
 };
 
 export const toLocalDT = (ms: number, zone: string) =>

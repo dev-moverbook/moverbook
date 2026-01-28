@@ -34,7 +34,9 @@ const SelectFieldRow: React.FC<SelectFieldRowProps> = ({
   if (isEditing) {
     return (
       <div>
-        <Label htmlFor={name}>{label}</Label>
+        <Label htmlFor={name} className="block font-medium mb-1">
+          {label}
+        </Label>
         <Select value={value ?? ""} onValueChange={onChange}>
           <SelectTrigger className={cn(error && "border-red-500")}>
             <SelectValue placeholder="Select an option" />

@@ -11,6 +11,7 @@ import { useUpdateMove } from "@/hooks/moves";
 import FormActions from "@/components/shared/buttons/FormActions";
 import FormActionContainer from "@/components/shared/containers/FormActionContainer";
 import SectionContainer from "@/components/shared/containers/SectionContainer";
+import { isMoveCompleted } from "@/frontendUtils/moveHelper";
 
 interface InventorySectionProps {
   items: Doc<"items">[];
@@ -100,6 +101,7 @@ const InventorySection = ({
         onEditClick={handleEditClick}
         onCancelEdit={() => setIsEditing(false)}
         className="mx-auto"
+        canEdit={!isMoveCompleted(move)}
       />
 
       <>

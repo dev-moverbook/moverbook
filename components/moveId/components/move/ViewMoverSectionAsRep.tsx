@@ -8,6 +8,7 @@ import EndMoveSection from "@/components/move/movers/EndMoveSectiont";
 import BreakMoveSection from "@/components/move/movers/BreakMoveSection";
 import { useUpdateMove } from "@/hooks/moves";
 import ViewMoverLocationMap from "./ViewMoverLocationMap";
+import { isMoveCompleted } from "@/frontendUtils/moveHelper";
 
 const ViewMoverSectionAsRep = () => {
   const { moveData } = useMoveContext();
@@ -72,6 +73,8 @@ const ViewMoverSectionAsRep = () => {
     });
   };
 
+  const hideButton = isMoveCompleted(move);
+
   return (
     <>
       <StartMoveSection
@@ -81,6 +84,7 @@ const ViewMoverSectionAsRep = () => {
         timeZone={timeZone}
         startTime={actualStartTime}
         handleSetStartTime={handleSetStartTime}
+        hideButton={hideButton}
       />
       {actualStartTime && <ViewMoverLocationMap />}
       {actualStartTime && (
@@ -91,6 +95,7 @@ const ViewMoverSectionAsRep = () => {
           timeZone={timeZone}
           arriveOriginTime={actualArrivalTime}
           handleSetArriveOrigin={handleSetArriveOrigin}
+          hideButton={hideButton}
         />
       )}
 
@@ -102,6 +107,7 @@ const ViewMoverSectionAsRep = () => {
           timeZone={timeZone}
           endMoveTime={actualEndTime}
           handleSetEndMove={handleSetEndMove}
+          hideButton={hideButton}
         />
       )}
 
@@ -111,6 +117,7 @@ const ViewMoverSectionAsRep = () => {
           updateError={updateMoveError}
           handleChangeBreakTime={handleChangeBreakTime}
           breakMoveTime={actualBreakTime}
+          hideButton={hideButton}
         />
       )}
     </>

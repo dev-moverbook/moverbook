@@ -85,10 +85,10 @@ const PaymentStep = () => {
 
           <AdditionalFees
             additionalFees={additionalFees}
-            moveId={moveId}
+            move={move}
             fees={fees}
           />
-          <Discounts discounts={discounts} moveId={moveId} />
+          <Discounts discounts={discounts} move={move} />
           {showInvoice ? (
             <InoviceSection
               items={items}

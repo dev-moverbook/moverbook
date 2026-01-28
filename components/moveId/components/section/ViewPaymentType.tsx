@@ -6,6 +6,7 @@ import { MovePaymentTypeFormData } from "@/types/form-types";
 import { useUpdateMove } from "@/hooks/moves";
 import PaymentTypeSection from "@/components/move/sections/Payment/PaymentTypeSection";
 import { PaymentMethod } from "@/types/types";
+import { isMoveCompleted } from "@/frontendUtils/moveHelper";
 
 const ViewPaymentType = () => {
   const { moveData } = useMoveContext();
@@ -43,6 +44,7 @@ const ViewPaymentType = () => {
       paymentMethod: val,
     });
   };
+  const hideButton = isMoveCompleted(move);
 
   return (
     <PaymentTypeSection
@@ -56,6 +58,7 @@ const ViewPaymentType = () => {
       isEditing={isEditing}
       setIsEditing={setIsEditing}
       originalPaymentMethod={move.paymentMethod}
+      hideButton={hideButton}
     />
   );
 };

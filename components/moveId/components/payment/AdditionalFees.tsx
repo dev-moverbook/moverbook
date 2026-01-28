@@ -14,18 +14,21 @@ import AdditionalFeeModal, {
   AdditionalFeeFormData,
 } from "../modals/AdditionalFeeModal";
 import ConfirmModal from "@/components/shared/modal/ConfirmModal";
+import { isMoveCompleted } from "@/frontendUtils/moveHelper";
 
 interface AdditionalFeesProps {
   additionalFees: Doc<"additionalFees">[];
-  moveId: Id<"moves">;
   fees: Doc<"fees">[];
+  move: Doc<"moves">;
 }
 
 const AdditionalFees = ({
   additionalFees,
-  moveId,
   fees,
+  move,
 }: AdditionalFeesProps) => {
+  const moveId = move._id;
+  const showEditFees = !isMoveCompleted(move);
   const [showAddLineItemModal, setShowAddLineItemModal] =
     useState<boolean>(false);
   const [editFee, setEditFee] = useState<Doc<"additionalFees"> | null>(null);
@@ -140,12 +143,14 @@ const AdditionalFees = ({
           wrapperClassName="px-0 py-0"
           showCheckmark={false}
           button={
-            <Button variant="outline" onClick={handleOpenAddLineItemModal}>
-              <div className="flex items-center gap-1">
-                <Plus className="w-5 h-5" />
-                Fees
-              </div>
-            </Button>
+            showEditFees && (
+              <Button variant="outline" onClick={handleOpenAddLineItemModal}>
+                <div className="flex items-center gap-1">
+                  <Plus className="w-5 h-5" />
+                  Fees
+                </div>
+              </Button>
+            )
           }
         >
           Additional Fees

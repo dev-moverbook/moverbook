@@ -28,6 +28,7 @@ const ViewLiabilityFee = () => {
       onSelect={handleSelectPolicy}
       isSaving={updateMoveLoading}
       error={updateMoveError}
+      move={move}
     />
   );
 };

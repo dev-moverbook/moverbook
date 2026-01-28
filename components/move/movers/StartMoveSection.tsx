@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import SectionContainer from "@/components/shared/containers/SectionContainer";
 import Header3 from "@/components/shared/heading/Header3";
 import FormActions from "@/components/shared/buttons/FormActions";
@@ -16,6 +16,7 @@ interface StartMoveSectionProps {
   handleSetStartTime?: (value: number) => Promise<void> | void;
   startTime?: number | null;
   timeZone: string;
+  hideButton?: boolean;
 }
 
 const StartMoveSection: React.FC<StartMoveSectionProps> = ({
@@ -26,6 +27,7 @@ const StartMoveSection: React.FC<StartMoveSectionProps> = ({
   handleSetStartTime,
   startTime,
   timeZone,
+  hideButton = false,
 }) => {
   const hasStartTime = typeof startTime === "number";
   const canManual = Boolean(handleSetStartTime);
@@ -117,6 +119,7 @@ const StartMoveSection: React.FC<StartMoveSectionProps> = ({
             />
           )
         }
+        hideButton={hideButton}
       >
         Move Start Time
       </Header3>

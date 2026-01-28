@@ -43,6 +43,7 @@ interface MoveAddressProps {
   onCancelAdd?: () => void;
   canEdit?: boolean;
   onPlaceSelected?: () => void;
+  hideButton?: boolean;
 }
 
 const MoveAddress = ({
@@ -58,6 +59,7 @@ const MoveAddress = ({
   onSaved,
   canEdit = true,
   onPlaceSelected,
+  hideButton = false,
 }: MoveAddressProps) => {
   const [isManualAddress, setIsManualAddress] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState<boolean>(canEdit && isAdding);
@@ -184,6 +186,7 @@ const MoveAddress = ({
           isCompleted={isComplete}
           button={headerButtons}
           showCheckmark={canEdit}
+          hideButton={hideButton}
         >
           {title}
         </Header3>

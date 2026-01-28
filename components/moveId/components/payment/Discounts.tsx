@@ -12,13 +12,16 @@ import DiscountModal, { DiscountFormData } from "../modals/DiscountModal";
 import CardContainer from "@/components/shared/card/CardContainer";
 import DiscountCard from "../card/DiscountCard";
 import ConfirmModal from "@/components/shared/modal/ConfirmModal";
+import { isMoveCompleted } from "@/frontendUtils/moveHelper";
 
 interface DiscountsProps {
   discounts: Doc<"discounts">[];
-  moveId: Id<"moves">;
+  move: Doc<"moves">;
 }
 
-const Discounts = ({ discounts, moveId }: DiscountsProps) => {
+const Discounts = ({ discounts, move }: DiscountsProps) => {
+  const moveId = move._id;
+  const showEditDiscounts = !isMoveCompleted(move);
   const [showDiscountModal, setShowDiscountModal] = useState<boolean>(false);
   const [editDiscount, setEditDiscount] = useState<Doc<"discounts"> | null>(
     null
@@ -124,12 +127,14 @@ const Discounts = ({ discounts, moveId }: DiscountsProps) => {
           wrapperClassName="px-0 py-0"
           showCheckmark={false}
           button={
-            <Button variant="outline" onClick={handleOpenDiscountModal}>
-              <div className="flex items-center gap-1">
-                <Plus className="w-5 h-5" />
-                Discounts
-              </div>
-            </Button>
+            showEditDiscounts && (
+              <Button variant="outline" onClick={handleOpenDiscountModal}>
+                <div className="flex items-center gap-1">
+                  <Plus className="w-5 h-5" />
+                  Discounts
+                </div>
+              </Button>
+            )
           }
         >
           Discounts

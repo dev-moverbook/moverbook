@@ -9,6 +9,7 @@ import { useUpdateMove } from "@/hooks/moves";
 import { DepositFormData } from "@/types/form-types";
 import { useMoveContext } from "@/contexts/MoveContext";
 import CurrencyInput from "@/components/shared/labeled/CurrencyInput";
+import { isMoveCompleted } from "@/frontendUtils/moveHelper";
 
 const DepositSection = () => {
   const { moveData } = useMoveContext();
@@ -52,6 +53,7 @@ const DepositSection = () => {
         onEditClick={handleEditClick}
         onCancelEdit={handleCancel}
         className="mx-auto"
+        canEdit={!isMoveCompleted(move)}
       />
       <SectionContainer>
         <FieldGroup>

@@ -41,7 +41,7 @@ const LabeledSelect: React.FC<LabeledSelectProps> = ({
   return (
     <div>
       {isLabeled && (
-        <Label htmlFor={labelId} className="block font-medium">
+        <Label htmlFor={labelId} className="block font-medium mb-1">
           {label}
         </Label>
       )}

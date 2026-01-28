@@ -1,4 +1,4 @@
-import { DateTime } from "luxon";
+import { DateTime, Duration } from "luxon";
 import { isNarrowScreen } from "../components/shared/graphs/lineGraphs/lineGraphUtils";
 
 export function toLocalDateTime(millis: number, zone: string): string {
@@ -282,3 +282,12 @@ export function formatTime(timeStr: string) {
     minute: "2-digit",
   });
 }
+
+export const formatBreakTime = (decimalHours: number | null | undefined) => {
+  if (!decimalHours || decimalHours <= 0) {
+    return "0:00 hrs";
+  }
+  return Duration.fromObject({ hours: decimalHours })
+    .shiftTo("hours", "minutes")
+    .toFormat("h'h' m'm'");
+};

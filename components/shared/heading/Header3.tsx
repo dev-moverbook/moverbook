@@ -11,6 +11,7 @@ interface Header3Props {
   showCheckmark?: boolean;
   button?: React.ReactNode;
   hideTitle?: boolean;
+  hideButton?: boolean;
 }
 
 const Header3: React.FC<Header3Props> = ({
@@ -21,6 +22,7 @@ const Header3: React.FC<Header3Props> = ({
   showCheckmark = true,
   button,
   hideTitle = false,
+  hideButton = false,
 }) => {
   return (
     <div
@@ -43,7 +45,7 @@ const Header3: React.FC<Header3Props> = ({
           )}
         </div>
       )}
-      {button && <div className="flex-shrink-0">{button}</div>}
+      {button && !hideButton && <div className="flex-shrink-0">{button}</div>}
     </div>
   );
 };

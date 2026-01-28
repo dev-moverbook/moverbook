@@ -21,6 +21,7 @@ type PaymentTypeSectionProps = {
   onCancel?: () => void;
   isEditing?: boolean;
   setIsEditing?: (value: boolean) => void;
+  hideButton?: boolean;
 };
 
 const PaymentTypeSection: React.FC<PaymentTypeSectionProps> = ({
@@ -34,6 +35,7 @@ const PaymentTypeSection: React.FC<PaymentTypeSectionProps> = ({
   onCancel,
   isEditing = false,
   setIsEditing,
+  hideButton = false,
 }) => {
   const editingMode = isAdd || isEditing;
 
@@ -102,6 +104,7 @@ const PaymentTypeSection: React.FC<PaymentTypeSectionProps> = ({
             <EditToggleButton isEditing={isEditing} onToggle={handleToggle} />
           )
         }
+        hideButton={hideButton}
       >
         Payment Type
       </Header3>

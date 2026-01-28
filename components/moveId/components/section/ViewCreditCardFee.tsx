@@ -5,6 +5,7 @@ import { useMoveContext } from "@/contexts/MoveContext";
 import { MoveCreditCardFeeFormData } from "@/types/form-types";
 import { useUpdateMove } from "@/hooks/moves";
 import MoveCreditCardFeeSection from "@/components/move/sections/MoveCreditCardSection";
+import { isMoveCompleted } from "@/frontendUtils/moveHelper";
 
 const ViewCreditCardFee = () => {
   const { moveData } = useMoveContext();
@@ -43,6 +44,8 @@ const ViewCreditCardFee = () => {
     });
   };
 
+  const hideButton = isMoveCompleted(move);
+
   return (
     <MoveCreditCardFeeSection
       isAdd={false}
@@ -55,6 +58,7 @@ const ViewCreditCardFee = () => {
       initialCreditCardFeeRate={initialFormData.creditCardFeeRate ?? 0}
       isEditing={isEditing}
       setIsEditing={setIsEditing}
+      hideButton={hideButton}
     />
   );
 };

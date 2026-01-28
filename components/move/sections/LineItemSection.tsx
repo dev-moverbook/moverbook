@@ -10,6 +10,7 @@ import AddLineModal from "@/components/add-move/components/modals/AddLineModal";
 import LineItemFeeCard from "@/components/add-move/components/cards/LineItemFeeCard";
 import ConfirmModal from "../../shared/modal/ConfirmModal";
 import { Doc } from "@/convex/_generated/dataModel";
+import { isMoveCompleted } from "@/frontendUtils/moveHelper";
 
 interface LineItemsSectionProps {
   fees: MoveFeeInput[];
@@ -19,6 +20,7 @@ interface LineItemsSectionProps {
   onAdd: (fee: MoveFeeInput) => void;
   onUpdate: (index: number, fee: MoveFeeInput) => void;
   onDelete: (index: number) => void;
+  move: Doc<"moves">;
 }
 
 const LineItemsSection: React.FC<LineItemsSectionProps> = ({
@@ -29,7 +31,10 @@ const LineItemsSection: React.FC<LineItemsSectionProps> = ({
   onAdd,
   onUpdate,
   onDelete,
+  move,
 }) => {
+  const showEditLineItems = !isMoveCompleted(move);
+
   const [showAddLineItemModal, setShowAddLineItemModal] = useState(false);
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
@@ -75,12 +80,14 @@ const LineItemsSection: React.FC<LineItemsSectionProps> = ({
         wrapperClassName="px-0 py-0"
         showCheckmark={false}
         button={
-          <Button variant="outline" onClick={handleOpenAddLineItemModal}>
-            <div className="flex items-center gap-1">
-              <Plus className="w-5 h-5" />
-              Line Item
-            </div>
-          </Button>
+          showEditLineItems && (
+            <Button variant="outline" onClick={handleOpenAddLineItemModal}>
+              <div className="flex items-center gap-1">
+                <Plus className="w-5 h-5" />
+                Line Item
+              </div>
+            </Button>
+          )
         }
       >
         Line Items

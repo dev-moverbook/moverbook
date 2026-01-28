@@ -43,10 +43,12 @@ const PublicMoveCard: React.FC = () => {
           </p>
           <h3 className="text-lg font-medium truncate">{name}</h3>
 
-          <div className="flex items-center gap-2 text-sm ">
-            <span style={{ color: publicStatusDisplay.color }}>●</span>
-            <span className="truncate">{publicStatusDisplay.label}</span>
-          </div>
+          {publicStatusDisplay && (
+            <div className="flex items-center gap-2 text-sm ">
+              <span style={{ color: publicStatusDisplay.color }}>●</span>
+              <span className="truncate">{publicStatusDisplay.label}</span>
+            </div>
+          )}
         </div>
 
         <div className="flex gap-2 flex-wrap  mt-1">

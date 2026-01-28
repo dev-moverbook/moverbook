@@ -71,7 +71,9 @@ const LocationSharingSection = ({
 
   return (
     <div>
-      <Header3 isCompleted={isCompleted}>Location Sharing</Header3>
+      <Header3 isCompleted={isCompleted} showCheckmark={false}>
+        Location Sharing
+      </Header3>
       <SectionContainer>
         {isSharing ? (
           <Button
