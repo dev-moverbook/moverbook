@@ -23,7 +23,12 @@ const ContractSection = ({ contract }: ContractSectionProps) => {
 
   return (
     <>
-      <SectionHeader title="Contract" isCompleted={isCompleted} showCheckmark />
+      <SectionHeader
+        className="pt-0"
+        title="Contract"
+        isCompleted={isCompleted}
+        showCheckmark
+      />
       <SectionContainer showBorder={false}>
         <PreMoveTerms />
         {contract.repSignature && contract.repSignedAt && (

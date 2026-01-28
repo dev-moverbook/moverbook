@@ -10,7 +10,7 @@ const DocumentsStep = () => {
   const contract = move.contract;
   const waiver = move.waiver;
   return (
-    <SectionContainer showBorder={false} className="px-0">
+    <SectionContainer showBorder={false} className="px-0 pt-0">
       {contract && <ContractSection contract={contract} />}
       {waiver && <WaiverSection waiver={waiver} />}
     </SectionContainer>

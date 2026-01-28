@@ -35,7 +35,7 @@ const InvoiceSummary = ({ items, total }: InvoiceSummaryProps) => {
 
   return (
     <div>
-      <SectionHeader className="mx-auto" title="Invoice Summary" />
+      <SectionHeader className="mx-auto pt-0" title="Invoice Summary" />
 
       {displayRows.length > 0 && (
         <ListRowContainer>

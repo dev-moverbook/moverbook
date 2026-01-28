@@ -1,7 +1,6 @@
 "use client";
 
 import SectionContainer from "@/components/shared/containers/SectionContainer";
-import PaymentStatus from "./PaymentStatus";
 import PaymentActions from "./PaymentActions";
 import { useState } from "react";
 import InvoiceCustomerSignature from "./InvoiceCustomerSignature";
@@ -58,9 +57,8 @@ const PaymentStep = () => {
     invoice?.status === "completed" && paymentMethod?.kind === "credit_card";
   return (
     <div>
-      <SectionContainer showBorder={false} className="px-0">
-        <PaymentStatus invoice={invoice} />
-        {showInvoice && (
+      <SectionContainer showBorder={false} className="px-0 pt-0">
+        {showInvoice ? (
           <>
             <InvoiceSummary items={items} total={total} />
             <InvoiceCustomerSignature
@@ -78,6 +76,8 @@ const PaymentStep = () => {
               <PaymentActions amount={total} move={move.move} />
             )}
           </>
+        ) : (
+          <p>Invoice not ready.</p>
         )}
       </SectionContainer>
     </div>
