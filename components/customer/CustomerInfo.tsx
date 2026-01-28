@@ -21,6 +21,7 @@ interface CustomerInfoProps {
   showCheckmark?: boolean;
   isMoverLead?: boolean;
   moveId?: Id<"moves">;
+  isUneditable?: boolean;
 }
 
 const CustomerInfo: React.FC<CustomerInfoProps> = ({
@@ -29,6 +30,7 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
   showCheckmark,
   isMoverLead,
   moveId,
+  isUneditable,
 }) => {
   const { user, companyId } = useSlugContext();
   const canCreateMoveUser = canCreateMove(user.role);
@@ -121,6 +123,7 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
           showCheckmark={showCheckmark && canCreateMoveUser}
           isCompleted={isCompleted}
           canEdit={canCreateMoveUser}
+          isUneditable={isUneditable}
         />
         <EditableIconField
           icon={<Contact className="w-4 h-4" />}

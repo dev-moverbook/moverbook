@@ -20,6 +20,7 @@ interface SectionHeaderProps {
   showAlert?: boolean;
   canEdit?: boolean;
   hideActions?: boolean;
+  isUneditable?: boolean;
 }
 
 const SectionHeader: React.FC<SectionHeaderProps> = ({
@@ -36,6 +37,7 @@ const SectionHeader: React.FC<SectionHeaderProps> = ({
   showAlert,
   canEdit = true,
   hideActions = false,
+  isUneditable = false,
 }) => {
   return (
     <div
@@ -59,7 +61,7 @@ const SectionHeader: React.FC<SectionHeaderProps> = ({
       </div>
 
       {/* Right side: icons - Wrapper logic updated */}
-      {!hideActions && (
+      {!hideActions && !isUneditable && (
         <div className="flex items-center gap-2">
           {actions ? (
             actions

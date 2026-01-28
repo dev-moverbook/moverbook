@@ -54,7 +54,7 @@ const InoviceSection = ({
       {move.moveStatus === "Completed" && (
         <>
           <InternalReview internalReview={internalReview} move={move} />
-          <ExternalReview move={move} />
+          {internalReview?.rating && <ExternalReview move={move} />}
         </>
       )}
     </div>

@@ -10,6 +10,7 @@ import AdaptiveContainer from "@/components/shared/select/AdaptiveContainer";
 import AdaptiveSelect from "@/components/shared/select/AdaptiveSelect";
 import SectionContainer from "@/components/shared/containers/SectionContainer";
 import { Label } from "@/components/ui/label";
+import { isMoveCompleted } from "@/frontendUtils/moveHelper";
 
 const AssignMovers = ({
   assignments,
@@ -64,6 +65,8 @@ const AssignMovers = ({
     image: mover.imageUrl,
   }));
 
+  const disabled = isMoveCompleted(move);
+
   return (
     <SectionContainer>
       {slots.map(({ slot, label, assignment, isLead }) => (
@@ -85,6 +88,7 @@ const AssignMovers = ({
             description={label}
             showAllOption={false}
             showSearch={true}
+            disabled={disabled}
           />
         </AdaptiveContainer>
       ))}

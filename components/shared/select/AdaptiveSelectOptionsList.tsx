@@ -39,9 +39,11 @@ export default function AdaptiveSelectOptionsList({
 }: AdaptiveSelectOptionsListProps) {
   const [searchQuery, setSearchQuery] = useState<string>("");
 
+  const shouldDisplaySearch = showSearch && options.length > 6;
+
   return (
     <Command
-      shouldFilter={showSearch}
+      shouldFilter={shouldDisplaySearch}
       className={cn(
         "bg-black text-white",
         "[&_[cmdk-group-heading]]:px-4 [&_[cmdk-group-heading]]:py-2",
@@ -49,7 +51,7 @@ export default function AdaptiveSelectOptionsList({
         "[&_[cmdk-group-heading]]:text-white/60"
       )}
     >
-      {showSearch && (
+      {shouldDisplaySearch && (
         <CommandSearchInput
           value={searchQuery}
           onChange={setSearchQuery}
@@ -59,7 +61,7 @@ export default function AdaptiveSelectOptionsList({
 
       <CommandList
         style={{ overflowAnchor: "none" }}
-        className={cn(listMaxH, "bg-black", showSearch && "mt-2")}
+        className={cn(listMaxH, "bg-black", shouldDisplaySearch && "mt-2")}
         id={id}
       >
         <CommandEmpty className="px-4 md:px-0 mt-2 text-white/70">

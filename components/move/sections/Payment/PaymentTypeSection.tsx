@@ -123,7 +123,6 @@ const PaymentTypeSection: React.FC<PaymentTypeSectionProps> = ({
                 if (val === "credit_card") {
                   onChange({ kind: "credit_card" });
                 } else if (val === "other") {
-                  // Preserve existing label if switching back to "other"
                   const existingLabel =
                     paymentMethod?.kind === "other" ? paymentMethod.label : "";
                   onChange({ kind: "other", label: existingLabel });
@@ -148,7 +147,6 @@ const PaymentTypeSection: React.FC<PaymentTypeSectionProps> = ({
                   }
                   placeholder="e.g., Cash, Check, Zelle"
                   isEditing={true}
-                  // Optional: add subtle hint
                   className="transition-all"
                 />
               </div>
@@ -166,7 +164,7 @@ const PaymentTypeSection: React.FC<PaymentTypeSectionProps> = ({
                 }}
                 isSaving={isSaving}
                 error={updateError}
-                disabled={!canSave} // ← Only enabled when changed AND valid
+                disabled={!canSave}
               />
             )}
           </>

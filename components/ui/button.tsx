@@ -1,9 +1,9 @@
+import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Loader2 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import React from "react";
 
 const buttonVariants = cva(
   "cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md md:text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
@@ -22,12 +22,12 @@ const buttonVariants = cva(
           "text-greenCustom font-bold hover:underline font-semibold rounded-[20px]",
         whiteGhost:
           "text-white font-bold hover:underline font-semibold rounded-[20px]",
-        link: " underline font-normal text-white  hover:opacity-80 ",
+        link: "underline font-normal text-white hover:opacity-80",
         plain: "",
         sidebar:
           "w-full hover:bg-gray-700 rounded-md p-1 transition justify-start gap-4",
         combobox:
-          " p-2 text-sm bg-black text-white border border-grayCustom hover:bg-background2 rounded-md font-medium",
+          "p-2 text-sm bg-black text-white border border-grayCustom hover:bg-background2 rounded-md font-medium",
       },
       size: {
         default: "h-9 px-4 py-2",
@@ -66,50 +66,42 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
-    if (asChild) {
-      return (
-        <Slot
-          className={cn(
-            buttonVariants({ variant, size, className }),
-            "relative",
-            (isLoading || disabled) && "pointer-events-none opacity-50"
-          )}
-          ref={ref}
-          {...props} // ← no `disabled` here
-        >
-          {children}
-        </Slot>
-      );
-    } else {
-      // Standard button with loading spinner
-      // Inside your Button.tsx component
-      return (
-        <button
-          className={cn(
-            buttonVariants({ variant, size, className }),
-            "relative"
-          )}
-          ref={ref}
-          disabled={isLoading || disabled}
-          {...props}
-        >
-          {/* Add 'flex items-center justify-center' here */}
-          <span
-            className={cn(
-              isLoading && "invisible",
-              "flex items-center justify-center gap-2 w-full"
-            )}
-          >
-            {children}
-          </span>
-          {isLoading && (
-            <span className="absolute inset-0 flex items-center justify-center">
-              <Loader2 className="h-4 w-4 animate-spin" />
+    const Comp = asChild ? Slot : "button";
+    const isDisabled = disabled || isLoading;
+
+    return (
+      <Comp
+        className={cn(buttonVariants({ variant, size, className }), "relative")}
+        ref={ref}
+        // These props will be merged by Slot or applied to the button
+        disabled={isDisabled}
+        aria-disabled={isDisabled}
+        {...props}
+      >
+        {/* If asChild is true, we cannot wrap children in a <span> 
+            because Slot expects only ONE direct child.
+        */}
+        {asChild ? (
+          children
+        ) : (
+          <>
+            <span
+              className={cn(
+                "flex items-center justify-center gap-2 w-full",
+                isLoading && "invisible"
+              )}
+            >
+              {children}
             </span>
-          )}
-        </button>
-      );
-    }
+            {isLoading && (
+              <span className="absolute inset-0 flex items-center justify-center">
+                <Loader2 className="h-4 w-4 animate-spin" />
+              </span>
+            )}
+          </>
+        )}
+      </Comp>
+    );
   }
 );
 

@@ -41,7 +41,7 @@ const ViewMoverSectionAsRep = () => {
   const handleEndMove = async () => {
     await updateMove({
       moveId,
-      updates: { actualEndTime: Date.now() },
+      updates: { actualEndTime: Date.now(), actualBreakTime: 0 },
     });
   };
 
