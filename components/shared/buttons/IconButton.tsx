@@ -1,10 +1,12 @@
+"use client";
+
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 
 type IconButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
   iconClassName?: string;
   variant?: "default" | "outline" | "green" | "ghost";
   loading?: boolean;
@@ -21,6 +23,7 @@ const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
       loading = false,
       asChild = false,
       disabled = false,
+      children,
       ...props
     },
     ref
@@ -30,7 +33,6 @@ const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
 
     return (
       <Comp
-        {...props}
         ref={ref}
         className={cn(
           "flex items-center justify-center rounded-full p-1.5 transition-colors duration-150",
@@ -45,9 +47,12 @@ const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
           isDisabled && "opacity-50 pointer-events-none cursor-not-allowed",
           className
         )}
-        {...(!asChild && { disabled: isDisabled })}
+        disabled={asChild ? undefined : isDisabled}
+        {...props}
       >
-        {loading ? (
+        {asChild ? (
+          children
+        ) : loading ? (
           <Loader2 className="h-4 w-4 animate-spin text-white" />
         ) : (
           <span className={cn(iconClassName)}>{icon}</span>

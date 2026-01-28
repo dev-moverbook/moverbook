@@ -24,7 +24,6 @@ const Deposit = () => {
             deposit: value != null ? Math.round(value * 100) / 100 : 0,
           }));
 
-          // Remove the deposit error (no functional updater; avoids TS errors)
           if (moveFormErrors.deposit) {
             const nextErrors = { ...moveFormErrors };
             delete nextErrors.deposit;

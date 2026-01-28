@@ -1,11 +1,9 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-
+import { useCallback, useEffect, useMemo, useState } from "react";
 import SectionContainer from "@/components/shared/containers/SectionContainer";
 import AdaptiveSelect from "@/components/shared/select/AdaptiveSelect";
 import DateRangeFieldsBase from "@/components/shared/select/DateRangePanel";
-
 import {
   FORECAST_DAYS_BY_VALUE,
   ForecastTimeValue,

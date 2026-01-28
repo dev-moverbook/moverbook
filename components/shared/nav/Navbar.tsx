@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { FiPlusCircle } from "react-icons/fi";
 import { Calendar, Menu, X } from "lucide-react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   Sheet,
   SheetContent,
@@ -23,22 +23,11 @@ const Navbar = () => {
   const { slug, isCompanyContactComplete, isStripeComplete, user } =
     useSlugContext();
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const router = useRouter();
 
   const userRole = user.role;
   const canCreateMoveUser = canCreateMove(userRole);
   const moverUser = isMover(userRole);
   const isAddMoveDisabled = !isCompanyContactComplete || !isStripeComplete;
-
-  const handleAddMove = () => {
-    if (!isAddMoveDisabled) {
-      router.push(`/app/${slug}/add-move`);
-    }
-  };
-
-  const handleViewCalendar = () => {
-    router.push(`/app/${slug}/calendar`);
-  };
 
   return (
     <nav className="fixed top-0 left-0 w-full h-14 bg-black flex items-center px-2 z-40 shadow-md border-grayCustom">
@@ -80,21 +69,33 @@ const Navbar = () => {
 
       {canCreateMoveUser ? (
         <IconButton
-          icon={<FiPlusCircle className="text-2xl" />}
+          asChild
           variant="ghost"
           title="Add Move"
           disabled={isAddMoveDisabled}
-          onClick={handleAddMove}
-          className="cursor-pointer"
-        />
+          className={
+            isAddMoveDisabled
+              ? "opacity-50 pointer-events-none"
+              : "cursor-pointer"
+          }
+        >
+          <Link href={`/app/${slug}/add-move`}>
+            <FiPlusCircle className="text-2xl" />
+            <span className="sr-only">Add Move</span>
+          </Link>
+        </IconButton>
       ) : moverUser ? (
         <IconButton
-          icon={<Calendar className="text-2xl" />}
+          asChild
           variant="ghost"
           title="View Calendar"
-          onClick={handleViewCalendar}
           className="cursor-pointer"
-        />
+        >
+          <Link href={`/app/${slug}/calendar`}>
+            <Calendar className="text-2xl" />
+            <span className="sr-only">View Calendar</span>
+          </Link>
+        </IconButton>
       ) : null}
     </nav>
   );

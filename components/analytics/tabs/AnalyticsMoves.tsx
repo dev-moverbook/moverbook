@@ -1,3 +1,5 @@
+"use client";
+
 import FilterRow from "@/components/shared/containers/FilterRow";
 import SectionContainer from "@/components/shared/containers/SectionContainer";
 import AdaptiveSelect from "@/components/shared/select/AdaptiveSelect";

@@ -1,3 +1,5 @@
+"use client";
+
 import { useSlugContext } from "@/contexts/SlugContext";
 import { useSalesRepsAndReferrals } from "@/hooks/analytics";
 import AnalyticsTabSuccess from "./AnalyticsTabSuccess";

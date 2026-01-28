@@ -1,3 +1,5 @@
+"use client";
+
 import { useMoveForm } from "@/contexts/MoveFormContext";
 import { getMoveDisplayRows } from "@/frontendUtils/helper";
 import CostTable from "@/components/move/sections/CostTable";
