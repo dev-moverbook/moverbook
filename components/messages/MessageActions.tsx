@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useMoveContext } from "@/contexts/MoveContext";
 import { useCreateMessage } from "@/hooks/messages";
 import MessageSubject from "./MessageSubject";
+import { Label } from "../ui/label";
 
 interface Props {
   toggleOptions: () => void;
@@ -60,12 +61,18 @@ const MessageActions = ({ toggleOptions, showOptions, textareaRef }: Props) => {
     }
   };
 
+  const hasText = input.trim().length > 0;
+  const hasSubject = subject && subject.trim().length > 0;
+  const canSend = method === "sms" ? hasText : hasText && hasSubject;
+
   return (
     <div>
       {createMessageError && (
-        <p className=" text-red-500 text-center ">{createMessageError}</p>
+        <p className="text-red-500 text-center mb-2">{createMessageError}</p>
       )}
+
       {method === "email" && <MessageSubject />}
+
       <div className="flex items-end gap-2">
         <IconButton
           onClick={toggleOptions}
@@ -74,24 +81,24 @@ const MessageActions = ({ toggleOptions, showOptions, textareaRef }: Props) => {
           className="w-8 h-8"
           title="Toggle Options"
         />
+        <div className="items-end  w-full ">
+          {method === "email" && <Label htmlFor="message-input">Message</Label>}
 
-        <Textarea
-          ref={textareaRef}
-          value={input}
-          onChange={(e) => {
-            setInput(e.target.value);
-            setCreateMessageError(null);
-          }}
-          className="  flex-1 bg-transparent border  text-white outline-none  border-grayCustom resize-none overflow-y-auto  "
-          placeholder={
-            method === "sms" ? "Type text message..." : "Type email message..."
-          }
-          rows={1}
-        />
+          <Textarea
+            ref={textareaRef}
+            value={input}
+            onChange={(e) => {
+              setInput(e.target.value);
+              setCreateMessageError(null);
+            }}
+            placeholder={method === "sms" ? "Text message" : "Email message"}
+            rows={1}
+          />
+        </div>
 
-        {input.trim() ? (
+        {canSend ? (
           <IconButton
-            icon={<SendHorizontal className="w-5 h-5 text-white" />}
+            icon={<SendHorizontal className="w-4 h-4 text-white" />}
             onClick={handleSend}
             variant="green"
             className="p-2"
@@ -103,9 +110,9 @@ const MessageActions = ({ toggleOptions, showOptions, textareaRef }: Props) => {
             onClick={toggleMethod}
             icon={
               method === "sms" ? (
-                <MessageSquare className="text-white " />
+                <MessageSquare className="text-white" />
               ) : (
-                <Mail className="text-white " />
+                <Mail className="text-white" />
               )
             }
             variant="ghost"

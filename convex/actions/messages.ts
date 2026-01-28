@@ -168,10 +168,10 @@ export const sendPresetScript = action({
       method: scriptType,
       status: "sent",
       message: script.message,
-      resolvedMessage: script.message,
+      resolvedMessage: resolvedMessage,
       sid,
       sentType: "outgoing",
-      resolvedSubject: script.emailTitle,
+      resolvedSubject: resolvedSubject,
       subject: script.emailTitle,
     });
 

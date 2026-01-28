@@ -12,16 +12,14 @@ const MessageSubject = () => {
       <span className="w-10" aria-hidden="true" />
 
       <div className="items-end  w-full px-10">
-        <Label htmlFor="message-subject" className="text-sm text-white block">
-          Title
-        </Label>
+        <Label htmlFor="message-subject">Subject</Label>
 
         <Input
           id="message-subject"
           type="text"
           value={subject ?? ""}
           onChange={(e) => setSubject(e.target.value)}
-          placeholder="Subject"
+          placeholder="Email Subject"
           className="flex-1 h-8"
         />
       </div>

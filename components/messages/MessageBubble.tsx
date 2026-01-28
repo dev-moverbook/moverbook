@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { CommunicationType, MessageSentType } from "@/types/types";
+import { linkifyText } from "@/utils/tsxHelper";
 import { Mail, MessageSquare } from "lucide-react";
 
 interface MessageBubbleProps {
@@ -38,7 +39,9 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
       )}
 
       {/* MESSAGE BODY */}
-      <p className="mb-5 whitespace-pre-wrap break-words">{text}</p>
+      <p className="mb-5 whitespace-pre-wrap break-words">
+        {linkifyText(text)}
+      </p>
 
       {/* FOOTER */}
       <div className="absolute bottom-1 right-2 flex items-center gap-1 text-xs text-gray-500">

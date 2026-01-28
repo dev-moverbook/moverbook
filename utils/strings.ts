@@ -6,9 +6,9 @@ const escapeHtml = (text: string): string =>
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
 
-const linkify = (text: string): string => {
-  const urlRegex = /(https?:\/\/[^\s]+)/g;
+export const urlRegex = /(https?:\/\/[^\s]+)/g;
 
+const linkify = (text: string): string => {
   return text.replace(urlRegex, (url) => {
     return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
   });
