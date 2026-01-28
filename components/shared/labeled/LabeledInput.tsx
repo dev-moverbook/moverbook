@@ -66,11 +66,7 @@ const LabeledInput: React.FC<LabeledInputProps> = ({
 
   return (
     <div className={className}>
-      {label && (
-        <Label htmlFor={labelId} className="block font-medium">
-          {label}
-        </Label>
-      )}
+      {label && <Label htmlFor={labelId}>{label}</Label>}
       <Input
         ref={inputRef}
         id={labelId}

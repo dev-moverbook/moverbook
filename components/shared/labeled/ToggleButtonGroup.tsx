@@ -32,7 +32,7 @@ const ToggleButtonGroup = <T extends string>({
   }
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-1">
       <label className="text-white  font-medium">{label}</label>
       <div className="flex gap-2">
         {options.map((option) => (

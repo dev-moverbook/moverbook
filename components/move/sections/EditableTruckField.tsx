@@ -28,7 +28,7 @@ const EditableTruckField: React.FC<EditableTruckFieldProps> = ({
   }
 
   return (
-    <>
+    <div>
       <TagLabel
         label="Trucks"
         buttonText={tagType === "suggested" ? "Custom" : "Suggested"}
@@ -53,7 +53,7 @@ const EditableTruckField: React.FC<EditableTruckFieldProps> = ({
         />
       )}
       <FieldErrorMessage error={error} noPlaceholder={true} />
-    </>
+    </div>
   );
 };
 

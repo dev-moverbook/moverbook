@@ -48,7 +48,7 @@ const EditableMoverField: React.FC<EditableMoverFieldProps> = ({
   }
 
   return (
-    <>
+    <div>
       <TagLabel
         label="Movers"
         buttonText={tagType === "suggested" ? "Custom" : "Suggested"}
@@ -101,7 +101,7 @@ const EditableMoverField: React.FC<EditableMoverFieldProps> = ({
           />
         </div>
       )}
-    </>
+    </div>
   );
 };
 

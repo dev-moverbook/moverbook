@@ -152,7 +152,7 @@ const PaymentTypeSection: React.FC<PaymentTypeSectionProps> = ({
               </div>
             )}
 
-            {editingMode && (
+            {editingMode && !isAdd && (
               <FormActions
                 onSave={(e) => {
                   e.preventDefault();

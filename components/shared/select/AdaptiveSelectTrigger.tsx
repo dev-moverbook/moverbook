@@ -1,6 +1,6 @@
 "use client";
 
-import React, { forwardRef } from "react";
+import { forwardRef } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ChevronsUpDown } from "lucide-react";
@@ -78,7 +78,6 @@ const AdaptiveSelectTrigger = forwardRef<
             <span className="flex min-w-0 flex-1 items-center gap-2">
               {selectedOption ? (
                 <>
-                  {/* No avatar for All or Custom */}
                   {!isAllSelection &&
                     !isCustomSelection &&
                     selectedOption.image && (

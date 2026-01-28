@@ -38,7 +38,7 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
   }
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col ">
       {label && (
         <Label htmlFor={labelId} className="font-medium">
           {label}

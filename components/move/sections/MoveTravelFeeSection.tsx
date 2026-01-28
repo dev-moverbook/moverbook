@@ -137,7 +137,7 @@ const MoveTravelFeeSection: React.FC<MoveTravelFeeProps> = ({
           />
         )}
 
-        {editingMode && (
+        {editingMode && !isAdd && (
           <FormActions
             onSave={(e) => {
               e.preventDefault();
