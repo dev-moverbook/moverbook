@@ -39,7 +39,7 @@ const FieldDate: React.FC<FieldDateProps> = ({
 
   return (
     <div className="relative ">
-      <Label htmlFor={name} className="block font-medium">
+      <Label htmlFor={name} className="block font-medium mb-1">
         {label}
       </Label>
       <Input

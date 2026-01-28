@@ -26,7 +26,7 @@ const SalesRepSelect: React.FC<SalesRepSelectProps> = ({
   const options = (result ?? []).map((user) => ({
     label: user.name,
     value: user._id,
-    image: user.imageUrl, // AdaptiveSelect usually supports images
+    image: user.imageUrl,
   }));
 
   return (

@@ -15,7 +15,7 @@ import ButtonRadioGroup from "@/components/shared/labeled/ButtonRadioGroup";
 import { PRICE_FILTER_OPTIONS, PriceOrder } from "@/types/tsx-types";
 import { useSlugContext } from "@/contexts/SlugContext";
 import { SalesRepOption, useMoveFilter } from "@/contexts/MoveFilterContext";
-import SalesRepSelect from "@/components/shared/select/SalesRepSelect";
+import SalesRepOptionsSelect from "@/components/shared/select/SalesRepOptionsSelect";
 
 interface FilterModalProps {
   isOpen: boolean;
@@ -69,7 +69,7 @@ const FilterModal: React.FC<FilterModalProps> = ({ isOpen, onClose }) => {
 
         <div className="mt-4">
           <FieldGroup>
-            <SalesRepSelect
+            <SalesRepOptionsSelect
               companyId={companyId}
               label="Sales Rep"
               value={tempSalesRep}
