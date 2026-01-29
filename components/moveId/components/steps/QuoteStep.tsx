@@ -61,6 +61,7 @@ const QuoteStep = ({ quote }: QuoteStepProps) => {
           quote={quote}
           setSalesRepSignatureDataUrl={setSalesRepSignatureDataUrl}
           setCustomerSignatureDataUrl={setCustomerSignatureDataUrl}
+          customerCollapsible={true}
         />
         {(salesRepSignatureDataUrl || quote?.repSignature) && (
           <QuoteActions

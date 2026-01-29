@@ -9,14 +9,15 @@ import { Doc } from "@/convex/_generated/dataModel";
 interface QuoteSignatureProps {
   setSalesRepSignatureDataUrl?: (dataUrl: string | null) => void;
   setCustomerSignatureDataUrl?: (dataUrl: string | null) => void;
-
   quote: Doc<"quotes"> | null;
+  customerCollapsible?: boolean;
 }
 
 const QuoteSignature = ({
   setSalesRepSignatureDataUrl,
   setCustomerSignatureDataUrl,
   quote,
+  customerCollapsible = false,
 }: QuoteSignatureProps) => {
   const showRepSignature =
     (!!quote?.repSignature && quote?.status === "pending") ||
@@ -53,6 +54,7 @@ const QuoteSignature = ({
           <Signature
             title="Customer Signature"
             onChange={setCustomerSignatureDataUrl ?? (() => {})}
+            collapsible={customerCollapsible}
           />
         )}
       </SectionContainer>

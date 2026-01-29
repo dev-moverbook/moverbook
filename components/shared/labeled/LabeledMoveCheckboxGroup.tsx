@@ -65,8 +65,8 @@ const LabeledMoveCheckboxGroup: React.FC<LabeledMoveCheckboxGroupProps> = ({
 
   return (
     <div>
-      <Label className="block  font-medium text-white">{label}</Label>
-      <div className="flex flex-col gap-4 mt-1">
+      <Label className="">{label}</Label>
+      <div className="flex flex-col gap-4 mt-4">
         {options.map((option) => {
           const isEndingLocation = option.value === "endingLocation";
 

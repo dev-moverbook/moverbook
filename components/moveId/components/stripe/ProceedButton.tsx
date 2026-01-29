@@ -10,32 +10,34 @@ interface ProceedButtonProps {
   ) => void;
   moveId: Id<"moves">;
   paymentError?: string | null;
+  setLoading: (loading: boolean) => void;
 }
 
 const ProceedButton = ({
   setMoveCustomerStripeProfile,
   moveId,
   paymentError,
+  setLoading,
 }: ProceedButtonProps) => {
   const {
     ensureMoveCustomerStripeProfile,
-    loading: ensureMoveCustomerStripeProfileLoading,
     error: ensureMoveCustomerStripeProfileError,
   } = useEnsureMoveCustomerStripeProfiel();
 
   const handleClick = async () => {
+    setLoading(true);
     const moveCustomerStripeProfile =
-      await ensureMoveCustomerStripeProfile(moveId);
+     await ensureMoveCustomerStripeProfile(moveId);
+
     setMoveCustomerStripeProfile(moveCustomerStripeProfile);
+    setLoading(false);
   };
 
-  const isSubmitting = ensureMoveCustomerStripeProfileLoading;
 
   return (
     <SingleFormAction
       submitLabel="Payment"
       onSubmit={handleClick}
-      isSubmitting={isSubmitting}
       error={paymentError || ensureMoveCustomerStripeProfileError}
     />
   );

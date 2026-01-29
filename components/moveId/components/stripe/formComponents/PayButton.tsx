@@ -16,9 +16,9 @@ export function PayButton({
   error,
   isDisabled,
 }: PayButtonProps) {
+  console.log('loading', loading);
   return (
     <SingleFormAction
-      isSubmitting={loading}
       submitLabel={`Pay ${formatCurrency(amount)}`}
       error={error}
       submitVariant="default"

@@ -43,6 +43,7 @@ const PublicQuotesStep = () => {
       <QuoteSignature
         quote={quote}
         setCustomerSignatureDataUrl={setCustomerSignatureDataUrl}
+        customerCollapsible={false}
       />
 
       {showQuoteActions && hasPayment && (
@@ -59,7 +60,9 @@ const PublicQuotesStep = () => {
         />
       )}
 
-      {hasPayment && <DepositPaymentSection move={moveData} />}
+      {hasPayment && quote?.status === "completed" && (
+        <DepositPaymentSection move={moveData} />
+      )}
     </SectionContainer>
   );
 };

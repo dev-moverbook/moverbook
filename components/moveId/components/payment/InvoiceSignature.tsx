@@ -56,6 +56,7 @@ const InvoiceSignature = ({
           <Signature
             title="Customer Signature"
             onChange={setCustomerSignatureDataUrl}
+            collapsible={true}
           />
         )}
       </SectionContainer>

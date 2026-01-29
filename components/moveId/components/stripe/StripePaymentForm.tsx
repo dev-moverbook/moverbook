@@ -2,21 +2,23 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { CompleteCardInfo } from "@/types/types";
-import { CardInput } from "./formComponents/CardInput";
 import { PayButton } from "./formComponents/PayButton";
-import { useStripePayment } from "@/hooks/stripe";
 import ButtonRadioGroup from "@/components/shared/labeled/ButtonRadioGroup";
 import { Label } from "@/components/ui/label";
 import { PaymentProcessingStatus } from "./formComponents/PaymentProcessngStatus";
+import {
+  PaymentElement,
+  useElements,
+  useStripe,
+} from "@stripe/react-stripe-js";
 
 interface StripePaymentFormProps {
   amount: number;
-  createSetupIntent: () => Promise<{ clientSecret: string }>;
+  cardInfo: CompleteCardInfo | null;
   createPaymentIntent: (args: {
     useSavedPaymentMethod: boolean;
     manualPaymentMethodId?: string;
   }) => Promise<void>;
-  cardInfo: CompleteCardInfo | null;
   error?: string | null;
   isLoading: boolean;
 }
@@ -24,114 +26,137 @@ interface StripePaymentFormProps {
 export function StripePaymentForm({
   amount,
   cardInfo,
-  createSetupIntent,
   createPaymentIntent,
   error,
   isLoading,
 }: StripePaymentFormProps) {
-  const {
-    submit,
-    loading,
-    error: stripeError,
-  } = useStripePayment({
-    createSetupIntent,
-    createPaymentIntent,
-  });
+  const stripe = useStripe();
+  const elements = useElements();
 
-  const [selection, setSelection] = useState<string>(
-    cardInfo ? "saved" : "new"
-  );
-  const [isCardComplete, setIsCardComplete] = useState<boolean>(false);
+  const [selection, setSelection] = useState<string>(cardInfo ? "saved" : "new");
+  const [isComplete, setIsComplete] = useState<boolean>(false);
+  const [isReady, setIsReady] = useState<boolean>(false);
+  const [submitLoading, setSubmitLoading] = useState<boolean>(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [hasStarted, setHasStarted] = useState<boolean>(false);
   const [isTimedOut, setIsTimedOut] = useState<boolean>(false);
+  const [isSuccess, setIsSuccess] = useState<boolean>(false);
 
   const paymentOptions = useMemo(() => {
     const opts = [];
-
     if (cardInfo) {
       opts.push({
         label: `${cardInfo.brand} •••• ${cardInfo.last4} (exp ${cardInfo.expMonth}/${cardInfo.expYear})`,
         value: "saved",
       });
     }
-
-    opts.push({
-      label: "New Card",
-      value: "new",
-    });
-
+    opts.push({ label: "New Card", value: "new" });
     return opts;
   }, [cardInfo]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
-    if (hasStarted && !loading && !stripeError && !error) {
-      timer = setTimeout(() => setIsTimedOut(true), 10000);
+    if (hasStarted && submitLoading && !isSuccess) {
+      timer = setTimeout(() => setIsTimedOut(true), 12000);
     }
     return () => clearTimeout(timer);
-  }, [hasStarted, loading, stripeError, error]);
+  }, [hasStarted, submitLoading, isSuccess]);
 
   const handleSubmit = async () => {
+    if (!stripe || !elements) {
+      setSubmitError("Stripe has not loaded properly.");
+      return;
+    }
+
     setIsTimedOut(false);
     setHasStarted(true);
-    await submit(selection as "saved" | "new");
+    setSubmitError(null);
+    setSubmitLoading(true);
+
+    try {
+      if (selection === "saved") {
+        await createPaymentIntent({ useSavedPaymentMethod: true });
+        setIsSuccess(true);
+      } else {
+        const { error: stripeErr, setupIntent } = await stripe.confirmSetup({
+          elements,
+          confirmParams: {
+          },
+          redirect: "if_required",
+        });
+
+        if (stripeErr){
+          throw stripeErr;
+        }
+
+        if (!setupIntent?.payment_method) {
+          throw new Error("No payment method returned from Stripe.");
+        }
+
+        await createPaymentIntent({
+          useSavedPaymentMethod: false,
+          manualPaymentMethodId: setupIntent.payment_method as string,
+        });
+        setIsSuccess(true);
+      }
+    } catch (err) {
+      console.error("Payment Error:", err);
+      setSubmitError(err instanceof Error ? err.message : "An unexpected error occurred.");
+      setHasStarted(false);
+    } finally {
+      setSubmitLoading(false);
+    }
   };
 
-  const isButtonLoading =
-    (hasStarted && !stripeError && !error && !isTimedOut) ||
-    isLoading ||
-    loading;
+  const isProcessing = (hasStarted && submitLoading) || (hasStarted && isSuccess) || isLoading;
+  const combinedError = submitError || error || (isTimedOut ? "Confirmation taking longer than expected." : null);
+  
+  const isSubmitDisabled = isProcessing || (selection === "new" && (!isComplete || !isReady));
 
-  const combinedError =
-    stripeError ||
-    error ||
-    (isTimedOut
-      ? "Payment authorized, but confirmation is taking longer than expected."
-      : null);
-
-  const isSubmitDisabled =
-    isButtonLoading || (selection === "new" && !isCardComplete);
-
-  if (isButtonLoading) {
-    return <PaymentProcessingStatus />;
+  if(isProcessing && !isTimedOut) {
+    return <PaymentProcessingStatus />
   }
 
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        handleSubmit();
-      }}
-      className="max-w-md space-y-6 rounded-lg  shadow-sm"
-    >
-      <ButtonRadioGroup
-        label="Payment Method"
-        name="paymentMethod"
-        options={paymentOptions}
-        value={selection}
-        onChange={(value) => setSelection(value as "saved" | "new")}
-        layout="vertical"
-        isEditing={!isButtonLoading}
-      />
+    <div className="relative">
+    
 
-      {selection === "new" && (
-        <div className="">
-          <Label
-            className="text-white  font-medium mb-2 block"
-            id="card-information"
-          >
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSubmit();
+        }}
+        className={`space-y-6 rounded-lg shadow-sm ${isProcessing ? 'opacity-50 pointer-events-none' : ''}`}
+      >
+        <ButtonRadioGroup
+          label="Payment Method"
+          name="paymentMethod"
+          options={paymentOptions}
+          value={selection}
+          onChange={(value) => setSelection(value as "saved" | "new")}
+          layout="vertical"
+          isEditing={!isProcessing}
+        />
+        <div className={selection === "new" ? "block" : "hidden"}>
+          <Label id="payment-information" className="mb-3 ">
             Card Information
           </Label>
-          <CardInput onChange={setIsCardComplete} />
+          <div className="">
+            <PaymentElement
+              options={{ layout: "tabs" }}
+              onChange={(e) => setIsComplete(e.complete)}
+              onReady={() => setIsReady(true)}
+            />
+          </div>
         </div>
-      )}
 
-      <PayButton
-        isDisabled={isSubmitDisabled}
-        loading={isButtonLoading}
-        amount={amount}
-        error={combinedError}
-      />
-    </form>
+        <PayButton
+          isDisabled={isSubmitDisabled}
+          loading={isProcessing}
+          amount={amount}
+          error={combinedError}
+        />
+      </form>
+    </div>
   );
 }

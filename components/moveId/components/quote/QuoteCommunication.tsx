@@ -145,7 +145,7 @@ const QuoteCommunication = ({ move }: QuoteConfirmationProps) => {
           isLoading={activeLoading === "email"}
           className="w-full"
         >
-          Email Quote
+          Email
         </Button>
         <Button
           variant="ghost"
@@ -153,7 +153,7 @@ const QuoteCommunication = ({ move }: QuoteConfirmationProps) => {
           isLoading={activeLoading === "sms"}
           className="w-full"
         >
-          Text Quote
+          Text
         </Button>
 
         {showCreditPayment ? (

@@ -51,7 +51,7 @@ const InvoiceSave = ({
     <FormActionContainer>
       <SingleFormAction
         onSubmit={handleSave}
-        submitLabel="Save Signature"
+        submitLabel="Save"
         isSubmitting={loading}
         error={error}
       />
