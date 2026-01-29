@@ -172,7 +172,6 @@ const LocationSection = () => {
         companyContact={companyContact}
         locations={move.locations ?? []}
         segmentDistances={move.segmentDistances ?? []}
-        showBorder={false}
       />
     </div>
   );

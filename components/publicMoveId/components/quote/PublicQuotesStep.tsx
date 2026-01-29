@@ -33,7 +33,7 @@ const PublicQuotesStep = () => {
   }
 
   return (
-    <SectionContainer showBorder={false} className="p-0 pb-10">
+    <SectionContainer className="p-0 pb-10">
       <QuoteSummary move={moveData} company={company} />
       <QuoteContactProvider />
       <EditableQuoteSection />

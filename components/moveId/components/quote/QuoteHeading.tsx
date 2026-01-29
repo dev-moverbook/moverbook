@@ -9,7 +9,7 @@ interface QuoteHeadingProps {
 
 const QuoteHeading = ({ moveStatus, title }: QuoteHeadingProps) => {
   return (
-    <SectionContainer showBorder={false}>
+    <SectionContainer>
       <FieldDisplay label="Quote Status" value={moveStatus} fallback="—" />
       {title && <FieldDisplay label="Title" value={title} fallback="—" />}
     </SectionContainer>

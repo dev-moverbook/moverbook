@@ -125,6 +125,7 @@ export interface GetMoveOptionsData {
 export interface GetMoveData {
   additionalFees: Doc<"additionalFees">[];
   discounts: Doc<"discounts">[];
+  contract: Doc<"contracts"> | null;
   move: Doc<"moves">;
   quote: Doc<"quotes"> | null;
   company: Doc<"companies">;

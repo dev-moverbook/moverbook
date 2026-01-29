@@ -64,7 +64,7 @@ const InternalNotesSection = () => {
         className="mx-auto"
       />
 
-      <SectionContainer showBorder={false}>
+      <SectionContainer>
         <FieldGroup>
           <div className="space-y-2">
             <LabeledTextarea

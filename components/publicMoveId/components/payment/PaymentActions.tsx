@@ -23,7 +23,7 @@ const InvoicePaymentSection = ({
   return (
     <div>
       <SectionHeader className="mx-auto" title="Confirmation" />
-      <SectionContainer showBorder={false}>
+      <SectionContainer>
         <PaymentWrapper
           error={lastPaymentError}
           amount={amount}

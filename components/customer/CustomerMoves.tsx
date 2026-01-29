@@ -56,7 +56,7 @@ export default function CustomerMoves({
   );
 
   return (
-    <SectionContainer className="px-0 gap-0 pb-20" showBorder={false}>
+    <SectionContainer className="px-0 gap-0 pb-20">
       <SectionHeaderWithAction
         title="Moves"
         action={actionNode}

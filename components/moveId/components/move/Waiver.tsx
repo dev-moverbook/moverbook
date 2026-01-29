@@ -42,6 +42,10 @@ const Waiver = ({ waiver }: WaiverProps) => {
 
   const isDisabled = !signatureDataUrl && !waiver;
 
+  const showWaiverActions = waiver?.status !== "completed";
+
+  ;
+
   const handleSMS = async () => {
     setIsSmsLoading(true);
     if (signatureDataUrl) {
@@ -96,6 +100,7 @@ const Waiver = ({ waiver }: WaiverProps) => {
             title="Customer Signature"
           />
         )}
+        {showWaiverActions && (
         <FormActions
           disabled={isDisabled}
           cancelDisabled={isDisabled || createOrUpdateWaiverLoading}
@@ -110,6 +115,7 @@ const Waiver = ({ waiver }: WaiverProps) => {
           isCanceling={isSmsLoading}
           error={error || sendPresetScriptError}
         />
+        )}
       </SectionContainer>
     </CollapsibleSection>
   );

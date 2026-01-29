@@ -43,7 +43,7 @@ const ExternalReview = ({ move }: ExternalReviewProps) => {
         className="mx-auto"
         title="External Review"
       />
-      <SectionContainer showBorder={false}>
+      <SectionContainer >
         <FormActions
           onCancel={handleSendExternalReviewSms}
           onSave={(e) => {

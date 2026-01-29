@@ -134,7 +134,7 @@ const LaborSection: React.FC<LaborSectionProps> = ({
         Labor
       </Header3>
 
-      <SectionContainer showBorder={false} className="pb-0">
+      <SectionContainer  className="pb-0">
         <LaborInputs
           formData={formData}
           onChange={onChange}

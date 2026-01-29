@@ -11,7 +11,7 @@ const PaymentSuccess = ({
   message = "Payment Success!",
 }: PaymentSuccessProps) => {
   return (
-    <SectionContainer showBorder={false}>
+    <SectionContainer>
       <div className="p-4 bg-green-500/10 border border-green-500 rounded-lg animate-in fade-in zoom-in duration-300">
         <div className="flex flex-col items-center justify-center gap-2 text-center">
           <CheckCircle2 className="text-green-500 h-8 w-8" />

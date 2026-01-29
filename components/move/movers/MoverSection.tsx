@@ -222,7 +222,7 @@ const MoverSection: React.FC<MoverSectionProps> = ({
         Work Hours
       </Header3>
 
-      <SectionContainer showBorder={false}>
+      <SectionContainer >
         <MoverSectionContent
           hasStartTime={hasStartTime}
           hasEndTime={hasEndTime}

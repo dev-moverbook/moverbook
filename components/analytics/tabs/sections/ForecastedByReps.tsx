@@ -39,7 +39,7 @@ export default function ForecastedByReps() {
   const backDisabled = !canMoveBackOneWeek(customStartDate);
 
   return (
-    <SectionContainer showBorder={false}>
+    <SectionContainer >
       <DateRangeControls
         startDate={customStartDate}
         endDate={customEndDate}

@@ -58,7 +58,7 @@ export function useStripePayment({
           useSavedPaymentMethod: false,
           manualPaymentMethodId: setupIntent.payment_method as string,
         });
-      } catch (err: any) {
+      } catch (err) {
         setErrorFromConvexError(err, setError);
       } finally {
         setLoading(false);

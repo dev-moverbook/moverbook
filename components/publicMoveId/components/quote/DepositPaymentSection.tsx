@@ -19,7 +19,7 @@ const DepositPaymentSection = ({ move }: DepositPaymentSectionProps) => {
   return (
     <div>
       <SectionHeader className="mx-auto" title="Confirmation" />
-      <SectionContainer showBorder={false}>
+      <SectionContainer>
         <PaymentWrapper
           error={lastPaymentError}
           amount={move.deposit ?? 0}

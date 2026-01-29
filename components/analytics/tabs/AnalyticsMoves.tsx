@@ -91,7 +91,7 @@ const AnalyticsMoves = () => {
   }, [timeZone, selectedTime, seedRangeFromPreset]);
 
   return (
-    <SectionContainer showBorder={false}>
+    <SectionContainer >
       <FilterRow>
         <AdaptiveSelect
           title="Select time"

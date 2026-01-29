@@ -19,6 +19,7 @@ import { Doc } from "./_generated/dataModel";
 import { ErrorMessages } from "@/types/errors";
 import { internal } from "./_generated/api";
 import { throwConvexError } from "./backendUtils/errors";
+import { WaiverStatusConvex } from "./schema";
 
 export const createOrUpdateWaiver = mutation({
   args: {
@@ -32,7 +33,7 @@ export const createOrUpdateWaiver = mutation({
   },
   handler: async (ctx, args): Promise<boolean> => {
     const { moveId } = args;
-    const updates = { ...args.updates };
+    const updates: Partial<Doc<"waivers">> = { ...args.updates };
 
     const identity = await requireAuthenticatedUser(ctx, [
       ClerkRoles.ADMIN,
@@ -70,12 +71,15 @@ export const createOrUpdateWaiver = mutation({
       await ctx.db.get(move.moveCustomerId)
     );
 
+    const status = updates.customerSignature ? "completed" : "pending";
+
     if (existing) {
       await ctx.db.patch(existing._id, updates);
     } else {
       await ctx.db.insert("waivers", {
         moveId,
         ...updates,
+        status,
       });
     }
 
@@ -160,6 +164,7 @@ export const customerSignWaiver = action({
       waiverId: validatedWaiver._id,
       updates: {
         customerSignature: args.updates.customerSignature,
+        status: "completed",
       },
     });
 
@@ -214,6 +219,7 @@ export const updateWaiverInternal = internalMutation({
     waiverId: v.id("waivers"),
     updates: v.object({
       customerSignature: v.string(),
+      status: v.optional(WaiverStatusConvex),
     }),
   },
   handler: async (ctx, args): Promise<void> => {

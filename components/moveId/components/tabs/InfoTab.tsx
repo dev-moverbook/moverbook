@@ -23,7 +23,7 @@ export default function InfoTab({ hideStepper }: InfoTabProps) {
   const searchParams = useSearchParams();
 
   const { moveData } = useMoveContext();
-  const { move, moveCustomer, quote, changeRequests } = moveData;
+  const { move, moveCustomer, quote, changeRequests, contract } = moveData;
 
   const stepFromQuery = useMemo(() => {
     const stepParam = searchParams.get("step");
@@ -42,11 +42,33 @@ export default function InfoTab({ hideStepper }: InfoTabProps) {
     setCurrentStep(stepFromQuery);
   }, [stepFromQuery]);
 
-  const isQuoteStepComplete = quote?.status === "completed";
-
   const isLeadStepComplete = hasRequiredMoveFields(move, moveCustomer);
-  const isMoveStepComplete =
-    move.actualStartTime && move.actualArrivalTime && move.actualEndTime;
+  const isQuoteStepComplete = quote?.status === "completed";
+  const isMoveStepComplete = !!(move.actualStartTime && move.actualArrivalTime && move.actualEndTime);
+  const isSetupStepComplete = contract?.status === "completed";
+
+  const disabledSteps = useMemo(() => {
+    const disabled: number[] = [];
+
+    if (!isLeadStepComplete) {
+      disabled.push(2, 3, 4, 5);
+      return disabled;
+    }
+
+    if (!isQuoteStepComplete) {
+      disabled.push(3, 4, 5);
+    }
+
+    if (!isSetupStepComplete) {
+      disabled.push(4, 5);
+    }
+
+    if (!isMoveStepComplete) {
+      disabled.push(5);
+    }
+
+    return disabled;
+  }, [isLeadStepComplete, isQuoteStepComplete, isSetupStepComplete, isMoveStepComplete]);
 
   const handleStepClick = (step: number) => {
     setCurrentStep(step);
@@ -76,23 +98,17 @@ export default function InfoTab({ hideStepper }: InfoTabProps) {
           ]}
           onStepClick={handleStepClick}
           className="mt-4"
-          disabledSteps={[
-            ...(!isLeadStepComplete ? [2, 3, 4, 5] : []),
-            ...(isLeadStepComplete && !isQuoteStepComplete ? [3, 4, 5] : []),
-            ...(isLeadStepComplete &&
-            !isQuoteStepComplete &&
-            !isMoveStepComplete
-              ? [5]
-              : []),
-          ]}
+          disabledSteps={disabledSteps}
         />
       )}
 
-      {currentStep === 1 && <LeadStep />}
-      {currentStep === 2 && <QuoteStep quote={quote} />}
-      {currentStep === 3 && <SetupStep />}
-      {currentStep === 4 && <MoveStep />}
-      {currentStep === 5 && <PaymentStep />}
+      <div className="mt-6">
+        {currentStep === 1 && <LeadStep />}
+        {currentStep === 2 && <QuoteStep quote={quote} />}
+        {currentStep === 3 && <SetupStep />}
+        {currentStep === 4 && <MoveStep />}
+        {currentStep === 5 && <PaymentStep />}
+      </div>
     </>
   );
 }

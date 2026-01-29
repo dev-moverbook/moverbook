@@ -147,7 +147,7 @@ const SelectionInventory = ({
               />
             )}
           </SectionContainer>
-          <SectionContainer showBorder={false}>
+          <SectionContainer >
             <Header4>Update Room Assignment</Header4>
             <SingleCardContainer>
               {roomOptions?.map((room) => (
@@ -187,7 +187,7 @@ const SelectionInventory = ({
             Rooms
           </Header3>
 
-          <SectionContainer showBorder={false}>
+          <SectionContainer >
             <SingleCardContainer>
               <SelectableCardContainer
                 onClick={() => setAddRoomModalOpen(true)}

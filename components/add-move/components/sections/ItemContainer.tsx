@@ -48,7 +48,7 @@ const ItemContainer: React.FC<ItemContainerProps> = ({
     }
   };
   return (
-    <SectionContainer showBorder={false} className="px-0">
+    <SectionContainer  className="px-0">
       <TabSelector
         tabs={["POPULAR", "CATEGORIES", "SEARCH"]}
         activeTab={activeTab}

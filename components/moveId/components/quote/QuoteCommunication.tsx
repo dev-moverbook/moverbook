@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import SectionContainer from "@/components/shared/containers/SectionContainer";
 import { Doc } from "@/convex/_generated/dataModel";
 import TripleFormAction from "@/components/shared/buttons/TripleFormAction";
@@ -18,23 +18,24 @@ import { getStripePromise } from "@/frontendUtils/stripe";
 import { getDefaultPaymentMethodInfo } from "../stripe/helper";
 import { ArrowLeft } from "lucide-react";
 import PaymentSuccess from "../stripe/formComponents/PaymentSuccess";
+import { stripeDarkAppearance } from "@/frontendUtils/stripeTheme";
+import PaymentSkeleton from "@/components/shared/skeleton/PaymentSkeleton";
 
 interface QuoteConfirmationProps {
   move: Doc<"moves">;
 }
 
 const QuoteCommunication = ({ move }: QuoteConfirmationProps) => {
-  const [activeLoading, setActiveLoading] = useState<"email" | "sms" | null>(
-    null
-  );
+  const [activeLoading, setActiveLoading] = useState<"email" | "sms" | null>(null);
   const [moveCustomerStripeProfile, setMoveCustomerStripeProfile] =
     useState<Doc<"moveCustomerStripeProfiles"> | null>(null);
+  const [setupClientSecret, setSetupClientSecret] = useState<string | null>(null);
 
   const {
     ensureMoveCustomerStripeProfile,
-    loading: ensureMoveCustomerStripeProfileLoading,
-    error: ensureMoveCustomerStripeProfileError,
-    setError: setEnsureMoveCustomerStripeProfileError,
+    loading: ensureProfileLoading,
+    error: ensureProfileError,
+    setError: setEnsureProfileError,
   } = useEnsureMoveCustomerStripeProfiel();
 
   const { sendPresetScript, sendPresetScriptError, setSendPresetScriptError } =
@@ -45,50 +46,70 @@ const QuoteCommunication = ({ move }: QuoteConfirmationProps) => {
     loading: paymentLoading,
     error: paymentError,
   } = useStripePaymentIntent();
+  
   const {
     createSetupIntent,
     loading: setupLoading,
     error: setupError,
   } = useStripeSetupIntent();
 
-  const { markAsBooked, isLoading, error, setError } = useMarkAsBooked();
+  const { markAsBooked, isLoading: isMarkingBookedLoading, error, setError } = useMarkAsBooked();
 
-  const handleEnsureMoveCustomerStripeProfile = async () => {
+  const isAnyLoading = 
+    !!activeLoading || 
+    ensureProfileLoading || 
+    isMarkingBookedLoading || 
+    setupLoading || 
+    paymentLoading;
+
+  useEffect(() => {
+    if (
+      moveCustomerStripeProfile &&
+      !setupClientSecret &&
+      !setupLoading &&
+      !setupError
+    ) {
+      const fetchSecret = async () => {
+        try {
+          const { clientSecret } = await createSetupIntent(move._id);
+          setSetupClientSecret(clientSecret);
+        } catch (err) {
+          console.error("Failed to create SetupIntent:", err);
+        }
+      };
+      fetchSecret();
+    }
+  }, [moveCustomerStripeProfile, setupClientSecret, createSetupIntent, setupLoading, setupError, move._id]);
+
+  const handleEnsureProfile = async () => {
     setSendPresetScriptError(null);
     setError(null);
-    const moveCustomerStripeProfile = await ensureMoveCustomerStripeProfile(
-      move._id
-    );
-    setMoveCustomerStripeProfile(moveCustomerStripeProfile);
+    const profile = await ensureMoveCustomerStripeProfile(move._id);
+    setMoveCustomerStripeProfile(profile);
   };
-  const handleMarkAsComplete = async () => {
-    setEnsureMoveCustomerStripeProfileError(null);
-    setSendPresetScriptError(null);
-    await markAsBooked({
-      moveId: move._id,
-    });
-  };
-  const cardInfo = getDefaultPaymentMethodInfo(moveCustomerStripeProfile);
 
-  const stripePromise = useMemo(() => {
-    return getStripePromise(
-      moveCustomerStripeProfile?.stripeConnectedAccountId
-    );
-  }, [moveCustomerStripeProfile?.stripeConnectedAccountId]);
+  const handleMarkAsBooked = async () => {
+    setEnsureProfileError(null);
+    setSendPresetScriptError(null);
+    await markAsBooked({ moveId: move._id });
+  };
 
   const handleSend = async (type: "email" | "sms") => {
     setActiveLoading(type);
     setError(null);
-    setEnsureMoveCustomerStripeProfileError(null);
+    setEnsureProfileError(null);
     await sendPresetScript({
       moveId: move._id,
-      preSetTypes:
-        type === "email"
-          ? PresSetScripts.EMAIL_QUOTE
-          : PresSetScripts.SMS_QUOTE,
+      preSetTypes: type === "email" ? PresSetScripts.EMAIL_QUOTE : PresSetScripts.SMS_QUOTE,
     });
     setActiveLoading(null);
   };
+
+  const cardInfo = getDefaultPaymentMethodInfo(moveCustomerStripeProfile);
+
+  const stripePromise = useMemo(() => {
+    return getStripePromise(moveCustomerStripeProfile?.stripeConnectedAccountId);
+  }, [moveCustomerStripeProfile?.stripeConnectedAccountId]);
 
   const showCreditPayment =
     move.deposit &&
@@ -99,50 +120,65 @@ const QuoteCommunication = ({ move }: QuoteConfirmationProps) => {
     return <PaymentSuccess message="Payment Success!" />;
   }
 
-  if (moveCustomerStripeProfile) {
+  // --- PAYMENT FLOW VIEW ---
+  if (moveCustomerStripeProfile && move.deposit && move.deposit > 0) {
     return (
       <div>
         <Button
           variant="link"
           className="px-0 text-white mb-4 flex items-center gap-2 no-underline hover:no-underline"
-          onClick={() => setMoveCustomerStripeProfile(null)}
+          disabled={isAnyLoading} // Disable back button while processing
+          onClick={() => {
+            setMoveCustomerStripeProfile(null);
+            setSetupClientSecret(null);
+          }}
         >
           <ArrowLeft size={16} className="shrink-0" />
           <span>Back</span>
         </Button>
-        <Elements stripe={stripePromise}>
-          <StripePaymentForm
-            amount={move.deposit ?? 0}
-            cardInfo={cardInfo}
-            createSetupIntent={() => createSetupIntent(move._id)}
-            createPaymentIntent={async ({
-              useSavedPaymentMethod,
-              manualPaymentMethodId,
-            }) => {
-              await createPaymentIntent(move._id, "deposit", {
+
+        {!setupClientSecret ? (
+          <PaymentSkeleton />
+        ) : (
+          <Elements 
+            stripe={stripePromise}
+            options={{ 
+              clientSecret: setupClientSecret, 
+              appearance: stripeDarkAppearance 
+            }}
+            key={moveCustomerStripeProfile.stripeConnectedAccountId}
+          >
+            <StripePaymentForm
+              amount={move.deposit}
+              cardInfo={cardInfo}
+              createPaymentIntent={async ({
                 useSavedPaymentMethod,
                 manualPaymentMethodId,
-              });
-            }}
-            error={error || setupError || paymentError}
-            isLoading={setupLoading || paymentLoading}
-          />
-        </Elements>
+              }) => {
+                await createPaymentIntent(move._id, "deposit", {
+                  useSavedPaymentMethod,
+                  manualPaymentMethodId,
+                });
+              }}
+              error={error || setupError || paymentError}
+              isLoading={isAnyLoading}
+            />
+          </Elements>
+        )}
       </div>
     );
   }
 
   return (
-    <SectionContainer showBorder={false}>
+    <SectionContainer >
       <TripleFormAction
-        error={
-          sendPresetScriptError || error || ensureMoveCustomerStripeProfileError
-        }
+        error={sendPresetScriptError || error || ensureProfileError}
       >
         <Button
           variant="ghost"
           onClick={() => handleSend("email")}
           isLoading={activeLoading === "email"}
+          disabled={isAnyLoading && activeLoading !== "email"}
           className="w-full"
         >
           Email
@@ -151,6 +187,7 @@ const QuoteCommunication = ({ move }: QuoteConfirmationProps) => {
           variant="ghost"
           onClick={() => handleSend("sms")}
           isLoading={activeLoading === "sms"}
+          disabled={isAnyLoading && activeLoading !== "sms"}
           className="w-full"
         >
           Text
@@ -158,17 +195,19 @@ const QuoteCommunication = ({ move }: QuoteConfirmationProps) => {
 
         {showCreditPayment ? (
           <Button
-            onClick={() => handleEnsureMoveCustomerStripeProfile()}
-            isLoading={ensureMoveCustomerStripeProfileLoading}
-            className="w-full "
+            onClick={handleEnsureProfile}
+            isLoading={ensureProfileLoading}
+            disabled={isAnyLoading && !ensureProfileLoading}
+            className="w-full"
           >
             Payment
           </Button>
         ) : (
           <Button
-            onClick={() => handleMarkAsComplete()}
-            isLoading={isLoading}
-            className="w-full "
+            onClick={handleMarkAsBooked}
+            isLoading={isMarkingBookedLoading}
+            disabled={isAnyLoading && !isMarkingBookedLoading}
+            className="w-full"
           >
             Mark as Booked
           </Button>

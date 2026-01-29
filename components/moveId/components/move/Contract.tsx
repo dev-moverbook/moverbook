@@ -69,6 +69,8 @@ const Contract = ({ contract }: ContractProps) => {
 
   const collapsePreMove = !isCompleted;
 
+  const showContractActions = !isCompleted;
+
   return (
     <CollapsibleSection
       title="Contract"
@@ -79,7 +81,7 @@ const Contract = ({ contract }: ContractProps) => {
       toggleLabels={{ open: "Hide", closed: "Show" }}
       className="max-w-screen-sm mx-auto border-b md:border-none"
     >
-      <SectionContainer showBorder={false}>
+      <SectionContainer >
         <PreMoveTerms />
         {showRepSignature ? (
           <DisplaySignature
@@ -99,6 +101,7 @@ const Contract = ({ contract }: ContractProps) => {
             title="Customer Signature"
           />
         )}
+        {showContractActions && (
         <FormActions
           disabled={isDisabled}
           onSave={(e) => {
@@ -111,8 +114,9 @@ const Contract = ({ contract }: ContractProps) => {
           isSaving={isEmailLoading}
           isCanceling={isSmsLoading}
           error={createOrUpdateContractError || sendPresetScriptError}
-          cancelDisabled={isDisabled}
-        />
+            cancelDisabled={isDisabled}
+          />
+        )}
       </SectionContainer>
     </CollapsibleSection>
   );

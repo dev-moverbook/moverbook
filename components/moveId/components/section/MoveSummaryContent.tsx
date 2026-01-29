@@ -59,7 +59,7 @@ const MoveSummaryContent = ({
   return (
     <div className="pb-20">
       <SectionHeader title="Mover Hours" className="pb-0 mx-auto" />
-      <SectionContainer showBorder={false} className="space-y-4 ">
+      <SectionContainer className="space-y-4 ">
         {assignments.map((assignment) => (
           <MoverHoursCard
             key={assignment._id}

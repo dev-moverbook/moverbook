@@ -362,6 +362,7 @@ export const getMoveContext = query({
       moverContext,
       moverLocation,
       changeRequests,
+      contract,
     ] = await Promise.all([
       ctx.db
         .query("quotes")
@@ -399,6 +400,10 @@ export const getMoveContext = query({
       ctx.runQuery(internal.moveChangeRequests.getMoveChangeRequestsByMoveId, {
         moveId,
       }),
+      ctx.db
+        .query("contracts")
+        .withIndex("by_move", (q) => q.eq("moveId", moveId))
+        .first(),
     ]);
 
     const salesRepUser = salesRepUserDoc ? validateUser(salesRepUserDoc) : null;
@@ -447,6 +452,7 @@ export const getMoveContext = query({
       policy,
       moverLocation,
       changeRequests,
+      contract,
     };
   },
 });

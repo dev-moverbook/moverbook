@@ -57,7 +57,7 @@ const PaymentStep = () => {
     invoice?.status === "completed" && paymentMethod?.kind === "credit_card";
   return (
     <div>
-      <SectionContainer showBorder={false} className="px-0 pt-0">
+      <SectionContainer className="px-0 pt-0">
         {showInvoice ? (
           <>
             <InvoiceSummary items={items} total={total} />

@@ -37,7 +37,7 @@ export default function HistoricalByReps() {
   const canGoForward = canMoveForwardOneWeek(customEndDate);
 
   return (
-    <SectionContainer showBorder={false}>
+    <SectionContainer >
       <DateRangeControls
         startDate={customStartDate}
         endDate={customEndDate}

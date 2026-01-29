@@ -14,7 +14,7 @@ interface StepStatusProps {
 
 const StepStatus = ({ items, className }: StepStatusProps) => {
   return (
-    <SectionContainer showBorder={false} className={className}>
+    <SectionContainer className={className}>
       {items.map((item, i) => (
         <FieldDisplay
           key={i}

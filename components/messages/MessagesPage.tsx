@@ -19,7 +19,7 @@ const MessagesPage = () => {
   return (
     <>
       <SectionHeaderWithAction title="Messages" />
-      <SectionContainer className="px-0" showBorder={false}>
+      <SectionContainer className="px-0">
         <RecentMessagesQuery />
       </SectionContainer>
     </>

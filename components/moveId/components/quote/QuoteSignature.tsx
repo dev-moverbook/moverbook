@@ -29,7 +29,7 @@ const QuoteSignature = ({
   return (
     <div>
       <SectionHeader className="mx-auto" title="Signature" />
-      <SectionContainer showBorder={false}>
+      <SectionContainer>
         {showRepSignature ? (
           <DisplaySignature
             image={quote.repSignature || ""}

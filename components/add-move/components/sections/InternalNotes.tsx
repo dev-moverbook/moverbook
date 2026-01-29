@@ -28,7 +28,7 @@ const InternalNotes = () => {
   const { salesRep, moveStatus, notes, referralId } = moveFormData;
 
   return (
-    <SectionContainer showBorder={false}>
+    <SectionContainer >
       <Header3 wrapperClassName="px-0" showCheckmark={false}>
         Internal Notes
       </Header3>

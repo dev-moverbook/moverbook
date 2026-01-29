@@ -12,7 +12,7 @@ const NewsFeedMoveContainer = ({
   newsFeedEvents,
 }: NewsFeedMoveContainerProps) => {
   return (
-    <SectionContainer showBorder={false} className="px-0 pb-10">
+    <SectionContainer className="px-0 pb-10">
       {newsFeedEvents.map((newsFeedEvent) => {
         return (
           <NewsFeedCard

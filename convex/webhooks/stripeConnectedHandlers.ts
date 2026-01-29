@@ -138,6 +138,19 @@ export async function handlePaymentIntentSucceeded(
       },
     });
 
+    const quote = await ctx.runQuery(internal.quotes.getQuoteByMoveId, {
+      moveId: payment.moveId,
+    });
+
+    if (quote) {
+      await ctx.runMutation(internal.quotes.updateQuote, {
+        quoteId: quote._id,
+        updates: {
+          status: "completed",
+        },
+      });
+    }
+
     await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
       entry: {
         type: "QUOTE_SIGNED",

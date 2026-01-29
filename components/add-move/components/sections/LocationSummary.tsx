@@ -13,14 +13,12 @@ interface LocationSummaryProps {
   companyContact?: Doc<"companyContacts">;
   locations: LocationInput[];
   segmentDistances: SegmentDistance[];
-  showBorder?: boolean;
 }
 
 const LocationSummary = ({
   companyContact,
   locations,
   segmentDistances,
-  showBorder = false,
 }: LocationSummaryProps) => {
   const moveAddresses = locations
     .map((loc) => loc.address?.placeId)
@@ -31,7 +29,7 @@ const LocationSummary = ({
 
   return (
     <>
-      <SectionContainer showBorder={showBorder}>
+      <SectionContainer>
         <Header3 wrapperClassName="px-0 pt-0" showCheckmark={false}>
           Location Summary
         </Header3>

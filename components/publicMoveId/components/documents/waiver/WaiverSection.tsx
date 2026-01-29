@@ -23,7 +23,7 @@ const WaiverSection = ({ waiver }: WaiverSectionProps) => {
   return (
     <>
       <SectionHeader title="Waiver" isCompleted={isCompleted} showCheckmark />
-      <SectionContainer showBorder={false}>
+      <SectionContainer>
         <AdditionalLiabilityTerms />
         {waiver.repSignature && waiver.repSignedAt && (
           <DisplaySignature

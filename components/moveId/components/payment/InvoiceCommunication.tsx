@@ -39,9 +39,9 @@ const InvoiceCommunication = ({
 
   const {
     ensureMoveCustomerStripeProfile,
-    loading: ensureMoveCustomerStripeProfileLoading,
-    error: ensureMoveCustomerStripeProfileError,
-    setError: setEnsureMoveCustomerStripeProfileError,
+    loading: ensureProfileLoading,
+    error: ensureProfileError,
+    setError: setEnsureProfileError,
   } = useEnsureMoveCustomerStripeProfiel();
 
   const { sendPresetScript, sendPresetScriptError, setSendPresetScriptError } =
@@ -59,9 +59,16 @@ const InvoiceCommunication = ({
     error: setupError,
   } = useStripeSetupIntent();
 
-  const { markAsComplete, isLoading, error, setError } = useMarkAsComplete();
+  const { markAsComplete, isLoading: isMarkingCompleteLoading, error, setError } = useMarkAsComplete();
 
-  // Fetch the SetupIntent secret once the profile is available
+  // --- GLOBAL LOADING STATE ---
+  const isAnyLoading = 
+    !!activeLoading || 
+    ensureProfileLoading || 
+    isMarkingCompleteLoading || 
+    setupLoading || 
+    paymentLoading;
+
   useEffect(() => {
     if (moveCustomerStripeProfile && !setupClientSecret && !setupLoading) {
       const fetchSecret = async () => {
@@ -76,7 +83,7 @@ const InvoiceCommunication = ({
     }
   }, [moveCustomerStripeProfile, setupClientSecret, setupLoading, move._id, createSetupIntent]);
 
-  const handleEnsureMoveCustomerStripeProfile = async () => {
+  const handleEnsureProfile = async () => {
     setSendPresetScriptError(null);
     setError(null);
     const profile = await ensureMoveCustomerStripeProfile(move._id);
@@ -84,9 +91,20 @@ const InvoiceCommunication = ({
   };
 
   const handleMarkAsComplete = async () => {
-    setEnsureMoveCustomerStripeProfileError(null);
+    setEnsureProfileError(null);
     setSendPresetScriptError(null);
     await markAsComplete({ moveId: move._id });
+  };
+
+  const handleSend = async (type: "email" | "sms") => {
+    setActiveLoading(type);
+    setError(null);
+    setEnsureProfileError(null);
+    await sendPresetScript({
+      moveId: move._id,
+      preSetTypes: type === "email" ? PresSetScripts.EMAIL_INVOICE : PresSetScripts.SMS_INVOICE,
+    });
+    setActiveLoading(null);
   };
 
   const cardInfo = getDefaultPaymentMethodInfo(moveCustomerStripeProfile);
@@ -95,30 +113,19 @@ const InvoiceCommunication = ({
     return getStripePromise(moveCustomerStripeProfile?.stripeConnectedAccountId);
   }, [moveCustomerStripeProfile?.stripeConnectedAccountId]);
 
-  const handleSend = async (type: "email" | "sms") => {
-    setActiveLoading(type);
-    setError(null);
-    setEnsureMoveCustomerStripeProfileError(null);
-    await sendPresetScript({
-      moveId: move._id,
-      preSetTypes: type === "email" ? PresSetScripts.EMAIL_INVOICE : PresSetScripts.SMS_INVOICE,
-    });
-    setActiveLoading(null);
-  };
-
   const showCreditPayment = move.paymentMethod?.kind === "credit_card";
 
   if (move.invoicePaid) {
     return <PaymentSuccess message="Payment Success!" />;
   }
 
-  // PAYMENT FLOW VIEW
   if (moveCustomerStripeProfile) {
     return (
       <div>
         <Button
           variant="link"
           className="px-0 text-white mb-4 flex items-center gap-2 no-underline hover:no-underline"
+          disabled={isAnyLoading}
           onClick={() => {
             setMoveCustomerStripeProfile(null);
             setSetupClientSecret(null);
@@ -151,7 +158,7 @@ const InvoiceCommunication = ({
                 });
               }}
               error={error || setupError || paymentError}
-              isLoading={setupLoading || paymentLoading}
+              isLoading={isAnyLoading}
             />
           </Elements>
         )}
@@ -159,37 +166,41 @@ const InvoiceCommunication = ({
     );
   }
 
+
   if (!invoice) {
     return null;
   }
 
   return (
-    <SectionContainer showBorder={false}>
+    <SectionContainer >
       <TripleFormAction
-        error={sendPresetScriptError || error || ensureMoveCustomerStripeProfileError}
+        error={sendPresetScriptError || error || ensureProfileError}
         className="mt-0"
       >
         <Button
           variant="ghost"
           onClick={() => handleSend("email")}
           isLoading={activeLoading === "email"}
+          disabled={isAnyLoading && activeLoading !== "email"}
           className="w-full"
         >
-          Email Invoice
+          Email
         </Button>
         <Button
           variant="ghost"
           onClick={() => handleSend("sms")}
           isLoading={activeLoading === "sms"}
+          disabled={isAnyLoading && activeLoading !== "sms"}
           className="w-full"
         >
-          Text Invoice
+          Text
         </Button>
 
         {showCreditPayment ? (
           <Button
-            onClick={handleEnsureMoveCustomerStripeProfile}
-            isLoading={ensureMoveCustomerStripeProfileLoading}
+            onClick={handleEnsureProfile}
+            isLoading={ensureProfileLoading}
+            disabled={isAnyLoading && !ensureProfileLoading}
             className="w-full"
           >
             Payment
@@ -197,7 +208,8 @@ const InvoiceCommunication = ({
         ) : (
           <Button
             onClick={handleMarkAsComplete}
-            isLoading={isLoading}
+            isLoading={isMarkingCompleteLoading}
+            disabled={isAnyLoading && !isMarkingCompleteLoading}
             className="w-full"
           >
             Mark as Complete

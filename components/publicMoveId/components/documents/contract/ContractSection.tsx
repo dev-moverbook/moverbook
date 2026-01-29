@@ -29,7 +29,7 @@ const ContractSection = ({ contract }: ContractSectionProps) => {
         isCompleted={isCompleted}
         showCheckmark
       />
-      <SectionContainer showBorder={false}>
+      <SectionContainer>
         <PreMoveTerms />
         {contract.repSignature && contract.repSignedAt && (
           <DisplaySignature

@@ -9,7 +9,7 @@ const MoveStep = () => {
   const { move } = usePublicMoveIdContext();
   const moverLocation = move.moverLocation;
   return (
-    <SectionContainer showBorder={false} className="px-0 pt-0">
+    <SectionContainer className="px-0 pt-0">
       <MoveTimes />
       {moverLocation && <MoverLocationMap moverLocation={moverLocation} />}
     </SectionContainer>

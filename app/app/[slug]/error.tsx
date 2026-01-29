@@ -22,13 +22,13 @@ export default function Error({
     showToUser && message ? message : "Something went wrong. Please try again.";
 
   return (
-    <div className="m-6 rounded-md border border-red-500/30 bg-red-500/10 p-4 text-sm">
+    <div className="m-6 rounded-md border border-red-500/30 bg-red-500/10 p-4 text-sm max-w-screen-sm mx-auto">
       <div className="font-medium">Error</div>
       <p className="mt-1 opacity-80">{displayMessage}</p>
 
       <div className="mt-3 flex">
         {cta.kind === "retry" ? (
-          <Button onClick={reset} variant="outline">
+          <Button className="text-white border-white" onClick={reset} variant="outline">
             Try again
           </Button>
         ) : (

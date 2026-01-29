@@ -55,7 +55,6 @@ const MoveStep = ({ onNext, onBack }: MoveStepProps) => {
         companyContact={companyContact}
         locations={moveFormData.locations}
         segmentDistances={segmentDistances}
-        showBorder={false}
       />
 
       <FormActionContainer className="mt-6">

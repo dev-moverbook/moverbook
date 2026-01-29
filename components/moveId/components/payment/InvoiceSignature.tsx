@@ -30,7 +30,7 @@ const InvoiceSignature = ({
         showCheckmark
         isCompleted={isComplete}
       />
-      <SectionContainer showBorder={false}>
+      <SectionContainer >
         {repSignature ? (
           <DisplaySignature
             image={repSignature}

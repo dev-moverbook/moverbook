@@ -186,6 +186,11 @@ export const InvoiceStatusConvex = v.union(
   v.literal("completed")
 );
 
+export const WaiverStatusConvex = v.union(
+  v.literal("pending"),
+  v.literal("completed")
+);
+
 export const PaymentStatusConvex = v.union(
   v.literal("requires_payment_method"),
   v.literal("requires_confirmation"),
@@ -588,6 +593,7 @@ export default defineSchema({
     moveId: v.id("moves"),
     repSignature: v.optional(v.string()),
     repSignedAt: v.optional(v.number()),
+    status: WaiverStatusConvex,
   }).index("by_move", ["moveId"]),
   webIntegrations: defineTable({
     companyId: v.id("companies"),
