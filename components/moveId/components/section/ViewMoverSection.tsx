@@ -11,13 +11,13 @@ import Contract from "../move/Contract";
 import Waiver from "../move/Waiver";
 import Discounts from "../payment/Discounts";
 import AdditionalFees from "../payment/AdditionalFees";
-import InvoiceSummary from "../payment/InvoiceSummary";
 import { useMoveContext } from "@/contexts/MoveContext";
 import { computeFinalMoveCost } from "@/frontendUtils/payout";
 import InvoiceNotReady from "../shared/InvoiceNotReady";
 import { isSameDayOrLater } from "@/frontendUtils/luxonUtils";
 import LocationSharingSectionWrapper from "./LocationSharingWrapper";
 import { isMoveCompleted } from "@/frontendUtils/moveHelper";
+import InoviceSection from "../payment/InoviceSection";
 
 interface ViewMoverSectionProps {
   assignment: Doc<"moveAssignments">;
@@ -26,6 +26,7 @@ interface ViewMoverSectionProps {
   additionalFees: Doc<"additionalFees">[];
   waiver: Doc<"waivers"> | null;
   fees: Doc<"fees">[];
+  invoice: Doc<"invoices"> | null;
 }
 
 const ViewMoverSection: React.FC<ViewMoverSectionProps> = ({
@@ -35,6 +36,7 @@ const ViewMoverSection: React.FC<ViewMoverSectionProps> = ({
   additionalFees,
   waiver,
   fees,
+  invoice,
 }) => {
   const { timeZone } = useSlugContext();
   const { moveData } = useMoveContext();
@@ -183,9 +185,14 @@ const ViewMoverSection: React.FC<ViewMoverSectionProps> = ({
       <Waiver waiver={waiver} />
       <Discounts discounts={discounts} move={move} />
       <AdditionalFees additionalFees={additionalFees} fees={fees} move={move} />
-      {showInvoice ? (
+      {showInvoice && invoice ? (
         <>
-          <InvoiceSummary items={items} total={total} />
+          <InoviceSection
+              items={items}
+              total={total}
+              invoice={invoice}
+              move={move}
+            />
         </>
       ) : (
         <InvoiceNotReady />

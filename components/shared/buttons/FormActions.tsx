@@ -38,7 +38,7 @@ const FormActions: React.FC<FormActionsProps> = ({
       <div className="grid grid-cols-2 gap-2">
         <Button
           onClick={onCancel}
-          disabled={cancelDisabled || isCanceling}
+          disabled={cancelDisabled || isCanceling || isSaving}
           isLoading={isCanceling}
           variant={cancelVariant}
           className="w-full "
@@ -47,7 +47,7 @@ const FormActions: React.FC<FormActionsProps> = ({
         </Button>
         <Button
           onClick={onSave}
-          disabled={disabled || isSaving}
+          disabled={disabled || isSaving || isCanceling}
           isLoading={isSaving}
           variant={saveVariant}
           className="w-full"

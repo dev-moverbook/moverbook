@@ -238,7 +238,7 @@ export const insertMoveAssignment = mutation({
       await ctx.db.get(move.moveCustomerId)
     );
 
-    const moveAssignmentId = await ctx.db.insert("moveAssignments", {
+    await ctx.db.insert("moveAssignments", {
       moveId,
       moverId,
       isLead,

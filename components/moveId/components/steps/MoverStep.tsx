@@ -25,6 +25,7 @@ const MoverStep = () => {
             waiver={result.waiver}
             fees={result.fees}
             assignment={result.assignment}
+            invoice={result.invoice}
           />
         );
       } else {

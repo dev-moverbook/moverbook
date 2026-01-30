@@ -27,6 +27,7 @@ const LocationSharingSection = ({
   const { move } = moveData;
   const moveId = move._id;
   const moverLocation = moveData.moverLocation;
+  
   const { error } = useUpdateMoverLocation({
     moveId,
     enabled: isSharing,
@@ -66,36 +67,47 @@ const LocationSharingSection = ({
     setIsSharing(false);
     await stopMoverLocation({ moveId });
   };
+
   const isCompleted = moverLocation !== null && !isSharing;
   const showMap = isSharing && moverLocation;
 
+  const showShareButton = move.moveStatus !== "Completed";
+
   return (
     <div>
-      <Header3 isCompleted={isCompleted} showCheckmark={false}>
-        Location Sharing
-      </Header3>
+<Header3 
+  isCompleted={isCompleted} 
+  showCheckmark={false}
+  button={
+    showShareButton && (
+      isSharing ? (
+        <Button
+          onClick={stopSharing}
+          variant="destructive"
+          className="w-full"
+          disabled={Boolean(error)}
+          isLoading={stopMoverLocationLoading}
+        >
+          Stop Sharing Location
+        </Button>
+      ) : (
+        <Button
+          onClick={startSharing}
+          disabled={Boolean(error)}
+          variant="outline"
+          className="w-full"
+          isLoading={insertMoverLocationLoading || sendPresetScriptLoading}
+        >
+          Share
+        </Button>
+      )
+    )
+  } 
+>
+  Location Sharing
+</Header3>
+      
       <SectionContainer>
-        {isSharing ? (
-          <Button
-            onClick={stopSharing}
-            variant="destructive"
-            className="w-full"
-            disabled={Boolean(error)}
-            isLoading={stopMoverLocationLoading}
-          >
-            Stop Sharing Location
-          </Button>
-        ) : (
-          <Button
-            onClick={startSharing}
-            disabled={Boolean(error)}
-            className="w-full"
-            isLoading={insertMoverLocationLoading || sendPresetScriptLoading}
-          >
-            Start Sharing Location
-          </Button>
-        )}
-
         <FieldErrorMessage
           error={
             error ||

@@ -102,7 +102,7 @@ export default function InfoTab({ hideStepper }: InfoTabProps) {
         />
       )}
 
-      <div className="mt-6">
+      <div className="mt-4">
         {currentStep === 1 && <LeadStep />}
         {currentStep === 2 && <QuoteStep quote={quote} />}
         {currentStep === 3 && <SetupStep />}

@@ -12,6 +12,7 @@ import { useMoveContext } from "@/contexts/MoveContext";
 import { useCreateOrUpdateContract } from "@/hooks/contracts";
 import { useSendPresetScript } from "@/hooks/messages";
 import { PresSetScripts } from "@/types/enums";
+import SingleFormAction from "@/components/shared/buttons/SingleFormAction";
 
 interface ContractProps {
   contract: Doc<"contracts"> | null;
@@ -26,26 +27,22 @@ const Contract = ({ contract }: ContractProps) => {
     contract ?? {};
 
   const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
+  const [customerSignatureDataUrl, setCustomerSignatureDataUrl] = useState<string | null>(null);
   const [isSmsLoading, setIsSmsLoading] = useState<boolean>(false);
   const [isEmailLoading, setIsEmailLoading] = useState<boolean>(false);
 
-  const { createOrUpdateContract, createOrUpdateContractError } =
+  const { createOrUpdateContract, createOrUpdateContractError, createOrUpdateContractLoading } =
     useCreateOrUpdateContract();
 
   const { sendPresetScript, sendPresetScriptError } = useSendPresetScript();
 
   const showRepSignature = !!repSignature && repSignedAt;
   const showCustomerSignature = !!customerSignature && customerSignedAt;
-  const isDisabled = !signatureDataUrl;
   const isCompleted = !!repSignature && !!customerSignature;
 
   const handleSMS = async () => {
     setIsSmsLoading(true);
-    if (signatureDataUrl) {
-      await createOrUpdateContract(moveId, {
-        repSignature: signatureDataUrl,
-      });
-    }
+   
     await sendPresetScript({
       moveId,
       preSetTypes: PresSetScripts.SMS_CONTRACT,
@@ -55,11 +52,7 @@ const Contract = ({ contract }: ContractProps) => {
 
   const handleEmail = async () => {
     setIsEmailLoading(true);
-    if (signatureDataUrl) {
-      await createOrUpdateContract(moveId, {
-        repSignature: signatureDataUrl,
-      });
-    }
+ 
     await sendPresetScript({
       moveId,
       preSetTypes: PresSetScripts.EMAIL_CONTRACT,
@@ -67,9 +60,23 @@ const Contract = ({ contract }: ContractProps) => {
     setIsEmailLoading(false);
   };
 
+  const handleSave = async () => {
+    const data = {
+      repSignature: signatureDataUrl || undefined,
+      customerSignature: customerSignatureDataUrl || undefined,
+    }
+      await createOrUpdateContract(moveId, data);
+
+      setSignatureDataUrl(null);
+      setCustomerSignatureDataUrl(null);
+  };
+
   const collapsePreMove = !isCompleted;
 
-  const showContractActions = !isCompleted;
+  
+  const showSave = signatureDataUrl || customerSignatureDataUrl;
+  const showContractActions = contract?.status === "pending" && !showSave;
+
 
   return (
     <CollapsibleSection
@@ -93,17 +100,26 @@ const Contract = ({ contract }: ContractProps) => {
         ) : (
           <Signature title="Rep Signature" onChange={setSignatureDataUrl} />
         )}
-        {showCustomerSignature && (
+        {showCustomerSignature ? (
           <DisplaySignature
             image={customerSignature}
             timestamp={customerSignedAt}
             alt="Customer Signature"
             title="Customer Signature"
           />
+        ) : (
+          <Signature title="Customer Signature" onChange={setCustomerSignatureDataUrl} collapsible />
+        )}
+        {showSave && (
+        <SingleFormAction
+          submitLabel="Save"
+          onSubmit={handleSave}
+          isSubmitting={createOrUpdateContractLoading}
+          error={createOrUpdateContractError}
+        />
         )}
         {showContractActions && (
         <FormActions
-          disabled={isDisabled}
           onSave={(e) => {
             e.preventDefault();
             handleEmail();
@@ -114,7 +130,7 @@ const Contract = ({ contract }: ContractProps) => {
           isSaving={isEmailLoading}
           isCanceling={isSmsLoading}
           error={createOrUpdateContractError || sendPresetScriptError}
-            cancelDisabled={isDisabled}
+          
           />
         )}
       </SectionContainer>

@@ -26,9 +26,7 @@ export const createOrUpdateContract = mutation({
     moveId: v.id("moves"),
     updates: v.object({
       customerSignature: v.optional(v.string()),
-      customerSignedAt: v.optional(v.number()),
       repSignature: v.optional(v.string()),
-      repSignedAt: v.optional(v.number()),
     }),
   },
   handler: async (ctx, args): Promise<boolean> => {
@@ -54,15 +52,16 @@ export const createOrUpdateContract = mutation({
 
     const now = Date.now();
 
-    if (updates.customerSignature && !updates.customerSignedAt) {
+    if (updates.customerSignature ) {
       updates.customerSignedAt = now;
-      updates.status = "pending";
     }
 
-    if (updates.repSignature && !updates.repSignedAt) {
+    if (updates.repSignature) {
       updates.repSignedAt = now;
-      updates.status = "completed";
     }
+
+    const status = updates.customerSignature ? "completed" : "pending";
+
 
     const existing: Doc<"contracts"> | null = await ctx.db
       .query("contracts")
@@ -74,12 +73,12 @@ export const createOrUpdateContract = mutation({
     );
 
     if (existing) {
-      await ctx.db.patch(existing._id, updates);
+      await ctx.db.patch(existing._id, {...updates, status});
     } else {
       await ctx.db.insert("contracts", {
         moveId,
         ...updates,
-        status: "pending",
+        status,
       });
     }
 

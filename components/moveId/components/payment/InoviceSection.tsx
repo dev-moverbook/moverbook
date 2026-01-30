@@ -14,7 +14,7 @@ interface InoviceSectionProps {
   total: number;
   invoice: Doc<"invoices"> | null;
   move: Doc<"moves">;
-  internalReview: Doc<"internalReviews"> | null;
+  internalReview?: Doc<"internalReviews"> | null;
 }
 
 const InoviceSection = ({
@@ -51,7 +51,7 @@ const InoviceSection = ({
           amount={total}
         />
       }
-      {move.moveStatus === "Completed" && (
+      {move.moveStatus === "Completed" && internalReview && (
         <>
           <InternalReview internalReview={internalReview} move={move} />
           {internalReview?.rating && <ExternalReview move={move} />}

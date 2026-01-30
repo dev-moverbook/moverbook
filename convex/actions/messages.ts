@@ -46,6 +46,7 @@ export const sendPresetScript = action({
       ClerkRoles.APP_MODERATOR,
       ClerkRoles.MANAGER,
       ClerkRoles.SALES_REP,
+      ClerkRoles.MOVER,
     ]);
 
     const move = validateMove(

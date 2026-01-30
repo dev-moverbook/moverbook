@@ -12,6 +12,7 @@ import CollapsibleSection from "@/components/shared/buttons/CollapsibleSection";
 import { useCreateOrUpdateWaiver } from "@/hooks/waivers";
 import { useSendPresetScript } from "@/hooks/messages";
 import { PresSetScripts } from "@/types/enums";
+import SingleFormAction from "@/components/shared/buttons/SingleFormAction";
 
 interface WaiverProps {
   waiver: Doc<"waivers"> | null;
@@ -26,6 +27,9 @@ const Waiver = ({ waiver }: WaiverProps) => {
     waiver ?? {};
 
   const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
+const [customerSignatureDataUrl, setCustomerSignatureDataUrl] = useState<string | null>(null);
+
+
   const [isEmailLoading, setIsEmailLoading] = useState<boolean>(false);
   const [isSmsLoading, setIsSmsLoading] = useState<boolean>(false);
 
@@ -42,15 +46,23 @@ const Waiver = ({ waiver }: WaiverProps) => {
 
   const isDisabled = !signatureDataUrl && !waiver;
 
-  const showWaiverActions = waiver?.status !== "completed";
+  const showSave = signatureDataUrl || customerSignatureDataUrl;
+  const showWaiverActions = waiver?.status === "pending"  && !showSave
 
-  ;
+  const handleSave = async () => {
+    const data = {
+      repSignature: signatureDataUrl || undefined,
+      customerSignature: customerSignatureDataUrl || undefined,
+    }
+      await createOrUpdateWaiver(moveId, data);
+
+      setSignatureDataUrl(null);
+      setCustomerSignatureDataUrl(null);
+    
+  };
 
   const handleSMS = async () => {
     setIsSmsLoading(true);
-    if (signatureDataUrl) {
-      await createOrUpdateWaiver(moveId, { repSignature: signatureDataUrl });
-    }
     await sendPresetScript({
       moveId,
       preSetTypes: PresSetScripts.SMS_WAIVER,
@@ -60,9 +72,7 @@ const Waiver = ({ waiver }: WaiverProps) => {
 
   const handleEmail = async () => {
     setIsEmailLoading(true);
-    if (signatureDataUrl) {
-      await createOrUpdateWaiver(moveId, { repSignature: signatureDataUrl });
-    }
+  
     await sendPresetScript({
       moveId,
       preSetTypes: PresSetScripts.EMAIL_WAIVER,
@@ -92,13 +102,24 @@ const Waiver = ({ waiver }: WaiverProps) => {
         ) : (
           <Signature title="Rep Signature" onChange={setSignatureDataUrl} />
         )}
-        {showCustomerSignature && (
+        {showCustomerSignature ? (
           <DisplaySignature
             image={customerSignature}
             timestamp={customerSignedAt}
             alt="Customer Signature"
             title="Customer Signature"
           />
+        ) : (
+          <Signature title="Customer Signature" onChange={setCustomerSignatureDataUrl} collapsible />
+        )}
+        {showSave && (
+        <SingleFormAction
+          submitLabel="Save"
+          onSubmit={handleSave}
+          isSubmitting={createOrUpdateWaiverLoading}
+          error={error}
+          disabled={isDisabled}
+        />
         )}
         {showWaiverActions && (
         <FormActions

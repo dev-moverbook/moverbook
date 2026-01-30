@@ -26,9 +26,7 @@ export const createOrUpdateWaiver = mutation({
     moveId: v.id("moves"),
     updates: v.object({
       customerSignature: v.optional(v.string()),
-      customerSignedAt: v.optional(v.number()),
       repSignature: v.optional(v.string()),
-      repSignedAt: v.optional(v.number()),
     }),
   },
   handler: async (ctx, args): Promise<boolean> => {
@@ -54,13 +52,14 @@ export const createOrUpdateWaiver = mutation({
 
     const now = Date.now();
 
-    if (updates.customerSignature && !updates.customerSignedAt) {
+    if (updates.customerSignature ) {
       updates.customerSignedAt = now;
     }
 
-    if (updates.repSignature && !updates.repSignedAt) {
+    if (updates.repSignature) {
       updates.repSignedAt = now;
     }
+  
 
     const existing: Doc<"waivers"> | null = await ctx.db
       .query("waivers")
@@ -73,8 +72,9 @@ export const createOrUpdateWaiver = mutation({
 
     const status = updates.customerSignature ? "completed" : "pending";
 
+
     if (existing) {
-      await ctx.db.patch(existing._id, updates);
+      await ctx.db.patch(existing._id, {...updates, status} );
     } else {
       await ctx.db.insert("waivers", {
         moveId,
