@@ -391,12 +391,3 @@ export const getSalesRepsAndReferralByCompanyId = query({
   },
 });
 
-export const getUserByPhoneNumberInternal = internalQuery({
-  args: { phoneNumber: v.string() },
-  handler: async (ctx, args) => {
-    return await ctx.db
-      .query("users")
-      .withIndex("by_phoneNumber", (q) => q.eq("phoneNumber", args.phoneNumber))
-      .first();
-  },
-});

@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { useAction } from "convex/react";
+import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { setErrorFromConvexError } from "@/frontendUtils/errorHelper";
 
 interface UpdateMoveCustomerInput {
-  moveCustomerId: Id<"users">;
+  moveCustomerId: Id<"moveCustomers">;
   companyId: Id<"companies">;
   updates: {
     name?: string;
@@ -19,33 +19,43 @@ interface UpdateMoveCustomerInput {
 }
 
 export const useUpdateMoveCustomer = () => {
-  const [updateMoveCustomerLoading, setLoading] = useState<boolean>(false);
-  const [updateMoveCustomerError, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const updateMoveCustomerAction = useAction(
+  const updateMoveCustomerMutation = useMutation(
     api.moveCustomers.updateMoveCustomer
   );
 
   const updateMoveCustomer = async (
     data: UpdateMoveCustomerInput
   ): Promise<boolean> => {
-    setLoading(true);
+    setIsLoading(true);
     setError(null);
 
+    const cleanedUpdates = {
+      ...data.updates,
+      altPhoneNumber: data.updates.altPhoneNumber?.trim() === "" 
+        ? undefined 
+        : data.updates.altPhoneNumber,
+    };
+
     try {
-      return await updateMoveCustomerAction(data);
+      return await updateMoveCustomerMutation({
+        ...data,
+        updates: cleanedUpdates
+      });
     } catch (error) {
       setErrorFromConvexError(error, setError);
       return false;
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   return {
     updateMoveCustomer,
-    updateMoveCustomerLoading,
-    updateMoveCustomerError,
-    setUpdateMoveCustomerError: setError,
+    isLoading,
+    error,
+    setError,
   };
 };

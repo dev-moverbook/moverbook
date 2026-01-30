@@ -27,7 +27,6 @@ export const createPaymentIntent = action({
     const { moveId, type, manualPaymentMethodId } = args;
 
     await requireAuthenticatedUser(ctx, [
-      ClerkRoles.CUSTOMER,
       ClerkRoles.SALES_REP,
       ClerkRoles.MANAGER,
       ClerkRoles.ADMIN,
@@ -109,7 +108,7 @@ export const createPaymentIntent = action({
         stripePaymentIntentId: paymentIntent.id,
         status: "processing",
         type,
-        userId: move.moveCustomerId,
+        moveCustomerId: move.moveCustomerId,
       });
 
       return {
@@ -125,7 +124,7 @@ export const createPaymentIntent = action({
         stripePaymentIntentId: (error as Stripe.PaymentIntent).id ?? "unknown",
         status: "failed",
         type: args.type,
-        userId: move.moveCustomerId,
+        moveCustomerId: move.moveCustomerId,
         failureReason: (error as Error).message || "stripe_payment_failed",
       });
 
@@ -144,7 +143,6 @@ export const createSetupIntent = action({
       ClerkRoles.APP_MODERATOR,
       ClerkRoles.MANAGER,
       ClerkRoles.SALES_REP,
-      ClerkRoles.CUSTOMER,
     ]);
 
     try {
@@ -258,7 +256,6 @@ export const ensureMoveCustomerStripeProfile = action({
         ClerkRoles.APP_MODERATOR,
         ClerkRoles.MANAGER,
         ClerkRoles.SALES_REP,
-        ClerkRoles.CUSTOMER,
       ]);
 
       const move = await ctx.runQuery(internal.moves.getMoveByIdInternal, {

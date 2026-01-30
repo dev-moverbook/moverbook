@@ -359,6 +359,18 @@ export default defineSchema({
     status: MessageStatusConvex,
     subject: v.optional(v.union(v.string(), v.null())),
   }).index("by_moveId", ["moveId"]),
+  moveCustomers: defineTable({
+    altPhoneNumber: v.optional(v.string()),
+    companyId: v.id("companies"),
+    email: v.string(),
+    isActive: v.boolean(),
+    name: v.string(),
+    phoneNumber: v.string(),
+    updatedAt: v.number(),
+  })
+    .index("by_companyId", ["companyId"])
+    .index("by_email", ["email"])
+    .index("by_phoneNumber", ["phoneNumber"]),
   moves: defineTable({
     actualArrivalTime: v.optional(v.number()),
     actualBreakTime: v.optional(v.number()),
@@ -383,7 +395,7 @@ export default defineSchema({
     jobTypeRate: v.optional(v.union(v.null(), v.number())),
     liabilityCoverage: v.optional(v.union(v.null(), InsurancePolicyConvex)),
     locations: v.optional(v.array(LocationConvex)),
-    moveCustomerId: v.id("users"),
+    moveCustomerId: v.id("moveCustomers"),
     moveDate: v.optional(v.union(v.null(), v.string())),
     moveFees: v.optional(v.array(MoveFeeConvex)),
     moveItems: v.optional(v.array(MoveItemConvex)),
@@ -446,7 +458,7 @@ export default defineSchema({
     cardExpYear: v.optional(v.number()),
     companyId: v.id("companies"),
     defaultPaymentMethodId: v.optional(v.string()),
-    moveCustomerId: v.id("users"),
+    moveCustomerId: v.id("moveCustomers"),
     stripeConnectedAccountId: v.string(),
     stripeCustomerId: v.string(),
     updatedAt: v.number(),
@@ -465,7 +477,7 @@ export default defineSchema({
     amount: v.optional(v.union(v.number(), v.null())),
     body: v.string(),
     companyId: v.id("companies"),
-    moveCustomerId: v.optional(v.id("users")),
+    moveCustomerId: v.optional(v.id("moveCustomers")),
     moveId: v.optional(v.id("moves")),
     type: ActivityEventTypeConvex,
     userId: v.optional(v.id("users")),
@@ -486,7 +498,7 @@ export default defineSchema({
     status: PaymentStatusConvex,
     type: PaymentTypeConvex,
     updatedAt: v.optional(v.number()),
-    userId: v.id("users"),
+    moveCustomerId: v.id("moveCustomers"),
   })
     .index("by_move", ["moveId"])
     .index("by_paymentIntent", ["stripePaymentIntentId"]),
@@ -570,7 +582,6 @@ export default defineSchema({
     .index("by_sid", ["sid"])
     .index("by_updatedAt", ["updatedAt"]),
   users: defineTable({
-    altPhoneNumber: v.optional(v.string()),
     clerkUserId: v.optional(v.string()),
     companyId: v.optional(v.id("companies")),
     customerId: v.optional(v.id("customers")),
@@ -580,11 +591,9 @@ export default defineSchema({
     isActive: v.boolean(),
     name: v.string(),
     role: v.optional(UserRoleConvex),
-    phoneNumber: v.optional(v.string()),
     updatedAt: v.number(),
   })
     .index("by_email", ["email"])
-    .index("by_phoneNumber", ["phoneNumber"])
     .index("by_clerkUserId", ["clerkUserId"])
     .index("by_companyId", ["companyId"]),
   waivers: defineTable({

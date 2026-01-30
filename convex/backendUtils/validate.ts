@@ -1,5 +1,5 @@
 import { ClerkRoles, InvitationStatus, UserRole } from "@/types/enums";
-import { CommunicationType, CustomerUser } from "@/types/types";
+import { CommunicationType,} from "@/types/types";
 import { ErrorMessages } from "@/types/errors";
 import { UserIdentity } from "convex/server";
 import { DatabaseReader, MutationCtx } from "../_generated/server";
@@ -111,7 +111,7 @@ export function isUserInOrg(
   identity: UserIdentity,
   clerkOrgId: string
 ): boolean {
-  const allowedRoles = [UserRole.APP_MODERATOR, ClerkRoles.CUSTOMER];
+  const allowedRoles = [UserRole.APP_MODERATOR];
 
   if (allowedRoles.includes(identity.role as UserRole)) {
     return true;
@@ -466,8 +466,8 @@ export function validateDiscount(
 }
 
 export function validateMoveCustomer(
-  moveCustomer: Doc<"users"> | null
-): Doc<"users"> {
+  moveCustomer: Doc<"moveCustomers"> | null
+): Doc<"moveCustomers"> {
   if (!moveCustomer) {
     throwConvexError(ErrorMessages.MOVE_CUSTOMER_NOT_FOUND, {
       code: "NOT_FOUND",
@@ -511,48 +511,9 @@ export function validateDocExists<T extends TableNames>(
   return doc;
 }
 
-export function assertCustomerUser(doc: Doc<"users">): CustomerUser {
-  if (typeof doc.email !== "string") {
-    throw new Error(
-      "Validation Error: Customer is missing 'email' or it is invalid."
-    );
-  }
 
-  if (typeof doc.name !== "string") {
-    throw new Error(
-      "Validation Error: Customer is missing 'name' or it is invalid."
-    );
-  }
-
-  if (typeof doc.phoneNumber !== "string") {
-    throw new Error(
-      "Validation Error: Customer is missing 'phoneNumber' or it is invalid."
-    );
-  }
-
-  if (typeof doc.altPhoneNumber !== "string") {
-    throw new Error(
-      "Validation Error: Customer is missing 'altPhoneNumber' or it is invalid."
-    );
-  }
-
-  if (typeof doc.isActive !== "boolean") {
-    throw new Error(
-      "Validation Error: Customer is missing 'isActive' or it is invalid."
-    );
-  }
-
-  if (typeof doc.updatedAt !== "number") {
-    throw new Error(
-      "Validation Error: Customer is missing 'updatedAt' or it is invalid."
-    );
-  }
-
-  return doc as CustomerUser;
-}
-
-export function isCustomerInMove(user: Doc<"users">, move: Doc<"moves">): void {
-  const isValid = user._id === move.moveCustomerId;
+export function isCustomerInMove(moveCustomer: Doc<"moveCustomers">, move: Doc<"moves">): void {
+  const isValid = moveCustomer._id === move.moveCustomerId;
   if (!isValid) {
     throwConvexError(ErrorMessages.FOBIDDEN_MOVE, {
       code: "FORBIDDEN",
@@ -562,8 +523,8 @@ export function isCustomerInMove(user: Doc<"users">, move: Doc<"moves">): void {
 }
 
 export function isCorrectMoveCustomer(
-  moveCustomerId: Id<"users">,
-  moveCustomerIdInMove: Id<"users">
+  moveCustomerId: Id<"moveCustomers">,
+  moveCustomerIdInMove: Id<"moveCustomers">
 ): void {
   const isValid = moveCustomerId === moveCustomerIdInMove;
   if (!isValid) {
@@ -584,11 +545,6 @@ export function isIdentityInMove(
     return;
   }
 
-  const userId = identity.convexId as Id<"users">;
-
-  if (role === ClerkRoles.CUSTOMER) {
-    return isCorrectMoveCustomer(userId, move.moveCustomerId);
-  }
   const organizationId = identity.convexOrgId as Id<"companies">;
 
   const isSameCompany = organizationId === move.companyId;

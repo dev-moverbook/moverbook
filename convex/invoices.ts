@@ -130,7 +130,7 @@ export const customerSignInvoice = action({
   handler: async (ctx, args): Promise<boolean> => {
     const { invoiceId, signature, amount } = args;
 
-    const identity = await requireAuthenticatedUser(ctx, [ClerkRoles.CUSTOMER]);
+    const identity = await requireAuthenticatedUser(ctx);
     const user = validateUser(
       await ctx.runQuery(internal.users.getUserByIdInternal, {
         userId: identity.convexId as Id<"users">,
@@ -265,7 +265,6 @@ export const updateInvoiceCustomerInvoice = mutation({
       ClerkRoles.MANAGER,
       ClerkRoles.SALES_REP,
       ClerkRoles.MOVER,
-      ClerkRoles.CUSTOMER,
     ]);
 
     const invoice = await validateDocument(

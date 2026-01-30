@@ -1,7 +1,7 @@
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { ResponseStatus, StripeAccountStatus } from "./enums";
 import { ErrorMessages } from "./errors";
-import { CustomerUser, HourStatus, MoverWageForMove } from "./types";
+import {  HourStatus, MoverWageForMove } from "./types";
 
 export interface ErrorResponse {
   status: ResponseStatus.ERROR;
@@ -130,7 +130,7 @@ export interface GetMoveData {
   quote: Doc<"quotes"> | null;
   company: Doc<"companies">;
   companyContact: Doc<"companyContacts">;
-  moveCustomer: CustomerUser;
+  moveCustomer: Doc<"moveCustomers">;
   salesRepUser: Doc<"users"> | null;
   myAssignment: Doc<"moveAssignments"> | null;
   wageDisplay: MoverWageForMove | null;
@@ -170,7 +170,7 @@ export interface GetPaymentPageData {
 }
 
 export interface EnrichedMove extends Doc<"moves"> {
-  moveCustomer: CustomerUser;
+  moveCustomer: Doc<"moveCustomers">;
   salesRepUser: Doc<"users"> | null;
   moverWageForMove?: MoverWageForMove;
   hourStatus?: HourStatus;
@@ -188,7 +188,7 @@ export interface CreateMessageData {
 }
 
 export interface GetCustomerAndMovesData {
-  moveCustomer: CustomerUser;
+  moveCustomer: Doc<"moveCustomers">;
   moves: EnrichedMoveForMover[] | Doc<"moves">[];
 }
 
@@ -227,7 +227,7 @@ export interface GetSalesRepsAndReferralByCompanyIdData {
 
 export interface newCustomerResponse {
   isExistingCustomer: boolean;
-  moveCustomer: Doc<"users">;
+  moveCustomer: Doc<"moveCustomers">;
 }
 
 export interface PublicMoveData {
@@ -239,7 +239,7 @@ export interface PublicMoveData {
   discounts: Doc<"discounts">[];
   invoice: Doc<"invoices"> | null;
   move: Doc<"moves">;
-  moveCustomer: CustomerUser;
+  moveCustomer: Doc<"moveCustomers">;
   moverLocation: Doc<"moverLocations"> | null;
   policy: Doc<"policies">;
   quote: Doc<"quotes"> | null;

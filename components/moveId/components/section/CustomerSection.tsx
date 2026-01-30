@@ -20,9 +20,9 @@ const CustomerSection: React.FC = () => {
 
   const {
     updateMoveCustomer,
-    updateMoveCustomerLoading,
-    updateMoveCustomerError,
-    setUpdateMoveCustomerError,
+    isLoading,
+    error,
+    setError,
   } = useUpdateMoveCustomer();
 
   const [formData, setFormData] = useState<CustomerFormData>({
@@ -46,7 +46,7 @@ const CustomerSection: React.FC = () => {
   };
 
   const handleSave = async () => {
-    setUpdateMoveCustomerError(null);
+    setError(null);
     const { isValid, errors } = validateCustomerForm(formData);
     if (!isValid) {
       setErrors(errors);
@@ -148,8 +148,8 @@ const CustomerSection: React.FC = () => {
               handleSave();
             }}
             onCancel={handleCancel}
-            isSaving={updateMoveCustomerLoading}
-            error={updateMoveCustomerError}
+            isSaving={isLoading}
+            error={error}
             disabled={isDisabled}
           />
         )}

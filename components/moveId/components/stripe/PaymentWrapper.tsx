@@ -44,7 +44,6 @@ export default function PaymentWrapper({
     null
   );
 
-  // Fetch SetupIntent clientSecret early
   useEffect(() => {
     if (
       moveCustomerStripeProfile &&

@@ -242,7 +242,7 @@ export const createMove = mutation({
     jobTypeRate: v.union(v.null(), v.number()),
     liabilityCoverage: v.union(v.null(), InsurancePolicyConvex),
     locations: v.array(LocationConvex),
-    moveCustomerId: v.id("users"),
+    moveCustomerId: v.id("moveCustomers"),
     moveDate: v.union(v.null(), v.string()),
     moveFees: v.array(MoveFeeConvex),
     moveItems: v.array(MoveItemConvex),
@@ -1368,7 +1368,7 @@ export const updateMoveInternal = internalMutation({
 export const createMoveInternal = internalMutation({
   args: {
     companyId: v.id("companies"),
-    moveCustomerId: v.id("users"),
+    moveCustomerId: v.id("moveCustomers"),
     serviceType: ServiceTypesConvex,
     referralId: v.optional(v.id("referrals")),
     moveStatus: MoveStatusConvex,
@@ -1402,7 +1402,6 @@ export const getPublicMoveById = query({
       ClerkRoles.APP_MODERATOR,
       ClerkRoles.MANAGER,
       ClerkRoles.SALES_REP,
-      ClerkRoles.CUSTOMER,
     ]);
 
     const move = validateDocExists(
@@ -1531,13 +1530,13 @@ export const getPublicMoveById = query({
 });
 
 export const getLatestMoveByMoveCustomerIdInternal = internalQuery({
-  args: { userId: v.id("users"), companyId: v.id("companies") },
+  args: { moveCustomerId: v.id("moveCustomers"), companyId: v.id("companies") },
   handler: async (ctx, args): Promise<Doc<"moves"> | null> => {
-    const { userId, companyId } = args;
+    const { moveCustomerId, companyId } = args;
     return await ctx.db
       .query("moves")
       .withIndex("by_moveCustomerIdAndCompanyId", (q) =>
-        q.eq("moveCustomerId", userId).eq("companyId", companyId)
+        q.eq("moveCustomerId", moveCustomerId).eq("companyId", companyId)
       )
       .order("desc")
       .first();

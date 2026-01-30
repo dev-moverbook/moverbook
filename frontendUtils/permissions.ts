@@ -25,10 +25,4 @@ export const isMover = (role?: string): boolean => {
   return role === ClerkRoles.MOVER;
 };
 
-export const isMoveCustomer = (role?: string): boolean => {
-  return role === ClerkRoles.CUSTOMER;
-};
 
-export const isMoveCustomerFromClerk = (role?: string): boolean => {
-  return role === ClerkRoles.CUSTOMER;
-};

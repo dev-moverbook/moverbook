@@ -9,7 +9,7 @@ export const useSearchMoveCustomersAndJobId = (
   companyId: Id<"companies">,
   searchTerm: string
 ):
-  | { moveCustomers: Doc<"users">[]; moves: EnrichedMoveForMover[] }
+  | { moveCustomers: Doc<"moveCustomers">[]; moves: EnrichedMoveForMover[] }
   | undefined => {
   const trimmed = searchTerm?.trim() ?? "";
 

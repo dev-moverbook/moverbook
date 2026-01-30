@@ -191,19 +191,23 @@ export const validateAndProcessInboundSms = internalAction({
       "Twilio number not found"
     );
 
-    const user = await ctx.runQuery(
-      internal.users.getUserByPhoneNumberInternal,
+    const moveCustomer = await ctx.runQuery(
+      internal.moveCustomers.getMoveCustomerByPhoneNumberInternal,
       {
         phoneNumber: args.messageData.fromPhoneE164,
       }
     );
 
-    const validatedUser = validateUser(user);
+    const validatedMoveCustomer = validateDocExists(
+      "moveCustomers",
+      moveCustomer,
+      "Move customer not found"
+    );
 
     const latestMove: Doc<"moves"> | null = await ctx.runQuery(
       internal.moves.getLatestMoveByMoveCustomerIdInternal,
       {
-        userId: validatedUser._id,
+        moveCustomerId: validatedMoveCustomer._id,
         companyId: validatedTwilioNumber.companyId,
       }
     );

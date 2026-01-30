@@ -14,11 +14,10 @@ import { ClerkRoles } from "@/types/enums";
 import type { Doc } from "@/convex/_generated/dataModel";
 import type { EnrichedMoveForMover } from "@/types/convex-responses";
 import SectionHeaderWithAction from "@/components/shared/section/SectionHeaderWithAction";
-import { CustomerUser } from "@/types/types";
 
 interface CustomerMovesProps {
   moves: EnrichedMoveForMover[];
-  moveCustomer: CustomerUser;
+  moveCustomer: Doc<"moveCustomers">;
 }
 
 export default function CustomerMoves({

@@ -1,7 +1,7 @@
 import { ClerkRoles } from "@/types/enums";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { QueryCtx, MutationCtx } from "@/convex/_generated/server";
-import { assertCustomerUser, validateUser } from "./validate";
+import {  validateUser } from "./validate";
 import { UserIdentity } from "convex/server";
 import {
   getMoveCostRange,
@@ -158,13 +158,14 @@ export function sortByPriceOrder(
 
 export async function getMoveCustomersMap(
   ctx: QueryCtx,
-  moveCustomerIds: Id<"users">[]
-): Promise<Record<string, Doc<"users">>> {
-  if (moveCustomerIds.length === 0) return {};
-
+  moveCustomerIds: Id<"moveCustomers">[]
+): Promise<Record<string, Doc<"moveCustomers">>> {
+  if (moveCustomerIds.length === 0){
+    return {};
+  }
   const uniqueIds = Array.from(new Set(moveCustomerIds));
   const customers = await ctx.db
-    .query("users")
+    .query("moveCustomers")
     .filter((f) => f.or(...uniqueIds.map((id) => f.eq(f.field("_id"), id))))
     .collect();
 
@@ -250,7 +251,7 @@ export async function applyMoverScopeAndEstimateWages(
 export function enrichMoves(
   moves: Doc<"moves">[],
   opts: {
-    moveCustomerMap: Record<string, Doc<"users">>;
+    moveCustomerMap: Record<string, Doc<"moveCustomers">>;
     salesRepMap: Record<string, Doc<"users">>;
     moverWageForMove?: Map<string, MoverWageForMove>;
     hourStatusMap?: HourStatusMap;
@@ -261,9 +262,7 @@ export function enrichMoves(
 
   return moves.map((move) => ({
     ...move,
-    moveCustomer: assertCustomerUser(
-      moveCustomerMap[move.moveCustomerId] ?? null
-    ),
+    moveCustomer:  moveCustomerMap[move.moveCustomerId],
     salesRepUser: move.salesRep ? (salesRepMap[move.salesRep] ?? null) : null,
     moverWageForMove: moverWageForMove?.get(move._id),
     hourStatus: hourStatusMap?.get(move._id),
@@ -319,7 +318,7 @@ function getTravelHours(move: Doc<"moves">): number {
   let total = 0;
   for (const segment of move.segmentDistances) {
     if (typeof segment?.duration === "number" && segment.duration > 0) {
-      total += segment.duration; // durations are stored in hours
+      total += segment.duration; 
     }
   }
   return total;
@@ -333,8 +332,8 @@ export function buildEstimatedWageRangeMap(
   const wageMap: WageRangeMap = new Map();
   const rate = hourlyRate ?? 0;
 
-  const fix2 = (n: number) => Number(n.toFixed(2));
-  const hoursNonNeg = (n: number) => Math.max(0, n);
+  const fix2 = (number: number) => Number(number.toFixed(2));
+  const hoursNonNeg = (number: number) => Math.max(0, number);
 
   for (const move of moves) {
     const assignment = assignmentMap.get(move._id);
@@ -366,7 +365,6 @@ export function buildEstimatedWageRangeMap(
           typeof move.actualEndTime === "number" &&
           move.actualEndTime > move.actualStartTime
         ) {
-          // Fallback to move actuals if assignment missing
           workedHours = hoursNonNeg(move.actualEndTime - move.actualStartTime);
         } else {
           workedHours = 0;
@@ -378,7 +376,6 @@ export function buildEstimatedWageRangeMap(
         continue;
       }
 
-      // ⏳ Not completed: estimate range using assignment start/end if provided, else move’s window
       const startHours =
         (typeof assignment?.startTime === "number"
           ? assignment.startTime
@@ -399,7 +396,6 @@ export function buildEstimatedWageRangeMap(
         maxHours = tmp;
       }
 
-      // For estimates, we don’t subtract break since end may be unknown; keep it simple/optimistic.
       const estMinTotalHours = minHours + travelHours;
       const estMaxTotalHours = maxHours + travelHours;
 
@@ -409,7 +405,6 @@ export function buildEstimatedWageRangeMap(
       continue;
     }
 
-    // Fallback for unknown jobType
     wageMap.set(move._id, { min: 0, max: 0 });
   }
 
@@ -437,7 +432,9 @@ function clampNonNegative(value: number): number {
 function computeCompletedAssignmentHours(
   assignment?: Doc<"moveAssignments">
 ): number {
-  if (!assignment) return 0;
+  if (!assignment){
+    return 0;
+  }
 
   const startRaw = assignment.startTime ?? null;
   const endRaw = assignment.endTime ?? null;

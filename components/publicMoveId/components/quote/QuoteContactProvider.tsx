@@ -11,14 +11,13 @@ import { X } from "lucide-react";
 import SectionContainer from "@/components/shared/containers/SectionContainer";
 import ContactCard from "@/components/moveId/components/card/ContactCard";
 import CustomerForm from "@/components/move/sections/Customer/CustomerForm";
-import { ClerkRoles } from "@/types/enums";
 
 const QuoteContactProvider = () => {
-  const { move, userRole } = usePublicMoveIdContext();
+  const { move, } = usePublicMoveIdContext();
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const { companyContact, moveCustomer, salesRepUser } = move;
 
-  const isMoveCustomer = userRole === ClerkRoles.CUSTOMER;
+
 
   const handleEditClick = () => {
     setIsEditing(true);
@@ -34,7 +33,7 @@ const QuoteContactProvider = () => {
     name,
     email,
     phoneNumber,
-    altPhoneNumber,
+    altPhoneNumber: altPhoneNumber ?? "",
   });
 
   const handleChange = (key: keyof CustomerFormData, value: string) => {
@@ -80,7 +79,7 @@ const QuoteContactProvider = () => {
       companyContact={companyContact}
       moveCustomer={moveCustomer}
       salesRepUser={salesRepUser}
-      onEditClick={isMoveCustomer ? handleEditClick : undefined}
+      onEditClick={handleEditClick}
       isEditing={isEditing}
     />
   );

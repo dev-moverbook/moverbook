@@ -141,9 +141,7 @@ export const getCompanyIdBySlug = query({
       company,
       ErrorMessages.COMPANY_NOT_FOUND
     );
-    if (identity.role !== ClerkRoles.CUSTOMER) {
       isUserInOrg(identity, validatedCompany.clerkOrganizationId);
-    }
 
     const userId = identity.convexId as Id<"users">;
     const user = validateUser(await ctx.db.get(userId), true);
@@ -393,45 +391,9 @@ export const getSignUpInvitation = query({
     const identity = await requireAuthenticatedUser(ctx);
 
     const userId = identity.convexId as Id<"users">;
-    const role = identity.role as ClerkRoles;
 
     const user = validateUser(await ctx.db.get(userId));
 
-    if (role === ClerkRoles.CUSTOMER) {
-      const invitations = await ctx.db
-        .query("invitations")
-        .withIndex("by_userId", (q) => q.eq("userId", user._id))
-        .order("desc")
-        .take(1);
-
-      const invite = invitations[0];
-
-      if (!invite || !invite.moveId) {
-        throwConvexError("No move for this move customer", {
-          code: "BAD_REQUEST",
-          showToUser: true,
-        });
-      }
-      const move = await ctx.db.get(invite.moveId);
-      if (!move) {
-        throwConvexError("Move not found", {
-          code: "BAD_REQUEST",
-          showToUser: true,
-        });
-      }
-
-      const company = await ctx.db.get(move.companyId);
-      if (!company) {
-        throwConvexError("Company not found", {
-          code: "BAD_REQUEST",
-          showToUser: true,
-        });
-      }
-
-      const slug = company.slug;
-
-      return { moveId: invite.moveId, user, slug };
-    }
     if (!user.companyId) {
       return { company: null, user };
     }

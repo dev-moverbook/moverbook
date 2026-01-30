@@ -12,12 +12,12 @@ interface CreateMoveCustomerInput {
   name: string;
   email: string;
   phoneNumber: string;
-  altPhoneNumber: string;
+  altPhoneNumber?: string;
 }
 
 export const useCreateMoveCustomer = () => {
-  const [createMoveCustomerLoading, setLoading] = useState<boolean>(false);
-  const [createMoveCustomerError, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   const createMoveCustomerMutation = useMutation(
     api.moveCustomers.createMoveCustomer
@@ -26,23 +26,30 @@ export const useCreateMoveCustomer = () => {
   const createMoveCustomer = async (
     data: CreateMoveCustomerInput
   ): Promise<newCustomerResponse | null> => {
-    setLoading(true);
+    setIsLoading(true);
     setError(null);
 
+    const cleanedData = {
+      ...data,
+      altPhoneNumber: data.altPhoneNumber?.trim() === "" 
+        ? undefined 
+        : data.altPhoneNumber,
+    };
+
     try {
-      return await createMoveCustomerMutation(data);
+      return await createMoveCustomerMutation(cleanedData);
     } catch (error) {
       setErrorFromConvexError(error, setError);
       return null;
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   return {
     createMoveCustomer,
-    createMoveCustomerLoading,
-    createMoveCustomerError,
-    setCreateMoveCustomerError: setError,
+    isLoading,
+    error,
+    setError,
   };
 };

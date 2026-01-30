@@ -7,7 +7,6 @@ import { ClerkRoles } from "./types/enums";
 import { clientEnv } from "./frontendUtils/clientEnv";
 import {
   isCompanyAdminRole,
-  isMoveCustomer,
 } from "./frontendUtils/permissions";
 
 const isProtectedRoute = createRouteMatcher(["/app(.*)"]);
@@ -32,9 +31,7 @@ export default clerkMiddleware(async (auth, req) => {
   const orgId = authData.orgId;
 
   if (path === "/") {
-    if (isMoveCustomer(userRole)) {
-      return NextResponse.next();
-    }
+ 
 
     if (userId && !orgId) {
       return NextResponse.redirect(new URL("/app/onboarding", req.url));
@@ -59,7 +56,6 @@ export default clerkMiddleware(async (auth, req) => {
     await auth.protect();
   }
   if (isProtectedManagerRoute(req)) {
-    // const isAllowedPermission = isMoveCustomer(userRole);
 
     await auth.protect((has) => {
       return (

@@ -62,7 +62,7 @@ export async function handleSetupIntentSucceeded(
   await ctx.runMutation(
     internal.moveCustomerStripeProfiles.updatePaymentMethodFromSetupIntent,
     {
-      moveCustomerId: moveCustomerId as Id<"users">,
+      moveCustomerId: moveCustomerId as Id<"moveCustomers">,
       companyId: companyId as Id<"companies">,
       paymentMethodId: paymentMethod.id,
       cardBrand: brand,
@@ -92,13 +92,13 @@ export async function handlePaymentIntentSucceeded(
     return;
   }
 
-  const user = await ctx.runQuery(internal.users.getUserByIdInternal, {
-    userId: payment.userId,
+  const moveCustomer = await ctx.runQuery(internal.moveCustomers.getMoveCustomerByIdInternal, {
+    moveCustomerId: payment.moveCustomerId,
   });
 
-  if (!user) {
-    console.warn("[Stripe webhook] User record not found", {
-      userId: payment.userId,
+  if (!moveCustomer) {
+    console.warn("[Stripe webhook] Move customer record not found", {
+      moveCustomerId: payment.moveCustomerId,
     });
     return;
   }
@@ -155,9 +155,9 @@ export async function handlePaymentIntentSucceeded(
       entry: {
         type: "QUOTE_SIGNED",
         companyId: payment.companyId,
-        body: `**${user.name}** signed proposal for **${moveDate}** deposit paid ${formmatedAmount}`,
+        body: `**${moveCustomer.name}** signed proposal for **${moveDate}** deposit paid ${formmatedAmount}`,
         moveId: payment.moveId,
-        moveCustomerId: payment.userId,
+        moveCustomerId: payment.moveCustomerId,
       },
     });
   }
@@ -178,9 +178,9 @@ export async function handlePaymentIntentSucceeded(
       entry: {
         type: "INVOICE_PAYMENT",
         companyId: payment.companyId,
-        body: `**${user.name}** paid invoice for move on ${moveDate}`,
+        body: `**${moveCustomer.name}** paid invoice for move on ${moveDate}`,
         moveId: payment.moveId,
-        moveCustomerId: payment.userId,
+        moveCustomerId: payment.moveCustomerId,
         amount: payment.amount,
       },
     });

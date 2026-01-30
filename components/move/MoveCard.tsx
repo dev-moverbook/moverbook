@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { formatDateToLong, formatLocationType } from "@/frontendUtils/helper";
 import { Doc } from "@/convex/_generated/dataModel";
-import { MoverWageForMove, HourStatus, CustomerUser } from "@/types/types";
+import { MoverWageForMove, HourStatus,  } from "@/types/types";
 import {
   getDisplayedPrice,
   getHourStatusClass,
@@ -15,7 +15,7 @@ import { MoveCardActions } from "./MoveCardActions";
 
 interface MoveCardProps {
   move: Doc<"moves">;
-  moveCustomer: CustomerUser;
+  moveCustomer: Doc<"moveCustomers">;
   showActions?: boolean;
   onDuplicate?: (move: Doc<"moves">) => void;
   salesRep: Doc<"users"> | null;

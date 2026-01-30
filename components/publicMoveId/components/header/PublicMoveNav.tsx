@@ -2,7 +2,6 @@
 
 import { usePublicMoveIdContext } from "@/contexts/PublicMovIdContext";
 import { UserButton } from "@clerk/nextjs";
-import { isMoveCustomerFromClerk } from "@/frontendUtils/permissions";
 import { ArrowLeft } from "lucide-react";
 import IconButton from "@/components/shared/buttons/IconButton";
 import { useRouter } from "next/navigation";
@@ -10,7 +9,7 @@ import { useRouter } from "next/navigation";
 const PublicMoveNav = () => {
   const { userRole, move } = usePublicMoveIdContext();
 
-  const showBackButton = !isMoveCustomerFromClerk(userRole);
+  const showBackButton = !!userRole;
 
   const companyName = move.company.name;
   const router = useRouter();

@@ -3,10 +3,8 @@ import { Doc, Id } from "@/convex/_generated/dataModel";
 import { TEMPLATE_TOKEN_REGEX, TEMPLATE_VARIABLES } from "@/types/const";
 import { ActionCtx } from "../_generated/server";
 import { clientEnv } from "@/frontendUtils/clientEnv";
-import { sendMoveCustomerClerkInvitation } from "../functions/clerk";
 import { internal } from "../_generated/api";
-import { ClerkRoles } from "@/types/enums";
-import { CustomerUser, PublicMoveStep } from "@/types/types";
+import { PublicMoveStep } from "@/types/types";
 import { throwConvexError } from "./errors";
 
 export const injectTemplateValues = (
@@ -35,27 +33,17 @@ export const resolveTemplateSideEffects = async ({
   keys: Set<string>;
   move: Doc<"moves">;
   slug: string;
-  moveCustomer: CustomerUser;
+  moveCustomer: Doc<"moveCustomers">;
   company: Doc<"companies">;
 }): Promise<Record<string, string>> => {
   const baseUrl = clientEnv().NEXT_PUBLIC_APP_URL;
   const resolved: Record<string, string> = {};
 
-  const hasAccount = Boolean(moveCustomer.clerkUserId);
 
   const buildMoveLink = async (step?: PublicMoveStep) => {
-    if (hasAccount) {
-      const url = `${baseUrl}/${slug}/moves/${move._id}`;
-      return step ? `${url}?step=${step}` : url;
-    }
+    const url = `${baseUrl}/${slug}/moves/${move._id}`;
 
-    const inviteUrl = await ensureMoveCustomerInviteLink({
-      ctx,
-      move,
-      moveCustomer,
-    });
-
-    return step ? `${inviteUrl}?step=${step}` : inviteUrl;
+    return step ? `${url}?step=${step}` : url;
   };
 
   const buildInternalReviewLink = async () => {
@@ -77,14 +65,6 @@ export const resolveTemplateSideEffects = async ({
 
   if (keys.has(TEMPLATE_VARIABLES.payment_link)) {
     resolved.payment_link = await buildMoveLink("payment");
-  }
-
-  if (keys.has(TEMPLATE_VARIABLES.invite_link)) {
-    resolved.invite_link = await ensureMoveCustomerInviteLink({
-      ctx,
-      move,
-      moveCustomer,
-    });
   }
 
   if (keys.has(TEMPLATE_VARIABLES.external_review_link)) {
@@ -111,32 +91,6 @@ export const resolveTemplateSideEffects = async ({
   return resolved;
 };
 
-export const ensureMoveCustomerInviteLink = async ({
-  ctx,
-  move,
-  moveCustomer,
-}: {
-  ctx: ActionCtx;
-  move: Doc<"moves">;
-  moveCustomer: CustomerUser;
-}): Promise<string> => {
-  const { invitationId, invitationUrl } = await sendMoveCustomerClerkInvitation(
-    moveCustomer.email,
-    moveCustomer._id,
-    move._id
-  );
-
-  await ctx.runMutation(internal.invitations.createInvitationInternal, {
-    clerkInvitationId: invitationId,
-    moveId: move._id,
-    userId: moveCustomer._id,
-    role: ClerkRoles.CUSTOMER,
-    email: moveCustomer.email,
-    hourlyRate: null,
-  });
-
-  return invitationUrl;
-};
 
 export const buildExternalReviewLink = async ({
   ctx,

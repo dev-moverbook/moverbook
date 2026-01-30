@@ -12,11 +12,10 @@ import SectionHeader from "../shared/section/SectionHeader";
 import { isValidEmail, isValidPhoneNumber } from "@/utils/helper";
 import { useSlugContext } from "@/contexts/SlugContext";
 import { canCreateMove, isMover } from "@/frontendUtils/permissions";
-import { CustomerUser } from "@/types/types";
-import { Id } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 
 interface CustomerInfoProps {
-  moveCustomer: CustomerUser;
+  moveCustomer: Doc<"moveCustomers">;
   onClick?: () => void;
   showCheckmark?: boolean;
   isMoverLead?: boolean;
@@ -40,9 +39,9 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
 
   const {
     updateMoveCustomer,
-    updateMoveCustomerLoading,
-    updateMoveCustomerError,
-    setUpdateMoveCustomerError,
+    isLoading: updateMoveCustomerLoading,
+    error: updateMoveCustomerError,
+    setError: setUpdateMoveCustomerError,
   } = useUpdateMoveCustomer();
 
   const [formData, setFormData] = useState<CustomerFormData>({

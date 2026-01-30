@@ -28,7 +28,7 @@ export interface CreateMoveInput {
   jobTypeRate: number | null;
   liabilityCoverage: Doc<"insurancePolicies"> | null;
   locations: LocationInput[];
-  moveCustomerId: Id<"users">;
+  moveCustomerId: Id<"moveCustomers">;
   moveDate: string | null;
   moveFees: MoveFeeInput[];
   moveItems: MoveItemInput[];

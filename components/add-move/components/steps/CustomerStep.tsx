@@ -24,7 +24,7 @@ interface CustomerStepProps {
 const CustomerStep = ({ onNext, onCancel }: CustomerStepProps) => {
   const { companyId } = useSlugContext();
 
-  const [existingCustomer, setExistingCustomer] = useState<Doc<"users"> | null>(
+  const [existingCustomer, setExistingCustomer] = useState<Doc<"moveCustomers"> | null>(
     null
   );
 
@@ -40,16 +40,16 @@ const CustomerStep = ({ onNext, onCancel }: CustomerStepProps) => {
 
   const {
     createMoveCustomer,
-    createMoveCustomerLoading,
-    createMoveCustomerError,
-    setCreateMoveCustomerError,
+    isLoading: createMoveCustomerLoading,
+    error: createMoveCustomerError,
+    setError: setCreateMoveCustomerError,
   } = useCreateMoveCustomer();
 
   const {
     updateMoveCustomer,
-    updateMoveCustomerLoading,
-    updateMoveCustomerError,
-    setUpdateMoveCustomerError,
+    isLoading: updateMoveCustomerLoading,
+    error: updateMoveCustomerError,
+    setError: setUpdateMoveCustomerError,
   } = useUpdateMoveCustomer();
 
   const handleChange = (key: keyof typeof customer, value: string): void => {
@@ -145,7 +145,7 @@ const CustomerStep = ({ onNext, onCancel }: CustomerStepProps) => {
       {existingCustomer ? (
         <div className="pt-6">
           <ExistingCustomerNotice
-            customer={existingCustomer}
+            moveCustomer={existingCustomer}
             onUse={() => {
               setMoveFormData({
                 ...moveFormData,

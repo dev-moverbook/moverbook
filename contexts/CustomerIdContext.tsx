@@ -16,7 +16,7 @@ export function CustomerIdProvider({
   slug,
   children,
 }: {
-  moveCustomerId: Id<"users">;
+  moveCustomerId: Id<"moveCustomers">;
   slug: string;
   children: React.ReactNode;
 }) {

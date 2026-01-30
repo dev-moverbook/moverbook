@@ -5,13 +5,12 @@ import SectionHeader from "@/components/shared/section/SectionHeader";
 import ContactCard from "../card/ContactCard";
 import CustomerCard from "../card/CustomerCard";
 import { Doc } from "@/convex/_generated/dataModel";
-import { CustomerUser } from "@/types/types";
 import IconButton from "@/components/shared/buttons/IconButton";
 import { PencilIcon } from "lucide-react";
 
 interface QuoteContactProps {
   companyContact: Doc<"companyContacts">;
-  moveCustomer: CustomerUser;
+  moveCustomer: Doc<"moveCustomers">;
   salesRepUser: Doc<"users"> | null;
   onEditClick?: () => void;
   isEditing?: boolean;

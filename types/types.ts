@@ -398,17 +398,6 @@ export interface RouteMapProps {
 
 export type ActiveUser = Doc<"users"> & { isActive: true };
 
-export type CustomerUser = {
-  _id: Id<"users">;
-  altPhoneNumber: string;
-  email: string;
-  imageUrl?: string;
-  name: string;
-  phoneNumber: string;
-  clerkUserId?: string;
-};
-
-// types/activityEvents.ts
 export const ActivityEventType = {
   ASSIGN_MOVER: "ASSIGN_MOVER",
   CLOCK_IN: "CLOCK_IN",

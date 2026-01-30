@@ -254,7 +254,7 @@ export interface MoveFormData {
   jobType: JobType;
   jobTypeRate: number | null;
   locations: LocationInput[];
-  moveCustomerId: Id<"users"> | null;
+  moveCustomerId: Id<"moveCustomers"> | null;
   moveDate: string | null;
   moveFees: MoveFeeInput[];
   moveItems: MoveItemInput[];

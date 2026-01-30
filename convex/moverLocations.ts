@@ -212,7 +212,6 @@ export const getMoverLocation = query({
       ClerkRoles.MANAGER,
       ClerkRoles.SALES_REP,
       ClerkRoles.MOVER,
-      ClerkRoles.CUSTOMER,
     ]);
 
     const move = await validateDocument(

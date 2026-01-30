@@ -3,10 +3,10 @@ import { ClerkRoles } from "@/types/enums";
 import { ErrorMessages } from "@/types/errors";
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
-import { Doc, Id } from "./_generated/dataModel";
+import { Doc,  } from "./_generated/dataModel";
 import { internalQuery, mutation } from "./_generated/server";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
-import { validateDocExists, isIdentityInMove } from "./backendUtils/validate";
+import { validateDocExists, isIdentityInMove, validateMoveCustomer } from "./backendUtils/validate";
 import {
   ChangeRequestStatusConvex,
   LocationConvex,
@@ -24,7 +24,7 @@ export const insertMoveUpdate = mutation({
   handler: async (ctx, args): Promise<boolean> => {
     const { moveId, requestedLocations, requestedMoveItems } = args;
 
-    const identity = await requireAuthenticatedUser(ctx, [ClerkRoles.CUSTOMER]);
+
 
     const move = validateDocExists(
       "moves",
@@ -33,7 +33,16 @@ export const insertMoveUpdate = mutation({
       }),
       ErrorMessages.MOVE_NOT_FOUND
     );
-    isIdentityInMove(identity, move);
+    const moveCustomer = validateMoveCustomer(
+      await ctx.db.get(move.moveCustomerId)
+    );
+
+    if (!moveCustomer) {
+      throwConvexError(ErrorMessages.MOVE_CUSTOMER_NOT_FOUND, {
+        code: "NOT_FOUND",
+        showToUser: true,
+      });
+    }
 
     if (!canPublicEditMove(move.moveDate)) {
       throwConvexError(
@@ -60,10 +69,10 @@ export const insertMoveUpdate = mutation({
     await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
       entry: {
         type: "CUSTOMER_MOVE_UPDATED",
-        body: `**${identity.name}** **${moveDate}** made an update.`,
+        body: `**${moveCustomer.name}** **${moveDate}** made an update.`,
         companyId: move.companyId,
         moveId,
-        moveCustomerId: identity.convexId as Id<"users">,
+        moveCustomerId: moveCustomer._id,
       },
     });
     return true;
@@ -77,7 +86,7 @@ export const updateCustomerAcknowledgedAt = mutation({
   handler: async (ctx, args): Promise<boolean> => {
     const { moveChangeRequestId } = args;
 
-    const identity = await requireAuthenticatedUser(ctx, [ClerkRoles.CUSTOMER]);
+    const identity = await requireAuthenticatedUser(ctx);
 
     const moveChangeRequest = validateDocExists(
       "moveChangeRequests",

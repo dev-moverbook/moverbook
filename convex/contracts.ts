@@ -7,7 +7,6 @@ import {
 import { v } from "convex/values";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import {
-  isIdentityInMove,
   isUserInOrg,
   validateCompany,
   validateDocExists,
@@ -15,7 +14,7 @@ import {
   validateMoveCustomer,
 } from "./backendUtils/validate";
 import { ClerkRoles } from "@/types/enums";
-import { Doc, Id } from "./_generated/dataModel";
+import { Doc,  } from "./_generated/dataModel";
 import { ErrorMessages } from "@/types/errors";
 import { internal } from "./_generated/api";
 import { throwConvexError } from "./backendUtils/errors";
@@ -113,15 +112,6 @@ export const customerUpdateContract = action({
       status: "completed",
     };
 
-    const identity = await requireAuthenticatedUser(ctx, [
-      ClerkRoles.CUSTOMER,
-      ClerkRoles.SALES_REP,
-      ClerkRoles.ADMIN,
-      ClerkRoles.APP_MODERATOR,
-      ClerkRoles.MANAGER,
-      ClerkRoles.MOVER,
-    ]);
-
     const contract = await ctx.runQuery(
       internal.contracts.getContractByIdInternal,
       {
@@ -134,30 +124,29 @@ export const customerUpdateContract = action({
       "Contract not found"
     );
 
-    const moveCustomer = await ctx.runQuery(
-      internal.moveCustomers.getMoveCustomerByIdInternal,
-      {
-        moveCustomerId: identity.convexId as Id<"users">,
-      }
-    );
-
     const move = await ctx.runQuery(internal.moves.getMoveByIdInternal, {
       moveId: validatedContract.moveId,
     });
 
-    if (!move) {
-      throwConvexError("Move not found", {
-        code: "BAD_REQUEST",
-        showToUser: true,
-      });
-    }
+    const validatedMove = validateDocExists(
+      "moves",
+      move,
+      "Move not found"
+    );
 
-    isIdentityInMove(identity, move);
+
+    const moveCustomer = await ctx.runQuery(
+      internal.moveCustomers.getMoveCustomerByIdInternal,
+      {
+        moveCustomerId: validatedMove.moveCustomerId,
+      }
+    );
+
 
     const companyContact = await ctx.runQuery(
       internal.companyContacts.getCompanyContactByCompanyIdInternal,
       {
-        companyId: move.companyId,
+        companyId: validatedMove.companyId,
       }
     );
     if (!companyContact) {
@@ -175,10 +164,10 @@ export const customerUpdateContract = action({
     await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
       entry: {
         type: "CUSTOMER_SIGNED_CONTRACT_DOC",
-        companyId: move.companyId,
+        companyId: validatedMove.companyId,
         body: `**${moveCustomer.name}** signed contract.`,
         moveId: validatedContract.moveId,
-        moveCustomerId: move.moveCustomerId,
+        moveCustomerId: validatedMove.moveCustomerId,
       },
     });
 

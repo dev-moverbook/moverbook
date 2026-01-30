@@ -417,7 +417,6 @@ export const TEMPLATE_VARIABLES = {
   documents_link: "documents_link",
   live_move_link: "live_move_link",
   payment_link: "payment_link",
-  invite_link: "invite_link",
   customer_name: "customer_name",
   move_date: "move_date",
   external_review_link: "external_review_link",

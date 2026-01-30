@@ -6,7 +6,7 @@ import { ClerkRoles } from "@/types/enums";
 
 export const getByMoveCustomerAndCompanyInternal = internalQuery({
   args: {
-    moveCustomerId: v.id("users"),
+    moveCustomerId: v.id("moveCustomers"),
     companyId: v.id("companies"),
   },
   handler: async (ctx, { moveCustomerId, companyId }) => {
@@ -30,7 +30,7 @@ export const getByIdInternal = internalQuery({
 
 export const getByMoveCustomerAndCompany = query({
   args: {
-    moveCustomerId: v.id("users"),
+    moveCustomerId: v.id("moveCustomers"),
     companyId: v.id("companies"),
   },
   handler: async (ctx, { moveCustomerId, companyId }) => {
@@ -39,7 +39,6 @@ export const getByMoveCustomerAndCompany = query({
       ClerkRoles.APP_MODERATOR,
       ClerkRoles.MANAGER,
       ClerkRoles.SALES_REP,
-      ClerkRoles.CUSTOMER,
     ]);
 
     return ctx.db
@@ -53,7 +52,7 @@ export const getByMoveCustomerAndCompany = query({
 
 export const createMoveCustomerStripeProfile = internalMutation({
   args: {
-    moveCustomerId: v.id("users"),
+    moveCustomerId: v.id("moveCustomers"),
     companyId: v.id("companies"),
     stripeCustomerId: v.string(),
     stripeConnectedAccountId: v.string(),
@@ -83,7 +82,7 @@ export const createMoveCustomerStripeProfile = internalMutation({
 
 export const updatePaymentMethodFromSetupIntent = internalMutation({
   args: {
-    moveCustomerId: v.id("users"),
+    moveCustomerId: v.id("moveCustomers"),
     companyId: v.id("companies"),
     paymentMethodId: v.string(),
     cardBrand: v.string(),

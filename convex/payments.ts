@@ -12,7 +12,7 @@ export const createPaymentRecord = internalMutation({
     stripePaymentIntentId: v.string(),
     status: PaymentStatusConvex,
     type: PaymentTypeConvex,
-    userId: v.id("users"),
+    moveCustomerId: v.id("moveCustomers"),
     failureReason: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
@@ -24,7 +24,7 @@ export const createPaymentRecord = internalMutation({
       stripePaymentIntentId: args.stripePaymentIntentId,
       status: args.status,
       type: args.type,
-      userId: args.userId,
+      moveCustomerId: args.moveCustomerId,
       failureReason: args.failureReason,
       updatedAt: Date.now(),
     });

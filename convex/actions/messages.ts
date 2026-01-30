@@ -358,7 +358,6 @@ export const markMoveAsBooked = action({
       ClerkRoles.APP_MODERATOR,
       ClerkRoles.MANAGER,
       ClerkRoles.SALES_REP,
-      ClerkRoles.CUSTOMER,
     ]);
 
     const move = validateMove(
@@ -473,7 +472,6 @@ export const markInvoiceAsComplete = action({
       ClerkRoles.APP_MODERATOR,
       ClerkRoles.MANAGER,
       ClerkRoles.SALES_REP,
-      ClerkRoles.CUSTOMER,
     ]);
 
     const move = validateMove(

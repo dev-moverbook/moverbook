@@ -42,7 +42,6 @@ export enum ClerkRoles {
   MANAGER = "Manager",
   MOVER = "Mover",
   SALES_REP = "Sales Rep",
-  CUSTOMER = "Customer",
 }
 
 export enum InvitationStatus {

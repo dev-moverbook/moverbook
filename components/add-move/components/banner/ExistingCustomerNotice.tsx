@@ -6,13 +6,13 @@ import { useRouter } from "next/navigation";
 import { Doc } from "@/convex/_generated/dataModel";
 
 interface Props {
-  customer: Doc<"users">;
+  moveCustomer: Doc<"moveCustomers">;
   onUse: () => void;
   className?: string;
 }
 
 const ExistingCustomerNotice: React.FC<Props> = ({
-  customer,
+  moveCustomer,
   onUse,
 
   className = "",
@@ -21,7 +21,7 @@ const ExistingCustomerNotice: React.FC<Props> = ({
   const router = useRouter();
 
   const handleView = () => {
-    router.push(`/app/${slug}/customer/${customer._id}`);
+    router.push(`/app/${slug}/customer/${moveCustomer._id}`);
   };
   return (
     <div className={`   ${className}`}>
@@ -33,7 +33,7 @@ const ExistingCustomerNotice: React.FC<Props> = ({
         </p>
       </div>
       <MoveCustomerCard
-        moveCustomer={customer}
+        moveCustomer={moveCustomer}
         className="px-4 md:px-0 border-none"
       />
       <FormActionContainer className="pt-10">

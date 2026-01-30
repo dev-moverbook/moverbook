@@ -3,7 +3,6 @@
 import QuoteInventory from "@/components/moveId/components/quote/QuoteInventory";
 import QuoteLocation from "@/components/moveId/components/quote/QuoteLocation";
 import { usePublicMoveIdContext } from "@/contexts/PublicMovIdContext";
-import { isMoveCustomerFromClerk } from "@/frontendUtils/permissions";
 import { useState } from "react";
 import EditQuoteFormActions from "./EditQuoteFormActions";
 import MoveDetailsHeading from "./MoveDetailsHeading";
@@ -11,13 +10,11 @@ import MoveDetailsEditingHeading from "./MoveDetailsEditingHeading";
 import { LocationInput, MoveItemInput } from "@/types/form-types";
 import EditableQuoteLocation from "./EditableQuoteLocation";
 import InventoryPublicQuoteLoader from "./InventoryPublicQuoteLoader";
-import { canPublicEditMove } from "@/frontendUtils/timeUtils";
 
 const EditableQuoteSection = () => {
-  const { move, userRole } = usePublicMoveIdContext();
+  const { move,  } = usePublicMoveIdContext();
   const { move: moveData } = move;
-  const isMoveCustomer = isMoveCustomerFromClerk(userRole);
-  const canEdit = isMoveCustomer && canPublicEditMove(moveData.moveDate);
+
 
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
@@ -65,7 +62,7 @@ const EditableQuoteSection = () => {
 
   return (
     <>
-      <MoveDetailsHeading onEditClick={canEdit ? handleEditClick : undefined} />
+      <MoveDetailsHeading onEditClick={handleEditClick} />
       <QuoteLocation move={moveData} />
       <QuoteInventory move={moveData} />
     </>

@@ -16,7 +16,6 @@ import { ErrorMessages } from "@/types/errors";
 import { formatMonthDayLabelStrict } from "@/frontendUtils/luxonUtils";
 import { internal } from "./_generated/api";
 import { throwConvexError } from "./backendUtils/errors";
-import { ClerkRoles } from "@/types/enums";
 
 export const getInternalReview = query({
   args: {
@@ -52,7 +51,7 @@ export const createInternalReview = mutation({
   handler: async (ctx, args): Promise<boolean> => {
     const { moveId, rating } = args;
 
-    const identity = await requireAuthenticatedUser(ctx, [ClerkRoles.CUSTOMER]);
+    const identity = await requireAuthenticatedUser(ctx);
 
     const move = await validateDocument(
       ctx.db,
@@ -143,7 +142,7 @@ export const updateInternalReview = mutation({
       ErrorMessages.MOVE_NOT_FOUND
     );
 
-    const identity = await requireAuthenticatedUser(ctx, [ClerkRoles.CUSTOMER]);
+    const identity = await requireAuthenticatedUser(ctx);
     isIdentityInMove(identity, move);
 
     await ctx.db.patch(internalReviewId, {

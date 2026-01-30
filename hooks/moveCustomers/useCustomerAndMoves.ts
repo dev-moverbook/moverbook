@@ -6,7 +6,7 @@ import { Id } from "@/convex/_generated/dataModel";
 import { GetCustomerAndMovesData } from "@/types/convex-responses";
 
 export const useCustomerAndMoves = (
-  moveCustomerId: Id<"users">,
+  moveCustomerId: Id<"moveCustomers">,
   slug: string
 ): GetCustomerAndMovesData | undefined => {
   const response = useQuery<typeof api.moveCustomers.getCustomerAndMoves>(

@@ -21,7 +21,8 @@ const ProceedButton = ({
 }: ProceedButtonProps) => {
   const {
     ensureMoveCustomerStripeProfile,
-    error: ensureMoveCustomerStripeProfileError,
+    error,
+    loading,
   } = useEnsureMoveCustomerStripeProfiel();
 
   const handleClick = async () => {
@@ -38,7 +39,8 @@ const ProceedButton = ({
     <SingleFormAction
       submitLabel="Payment"
       onSubmit={handleClick}
-      error={paymentError || ensureMoveCustomerStripeProfileError}
+      error={paymentError || error}
+      disabled={loading}
     />
   );
 };

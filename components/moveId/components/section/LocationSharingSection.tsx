@@ -107,7 +107,9 @@ const LocationSharingSection = ({
   Location Sharing
 </Header3>
       
-      <SectionContainer>
+      <SectionContainer className="pb-0">
+ 
+        {showMap ? <MoverLocationMap moverLocation={moverLocation} /> : <p >No location available.</p>}
         <FieldErrorMessage
           error={
             error ||
@@ -116,7 +118,6 @@ const LocationSharingSection = ({
             sendPresetScriptError
           }
         />
-        {showMap && <MoverLocationMap moverLocation={moverLocation} />}
       </SectionContainer>
     </div>
   );

@@ -116,29 +116,6 @@ export const handleUserCreated = async (ctx: ActionCtx, data: UserJSON) => {
       }
     );
 
-    const moveCustomer = await ctx.runQuery(
-      internal.users.getUserByEmailInternal,
-      {
-        email: primaryEmail,
-        role: ClerkRoles.CUSTOMER,
-      }
-    );
-
-    if (moveCustomer) {
-      await ctx.runMutation(internal.users.updateUserInternal, {
-        userId: moveCustomer._id,
-        updates: {
-          imageUrl: imageUrl,
-          clerkUserId: clerkUserId,
-        },
-      });
-      await updateClerkUserPublicMetadata(data.id, {
-        convexId: moveCustomer._id,
-        role: ClerkRoles.CUSTOMER,
-      });
-
-      return;
-    }
 
     if (!customer) {
       const userId = await ctx.runMutation(internal.users.createUser, {

@@ -39,7 +39,7 @@ export async function createStripeCustomer({
   companyId,
   connectedAccountId,
 }: {
-  moveCustomerId: Id<"users">;
+  moveCustomerId: Id<"moveCustomers">;
   companyId: Id<"companies">;
   connectedAccountId?: string;
 }) {

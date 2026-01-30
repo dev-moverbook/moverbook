@@ -15,7 +15,6 @@ import {
 } from "@/types/convex-responses";
 import { Doc, Id } from "./_generated/dataModel";
 import {
-  assertCustomerUser,
   isUserInCompanyConvex,
   isUserInOrg,
   validateCompany,
@@ -28,12 +27,11 @@ import {
   scopeMovesToMover,
   resolveMoverContext,
 } from "./backendUtils/queryHelpers";
-import { CustomerUser, HourStatus } from "@/types/types";
+import { HourStatus } from "@/types/types";
 import { ErrorMessages } from "@/types/errors";
 import { internal } from "./_generated/api";
 import { throwConvexError } from "./backendUtils/errors";
 import { ServiceTypesConvex } from "@/types/convex-enums";
-import { updateUserNameHelper } from "./functions/clerk";
 import { validateAndFormatPhone } from "./backendUtils/helper";
 
 export const searchMoveCustomersAndJobId = query({
@@ -45,7 +43,7 @@ export const searchMoveCustomersAndJobId = query({
     ctx,
     { companyId, searchTerm }
   ): Promise<{
-    moveCustomers: Doc<"users">[];
+    moveCustomers: Doc<"moveCustomers">[];
     moves: EnrichedMoveForMover[];
   }> => {
     const identity = await requireAuthenticatedUser(ctx, [
@@ -68,10 +66,8 @@ export const searchMoveCustomersAndJobId = query({
     const normalizedSearch = searchTerm.trim().toLowerCase();
 
     const allCustomers = await ctx.db
-      .query("users")
+      .query("moveCustomers")
       .withIndex("by_companyId", (q) => q.eq("companyId", companyId))
-      .filter((q) => q.eq(q.field("role"), ClerkRoles.CUSTOMER))
-      .filter((q) => q.eq(q.field("isActive"), true))
       .collect();
 
     const allCompanyMoves = await ctx.db
@@ -161,20 +157,21 @@ export const createMoveCustomer = mutation({
     name: v.string(),
     email: v.string(),
     phoneNumber: v.string(),
-    altPhoneNumber: v.string(),
+    altPhoneNumber: v.optional(v.string()),
     companyId: v.id("companies"),
   },
   handler: async (ctx, args): Promise<newCustomerResponse> => {
     const { name, email, phoneNumber, altPhoneNumber, companyId } = args;
 
     const validatedPhoneNumber = validateAndFormatPhone(phoneNumber, "US");
-    const validatedAltPhoneNumber = validateAndFormatPhone(
-      altPhoneNumber,
-      "US"
-    );
 
-    const byEmail: Doc<"users"> | null = await ctx.db
-      .query("users")
+    let validatedAltPhoneNumber: string | undefined;
+    if (altPhoneNumber) {
+      validatedAltPhoneNumber = validateAndFormatPhone(altPhoneNumber, "US");
+    }
+
+    const byEmail: Doc<"moveCustomers"> | null = await ctx.db
+      .query("moveCustomers")
       .withIndex("by_email", (q) => q.eq("email", email))
       .first();
 
@@ -185,8 +182,8 @@ export const createMoveCustomer = mutation({
       };
     }
 
-    const byPhone: Doc<"users"> | null = await ctx.db
-      .query("users")
+    const byPhone: Doc<"moveCustomers"> | null = await ctx.db
+      .query("moveCustomers")
       .withIndex("by_phoneNumber", (q) =>
         q.eq("phoneNumber", validatedPhoneNumber)
       )
@@ -199,14 +196,14 @@ export const createMoveCustomer = mutation({
       };
     }
 
-    const moveCustomerId = await ctx.db.insert("users", {
+    const moveCustomerId = await ctx.db.insert("moveCustomers", {
       name,
       email,
       phoneNumber: validatedPhoneNumber,
       altPhoneNumber: validatedAltPhoneNumber,
-      role: ClerkRoles.CUSTOMER,
       isActive: true,
       updatedAt: Date.now(),
+      companyId,
     });
 
     const identity = await ctx.auth.getUserIdentity();
@@ -222,7 +219,7 @@ export const createMoveCustomer = mutation({
       });
       const moveCustomer = await validateDocument(
         ctx.db,
-        "users",
+        "moveCustomers",
         moveCustomerId,
         ErrorMessages.MOVE_CUSTOMER_NOT_FOUND
       );
@@ -255,7 +252,7 @@ export const createMoveCustomer = mutation({
 
     const moveCustomer = await validateDocument(
       ctx.db,
-      "users",
+      "moveCustomers",
       moveCustomerId,
       ErrorMessages.MOVE_CUSTOMER_NOT_FOUND
     );
@@ -267,9 +264,9 @@ export const createMoveCustomer = mutation({
   },
 });
 
-export const updateMoveCustomer = action({
+export const updateMoveCustomer = mutation({
   args: {
-    moveCustomerId: v.id("users"),
+    moveCustomerId: v.id("moveCustomers"),
     companyId: v.id("companies"),
     updates: v.object({
       name: v.optional(v.string()),
@@ -298,17 +295,22 @@ export const updateMoveCustomer = action({
     );
     isUserInCompanyConvex(user, companyId);
 
-    const existingMoveCustomer = validateUser(
-      await ctx.runQuery(internal.users.getUserByIdInternal, {
-        userId: moveCustomerId,
-      })
-    );
+  
+      const existingMoveCustomer = await ctx.runQuery(internal.moveCustomers.getMoveCustomerByIdInternal, {
+        moveCustomerId,
+      });
+
+      if (!existingMoveCustomer) {
+        throwConvexError(ErrorMessages.MOVE_CUSTOMER_NOT_FOUND, {
+          code: "NOT_FOUND",
+          showToUser: true,
+        });
+      }
 
     if (updates.email && updates.email !== existingMoveCustomer.email) {
-      const emailTaken = await ctx.runQuery(
-        internal.moveCustomers.getUserByEmailInternal,
-        { email: updates.email }
-      );
+      const emailTaken = await ctx.db.query("moveCustomers")
+        .withIndex("by_email", (q) => q.eq("email", updates.email!))
+        .first();
 
       if (emailTaken) {
         throwConvexError(ErrorMessages.CUSTOMER_EMAIL_TAKEN, {
@@ -324,7 +326,7 @@ export const updateMoveCustomer = action({
 
       if (validatedPhoneNumber !== existingMoveCustomer.phoneNumber) {
         const phoneTaken = await ctx.runQuery(
-          internal.moveCustomers.getUserByPhoneNumberInternal,
+          internal.moveCustomers.getMoveCustomerByPhoneNumberInternal,
           { phoneNumber: validatedPhoneNumber }
         );
 
@@ -348,21 +350,23 @@ export const updateMoveCustomer = action({
     }
 
     if (
-      existingMoveCustomer.clerkUserId &&
+      existingMoveCustomer._id !== undefined &&
       updates.name &&
       updates.name !== existingMoveCustomer.name
     ) {
-      await updateUserNameHelper(
-        existingMoveCustomer.clerkUserId,
-        updates.name
-      );
+      await ctx.runMutation(internal.moveCustomers.updateMoveCustomerInternal, {
+        moveCustomerId: existingMoveCustomer._id,
+        updates: {
+          name: updates.name,
+        },
+      });
     }
 
     const dbUpdates: Partial<{
       name: string;
       email: string;
       phoneNumber: string;
-      altPhoneNumber: string;
+      altPhoneNumber?: string;
     }> = { ...updates };
 
     if (validatedPhoneNumber !== undefined) {
@@ -372,8 +376,8 @@ export const updateMoveCustomer = action({
       dbUpdates.altPhoneNumber = validatedAltPhoneNumber;
     }
 
-    await ctx.runMutation(internal.users.updateUserInternal, {
-      userId: moveCustomerId,
+    await ctx.runMutation(internal.moveCustomers.updateMoveCustomerInternal, {
+      moveCustomerId: existingMoveCustomer._id,
       updates: dbUpdates,
     });
 
@@ -394,9 +398,9 @@ export const updateMoveCustomer = action({
 
 export const getMoveCustomer = query({
   args: {
-    moveCustomerId: v.id("users"),
+    moveCustomerId: v.id("moveCustomers"),
   },
-  handler: async (ctx, { moveCustomerId }): Promise<CustomerUser> => {
+  handler: async (ctx, { moveCustomerId }): Promise<Doc<"moveCustomers">> => {
     await requireAuthenticatedUser(ctx, [
       ClerkRoles.ADMIN,
       ClerkRoles.APP_MODERATOR,
@@ -406,33 +410,40 @@ export const getMoveCustomer = query({
 
     const moveCustomer = await validateDocument(
       ctx.db,
-      "users",
+      "moveCustomers",
       moveCustomerId,
       ErrorMessages.MOVE_CUSTOMER_NOT_FOUND
     );
 
-    return assertCustomerUser(moveCustomer);
+    if (!moveCustomer) {
+      throwConvexError(ErrorMessages.MOVE_CUSTOMER_NOT_FOUND, {
+        code: "NOT_FOUND",
+        showToUser: true,
+      });
+    }
+
+    return moveCustomer;
   },
 });
 
 export const getMoveCustomerByIdInternal = internalQuery({
-  args: { moveCustomerId: v.id("users") },
-  handler: async (ctx, args): Promise<CustomerUser> => {
+  args: { moveCustomerId: v.id("moveCustomers") },
+  handler: async (ctx, args): Promise<Doc<"moveCustomers">> => {
     const { moveCustomerId } = args;
     const moveCustomer = await validateDocument(
       ctx.db,
-      "users",
+      "moveCustomers",
       moveCustomerId,
       ErrorMessages.MOVE_CUSTOMER_NOT_FOUND
     );
 
-    return assertCustomerUser(moveCustomer);
+    return moveCustomer;
   },
 });
 
 export const getCustomerAndMoves = query({
   args: {
-    moveCustomerId: v.id("users"),
+    moveCustomerId: v.id("moveCustomers"),
     slug: v.string(),
   },
   handler: async (
@@ -449,11 +460,10 @@ export const getCustomerAndMoves = query({
 
     const moveCustomer = await validateDocument(
       ctx.db,
-      "users",
+      "moveCustomers",
       moveCustomerId,
       ErrorMessages.MOVE_CUSTOMER_NOT_FOUND
     );
-    const customerUser = assertCustomerUser(moveCustomer);
     const company = await ctx.runQuery(
       internal.companies.getCompanyBySlugInternal,
       { slug }
@@ -482,7 +492,7 @@ export const getCustomerAndMoves = query({
 
     if (!isMover || !selfMoverId) {
       return {
-        moveCustomer: customerUser,
+        moveCustomer,
         moves: baseMoves,
       };
     }
@@ -505,7 +515,7 @@ export const getCustomerAndMoves = query({
     });
 
     return {
-      moveCustomer: customerUser,
+      moveCustomer,
       moves,
     };
   },
@@ -535,14 +545,14 @@ export const createPublicMove = action({
       { email, phoneNumber }
     );
 
-    let moveCustomerId: Id<"users">;
+    let moveCustomerId: Id<"moveCustomers">;
 
     if (existingCustomer) {
       moveCustomerId = existingCustomer._id;
     } else {
       moveCustomerId = await ctx.runMutation(
         internal.moveCustomers.createMoveCustomerInternal,
-        { email, phoneNumber, name, altPhoneNumber }
+        { email, phoneNumber, name, altPhoneNumber, companyId }
       );
     }
 
@@ -578,11 +588,11 @@ export const getExistingMoveCustomerInternal = internalQuery({
     email: v.string(),
     phoneNumber: v.string(),
   },
-  handler: async (ctx, args): Promise<Doc<"users"> | null> => {
+  handler: async (ctx, args): Promise<Doc<"moveCustomers"> | null> => {
     const { email, phoneNumber } = args;
 
     const existingCustomerByEmail = await ctx.db
-      .query("users")
+      .query("moveCustomers")
       .withIndex("by_email", (q) => q.eq("email", email))
       .first();
 
@@ -591,7 +601,7 @@ export const getExistingMoveCustomerInternal = internalQuery({
     }
 
     const existingCustomerByPhone = await ctx.db
-      .query("users")
+      .query("moveCustomers")
       .withIndex("by_phoneNumber", (q) => q.eq("phoneNumber", phoneNumber))
       .first();
 
@@ -608,26 +618,27 @@ export const createMoveCustomerInternal = internalMutation({
     email: v.string(),
     phoneNumber: v.string(),
     name: v.string(),
-    altPhoneNumber: v.string(),
+    altPhoneNumber: v.optional(v.string()),
+    companyId: v.id("companies"),
   },
-  handler: async (ctx, args): Promise<Id<"users">> => {
-    const { email, phoneNumber, name, altPhoneNumber } = args;
-    const moveCustomerId = await ctx.db.insert("users", {
+  handler: async (ctx, args): Promise<Id<"moveCustomers">> => {
+    const { email, phoneNumber, name, altPhoneNumber, companyId } = args;
+    const moveCustomerId = await ctx.db.insert("moveCustomers", {
       email,
       phoneNumber,
       name,
       altPhoneNumber,
-      role: ClerkRoles.CUSTOMER,
       isActive: true,
       updatedAt: Date.now(),
+      companyId,
     });
     return moveCustomerId;
   },
 });
 
-export const updateUserAsCustomer = action({
+export const updateUserAsCustomer = mutation({
   args: {
-    userId: v.id("users"),
+    moveCustomerId: v.id("moveCustomers"),
     companyId: v.id("companies"),
     moveId: v.id("moves"),
     updates: v.object({
@@ -638,29 +649,24 @@ export const updateUserAsCustomer = action({
     }),
   },
   handler: async (ctx, args): Promise<boolean> => {
-    const { userId, updates, moveId, companyId } = args;
-    const identity = await requireAuthenticatedUser(ctx, [ClerkRoles.CUSTOMER]);
+    const { moveCustomerId, updates, moveId, companyId } = args;
 
-    const existingUser = validateUser(
-      await ctx.runQuery(internal.users.getUserByIdInternal, {
-        userId,
+    const existingMoveCustomer = 
+      await ctx.runQuery(internal.moveCustomers.getMoveCustomerByIdInternal, {
+        moveCustomerId,
       })
-    );
-
-    if (existingUser._id !== identity.convexId) {
-      throwConvexError(ErrorMessages.USER_FORBIDDEN_PERMISSION, {
-        code: "FORBIDDEN",
+    if (!existingMoveCustomer) {
+      throwConvexError(ErrorMessages.MOVE_CUSTOMER_NOT_FOUND, {
+        code: "NOT_FOUND",
         showToUser: true,
       });
     }
 
-    if (updates.email && updates.email !== existingUser.email) {
-      const emailTaken = await ctx.runQuery(
-        internal.moveCustomers.getUserByEmailInternal,
-        {
-          email: updates.email!,
-        }
-      );
+
+    if (updates.email && updates.email !== existingMoveCustomer.email) {
+      const emailTaken = await ctx.db.query("moveCustomers")
+        .withIndex("by_email", (q) => q.eq("email", updates.email!))
+        .first();
 
       if (emailTaken) {
         throwConvexError(ErrorMessages.CUSTOMER_EMAIL_TAKEN, {
@@ -672,10 +678,10 @@ export const updateUserAsCustomer = action({
 
     if (
       updates.phoneNumber &&
-      updates.phoneNumber !== existingUser.phoneNumber
+      updates.phoneNumber !== existingMoveCustomer.phoneNumber
     ) {
       const phoneTaken = await ctx.runQuery(
-        internal.moveCustomers.getUserByPhoneNumberInternal,
+        internal.moveCustomers.getMoveCustomerByPhoneNumberInternal,
         {
           phoneNumber: updates.phoneNumber!,
         }
@@ -689,27 +695,14 @@ export const updateUserAsCustomer = action({
       }
     }
 
-    await ctx.runMutation(internal.users.updateUserInternal, {
-      userId,
-      updates: {
-        ...updates,
-      },
-    });
-
-    if (
-      existingUser.clerkUserId &&
-      updates.name &&
-      updates.name !== existingUser.name
-    ) {
-      await updateUserNameHelper(existingUser.clerkUserId, updates.name);
-    }
+    await ctx.db.patch(moveCustomerId, updates);
 
     await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
       entry: {
         type: "CUSTOMER_UPDATED",
         companyId: companyId,
-        moveCustomerId: existingUser._id,
-        body: `**${existingUser.name}** updated their details.`,
+        moveCustomerId: existingMoveCustomer._id,
+        body: `**${existingMoveCustomer.name}** updated their details.`,
         moveId,
       },
     });
@@ -718,24 +711,31 @@ export const updateUserAsCustomer = action({
   },
 });
 
-export const getUserByEmailInternal = internalQuery({
-  args: { email: v.string() },
-  handler: async (ctx, args): Promise<Doc<"users"> | null> => {
-    const { email } = args;
+
+export const getMoveCustomerByPhoneNumberInternal = internalQuery({
+  args: { phoneNumber: v.string() },
+  handler: async (ctx, args): Promise<Doc<"moveCustomers"> | null> => {
+    const { phoneNumber } = args;
     return ctx.db
-      .query("users")
-      .withIndex("by_email", (q) => q.eq("email", email))
+      .query("moveCustomers")
+      .withIndex("by_phoneNumber", (q) => q.eq("phoneNumber", phoneNumber))
       .first();
   },
 });
 
-export const getUserByPhoneNumberInternal = internalQuery({
-  args: { phoneNumber: v.string() },
-  handler: async (ctx, args): Promise<Doc<"users"> | null> => {
-    const { phoneNumber } = args;
-    return ctx.db
-      .query("users")
-      .withIndex("by_phoneNumber", (q) => q.eq("phoneNumber", phoneNumber))
-      .first();
+
+export const updateMoveCustomerInternal = internalMutation({
+  args: {
+    moveCustomerId: v.id("moveCustomers"),
+    updates: v.object({
+      name: v.optional(v.string()),
+      email: v.optional(v.string()),
+      phoneNumber: v.optional(v.string()),
+      altPhoneNumber: v.optional(v.string()),
+    }),
+  },
+  handler: async (ctx, args): Promise<void> => {
+    const { moveCustomerId, updates } = args;
+    await ctx.db.patch(moveCustomerId, updates);
   },
 });

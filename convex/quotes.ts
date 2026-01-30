@@ -9,7 +9,6 @@ import { QuoteStatusConvex } from "./schema";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import { ClerkRoles } from "@/types/enums";
 import {
-  isCorrectMoveCustomer,
   isIdentityInMove,
   isUserInOrg,
   validateCompany,
@@ -17,7 +16,7 @@ import {
   validateDocument,
   validateMoveCustomer,
 } from "./backendUtils/validate";
-import { Doc, Id } from "./_generated/dataModel";
+import { Doc,  } from "./_generated/dataModel";
 import { ErrorMessages } from "@/types/errors";
 import { ConvexError } from "convex/values";
 import { internal } from "./_generated/api";
@@ -34,7 +33,7 @@ export const updateQuoteCustomerSignature = mutation({
   handler: async (ctx, args): Promise<boolean> => {
     const { quoteId, updates } = args;
 
-    const identity = await requireAuthenticatedUser(ctx, [ClerkRoles.CUSTOMER]);
+    const identity = await requireAuthenticatedUser(ctx);
 
     const quote = await validateDocument(
       ctx.db,
@@ -190,7 +189,6 @@ export const signQuote = action({
   handler: async (ctx, args) => {
     const { moveId, signature } = args;
 
-    const identity = await requireAuthenticatedUser(ctx, [ClerkRoles.CUSTOMER]);
 
     const move = await ctx.runQuery(internal.moves.getMoveByIdInternal, {
       moveId,
@@ -227,15 +225,11 @@ export const signQuote = action({
     );
 
     const moveCustomer = validateMoveCustomer(
-      await ctx.runQuery(internal.users.getUserByIdInternal, {
-        userId: validatedMove.moveCustomerId,
+      await ctx.runQuery(internal.moveCustomers.getMoveCustomerByIdInternal, {
+        moveCustomerId: validatedMove.moveCustomerId,
       })
     );
 
-    isCorrectMoveCustomer(
-      identity.convexId as Id<"users">,
-      validatedMove.moveCustomerId
-    );
 
     const quote = await ctx.runQuery(internal.quotes.getQuoteByMoveId, {
       moveId,
