@@ -19,6 +19,7 @@ import type * as backendUtils_auth from "../backendUtils/auth.js";
 import type * as backendUtils_calculations from "../backendUtils/calculations.js";
 import type * as backendUtils_checkUnique from "../backendUtils/checkUnique.js";
 import type * as backendUtils_connectedAccountWebhook from "../backendUtils/connectedAccountWebhook.js";
+import type * as backendUtils_email from "../backendUtils/email.js";
 import type * as backendUtils_errors from "../backendUtils/errors.js";
 import type * as backendUtils_helper from "../backendUtils/helper.js";
 import type * as backendUtils_luxonHelper from "../backendUtils/luxonHelper.js";
@@ -113,6 +114,7 @@ declare const fullApi: ApiFromModules<{
   "backendUtils/calculations": typeof backendUtils_calculations;
   "backendUtils/checkUnique": typeof backendUtils_checkUnique;
   "backendUtils/connectedAccountWebhook": typeof backendUtils_connectedAccountWebhook;
+  "backendUtils/email": typeof backendUtils_email;
   "backendUtils/errors": typeof backendUtils_errors;
   "backendUtils/helper": typeof backendUtils_helper;
   "backendUtils/luxonHelper": typeof backendUtils_luxonHelper;

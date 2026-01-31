@@ -13,6 +13,7 @@ import {
   validateDocExists,
   validateDocument,
   validateMoveCustomer,
+  validateUser,
 } from "./backendUtils/validate";
 import { ClerkRoles } from "@/types/enums";
 import { Doc } from "./_generated/dataModel";
@@ -89,7 +90,7 @@ export const createOrUpdateWaiver = mutation({
           type: "WAIVER_SIGNED",
           companyId: company._id,
           body: `**${moveCustomer.name}** signed waiver`,
-          moveCustomerId: move.moveCustomerId,
+          moveCustomerId: moveCustomer._id,
 
           moveId,
         },
@@ -145,18 +146,17 @@ export const customerSignWaiver = action({
       });
     }
 
-    const companyContact = await ctx.runQuery(
-      internal.companyContacts.getCompanyContactByCompanyIdInternal,
-      {
-        companyId: move.companyId,
-      }
-    );
-    if (!companyContact) {
-      throwConvexError("Company contact not found", {
+    if (!move.salesRep) {
+      throwConvexError("Sales rep not found", {
         code: "BAD_REQUEST",
-        showToUser: true,
       });
     }
+
+    const salesRep = validateUser(
+      await ctx.runQuery(internal.users.getUserByIdInternal, {
+        userId: move.salesRep,
+      })
+   );
 
     isIdentityInMove(identity, move);
 
@@ -179,9 +179,11 @@ export const customerSignWaiver = action({
     });
 
     await ctx.runAction(internal.actions.pdf.generatePdf, {
+      moveId: move._id,
       documentType: "waiver",
       toEmail: moveCustomer.email,
-      ccEmails: [companyContact.email],
+      ccEmails: [salesRep.email],
+      replyToName: salesRep.name,
       subject: "Waiver Signed",
       bodyText: "Waiver signed",
     });

@@ -159,29 +159,25 @@ export const customerSignInvoice = action({
     );
     isIdentityInMove(identity, validatedMove);
 
-    const company = await ctx.runQuery(
-      internal.companies.getCompanyByIdInternal,
-      {
-        companyId: validatedMove.companyId,
-      }
-    );
-    const validatedCompany = validateDocExists(
-      "companies",
-      company,
-      ErrorMessages.COMPANY_NOT_FOUND
-    );
+    if (!validatedMove.salesRep) {
+      throwConvexError("Sales rep not found", {
+        code: "BAD_REQUEST",
+      });
+    }
 
-    const companyContact = await ctx.runQuery(
-      internal.companyContacts.getCompanyContactByCompanyIdInternal,
-      {
-        companyId: validatedCompany._id,
-      }
-    );
-    const validatedCompanyContact = validateDocExists(
-      "companyContacts",
-      companyContact,
-      ErrorMessages.USER_NOT_FOUND
-    );
+   const salesRep = validateUser(
+    await ctx.runQuery(internal.users.getUserByIdInternal, {
+      userId: validatedMove.salesRep,
+    })
+   );
+
+   if (!salesRep) {
+    throwConvexError("Sales rep not found", {
+      code: "BAD_REQUEST",
+    });
+   }
+
+    
 
     await ctx.runMutation(internal.invoices.updateInvoice, {
       invoiceId: validatedInvoice._id,
@@ -218,9 +214,11 @@ export const customerSignInvoice = action({
     await ctx.runAction(internal.actions.pdf.generatePdf, {
       documentType: "invoice",
       toEmail: user.email,
-      ccEmails: [validatedCompanyContact.email],
+      ccEmails: [salesRep.email],
+      replyToName: salesRep.name,
       subject: `Invoice Reciept for ${moveDate}`,
       bodyText: "Invoice paid",
+      moveId: validatedInvoice.moveId,
     });
 
     return true;

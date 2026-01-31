@@ -4,6 +4,7 @@ import { v } from "convex/values";
 import { internalAction } from "../_generated/server";
 import { sendSendGridEmail } from "../backendUtils/sendGrid";
 import { throwConvexError } from "../backendUtils/errors";
+import { getMoveRelayAddress } from "../backendUtils/email";
 
 export const generatePdf = internalAction({
   args: {
@@ -19,8 +20,8 @@ export const generatePdf = internalAction({
     subject: v.string(),
     bodyText: v.string(),
     bodyHtml: v.optional(v.string()),
-    replyToEmail: v.optional(v.string()),
     replyToName: v.optional(v.string()),
+    moveId: v.id("moves"),
   },
   handler: async (ctx, args) => {
     const {
@@ -31,8 +32,8 @@ export const generatePdf = internalAction({
       subject,
       bodyText,
       bodyHtml,
-      replyToEmail,
       replyToName,
+      moveId,
     } = args;
 
     const documentTypeMap = {
@@ -63,6 +64,9 @@ export const generatePdf = internalAction({
       const pdfArrayBuffer = await response.arrayBuffer();
       const pdfBase64 = Buffer.from(pdfArrayBuffer).toString("base64");
 
+      const relayAddress = getMoveRelayAddress(moveId);
+
+
       await sendSendGridEmail({
         toEmail: toEmail,
         ccEmails: ccEmails,
@@ -70,7 +74,7 @@ export const generatePdf = internalAction({
         subject: subject,
         bodyText: bodyText,
         bodyHtml: bodyHtml,
-        replyToEmail: replyToEmail,
+        replyToEmail: relayAddress,
         replyToName: replyToName,
         attachments: [
           {

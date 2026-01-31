@@ -14,6 +14,7 @@ export type ServerEnv = {
   VAPID_PRIVATE_KEY: string;
   STRIPE_KEY: string;
   HTTP_ACTIONS: string;
+  RELAY_ADDRESS: string;
 };
 
 export const serverEnv = (): ServerEnv => {
@@ -33,9 +34,10 @@ export const serverEnv = (): ServerEnv => {
     VAPID_PRIVATE_KEY: process.env.VAPID_PRIVATE_KEY,
     VAPID_EMAIL: process.env.VAPID_EMAIL,
     HTTP_ACTIONS: process.env.HTTP_ACTIONS,
+    RELAY_ADDRESS: process.env.RELAY_ADDRESS,
   } as const;
 
-  const missing = getMissingEnvKeys(env);
+  const missing = getMissingEnvKeys(env) ;
 
   if (missing.length > 0) {
     throwConvexError(`Missing env vars: ${missing.join(", ")}`, {

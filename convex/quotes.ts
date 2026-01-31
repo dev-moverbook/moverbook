@@ -15,6 +15,7 @@ import {
   validateDocExists,
   validateDocument,
   validateMoveCustomer,
+  validateUser,
 } from "./backendUtils/validate";
 import { Doc,  } from "./_generated/dataModel";
 import { ErrorMessages } from "@/types/errors";
@@ -22,6 +23,7 @@ import { ConvexError } from "convex/values";
 import { internal } from "./_generated/api";
 import { formatMonthDayLabelStrict } from "@/frontendUtils/luxonUtils";
 import { formatCurrency } from "@/frontendUtils/helper";
+import { throwConvexError } from "./backendUtils/errors";
 
 export const updateQuoteCustomerSignature = mutation({
   args: {
@@ -200,29 +202,20 @@ export const signQuote = action({
       ErrorMessages.MOVE_NOT_FOUND
     );
 
-    const company = await ctx.runQuery(
-      internal.companies.getCompanyByIdInternal,
-      {
-        companyId: validatedMove.companyId,
-      }
-    );
-    const validatedCompany = validateDocExists(
-      "companies",
-      company,
-      ErrorMessages.COMPANY_NOT_FOUND
-    );
+   if (!validatedMove.salesRep) {
+    throwConvexError("Sales rep not found", {
+      code: "BAD_REQUEST",
+    });
+   }
 
-    const companyContact = await ctx.runQuery(
-      internal.companyContacts.getCompanyContactByCompanyIdInternal,
-      {
-        companyId: validatedCompany._id,
-      }
-    );
-    const validatedCompanyContact = validateDocExists(
-      "companyContacts",
-      companyContact,
-      ErrorMessages.USER_NOT_FOUND
-    );
+   const salesRep = validateUser(
+    await ctx.runQuery(internal.users.getUserByIdInternal, {
+      userId: validatedMove.salesRep,
+    })
+   );
+
+
+
 
     const moveCustomer = validateMoveCustomer(
       await ctx.runQuery(internal.moveCustomers.getMoveCustomerByIdInternal, {
@@ -267,11 +260,11 @@ export const signQuote = action({
     });
 
     await ctx.runAction(internal.actions.pdf.generatePdf, {
+      moveId: validatedQuote.moveId,
       documentType: "quote",
       toEmail: moveCustomer.email,
-      ccEmails: [validatedCompanyContact.email],
-      replyToEmail: validatedCompanyContact.email,
-      replyToName: validatedCompany.name,
+      replyToName: salesRep.name,
+      ccEmails: [salesRep.email],
       subject: `Quote for ${moveCustomer.name} on ${moveDate}`,
       bodyText: `Attached is the quote for ${moveCustomer.name} on ${moveDate}.`,
       bodyHtml: `<p>Attached is the quote for ${moveCustomer.name} on ${moveDate}.</p>`,

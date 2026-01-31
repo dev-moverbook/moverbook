@@ -142,19 +142,21 @@ export const customerUpdateContract = action({
       }
     );
 
-
-    const companyContact = await ctx.runQuery(
-      internal.companyContacts.getCompanyContactByCompanyIdInternal,
-      {
-        companyId: validatedMove.companyId,
-      }
-    );
-    if (!companyContact) {
-      throwConvexError("Company contact not found", {
+    if (!validatedMove.salesRep) {
+      throwConvexError("Sales rep not found", {
         code: "BAD_REQUEST",
-        showToUser: true,
       });
     }
+
+const salesRep = await ctx.runQuery(internal.users.getUserByIdInternal, {
+  userId: validatedMove.salesRep,
+});
+const validatedSalesRep = validateDocExists(
+  "users",
+  salesRep,
+  "Sales rep not found"
+);
+   
 
     await ctx.runMutation(internal.contracts.updateContractInternal, {
       contractId: validatedContract._id,
@@ -174,9 +176,11 @@ export const customerUpdateContract = action({
     await ctx.runAction(internal.actions.pdf.generatePdf, {
       documentType: "contract",
       toEmail: moveCustomer.email,
-      ccEmails: [companyContact.email],
+      ccEmails: [validatedSalesRep.email],
       subject: "Contract Signed",
       bodyText: "Contract signed",
+      moveId: validatedContract.moveId,
+      replyToName: validatedSalesRep.name,
     });
 
     return true;

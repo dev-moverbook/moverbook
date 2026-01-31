@@ -32,6 +32,7 @@ import {
 } from "../backendUtils/template";
 import { sendTwilioSms } from "../functions/twilio";
 import { sendSendGridEmail } from "../backendUtils/sendGrid";
+import { getMoveRelayAddress } from "../backendUtils/email";
 
 export const sendPresetScript = action({
   args: {
@@ -206,6 +207,18 @@ export const createMessage = action({
       await ctx.runQuery(internal.moves.getMoveByIdInternal, { moveId })
     );
 
+    if (!move.salesRep) {
+      throwConvexError("Sales rep not found", {
+        code: "BAD_REQUEST",
+      });
+    }
+
+    const salesRep = validateUser(
+      await ctx.runQuery(internal.users.getUserByIdInternal, {
+        userId: move.salesRep,
+      })
+    );
+
     const company = await ctx.runQuery(
       internal.companies.getCompanyByIdInternal,
       {
@@ -218,20 +231,6 @@ export const createMessage = action({
       company,
       ErrorMessages.COMPANY_NOT_FOUND
     );
-
-    const companyContact = await ctx.runQuery(
-      internal.companyContacts.getCompanyContactByCompanyIdInternal,
-      {
-        companyId: move.companyId,
-      }
-    );
-
-    if (!companyContact) {
-      throwConvexError(ErrorMessages.COMPANY_CONTACT_NOT_FOUND, {
-        code: "NOT_FOUND",
-        showToUser: true,
-      });
-    }
 
     const moveCustomer = await ctx.runQuery(
       internal.moveCustomers.getMoveCustomerByIdInternal,
@@ -285,13 +284,17 @@ export const createMessage = action({
       });
       sid = result;
     } else if (method === "email") {
+
+      const relayAddress = getMoveRelayAddress(moveId);
+
       sid = await sendSendGridEmail({
         toEmail: moveCustomer.email,
         bodyText: resolvedMessage,
         bodyHtml: resolvedMessage,
         subject: resolvedSubject ?? "",
-        replyToEmail: companyContact.email,
-        replyToName: validatedCompany.name,
+        replyToEmail: relayAddress,
+        replyToName: salesRep.name,
+        ccEmails: [salesRep.email],
       });
     }
 
@@ -436,6 +439,7 @@ export const markMoveAsBooked = action({
 
     try {
       await ctx.runAction(internal.actions.pdf.generatePdf, {
+        moveId: move._id,
         documentType: "quote",
         toEmail: moveCustomer.email,
         ccEmails: [companyContact.email],
@@ -521,6 +525,7 @@ export const markInvoiceAsComplete = action({
 
     try {
       await ctx.runAction(internal.actions.pdf.generatePdf, {
+        moveId: move._id,
         documentType: "invoice",
         toEmail: moveCustomer.email,
         ccEmails: [companyContact.email],
