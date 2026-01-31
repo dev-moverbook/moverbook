@@ -2,7 +2,7 @@ import { Id } from "../_generated/dataModel";
 import { serverEnv } from "./serverEnv";
 
 export const getMoveRelayAddress = (moveId: Id<"moves">): string => {
-    const domain = serverEnv().RELAY_ADDRESS;
+    const domain = serverEnv().RELAY_DOMAIN;
   
     return `reply+${moveId}@${domain}`;
   };
