@@ -82,6 +82,7 @@ import type * as users from "../users.js";
 import type * as waivers from "../waivers.js";
 import type * as webIntegrations from "../webIntegrations.js";
 import type * as webhooks_clerk from "../webhooks/clerk.js";
+import type * as webhooks_sendgrid from "../webhooks/sendgrid.js";
 import type * as webhooks_stripeConnected from "../webhooks/stripeConnected.js";
 import type * as webhooks_stripeConnectedHandlers from "../webhooks/stripeConnectedHandlers.js";
 import type * as webhooks_twilio from "../webhooks/twilio.js";
@@ -175,6 +176,7 @@ declare const fullApi: ApiFromModules<{
   waivers: typeof waivers;
   webIntegrations: typeof webIntegrations;
   "webhooks/clerk": typeof webhooks_clerk;
+  "webhooks/sendgrid": typeof webhooks_sendgrid;
   "webhooks/stripeConnected": typeof webhooks_stripeConnected;
   "webhooks/stripeConnectedHandlers": typeof webhooks_stripeConnectedHandlers;
   "webhooks/twilio": typeof webhooks_twilio;

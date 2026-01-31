@@ -38,7 +38,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
         isEditing={true}
       />
       <PhoneNumberInput
-        label="Alternate Phone Number*"
+        label="Alternate Phone Number"
         value={customer.altPhoneNumber ?? ""}
         onChange={(val) => onChange("altPhoneNumber", val)}
         error={errors.altPhoneNumber}

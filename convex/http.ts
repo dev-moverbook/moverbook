@@ -140,4 +140,23 @@ http.route({
   }),
 });
 
+
+http.route({
+  path: "/sendgrid-inbound",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    const formData = await request.formData();
+    
+    await ctx.runAction(internal.webhooks.sendgrid.fulfill, {
+      to: formData.get("to") as string,
+      from: formData.get("from") as string,
+      text: formData.get("text") as string,
+      subject: formData.get("subject") as string,
+    });
+
+    return new Response(null, { status: 200 });
+  }),
+});
+
+
 export default http;

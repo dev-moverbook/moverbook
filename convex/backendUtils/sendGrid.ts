@@ -139,7 +139,7 @@ export const sendSendGridEmail = async ({
     to: toEmail,
     from: {
       email: SENDGRID_FROM_EMAIL,
-      name: "Moverbook",
+      name: replyToName,
     },
     subject,
     text: bodyText,

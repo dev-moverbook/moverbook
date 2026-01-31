@@ -65,10 +65,8 @@ const CustomerStep = ({ onNext, onCancel }: CustomerStepProps) => {
   const baseDisabled =
     !customer.name ||
     !isValidEmail(customer.email) ||
-    !isValidPhoneNumber(customer.phoneNumber) ||
-    !isValidPhoneNumber(customer.altPhoneNumber);
-
-  const isDisabled =
+    !isValidPhoneNumber(customer.phoneNumber) 
+      const isDisabled =
     baseDisabled || createMoveCustomerLoading || updateMoveCustomerLoading;
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {

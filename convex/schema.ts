@@ -205,6 +205,11 @@ export const PaymentTypeConvex = v.union(
   v.literal("final_payment")
 );
 
+export const EmailSenderTypeConvex = v.union(
+  v.literal("sales_rep"),
+  v.literal("move_customer")
+);
+
 export default defineSchema({
   additionalFees: defineTable({
     feeId: v.optional(v.id("fees")),

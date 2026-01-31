@@ -115,25 +115,15 @@ export const sendPresetScript = action({
       : null;
 
     if (scriptType === "email") {
-      const companyContact = await ctx.runQuery(
-        internal.companyContacts.getCompanyContactByCompanyIdInternal,
-        {
-          companyId: company._id,
-        }
-      );
-      if (!companyContact) {
-        throwConvexError(ErrorMessages.COMPANY_CONTACT_NOT_FOUND, {
-          code: "NOT_FOUND",
-          showToUser: true,
-        });
-      }
+      const relayAddress = `reply+${moveId}@relays.moverbook.com`;
       sid = await sendSendGridEmail({
         toEmail: moveCustomer.email,
+        ccEmails: [user.email],
         bodyText: resolvedMessage,
         bodyHtml: resolvedMessage,
         subject: resolvedSubject ?? "",
-        replyToEmail: companyContact.email,
-        replyToName: company.name,
+        replyToEmail: relayAddress,
+        replyToName: user.name,
         formatTextToHtml: true,
       });
     } else if (scriptType === "sms") {
