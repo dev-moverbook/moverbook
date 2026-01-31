@@ -63,7 +63,7 @@ const MessageThread = () => {
                 text={msg.resolvedMessage}
                 subject={msg.resolvedSubject ?? msg.subject}
                 time={formatTimestamp(msg._creationTime, timeZone)}
-                type={msg.status === "sent" ? "outgoing" : "incoming"}
+                type={msg.sentType === "outgoing" ? "outgoing" : "incoming"}
                 method={msg.method as "sms" | "email"}
               />
             ))}

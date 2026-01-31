@@ -140,32 +140,10 @@ http.route({
   }),
 });
 
-
-// http.route({
-//   path: "/sendgrid-inbound",
-//   method: "POST",
-//   handler: httpAction(async (ctx, request) => {
-//     console.log("Sendgrid inbound webhook received");
-//     console.log("request headers", request);
-    
-//     // const formData = await request.formData();
-    
-//     // await ctx.runAction(internal.webhooks.sendgrid.fulfill, {
-//     //   to: formData.get("to") as string,
-//     //   from: formData.get("from") as string,
-//     //   text: formData.get("text") as string,
-//     //   subject: formData.get("subject") as string,
-//     // });
-
-//     return new Response(null, { status: 200 });
-//   }),
-// });
-
 http.route({
   path: "/sendgrid-inbound",
   method: "POST",
   handler: httpAction(async (ctx, request) => {
-    console.log("Processing Sendgrid data...");
 
     try {
       const formData = await request.formData();
@@ -175,9 +153,6 @@ http.route({
       const text = formData.get("text") as string;
       const subject = formData.get("subject") as string;
 
-      console.log(`Email from: ${from} to: ${to}`);
-
-      // Hand off to your internal action to process the logic
       await ctx.runAction(internal.webhooks.sendgrid.fulfill, {
         to,
         from,
@@ -187,7 +162,6 @@ http.route({
 
     } catch (error) {
       console.error("Parsing error:", error);
-      // We still return 200 so SendGrid doesn't keep retrying a broken payload
     }
 
     return new Response(null, { status: 200 });

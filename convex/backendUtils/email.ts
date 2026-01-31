@@ -6,3 +6,9 @@ export const getMoveRelayAddress = (moveId: Id<"moves">): string => {
   
     return `reply+${moveId}@${domain}`;
   };
+
+
+export const extractEmail = (fromStr: string): string => {
+    const match = fromStr.match(/<([^>]+)>/);
+    return match ? match[1].toLowerCase().trim() : fromStr.toLowerCase().trim();
+  };
