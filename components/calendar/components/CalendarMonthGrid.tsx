@@ -32,7 +32,7 @@ const CalendarMonthGrid = ({
   } = useMoveFilter();
   const { timeZone, user } = useSlugContext();
 
-  const isMoverUser = isMover(user.role);
+  const isMoverUser = isMover(user?.role);
 
   const handleDateClick = (date: Date) => {
     if (!isWeekView) {

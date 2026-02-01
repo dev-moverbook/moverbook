@@ -21,7 +21,7 @@ export const canCreateMove = (role?: string): boolean => {
   );
 };
 
-export const isMover = (role?: string): boolean => {
+export const isMover = (role?: string | null): boolean => {
   return role === ClerkRoles.MOVER;
 };
 
