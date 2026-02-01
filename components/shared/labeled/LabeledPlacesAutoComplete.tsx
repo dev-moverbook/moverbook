@@ -265,7 +265,7 @@ const LabeledPlacesAutocomplete: React.FC<PlacesAutoCompleteInputProps> = ({
 
       {value && (
         <IconButton
-          icon={<X size={20} />}
+          icon={<X size={16} />}
           type="button"
           onClick={() => {
             selectedTextRef.current = null;

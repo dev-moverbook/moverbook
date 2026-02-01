@@ -31,7 +31,7 @@ const QuoteContact = ({
         {showEditButton && (
           <IconButton
             title="Edit Contact Information"
-            icon={<PencilIcon size={20} />}
+            icon={<PencilIcon className="w-4 h-4" />}
             onClick={onEditClick}
           />
         )}

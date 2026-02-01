@@ -134,6 +134,14 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
         />
         {showContactFields && (
           <>
+              <EditableIconField
+                icon={<Mail className="w-4 h-4" />}
+                value={formData.email}
+                onChange={(val) => setFormData({ ...formData, email: val })}
+                isEditing={isEditing}
+                label="Email"
+                placeholder="Enter email"
+              />
             <EditableIconField
               icon={<Phone className="w-4 h-4" />}
               value={formData.phoneNumber}
@@ -142,14 +150,6 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
               label="Phone Number"
               placeholder="Enter phone number"
               isPhoneNumber
-            />
-            <EditableIconField
-              icon={<Mail className="w-4 h-4" />}
-              value={formData.email}
-              onChange={(val) => setFormData({ ...formData, email: val })}
-              isEditing={isEditing}
-              label="Email"
-              placeholder="Enter email"
             />
             <EditableIconField
               icon={<PhoneForwarded className="w-4 h-4" />}

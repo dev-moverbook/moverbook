@@ -93,7 +93,6 @@ import { computeMoveTotal } from "@/frontendUtils/helper";
 import { fetchDistanceMatrix } from "./google";
 import { LocationInput } from "@/types/form-types";
 import { hopLabel } from "@/frontendUtils/segmentDistanceHelper";
-import { throwConvexError } from "./backendUtils/errors";
 
 export const getMoveOptions = query({
   args: { companyId: v.id("companies") },
@@ -1436,19 +1435,14 @@ export const getPublicMoveById = query({
       }
     );
 
-    if (!move.salesRep) {
-      throwConvexError("Sales rep not found", {
-        code: "BAD_REQUEST",
+    let salesRepUser: Doc<"users"> | null = null;
+
+    if (move.salesRep) {
+      salesRepUser = await ctx.runQuery(internal.users.getUserByIdInternal, {
+        userId: move.salesRep,
       });
     }
-    const salesRepUser = validateDocExists(
-      "users",
-      await ctx.runQuery(internal.users.getUserByIdInternal, {
-        userId: move.salesRep,
-      }),
-      ErrorMessages.USER_NOT_FOUND
-    );
-
+ 
     const policy = await ctx.db
       .query("policies")
       .withIndex("by_companyId", (q) => q.eq("companyId", move.companyId))

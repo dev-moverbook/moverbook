@@ -5,6 +5,7 @@ import {  useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { setErrorFromConvexError } from "@/frontendUtils/errorHelper";
+import { emptyToUndefined } from "@/utils/strings";
 
 interface UpdateMoveCustomerInput {
   moveCustomerId: Id<"moveCustomers">;
@@ -23,7 +24,7 @@ export const useUpdateMoveCustomerByCustomer = () => {
   const [error, setError] = useState<string | null>(null);
 
   const updateMoveCustomerMutation = useMutation(
-    api.moveCustomers.updateMoveCustomer
+    api.moveCustomers.updateUserAsCustomer
   );
 
   const updateMoveCustomerByCustomer = async (
@@ -36,7 +37,12 @@ export const useUpdateMoveCustomerByCustomer = () => {
       return await updateMoveCustomerMutation({
         moveCustomerId: data.moveCustomerId,
         companyId: data.companyId,
-        updates: data.updates,
+        updates: {
+          name: data.updates.name,
+          email: data.updates.email,
+          phoneNumber: data.updates.phoneNumber,
+          altPhoneNumber: emptyToUndefined(data.updates.altPhoneNumber),
+        },
         moveId: data.moveId,
       });
     } catch (error) {

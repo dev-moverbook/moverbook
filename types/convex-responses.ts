@@ -243,6 +243,6 @@ export interface PublicMoveData {
   moverLocation: Doc<"moverLocations"> | null;
   policy: Doc<"policies">;
   quote: Doc<"quotes"> | null;
-  salesRepUser: Doc<"users">;
+  salesRepUser: Doc<"users"> | null;
   waiver: Doc<"waivers"> | null;
 }

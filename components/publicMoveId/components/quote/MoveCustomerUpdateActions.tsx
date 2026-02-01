@@ -32,9 +32,7 @@ const MoveCustomerUpdateActions = ({
     const isSameAsOriginal =
       name === moveCustomer.name &&
       email === moveCustomer.email &&
-      phoneNumber === moveCustomer.phoneNumber &&
-      (moveCustomerformData.altPhoneNumber || "") ===
-        (moveCustomer.altPhoneNumber || "");
+      phoneNumber === moveCustomer.phoneNumber 
 
     return hasEmptyFields || isInvalid || isSameAsOriginal || isLoading;
   }, [moveCustomerformData, moveCustomer, isLoading]);

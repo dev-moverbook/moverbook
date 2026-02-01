@@ -137,15 +137,9 @@ export const getItemsAndCategoriesAndRoomsByCompany = query({
   ): Promise<GetItemsAndCategoriesAndRoomsByCompanyData> => {
     const { companyId } = args;
 
-    const identity = await requireAuthenticatedUser(ctx, [
-      ClerkRoles.ADMIN,
-      ClerkRoles.APP_MODERATOR,
-      ClerkRoles.MANAGER,
-      ClerkRoles.SALES_REP,
-    ]);
 
-    const company = await validateCompany(ctx.db, companyId);
-    isUserInOrg(identity, company.clerkOrganizationId);
+
+   await validateCompany(ctx.db, companyId);
 
     const items = await ctx.db
       .query("items")

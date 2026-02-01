@@ -50,7 +50,7 @@ const QuoteContactProvider = () => {
 
           <IconButton
             className="border-grayCustom "
-            icon={<X size={20} />}
+            icon={<X size={16} />}
             onClick={handleCancel}
             title="Cancel Edit"
           />
