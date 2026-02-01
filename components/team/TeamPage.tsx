@@ -16,7 +16,7 @@ import InvitedUsers from "@/components/team/InvitedUsers";
 const TeamPage: React.FC = () => {
   const { companyId, user } = useSlugContext();
 
-  const isCompanyManagerPermission = canManageCompany(user.role);
+  const isCompanyManagerPermission = canManageCompany(user?.role);
 
   const [isInviteModalOpen, setIsInviteModalOpen] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<string>("ACTIVE");

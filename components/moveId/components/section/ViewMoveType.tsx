@@ -17,8 +17,8 @@ const ViewMoveType: React.FC = () => {
   const move = moveData.move;
 
   const { user } = useSlugContext();
-  const canCreateMoveUser = canCreateMove(user.role) && !isMoveCompleted(move);
-  const isMoverUser = isMover(user.role);
+  const canCreateMoveUser = canCreateMove(user?.role) && !isMoveCompleted(move);
+  const isMoverUser = isMover(user?.role);
 
   const { updateMove, updateMoveLoading, updateMoveError } = useUpdateMove();
 

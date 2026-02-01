@@ -10,7 +10,6 @@ import { useState } from "react";
 import DuplicateMoveModal from "./modals/DuplicateMoveModal";
 import { useSlugContext } from "@/contexts/SlugContext";
 import { isMover } from "@/frontendUtils/permissions";
-import { ClerkRoles } from "@/types/enums";
 import type { Doc } from "@/convex/_generated/dataModel";
 import type { EnrichedMoveForMover } from "@/types/convex-responses";
 import SectionHeaderWithAction from "@/components/shared/section/SectionHeaderWithAction";
@@ -25,7 +24,7 @@ export default function CustomerMoves({
   moveCustomer,
 }: CustomerMovesProps) {
   const { slug, user } = useSlugContext();
-  const isMoverUser = isMover(user.role as ClerkRoles);
+  const isMoverUser = isMover(user?.role);
 
   const [isDuplicateMoveModalOpen, setIsDuplicateMoveModalOpen] =
     useState<boolean>(false);

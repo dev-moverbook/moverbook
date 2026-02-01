@@ -32,8 +32,8 @@ const CustomerInfo: React.FC<CustomerInfoProps> = ({
   isUneditable,
 }) => {
   const { user, companyId } = useSlugContext();
-  const canCreateMoveUser = canCreateMove(user.role);
-  const isMoverUser = isMover(user.role);
+  const canCreateMoveUser = canCreateMove(user?.role);
+  const isMoverUser = isMover(user?.role);
   const { name, phoneNumber, altPhoneNumber, email } = moveCustomer;
   const [isEditing, setIsEditing] = useState<boolean>(false);
 

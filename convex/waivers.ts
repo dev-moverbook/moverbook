@@ -7,7 +7,6 @@ import {
 import { v } from "convex/values";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import {
-  isIdentityInMove,
   isUserInOrg,
   validateCompany,
   validateDocExists,

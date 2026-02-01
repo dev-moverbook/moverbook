@@ -8,7 +8,7 @@ import { useSlugContext } from "@/contexts/SlugContext";
 
 const CalendarNav = () => {
   const { user } = useSlugContext();
-  const isMoverUser = isMover(user.role);
+  const isMoverUser = isMover(user?.role);
 
   return (
     <div className="px-4 md:px-0">

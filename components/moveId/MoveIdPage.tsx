@@ -25,7 +25,7 @@ const MoveIdPage = () => {
   const [selectedMove, setSelectedMove] = useState<Doc<"moves"> | null>(null);
 
   const { move, moveCustomer, salesRepUser } = moveData;
-  const role = user.role;
+  const role = user?.role;
 
   const isMoverUser = isMover(role);
   const isLeadMover = Boolean(isMoverUser && moveData.myAssignment?.isLead);

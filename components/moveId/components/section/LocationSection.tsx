@@ -17,7 +17,7 @@ const LocationSection = () => {
   const { moveData } = useMoveContext();
   const move = moveData.move;
   const { user } = useSlugContext();
-  const canCreateMoveUser = canCreateMove(user.role);
+  const canCreateMoveUser = canCreateMove(user?.role);
 
   const [editedLocations, setEditedLocations] = useState<LocationInput[]>(
     move.locations ?? []

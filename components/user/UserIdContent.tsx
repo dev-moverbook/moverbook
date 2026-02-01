@@ -47,7 +47,7 @@ const UserIdContent: React.FC = () => {
 
   const { user } = useSlugContext();
 
-  const isCompanyManagerPermission = canManageCompany(user.role);
+  const isCompanyManagerPermission = canManageCompany(user?.role);
 
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);

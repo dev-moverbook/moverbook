@@ -24,7 +24,7 @@ const Navbar = () => {
     useSlugContext();
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
-  const userRole = user.role;
+  const userRole = user?.role;
   const canCreateMoveUser = canCreateMove(userRole);
   const moverUser = isMover(userRole);
   const isAddMoveDisabled = !isCompanyContactComplete || !isStripeComplete;

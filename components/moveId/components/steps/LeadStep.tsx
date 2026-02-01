@@ -20,7 +20,7 @@ import InventoryMoverSection from "../section/InventoryMoverSection";
 
 const LeadStep = () => {
   const { user } = useSlugContext();
-  const canCreateMoverUser = canCreateMove(user.role);
+  const canCreateMoverUser = canCreateMove(user?.role);
 
   return (
     <div className="pb-20">

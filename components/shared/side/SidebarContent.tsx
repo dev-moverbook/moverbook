@@ -28,7 +28,7 @@ const SidebarContent = ({ onNavigate }: SidebarContentProps) => {
   const { isCompanyContactComplete, isStripeComplete, slug, user } =
     useSlugContext();
 
-  const role = user.role;
+  const role = user?.role;
   const canSeeAdmin = isCompanyAdminRole(role);
   const canSeeMovePages = canCreateMove(role);
   const canSeeCompanySetup = canManageCompany(role);
@@ -40,7 +40,7 @@ const SidebarContent = ({ onNavigate }: SidebarContentProps) => {
       <div className="flex items-center  gap-x-2 px-4 h-14 py-3 ">
         <UserButton />
         <div className="flex flex-col items-start justify-center leading-tight">
-          <p className="font-bold">{user.name}</p>
+          <p className="font-bold">{user?.name}</p>
           <p className="text-xs">{roleLabel}</p>
         </div>
       </div>

@@ -22,7 +22,7 @@ const MoveCardContainer: React.FC<MoveCardContainerProps> = ({
 }) => {
   const { user, slug } = useSlugContext();
   const { selectedStatuses } = useMoveFilter();
-  const isMoverUser = isMover(user.role);
+  const isMoverUser = isMover(user?.role);
   const isCompleted = selectedStatuses.includes("Completed");
   const showPayoutSummary = isMoverUser && isCompleted;
 
