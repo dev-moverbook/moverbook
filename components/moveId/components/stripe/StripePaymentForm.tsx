@@ -1,16 +1,15 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { CompleteCardInfo } from "@/types/types";
-import { PayButton } from "./formComponents/PayButton";
-import ButtonRadioGroup from "@/components/shared/labeled/ButtonRadioGroup";
-import { Label } from "@/components/ui/label";
-import { PaymentProcessingStatus } from "./formComponents/PaymentProcessngStatus";
 import {
   PaymentElement,
   useElements,
   useStripe,
 } from "@stripe/react-stripe-js";
+import ButtonRadioGroup from "@/components/shared/labeled/ButtonRadioGroup";
+import { PayButton } from "./formComponents/PayButton";
+import { PaymentProcessingStatus } from "./formComponents/PaymentProcessngStatus";
+import { CompleteCardInfo } from "@/types/types";
 
 interface StripePaymentFormProps {
   amount: number;
@@ -33,7 +32,9 @@ export function StripePaymentForm({
   const stripe = useStripe();
   const elements = useElements();
 
-  const [selection, setSelection] = useState<string>(cardInfo ? "saved" : "new");
+  const [selection, setSelection] = useState<"saved" | "new">(
+    cardInfo ? "saved" : "new"
+  );
   const [isComplete, setIsComplete] = useState<boolean>(false);
   const [isReady, setIsReady] = useState<boolean>(false);
   const [submitLoading, setSubmitLoading] = useState<boolean>(false);
@@ -64,99 +65,116 @@ export function StripePaymentForm({
 
   const handleSubmit = async () => {
     if (!stripe || !elements) {
-      setSubmitError("Stripe has not loaded properly.");
+      setSubmitError("Payment system not ready.");
       return;
     }
 
-    setIsTimedOut(false);
-    setHasStarted(true);
     setSubmitError(null);
     setSubmitLoading(true);
+    setHasStarted(true);
+    setIsTimedOut(false);
 
     try {
       if (selection === "saved") {
         await createPaymentIntent({ useSavedPaymentMethod: true });
         setIsSuccess(true);
-      } else {
-        const { error: stripeErr, setupIntent } = await stripe.confirmSetup({
+        return;
+      }
+
+      const paymentElement = elements.getElement(PaymentElement);
+
+      if (!paymentElement) {
+        throw new Error("Payment form is not mounted.");
+      }
+
+      await elements.submit();
+
+      const { error: stripeError, setupIntent } =
+        await stripe.confirmSetup({
           elements,
-          confirmParams: {
-          },
           redirect: "if_required",
         });
 
-        if (stripeErr){
-          throw stripeErr;
-        }
-
-        if (!setupIntent?.payment_method) {
-          throw new Error("No payment method returned from Stripe.");
-        }
-
-        await createPaymentIntent({
-          useSavedPaymentMethod: false,
-          manualPaymentMethodId: setupIntent.payment_method as string,
-        });
-        setIsSuccess(true);
+      if (stripeError){
+        throw stripeError;
       }
+
+      if (!setupIntent?.payment_method) {
+        throw new Error("No payment method returned from Stripe.");
+      }
+
+      await createPaymentIntent({
+        useSavedPaymentMethod: false,
+        manualPaymentMethodId: setupIntent.payment_method as string,
+      });
+
+      setIsSuccess(true);
     } catch (err) {
       console.error("Payment Error:", err);
-      setSubmitError(err instanceof Error ? err.message : "An unexpected error occurred.");
+      setSubmitError( "Payment failed.");
       setHasStarted(false);
     } finally {
       setSubmitLoading(false);
     }
   };
 
-  const isProcessing = (hasStarted && submitLoading) || (hasStarted && isSuccess) || isLoading;
-  const combinedError = submitError || error || (isTimedOut ? "Confirmation taking longer than expected." : null);
-  
-  const isSubmitDisabled = isProcessing || (selection === "new" && (!isComplete || !isReady));
+  const isProcessing =
+    (hasStarted && submitLoading) || (hasStarted && isSuccess) || isLoading;
 
-  if(isProcessing && !isTimedOut) {
-    return <PaymentProcessingStatus />
-  }
+  const combinedError =
+    submitError ||
+    error ||
+    (isTimedOut ? "Confirmation is taking longer than expected." : null);
 
-  return (
-    <div className="relative">
+  const isSubmitDisabled =
+    isProcessing || (selection === "new" && (!isComplete || !isReady));
+
+    return (
+      <div className="relative">
+        {isProcessing && !isTimedOut && (
+            <PaymentProcessingStatus />
+        )}
     
-
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleSubmit();
-        }}
-        className={`space-y-6 rounded-lg shadow-sm ${isProcessing ? 'opacity-50 pointer-events-none' : ''}`}
-      >
-        <ButtonRadioGroup
-          label="Payment Method"
-          name="paymentMethod"
-          options={paymentOptions}
-          value={selection}
-          onChange={(value) => setSelection(value as "saved" | "new")}
-          layout="vertical"
-          isEditing={!isProcessing}
-        />
-        <div className={selection === "new" ? "block" : "hidden"}>
-          <Label id="payment-information" className="mb-3 ">
-            Card Information
-          </Label>
-          <div className="">
-            <PaymentElement
-              options={{ layout: "tabs" }}
-              onChange={(e) => setIsComplete(e.complete)}
-              onReady={() => setIsReady(true)}
-            />
-          </div>
-        </div>
-
-        <PayButton
-          isDisabled={isSubmitDisabled}
-          loading={isProcessing}
-          amount={amount}
-          error={combinedError}
-        />
-      </form>
-    </div>
-  );
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit();
+          }}
+          className={` ${
+            isProcessing ? "hidden" : ""
+          }`}
+        >
+          <ButtonRadioGroup
+            label="Payment Method"
+            name="paymentMethod"
+            options={paymentOptions}
+            value={selection}
+            layout="vertical"
+            isEditing={!isProcessing}
+            onChange={(value) => {
+              setSelection(value as "saved" | "new");
+              setIsComplete(false);
+              setIsReady(false);
+            }}
+          />
+    
+          {selection === "new" && (
+            <div className="mt-4">
+              <PaymentElement
+                key="new-payment-element"
+                options={{ layout: "tabs" }}
+                onChange={(e) => setIsComplete(e.complete)}
+                onReady={() => setIsReady(true)}
+              />
+            </div>
+          )}
+    
+          <PayButton
+            isDisabled={isSubmitDisabled}
+            amount={amount}
+            error={combinedError}
+          />
+        </form>
+      </div>
+    );
 }

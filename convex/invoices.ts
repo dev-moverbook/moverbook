@@ -257,14 +257,6 @@ export const updateInvoiceCustomerInvoice = mutation({
   handler: async (ctx, args): Promise<boolean> => {
     const { invoiceId, updates } = args;
 
-    const identity = await requireAuthenticatedUser(ctx, [
-      ClerkRoles.ADMIN,
-      ClerkRoles.APP_MODERATOR,
-      ClerkRoles.MANAGER,
-      ClerkRoles.SALES_REP,
-      ClerkRoles.MOVER,
-    ]);
-
     const invoice = await validateDocument(
       ctx.db,
       "invoices",
@@ -282,8 +274,6 @@ export const updateInvoiceCustomerInvoice = mutation({
         showToUser: true,
       });
     }
-
-    isIdentityInMove(identity, move);
 
     const now = Date.now();
 

@@ -24,7 +24,6 @@ export default function PaymentWrapper({
   error,
   type,
 }: PaymentWrapperProps) {
-  const [loading, setLoading] = useState<boolean>(false);
   const [moveCustomerStripeProfile, setMoveCustomerStripeProfile] =
     useState<Doc<"moveCustomerStripeProfiles"> | null>(null);
 
@@ -45,12 +44,7 @@ export default function PaymentWrapper({
   );
 
   useEffect(() => {
-    if (
-      moveCustomerStripeProfile &&
-      !setupClientSecret &&
-      !setupLoading &&
-      !setupError
-    ) {
+    if (moveCustomerStripeProfile && !setupClientSecret && !setupLoading) {
       const fetchSecret = async () => {
         try {
           const { clientSecret } = await createSetupIntent(moveId);
@@ -61,14 +55,7 @@ export default function PaymentWrapper({
       };
       fetchSecret();
     }
-  }, [
-    moveCustomerStripeProfile,
-    setupClientSecret,
-    createSetupIntent,
-    moveId,
-    setupLoading,
-    setupError,
-  ]);
+  }, [moveCustomerStripeProfile, setupClientSecret, createSetupIntent, moveId, setupLoading]);
 
   const cardInfo = getDefaultPaymentMethodInfo(moveCustomerStripeProfile);
 
@@ -78,29 +65,27 @@ export default function PaymentWrapper({
       : null;
   }, [moveCustomerStripeProfile?.stripeConnectedAccountId]);
 
-
   if (!moveCustomerStripeProfile || error) {
     return (
       <ProceedButton
         setMoveCustomerStripeProfile={setMoveCustomerStripeProfile}
         moveId={moveId}
         paymentError={error}
-        setLoading={setLoading}
       />
     );
   }
 
-  if (!setupClientSecret || loading) {
-    return (
-      <PaymentSkeleton />
-    );
+  if (!setupClientSecret) {
+    return <PaymentSkeleton />;
   }
 
   return (
     <Elements
       stripe={stripePromise}
-      options={{ clientSecret: setupClientSecret, appearance: stripeDarkAppearance }}
-      key={moveCustomerStripeProfile.stripeConnectedAccountId}
+      options={{
+        clientSecret: setupClientSecret,
+        appearance: stripeDarkAppearance,
+      }}
     >
       <StripePaymentForm
         amount={amount}

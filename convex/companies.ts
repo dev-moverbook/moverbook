@@ -130,7 +130,9 @@ export const getCompanyIdBySlug = query({
   handler: async (ctx, args): Promise<GetCompanyIdBySlugResponse> => {
     const { slug } = args;
 
-    const identity = await requireAuthenticatedUser(ctx);
+    const identity = await ctx.auth.getUserIdentity();
+    const user = identity ? validateUser(await ctx.db.get(identity.convexId as Id<"users">)) : null;
+
 
     const company = await ctx.db
       .query("companies")
@@ -141,10 +143,7 @@ export const getCompanyIdBySlug = query({
       company,
       ErrorMessages.COMPANY_NOT_FOUND
     );
-      isUserInOrg(identity, validatedCompany.clerkOrganizationId);
 
-    const userId = identity.convexId as Id<"users">;
-    const user = validateUser(await ctx.db.get(userId), true);
 
     const connectedAccount: Doc<"connectedAccounts"> | null = await ctx.db
       .query("connectedAccounts")

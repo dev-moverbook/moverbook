@@ -6,8 +6,7 @@ import { Doc, Id } from "@/convex/_generated/dataModel";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import FullLoading from "@/components/shared/skeleton/FullLoading";
-import { RedirectToSignIn, useUser } from "@clerk/nextjs";
-import ErrorMessage from "@/components/shared/error/ErrorMessage";
+import { useUser } from "@clerk/nextjs";
 
 interface SlugContextType {
   slug: string;
@@ -15,7 +14,7 @@ interface SlugContextType {
   timeZone: string;
   isCompanyContactComplete?: boolean;
   isStripeComplete?: boolean;
-  user: Doc<"users">;
+  user: Doc<"users"> | null;
 }
 
 const SlugContext = createContext<SlugContextType | undefined>(undefined);
@@ -27,25 +26,17 @@ export const SlugProvider = ({
   initialSlug: string;
   children: React.ReactNode;
 }) => {
-  const { user, isLoaded } = useUser();
+  const { isLoaded } = useUser();
 
-  // ✅ Hook is ALWAYS called
   const company = useQuery(
     api.companies.getCompanyIdBySlug,
-    isLoaded && user ? { slug } : "skip"
+    isLoaded ? { slug } : "skip"
   );
 
-  // 1️⃣ Wait for Clerk
   if (!isLoaded) {
     return <FullLoading />;
   }
 
-  // 2️⃣ Signed out
-  if (!user) {
-    return <RedirectToSignIn />;
-  }
-
-  // 3️⃣ Data loading
   if (!company) {
     return <FullLoading />;
   }

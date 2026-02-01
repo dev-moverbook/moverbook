@@ -21,7 +21,6 @@ import {
   validateUser,
   validateCompanyContact,
   validateDocExists,
-  isIdentityInMove,
 } from "./backendUtils/validate";
 import { isUserInOrg } from "./backendUtils/validate";
 import {
@@ -1397,13 +1396,6 @@ export const getPublicMoveById = query({
   handler: async (ctx, args): Promise<PublicMoveData> => {
     const { moveId } = args;
 
-    const identity = await requireAuthenticatedUser(ctx, [
-      ClerkRoles.ADMIN,
-      ClerkRoles.APP_MODERATOR,
-      ClerkRoles.MANAGER,
-      ClerkRoles.SALES_REP,
-    ]);
-
     const move = validateDocExists(
       "moves",
       await ctx.runQuery(internal.moves.getMoveByIdInternal, {
@@ -1420,7 +1412,6 @@ export const getPublicMoveById = query({
       ErrorMessages.COMPANY_NOT_FOUND
     );
 
-    isIdentityInMove(identity, move);
 
     const quote = await ctx.runQuery(internal.quotes.getQuoteByMoveId, {
       moveId,

@@ -10,14 +10,12 @@ interface ProceedButtonProps {
   ) => void;
   moveId: Id<"moves">;
   paymentError?: string | null;
-  setLoading: (loading: boolean) => void;
 }
 
 const ProceedButton = ({
   setMoveCustomerStripeProfile,
   moveId,
   paymentError,
-  setLoading,
 }: ProceedButtonProps) => {
   const {
     ensureMoveCustomerStripeProfile,
@@ -26,12 +24,10 @@ const ProceedButton = ({
   } = useEnsureMoveCustomerStripeProfiel();
 
   const handleClick = async () => {
-    setLoading(true);
     const moveCustomerStripeProfile =
      await ensureMoveCustomerStripeProfile(moveId);
 
     setMoveCustomerStripeProfile(moveCustomerStripeProfile);
-    setLoading(false);
   };
 
 
@@ -40,7 +36,7 @@ const ProceedButton = ({
       submitLabel="Payment"
       onSubmit={handleClick}
       error={paymentError || error}
-      disabled={loading}
+      isSubmitting={loading}
     />
   );
 };

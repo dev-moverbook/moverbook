@@ -21,7 +21,7 @@ export interface GetCompanyIdBySlugResponse {
   timeZone: string;
   isCompanyContactComplete: boolean;
   isStripeComplete: boolean;
-  user: Doc<"users">;
+  user: Doc<"users"> | null;
 }
 
 export interface GetCompanyDetailsData {

@@ -2,7 +2,7 @@ import { ActionCtx, MutationCtx, QueryCtx } from "@/convex/_generated/server";
 import { ClerkRoles } from "@/types/enums";
 import { ErrorMessages } from "@/types/errors";
 import { UserIdentity } from "convex/server";
-import { ConvexError } from "convex/values";
+import { throwConvexError } from "./errors";
 
 export async function requireAuthenticatedUser(
   ctx: MutationCtx | ActionCtx | QueryCtx,
@@ -10,7 +10,7 @@ export async function requireAuthenticatedUser(
 ): Promise<UserIdentity> {
   const identity = await ctx.auth.getUserIdentity();
   if (!identity) {
-    throw new ConvexError({
+    throwConvexError({
       code: "UNAUTHORIZED",
       message: ErrorMessages.USER_NOT_AUTHENTICATED,
     });
@@ -19,7 +19,7 @@ export async function requireAuthenticatedUser(
   const userRole = identity.role as ClerkRoles;
 
   if (requiredRoles && !requiredRoles.includes(userRole)) {
-    throw new ConvexError({
+    throwConvexError({
       code: "FORBIDDEN",
       message: ErrorMessages.USER_FORBIDDEN_PERMISSION,
     });

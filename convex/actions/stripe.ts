@@ -7,11 +7,8 @@ import {
   createStripeCustomer,
   createStripeSetupIntent,
 } from "../functions/stripe";
-import { ClerkRoles } from "@/types/enums";
-import { requireAuthenticatedUser } from "../backendUtils/auth";
 import { internal } from "../_generated/api";
 import { throwConvexError } from "../backendUtils/errors";
-import { isIdentityInMove } from "../backendUtils/validate";
 import { ErrorMessages } from "@/types/errors";
 import Stripe from "stripe";
 import { Doc } from "../_generated/dataModel";
@@ -26,12 +23,6 @@ export const createPaymentIntent = action({
   handler: async (ctx, args) => {
     const { moveId, type, manualPaymentMethodId } = args;
 
-    await requireAuthenticatedUser(ctx, [
-      ClerkRoles.SALES_REP,
-      ClerkRoles.MANAGER,
-      ClerkRoles.ADMIN,
-      ClerkRoles.APP_MODERATOR,
-    ]);
     const move = await ctx.runQuery(internal.moves.getMoveByIdInternal, {
       moveId,
     });
@@ -138,12 +129,7 @@ export const createSetupIntent = action({
     moveId: v.id("moves"),
   },
   handler: async (ctx, { moveId }): Promise<{ clientSecret: string }> => {
-    const identity = await requireAuthenticatedUser(ctx, [
-      ClerkRoles.ADMIN,
-      ClerkRoles.APP_MODERATOR,
-      ClerkRoles.MANAGER,
-      ClerkRoles.SALES_REP,
-    ]);
+ 
 
     try {
       const move = await ctx.runQuery(internal.moves.getMoveByIdInternal, {
@@ -156,8 +142,6 @@ export const createSetupIntent = action({
           showToUser: true,
         });
       }
-
-      isIdentityInMove(identity, move);
 
       const company = await ctx.runQuery(
         internal.companies.getCompanyByIdInternal,
@@ -251,12 +235,7 @@ export const ensureMoveCustomerStripeProfile = action({
     { moveId }
   ): Promise<Doc<"moveCustomerStripeProfiles">> => {
     try {
-      const identity = await requireAuthenticatedUser(ctx, [
-        ClerkRoles.ADMIN,
-        ClerkRoles.APP_MODERATOR,
-        ClerkRoles.MANAGER,
-        ClerkRoles.SALES_REP,
-      ]);
+  
 
       const move = await ctx.runQuery(internal.moves.getMoveByIdInternal, {
         moveId,
@@ -269,7 +248,6 @@ export const ensureMoveCustomerStripeProfile = action({
         });
       }
 
-      isIdentityInMove(identity, move);
 
       const existingProfile = await ctx.runQuery(
         internal.moveCustomerStripeProfiles.getByMoveCustomerAndCompanyInternal,

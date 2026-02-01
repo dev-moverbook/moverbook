@@ -9,7 +9,6 @@ import { QuoteStatusConvex } from "./schema";
 import { requireAuthenticatedUser } from "./backendUtils/auth";
 import { ClerkRoles } from "@/types/enums";
 import {
-  isIdentityInMove,
   isUserInOrg,
   validateCompany,
   validateDocExists,
@@ -35,23 +34,13 @@ export const updateQuoteCustomerSignature = mutation({
   handler: async (ctx, args): Promise<boolean> => {
     const { quoteId, updates } = args;
 
-    const identity = await requireAuthenticatedUser(ctx);
-
-    const quote = await validateDocument(
+    await validateDocument(
       ctx.db,
       "quotes",
       quoteId,
       ErrorMessages.QUOTE_NOT_FOUND
     );
 
-    const move = await validateDocument(
-      ctx.db,
-      "moves",
-      quote.moveId,
-      ErrorMessages.MOVE_NOT_FOUND
-    );
-
-    isIdentityInMove(identity, move);
 
     await ctx.db.patch(quoteId, {
       customerSignature: updates.customerSignature,

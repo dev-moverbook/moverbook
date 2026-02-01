@@ -111,8 +111,6 @@ export const customerSignWaiver = action({
   handler: async (ctx, args): Promise<boolean> => {
     const { waiverId } = args;
 
-    const identity = await requireAuthenticatedUser(ctx);
-
     const waiver = await ctx.runQuery(internal.waivers.getWaiverByIdInternal, {
       waiverId,
     });
@@ -158,7 +156,6 @@ export const customerSignWaiver = action({
       })
    );
 
-    isIdentityInMove(identity, move);
 
     await ctx.runMutation(internal.waivers.updateWaiverInternal, {
       waiverId: validatedWaiver._id,

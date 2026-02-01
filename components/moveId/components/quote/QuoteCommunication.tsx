@@ -120,14 +120,13 @@ const QuoteCommunication = ({ move }: QuoteConfirmationProps) => {
     return <PaymentSuccess message="Payment Success!" />;
   }
 
-  // --- PAYMENT FLOW VIEW ---
   if (moveCustomerStripeProfile && move.deposit && move.deposit > 0) {
     return (
       <div>
         <Button
           variant="link"
           className="px-0 text-white mb-4 flex items-center gap-2 no-underline hover:no-underline"
-          disabled={isAnyLoading} // Disable back button while processing
+          disabled={isAnyLoading}
           onClick={() => {
             setMoveCustomerStripeProfile(null);
             setSetupClientSecret(null);
