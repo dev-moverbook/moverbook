@@ -17,7 +17,9 @@ export const generateSlug = (name: string): string => {
 };
 
 export const isValidPhoneNumber = (phone: string | null | undefined) => {
-  if (!phone) return false;
+  if (!phone) {
+    return false
+  }
 
   const phoneNumber = parsePhoneNumberFromString(phone, "US");
 

@@ -55,6 +55,7 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
         onChange={(val) => onChange(val ?? "")}
         className="w-full"
         numberInputProps={{
+          maxLength: 14,
           placeholder: placeholder ?? "(555) 555-5555",
           className: `
             w-full rounded-md border bg-transparent px-2 py-1 text-base

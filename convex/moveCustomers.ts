@@ -1,6 +1,5 @@
 import { v } from "convex/values";
 import {
-  action,
   internalMutation,
   internalQuery,
   mutation,
@@ -31,7 +30,6 @@ import { HourStatus } from "@/types/types";
 import { ErrorMessages } from "@/types/errors";
 import { internal } from "./_generated/api";
 import { throwConvexError } from "./backendUtils/errors";
-import { ServiceTypesConvex } from "@/types/convex-enums";
 import { validateAndFormatPhone } from "./backendUtils/helper";
 
 export const searchMoveCustomersAndJobId = query({
@@ -521,67 +519,6 @@ export const getCustomerAndMoves = query({
   },
 });
 
-export const createPublicMove = action({
-  args: {
-    companyId: v.id("companies"),
-    name: v.string(),
-    email: v.string(),
-    phoneNumber: v.string(),
-    altPhoneNumber: v.string(),
-    serviceType: ServiceTypesConvex,
-  },
-  handler: async (ctx, args): Promise<boolean> => {
-    const { companyId, name, email, phoneNumber, altPhoneNumber, serviceType } =
-      args;
-
-    const company = await ctx.runQuery(
-      internal.companies.getCompanyByIdInternal,
-      { companyId }
-    );
-    validateDocExists("companies", company, ErrorMessages.COMPANY_NOT_FOUND);
-
-    const existingCustomer = await ctx.runQuery(
-      internal.moveCustomers.getExistingMoveCustomerInternal,
-      { email, phoneNumber }
-    );
-
-    let moveCustomerId: Id<"moveCustomers">;
-
-    if (existingCustomer) {
-      moveCustomerId = existingCustomer._id;
-    } else {
-      moveCustomerId = await ctx.runMutation(
-        internal.moveCustomers.createMoveCustomerInternal,
-        { email, phoneNumber, name, altPhoneNumber, companyId }
-      );
-    }
-
-    const referral = await ctx.runQuery(
-      internal.referrals.getReferralByNameInternal,
-      { referralName: "Web Form" }
-    );
-
-    const moveId = await ctx.runMutation(internal.moves.createMoveInternal, {
-      companyId,
-      moveCustomerId,
-      serviceType,
-      referralId: referral?._id,
-      moveStatus: "New Lead",
-    });
-
-    await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
-      entry: {
-        type: "NEW_LEAD",
-        companyId,
-        moveCustomerId,
-        body: `A new lead was created from the web form.`,
-        moveId,
-      },
-    });
-
-    return true;
-  },
-});
 
 export const getExistingMoveCustomerInternal = internalQuery({
   args: {

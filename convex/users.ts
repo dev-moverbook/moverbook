@@ -391,3 +391,13 @@ export const getSalesRepsAndReferralByCompanyId = query({
   },
 });
 
+
+export const getAllNewLeadUsers= internalQuery({
+  args: {
+    companyId: v.id("companies"),
+  },
+  handler: async (ctx, args): Promise<Doc<"users">[]> => {
+    const { companyId } = args;
+    return await ctx.db.query("users").filter((q) => q.eq(q.field("companyId"), companyId)).filter((q) => q.or(q.eq(q.field("role"), ClerkRoles.SALES_REP), q.eq(q.field("role"), ClerkRoles.ADMIN), q.eq(q.field("role"), ClerkRoles.MANAGER))).filter((q) => q.eq(q.field("isActive"), true)).collect();
+  },
+});

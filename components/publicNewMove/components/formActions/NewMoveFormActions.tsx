@@ -12,9 +12,9 @@ interface NewMoveFormActionsProps {
 
 const NewMoveFormActions = ({ stepper }: NewMoveFormActionsProps) => {
   const { companyId } = useSlugContext();
-  const { publicNewMoveFormData, setIsMoveSubmitted, isSubmitDisabled } =
+  const { publicNewMoveFormData, setIsMoveSubmitted, isSubmitDisabled, isNextDisabled } =
     usePublicNewMoveForm();
-  const { createPublicMove, createPublicMoveLoading, createPublicMoveError } =
+  const { createPublicMove, isLoading, error } =
     useCreatePublicMove();
 
   const { step, next, back } = stepper;
@@ -39,12 +39,13 @@ const NewMoveFormActions = ({ stepper }: NewMoveFormActionsProps) => {
   };
 
   const handleBack = () => {
-    if (step > 1) back();
+    if (step > 1){
+      back();
+    }
   };
 
   const submitText = step === 1 ? "Next" : "Submit";
-
-  const isDisabled = step === 2 ? isSubmitDisabled : false;
+  const isDisabled = step === 1 ? isNextDisabled : isSubmitDisabled;
 
   return (
     <FormActions
@@ -53,10 +54,10 @@ const NewMoveFormActions = ({ stepper }: NewMoveFormActionsProps) => {
         handleNext();
       }}
       onCancel={handleBack}
-      isSaving={createPublicMoveLoading}
+      isSaving={isLoading}
       saveLabel={submitText}
       cancelLabel="Back"
-      error={createPublicMoveError}
+      error={error}
       disabled={isDisabled}
     />
   );

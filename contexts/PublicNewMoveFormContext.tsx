@@ -27,6 +27,7 @@ interface PublicNewMoveFormContextType {
   isMoveSubmitted: boolean;
   setIsMoveSubmitted: Dispatch<SetStateAction<boolean>>;
   isSubmitDisabled: boolean;
+  isNextDisabled: boolean;
 }
 
 const PublicNewMoveFormContext = createContext<
@@ -53,8 +54,15 @@ export const PublicNewMoveFormProvider = ({
       !publicNewMoveFormData.name ||
       !isValidEmail(publicNewMoveFormData.email) ||
       !isValidPhoneNumber(publicNewMoveFormData.phoneNumber) ||
-      !isValidPhoneNumber(publicNewMoveFormData.altPhoneNumber) ||
       !publicNewMoveFormData.serviceType
+    );
+  }, [publicNewMoveFormData]);
+
+  const isNextDisabled = useMemo(() => {
+    return (
+      !publicNewMoveFormData.name ||
+      !isValidEmail(publicNewMoveFormData.email) ||
+      !isValidPhoneNumber(publicNewMoveFormData.phoneNumber)
     );
   }, [publicNewMoveFormData]);
 
@@ -63,8 +71,9 @@ export const PublicNewMoveFormProvider = ({
     setPublicNewMoveFormData,
     isMoveSubmitted,
     setIsMoveSubmitted,
-    isSubmitDisabled,
-  };
+      isSubmitDisabled,
+    isNextDisabled,
+    };
 
   return (
     <PublicNewMoveFormContext.Provider value={value}>

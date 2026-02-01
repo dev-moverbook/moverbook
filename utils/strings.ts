@@ -20,3 +20,10 @@ export const textToEmailHtml = (text: string): string => {
 
   return `<p>${linked.replace(/\n/g, "<br />")}</p>`;
 };
+
+export const emptyToUndefined = (value: string | undefined | null): string | undefined => {
+  if (!value || value.trim() === "") {
+    return undefined;
+  }
+  return value;
+};

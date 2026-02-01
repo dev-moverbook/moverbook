@@ -16,7 +16,7 @@ const PublicNewMoveSteps = ({ stepper }: PublicNewMoveStepsProps) => {
     <>
       <Stepper
         currentStep={step}
-        steps={[{ label: "Move" }, { label: "Contact" }]}
+        steps={[ { label: "Contact" },{ label: "Move" }]}
         onStepClick={setStep}
       />
       {step === 1 && <ContactsStep />}

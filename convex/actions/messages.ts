@@ -4,6 +4,7 @@ import {
   CommunicationTypeConvex,
   MessageSentTypeConvex,
   PresSetScriptsConvex,
+  ServiceTypesConvex,
 } from "@/types/convex-enums";
 import { ClerkRoles } from "@/types/enums";
 import { ErrorMessages } from "@/types/errors";
@@ -33,6 +34,7 @@ import {
 import { sendTwilioSms } from "../functions/twilio";
 import { sendSendGridEmail } from "../backendUtils/sendGrid";
 import { getMoveRelayAddress } from "../backendUtils/email";
+import { clientEnv } from "@/frontendUtils/clientEnv";
 
 export const sendPresetScript = action({
   args: {
@@ -536,6 +538,98 @@ export const markInvoiceAsComplete = action({
       console.error(error);
     }
 
+    return true;
+  },
+});
+
+export const createPublicMove = action({
+  args: {
+    companyId: v.id("companies"),
+    name: v.string(),
+    email: v.string(),
+    phoneNumber: v.string(),
+    altPhoneNumber: v.optional(v.string()),
+    serviceType: ServiceTypesConvex,
+  },
+  handler: async (ctx, args): Promise<boolean> => {
+    const { companyId, name, email, phoneNumber, altPhoneNumber, serviceType } =
+      args;
+
+    const company = await ctx.runQuery(
+      internal.companies.getCompanyByIdInternal,
+      { companyId }
+    );
+    const validatedCompany = validateDocExists("companies", company, ErrorMessages.COMPANY_NOT_FOUND);
+
+    const existingCustomer = await ctx.runQuery(
+      internal.moveCustomers.getExistingMoveCustomerInternal,
+      { email, phoneNumber }
+    );
+
+    let moveCustomerId: Id<"moveCustomers">;
+
+    if (existingCustomer) {
+      moveCustomerId = existingCustomer._id;
+    } else {
+      moveCustomerId = await ctx.runMutation(
+        internal.moveCustomers.createMoveCustomerInternal,
+        { email, phoneNumber, name, altPhoneNumber, companyId }
+      );
+    }
+
+    const referral = await ctx.runQuery(
+      internal.referrals.getReferralByNameInternal,
+      { referralName: "Web Form" }
+    );
+
+    const moveId = await ctx.runMutation(internal.moves.createMoveInternal, {
+      companyId,
+      moveCustomerId,
+      serviceType,
+      referralId: referral?._id,
+      moveStatus: "New Lead",
+    });
+
+    await ctx.runMutation(internal.newsfeeds.createNewsFeedEntry, {
+      entry: {
+        type: "NEW_LEAD",
+        companyId,
+        moveCustomerId,
+        body: `A new lead was created from the web form.`,
+        moveId,
+      },
+    });
+
+    const newLeadUsers = await ctx.runQuery(internal.users.getAllNewLeadUsers, {
+      companyId,
+    });
+
+    const adminEmails = newLeadUsers
+      .map((user) => user.email)
+
+    if (adminEmails.length > 0) {
+      try {
+        await sendSendGridEmail({
+          toEmail: adminEmails,
+          subject: `🚨 New Lead: ${name}`,
+          bodyText: `
+            You have a new lead from your web form!
+            
+            Customer: ${name}
+            Email: ${email}
+            Phone: ${phoneNumber}
+            Service: ${serviceType}
+            
+            View this lead in your dashboard: ${clientEnv().NEXT_PUBLIC_APP_URL}/admin/${validatedCompany.slug}/moves/${moveId}
+          `,
+          formatTextToHtml: true,
+        });
+      } catch (error) {
+        console.error("Failed to send lead notification email:", error);
+      }
+    }
+
+  
     return true;
   },
 });

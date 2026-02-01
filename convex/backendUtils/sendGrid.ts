@@ -103,7 +103,7 @@ export const sendSendGridEmail = async ({
   attachments,
   formatTextToHtml = false,
 }: {
-  toEmail: string;
+  toEmail: string | string[]; 
   ccEmails?: string[];
   bccEmails?: string[];
   subject: string;
@@ -124,24 +124,23 @@ export const sendSendGridEmail = async ({
   sgMail.setApiKey(SENDGRID_API_KEY);
 
   let finalHtml: string;
-
   if (formatTextToHtml) {
     finalHtml = textToEmailHtml(bodyText);
   } else {
-    finalHtml = bodyHtml ?? `<p>${bodyText}</p>`;
+    finalHtml = bodyHtml ?? `<p>${bodyText.replace(/\n/g, "<br/>")}</p>`;
   }
 
   const hasCc = Array.isArray(ccEmails) && ccEmails.length > 0;
   const hasBcc = Array.isArray(bccEmails) && bccEmails.length > 0;
   const hasAttachments = Array.isArray(attachments) && attachments.length > 0;
 
-  const msg = {
+  const msg: sgMail.MailDataRequired = {
     to: toEmail,
     from: {
       email: SENDGRID_FROM_EMAIL,
-      name: replyToName,
+      name: replyToName || "MoverBook Notifications",
     },
-    subject,
+    subject: subject,
     text: bodyText,
     html: finalHtml,
     ...(hasAttachments && { attachments }),
@@ -157,8 +156,11 @@ export const sendSendGridEmail = async ({
 
   try {
     const [response] = await sgMail.send(msg);
+
     return (
-      response.headers["x-message-id"] ?? response.headers["x-msg-id"] ?? ""
+      (response.headers["x-message-id"] as string) ?? 
+      (response.headers["x-msg-id"] as string) ?? 
+      ""
     );
   } catch (error: unknown) {
     const err = error as SendGridError;
@@ -166,7 +168,7 @@ export const sendSendGridEmail = async ({
     console.error("SendGrid email failed:", {
       message: err.message,
       code: err.code,
-      errors: err.response?.body?.errors,
+      responseErrors: err.response?.body?.errors,
     });
 
     throw new Error(ErrorMessages.SENDGRID_EMAIL_FAILED);

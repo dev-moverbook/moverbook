@@ -6,6 +6,7 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { setErrorFromConvexError } from "@/frontendUtils/errorHelper";
 import { ServiceType } from "@/types/types";
+import { emptyToUndefined } from "@/utils/strings";
 
 interface CreatePublicMoveInput {
   companyId: Id<"companies">;
@@ -17,36 +18,40 @@ interface CreatePublicMoveInput {
 }
 
 export const useCreatePublicMove = () => {
-  const [createPublicMoveLoading, setCreatePublicMoveLoading] =
+  const [isLoading, setIsLoading] =
     useState<boolean>(false);
-  const [createPublicMoveError, setCreatePublicMoveError] = useState<
+  const [error, setError] = useState<
     string | null
   >(null);
 
   const createPublicMoveMutation = useAction(
-    api.moveCustomers.createPublicMove
+    api.actions.messages.createPublicMove
   );
 
   const createPublicMove = async (
     data: CreatePublicMoveInput
   ): Promise<boolean> => {
-    setCreatePublicMoveLoading(true);
-    setCreatePublicMoveError(null);
+    setIsLoading(true);
+    setError(null);
 
     try {
-      return await createPublicMoveMutation(data);
+      const payload = {
+        ...data,
+        altPhoneNumber: emptyToUndefined(data.altPhoneNumber),      };
+
+      return await createPublicMoveMutation(payload);
     } catch (error) {
-      setErrorFromConvexError(error, setCreatePublicMoveError);
+      setErrorFromConvexError(error, setError);
       return false;
     } finally {
-      setCreatePublicMoveLoading(false);
+      setIsLoading(false);
     }
   };
 
   return {
     createPublicMove,
-    createPublicMoveLoading,
-    createPublicMoveError,
-    setCreatePublicMoveError,
+    isLoading,
+    error,
+    setError,
   };
 };
