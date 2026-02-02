@@ -15,22 +15,24 @@ const CustomerCard = ({ moveCustomer }: CustomerCardProps) => {
 
   return (
     <CustomCard className="items-center justify-between gap-4 p-4">
-      <div className="flex justify-between items-center gap-1">
-        <div>
+      <div className="flex justify-between items-center gap-1 mb-2">
+        <div >
           <CardHeaderWithActions title="Customer" className="p-0" />
           <p className="font-medium text-grayCustom2">{name}</p>
         </div>
       </div>
 
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-1.5">
         <div className="flex items-center text-sm  text-grayCustom2 gap-2 mt-1">
           <Phone className="w-4 h-4 text-white" />
           <span>{phoneNumber && formatPhoneNumber(phoneNumber)}</span>
         </div>
+        {altPhoneNumber && (
         <div className="flex items-center text-sm  text-grayCustom2 gap-2 mt-1">
           <PhoneForwarded className="w-4 h-4 text-white" />
-          <span>{altPhoneNumber && formatPhoneNumber(altPhoneNumber)}</span>
+          <span>{ formatPhoneNumber(altPhoneNumber)}</span>
         </div>
+        )}
 
         <div className="flex items-center text-sm  text-grayCustom2 gap-2">
           <Mail className="w-4 h-4 text-white" />

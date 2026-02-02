@@ -92,7 +92,7 @@ export const plotMarginFunnel: PlotMargin = {
   bottom: 0,
 };
 
-export const X_TICK_STYLE = { fill: "#9CA3AF", fontSize: 12 }; // change to 14/16 etc.
+export const X_TICK_STYLE = { fill: "#9CA3AF", fontSize: 12 }; 
 export const Y_TICK_STYLE = { fill: "#9CA3AF", fontSize: 12 };
 
 export const strokeTealFunnel = "rgb(20,184,166)";

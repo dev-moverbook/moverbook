@@ -174,7 +174,7 @@ const QuoteCommunication = ({ move }: QuoteConfirmationProps) => {
         error={sendPresetScriptError || error || ensureProfileError}
       >
         <Button
-          variant="ghost"
+        variant="outline"
           onClick={() => handleSend("email")}
           isLoading={activeLoading === "email"}
           disabled={isAnyLoading && activeLoading !== "email"}
@@ -183,7 +183,7 @@ const QuoteCommunication = ({ move }: QuoteConfirmationProps) => {
           Email
         </Button>
         <Button
-          variant="ghost"
+          variant="outline"
           onClick={() => handleSend("sms")}
           isLoading={activeLoading === "sms"}
           disabled={isAnyLoading && activeLoading !== "sms"}

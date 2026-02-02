@@ -17,7 +17,7 @@ const ContactCard = ({ salesRep, companyContact }: ContactCardProps) => {
   const { phoneNumber } = companyContact;
   return (
     <CustomCard className="items-center justify-between gap-4 p-4">
-      <div className="flex justify-between items-center gap-1">
+      <div className="flex justify-between items-center gap-1 mb-2">
         <div>
           <CardHeaderWithActions title="Sales Rep" className="p-0" />
           <p className="font-medium text-grayCustom2">{name}</p>
@@ -35,7 +35,7 @@ const ContactCard = ({ salesRep, companyContact }: ContactCardProps) => {
         )}
       </div>
 
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-1.5">
         <div className="flex items-center text-sm  text-grayCustom2 gap-2 mt-1">
           <Phone className="w-4 h-4 text-white" />
           <span>{formatPhoneNumber(phoneNumber)}</span>

@@ -178,7 +178,7 @@ const InvoiceCommunication = ({
         className="mt-0"
       >
         <Button
-          variant="ghost"
+          variant="outline"
           onClick={() => handleSend("email")}
           isLoading={activeLoading === "email"}
           disabled={isAnyLoading && activeLoading !== "email"}
@@ -187,7 +187,7 @@ const InvoiceCommunication = ({
           Email
         </Button>
         <Button
-          variant="ghost"
+          variant="outline"
           onClick={() => handleSend("sms")}
           isLoading={activeLoading === "sms"}
           disabled={isAnyLoading && activeLoading !== "sms"}
